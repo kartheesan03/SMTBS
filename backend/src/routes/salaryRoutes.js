@@ -6,7 +6,7 @@ const {
     createSalaryRecord,
     getAllSalaries,
     approveSalaryRecord
-} = require('../controllers/salaryController');
+} = require('../controllers/salarycontroller');
 const { protect } = require('../middleware/authMiddleware');
 const { authorize } = require('../middleware/roleMiddleware');
 

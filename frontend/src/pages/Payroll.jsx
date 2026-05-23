@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import API from '../api/axios';
 import DataTable from '../components/Dashboard/DataTable';
 import { DollarSign, FileText, Download, TrendingUp, X, CheckCircle, Clock, Loader, User, AlertCircle, Check } from 'lucide-react';
+import { generatePayslipPDF } from '../utils/pdfGenerator';
 
 const Payroll = () => {
     const [salaries, setSalaries] = useState([]);
@@ -11,6 +12,7 @@ const Payroll = () => {
     const [showViewModal, setShowViewModal] = useState(false);
     const [selectedSalary, setSelectedSalary] = useState(null);
     const [submitting, setSubmitting] = useState(false);
+    const [downloading, setDownloading] = useState(false);
 
     const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
     const isAdmin = userInfo.role === 'Admin';
@@ -78,6 +80,19 @@ const Payroll = () => {
     const handleViewDetails = (s) => {
         setSelectedSalary(s);
         setShowViewModal(true);
+    };
+
+    const handleDownload = async (record) => {
+        try {
+            setDownloading(true);
+            const employeeName = record.employee?.userId?.name || 'Employee';
+            await generatePayslipPDF(record, employeeName);
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            alert('Failed to generate payslip PDF');
+        } finally {
+            setDownloading(false);
+        }
     };
 
     const stats = {

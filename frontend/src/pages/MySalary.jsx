@@ -35,8 +35,17 @@ const MySalaryPage = () => {
         setShowModal(true);
     };
 
-    const handleDownload = (record) => {
-        alert(`Downloading payslip for ${record.month}...`);
+    const handleDownload = async (record) => {
+        try {
+            setDownloading(true);
+            const employeeName = userInfo.name || 'Employee';
+            await generatePayslipPDF(record, employeeName);
+        } catch (error) {
+            console.error('Error downloading payslip:', error);
+            alert('Failed to generate payslip PDF');
+        } finally {
+            setDownloading(false);
+        }
     };
 
     if (loading) return (

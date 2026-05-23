@@ -3,7 +3,7 @@ const router  = express.Router();
 const {
     applyLeave, getMyLeaves, cancelLeave,
     getAllLeaves, reviewLeave, getLeaveBalance
-} = require('../controllers/leaveController');
+} = require('../controllers/leavecontroller');
 const { protect }   = require('../middleware/authMiddleware');
 const { authorize } = require('../middleware/roleMiddleware');
 

@@ -6,7 +6,7 @@ const {
     checkOut, 
     getMyAttendanceHistory,
     getAllAttendance
-} = require('../controllers/attendanceController');
+} = require('../controllers/attendancecontroller');
 const { protect } = require('../middleware/authMiddleware');
 const { authorize } = require('../middleware/roleMiddleware');
 

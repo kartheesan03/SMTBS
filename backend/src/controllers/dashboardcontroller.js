@@ -61,7 +61,7 @@ const getDashboardStats = async (req, res) => {
                 {
                     $project: {
                         name: {
-                            $arrayAt: [
+                            $arrayElemAt: [
                                 ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
                                 { $ifNull: ["$_id", 0] }
                             ]
@@ -119,7 +119,7 @@ const getDashboardStats = async (req, res) => {
                 ]);
                 data.salesStats = {
                     totalLeads: stats.totalLeads,
-                    convertedLeads: await Lead.countDocuments({ status: 'Converted' }),
+                    convertedLeads: await Lead.countDocuments({ status: 'Converted to Vendor' }),
                     pipelineData: pipelineData || []
                 };
             } catch (e) { console.error('Sales Pipeline Aggregation Error:', e); }

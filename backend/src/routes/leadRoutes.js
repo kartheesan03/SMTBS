@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getLeads, createLead, updateLead, convertToVendor } = require('../controllers/leadController');
+const { getLeads, createLead, updateLead, convertToVendor } = require('../controllers/leadcontroller');
 const { protect } = require('../middleware/authMiddleware');
 const { authorize } = require('../middleware/roleMiddleware');
 

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getVendors, createVendor } = require('../controllers/vendorController');
+const { getVendors, createVendor } = require('../controllers/vendorcontroller');
 const { protect } = require('../middleware/authMiddleware');
 
 router.route('/')

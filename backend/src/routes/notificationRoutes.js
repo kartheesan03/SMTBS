@@ -6,7 +6,7 @@ const {
     markAllAsRead,
     deleteNotification,
     seedNotifications
-} = require('../controllers/notificationController');
+} = require('../controllers/notificationcontroller');
 const { protect } = require('../middleware/authMiddleware');
 const { authorize } = require('../middleware/roleMiddleware');
 
