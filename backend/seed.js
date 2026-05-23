@@ -22,7 +22,7 @@ const seedData = async () => {
         await mongoose.connect(process.env.MONGO_URI);
         console.log('MongoDB connected for seeding...');
 
-        // 1. Clear existing collections
+        // 1. Clear all existing collections
         await User.deleteMany();
         await Material.deleteMany();
         await Employee.deleteMany();
@@ -35,20 +35,24 @@ const seedData = async () => {
         await Salary.deleteMany();
         await Task.deleteMany();
         await Notification.deleteMany();
-        console.log('Cleared existing database entries.');
+        console.log('Cleared all existing database entries.');
 
-        // 2. Create Users (with password hashing handled in pre-save)
+        // ===================================================================
+        // 2. USERS — Tamil Nadu based names
+        // ===================================================================
         const userDocs = [
-            { name: 'Sarah Connor', email: 'admin@smtbms.com', password: 'admin123', role: 'Admin' },
-            { name: 'Alex Mercer', email: 'admin2@smtbms.com', password: 'admin123', role: 'Admin' },
-            { name: 'Carol White', email: 'hr@smtbms.com', password: 'hr123', role: 'HR' },
-            { name: 'David Miller', email: 'hr2@smtbms.com', password: 'hr123', role: 'HR' },
-            { name: 'Alice Johnson', email: 'manager@smtbms.com', password: 'manager123', role: 'Manager' },
-            { name: 'Frank Castillo', email: 'manager2@smtbms.com', password: 'manager123', role: 'Manager' },
-            { name: 'Bob Smith', email: 'sales@smtbms.com', password: 'sales123', role: 'Sales' },
-            { name: 'Grace Hopper', email: 'sales2@smtbms.com', password: 'sales123', role: 'Sales' },
-            { name: 'David Brown', email: 'employee@smtbms.com', password: 'employee123', role: 'Employee' },
-            { name: 'Elena Rostova', email: 'employee2@smtbms.com', password: 'employee123', role: 'Employee' }
+            { name: 'Karthikeyan Rajan', email: 'admin@smtbms.com', password: 'admin123', role: 'Admin' },
+            { name: 'Meena Sundar', email: 'admin2@smtbms.com', password: 'admin123', role: 'Admin' },
+            { name: 'Priya Devi', email: 'hr@smtbms.com', password: 'hr123', role: 'HR' },
+            { name: 'Lakshmi Narayanan', email: 'hr2@smtbms.com', password: 'hr123', role: 'HR' },
+            { name: 'Murugan Selvam', email: 'manager@smtbms.com', password: 'manager123', role: 'Manager' },
+            { name: 'Anitha Bala', email: 'manager2@smtbms.com', password: 'manager123', role: 'Manager' },
+            { name: 'Senthil Kumar', email: 'sales@smtbms.com', password: 'sales123', role: 'Sales' },
+            { name: 'Kavitha Ramesh', email: 'sales2@smtbms.com', password: 'sales123', role: 'Sales' },
+            { name: 'Rajesh Kannan', email: 'employee@smtbms.com', password: 'employee123', role: 'Employee' },
+            { name: 'Divya Prakash', email: 'employee2@smtbms.com', password: 'employee123', role: 'Employee' },
+            { name: 'Venkatesh Iyer', email: 'employee3@smtbms.com', password: 'employee123', role: 'Employee' },
+            { name: 'Saranya Mohan', email: 'employee4@smtbms.com', password: 'employee123', role: 'Employee' }
         ];
 
         const createdUsers = [];
@@ -58,140 +62,214 @@ const seedData = async () => {
         }
         console.log(`Seeded ${createdUsers.length} Users.`);
 
-        const adminUser = createdUsers.find(u => u.role === 'Admin');
-        const hrUser = createdUsers.find(u => u.role === 'HR');
-        const managerUser = createdUsers.find(u => u.role === 'Manager');
-        const salesUser = createdUsers.find(u => u.role === 'Sales');
-        const employeeUser = createdUsers.find(u => u.role === 'Employee');
+        const adminUser = createdUsers.find(u => u.email === 'admin@smtbms.com');
+        const hrUser = createdUsers.find(u => u.email === 'hr@smtbms.com');
+        const hrUser2 = createdUsers.find(u => u.email === 'hr2@smtbms.com');
+        const managerUser = createdUsers.find(u => u.email === 'manager@smtbms.com');
+        const managerUser2 = createdUsers.find(u => u.email === 'manager2@smtbms.com');
+        const salesUser = createdUsers.find(u => u.email === 'sales@smtbms.com');
+        const salesUser2 = createdUsers.find(u => u.email === 'sales2@smtbms.com');
+        const empUser1 = createdUsers.find(u => u.email === 'employee@smtbms.com');
+        const empUser2 = createdUsers.find(u => u.email === 'employee2@smtbms.com');
+        const empUser3 = createdUsers.find(u => u.email === 'employee3@smtbms.com');
+        const empUser4 = createdUsers.find(u => u.email === 'employee4@smtbms.com');
 
-        // 3. Create Employees (linked to their respective Users)
+        // ===================================================================
+        // 3. EMPLOYEES — Tamil Nadu cities and departments
+        // ===================================================================
         const employeeDocs = [
-            { userId: managerUser._id, employeeId: 'EMP001', firstName: 'Alice', lastName: 'Johnson', department: 'Production', designation: 'Production Manager', salary: 5500, contact: '555-0101', address: '123 Steel Rd, Factory City' },
-            { userId: salesUser._id, employeeId: 'EMP002', firstName: 'Bob', lastName: 'Smith', department: 'Sales', designation: 'Sales Representative', salary: 4000, contact: '555-0102', address: '456 Deal Ave, Business District' },
-            { userId: hrUser._id, employeeId: 'EMP003', firstName: 'Carol', lastName: 'White', department: 'HR', designation: 'HR Lead', salary: 4800, contact: '555-0103', address: '789 Talent Dr, People Ville' },
-            { userId: employeeUser._id, employeeId: 'EMP004', firstName: 'David', lastName: 'Brown', department: 'Warehouse', designation: 'Stock Controller', salary: 3200, contact: '555-0104', address: '101 Cargo St, Logistics Zone' }
+            { userId: managerUser._id, employeeId: 'EMP001', firstName: 'Murugan', lastName: 'Selvam', department: 'Production', designation: 'Production Manager', salary: 55000, contact: '9876543210', address: '12, Anna Nagar, Coimbatore, Tamil Nadu 641001' },
+            { userId: managerUser2._id, employeeId: 'EMP002', firstName: 'Anitha', lastName: 'Bala', department: 'Operations', designation: 'Operations Manager', salary: 52000, contact: '9876543211', address: '45, Gandhipuram, Coimbatore, Tamil Nadu 641012' },
+            { userId: salesUser._id, employeeId: 'EMP003', firstName: 'Senthil', lastName: 'Kumar', department: 'Sales', designation: 'Senior Sales Executive', salary: 42000, contact: '9876543212', address: '78, T. Nagar, Chennai, Tamil Nadu 600017' },
+            { userId: salesUser2._id, employeeId: 'EMP004', firstName: 'Kavitha', lastName: 'Ramesh', department: 'Sales', designation: 'Sales Representative', salary: 32000, contact: '9876543213', address: '23, KK Nagar, Madurai, Tamil Nadu 625020' },
+            { userId: hrUser._id, employeeId: 'EMP005', firstName: 'Priya', lastName: 'Devi', department: 'HR', designation: 'HR Lead', salary: 48000, contact: '9876543214', address: '56, RS Puram, Coimbatore, Tamil Nadu 641002' },
+            { userId: hrUser2._id, employeeId: 'EMP006', firstName: 'Lakshmi', lastName: 'Narayanan', department: 'HR', designation: 'HR Executive', salary: 35000, contact: '9876543215', address: '89, Adyar, Chennai, Tamil Nadu 600020' },
+            { userId: empUser1._id, employeeId: 'EMP007', firstName: 'Rajesh', lastName: 'Kannan', department: 'Warehouse', designation: 'Stock Controller', salary: 28000, contact: '9876543216', address: '34, Singanallur, Coimbatore, Tamil Nadu 641005' },
+            { userId: empUser2._id, employeeId: 'EMP008', firstName: 'Divya', lastName: 'Prakash', department: 'Production', designation: 'Quality Inspector', salary: 30000, contact: '9876543217', address: '67, Saravanampatti, Coimbatore, Tamil Nadu 641035' },
+            { userId: empUser3._id, employeeId: 'EMP009', firstName: 'Venkatesh', lastName: 'Iyer', department: 'Logistics', designation: 'Dispatch Coordinator', salary: 26000, contact: '9876543218', address: '12, Peelamedu, Coimbatore, Tamil Nadu 641004' },
+            { userId: empUser4._id, employeeId: 'EMP010', firstName: 'Saranya', lastName: 'Mohan', department: 'Accounts', designation: 'Accounts Assistant', salary: 25000, contact: '9876543219', address: '90, Kuniyamuthur, Coimbatore, Tamil Nadu 641008' }
         ];
 
         const createdEmployees = await Employee.insertMany(employeeDocs);
-        console.log(`Seeded ${createdEmployees.length} Employees linked to Users.`);
+        console.log(`Seeded ${createdEmployees.length} Employees.`);
 
-        // 4. Create Materials
+        // ===================================================================
+        // 4. MATERIALS — Industrial materials with INR pricing
+        // ===================================================================
         const materialDocs = [
-            { name: 'Steel Rods (10mm)', sku: 'ST-001', category: 'Raw Metal', quantity: 240, lowStockThreshold: 50, unit: 'kg', price: 45, status: 'In Stock' },
-            { name: 'Aluminum Sheets (2mm)', sku: 'AL-002', category: 'Raw Metal', quantity: 8, lowStockThreshold: 15, unit: 'pcs', price: 120, status: 'Low Stock' },
-            { name: 'Copper Wires (5A)', sku: 'CP-003', category: 'Wiring', quantity: 800, lowStockThreshold: 100, unit: 'm', price: 12, status: 'In Stock' },
-            { name: 'Iron Beams (H-Shape)', sku: 'IR-004', category: 'Raw Metal', quantity: 45, lowStockThreshold: 10, unit: 'pcs', price: 280, status: 'In Stock' },
-            { name: 'Brass Pipes (0.5")', sku: 'BR-005', category: 'Plumbing', quantity: 3, lowStockThreshold: 20, unit: 'm', price: 35, status: 'Low Stock' },
-            { name: 'Zinc Plates (A4)', sku: 'ZN-006', category: 'Plates', quantity: 15, lowStockThreshold: 10, unit: 'pcs', price: 55, status: 'In Stock' },
-            { name: 'Nickel Coils (Premium)', sku: 'NK-007', category: 'Raw Metal', quantity: 0, lowStockThreshold: 5, unit: 'kg', price: 190, status: 'Out of Stock' },
-            { name: 'Solder Reels (60/40)', sku: 'SD-008', category: 'Wiring', quantity: 120, lowStockThreshold: 30, unit: 'pcs', price: 25, status: 'In Stock' }
+            { name: 'TMT Steel Bars (12mm)', sku: 'TMT-001', category: 'Construction Steel', quantity: 500, lowStockThreshold: 100, unit: 'kg', price: 62, status: 'In Stock' },
+            { name: 'MS Angle (50x50x6)', sku: 'MSA-002', category: 'Structural Steel', quantity: 12, lowStockThreshold: 20, unit: 'pcs', price: 850, status: 'Low Stock' },
+            { name: 'Copper Wire (2.5 sqmm)', sku: 'CW-003', category: 'Electrical', quantity: 2000, lowStockThreshold: 500, unit: 'm', price: 18, status: 'In Stock' },
+            { name: 'GI Pipes (1 inch)', sku: 'GIP-004', category: 'Plumbing', quantity: 150, lowStockThreshold: 30, unit: 'pcs', price: 420, status: 'In Stock' },
+            { name: 'Aluminum Sheet (1mm)', sku: 'ALS-005', category: 'Sheet Metal', quantity: 5, lowStockThreshold: 10, unit: 'pcs', price: 1800, status: 'Low Stock' },
+            { name: 'PVC Conduit Pipe (25mm)', sku: 'PVC-006', category: 'Electrical', quantity: 300, lowStockThreshold: 50, unit: 'pcs', price: 45, status: 'In Stock' },
+            { name: 'Welding Rod (E6013)', sku: 'WR-007', category: 'Consumables', quantity: 0, lowStockThreshold: 50, unit: 'pcs', price: 5, status: 'Out of Stock' },
+            { name: 'Cement (OPC 53 Grade)', sku: 'CEM-008', category: 'Construction', quantity: 200, lowStockThreshold: 50, unit: 'bags', price: 380, status: 'In Stock' },
+            { name: 'Sand (River Sand)', sku: 'SND-009', category: 'Construction', quantity: 40, lowStockThreshold: 20, unit: 'cubic ft', price: 65, status: 'In Stock' },
+            { name: 'Brass Fittings (0.5 inch)', sku: 'BRF-010', category: 'Plumbing', quantity: 7, lowStockThreshold: 15, unit: 'pcs', price: 120, status: 'Low Stock' },
+            { name: 'SS Sheet (304 Grade)', sku: 'SS-011', category: 'Sheet Metal', quantity: 25, lowStockThreshold: 5, unit: 'pcs', price: 3500, status: 'In Stock' },
+            { name: 'MCB Switch (32A)', sku: 'MCB-012', category: 'Electrical', quantity: 80, lowStockThreshold: 20, unit: 'pcs', price: 250, status: 'In Stock' }
         ];
 
         const createdMaterials = await Material.insertMany(materialDocs);
         console.log(`Seeded ${createdMaterials.length} Materials.`);
 
-        // 5. Create Vendors
+        // ===================================================================
+        // 5. VENDORS — Tamil Nadu based suppliers
+        // ===================================================================
         const vendorDocs = [
-            { name: 'MetalCo Suppliers', contactPerson: 'John Metal', email: 'john@metalco.com', phone: '555-2001', address: '1 Outer Beltway, Heavy Ind Park', category: 'Raw Metals' },
-            { name: 'Apex Alloys', contactPerson: 'Sarah Steel', email: 'orders@apexalloys.com', phone: '555-2002', address: '78 Alloy Plaza, Foundry City', category: 'Alloys' },
-            { name: 'WireTech Wholesale', contactPerson: 'Edward Cable', email: 'info@wiretech.com', phone: '555-2003', address: '12 Filament Way, Copper Junction', category: 'Wiring' },
-            { name: 'BrassCraft Industries', contactPerson: 'Liam Pipe', email: 'sales@brasscraft.com', phone: '555-2004', address: '33 Valve Lane, Pipe Town', category: 'Plumbing' }
+            { name: 'Sri Lakshmi Steel Traders', contactPerson: 'Ravi Shankar', email: 'ravi@srilakshmisteel.in', phone: '9865432100', address: 'SIDCO Industrial Estate, Coimbatore, Tamil Nadu 641021', category: 'Steel & Metals' },
+            { name: 'Kumaran Electricals', contactPerson: 'Kumaran M', email: 'kumaran@kumaranelec.in', phone: '9865432101', address: '32, Mettupalayam Road, Coimbatore, Tamil Nadu 641043', category: 'Electrical' },
+            { name: 'Thirumurugan Pipes & Fittings', contactPerson: 'Thirumurugan P', email: 'info@tmpipes.co.in', phone: '9865432102', address: '15, Avinashi Road, Tirupur, Tamil Nadu 641602', category: 'Plumbing' },
+            { name: 'Madurai Cement Depot', contactPerson: 'Pandian S', email: 'pandian@maduraicement.in', phone: '9865432103', address: '78, Bypass Road, Madurai, Tamil Nadu 625016', category: 'Construction' },
+            { name: 'Coimbatore Sheet Metal Works', contactPerson: 'Balamurugan K', email: 'bala@cbesheetmetal.in', phone: '9865432104', address: '5, Ganapathy, Coimbatore, Tamil Nadu 641006', category: 'Sheet Metal' },
+            { name: 'Erode Welding Supplies', contactPerson: 'Saravanan R', email: 'saravanan@erodeweld.in', phone: '9865432105', address: '21, Perundurai Road, Erode, Tamil Nadu 638052', category: 'Consumables' }
         ];
 
         const createdVendors = await Vendor.insertMany(vendorDocs);
         console.log(`Seeded ${createdVendors.length} Vendors.`);
 
-        // 6. Create Customers
+        // ===================================================================
+        // 6. CUSTOMERS — Tamil Nadu based companies
+        // ===================================================================
         const customerDocs = [
-            { name: 'BuildCorp Ltd', email: 'contact@buildcorp.com', phone: '555-3001', company: 'BuildCorp Ltd', address: '100 Construction Way, Metro City', industry: 'Real Estate', website: 'buildcorp.com', status: 'Active', createdBy: salesUser._id },
-            { name: 'TechManufacture Corp', email: 'info@techman.com', phone: '555-3002', company: 'TechManufacture Corp', address: '44 Silicon Dr, Innovation Hub', industry: 'Electronics', website: 'techman.com', status: 'Active', createdBy: salesUser._id },
-            { name: 'Nexus Construction', email: 'nexus@const.com', phone: '555-3003', company: 'Nexus Infrastructure', address: '88 Bridge St, Riverdale', industry: 'Infrastructure', website: 'nexusbuilds.com', status: 'Active', createdBy: salesUser._id },
-            { name: 'Prime Industries', email: 'admin@primeind.com', phone: '555-3004', company: 'Prime Industries', address: '12 Factory Blvd, Port Area', industry: 'Aerospace', website: 'primeind.com', status: 'Active', createdBy: salesUser._id },
-            { name: 'Global Infrastructure', email: 'info@globalinfra.com', phone: '555-3005', company: 'Global Infra', address: '22 Highway Route, Transit City', industry: 'Government Contracts', website: 'globalinfra.gov', status: 'Pending Review', createdBy: salesUser._id }
+            { name: 'Kovai Builders Pvt Ltd', email: 'info@kovaibuilders.in', phone: '9843210001', company: 'Kovai Builders Pvt Ltd', address: 'Race Course Road, Coimbatore, Tamil Nadu 641018', industry: 'Real Estate', website: 'kovaibuilders.in', status: 'Active', createdBy: salesUser._id },
+            { name: 'Madurai Manufacturing Corp', email: 'orders@maduraimfg.co.in', phone: '9843210002', company: 'Madurai Manufacturing Corp', address: '45, Industrial Area, Kappalur, Madurai, Tamil Nadu 625008', industry: 'Manufacturing', website: 'maduraimfg.co.in', status: 'Active', createdBy: salesUser._id },
+            { name: 'Trichy Engineering Works', email: 'contact@trichyengg.in', phone: '9843210003', company: 'Trichy Engineering Works', address: '12, BHEL Township, Tiruchirappalli, Tamil Nadu 620014', industry: 'Heavy Engineering', website: 'trichyengg.in', status: 'Active', createdBy: salesUser._id },
+            { name: 'Salem Steel Fabricators', email: 'admin@salemsteel.in', phone: '9843210004', company: 'Salem Steel Fabricators', address: '88, Five Roads, Salem, Tamil Nadu 636004', industry: 'Steel Fabrication', website: 'salemsteel.in', status: 'Active', createdBy: salesUser2._id },
+            { name: 'Tirupur Textiles & Infra', email: 'info@tirupurtextiles.in', phone: '9843210005', company: 'Tirupur Textiles & Infra', address: 'Kangeyam Road, Tirupur, Tamil Nadu 641604', industry: 'Textile & Construction', website: 'tirupurtextiles.in', status: 'Active', createdBy: salesUser2._id },
+            { name: 'Nellai Construction Company', email: 'nellai@nellaicc.in', phone: '9843210006', company: 'Nellai Construction Co', address: '34, South Bypass, Tirunelveli, Tamil Nadu 627001', industry: 'Construction', website: 'nellaicc.in', status: 'Pending Review', createdBy: salesUser._id },
+            { name: 'Thanjavur Heritage Builders', email: 'heritage@thanjavurbuild.in', phone: '9843210007', company: 'Thanjavur Heritage Builders', address: '5, Temple Street, Thanjavur, Tamil Nadu 613001', industry: 'Heritage Construction', website: 'thanjavurbuild.in', status: 'Active', createdBy: salesUser2._id },
+            { name: 'Vellore Tech Solutions', email: 'tech@velloretech.in', phone: '9843210008', company: 'Vellore Tech Solutions', address: '22, Katpadi Road, Vellore, Tamil Nadu 632007', industry: 'IT Infrastructure', website: 'velloretech.in', status: 'Active', createdBy: salesUser._id }
         ];
 
         const createdCustomers = await Customer.insertMany(customerDocs);
         console.log(`Seeded ${createdCustomers.length} Customers.`);
 
-        // 7. Create Leads
+        // ===================================================================
+        // 7. LEADS — Tamil Nadu market leads
+        // ===================================================================
         const leadDocs = [
-            { name: 'Global Solutions Group', source: 'Web', phone: '555-8001', email: 'sales@globalsol.com', status: 'Awaiting Review', assignedTo: salesUser._id, estimatedValue: 12000, notes: 'Interested in buying bulk copper wires.' },
-            { name: 'NextGen Systems', source: 'Referral', phone: '555-8002', email: 'hello@nextgen.io', status: 'Initial Contact', assignedTo: salesUser._id, estimatedValue: 8500, notes: 'Referral from BuildCorp. Wants steel rods.' },
-            { name: 'Prime Industries (Aero Div)', source: 'LinkedIn', phone: '555-8003', email: 'ceo@primeind.com', status: 'Qualified Lead', assignedTo: salesUser._id, estimatedValue: 35000, notes: 'Needs top grade aluminum sheets and copper cables.' },
-            { name: 'Vertex Builders', source: 'Cold Call', phone: '555-8004', email: 'bid@vertex.com', status: 'Negotiation', assignedTo: salesUser._id, estimatedValue: 48000, notes: 'Finalizing pricing structure for Steel Beams.' },
-            { name: 'Star Forge', source: 'Web', phone: '555-8005', email: 'orders@starforge.com', status: 'Closing Deal', assignedTo: salesUser._id, estimatedValue: 15000, notes: 'Contract draft sent. Waiting for signature.' },
-            { name: 'Omega Logistics', source: 'LinkedIn', phone: '555-8006', email: 'contact@omega.com', status: 'Lost', assignedTo: salesUser._id, estimatedValue: 5000, notes: 'Decided to go with a local vendor due to transport costs.' }
+            { name: 'Pollachi Agro Industries', source: 'Web', phone: '9841000001', email: 'info@pollachiagro.in', status: 'Awaiting Review', assignedTo: salesUser._id, estimatedValue: 150000, notes: 'Needs GI Pipes and fittings for greenhouse project.' },
+            { name: 'Ooty Resort Developers', source: 'Referral', phone: '9841000002', email: 'dev@ootyresort.in', status: 'Initial Contact', assignedTo: salesUser._id, estimatedValue: 280000, notes: 'Referral from Kovai Builders. Needs steel and cement for hill resort.' },
+            { name: 'Karur Textile Park', source: 'LinkedIn', phone: '9841000003', email: 'admin@karurtextile.in', status: 'Qualified Lead', assignedTo: salesUser2._id, estimatedValue: 520000, notes: 'Factory expansion project. Requires structural steel and electrical supplies.' },
+            { name: 'Hosur Auto Components', source: 'Trade Fair', phone: '9841000004', email: 'purchase@hosurauto.in', status: 'Negotiation', assignedTo: salesUser._id, estimatedValue: 750000, notes: 'Auto parts factory. Finalizing pricing for SS Sheets and copper wires.' },
+            { name: 'Dindigul Lock Industries', source: 'Cold Call', phone: '9841000005', email: 'orders@dindigullock.in', status: 'Closing Deal', assignedTo: salesUser2._id, estimatedValue: 180000, notes: 'Contract draft sent for brass fittings supply. Awaiting signature.' },
+            { name: 'Kanchipuram Silk Looms', source: 'Web', phone: '9841000006', email: 'silk@kanchilooms.in', status: 'Awaiting Review', assignedTo: salesUser._id, estimatedValue: 95000, notes: 'Electrical rewiring project for loom shed expansion.' },
+            { name: 'Chettinad Cement Works', source: 'LinkedIn', phone: '9841000007', email: 'supply@chettinadworks.in', status: 'Converted to Vendor', assignedTo: salesUser2._id, estimatedValue: 1200000, notes: 'Became a vendor partner for cement supply.' },
+            { name: 'Thoothukudi Port Infra', source: 'Government Tender', phone: '9841000008', email: 'tender@tutiport.gov.in', status: 'Lost', assignedTo: salesUser._id, estimatedValue: 2500000, notes: 'Government tender lost to larger bidder. Follow up for next cycle.' },
+            { name: 'Namakkal Poultry Farms', source: 'Referral', phone: '9841000009', email: 'infra@namakkalpoultry.in', status: 'Initial Contact', assignedTo: salesUser2._id, estimatedValue: 320000, notes: 'Shed construction needs. GI Pipes, cement, and MS angles.' },
+            { name: 'Ramanathapuram Fisheries', source: 'Web', phone: '9841000010', email: 'infra@ramfisheries.in', status: 'Qualified Lead', assignedTo: salesUser._id, estimatedValue: 410000, notes: 'Cold storage infrastructure project needing SS sheets and electrical supplies.' }
         ];
 
         const createdLeads = await Lead.insertMany(leadDocs);
         console.log(`Seeded ${createdLeads.length} CRM Leads.`);
 
-        // 8. Create Orders (Sales and Purchase Orders)
+        // ===================================================================
+        // 8. ORDERS — Sales & Purchase Orders with INR amounts
+        // ===================================================================
         const orderDocs = [
             {
                 orderNumber: 'SO-2026-001',
-                customer: createdCustomers[0]._id,
+                customer: createdCustomers[0]._id, // Kovai Builders
                 items: [
-                    { material: createdMaterials[0]._id, quantity: 50, price: 45 }, // Steel Rods
-                    { material: createdMaterials[2]._id, quantity: 200, price: 12 } // Copper Wires
+                    { material: createdMaterials[0]._id, quantity: 200, price: 62 },  // TMT Steel Bars
+                    { material: createdMaterials[7]._id, quantity: 100, price: 380 }  // Cement
                 ],
-                totalAmount: (50 * 45) + (200 * 12),
+                totalAmount: (200 * 62) + (100 * 380),
                 status: 'Confirmed',
                 type: 'Sales',
                 createdBy: salesUser._id
             },
             {
                 orderNumber: 'SO-2026-002',
-                customer: createdCustomers[1]._id,
+                customer: createdCustomers[1]._id, // Madurai Mfg
                 items: [
-                    { material: createdMaterials[1]._id, quantity: 5, price: 120 }, // Aluminum sheets
-                    { material: createdMaterials[7]._id, quantity: 40, price: 25 }  // Solder Reels
+                    { material: createdMaterials[10]._id, quantity: 10, price: 3500 }, // SS Sheet
+                    { material: createdMaterials[2]._id, quantity: 500, price: 18 }    // Copper Wire
                 ],
-                totalAmount: (5 * 120) + (40 * 25),
+                totalAmount: (10 * 3500) + (500 * 18),
                 status: 'Shipped',
                 type: 'Sales',
                 createdBy: salesUser._id
             },
             {
                 orderNumber: 'SO-2026-003',
-                customer: createdCustomers[2]._id,
+                customer: createdCustomers[2]._id, // Trichy Engineering
                 items: [
-                    { material: createdMaterials[3]._id, quantity: 15, price: 280 } // Iron Beams
+                    { material: createdMaterials[1]._id, quantity: 30, price: 850 }  // MS Angle
                 ],
-                totalAmount: (15 * 280),
+                totalAmount: (30 * 850),
                 status: 'Pending',
+                type: 'Sales',
+                createdBy: salesUser2._id
+            },
+            {
+                orderNumber: 'SO-2026-004',
+                customer: createdCustomers[3]._id, // Salem Steel
+                items: [
+                    { material: createdMaterials[0]._id, quantity: 100, price: 62 },  // TMT Steel
+                    { material: createdMaterials[6]._id, quantity: 200, price: 5 }    // Welding Rod
+                ],
+                totalAmount: (100 * 62) + (200 * 5),
+                status: 'Confirmed',
+                type: 'Sales',
+                createdBy: salesUser2._id
+            },
+            {
+                orderNumber: 'SO-2026-005',
+                customer: createdCustomers[4]._id, // Tirupur Textiles
+                items: [
+                    { material: createdMaterials[3]._id, quantity: 50, price: 420 },  // GI Pipes
+                    { material: createdMaterials[5]._id, quantity: 100, price: 45 }   // PVC Conduit
+                ],
+                totalAmount: (50 * 420) + (100 * 45),
+                status: 'Delivered',
                 type: 'Sales',
                 createdBy: salesUser._id
             },
             {
                 orderNumber: 'PO-2026-001',
-                vendor: createdVendors[0]._id,
+                vendor: createdVendors[0]._id, // Sri Lakshmi Steel
                 items: [
-                    { material: createdMaterials[0]._id, quantity: 100, price: 38 } // Purchase steel rods cheaper
+                    { material: createdMaterials[0]._id, quantity: 500, price: 55 },  // TMT Steel wholesale
+                    { material: createdMaterials[1]._id, quantity: 50, price: 720 }   // MS Angle wholesale
                 ],
-                totalAmount: (100 * 38),
+                totalAmount: (500 * 55) + (50 * 720),
                 status: 'Delivered',
                 type: 'Purchase',
                 createdBy: managerUser._id
             },
             {
                 orderNumber: 'PO-2026-002',
-                vendor: createdVendors[1]._id,
+                vendor: createdVendors[1]._id, // Kumaran Electricals
                 items: [
-                    { material: createdMaterials[6]._id, quantity: 20, price: 150 } // Nickel Coils
+                    { material: createdMaterials[2]._id, quantity: 1000, price: 15 }, // Copper Wire
+                    { material: createdMaterials[11]._id, quantity: 50, price: 200 }  // MCB Switch
                 ],
-                totalAmount: (20 * 150),
-                status: 'Awaiting Approval',
+                totalAmount: (1000 * 15) + (50 * 200),
+                status: 'Confirmed',
                 type: 'Purchase',
                 createdBy: managerUser._id
             },
             {
                 orderNumber: 'PO-2026-003',
-                vendor: createdVendors[3]._id,
+                vendor: createdVendors[3]._id, // Madurai Cement
                 items: [
-                    { material: createdMaterials[4]._id, quantity: 30, price: 28 } // Brass Pipes
+                    { material: createdMaterials[7]._id, quantity: 200, price: 340 }  // Cement bulk
                 ],
-                totalAmount: (30 * 28),
+                totalAmount: (200 * 340),
+                status: 'Awaiting Approval',
+                type: 'Purchase',
+                createdBy: managerUser2._id
+            },
+            {
+                orderNumber: 'PO-2026-004',
+                vendor: createdVendors[5]._id, // Erode Welding
+                items: [
+                    { material: createdMaterials[6]._id, quantity: 500, price: 3.5 }  // Welding Rod
+                ],
+                totalAmount: (500 * 3.5),
                 status: 'Approved',
                 type: 'Purchase',
                 createdBy: managerUser._id
@@ -201,10 +279,12 @@ const seedData = async () => {
         const createdOrders = await Order.insertMany(orderDocs);
         console.log(`Seeded ${createdOrders.length} Sales & Purchase Orders.`);
 
-        // 9. Create Attendance
+        // ===================================================================
+        // 9. ATTENDANCE — Last 10 working days
+        // ===================================================================
         const today = new Date();
         const attendanceDocs = [];
-        for (let i = 0; i < 7; i++) {
+        for (let i = 0; i < 14; i++) {
             const date = new Date(today);
             date.setDate(today.getDate() - i);
             date.setHours(0, 0, 0, 0);
@@ -213,26 +293,31 @@ const seedData = async () => {
             if (date.getDay() === 0 || date.getDay() === 6) continue;
 
             for (const emp of createdEmployees) {
-                // Alice on leave on day 2
-                if (emp.firstName === 'Alice' && i === 2) {
+                // Simulate some realistic variations
+                if (emp.firstName === 'Murugan' && i === 3) {
                     attendanceDocs.push({ employee: emp._id, date, status: 'Leave' });
                     continue;
                 }
-
-                // Bob absent on day 4
-                if (emp.firstName === 'Bob' && i === 4) {
+                if (emp.firstName === 'Senthil' && i === 5) {
+                    attendanceDocs.push({ employee: emp._id, date, status: 'Absent' });
+                    continue;
+                }
+                if (emp.firstName === 'Rajesh' && i === 7) {
+                    attendanceDocs.push({ employee: emp._id, date, status: 'Leave' });
+                    continue;
+                }
+                if (emp.firstName === 'Saranya' && i === 2) {
                     attendanceDocs.push({ employee: emp._id, date, status: 'Absent' });
                     continue;
                 }
 
-                // Normal attendance
                 const isLate = Math.random() > 0.85;
                 attendanceDocs.push({
                     employee: emp._id,
                     date,
                     status: isLate ? 'Late' : 'Present',
-                    checkIn: isLate ? '09:45 AM' : '08:58 AM',
-                    checkOut: '05:30 PM'
+                    checkIn: isLate ? '10:15 AM' : '09:00 AM',
+                    checkOut: '06:00 PM'
                 });
             }
         }
@@ -240,84 +325,121 @@ const seedData = async () => {
         const seededAttendance = await Attendance.insertMany(attendanceDocs);
         console.log(`Seeded ${seededAttendance.length} Attendance log entries.`);
 
-        // 10. Create Leaves
+        // ===================================================================
+        // 10. LEAVES
+        // ===================================================================
         const leaveDocs = [
             {
-                employee: createdEmployees[0]._id, // Alice
+                employee: createdEmployees[0]._id, // Murugan
                 type: 'Sick',
-                startDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() - 3),
-                endDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() - 2),
-                reason: 'Severe food poisoning',
+                startDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() - 4),
+                endDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() - 3),
+                reason: 'Fever and body pain',
                 status: 'Approved',
                 reviewedBy: hrUser._id,
-                reviewNote: 'Approved based on doctor certificate.'
+                reviewNote: 'Approved. Medical certificate received.'
             },
             {
-                employee: createdEmployees[3]._id, // David
+                employee: createdEmployees[6]._id, // Rajesh
+                type: 'Casual',
+                startDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() - 8),
+                endDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7),
+                reason: 'Family function at Thanjavur',
+                status: 'Approved',
+                reviewedBy: hrUser._id,
+                reviewNote: 'Permitted.'
+            },
+            {
+                employee: createdEmployees[7]._id, // Divya
                 type: 'Annual',
-                startDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 10),
-                endDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 15),
-                reason: 'Family trip out of town',
+                startDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 5),
+                endDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 12),
+                reason: 'Family vacation to Kerala',
                 status: 'Pending'
             },
             {
-                employee: createdEmployees[1]._id, // Bob
-                type: 'Casual',
-                startDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() - 10),
-                endDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() - 10),
-                reason: 'Car breakdown & repairs',
-                status: 'Approved',
-                reviewedBy: hrUser._id,
-                reviewNote: 'Self-certified casual leave.'
-            },
-            {
-                employee: createdEmployees[2]._id, // Carol
+                employee: createdEmployees[9]._id, // Saranya
                 type: 'Sick',
-                startDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1),
-                endDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1),
-                reason: 'Dentist appointment',
+                startDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() - 2),
+                endDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() - 2),
+                reason: 'Dental appointment at KG Hospital, Coimbatore',
                 status: 'Approved',
                 reviewedBy: adminUser._id,
-                reviewNote: 'Permitted.'
+                reviewNote: 'Half-day approved.'
+            },
+            {
+                employee: createdEmployees[2]._id, // Senthil
+                type: 'Casual',
+                startDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 2),
+                endDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 2),
+                reason: 'Personal work - vehicle registration at RTO',
+                status: 'Pending'
+            },
+            {
+                employee: createdEmployees[8]._id, // Venkatesh
+                type: 'Unpaid',
+                startDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 15),
+                endDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 20),
+                reason: 'Village temple festival at Kumbakonam',
+                status: 'Pending'
             }
         ];
 
         const createdLeaves = await Leave.insertMany(leaveDocs);
-        console.log(`Seeded ${createdLeaves.length} Leave Management Requests.`);
+        console.log(`Seeded ${createdLeaves.length} Leave requests.`);
 
-        // 11. Create Salaries
-        const salaryDocs = [
-            // April 2026 Salaries
-            { employee: createdEmployees[0]._id, month: 'April 2026', basicSalary: 5500, allowances: 500, deductions: 200, netSalary: 5800, status: 'Paid', paymentDate: new Date('2026-05-01T10:00:00.000Z'), transactionId: 'TXN-APR-001' },
-            { employee: createdEmployees[1]._id, month: 'April 2026', basicSalary: 4000, allowances: 800, deductions: 100, netSalary: 4700, status: 'Paid', paymentDate: new Date('2026-05-01T10:05:00.000Z'), transactionId: 'TXN-APR-002' },
-            { employee: createdEmployees[2]._id, month: 'April 2026', basicSalary: 4800, allowances: 300, deductions: 150, netSalary: 4950, status: 'Paid', paymentDate: new Date('2026-05-01T10:10:00.000Z'), transactionId: 'TXN-APR-003' },
-            { employee: createdEmployees[3]._id, month: 'April 2026', basicSalary: 3200, allowances: 200, deductions: 50, netSalary: 3350, status: 'Paid', paymentDate: new Date('2026-05-01T10:15:00.000Z'), transactionId: 'TXN-APR-004' },
-
-            // May 2026 Salaries (Awaiting Approval / Pending)
-            { employee: createdEmployees[0]._id, month: 'May 2026', basicSalary: 5500, allowances: 500, deductions: 100, netSalary: 5900, status: 'Awaiting Approval' },
-            { employee: createdEmployees[1]._id, month: 'May 2026', basicSalary: 4000, allowances: 600, deductions: 150, netSalary: 4450, status: 'Pending' },
-            { employee: createdEmployees[2]._id, month: 'May 2026', basicSalary: 4800, allowances: 400, deductions: 100, netSalary: 5100, status: 'Awaiting Approval' },
-            { employee: createdEmployees[3]._id, month: 'May 2026', basicSalary: 3200, allowances: 200, deductions: 50, netSalary: 3350, status: 'Pending' }
-        ];
+        // ===================================================================
+        // 11. SALARIES — Indian payroll with INR amounts
+        // ===================================================================
+        const salaryDocs = [];
+        // April 2026 — Paid salaries for all employees
+        for (const emp of createdEmployees) {
+            salaryDocs.push({
+                employee: emp._id,
+                month: 'April 2026',
+                basicSalary: emp.salary,
+                allowances: Math.round(emp.salary * 0.15),
+                deductions: Math.round(emp.salary * 0.05),
+                netSalary: emp.salary + Math.round(emp.salary * 0.15) - Math.round(emp.salary * 0.05),
+                status: 'Paid',
+                paymentDate: new Date('2026-05-01T10:00:00.000Z'),
+                transactionId: `TXN-APR-${emp.employeeId}`
+            });
+        }
+        // May 2026 — Awaiting Approval / Pending
+        for (let i = 0; i < createdEmployees.length; i++) {
+            const emp = createdEmployees[i];
+            salaryDocs.push({
+                employee: emp._id,
+                month: 'May 2026',
+                basicSalary: emp.salary,
+                allowances: Math.round(emp.salary * 0.15),
+                deductions: Math.round(emp.salary * 0.04),
+                netSalary: emp.salary + Math.round(emp.salary * 0.15) - Math.round(emp.salary * 0.04),
+                status: i < 5 ? 'Awaiting Approval' : 'Pending'
+            });
+        }
 
         const createdSalaries = await Salary.insertMany(salaryDocs);
         console.log(`Seeded ${createdSalaries.length} Salary payroll slips.`);
 
-        // 12. Create Tasks
+        // ===================================================================
+        // 12. TASKS
+        // ===================================================================
         const taskDocs = [
             {
-                title: 'Review Warehouse Layout',
-                description: 'Organize warehouse shelves to make room for heavy iron beams arriving next week.',
-                assignedTo: [employeeUser._id],
+                title: 'Organize Warehouse for TMT Steel Delivery',
+                description: 'Clear section B in the Singanallur warehouse to accommodate 500 kg TMT steel rods arriving from Sri Lakshmi Steel Traders.',
+                assignedTo: [empUser1._id],
                 assignedBy: managerUser._id,
-                completions: [{ user: employeeUser._id, status: 'In Progress' }],
+                completions: [{ user: empUser1._id, status: 'In Progress' }],
                 priority: 'High',
-                dueDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 3),
+                dueDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 2),
                 isBroadcast: false
             },
             {
-                title: 'Follow up on Star Forge Lead',
-                description: 'Star Forge lead requested sample contract revisions. Follow up and close deal.',
+                title: 'Follow up with Hosur Auto Components',
+                description: 'Hosur Auto requested revised quotation for SS Sheets and Copper Wires. Prepare and send updated pricing.',
                 assignedTo: [salesUser._id],
                 assignedBy: managerUser._id,
                 completions: [{ user: salesUser._id, status: 'Pending' }],
@@ -326,42 +448,74 @@ const seedData = async () => {
                 isBroadcast: false
             },
             {
-                title: 'Conduct Monthly Fire Safety Drill',
-                description: 'All factory staff must participate in the emergency drill at 10 AM on Monday.',
-                assignedTo: [managerUser._id, employeeUser._id, salesUser._id, hrUser._id],
+                title: 'Conduct Monthly Safety Drill - Coimbatore Factory',
+                description: 'All factory employees must participate in the fire safety drill at 10:00 AM on Monday at the Singanallur factory premises.',
+                assignedTo: createdUsers.filter(u => ['Employee', 'Manager'].includes(u.role)).map(u => u._id),
                 assignedBy: adminUser._id,
-                completions: [
-                    { user: managerUser._id, status: 'Completed' },
-                    { user: employeeUser._id, status: 'Completed' },
-                    { user: salesUser._id, status: 'Completed' },
-                    { user: hrUser._id, status: 'Completed' }
-                ],
+                completions: createdUsers.filter(u => ['Employee', 'Manager'].includes(u.role)).map(u => ({ user: u._id, status: 'Completed' })),
                 priority: 'Medium',
-                dueDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() - 2),
+                dueDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() - 3),
                 isBroadcast: true
             },
             {
-                title: 'Audit Low Stock Materials',
-                description: 'Conduct manual physical count check for Brass Pipes and Aluminum Sheets.',
-                assignedTo: [employeeUser._id],
+                title: 'Physical Stock Audit - Low Stock Items',
+                description: 'Conduct physical count verification for MS Angle, Aluminum Sheet, and Brass Fittings which are below threshold.',
+                assignedTo: [empUser1._id, empUser2._id],
                 assignedBy: managerUser._id,
-                completions: [{ user: employeeUser._id, status: 'Completed' }],
-                priority: 'Medium',
-                dueDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() - 4),
+                completions: [
+                    { user: empUser1._id, status: 'Completed' },
+                    { user: empUser2._id, status: 'In Progress' }
+                ],
+                priority: 'High',
+                dueDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1),
                 isBroadcast: false
             },
             {
-                title: 'Submit May Work Reports',
-                description: 'Submit departmental monthly summaries to the Administrator.',
-                assignedTo: [managerUser._id, hrUser._id, salesUser._id],
+                title: 'Submit May 2026 Departmental Reports',
+                description: 'All department heads must submit monthly performance summaries to the admin office by end of this week.',
+                assignedTo: [managerUser._id, managerUser2._id, hrUser._id, salesUser._id],
                 assignedBy: adminUser._id,
                 completions: [
                     { user: managerUser._id, status: 'Pending' },
-                    { user: hrUser._id, status: 'In Progress' },
+                    { user: managerUser2._id, status: 'In Progress' },
+                    { user: hrUser._id, status: 'Completed' },
                     { user: salesUser._id, status: 'Pending' }
                 ],
                 priority: 'Medium',
-                dueDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 5),
+                dueDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 4),
+                isBroadcast: false
+            },
+            {
+                title: 'Prepare Quotation for Nellai Construction',
+                description: 'Nellai Construction Company has requested bulk quotation for TMT bars, cement, and sand. Prepare and send within 2 days.',
+                assignedTo: [salesUser2._id],
+                assignedBy: managerUser._id,
+                completions: [{ user: salesUser2._id, status: 'Pending' }],
+                priority: 'Medium',
+                dueDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 3),
+                isBroadcast: false
+            },
+            {
+                title: 'Update Employee Contact Records',
+                description: 'Verify and update all employee phone numbers and emergency contacts in the HRMS system.',
+                assignedTo: [hrUser._id, hrUser2._id],
+                assignedBy: adminUser._id,
+                completions: [
+                    { user: hrUser._id, status: 'In Progress' },
+                    { user: hrUser2._id, status: 'Pending' }
+                ],
+                priority: 'Low',
+                dueDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 7),
+                isBroadcast: false
+            },
+            {
+                title: 'Dispatch Coordination - Salem Steel Order',
+                description: 'Coordinate with logistics partner for SO-2026-004 delivery to Salem Steel Fabricators. Confirm dispatch date and tracking.',
+                assignedTo: [empUser3._id],
+                assignedBy: managerUser2._id,
+                completions: [{ user: empUser3._id, status: 'In Progress' }],
+                priority: 'High',
+                dueDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1),
                 isBroadcast: false
             }
         ];
@@ -369,39 +523,50 @@ const seedData = async () => {
         const createdTasks = await Task.insertMany(taskDocs);
         console.log(`Seeded ${createdTasks.length} Operations Tasks.`);
 
-        // 13. Create System Notifications
+        // ===================================================================
+        // 13. NOTIFICATIONS
+        // ===================================================================
         const notificationDocs = [
             {
-                user: null, // Admin/Global
-                title: 'Low Stock Alert',
-                message: 'Aluminum Sheets (2mm) quantity has dropped to 8 units. Threshold is 15.',
+                user: null,
+                title: 'Low Stock Alert - MS Angle',
+                message: 'MS Angle (50x50x6) stock is at 12 pcs, below the threshold of 20. Place a purchase order immediately.',
                 type: 'warning',
                 category: 'stock',
                 isRead: false,
                 link: '/materials'
             },
             {
-                user: null, // Admin/Global
-                title: 'Critical Out-Of-Stock Alert',
-                message: 'Nickel Coils (Premium) is out of stock (0 kg remaining). Urgent order needed.',
+                user: null,
+                title: 'Out of Stock - Welding Rod',
+                message: 'Welding Rod (E6013) is completely out of stock. Production line may be affected.',
                 type: 'error',
                 category: 'stock',
                 isRead: false,
                 link: '/materials'
             },
             {
-                user: adminUser._id,
-                title: 'Leave Awaiting Approval',
-                message: 'David Brown has requested leave for 5 days starting next week.',
-                type: 'info',
-                category: 'hr',
+                user: null,
+                title: 'Low Stock Alert - Aluminum Sheet',
+                message: 'Aluminum Sheet (1mm) stock is at 5 pcs, below the threshold of 10.',
+                type: 'warning',
+                category: 'stock',
                 isRead: false,
-                link: '/hrms'
+                link: '/materials'
             },
             {
                 user: adminUser._id,
-                title: 'Payroll Pending Signoff',
-                message: 'Payroll slips for May 2026 have been generated and are awaiting admin signoff.',
+                title: 'Leave Request Pending',
+                message: 'Divya Prakash has requested 7 days of annual leave starting next week. Review required.',
+                type: 'info',
+                category: 'hr',
+                isRead: false,
+                link: '/leave-management'
+            },
+            {
+                user: adminUser._id,
+                title: 'May Payroll Ready for Approval',
+                message: '10 salary slips for May 2026 have been generated and are pending admin approval.',
                 type: 'info',
                 category: 'hr',
                 isRead: false,
@@ -410,18 +575,45 @@ const seedData = async () => {
             {
                 user: managerUser._id,
                 title: 'Purchase Order Delivered',
-                message: 'PO-2026-001 (100 Steel Rods) has been successfully verified and added to inventory.',
+                message: 'PO-2026-001 from Sri Lakshmi Steel Traders has been delivered and verified. 500 kg TMT Steel added to inventory.',
                 type: 'success',
                 category: 'order',
                 isRead: false,
                 link: '/erp'
+            },
+            {
+                user: salesUser._id,
+                title: 'New Lead Assigned',
+                message: 'New lead "Ramanathapuram Fisheries" has been assigned to you. Estimated deal value: Rs.4,10,000.',
+                type: 'info',
+                category: 'general',
+                isRead: false,
+                link: '/crm'
+            },
+            {
+                user: null,
+                title: 'System Maintenance Notice',
+                message: 'SMTBMS will undergo scheduled maintenance on Sunday 12:00 AM - 4:00 AM IST. Plan your work accordingly.',
+                type: 'info',
+                category: 'system',
+                isRead: false
             }
         ];
 
         const seededNotifications = await Notification.insertMany(notificationDocs);
         console.log(`Seeded ${seededNotifications.length} System Notifications.`);
 
-        console.log('--- DATABASE SEEDING COMPLETED SUCCESSFULLY ---');
+        console.log('\n========================================');
+        console.log('  DATABASE SEEDING COMPLETED SUCCESSFULLY');
+        console.log('========================================');
+        console.log('\nLogin Credentials:');
+        console.log('  Admin:    admin@smtbms.com / admin123');
+        console.log('  HR:       hr@smtbms.com / hr123');
+        console.log('  Manager:  manager@smtbms.com / manager123');
+        console.log('  Sales:    sales@smtbms.com / sales123');
+        console.log('  Employee: employee@smtbms.com / employee123');
+        console.log('========================================\n');
+
         process.exit(0);
     } catch (error) {
         console.error('Seeding process failed:', error);
