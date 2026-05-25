@@ -8,7 +8,6 @@ import {
     TrendingUp, User as UserIcon, ArrowRight, Loader, DollarSign
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import StatCard from '../components/Dashboard/StatCard';
 
 const EmployeeDashboard = () => {
     const { user } = useContext(AuthContext);
@@ -133,8 +132,8 @@ const EmployeeDashboard = () => {
     const isCompleted = status?.checkIn && status?.checkOut;
 
     if (loading) return (
-        <div className="emp-loading">
-            <div className="loader-spin"><Loader size={32} /></div>
+        <div className="emp-loading-wrapper">
+            <div className="dash-spinner"></div>
             <p>Loading your workspace…</p>
         </div>
     );
@@ -143,35 +142,39 @@ const EmployeeDashboard = () => {
         {
             title: 'Today\'s Status',
             value: isCompleted ? 'Done' : isActive ? 'Active' : 'Absent',
-            icon: <CheckCircle />,
-            color: isCompleted ? '#10b981' : isActive ? '#6366f1' : '#ef4444',
+            icon: <CheckCircle size={22} />,
+            color: isCompleted ? '#10b981' : isActive ? '#2563eb' : '#ef4444',
+            bgColor: isCompleted ? '#ecfdf5' : isActive ? '#eff6ff' : '#fef2f2',
             onClick: () => navigate('/my-attendance')
         },
         {
             title: 'Salary Status',
             value: salary?.status || 'Pending',
-            icon: <DollarSign />,
+            icon: <DollarSign size={22} />,
             color: salary?.status === 'Paid' ? '#10b981' : '#f59e0b',
+            bgColor: salary?.status === 'Paid' ? '#ecfdf5' : '#fffbeb',
             onClick: () => navigate('/my-salary')
         },
         {
             title: 'Leave Balance',
             value: balance ? `${balance.Annual.remaining}d` : '—',
-            icon: <Calendar />,
+            icon: <Calendar size={22} />,
             color: '#8b5cf6',
+            bgColor: '#f5f3ff',
             onClick: () => navigate('/leave-management')
         },
         {
             title: 'Notifications',
             value: unread,
-            icon: <Bell />,
+            icon: <Bell size={22} />,
             color: unread > 0 ? '#f59e0b' : '#64748b',
+            bgColor: unread > 0 ? '#fffbeb' : '#f1f5f9',
             onClick: () => navigate('/notifications')
         },
     ];
 
     return (
-        <div className="emp-wrapper">
+        <div className="emp-workspace">
 
             {/* ── Toast ── */}
             {toast && (
@@ -184,7 +187,7 @@ const EmployeeDashboard = () => {
             <header className="emp-header">
                 <div>
                     <p className="emp-greeting">Good {new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 17 ? 'Afternoon' : 'Evening'},</p>
-                    <h1 className="emp-name">{user?.name} 👋</h1>
+                    <h1 className="emp-name">{user?.name || 'Employee User'} 👋</h1>
                     <p className="emp-date text-muted">
                         {new Date().toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                     </p>
@@ -201,7 +204,24 @@ const EmployeeDashboard = () => {
 
             {/* ── Stat Cards ── */}
             <section className="emp-stats">
-                {stats.map((s, i) => <StatCard key={i} {...s} />)}
+                {stats.map((s, i) => (
+                    <div 
+                        key={i} 
+                        className={`emp-stat-card ${s.onClick ? 'clickable' : ''}`}
+                        onClick={s.onClick}
+                    >
+                        <div 
+                            className="stat-icon-box"
+                            style={{ color: s.color, backgroundColor: s.bgColor }}
+                        >
+                            {s.icon}
+                        </div>
+                        <div className="stat-content">
+                            <span className="stat-label">{s.title}</span>
+                            <span className="stat-value">{s.value}</span>
+                        </div>
+                    </div>
+                ))}
             </section>
 
             {/* ── Main Grid ── */}
@@ -209,7 +229,7 @@ const EmployeeDashboard = () => {
 
                 {/* ══ LEFT: Attendance Section ══ */}
                 <div className="emp-left">
-                    <div className="glass-card attend-card">
+                    <div className="white-card attend-card">
                         <div className="attend-card-header">
                             <div>
                                 <h3>Attendance & Time Tracking</h3>
@@ -295,7 +315,7 @@ const EmployeeDashboard = () => {
                     </div>
 
                     {/* ── Weekly Chart ── */}
-                    <div className="glass-card weekly-card">
+                    <div className="white-card weekly-card">
                         <div className="attend-card-header">
                             <h3>Weekly Hours</h3>
                             <span className="text-muted" style={{ fontSize: 12 }}>This week</span>
@@ -305,10 +325,10 @@ const EmployeeDashboard = () => {
                                 <BarChart data={chartData} barSize={24}>
                                     <XAxis dataKey="d" fontSize={11} stroke="#94a3b8" axisLine={false} tickLine={false} />
                                     <Tooltip
-                                        contentStyle={{ background: '#0f172a', border: '1px solid #334155', borderRadius: 8 }}
+                                        contentStyle={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 8 }}
                                         formatter={(v) => [`${v}h`, 'Hours']}
                                     />
-                                    <Bar dataKey="h" fill="#6366f1" radius={[6, 6, 0, 0]} />
+                                    <Bar dataKey="h" fill="#3b82f6" radius={[6, 6, 0, 0]} />
                                 </BarChart>
                             </ResponsiveContainer>
                         </div>
@@ -319,7 +339,7 @@ const EmployeeDashboard = () => {
                 <div className="emp-right">
 
                     {/* ── Leave Balance ── */}
-                    <div className="glass-card leave-balance-card">
+                    <div className="white-card leave-balance-card">
                         <div className="attend-card-header">
                             <h3>Leave Balance</h3>
                             <button className="view-details-btn" onClick={() => navigate('/leave-management')}>
@@ -343,7 +363,7 @@ const EmployeeDashboard = () => {
                     </div>
 
                     {/* ── Recent Leave Requests ── */}
-                    <div className="glass-card recent-leaves-card">
+                    <div className="white-card recent-leaves-card">
                         <div className="attend-card-header">
                             <h3>Recent Leaves</h3>
                             <button className="view-details-btn" onClick={() => navigate('/leave-management')}>
@@ -370,7 +390,7 @@ const EmployeeDashboard = () => {
                     </div>
 
                     {/* ── Quick Actions ── */}
-                    <div className="glass-card quick-card">
+                    <div className="white-card quick-card">
                         <h3 style={{ marginBottom: 16 }}>Quick Actions</h3>
                         <div className="quick-grid">
                             <button className="q-btn" onClick={() => navigate('/leave-management')}>
@@ -396,25 +416,106 @@ const EmployeeDashboard = () => {
             </div>
 
             <style>{`
-                .emp-wrapper { padding: 30px; display: flex; flex-direction: column; gap: 28px; position: relative; }
+                .emp-workspace { 
+                    padding: 30px; 
+                    display: flex; 
+                    flex-direction: column; 
+                    gap: 28px; 
+                    position: relative; 
+                    background-color: #f1f5f9;
+                    min-height: 100vh;
+                    color: #1e293b;
+                }
 
                 /* ── Toast ── */
-                .emp-toast { position: fixed; bottom: 28px; right: 28px; padding: 12px 22px; border-radius: 10px; font-size: 13px; font-weight: 600; z-index: 9999; animation: slideUp 0.3s ease; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
-                .emp-toast.ok  { background: rgba(16,185,129,0.15); border: 1px solid #10b981; color: #10b981; }
-                .emp-toast.err { background: rgba(239,68,68,0.15);  border: 1px solid #ef4444; color: #ef4444; }
+                .emp-toast { position: fixed; bottom: 28px; right: 28px; padding: 12px 22px; border-radius: 10px; font-size: 13px; font-weight: 600; z-index: 9999; animation: slideUp 0.3s ease; box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+                .emp-toast.ok  { background: #ecfdf5; border: 1px solid #10b981; color: #10b981; }
+                .emp-toast.err { background: #fef2f2; border: 1px solid #ef4444; color: #ef4444; }
                 @keyframes slideUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
 
                 /* ── Header ── */
                 .emp-header { display: flex; justify-content: space-between; align-items: flex-start; }
-                .emp-greeting { font-size: 14px; color: var(--text-muted); }
-                .emp-name { font-size: 30px; font-weight: 800; margin: 4px 0 6px; }
-                .emp-date { font-size: 13px; }
-                .notif-btn { position: relative; width: 46px; height: 46px; border-radius: 50%; background: rgba(255,255,255,0.05); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--text-muted); cursor: pointer; transition: all 0.2s; }
-                .notif-btn:hover { background: rgba(255,255,255,0.1); color: white; }
+                .emp-greeting { font-size: 14px; color: #64748b; font-weight: 600; }
+                .emp-name { font-size: 30px; font-weight: 800; margin: 4px 0 6px; color: #0f172a; }
+                .emp-date { font-size: 13px; color: #64748b; font-weight: 500; }
+                
+                .notif-btn { 
+                    position: relative; 
+                    width: 46px; 
+                    height: 46px; 
+                    border-radius: 50%; 
+                    background: #ffffff; 
+                    border: 1px solid #e2e8f0; 
+                    display: flex; 
+                    align-items: center; 
+                    justify-content: center; 
+                    color: #64748b; 
+                    cursor: pointer; 
+                    transition: all 0.2s; 
+                }
+                .notif-btn:hover { background: #f8fafc; color: #0f172a; }
                 .notif-count { position: absolute; top: -4px; right: -4px; background: #ef4444; color: white; font-size: 10px; font-weight: 800; padding: 2px 5px; border-radius: 20px; }
 
-                /* ── Stats ── */
-                .emp-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 18px; }
+                /* ── Stat Cards Overhaul ── */
+                .emp-stats { 
+                    display: grid; 
+                    grid-template-columns: repeat(4, 1fr); 
+                    gap: 18px; 
+                }
+                .emp-stat-card {
+                    background: #ffffff;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 12px;
+                    padding: 18px 24px;
+                    display: flex;
+                    align-items: center;
+                    gap: 20px;
+                    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+                    transition: transform 0.2s, box-shadow 0.2s;
+                }
+                .emp-stat-card:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+                }
+                .emp-stat-card.clickable {
+                    cursor: pointer;
+                }
+                .stat-icon-box {
+                    width: 46px;
+                    height: 46px;
+                    border-radius: 10px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex-shrink: 0;
+                }
+                .stat-content {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 2px;
+                }
+                .stat-label {
+                    font-size: 11px;
+                    font-weight: 700;
+                    color: #64748b;
+                    text-transform: uppercase;
+                    letter-spacing: 0.3px;
+                }
+                .stat-value {
+                    font-size: 22px;
+                    font-weight: 800;
+                    color: #0f172a;
+                }
+
+                /* ── White Cards Overhaul ── */
+                .white-card {
+                    background: #ffffff;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 16px;
+                    padding: 24px;
+                    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+                    color: #1e293b;
+                }
 
                 /* ── Main grid ── */
                 .emp-main-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px; }
@@ -422,42 +523,58 @@ const EmployeeDashboard = () => {
                 .emp-right { display: flex; flex-direction: column; gap: 20px; }
 
                 /* ── Attendance card ── */
-                .attend-card { padding: 26px; }
                 .attend-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; }
-                .attend-card-header h3 { font-size: 16px; font-weight: 700; }
-                .view-details-btn { display: flex; align-items: center; gap: 5px; background: none; color: var(--primary); font-size: 12px; font-weight: 600; cursor: pointer; }
-                .view-details-btn:hover { text-decoration: underline; }
+                .attend-card-header h3 { font-size: 16px; font-weight: 700; color: #0f172a; }
+                .view-details-btn { 
+                    display: flex; 
+                    align-items: center; 
+                    gap: 5px; 
+                    background: #f8fafc; 
+                    border: 1px solid #e2e8f0; 
+                    color: #475569; 
+                    font-size: 12px; 
+                    font-weight: 700; 
+                    padding: 8px 14px;
+                    border-radius: 8px;
+                    cursor: pointer; 
+                    transition: background 0.2s;
+                }
+                .view-details-btn:hover { background: #f1f5f9; color: #1e293b; }
 
                 /* ── Timer ring ── */
                 .timer-ring-wrap { display: flex; justify-content: center; margin-bottom: 24px; }
                 .timer-ring {
                     width: 160px; height: 160px; border-radius: 50%;
-                    border: 3px solid var(--border);
+                    border: 3px solid #e2e8f0;
                     display: flex; flex-direction: column; align-items: center; justify-content: center;
-                    gap: 8px; color: var(--text-muted);
+                    gap: 8px; color: #64748b;
                     transition: all 0.4s;
-                    background: rgba(255,255,255,0.02);
+                    background: #f8fafc;
                 }
                 .timer-ring.active {
-                    border-color: #6366f1;
-                    color: #6366f1;
-                    box-shadow: 0 0 30px rgba(99,102,241,0.25);
-                    animation: ringGlow 2s ease-in-out infinite alternate;
+                    border-color: #3b82f6;
+                    color: #2563eb;
+                    background: #eff6ff;
+                    box-shadow: 0 0 20px rgba(59, 130, 246, 0.15);
                 }
-                .timer-ring.done { border-color: #10b981; color: #10b981; box-shadow: 0 0 20px rgba(16,185,129,0.15); }
-                @keyframes ringGlow { from { box-shadow: 0 0 15px rgba(99,102,241,0.15); } to { box-shadow: 0 0 35px rgba(99,102,241,0.35); } }
+                .timer-ring.done { 
+                    border-color: #10b981; 
+                    color: #10b981; 
+                    background: #ecfdf5; 
+                    box-shadow: 0 0 20px rgba(16, 185, 129, 0.1); 
+                }
                 .ring-timer { font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums; color: inherit; }
                 .ring-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
 
                 /* ── Time pills ── */
                 .time-pills { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 22px; }
                 .time-pill { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 64px; }
-                .pill-icon { color: var(--text-muted); }
+                .pill-icon { color: #64748b; }
                 .pill-icon.in  { color: #10b981; }
                 .pill-icon.out { color: #ef4444; }
-                .pill-label { font-size: 10px; text-transform: uppercase; color: var(--text-muted); font-weight: 700; letter-spacing: 0.5px; }
-                .pill-value { font-size: 15px; font-weight: 700; color: white; }
-                .time-divider { width: 1px; height: 36px; background: var(--border); }
+                .pill-label { font-size: 10px; text-transform: uppercase; color: #64748b; font-weight: 700; letter-spacing: 0.5px; }
+                .pill-value { font-size: 15px; font-weight: 700; color: #0f172a; }
+                .time-divider { width: 1px; height: 36px; background: #e2e8f0; }
 
                 /* ── Attendance action buttons ── */
                 .attend-actions { display: flex; justify-content: center; }
@@ -469,16 +586,17 @@ const EmployeeDashboard = () => {
                     cursor: pointer; transition: all 0.25s;
                     border: none;
                 }
-                .checkin-btn  { background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; box-shadow: 0 4px 20px rgba(99,102,241,0.35); }
-                .checkin-btn:hover  { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(99,102,241,0.45); }
-                .checkout-btn { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; box-shadow: 0 4px 20px rgba(239,68,68,0.35); }
-                .checkout-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(239,68,68,0.45); }
+                .checkin-btn  { background: #2563eb; color: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
+                .checkin-btn:hover  { transform: translateY(-1px); background: #1d4ed8; box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3); }
+                .checkout-btn { background: #ef4444; color: white; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2); }
+                .checkout-btn:hover { transform: translateY(-1px); background: #dc2626; box-shadow: 0 6px 16px rgba(239, 68, 68, 0.3); }
                 .attend-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
                 .spin-icon { animation: spin 1s linear infinite; }
                 @keyframes spin { to { transform: rotate(360deg); } }
+                
                 .shift-done-badge {
                     display: flex; align-items: center; gap: 10px;
-                    background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25);
+                    background: #ecfdf5; border: 1px solid #bbf7d0;
                     color: #10b981; padding: 14px 24px; border-radius: 12px; font-weight: 600; font-size: 14px;
                 }
 
@@ -489,24 +607,24 @@ const EmployeeDashboard = () => {
                 .leave-balance-card { padding: 22px; }
                 .balance-list { display: flex; flex-direction: column; gap: 14px; margin-top: 4px; }
                 .balance-row { display: flex; align-items: center; gap: 12px; }
-                .bal-type { width: 56px; font-size: 12px; font-weight: 600; color: var(--text-muted); }
-                .bal-bar-wrap { flex: 1; height: 6px; background: rgba(255,255,255,0.06); border-radius: 10px; overflow: hidden; }
-                .bal-bar { height: 100%; background: linear-gradient(90deg, #6366f1, #8b5cf6); border-radius: 10px; transition: width 0.6s ease; }
-                .bal-count { font-size: 13px; font-weight: 700; min-width: 40px; text-align: right; }
-                .bal-count small { font-size: 11px; color: var(--text-muted); font-weight: 400; }
+                .bal-type { width: 56px; font-size: 12px; font-weight: 600; color: #475569; }
+                .bal-bar-wrap { flex: 1; height: 6px; background: #f1f5f9; border-radius: 10px; overflow: hidden; }
+                .bal-bar { height: 100%; background: linear-gradient(90deg, #3b82f6, #8b5cf6); border-radius: 10px; transition: width 0.6s ease; }
+                .bal-count { font-size: 13px; font-weight: 700; min-width: 40px; text-align: right; color: #0f172a; }
+                .bal-count small { font-size: 11px; color: #64748b; font-weight: 400; }
 
                 /* ── Recent leaves card ── */
                 .recent-leaves-card { padding: 22px; }
                 .leave-mini-list { display: flex; flex-direction: column; gap: 12px; margin-top: 4px; }
-                .leave-mini-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); }
+                .leave-mini-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f1f5f9; }
                 .leave-mini-row:last-child { border-bottom: none; }
-                .lm-type { font-size: 13px; font-weight: 600; margin-right: 8px; }
-                .lm-dates { font-size: 12px; }
+                .lm-type { font-size: 13px; font-weight: 600; margin-right: 8px; color: #1e293b; }
+                .lm-dates { font-size: 12px; color: #64748b; }
                 .lm-status { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
-                .lm-status.pending  { background: rgba(245,158,11,0.1);  color: #f59e0b; }
-                .lm-status.approved { background: rgba(16,185,129,0.1);  color: #10b981; }
-                .lm-status.rejected { background: rgba(239,68,68,0.1);   color: #ef4444; }
-                .lm-status.cancelled { background: rgba(100,116,139,0.1); color: #64748b; }
+                .lm-status.pending  { background: #fffbeb;  color: #f59e0b; }
+                .lm-status.approved { background: #ecfdf5;  color: #10b981; }
+                .lm-status.rejected { background: #fef2f2;  color: #ef4444; }
+                .lm-status.cancelled { background: #f1f5f9; color: #64748b; }
 
                 /* ── Quick actions ── */
                 .quick-card { padding: 22px; }
@@ -514,23 +632,43 @@ const EmployeeDashboard = () => {
                 .q-btn {
                     display: flex; flex-direction: column; align-items: center; gap: 8px;
                     padding: 16px 10px; border-radius: 12px;
-                    background: rgba(255,255,255,0.04); border: 1px solid var(--border);
-                    color: var(--text-muted); font-size: 12px; font-weight: 600;
+                    background: #f8fafc; border: 1px solid #e2e8f0;
+                    color: #475569; font-size: 12px; font-weight: 600;
                     cursor: pointer; transition: all 0.2s; position: relative;
                 }
-                .q-btn:hover { background: rgba(99,102,241,0.1); border-color: var(--primary); color: var(--primary); }
+                .q-btn:hover { background: #eff6ff; border-color: #3b82f6; color: #2563eb; }
                 .q-badge { position: absolute; top: 8px; right: 8px; background: #ef4444; color: white; font-size: 10px; font-weight: 800; padding: 1px 5px; border-radius: 10px; }
 
                 /* ── Loading ── */
-                .emp-loading { height: 70vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; color: var(--text-muted); }
-                .loader-spin { animation: spin 1s linear infinite; color: var(--primary); }
+                .emp-loading-wrapper {
+                    height: 80vh;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 16px;
+                }
+                
+                .dash-spinner {
+                    width: 44px;
+                    height: 44px;
+                    border: 3px solid rgba(37, 99, 235, 0.1);
+                    border-top: 3px solid #2563eb;
+                    border-radius: 50%;
+                    animation: spin 1s linear infinite;
+                }
+                
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
 
                 @media (max-width: 1100px) {
                     .emp-main-grid { grid-template-columns: 1fr; }
                 }
 
                 @media (max-width: 768px) {
-                    .emp-wrapper { padding: 15px; gap: 20px; }
+                    .emp-workspace { padding: 15px; gap: 20px; }
                     .emp-header { flex-direction: column; gap: 15px; }
                     .emp-name { font-size: 24px; }
                     .notif-btn { display: none; }
