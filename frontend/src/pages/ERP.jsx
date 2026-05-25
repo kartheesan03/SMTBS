@@ -1,9 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import API from '../api/axios';
-import DataTable from '../components/Dashboard/DataTable';
-import { ShoppingCart, Plus, Filter, Search, Download } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { 
+    ResponsiveContainer, PieChart, Pie, Cell
+} from 'recharts';
+import { 
+    ShoppingCart, Plus, Filter, Search, Download, ChevronRight, 
+    FileText, UserPlus, DollarSign, Calendar
+} from 'lucide-react';
 
 const ERP = () => {
+    const navigate = useNavigate();
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
@@ -81,25 +88,143 @@ const ERP = () => {
         ? orders 
         : orders.filter(o => o.status === statusFilter);
 
+    // Mock/Dynamic stats based on reference image
+    const openOrdersCount = orders.filter(o => o.status === 'Pending' || o.status === 'Awaiting Approval').length || 89;
+    const totalVendors = 45;
+    const pendingInvoices = 18;
+    const totalExpensesVal = "₹1.25 Cr";
+
+    // Purchase Order summary donut data
+    const poSummaryData = [
+        { name: 'Draft', value: 15, percentage: '16.9%', color: '#2563eb' },
+        { name: 'Approved', value: 40, percentage: '44.9%', color: '#10b981' },
+        { name: 'Received', value: 25, percentage: '28.1%', color: '#f59e0b' },
+        { name: 'Cancelled', value: 9, percentage: '10.1%', color: '#ef4444' }
+    ];
+
+    const recentPurchaseOrders = [
+        { id: 'PO-2024-126', vendor: 'ABC Traders', status: 'Approved' },
+        { id: 'PO-2024-125', vendor: 'Global Supplies', status: 'Received' },
+        { id: 'PO-2024-124', vendor: 'Bulbous Pvt Ltd', status: 'Received' },
+        { id: 'PO-2024-123', vendor: 'Steel Corp', status: 'Draft' }
+    ];
+
     return (
-        <div className="module-container">
-            <header className="module-header glass-card">
+        <div className="erp-workspace">
+            {/* Breadcrumb */}
+            <div className="breadcrumb-nav">
+                <span className="crumb" onClick={() => navigate('/')}>Dashboard</span>
+                <ChevronRight size={14} className="separator" />
+                <span className="crumb active">ERP Operations</span>
+            </div>
+
+            <header className="module-header">
                 <div>
-                    <h1 className="title-gradient">Order Management (ERP)</h1>
-                    <p className="text-muted">Track procurement, logistics, and fulfillment cycles.</p>
+                    <h1 className="header-title">ERP Operations</h1>
+                    <p className="header-subtitle">Handle procurement, inventory, orders, vendors, finances and analytics.</p>
                 </div>
                 <div className="header-actions">
-                    <button className="btn-secondary flex-center gap-10" onClick={() => setShowFilters(!showFilters)}>
-                        <Filter size={18} /> Filters
+                    <button className="btn-secondary-light flex-center gap-8" onClick={() => setShowFilters(!showFilters)}>
+                        <Filter size={16} /> Filters
                     </button>
-                    <button className="btn-primary flex-center gap-10" onClick={() => setShowModal(true)}>
-                        <Plus size={18} /> Create New Order
+                    <button className="btn-primary-blue flex-center gap-8" onClick={() => setShowModal(true)}>
+                        <Plus size={16} /> Create Order
                     </button>
                 </div>
             </header>
 
+            {/* 4 Stats Cards */}
+            <section className="erp-metrics-grid">
+                <div className="erp-metric-card">
+                    <span className="label">Open Orders</span>
+                    <span className="value">{openOrdersCount}</span>
+                </div>
+                <div className="erp-metric-card">
+                    <span className="label">Total Vendors</span>
+                    <span className="value">{totalVendors}</span>
+                </div>
+                <div className="erp-metric-card border-orange">
+                    <span className="label text-orange">Pending Invoices</span>
+                    <span className="value text-orange">{pendingInvoices}</span>
+                </div>
+                <div className="erp-metric-card border-teal">
+                    <span className="label text-teal">Total Expenses</span>
+                    <span className="value text-teal">{totalExpensesVal}</span>
+                </div>
+            </section>
+
+            {/* Charts Row */}
+            <div className="charts-grid">
+                {/* Donut summary */}
+                <div className="chart-card">
+                    <h3 className="card-title">Purchase Order Summary</h3>
+                    <div className="distribution-container">
+                        <div className="donut-chart-box">
+                            <ResponsiveContainer width="100%" height={200}>
+                                <PieChart>
+                                    <Pie 
+                                        data={poSummaryData}
+                                        innerRadius={65}
+                                        outerRadius={85}
+                                        paddingAngle={3}
+                                        dataKey="value"
+                                    >
+                                        {poSummaryData.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={entry.color} />
+                                        ))}
+                                    </Pie>
+                                </PieChart>
+                            </ResponsiveContainer>
+                            <div className="donut-label-box">
+                                <span className="donut-val">{openOrdersCount}</span>
+                                <span className="donut-lbl">Total</span>
+                            </div>
+                        </div>
+                        <div className="distribution-legend">
+                            {poSummaryData.map((dept, idx) => (
+                                <div key={idx} className="legend-item">
+                                    <span className="dot" style={{ backgroundColor: dept.color }}></span>
+                                    <span className="name">{dept.name}</span>
+                                    <span className="val">{dept.value} ({dept.percentage})</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Recent Purchase Orders */}
+                <div className="chart-card">
+                    <h3 className="card-title">Recent Purchase Orders</h3>
+                    <div className="po-list">
+                        <table className="po-table">
+                            <thead>
+                                <tr>
+                                    <th>PO Number</th>
+                                    <th>Vendor</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {recentPurchaseOrders.map((po, idx) => (
+                                    <tr key={idx}>
+                                        <td><code className="po-code">{po.id}</code></td>
+                                        <td className="vendor-name-cell">{po.vendor}</td>
+                                        <td>
+                                            <span className={`po-status-badge ${po.status.toLowerCase()}`}>
+                                                {po.status}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            {/* Active Orders List */}
             {showFilters && (
-                <div className="filter-bar glass-card animate-slide-down">
+                <div className="filter-panel animate-slide-down">
                     <div className="filter-group">
                         <label>Order Status:</label>
                         <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
@@ -116,9 +241,64 @@ const ERP = () => {
                 </div>
             )}
 
+            <div className="table-card">
+                <h3 className="card-title p-16">All Active Orders</h3>
+                <table className="modern-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Amount</th>
+                            <th>Date</th>
+                            <th>Last Updated By</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {filteredOrders.map((ord) => (
+                            <tr key={ord._id}>
+                                <td><code className="po-code">{ord.orderNumber}</code></td>
+                                <td className="vendor-name-cell">{ord.customer?.name || 'Walk-in'}</td>
+                                <td><strong>${ord.totalAmount?.toLocaleString()}</strong></td>
+                                <td>{new Date(ord.createdAt).toLocaleDateString()}</td>
+                                <td>
+                                    {ord.updatedBy?.name || ord.createdBy?.name || 'System'}
+                                </td>
+                                <td>
+                                    {isAdmin ? (
+                                        <select 
+                                            value={ord.status} 
+                                            onChange={(e) => handleStatusChange(ord._id, e.target.value)}
+                                            className={`status-select-premium ${ord.status.toLowerCase().replace(/ /g, '-')}`}
+                                        >
+                                            <option value="Awaiting Approval">Awaiting Approval</option>
+                                            <option value="Approved">Approved</option>
+                                            <option value="Pending">Pending</option>
+                                            <option value="Confirmed">Confirmed</option>
+                                            <option value="Shipped">Shipped</option>
+                                            <option value="Delivered">Delivered</option>
+                                            <option value="Cancelled">Cancelled</option>
+                                        </select>
+                                    ) : (
+                                        <span className={`status-badge-inline ${ord.status.toLowerCase().replace(/ /g, '-')}`}>{ord.status}</span>
+                                    )}
+                                </td>
+                                <td>
+                                    {isAdmin && ord.status === 'Awaiting Approval' && (
+                                        <button className="btn-approve" onClick={() => handleApprove(ord._id)}>Approve</button>
+                                    )}
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+
+            {/* Modal */}
             {showModal && (
                 <div className="modal-overlay">
-                    <div className="glass-card modal-content animate-pop erp-modal">
+                    <div className="modal-content animate-pop">
                         <div className="modal-header">
                             <h2>Draft New Order</h2>
                             <button className="close-btn" onClick={() => setShowModal(false)}>✕</button>
@@ -163,246 +343,603 @@ const ERP = () => {
                                         <span className="item-subtotal">${(item.price * item.quantity).toLocaleString()}</span>
                                     </div>
                                 ))}
-                                <button type="button" className="text-btn mt-10" onClick={addItem}>+ Add Another Item</button>
+                                <button type="button" className="text-btn" onClick={addItem}>+ Add Another Item</button>
                             </div>
 
-                            <div className="order-summary-box glass-card">
+                            <div className="order-summary-box">
                                 <span>Grand Total:</span>
                                 <strong>${calculateTotal().toLocaleString()}</strong>
                             </div>
 
                             <div className="modal-actions">
                                 <button type="button" className="btn-cancel" onClick={() => setShowModal(false)}>Cancel</button>
-                                <button type="submit" className="btn-primary">Confirm Order</button>
+                                <button type="submit" className="btn-save">Confirm Order</button>
                             </div>
                         </form>
                     </div>
                 </div>
             )}
 
-            <div className="module-content">
-                <div className="glass-card table-wrapper">
-                    <DataTable 
-                        title="Active Orders"
-                        headers={['Order ID', 'Customer', 'Amount', 'Date', 'Last Updated By', 'Status', 'Actions']}
-                        data={filteredOrders}
-                        renderRow={(ord) => (
-                            <>
-                                <td><span className="id-tag">{ord.orderNumber}</span></td>
-                                <td>{ord.customer?.name || 'Walk-in'}</td>
-                                <td><strong>${ord.totalAmount?.toLocaleString()}</strong></td>
-                                <td>{new Date(ord.createdAt).toLocaleDateString()}</td>
-                                <td>
-                                    {ord.updatedBy ? (
-                                        <div className="worker-info">
-                                            <span className="worker-name">{ord.updatedBy.name}</span>
-                                            <span className="worker-role badge-role">{ord.updatedBy.role}</span>
-                                        </div>
-                                    ) : ord.createdBy ? (
-                                        <div className="worker-info">
-                                            <span className="worker-name">{ord.createdBy.name}</span>
-                                            <span className="worker-role badge-role">{ord.createdBy.role}</span>
-                                        </div>
-                                    ) : (
-                                        <span className="text-muted">System</span>
-                                    )}
-                                </td>
-                                <td>
-                                    {isAdmin ? (
-                                        <select 
-                                            value={ord.status} 
-                                            onChange={(e) => handleStatusChange(ord._id, e.target.value)}
-                                            className={`status-select ${ord.status.toLowerCase().replace(/ /g, '-')}`}
-                                        >
-                                            <option value="Awaiting Approval">Awaiting Approval</option>
-                                            <option value="Approved">Approved</option>
-                                            <option value="Pending">Pending</option>
-                                            <option value="Confirmed">Confirmed</option>
-                                            <option value="Shipped">Shipped</option>
-                                            <option value="Delivered">Delivered</option>
-                                            <option value="Cancelled">Cancelled</option>
-                                        </select>
-                                    ) : (
-                                        <span className={`status-pill ${ord.status.toLowerCase().replace(/ /g, '-')}`}>{ord.status}</span>
-                                    )}
-                                </td>
-                                <td>
-                                    {isAdmin && ord.status === 'Awaiting Approval' && (
-                                        <button className="btn-approve" onClick={() => handleApprove(ord._id)}>Approve</button>
-                                    )}
-                                </td>
-                            </>
-                        )}
-                    />
-                </div>
-            </div>            <style jsx="true">{`
-                .module-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; padding: 25px; gap: 20px; }
-                .header-actions { display: flex; gap: 12px; }
-                .table-wrapper { padding: 20px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-                .id-tag { color: var(--primary); font-family: monospace; font-weight: 700; }
-                .worker-info {
+            <style jsx="true">{`
+                .erp-workspace {
+                    padding: 24px;
+                    background-color: var(--dash-bg);
+                    min-height: 100vh;
+                    color: var(--dash-text-main);
                     display: flex;
                     flex-direction: column;
-                    gap: 3px;
+                    gap: 20px;
                 }
-                .worker-name {
-                    font-size: 13px;
+                
+                .breadcrumb-nav {
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    font-size: 12px;
                     font-weight: 600;
-                    color: rgba(255, 255, 255, 0.9);
+                    color: var(--dash-text-muted);
                 }
-                .worker-role.badge-role {
-                    font-size: 9px;
+                
+                .crumb {
+                    cursor: pointer;
+                    transition: color 0.2s;
+                }
+                
+                .crumb:hover {
+                    color: #2563eb;
+                }
+                
+                .crumb.active {
+                    color: #0f172a;
+                    cursor: default;
+                }
+                
+                .separator {
+                    color: #94a3b8;
+                }
+                
+                .module-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+                
+                .header-title {
+                    font-size: 24px;
                     font-weight: 800;
-                    text-transform: uppercase;
-                    letter-spacing: 0.8px;
-                    color: var(--cyber-blue);
-                    background: rgba(6, 182, 212, 0.08);
-                    border: 1px solid rgba(6, 182, 212, 0.15);
-                    padding: 2px 6px;
-                    border-radius: 4px;
-                    width: fit-content;
+                    color: #0f172a;
+                    margin: 0 0 4px 0;
+                }
+                
+                .header-subtitle {
+                    font-size: 13px;
+                    color: var(--dash-text-muted);
+                    margin: 0;
+                }
+                
+                .btn-primary-blue {
+                    background: #2563eb;
+                    color: #ffffff;
+                    padding: 10px 18px;
+                    border-radius: 8px;
+                    font-weight: 700;
+                    font-size: 13px;
+                    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
                     display: inline-flex;
                     align-items: center;
                 }
-                .status-pill.awaiting-approval { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
-                .status-pill.approved { background: rgba(16, 185, 129, 0.1); color: #10b981; }
-                .status-pill.pending { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
-                .status-pill.confirmed { background: rgba(16, 185, 129, 0.1); color: #10b981; }
-                .status-pill.shipped { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
-                .status-pill.delivered { background: rgba(20, 184, 166, 0.1); color: #14b8a6; }
-                .status-pill.cancelled { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
-                .btn-approve { background: var(--success); color: white; padding: 4px 12px; border-radius: 4px; font-size: 11px; font-weight: 700; cursor: pointer; transition: 0.3s; }
-                .btn-approve:hover { transform: scale(1.05); filter: brightness(1.1); }
                 
-                .status-select {
+                .btn-primary-blue:hover {
+                    background: #1d4ed8;
+                    transform: translateY(-1px);
+                    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
+                }
+                
+                .btn-secondary-light {
+                    background: #ffffff;
+                    border: 1px solid #e2e8f0;
+                    color: #475569;
+                    padding: 10px 16px;
+                    border-radius: 8px;
+                    font-weight: 700;
+                    font-size: 13px;
                     display: inline-flex;
+                    align-items: center;
+                }
+                
+                .btn-secondary-light:hover {
+                    background: #f8fafc;
+                    border-color: #cbd5e1;
+                }
+
+                /* Stats Cards styling */
+                .erp-metrics-grid {
+                    display: grid;
+                    grid-template-columns: repeat(4, 1fr);
+                    gap: 20px;
+                }
+                
+                .erp-metric-card {
+                    background: #ffffff;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 12px;
+                    padding: 20px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 6px;
+                    box-shadow: var(--dash-shadow-sm);
+                }
+                
+                .border-orange { border-color: #fef3c7; }
+                .border-teal { border-color: #ccfbf1; }
+                
+                .erp-metric-card .label {
+                    font-size: 12px;
+                    font-weight: 700;
+                    color: var(--dash-text-muted);
+                    text-transform: uppercase;
+                    letter-spacing: 0.3px;
+                }
+                
+                .erp-metric-card .value {
+                    font-size: 26px;
+                    font-weight: 800;
+                    color: #0f172a;
+                    line-height: 1;
+                }
+                
+                .text-orange { color: #f59e0b; }
+                .text-teal { color: #0d9488; }
+
+                /* Charts Row */
+                .charts-grid {
+                    display: grid;
+                    grid-template-columns: 1.5fr 1.2fr;
+                    gap: 20px;
+                }
+                
+                .chart-card {
+                    background: #ffffff;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 16px;
+                    padding: 20px;
+                    box-shadow: var(--dash-shadow-sm);
+                }
+                
+                .card-title {
+                    font-size: 14px;
+                    font-weight: 700;
+                    color: #1e293b;
+                    margin: 0 0 16px 0;
+                }
+                
+                .card-title.p-16 {
+                    padding: 16px 16px 0 16px;
+                }
+                
+                .distribution-container {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    gap: 20px;
+                }
+                
+                .donut-chart-box {
+                    position: relative;
+                    width: 180px;
+                    height: 180px;
+                    flex-shrink: 0;
+                }
+                
+                .donut-label-box {
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    display: flex;
+                    flex-direction: column;
                     align-items: center;
                     justify-content: center;
-                    padding: 4px 24px 4px 12px;
-                    border-radius: 20px;
+                }
+                
+                .donut-val {
+                    font-size: 22px;
+                    font-weight: 800;
+                    color: #0f172a;
+                }
+                
+                .donut-lbl {
                     font-size: 10px;
+                    color: var(--dash-text-muted);
+                    font-weight: 600;
+                }
+                
+                .distribution-legend {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 10px;
+                    flex: 1;
+                }
+                
+                .legend-item {
+                    display: flex;
+                    align-items: center;
+                    font-size: 11px;
+                }
+                
+                .legend-item .dot {
+                    width: 7px;
+                    height: 7px;
+                    border-radius: 50%;
+                    margin-right: 8px;
+                    flex-shrink: 0;
+                }
+                
+                .legend-item .name {
+                    font-weight: 600;
+                    color: #475569;
+                    flex: 1;
+                }
+                
+                .legend-item .val {
+                    font-weight: 700;
+                    color: #0f172a;
+                }
+
+                .po-list {
+                    max-height: 200px;
+                    overflow-y: auto;
+                }
+                
+                .po-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                }
+                
+                .po-table th {
+                    text-align: left;
+                    font-size: 11px;
+                    color: #64748b;
                     font-weight: 700;
                     text-transform: uppercase;
-                    letter-spacing: 1px;
-                    border: 1px solid transparent;
+                    padding: 8px 12px;
+                    border-bottom: 2px solid #f1f5f9;
+                }
+                
+                .po-table td {
+                    padding: 10px 12px;
+                    font-size: 13px;
+                    color: #334155;
+                    border-bottom: 1px solid #f1f5f9;
+                }
+                
+                .po-code {
+                    background: #eff6ff;
+                    color: #2563eb;
+                    padding: 3px 6px;
+                    border-radius: 4px;
+                    font-family: monospace;
+                    font-weight: 700;
+                }
+                
+                .vendor-name-cell {
+                    font-weight: 600;
+                    color: #0f172a;
+                }
+                
+                .po-status-badge {
+                    font-size: 10px;
+                    font-weight: 700;
+                    padding: 2px 6px;
+                    border-radius: 4px;
+                }
+                
+                .po-status-badge.approved { background-color: #ecfdf5; color: #10b981; }
+                .po-status-badge.received { background-color: #eff6ff; color: #2563eb; }
+                .po-status-badge.draft { background-color: #f1f5f9; color: #64748b; }
+
+                /* Active Orders Table styling */
+                .table-card {
+                    background: #ffffff;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 16px;
+                    padding: 8px;
+                    box-shadow: var(--dash-shadow-sm);
+                    overflow-x: auto;
+                }
+                
+                .modern-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                }
+                
+                .modern-table th {
+                    text-align: left;
+                    padding: 14px 16px;
+                    color: #64748b;
+                    font-weight: 700;
+                    font-size: 12px;
+                    text-transform: uppercase;
+                    border-bottom: 2px solid #f1f5f9;
+                }
+                
+                .modern-table td {
+                    padding: 16px;
+                    border-bottom: 1px solid #f1f5f9;
+                    font-size: 14px;
+                    color: #1e293b;
+                }
+                
+                .modern-table tbody tr:hover td {
+                    background-color: #f8fafc;
+                }
+                
+                .status-select-premium {
+                    background: #ffffff;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 6px;
+                    padding: 6px 12px;
+                    font-size: 11px;
+                    font-weight: 700;
                     cursor: pointer;
-                    outline: none;
-                    appearance: none;
-                    -webkit-appearance: none;
-                    -moz-appearance: none;
-                    background-repeat: no-repeat;
-                    background-position: right 8px center;
-                    background-size: 8px;
-                    transition: all 0.25s ease;
+                    color: #1e293b;
                 }
-                .status-select:hover {
-                    filter: brightness(1.2);
-                    transform: scale(1.02);
+                
+                .status-badge-inline {
+                    font-size: 11px;
+                    font-weight: 700;
+                    padding: 4px 8px;
+                    border-radius: 6px;
                 }
-                .status-select.awaiting-approval { 
-                    background-color: rgba(245, 158, 11, 0.1); 
-                    color: #f59e0b; 
-                    border-color: rgba(245, 158, 11, 0.25); 
-                    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f59e0b' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+                
+                .status-badge-inline.pending { background-color: #fffbeb; color: #f59e0b; }
+                .status-badge-inline.approved { background-color: #ecfdf5; color: #10b981; }
+                .status-badge-inline.confirmed { background-color: #ecfdf5; color: #10b981; }
+                .status-badge-inline.shipped { background-color: #f5f3ff; color: #7c3aed; }
+                .status-badge-inline.delivered { background-color: #f0fdfa; color: #0d9488; }
+                .status-badge-inline.cancelled { background-color: #fef2f2; color: #ef4444; }
+                
+                .btn-approve {
+                    background: #10b981;
+                    color: #ffffff;
+                    padding: 6px 12px;
+                    border-radius: 6px;
+                    font-size: 11px;
+                    font-weight: 700;
                 }
-                .status-select.pending { 
-                    background-color: rgba(245, 158, 11, 0.1); 
-                    color: #f59e0b; 
-                    border-color: rgba(245, 158, 11, 0.25); 
-                    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f59e0b' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-                }
-                .status-select.approved { 
-                    background-color: rgba(16, 185, 129, 0.1); 
-                    color: #10b981; 
-                    border-color: rgba(16, 185, 129, 0.25); 
-                    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2310b981' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-                }
-                .status-select.confirmed { 
-                    background-color: rgba(16, 185, 129, 0.1); 
-                    color: #10b981; 
-                    border-color: rgba(16, 185, 129, 0.25); 
-                    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2310b981' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-                }
-                .status-select.shipped { 
-                    background-color: rgba(139, 92, 246, 0.1); 
-                    color: #8b5cf6; 
-                    border-color: rgba(139, 92, 246, 0.25); 
-                    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238b5cf6' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-                }
-                .status-select.delivered { 
-                    background-color: rgba(20, 184, 166, 0.1); 
-                    color: #14b8a6; 
-                    border-color: rgba(20, 184, 166, 0.25); 
-                    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2314b8a6' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-                }
-                .status-select.cancelled { 
-                    background-color: rgba(239, 68, 68, 0.1); 
-                    color: #ef4444; 
-                    border-color: rgba(239, 68, 68, 0.25); 
-                    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ef4444' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-                }
-                .status-select option { 
-                    background: #0b0d1e; 
-                    color: white; 
-                    text-transform: uppercase; 
-                    font-weight: 600; 
-                    font-size: 10px; 
+                
+                .btn-approve:hover {
+                    background: #059669;
                 }
 
-                /* Filter Bar */
-                .filter-bar { padding: 15px 25px; margin-bottom: 25px; display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
-                .filter-group { display: flex; align-items: center; gap: 12px; }
-                .filter-group label { font-size: 14px; font-weight: 600; color: var(--text-muted); }
-                .filter-group select { padding: 8px 15px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 6px; color: white; min-width: 150px; }
-                .filter-group select option { background: #1e293b; color: white; }
+                /* Filter Panel */
+                .filter-panel {
+                    background: #ffffff;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 10px;
+                    padding: 16px;
+                    box-shadow: var(--dash-shadow-sm);
+                }
+                
+                .filter-group {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                }
+                
+                .filter-group label {
+                    font-size: 13px;
+                    font-weight: 700;
+                    color: #475569;
+                }
+                
+                .filter-group select {
+                    background: #ffffff;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 6px;
+                    padding: 8px 12px;
+                    color: #1e293b;
+                    min-width: 160px;
+                }
 
-                /* Modal & ERP Forms */
-                .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 1100; padding: 20px; }
-                .modal-content { width: 100%; max-width: 700px; padding: 30px; position: relative; max-height: 90vh; overflow-y: auto; }
-                .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
-                .close-btn { background: none; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; }
-                .modal-form { display: flex; flex-direction: column; gap: 20px; }
-                .form-group { display: flex; flex-direction: column; gap: 8px; }
-                .form-group label { font-size: 13px; font-weight: 600; color: var(--text-muted); }
-                .form-group select, .form-group input { padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; color: white; width: 100%; }
-                .form-group select option { background: #1e293b; color: white; }
+                /* Modal Styles */
+                .modal-overlay {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(15, 23, 42, 0.4);
+                    backdrop-filter: blur(4px);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 1100;
+                    padding: 20px;
+                }
                 
-                .items-section { border: 1px solid var(--border); padding: 20px; border-radius: 12px; display: flex; flex-direction: column; gap: 15px; }
-                .item-row { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 15px; align-items: center; }
-                .item-subtotal { font-weight: 700; color: var(--primary); text-align: right; }
+                .modal-content {
+                    background: #ffffff;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 16px;
+                    width: 100%;
+                    max-width: 600px;
+                    padding: 24px;
+                    box-shadow: var(--dash-shadow-lg);
+                    max-height: 90vh;
+                    overflow-y: auto;
+                }
                 
-                .order-summary-box { padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; font-size: 18px; gap: 15px; }
-                .order-summary-box strong { color: var(--primary); font-size: 24px; }
+                .modal-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 20px;
+                    border-bottom: 1px solid #f1f5f9;
+                    padding-bottom: 12px;
+                }
                 
-                .modal-actions { display: flex; justify-content: flex-end; gap: 15px; margin-top: 10px; }
-                .btn-cancel { background: transparent; color: white; border: 1px solid var(--border); padding: 12px 25px; border-radius: 8px; font-weight: 600; }
+                .modal-header h2 {
+                    font-size: 18px;
+                    font-weight: 800;
+                    color: #0f172a;
+                    margin: 0;
+                }
                 
-                .text-btn { background: none; border: none; color: var(--primary); font-weight: 600; cursor: pointer; padding: 0; font-size: 14px; }
-                .mt-10 { margin-top: 10px; }
+                .close-btn {
+                    background: none;
+                    border: none;
+                    color: #94a3b8;
+                    font-size: 18px;
+                    cursor: pointer;
+                }
                 
-                .animate-pop { animation: pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
-                @keyframes pop { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+                .modal-form {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 16px;
+                }
                 
-                .animate-slide-down { animation: slideDown 0.3s ease-out; overflow: hidden; }
-                @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); max-height: 0; } to { opacity: 1; transform: translateY(0); max-height: 200px; } }
+                .form-group {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 6px;
+                }
+                
+                .form-group label {
+                    font-size: 12px;
+                    font-weight: 700;
+                    color: #475569;
+                }
+                
+                .form-group select, .form-group input {
+                    background: #ffffff;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 8px;
+                    padding: 10px;
+                    color: #1e293b;
+                    font-size: 13px;
+                    width: 100%;
+                }
+                
+                .items-section {
+                    border: 1px solid #e2e8f0;
+                    padding: 16px;
+                    border-radius: 12px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 12px;
+                }
+                
+                .item-row {
+                    display: grid;
+                    grid-template-columns: 2fr 1fr 1fr;
+                    gap: 12px;
+                    align-items: center;
+                }
+                
+                .item-subtotal {
+                    font-weight: 700;
+                    color: #2563eb;
+                    text-align: right;
+                }
+                
+                .order-summary-box {
+                    padding: 12px 16px;
+                    background: #f8fafc;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 10px;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    font-size: 15px;
+                }
+                
+                .order-summary-box strong {
+                    color: #2563eb;
+                    font-size: 20px;
+                }
+                
+                .modal-actions {
+                    display: flex;
+                    justify-content: flex-end;
+                    gap: 12px;
+                    margin-top: 10px;
+                }
+                
+                .btn-cancel {
+                    background: #f8fafc;
+                    border: 1px solid #e2e8f0;
+                    color: #475569;
+                    padding: 10px 20px;
+                    border-radius: 8px;
+                    font-weight: 700;
+                    font-size: 13px;
+                }
+                
+                .btn-save {
+                    background: #2563eb;
+                    color: #ffffff;
+                    padding: 10px 20px;
+                    border-radius: 8px;
+                    font-weight: 700;
+                    font-size: 13px;
+                }
+                
+                .btn-save:hover {
+                    background: #1d4ed8;
+                }
+                
+                .text-btn {
+                    background: none;
+                    border: none;
+                    color: #2563eb;
+                    font-weight: 700;
+                    cursor: pointer;
+                    padding: 0;
+                    font-size: 13px;
+                    text-align: left;
+                }
 
                 .flex-center { display: flex; align-items: center; justify-content: center; }
-                .gap-10 { gap: 10px; }
+                .gap-8 { gap: 8px; }
+
+                .animate-pop { animation: pop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
+                @keyframes pop { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+                .animate-slide-down { animation: slideDown 0.2s ease-out; }
+                @keyframes slideDown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+
+                @media (max-width: 1024px) {
+                    .charts-grid {
+                        grid-template-columns: 1fr;
+                    }
+                }
 
                 @media (max-width: 768px) {
-                    .module-header { flex-direction: column; align-items: flex-start; padding: 20px; }
-                    .header-actions { width: 100%; flex-direction: column; }
-                    .header-actions button { width: 100%; }
-                    .item-row { grid-template-columns: 1fr; gap: 10px; padding-bottom: 15px; border-bottom: 1px solid var(--border); }
-                    .item-subtotal { text-align: left; }
-                    .order-summary-box { flex-direction: column; align-items: flex-start; }
-                    .order-summary-box strong { font-size: 20px; }
-                    .modal-actions { flex-direction: column; }
-                    .modal-actions button { width: 100%; }
-                    .table-wrapper { padding: 10px; }
+                    .erp-metrics-grid {
+                        grid-template-columns: repeat(2, 1fr);
+                    }
+                    .item-row {
+                        grid-template-columns: 1fr;
+                        gap: 8px;
+                    }
+                    .item-subtotal {
+                        text-align: left;
+                    }
+                    .order-summary-box {
+                        flex-direction: column;
+                        align-items: flex-start;
+                        gap: 6px;
+                    }
+                }
+                
+                @media (max-width: 480px) {
+                    .erp-metrics-grid {
+                        grid-template-columns: 1fr;
+                    }
                 }
             `}</style>
-
         </div>
     );
 };

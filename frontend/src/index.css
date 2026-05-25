@@ -36,6 +36,28 @@
   --neon-glow-strong: 0 0 30px rgba(6, 182, 212, 0.4);
   
   --sidebar-width: 260px;
+
+  /* Premium Hybrid Dashboard Theme (Light Indigo Workspace) */
+  --dash-bg: #f8fafc;
+  --dash-card: #ffffff;
+  --dash-border: #e2e8f0;
+  --dash-text-main: #0f172a;
+  --dash-text-muted: #64748b;
+  --dash-primary: #3b82f6;
+  --dash-primary-light: #eff6ff;
+  --dash-success: #10b981;
+  --dash-success-light: #ecfdf5;
+  --dash-warning: #f59e0b;
+  --dash-warning-light: #fffbeb;
+  --dash-danger: #ef4444;
+  --dash-danger-light: #fef2f2;
+  --dash-purple: #8b5cf6;
+  --dash-purple-light: #f5f3ff;
+  --dash-teal: #14b8a6;
+  --dash-teal-light: #f0fdfa;
+  --dash-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --dash-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --dash-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
 }
 
 * {
