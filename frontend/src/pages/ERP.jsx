@@ -61,13 +61,17 @@ const ERP = () => {
         setFormData({ ...formData, items: [...formData.items, { material: '', quantity: 1, price: 0 }] });
     };
 
-    const handleApprove = async (id) => {
+    const handleStatusChange = async (id, newStatus) => {
         try {
-            await API.put(`/orders/${id}/status`, { status: 'Approved' });
+            await API.put(`/orders/${id}/status`, { status: newStatus });
             fetchData();
         } catch (err) {
-            alert(err.response?.data?.message || 'Error approving order');
+            alert(err.response?.data?.message || 'Error updating order status');
         }
+    };
+
+    const handleApprove = async (id) => {
+        await handleStatusChange(id, 'Approved');
     };
 
     const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
@@ -180,7 +184,7 @@ const ERP = () => {
                 <div className="glass-card table-wrapper">
                     <DataTable 
                         title="Active Orders"
-                        headers={['Order ID', 'Customer', 'Amount', 'Date', 'Status', 'Actions']}
+                        headers={['Order ID', 'Customer', 'Amount', 'Date', 'Last Updated By', 'Status', 'Actions']}
                         data={filteredOrders}
                         renderRow={(ord) => (
                             <>
@@ -188,7 +192,40 @@ const ERP = () => {
                                 <td>{ord.customer?.name || 'Walk-in'}</td>
                                 <td><strong>${ord.totalAmount?.toLocaleString()}</strong></td>
                                 <td>{new Date(ord.createdAt).toLocaleDateString()}</td>
-                                <td><span className={`status-pill ${ord.status.toLowerCase().replace(/ /g, '-')}`}>{ord.status}</span></td>
+                                <td>
+                                    {ord.updatedBy ? (
+                                        <div className="worker-info">
+                                            <span className="worker-name">{ord.updatedBy.name}</span>
+                                            <span className="worker-role badge-role">{ord.updatedBy.role}</span>
+                                        </div>
+                                    ) : ord.createdBy ? (
+                                        <div className="worker-info">
+                                            <span className="worker-name">{ord.createdBy.name}</span>
+                                            <span className="worker-role badge-role">{ord.createdBy.role}</span>
+                                        </div>
+                                    ) : (
+                                        <span className="text-muted">System</span>
+                                    )}
+                                </td>
+                                <td>
+                                    {isAdmin ? (
+                                        <select 
+                                            value={ord.status} 
+                                            onChange={(e) => handleStatusChange(ord._id, e.target.value)}
+                                            className={`status-select ${ord.status.toLowerCase().replace(/ /g, '-')}`}
+                                        >
+                                            <option value="Awaiting Approval">Awaiting Approval</option>
+                                            <option value="Approved">Approved</option>
+                                            <option value="Pending">Pending</option>
+                                            <option value="Confirmed">Confirmed</option>
+                                            <option value="Shipped">Shipped</option>
+                                            <option value="Delivered">Delivered</option>
+                                            <option value="Cancelled">Cancelled</option>
+                                        </select>
+                                    ) : (
+                                        <span className={`status-pill ${ord.status.toLowerCase().replace(/ /g, '-')}`}>{ord.status}</span>
+                                    )}
+                                </td>
                                 <td>
                                     {isAdmin && ord.status === 'Awaiting Approval' && (
                                         <button className="btn-approve" onClick={() => handleApprove(ord._id)}>Approve</button>
@@ -203,6 +240,30 @@ const ERP = () => {
                 .header-actions { display: flex; gap: 12px; }
                 .table-wrapper { padding: 20px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
                 .id-tag { color: var(--primary); font-family: monospace; font-weight: 700; }
+                .worker-info {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 3px;
+                }
+                .worker-name {
+                    font-size: 13px;
+                    font-weight: 600;
+                    color: rgba(255, 255, 255, 0.9);
+                }
+                .worker-role.badge-role {
+                    font-size: 9px;
+                    font-weight: 800;
+                    text-transform: uppercase;
+                    letter-spacing: 0.8px;
+                    color: var(--cyber-blue);
+                    background: rgba(6, 182, 212, 0.08);
+                    border: 1px solid rgba(6, 182, 212, 0.15);
+                    padding: 2px 6px;
+                    border-radius: 4px;
+                    width: fit-content;
+                    display: inline-flex;
+                    align-items: center;
+                }
                 .status-pill.awaiting-approval { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
                 .status-pill.approved { background: rgba(16, 185, 129, 0.1); color: #10b981; }
                 .status-pill.pending { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
@@ -212,6 +273,81 @@ const ERP = () => {
                 .status-pill.cancelled { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
                 .btn-approve { background: var(--success); color: white; padding: 4px 12px; border-radius: 4px; font-size: 11px; font-weight: 700; cursor: pointer; transition: 0.3s; }
                 .btn-approve:hover { transform: scale(1.05); filter: brightness(1.1); }
+                
+                .status-select {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 4px 24px 4px 12px;
+                    border-radius: 20px;
+                    font-size: 10px;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                    border: 1px solid transparent;
+                    cursor: pointer;
+                    outline: none;
+                    appearance: none;
+                    -webkit-appearance: none;
+                    -moz-appearance: none;
+                    background-repeat: no-repeat;
+                    background-position: right 8px center;
+                    background-size: 8px;
+                    transition: all 0.25s ease;
+                }
+                .status-select:hover {
+                    filter: brightness(1.2);
+                    transform: scale(1.02);
+                }
+                .status-select.awaiting-approval { 
+                    background-color: rgba(245, 158, 11, 0.1); 
+                    color: #f59e0b; 
+                    border-color: rgba(245, 158, 11, 0.25); 
+                    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f59e0b' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+                }
+                .status-select.pending { 
+                    background-color: rgba(245, 158, 11, 0.1); 
+                    color: #f59e0b; 
+                    border-color: rgba(245, 158, 11, 0.25); 
+                    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f59e0b' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+                }
+                .status-select.approved { 
+                    background-color: rgba(16, 185, 129, 0.1); 
+                    color: #10b981; 
+                    border-color: rgba(16, 185, 129, 0.25); 
+                    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2310b981' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+                }
+                .status-select.confirmed { 
+                    background-color: rgba(16, 185, 129, 0.1); 
+                    color: #10b981; 
+                    border-color: rgba(16, 185, 129, 0.25); 
+                    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2310b981' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+                }
+                .status-select.shipped { 
+                    background-color: rgba(139, 92, 246, 0.1); 
+                    color: #8b5cf6; 
+                    border-color: rgba(139, 92, 246, 0.25); 
+                    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238b5cf6' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+                }
+                .status-select.delivered { 
+                    background-color: rgba(20, 184, 166, 0.1); 
+                    color: #14b8a6; 
+                    border-color: rgba(20, 184, 166, 0.25); 
+                    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2314b8a6' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+                }
+                .status-select.cancelled { 
+                    background-color: rgba(239, 68, 68, 0.1); 
+                    color: #ef4444; 
+                    border-color: rgba(239, 68, 68, 0.25); 
+                    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ef4444' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+                }
+                .status-select option { 
+                    background: #0b0d1e; 
+                    color: white; 
+                    text-transform: uppercase; 
+                    font-weight: 600; 
+                    font-size: 10px; 
+                }
 
                 /* Filter Bar */
                 .filter-bar { padding: 15px 25px; margin-bottom: 25px; display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }

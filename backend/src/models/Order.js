@@ -16,7 +16,8 @@ const orderSchema = new mongoose.Schema({
         default: 'Pending' 
     },
     type: { type: String, enum: ['Purchase', 'Sales'], required: true },
-    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Order', orderSchema);
