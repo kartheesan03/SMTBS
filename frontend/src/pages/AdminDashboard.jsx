@@ -541,7 +541,7 @@ const AdminDashboard = () => {
                 .admin-workspace {
                     display: grid;
                     grid-template-columns: 1fr 340px;
-                    background-color: var(--dash-bg);
+                    background-color: #f1f5f9;
                     min-height: 100vh;
                     color: var(--dash-text-main);
                 }
@@ -557,7 +557,7 @@ const AdminDashboard = () => {
                 
                 .workspace-features-sidebar {
                     padding: 24px;
-                    background-color: var(--dash-bg);
+                    background-color: #f1f5f9;
                     border-left: 1px solid var(--dash-border);
                     height: 100vh;
                     position: sticky;

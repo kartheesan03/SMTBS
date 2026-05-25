@@ -288,7 +288,7 @@ const MaterialTracking = () => {
             <style jsx="true">{`
                 .materials-workspace {
                     padding: 24px;
-                    background-color: var(--dash-bg);
+                    background-color: #f1f5f9;
                     min-height: 100vh;
                     color: var(--dash-text-main);
                     display: flex;
