@@ -150,6 +150,7 @@ const AppContent = () => {
                 .main-content.with-sidebar {
                     margin-left: 260px;
                     width: calc(100% - 260px);
+                    background-color: var(--dash-bg, #f1f5f9);
                 }
                 .p-30 { padding: 30px; }
 
