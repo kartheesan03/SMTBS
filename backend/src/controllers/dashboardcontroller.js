@@ -3,8 +3,9 @@ const Employee = require('../models/Employee');
 const Order = require('../models/Order');
 const Customer = require('../models/Customer');
 const Lead = require('../models/Lead');
-
 const Salary = require('../models/Salary');
+const Attendance = require('../models/Attendance');
+const Leave = require('../models/Leave');
 
 const getDashboardStats = async (req, res) => {
     try {
@@ -110,7 +111,83 @@ const getDashboardStats = async (req, res) => {
         };
 
         if (role === 'HR') {
-            data.hrStats = { totalEmployees: stats.totalEmployees, presentToday: 0, onLeave: 0 };
+            try {
+                const todayStart = new Date();
+                todayStart.setHours(0,0,0,0);
+                const todayEnd = new Date();
+                todayEnd.setHours(23,59,59,999);
+
+                const presentTodayCount = await Attendance.countDocuments({
+                    date: { $gte: todayStart, $lte: todayEnd },
+                    status: { $in: ['Present', 'Late'] }
+                });
+
+                const today = new Date();
+                const onLeaveCount = await Leave.countDocuments({
+                    startDate: { $lte: today },
+                    endDate: { $gte: today },
+                    status: 'Approved'
+                });
+
+                const thirtyDaysAgo = new Date();
+                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                const newJoinersCount = await Employee.countDocuments({
+                    joinDate: { $gte: thirtyDaysAgo }
+                });
+
+                const totalEmps = stats.totalEmployees || 1;
+                const deptStats = await Employee.aggregate([
+                    { $group: { _id: "$department", value: { $sum: 1 } } }
+                ]);
+                
+                const COLORS = ['#2563eb', '#10b981', '#f59e0b', '#7c3aed', '#0d9488'];
+                const employeeDistribution = deptStats.map((d, index) => ({
+                    name: d._id || 'Other',
+                    value: d.value,
+                    percentage: `${((d.value / totalEmps) * 100).toFixed(1)}%`,
+                    color: COLORS[index % COLORS.length]
+                }));
+
+                const recentEmployees = await Employee.find()
+                    .sort({ createdAt: -1 })
+                    .limit(4);
+
+                const recentEmployeesFormatted = recentEmployees.map(emp => ({
+                    name: `${emp.firstName} ${emp.lastName || ''}`.trim(),
+                    role: emp.designation || 'Staff',
+                    avatar: `${emp.firstName[0] || ''}${emp.lastName ? emp.lastName[0] : ''}`.toUpperCase()
+                }));
+
+                const attendanceHistory = [];
+                for (let i = 4; i >= 0; i--) {
+                    const d = new Date();
+                    d.setDate(d.getDate() - i);
+                    d.setHours(0,0,0,0);
+                    
+                    const dEnd = new Date(d);
+                    dEnd.setHours(23,59,59,999);
+
+                    const count = await Attendance.countDocuments({
+                        date: { $gte: d, $lte: dEnd },
+                        status: { $in: ['Present', 'Late'] }
+                    });
+                    const dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
+                    attendanceHistory.push({ name: dayName, employees: count });
+                }
+
+                data.hrStats = {
+                    totalEmployees: stats.totalEmployees,
+                    presentToday: presentTodayCount,
+                    onLeave: onLeaveCount,
+                    newJoiners: newJoinersCount,
+                    employeeDistribution,
+                    recentEmployees: recentEmployeesFormatted,
+                    attendanceHistory
+                };
+            } catch (err) {
+                console.error('HR Dashboard Stats Error:', err);
+                data.hrStats = { totalEmployees: stats.totalEmployees, presentToday: 0, onLeave: 0, newJoiners: 0, employeeDistribution: [], recentEmployees: [], attendanceHistory: [] };
+            }
         } else if (role === 'Sales') {
             try {
                 const pipelineData = await Lead.aggregate([

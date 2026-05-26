@@ -41,26 +41,27 @@ const HRDashboard = () => {
         );
     }
 
-    const employeeDistribution = [
-        { name: 'HR', value: 45, percentage: '12.6%', color: '#2563eb' },
-        { name: 'Finance', value: 67, percentage: '18.8%', color: '#10b981' },
-        { name: 'Sales', value: 98, percentage: '27.5%', color: '#f59e0b' },
-        { name: 'Operations', value: 89, percentage: '25.0%', color: '#7c3aed' },
-        { name: 'IT', value: 57, percentage: '16.0%', color: '#0d9488' }
-    ];
+    const hrStats = data?.hrStats || {};
 
-    const recentEmployees = [
-        { name: 'John Doe', role: 'Software Engineer', avatar: 'JD' },
-        { name: 'Jane Smith', role: 'HR Executive', avatar: 'JS' },
-        { name: 'Michael Brown', role: 'Accountant', avatar: 'MB' },
-        { name: 'Emily Davis', role: 'Sales Executive', avatar: 'ED' }
-    ];
+    const employeeDistribution = hrStats.employeeDistribution && hrStats.employeeDistribution.length > 0
+        ? hrStats.employeeDistribution
+        : [
+            { name: 'HR', value: 0, percentage: '0%', color: '#2563eb' },
+            { name: 'Finance', value: 0, percentage: '0%', color: '#10b981' },
+            { name: 'Sales', value: 0, percentage: '0%', color: '#f59e0b' },
+            { name: 'Operations', value: 0, percentage: '0%', color: '#7c3aed' },
+            { name: 'IT', value: 0, percentage: '0%', color: '#0d9488' }
+        ];
 
-    // Stats mapping to reference mockup
-    const totalEmployees = data?.stats?.totalEmployees ?? 356;
-    const presentToday = 289;
-    const onLeave = 34;
-    const newJoiners = 12;
+    const recentEmployees = hrStats.recentEmployees && hrStats.recentEmployees.length > 0
+        ? hrStats.recentEmployees
+        : [];
+
+    // Stats mapping to reference dynamic stats
+    const totalEmployees = hrStats.totalEmployees ?? data?.stats?.totalEmployees ?? 0;
+    const presentToday = hrStats.presentToday ?? 0;
+    const onLeave = hrStats.onLeave ?? 0;
+    const newJoiners = hrStats.newJoiners ?? 0;
 
     return (
         <div className="hr-workspace">
