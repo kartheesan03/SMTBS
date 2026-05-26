@@ -261,7 +261,17 @@ const ERP = () => {
                         {filteredOrders.map((ord) => {
                             const isEmp = userInfo.role === 'Employee';
                             const isSalesRole = userInfo.role === 'Sales';
-                            const statusClass = ord.status.toLowerCase().replace(/ /g, '-');
+                            
+                            const displayStatus = (status) => {
+                                const pendingStates = ['Pending', 'Awaiting Approval', 'Awaiting Stock Check'];
+                                if (pendingStates.includes(status)) {
+                                    return 'Pending';
+                                }
+                                return status;
+                            };
+                            
+                            const currentStatusText = displayStatus(ord.status);
+                            const statusClass = currentStatusText.toLowerCase().replace(/ /g, '-');
                             
                             return (
                                 <tr key={ord._id}>
@@ -275,23 +285,21 @@ const ERP = () => {
                                     <td>
                                         {isAdmin ? (
                                             <select 
-                                                value={ord.status} 
+                                                value={displayStatus(ord.status)} 
                                                 onChange={(e) => handleStatusChange(ord._id, e.target.value)}
                                                 className={`status-select-premium ${statusClass}`}
                                             >
-                                                <option value="Awaiting Stock Check">Awaiting Stock Check</option>
+                                                <option value="Pending">Pending</option>
                                                 <option value="Ready for Delivery">Ready for Delivery</option>
                                                 <option value="Low Stock Alert">Low Stock Alert</option>
-                                                <option value="Awaiting Approval">Awaiting Approval</option>
                                                 <option value="Approved">Approved</option>
-                                                <option value="Pending">Pending</option>
                                                 <option value="Confirmed">Confirmed</option>
                                                 <option value="Shipped">Shipped</option>
                                                 <option value="Delivered">Delivered</option>
                                                 <option value="Cancelled">Cancelled</option>
                                             </select>
                                         ) : (
-                                            <span className={`status-badge-inline ${statusClass}`}>{ord.status}</span>
+                                            <span className={`status-badge-inline ${statusClass}`}>{displayStatus(ord.status)}</span>
                                         )}
                                     </td>
                                     <td>
@@ -308,8 +316,8 @@ const ERP = () => {
                                             <button className="btn-workflow-deliver" onClick={() => handleStatusChange(ord._id, 'Delivered')}>Deliver to Customer</button>
                                         )}
 
-                                        {/* Admin General Approve Fallback */}
-                                        {isAdmin && ord.status === 'Awaiting Approval' && (
+                                        {/* General Approve Button for All roles */}
+                                        {(ord.status === 'Pending' || ord.status === 'Awaiting Approval' || ord.status === 'Awaiting Stock Check') && (
                                             <button className="btn-approve" onClick={() => handleApprove(ord._id)}>Approve</button>
                                         )}
                                     </td>

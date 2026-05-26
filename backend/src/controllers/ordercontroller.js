@@ -30,14 +30,8 @@ const createOrder = async (req, res) => {
         }
 
         // Determine initial status based on role and type
-        let initialStatus = status || 'Pending';
+        let initialStatus = 'Pending';
         const isSales = type === 'Sales' || !!customer;
-        
-        if (isSales && (req.user.role === 'HR' || req.user.role === 'Manager')) {
-            initialStatus = 'Awaiting Stock Check';
-        } else if (req.user.role === 'Manager') {
-            initialStatus = 'Awaiting Approval';
-        }
 
         const order = new Order({
             orderNumber: orderNumber || `ORD-${Date.now().toString().slice(-6)}`,
@@ -53,7 +47,7 @@ const createOrder = async (req, res) => {
         const createdOrder = await order.save();
 
         // If it's already approved, update stock
-        if (initialStatus !== 'Awaiting Approval' && initialStatus !== 'Awaiting Stock Check') {
+        if (initialStatus === 'Approved') {
             await updateStock(items);
         }
 
