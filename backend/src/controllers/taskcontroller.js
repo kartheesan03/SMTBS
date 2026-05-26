@@ -1,9 +1,10 @@
 const Task = require('../models/Task');
 const User = require('../models/User');
+const Notification = require('../models/Notification');
 
 // @desc    Create a new task
 // @route   POST /api/tasks
-// @access  Private (Admin/Manager)
+// @access  Private (Admin/Manager/HR)
 const createTask = async (req, res) => {
     try {
         const { title, description, assignedTo, priority, dueDate, isBroadcast } = req.body;
@@ -25,6 +26,23 @@ const createTask = async (req, res) => {
             dueDate,
             isBroadcast
         });
+
+        // Trigger in-app notifications for each assigned employee
+        if (finalAssignedTo && finalAssignedTo.length > 0) {
+            try {
+                const notifications = finalAssignedTo.map(userId => ({
+                    user: userId,
+                    title: 'New Task Assigned',
+                    message: `You have been assigned a new task: "${title}" by ${req.user.role} ${req.user.name}.`,
+                    type: 'info',
+                    category: req.user.role === 'HR' ? 'hr' : 'general',
+                    link: '/my-tasks'
+                }));
+                await Notification.insertMany(notifications);
+            } catch (err) {
+                console.error('Error generating task notifications:', err);
+            }
+        }
 
         res.status(201).json(task);
     } catch (error) {
