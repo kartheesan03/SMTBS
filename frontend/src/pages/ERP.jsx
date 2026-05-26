@@ -103,10 +103,10 @@ const ERP = () => {
     ];
 
     const recentPurchaseOrders = [
-        { id: 'PO-2024-126', vendor: 'ABC Traders', status: 'Approved' },
-        { id: 'PO-2024-125', vendor: 'Global Supplies', status: 'Received' },
-        { id: 'PO-2024-124', vendor: 'Bulbous Pvt Ltd', status: 'Received' },
-        { id: 'PO-2024-123', vendor: 'Steel Corp', status: 'Draft' }
+        { id: `PO-${new Date().getFullYear()}-126`, vendor: 'ABC Traders', status: 'Approved' },
+        { id: `PO-${new Date().getFullYear()}-125`, vendor: 'Global Supplies', status: 'Received' },
+        { id: `PO-${new Date().getFullYear()}-124`, vendor: 'Bulbous Pvt Ltd', status: 'Received' },
+        { id: `PO-${new Date().getFullYear()}-123`, vendor: 'Steel Corp', status: 'Draft' }
     ];
 
     return (

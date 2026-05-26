@@ -110,7 +110,7 @@ const getDashboardStats = async (req, res) => {
             }
         };
 
-        if (role === 'HR') {
+        if (role === 'HR' || role === 'Admin') {
             try {
                 const todayStart = new Date();
                 todayStart.setHours(0,0,0,0);

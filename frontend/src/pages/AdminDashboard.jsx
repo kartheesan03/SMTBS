@@ -21,7 +21,18 @@ const AdminDashboard = () => {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [searchVal, setSearchVal] = useState('');
-    const [dateRange, setDateRange] = useState('May 21, 2024 - Jun 21, 2024');
+
+    const getDynamicRange = () => {
+        const today = new Date();
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const currentMonthName = monthNames[today.getMonth()];
+        const nextMonthDate = new Date(today.getFullYear(), today.getMonth() + 1, 21);
+        const nextMonthName = monthNames[nextMonthDate.getMonth()];
+        const nextMonthYear = nextMonthDate.getFullYear();
+        return `${currentMonthName} 21, ${today.getFullYear()} - ${nextMonthName} 21, ${nextMonthYear}`;
+    };
+
+    const [dateRange, setDateRange] = useState(getDynamicRange());
     const [showDatePicker, setShowDatePicker] = useState(false);
 
     const fetchAdminStats = useCallback(async () => {
@@ -57,6 +68,12 @@ const AdminDashboard = () => {
     const activeCustomers = data?.stats?.totalCustomers ?? 682;
     const totalRevenue = data?.stats?.revenue ?? 47500000; // ₹4.75 Cr
 
+    const hrStats = data?.hrStats || {};
+    const hrTotalEmployees = hrStats.totalEmployees ?? totalEmployees;
+    const hrPresentToday = hrStats.presentToday ?? 0;
+    const hrOnLeave = hrStats.onLeave ?? 0;
+    const hrNewJoiners = hrStats.newJoiners ?? 0;
+
     // Donut Chart Data
     const materialOverviewData = [
         { name: 'In Stock', value: 750, percentage: '59.8%', color: '#2563eb' },
@@ -74,13 +91,20 @@ const AdminDashboard = () => {
     ];
 
     // Line Chart Data for Revenue Overview
-    const revenueOverviewData = [
-        { name: 'May 21', value: 1.5 },
-        { name: 'May 28', value: 2.2 },
-        { name: 'Jun 04', value: 2.9 },
-        { name: 'Jun 11', value: 3.8 },
-        { name: 'Jun 18', value: 4.75 },
-    ];
+    const getRevenueChartData = () => {
+        const values = [1.5, 2.2, 2.9, 3.8, 4.75];
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const dataList = [];
+        for (let i = 0; i < 5; i++) {
+            const d = new Date();
+            d.setDate(d.getDate() - (28 - i * 7));
+            const dayStr = d.getDate() < 10 ? '0' + d.getDate() : d.getDate();
+            const label = `${monthNames[d.getMonth()]} ${dayStr}`;
+            dataList.push({ name: label, value: values[i] });
+        }
+        return dataList;
+    };
+    const revenueOverviewData = getRevenueChartData();
 
     return (
         <div className="admin-workspace">
@@ -133,7 +157,7 @@ const AdminDashboard = () => {
                             padding: '8px',
                             boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)'
                         }}>
-                            {['Last 7 Days', 'Last 30 Days', 'This Month', 'May 21, 2024 - Jun 21, 2024'].map((d) => (
+                            {['Last 7 Days', 'Last 30 Days', 'This Month', getDynamicRange()].map((d) => (
                                 <div
                                     key={d}
                                     style={{
@@ -334,7 +358,7 @@ const AdminDashboard = () => {
                                     <FileText size={14} />
                                 </div>
                                 <div className="activity-details">
-                                    <p className="activity-text">PO <strong>#PO-2024-125</strong> created</p>
+                                    <p className="activity-text">PO <strong>#PO-{new Date().getFullYear()}-125</strong> created</p>
                                     <span className="activity-time">1 hour ago</span>
                                 </div>
                             </div>
@@ -352,7 +376,7 @@ const AdminDashboard = () => {
                                     <DollarSign size={14} />
                                 </div>
                                 <div className="activity-details">
-                                    <p className="activity-text">Invoice <strong>INV-2024-542</strong> paid</p>
+                                    <p className="activity-text">Invoice <strong>INV-{new Date().getFullYear()}-542</strong> paid</p>
                                     <span className="activity-time">3 hours ago</span>
                                 </div>
                             </div>
@@ -370,28 +394,28 @@ const AdminDashboard = () => {
                                 <span className="hr-stat-icon">👥</span>
                                 <div className="hr-stat-info">
                                     <span className="hr-stat-label">Total Employees</span>
-                                    <span className="hr-stat-num">356</span>
+                                    <span className="hr-stat-num">{hrTotalEmployees}</span>
                                 </div>
                             </div>
                             <div className="hr-stat-pill bg-green">
                                 <span className="hr-stat-icon">✅</span>
                                 <div className="hr-stat-info">
                                     <span className="hr-stat-label">Present Today</span>
-                                    <span className="hr-stat-num">289</span>
+                                    <span className="hr-stat-num">{hrPresentToday}</span>
                                 </div>
                             </div>
                             <div className="hr-stat-pill bg-orange">
                                 <span className="hr-stat-icon">🌴</span>
                                 <div className="hr-stat-info">
                                     <span className="hr-stat-label">On Leave</span>
-                                    <span className="hr-stat-num">34</span>
+                                    <span className="hr-stat-num">{hrOnLeave}</span>
                                 </div>
                             </div>
                             <div className="hr-stat-pill bg-purple">
                                 <span className="hr-stat-icon">🆕</span>
                                 <div className="hr-stat-info">
                                     <span className="hr-stat-label">New Joiners</span>
-                                    <span className="hr-stat-num">12</span>
+                                    <span className="hr-stat-num">{hrNewJoiners}</span>
                                 </div>
                             </div>
                         </div>
@@ -493,10 +517,10 @@ const AdminDashboard = () => {
                             </div>
                             <div className="preview-body">
                                 <div className="preview-metrics">
-                                    <div className="preview-metric"><span className="p-num">356</span><span className="p-lbl">Total</span></div>
-                                    <div className="preview-metric"><span className="p-num">289</span><span className="p-lbl">Present</span></div>
-                                    <div className="preview-metric"><span className="p-num">34</span><span className="p-lbl">Leave</span></div>
-                                    <div className="preview-metric"><span className="p-num">12</span><span className="p-lbl">Joiners</span></div>
+                                    <div className="preview-metric"><span className="p-num">{hrTotalEmployees}</span><span className="p-lbl">Total</span></div>
+                                    <div className="preview-metric"><span className="p-num">{hrPresentToday}</span><span className="p-lbl">Present</span></div>
+                                    <div className="preview-metric"><span className="p-num">{hrOnLeave}</span><span className="p-lbl">Leave</span></div>
+                                    <div className="preview-metric"><span className="p-num">{hrNewJoiners}</span><span className="p-lbl">Joiners</span></div>
                                 </div>
                                 <div className="preview-mock-charts">
                                     <div className="mock-donut-preview">
@@ -529,10 +553,10 @@ const AdminDashboard = () => {
                                         <span>PO Num</span><span>Vendor</span><span>Status</span>
                                     </div>
                                     <div className="mock-row">
-                                        <span>PO-2024-126</span><span>ABC Traders</span><span className="mock-badge green-badge">Approved</span>
+                                        <span>PO-{new Date().getFullYear()}-126</span><span>ABC Traders</span><span className="mock-badge green-badge">Approved</span>
                                     </div>
                                     <div className="mock-row">
-                                        <span>PO-2024-125</span><span>Global Supplies</span><span className="mock-badge blue-badge">Received</span>
+                                        <span>PO-{new Date().getFullYear()}-125</span><span>Global Supplies</span><span className="mock-badge blue-badge">Received</span>
                                     </div>
                                 </div>
                             </div>
