@@ -26,6 +26,18 @@ const Reports = () => {
     const [showFilters, setShowFilters] = useState(false);
     const [filterCategory, setFilterCategory] = useState('All');
 
+    const getFormattedDateRange = () => {
+        const endDate = new Date();
+        const startDate = new Date();
+        startDate.setDate(endDate.getDate() - Number(dateRange));
+        
+        const options = { month: 'short', day: 'numeric', year: 'numeric' };
+        const startStr = startDate.toLocaleDateString('en-US', options);
+        const endStr = endDate.toLocaleDateString('en-US', options);
+        
+        return `${startStr} - ${endStr}`;
+    };
+
     const showToast = (msg, type = 'success') => {
         setToast({ msg, type });
         setTimeout(() => setToast(null), 3000);
@@ -156,10 +168,10 @@ const Reports = () => {
                 </div>
                 <div className="header-actions">
                     <div className="date-range-wrapper">
-                        <button className="btn-secondary flex-center gap-10" onClick={() => setShowDatePicker(!showDatePicker)}>
-                            <Calendar size={16} />
-                            Last {dateRange} Days
-                            <ChevronDown size={14} />
+                        <button className="btn-date-picker flex-center gap-10" onClick={() => setShowDatePicker(!showDatePicker)}>
+                            <Calendar size={16} className="calendar-picker-icon" />
+                            <span className="date-range-text">{getFormattedDateRange()}</span>
+                            <ChevronDown size={14} className="arrow-down-icon" />
                         </button>
                         {showDatePicker && (
                             <div className="date-dropdown glass-card">
@@ -389,6 +401,38 @@ const Reports = () => {
 
                 /* Date Range Picker */
                 .date-range-wrapper { position: relative; }
+                .btn-date-picker {
+                    background: #f8fafc;
+                    border: 1px solid #cbd5e1;
+                    color: #1e293b;
+                    padding: 8px 18px;
+                    border-radius: 20px; /* Fully pill rounded */
+                    font-weight: 600;
+                    font-size: 13px;
+                    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+                    cursor: pointer;
+                    display: inline-flex;
+                    align-items: center;
+                    transition: all 0.2s ease;
+                }
+                .btn-date-picker:hover {
+                    background: #f1f5f9;
+                    border-color: #94a3b8;
+                    transform: translateY(-0.5px);
+                }
+                .calendar-picker-icon {
+                    color: #475569;
+                    margin-right: 6px;
+                }
+                .date-range-text {
+                    color: #1e293b;
+                    font-weight: 700;
+                    font-family: 'Inter', sans-serif;
+                    margin-right: 6px;
+                }
+                .arrow-down-icon {
+                    color: #64748b;
+                }
                 .date-dropdown { position: absolute; top: 45px; right: 0; z-index: 100; min-width: 160px; padding: 8px; }
                 .date-option { padding: 10px 15px; border-radius: 8px; cursor: pointer; font-size: 14px; transition: 0.2s; }
                 .date-option:hover, .date-option.active { background: rgba(99,102,241,0.15); color: var(--primary); }
