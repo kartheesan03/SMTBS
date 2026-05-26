@@ -47,6 +47,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
         { path: '/my-attendance', name: 'Attendance', icon: <BarChart3 size={20} /> },
         { path: '/my-salary', name: 'My Salary', icon: <DollarSign size={20} /> },
         { path: '/leave-management', name: 'Leave Management', icon: <Calendar size={20} /> },
+        { path: '/erp', name: 'Orders (ERP)', icon: <ShoppingCart size={20} /> },
         { path: '/settings', name: 'My Profile', icon: <Settings size={20} /> },
     ];
 
@@ -56,6 +57,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
         { path: '/attendance', name: 'Attendance', icon: <CheckCircle size={20} /> },
         { path: '/leave-management', name: 'Leave Management', icon: <Calendar size={20} /> },
         { path: '/payroll', name: 'Payroll', icon: <DollarSign size={20} /> },
+        { path: '/erp', name: 'Orders (ERP)', icon: <ShoppingCart size={20} /> },
         { path: '/hr-reports', name: 'Reports', icon: <BarChart3 size={20} /> },
         { path: '/settings', name: 'Profile', icon: <Settings size={20} /> },
     ];

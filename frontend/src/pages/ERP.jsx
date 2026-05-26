@@ -127,9 +127,11 @@ const ERP = () => {
                     <button className="btn-secondary-light flex-center gap-8" onClick={() => setShowFilters(!showFilters)}>
                         <Filter size={16} /> Filters
                     </button>
-                    <button className="btn-primary-blue flex-center gap-8" onClick={() => setShowModal(true)}>
-                        <Plus size={16} /> Create Order
-                    </button>
+                    {['Admin', 'HR', 'Manager', 'Sales'].includes(userInfo.role) && (
+                        <button className="btn-primary-blue flex-center gap-8" onClick={() => setShowModal(true)}>
+                            <Plus size={16} /> Create Order
+                        </button>
+                    )}
                 </div>
             </header>
 
@@ -256,41 +258,64 @@ const ERP = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {filteredOrders.map((ord) => (
-                            <tr key={ord._id}>
-                                <td><code className="po-code">{ord.orderNumber}</code></td>
-                                <td className="vendor-name-cell">{ord.customer?.name || 'Walk-in'}</td>
-                                <td><strong>${ord.totalAmount?.toLocaleString()}</strong></td>
-                                <td>{new Date(ord.createdAt).toLocaleDateString()}</td>
-                                <td>
-                                    {ord.updatedBy?.name || ord.createdBy?.name || 'System'}
-                                </td>
-                                <td>
-                                    {isAdmin ? (
-                                        <select 
-                                            value={ord.status} 
-                                            onChange={(e) => handleStatusChange(ord._id, e.target.value)}
-                                            className={`status-select-premium ${ord.status.toLowerCase().replace(/ /g, '-')}`}
-                                        >
-                                            <option value="Awaiting Approval">Awaiting Approval</option>
-                                            <option value="Approved">Approved</option>
-                                            <option value="Pending">Pending</option>
-                                            <option value="Confirmed">Confirmed</option>
-                                            <option value="Shipped">Shipped</option>
-                                            <option value="Delivered">Delivered</option>
-                                            <option value="Cancelled">Cancelled</option>
-                                        </select>
-                                    ) : (
-                                        <span className={`status-badge-inline ${ord.status.toLowerCase().replace(/ /g, '-')}`}>{ord.status}</span>
-                                    )}
-                                </td>
-                                <td>
-                                    {isAdmin && ord.status === 'Awaiting Approval' && (
-                                        <button className="btn-approve" onClick={() => handleApprove(ord._id)}>Approve</button>
-                                    )}
-                                </td>
-                            </tr>
-                        ))}
+                        {filteredOrders.map((ord) => {
+                            const isEmp = userInfo.role === 'Employee';
+                            const isSalesRole = userInfo.role === 'Sales';
+                            const statusClass = ord.status.toLowerCase().replace(/ /g, '-');
+                            
+                            return (
+                                <tr key={ord._id}>
+                                    <td><code className="po-code">{ord.orderNumber}</code></td>
+                                    <td className="vendor-name-cell">{ord.customer?.name || ord.vendor?.name || 'Walk-in'}</td>
+                                    <td><strong>${ord.totalAmount?.toLocaleString()}</strong></td>
+                                    <td>{new Date(ord.createdAt).toLocaleDateString()}</td>
+                                    <td>
+                                        {ord.updatedBy?.name || ord.createdBy?.name || 'System'}
+                                    </td>
+                                    <td>
+                                        {isAdmin ? (
+                                            <select 
+                                                value={ord.status} 
+                                                onChange={(e) => handleStatusChange(ord._id, e.target.value)}
+                                                className={`status-select-premium ${statusClass}`}
+                                            >
+                                                <option value="Awaiting Stock Check">Awaiting Stock Check</option>
+                                                <option value="Ready for Delivery">Ready for Delivery</option>
+                                                <option value="Low Stock Alert">Low Stock Alert</option>
+                                                <option value="Awaiting Approval">Awaiting Approval</option>
+                                                <option value="Approved">Approved</option>
+                                                <option value="Pending">Pending</option>
+                                                <option value="Confirmed">Confirmed</option>
+                                                <option value="Shipped">Shipped</option>
+                                                <option value="Delivered">Delivered</option>
+                                                <option value="Cancelled">Cancelled</option>
+                                            </select>
+                                        ) : (
+                                            <span className={`status-badge-inline ${statusClass}`}>{ord.status}</span>
+                                        )}
+                                    </td>
+                                    <td>
+                                        {/* Employee Workflow Stock Check Controls */}
+                                        {(isEmp || isAdmin) && ord.status === 'Awaiting Stock Check' && (
+                                            <div style={{ display: 'flex', gap: '6px' }}>
+                                                <button className="btn-workflow-confirm" onClick={() => handleStatusChange(ord._id, 'Ready for Delivery')}>Confirm Stock</button>
+                                                <button className="btn-workflow-alert" onClick={() => handleStatusChange(ord._id, 'Low Stock Alert')}>Alert Low Stock</button>
+                                            </div>
+                                        )}
+
+                                        {/* Sales Deliver Control */}
+                                        {(isSalesRole || isAdmin) && ord.status === 'Ready for Delivery' && (
+                                            <button className="btn-workflow-deliver" onClick={() => handleStatusChange(ord._id, 'Delivered')}>Deliver to Customer</button>
+                                        )}
+
+                                        {/* Admin General Approve Fallback */}
+                                        {isAdmin && ord.status === 'Awaiting Approval' && (
+                                            <button className="btn-approve" onClick={() => handleApprove(ord._id)}>Approve</button>
+                                        )}
+                                    </td>
+                                </tr>
+                            );
+                        })}
                     </tbody>
                 </table>
             </div>
@@ -698,6 +723,9 @@ const ERP = () => {
                 .status-badge-inline.shipped { background-color: #f5f3ff; color: #7c3aed; }
                 .status-badge-inline.delivered { background-color: #f0fdfa; color: #0d9488; }
                 .status-badge-inline.cancelled { background-color: #fef2f2; color: #ef4444; }
+                .status-badge-inline.awaiting-stock-check { background-color: rgba(37, 99, 235, 0.1); color: #2563eb; }
+                .status-badge-inline.ready-for-delivery { background-color: rgba(16, 185, 129, 0.1); color: #10b981; }
+                .status-badge-inline.low-stock-alert { background-color: rgba(239, 68, 68, 0.1); color: #ef4444; }
                 
                 .btn-approve {
                     background: #10b981;
@@ -707,6 +735,45 @@ const ERP = () => {
                     font-size: 11px;
                     font-weight: 700;
                 }
+
+                .btn-workflow-confirm {
+                    background: #10b981;
+                    color: #ffffff;
+                    padding: 6px 12px;
+                    border-radius: 6px;
+                    font-size: 11px;
+                    font-weight: 700;
+                    border: none;
+                    cursor: pointer;
+                    transition: background 0.2s;
+                }
+                .btn-workflow-confirm:hover { background: #059669; }
+
+                .btn-workflow-alert {
+                    background: #ef4444;
+                    color: #ffffff;
+                    padding: 6px 12px;
+                    border-radius: 6px;
+                    font-size: 11px;
+                    font-weight: 700;
+                    border: none;
+                    cursor: pointer;
+                    transition: background 0.2s;
+                }
+                .btn-workflow-alert:hover { background: #dc2626; }
+
+                .btn-workflow-deliver {
+                    background: #2563eb;
+                    color: #ffffff;
+                    padding: 6px 12px;
+                    border-radius: 6px;
+                    font-size: 11px;
+                    font-weight: 700;
+                    border: none;
+                    cursor: pointer;
+                    transition: background 0.2s;
+                }
+                .btn-workflow-deliver:hover { background: #1d4ed8; }
                 
                 .btn-approve:hover {
                     background: #059669;
