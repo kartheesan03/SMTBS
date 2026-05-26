@@ -3,7 +3,7 @@ import API from '../api/axios';
 import {
     Download, FileText, BarChart2, PieChart as PieChartIcon,
     Calendar, Filter, TrendingUp, Package, Users, ShoppingCart,
-    RefreshCw, CheckCircle, X, ChevronDown
+    RefreshCw, CheckCircle, X, ChevronDown, AlertTriangle
 } from 'lucide-react';
 import {
     ResponsiveContainer, AreaChart, Area, BarChart, Bar,
@@ -15,6 +15,7 @@ const COLORS = ['#6366f1', '#14b8a6', '#f59e0b', '#ef4444', '#8b5cf6', '#10b981'
 const Reports = () => {
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [activeChart, setActiveChart] = useState('revenue');
     const [dateRange, setDateRange] = useState('30');
     const [showDatePicker, setShowDatePicker] = useState(false);
@@ -36,11 +37,14 @@ const Reports = () => {
 
     const fetchStats = async () => {
         setLoading(true);
+        setError(null);
         try {
             const { data } = await API.get('/dashboard/stats');
             setStats(data);
         } catch (err) {
             console.error(err);
+            setError(err.response?.data?.message || err.message || 'Failed to load dashboard data');
+            showToast(err.response?.data?.message || err.message || 'Error loading dashboard statistics', 'error');
         } finally {
             setLoading(false);
         }
@@ -260,6 +264,17 @@ const Reports = () => {
                         <div className="chart-loading">
                             <RefreshCw size={30} className="spin-icon" />
                             <p className="text-muted">Loading analytics data...</p>
+                        </div>
+                    ) : error || !stats ? (
+                        <div className="chart-empty">
+                            <AlertTriangle size={60} color="#ef4444" />
+                            <p className="text-muted" style={{ color: '#ef4444', fontWeight: 600 }}>Failed to load analytics data</p>
+                            <p className="text-muted" style={{ fontSize: '13px', maxWidth: '380px', textAlign: 'center' }}>
+                                {error || 'Unable to connect to the server. Please verify your backend server is running and configuration is correct.'}
+                            </p>
+                            <button className="btn-primary mt-10" onClick={fetchStats} style={{ padding: '6px 16px', fontSize: '13px' }}>
+                                Retry Connection
+                            </button>
                         </div>
                     ) : chartData.length === 0 && activeChart !== 'inventory' ? (
                         <div className="chart-empty">
