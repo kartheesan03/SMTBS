@@ -21,6 +21,8 @@ const AdminDashboard = () => {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [searchVal, setSearchVal] = useState('');
+    const [dateRange, setDateRange] = useState('May 21, 2024 - Jun 21, 2024');
+    const [showDatePicker, setShowDatePicker] = useState(false);
 
     const fetchAdminStats = useCallback(async () => {
         try {
@@ -100,11 +102,11 @@ const AdminDashboard = () => {
                                 onChange={(e) => setSearchVal(e.target.value)}
                             />
                         </div>
-                        <div className="notification-bell">
+                        <div className="notification-bell" onClick={() => navigate('/notifications')} style={{ cursor: 'pointer' }} title="View Notifications">
                             <Bell size={20} />
                             <span className="bell-badge">5</span>
                         </div>
-                        <div className="user-profile-menu">
+                        <div className="user-profile-menu" onClick={() => navigate('/settings')} style={{ cursor: 'pointer' }} title="Account Settings">
                             <img src={`https://ui-avatars.com/api/?name=${user?.name || 'Admin'}&background=eff6ff&color=2563eb`} alt="Profile" />
                             <span className="profile-name">Admin</span>
                             <span className="dropdown-arrow">▾</span>
@@ -113,18 +115,54 @@ const AdminDashboard = () => {
                 </header>
 
                 {/* Sub-Header Row: Date range picker */}
-                <div className="subheader-row">
-                    <div className="date-picker-box">
+                <div className="subheader-row" style={{ position: 'relative' }}>
+                    <div className="date-picker-box" onClick={() => setShowDatePicker(!showDatePicker)}>
                         <Calendar size={16} />
-                        <span>May 21, 2024 - Jun 21, 2024</span>
+                        <span>{dateRange}</span>
                         <span className="caret">▾</span>
                     </div>
+                    {showDatePicker && (
+                        <div className="date-dropdown glass-card" style={{
+                            position: 'absolute',
+                            top: '40px',
+                            right: '0',
+                            zIndex: 1000,
+                            background: '#0f172a',
+                            border: '1px solid #334155',
+                            borderRadius: '10px',
+                            padding: '8px',
+                            boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)'
+                        }}>
+                            {['Last 7 Days', 'Last 30 Days', 'This Month', 'May 21, 2024 - Jun 21, 2024'].map((d) => (
+                                <div
+                                    key={d}
+                                    style={{
+                                        padding: '8px 16px',
+                                        borderRadius: '6px',
+                                        cursor: 'pointer',
+                                        fontSize: '13px',
+                                        color: dateRange === d ? '#3b82f6' : '#94a3b8',
+                                        background: dateRange === d ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
+                                        transition: '0.2s'
+                                    }}
+                                    onMouseEnter={(e) => { if (dateRange !== d) e.target.style.color = '#fff'; }}
+                                    onMouseLeave={(e) => { if (dateRange !== d) e.target.style.color = '#94a3b8'; }}
+                                    onClick={() => {
+                                        setDateRange(d);
+                                        setShowDatePicker(false);
+                                    }}
+                                >
+                                    {d}
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 {/* 6 Metric Stat Cards */}
                 <section className="metrics-grid">
                     {/* Stat Card 1 */}
-                    <div className="stat-card">
+                    <div className="stat-card" onClick={() => navigate('/materials')} style={{ cursor: 'pointer' }} title="Open Material Tracking">
                         <div className="stat-icon-wrapper blue-icon">
                             <Package size={22} />
                         </div>
@@ -138,7 +176,7 @@ const AdminDashboard = () => {
                     </div>
 
                     {/* Stat Card 2 */}
-                    <div className="stat-card">
+                    <div className="stat-card" onClick={() => navigate('/materials')} style={{ cursor: 'pointer' }} title="Open Material Low Stock Logs">
                         <div className="stat-icon-wrapper orange-icon">
                             <AlertTriangle size={22} />
                         </div>
@@ -152,7 +190,7 @@ const AdminDashboard = () => {
                     </div>
 
                     {/* Stat Card 3 */}
-                    <div className="stat-card">
+                    <div className="stat-card" onClick={() => navigate('/hrms')} style={{ cursor: 'pointer' }} title="Open HRMS Employee Directory">
                         <div className="stat-icon-wrapper green-icon">
                             <Users size={22} />
                         </div>
@@ -166,7 +204,7 @@ const AdminDashboard = () => {
                     </div>
 
                     {/* Stat Card 4 */}
-                    <div className="stat-card">
+                    <div className="stat-card" onClick={() => navigate('/erp')} style={{ cursor: 'pointer' }} title="Open ERP Orders Section">
                         <div className="stat-icon-wrapper purple-icon">
                             <ShoppingCart size={22} />
                         </div>
@@ -180,7 +218,7 @@ const AdminDashboard = () => {
                     </div>
 
                     {/* Stat Card 5 */}
-                    <div className="stat-card">
+                    <div className="stat-card" onClick={() => navigate('/customers')} style={{ cursor: 'pointer' }} title="Open CRM Customers Directory">
                         <div className="stat-icon-wrapper teal-icon">
                             <Globe size={22} />
                         </div>
@@ -194,7 +232,7 @@ const AdminDashboard = () => {
                     </div>
 
                     {/* Stat Card 6 */}
-                    <div className="stat-card">
+                    <div className="stat-card" onClick={() => navigate('/analytics')} style={{ cursor: 'pointer' }} title="Open Sales & Revenue Analytics">
                         <div className="stat-icon-wrapper yellow-icon">
                             <DollarSign size={22} />
                         </div>
@@ -270,7 +308,7 @@ const AdminDashboard = () => {
                     <div className="chart-card card-recent-activity">
                         <div className="card-header-flex">
                             <h3 className="card-title">Recent Activity</h3>
-                            <span className="view-all-link">View All</span>
+                            <span className="view-all-link" onClick={() => navigate('/notifications')} style={{ cursor: 'pointer' }}>View All</span>
                         </div>
                         <div className="activity-list">
                             <div className="activity-item">
