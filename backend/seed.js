@@ -22,6 +22,18 @@ const seedData = async () => {
         await mongoose.connect(process.env.MONGO_URI);
         console.log('MongoDB connected for seeding...');
 
+        const today = new Date();
+        const getPastDate = (monthsAgo, dayOfMonth) => {
+            const date = new Date(today.getFullYear(), today.getMonth() - monthsAgo, dayOfMonth || 15);
+            return date;
+        };
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const thisMonthName = `${monthNames[today.getMonth()]} ${today.getFullYear()}`;
+        
+        const lastMonthDate = new Date(today);
+        lastMonthDate.setMonth(today.getMonth() - 1);
+        const lastMonthName = `${monthNames[lastMonthDate.getMonth()]} ${lastMonthDate.getFullYear()}`;
+
         // 1. Clear all existing collections
         await User.deleteMany();
         await Material.deleteMany();
@@ -78,16 +90,16 @@ const seedData = async () => {
         // 3. EMPLOYEES — Tamil Nadu cities and departments
         // ===================================================================
         const employeeDocs = [
-            { userId: managerUser._id, employeeId: 'EMP001', firstName: 'Murugan', lastName: 'Selvam', department: 'Production', designation: 'Production Manager', salary: 55000, contact: '9876543210', address: '12, Anna Nagar, Coimbatore, Tamil Nadu 641001' },
-            { userId: managerUser2._id, employeeId: 'EMP002', firstName: 'Anitha', lastName: 'Bala', department: 'Operations', designation: 'Operations Manager', salary: 52000, contact: '9876543211', address: '45, Gandhipuram, Coimbatore, Tamil Nadu 641012' },
-            { userId: salesUser._id, employeeId: 'EMP003', firstName: 'Senthil', lastName: 'Kumar', department: 'Sales', designation: 'Senior Sales Executive', salary: 42000, contact: '9876543212', address: '78, T. Nagar, Chennai, Tamil Nadu 600017' },
-            { userId: salesUser2._id, employeeId: 'EMP004', firstName: 'Kavitha', lastName: 'Ramesh', department: 'Sales', designation: 'Sales Representative', salary: 32000, contact: '9876543213', address: '23, KK Nagar, Madurai, Tamil Nadu 625020' },
-            { userId: hrUser._id, employeeId: 'EMP005', firstName: 'Priya', lastName: 'Devi', department: 'HR', designation: 'HR Lead', salary: 48000, contact: '9876543214', address: '56, RS Puram, Coimbatore, Tamil Nadu 641002' },
-            { userId: hrUser2._id, employeeId: 'EMP006', firstName: 'Lakshmi', lastName: 'Narayanan', department: 'HR', designation: 'HR Executive', salary: 35000, contact: '9876543215', address: '89, Adyar, Chennai, Tamil Nadu 600020' },
-            { userId: empUser1._id, employeeId: 'EMP007', firstName: 'Rajesh', lastName: 'Kannan', department: 'Warehouse', designation: 'Stock Controller', salary: 28000, contact: '9876543216', address: '34, Singanallur, Coimbatore, Tamil Nadu 641005' },
-            { userId: empUser2._id, employeeId: 'EMP008', firstName: 'Divya', lastName: 'Prakash', department: 'Production', designation: 'Quality Inspector', salary: 30000, contact: '9876543217', address: '67, Saravanampatti, Coimbatore, Tamil Nadu 641035' },
-            { userId: empUser3._id, employeeId: 'EMP009', firstName: 'Venkatesh', lastName: 'Iyer', department: 'Logistics', designation: 'Dispatch Coordinator', salary: 26000, contact: '9876543218', address: '12, Peelamedu, Coimbatore, Tamil Nadu 641004' },
-            { userId: empUser4._id, employeeId: 'EMP010', firstName: 'Saranya', lastName: 'Mohan', department: 'Accounts', designation: 'Accounts Assistant', salary: 25000, contact: '9876543219', address: '90, Kuniyamuthur, Coimbatore, Tamil Nadu 641008' }
+            { userId: managerUser._id, employeeId: 'EMP001', firstName: 'Murugan', lastName: 'Selvam', department: 'Production', designation: 'Production Manager', salary: 55000, contact: '9876543210', address: '12, Anna Nagar, Coimbatore, Tamil Nadu 641001', joinDate: getPastDate(6, 1) },
+            { userId: managerUser2._id, employeeId: 'EMP002', firstName: 'Anitha', lastName: 'Bala', department: 'Operations', designation: 'Operations Manager', salary: 52000, contact: '9876543211', address: '45, Gandhipuram, Coimbatore, Tamil Nadu 641012', joinDate: getPastDate(6, 1) },
+            { userId: salesUser._id, employeeId: 'EMP003', firstName: 'Senthil', lastName: 'Kumar', department: 'Sales', designation: 'Senior Sales Executive', salary: 42000, contact: '9876543212', address: '78, T. Nagar, Chennai, Tamil Nadu 600017', joinDate: getPastDate(4, 15) },
+            { userId: salesUser2._id, employeeId: 'EMP004', firstName: 'Kavitha', lastName: 'Ramesh', department: 'Sales', designation: 'Sales Representative', salary: 32000, contact: '9876543213', address: '23, KK Nagar, Madurai, Tamil Nadu 625020', joinDate: getPastDate(3, 10) },
+            { userId: hrUser._id, employeeId: 'EMP005', firstName: 'Priya', lastName: 'Devi', department: 'HR', designation: 'HR Lead', salary: 48000, contact: '9876543214', address: '56, RS Puram, Coimbatore, Tamil Nadu 641002', joinDate: getPastDate(5, 1) },
+            { userId: hrUser2._id, employeeId: 'EMP006', firstName: 'Lakshmi', lastName: 'Narayanan', department: 'HR', designation: 'HR Executive', salary: 35000, contact: '9876543215', address: '89, Adyar, Chennai, Tamil Nadu 600020', joinDate: getPastDate(2, 20) },
+            { userId: empUser1._id, employeeId: 'EMP007', firstName: 'Rajesh', lastName: 'Kannan', department: 'Warehouse', designation: 'Stock Controller', salary: 28000, contact: '9876543216', address: '34, Singanallur, Coimbatore, Tamil Nadu 641005', joinDate: getPastDate(2, 5) },
+            { userId: empUser2._id, employeeId: 'EMP008', firstName: 'Divya', lastName: 'Prakash', department: 'Production', designation: 'Quality Inspector', salary: 30000, contact: '9876543217', address: '67, Saravanampatti, Coimbatore, Tamil Nadu 641035', joinDate: getPastDate(1, 15) },
+            { userId: empUser3._id, employeeId: 'EMP009', firstName: 'Venkatesh', lastName: 'Iyer', department: 'Logistics', designation: 'Dispatch Coordinator', salary: 26000, contact: '9876543218', address: '12, Peelamedu, Coimbatore, Tamil Nadu 641004', joinDate: getPastDate(1, 25) },
+            { userId: empUser4._id, employeeId: 'EMP010', firstName: 'Saranya', lastName: 'Mohan', department: 'Accounts', designation: 'Accounts Assistant', salary: 25000, contact: '9876543219', address: '90, Kuniyamuthur, Coimbatore, Tamil Nadu 641008', joinDate: getPastDate(1, 5) }
         ];
 
         const createdEmployees = await Employee.insertMany(employeeDocs);
@@ -179,7 +191,8 @@ const seedData = async () => {
                 totalAmount: (200 * 62) + (100 * 380),
                 status: 'Confirmed',
                 type: 'Sales',
-                createdBy: salesUser._id
+                createdBy: salesUser._id,
+                createdAt: getPastDate(3, 10)
             },
             {
                 orderNumber: 'SO-2026-002',
@@ -191,7 +204,8 @@ const seedData = async () => {
                 totalAmount: (10 * 3500) + (500 * 18),
                 status: 'Shipped',
                 type: 'Sales',
-                createdBy: salesUser._id
+                createdBy: salesUser._id,
+                createdAt: getPastDate(2, 5)
             },
             {
                 orderNumber: 'SO-2026-003',
@@ -202,7 +216,8 @@ const seedData = async () => {
                 totalAmount: (30 * 850),
                 status: 'Pending',
                 type: 'Sales',
-                createdBy: salesUser2._id
+                createdBy: salesUser2._id,
+                createdAt: getPastDate(2, 20)
             },
             {
                 orderNumber: 'SO-2026-004',
@@ -214,7 +229,8 @@ const seedData = async () => {
                 totalAmount: (100 * 62) + (200 * 5),
                 status: 'Confirmed',
                 type: 'Sales',
-                createdBy: salesUser2._id
+                createdBy: salesUser2._id,
+                createdAt: getPastDate(1, 8)
             },
             {
                 orderNumber: 'SO-2026-005',
@@ -226,7 +242,8 @@ const seedData = async () => {
                 totalAmount: (50 * 420) + (100 * 45),
                 status: 'Delivered',
                 type: 'Sales',
-                createdBy: salesUser._id
+                createdBy: salesUser._id,
+                createdAt: getPastDate(1, 18)
             },
             {
                 orderNumber: 'PO-2026-001',
@@ -238,7 +255,8 @@ const seedData = async () => {
                 totalAmount: (500 * 55) + (50 * 720),
                 status: 'Delivered',
                 type: 'Purchase',
-                createdBy: managerUser._id
+                createdBy: managerUser._id,
+                createdAt: getPastDate(0, 5)
             },
             {
                 orderNumber: 'PO-2026-002',
@@ -250,7 +268,8 @@ const seedData = async () => {
                 totalAmount: (1000 * 15) + (50 * 200),
                 status: 'Confirmed',
                 type: 'Purchase',
-                createdBy: managerUser._id
+                createdBy: managerUser._id,
+                createdAt: getPastDate(0, 12)
             },
             {
                 orderNumber: 'PO-2026-003',
@@ -261,7 +280,8 @@ const seedData = async () => {
                 totalAmount: (200 * 340),
                 status: 'Awaiting Approval',
                 type: 'Purchase',
-                createdBy: managerUser2._id
+                createdBy: managerUser2._id,
+                createdAt: getPastDate(0, 18)
             },
             {
                 orderNumber: 'PO-2026-004',
@@ -272,7 +292,8 @@ const seedData = async () => {
                 totalAmount: (500 * 3.5),
                 status: 'Approved',
                 type: 'Purchase',
-                createdBy: managerUser._id
+                createdBy: managerUser._id,
+                createdAt: getPastDate(0, 22)
             }
         ];
 
@@ -282,7 +303,6 @@ const seedData = async () => {
         // ===================================================================
         // 9. ATTENDANCE — Last 10 working days
         // ===================================================================
-        const today = new Date();
         const attendanceDocs = [];
         for (let i = 0; i < 14; i++) {
             const date = new Date(today);
@@ -392,26 +412,26 @@ const seedData = async () => {
         // 11. SALARIES — Indian payroll with INR amounts
         // ===================================================================
         const salaryDocs = [];
-        // April 2026 — Paid salaries for all employees
+        // Paid salaries for all employees (last month)
         for (const emp of createdEmployees) {
             salaryDocs.push({
                 employee: emp._id,
-                month: 'April 2026',
+                month: lastMonthName,
                 basicSalary: emp.salary,
                 allowances: Math.round(emp.salary * 0.15),
                 deductions: Math.round(emp.salary * 0.05),
                 netSalary: emp.salary + Math.round(emp.salary * 0.15) - Math.round(emp.salary * 0.05),
                 status: 'Paid',
-                paymentDate: new Date('2026-05-01T10:00:00.000Z'),
+                paymentDate: getPastDate(0, 1),
                 transactionId: `TXN-APR-${emp.employeeId}`
             });
         }
-        // May 2026 — Awaiting Approval / Pending
+        // Awaiting Approval / Pending (this month)
         for (let i = 0; i < createdEmployees.length; i++) {
             const emp = createdEmployees[i];
             salaryDocs.push({
                 employee: emp._id,
-                month: 'May 2026',
+                month: thisMonthName,
                 basicSalary: emp.salary,
                 allowances: Math.round(emp.salary * 0.15),
                 deductions: Math.round(emp.salary * 0.04),
@@ -471,7 +491,7 @@ const seedData = async () => {
                 isBroadcast: false
             },
             {
-                title: 'Submit May 2026 Departmental Reports',
+                title: `Submit ${thisMonthName} Departmental Reports`,
                 description: 'All department heads must submit monthly performance summaries to the admin office by end of this week.',
                 assignedTo: [managerUser._id, managerUser2._id, hrUser._id, salesUser._id],
                 assignedBy: adminUser._id,
