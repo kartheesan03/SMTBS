@@ -182,7 +182,7 @@ const seedData = async () => {
         // ===================================================================
         const orderDocs = [
             {
-                orderNumber: 'SO-2026-001',
+                orderNumber: `SO-${today.getFullYear()}-001`,
                 customer: createdCustomers[0]._id, // Kovai Builders
                 items: [
                     { material: createdMaterials[0]._id, quantity: 200, price: 62 },  // TMT Steel Bars
@@ -195,7 +195,7 @@ const seedData = async () => {
                 createdAt: getPastDate(3, 10)
             },
             {
-                orderNumber: 'SO-2026-002',
+                orderNumber: `SO-${today.getFullYear()}-002`,
                 customer: createdCustomers[1]._id, // Madurai Mfg
                 items: [
                     { material: createdMaterials[10]._id, quantity: 10, price: 3500 }, // SS Sheet
@@ -208,7 +208,7 @@ const seedData = async () => {
                 createdAt: getPastDate(2, 5)
             },
             {
-                orderNumber: 'SO-2026-003',
+                orderNumber: `SO-${today.getFullYear()}-003`,
                 customer: createdCustomers[2]._id, // Trichy Engineering
                 items: [
                     { material: createdMaterials[1]._id, quantity: 30, price: 850 }  // MS Angle
@@ -220,7 +220,7 @@ const seedData = async () => {
                 createdAt: getPastDate(2, 20)
             },
             {
-                orderNumber: 'SO-2026-004',
+                orderNumber: `SO-${today.getFullYear()}-004`,
                 customer: createdCustomers[3]._id, // Salem Steel
                 items: [
                     { material: createdMaterials[0]._id, quantity: 100, price: 62 },  // TMT Steel
@@ -233,7 +233,7 @@ const seedData = async () => {
                 createdAt: getPastDate(1, 8)
             },
             {
-                orderNumber: 'SO-2026-005',
+                orderNumber: `SO-${today.getFullYear()}-005`,
                 customer: createdCustomers[4]._id, // Tirupur Textiles
                 items: [
                     { material: createdMaterials[3]._id, quantity: 50, price: 420 },  // GI Pipes
@@ -246,7 +246,7 @@ const seedData = async () => {
                 createdAt: getPastDate(1, 18)
             },
             {
-                orderNumber: 'PO-2026-001',
+                orderNumber: `PO-${today.getFullYear()}-001`,
                 vendor: createdVendors[0]._id, // Sri Lakshmi Steel
                 items: [
                     { material: createdMaterials[0]._id, quantity: 500, price: 55 },  // TMT Steel wholesale
@@ -259,7 +259,7 @@ const seedData = async () => {
                 createdAt: getPastDate(0, 5)
             },
             {
-                orderNumber: 'PO-2026-002',
+                orderNumber: `PO-${today.getFullYear()}-002`,
                 vendor: createdVendors[1]._id, // Kumaran Electricals
                 items: [
                     { material: createdMaterials[2]._id, quantity: 1000, price: 15 }, // Copper Wire
@@ -272,7 +272,7 @@ const seedData = async () => {
                 createdAt: getPastDate(0, 12)
             },
             {
-                orderNumber: 'PO-2026-003',
+                orderNumber: `PO-${today.getFullYear()}-003`,
                 vendor: createdVendors[3]._id, // Madurai Cement
                 items: [
                     { material: createdMaterials[7]._id, quantity: 200, price: 340 }  // Cement bulk
@@ -284,7 +284,7 @@ const seedData = async () => {
                 createdAt: getPastDate(0, 18)
             },
             {
-                orderNumber: 'PO-2026-004',
+                orderNumber: `PO-${today.getFullYear()}-004`,
                 vendor: createdVendors[5]._id, // Erode Welding
                 items: [
                     { material: createdMaterials[6]._id, quantity: 500, price: 3.5 }  // Welding Rod
@@ -423,7 +423,7 @@ const seedData = async () => {
                 netSalary: emp.salary + Math.round(emp.salary * 0.15) - Math.round(emp.salary * 0.05),
                 status: 'Paid',
                 paymentDate: getPastDate(0, 1),
-                transactionId: `TXN-APR-${emp.employeeId}`
+                transactionId: `TXN-${monthNames[lastMonthDate.getMonth()].toUpperCase()}-${emp.employeeId}`
             });
         }
         // Awaiting Approval / Pending (this month)
@@ -530,7 +530,7 @@ const seedData = async () => {
             },
             {
                 title: 'Dispatch Coordination - Salem Steel Order',
-                description: 'Coordinate with logistics partner for SO-2026-004 delivery to Salem Steel Fabricators. Confirm dispatch date and tracking.',
+                description: `Coordinate with logistics partner for SO-${today.getFullYear()}-004 delivery to Salem Steel Fabricators. Confirm dispatch date and tracking.`,
                 assignedTo: [empUser3._id],
                 assignedBy: managerUser2._id,
                 completions: [{ user: empUser3._id, status: 'In Progress' }],
@@ -585,8 +585,8 @@ const seedData = async () => {
             },
             {
                 user: adminUser._id,
-                title: 'May Payroll Ready for Approval',
-                message: '10 salary slips for May 2026 have been generated and are pending admin approval.',
+                title: `${thisMonthName} Payroll Ready for Approval`,
+                message: `10 salary slips for ${thisMonthName} have been generated and are pending admin approval.`,
                 type: 'info',
                 category: 'hr',
                 isRead: false,
@@ -595,7 +595,7 @@ const seedData = async () => {
             {
                 user: managerUser._id,
                 title: 'Purchase Order Delivered',
-                message: 'PO-2026-001 from Sri Lakshmi Steel Traders has been delivered and verified. 500 kg TMT Steel added to inventory.',
+                message: `PO-${today.getFullYear()}-001 from Sri Lakshmi Steel Traders has been delivered and verified. 500 kg TMT Steel added to inventory.`,
                 type: 'success',
                 category: 'order',
                 isRead: false,

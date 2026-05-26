@@ -239,7 +239,7 @@ const Dashboard = () => {
                     </div>
                     <div className="date-picker glass-card">
                         <Calendar size={16} />
-                        <span>Apr 21, 2026</span>
+                        <span>{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                     </div>
                 </div>
             </header>
