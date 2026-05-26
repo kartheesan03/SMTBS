@@ -3,7 +3,7 @@ import API from '../api/axios';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { 
     Plus, Search, Filter, Edit2, Trash2, Box, Package, 
-    TrendingUp, AlertTriangle, ChevronRight 
+    TrendingUp, AlertTriangle, ChevronRight, QrCode, Camera
 } from 'lucide-react';
 
 const MaterialTracking = () => {
@@ -21,6 +21,12 @@ const MaterialTracking = () => {
     const [catFilter, setCatFilter] = useState('All');
     const [showFilters, setShowFilters] = useState(false);
     const [editId, setEditId] = useState(null);
+
+    // QR & Barcode Simulator States
+    const [showScanner, setShowScanner] = useState(false);
+    const [showGenerator, setShowGenerator] = useState(false);
+    const [selectedMaterialForCode, setSelectedMaterialForCode] = useState(null);
+    const [scanSKU, setScanSKU] = useState('');
 
     const fetchMaterials = async () => {
         try {
@@ -88,6 +94,30 @@ const MaterialTracking = () => {
         }
     };
 
+    // Simulated scanner logic: Increments stock level in backend database by 10 units!
+    const handleSimulateScan = async () => {
+        if (!scanSKU) {
+            alert('Please select a material SKU to simulate scanning.');
+            return;
+        }
+        
+        const mat = materials.find(m => m.sku === scanSKU);
+        if (!mat) return;
+
+        try {
+            const updatedQty = mat.quantity + 10;
+            await API.put(`/materials/${mat._id}`, {
+                ...mat,
+                quantity: updatedQty
+            });
+            alert(`Scan Successful!\nSKU: ${mat.sku} (${mat.name})\nStock replenished (+10 ${mat.unit || 'pcs'}).`);
+            setShowScanner(false);
+            fetchMaterials();
+        } catch (err) {
+            alert(err.response?.data?.message || 'Error updating stock from scan');
+        }
+    };
+
     const filteredMaterials = materials.filter(m => {
         const matchesSearch = (m.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) || 
                              (m.sku?.toLowerCase() || '').includes(searchTerm.toLowerCase());
@@ -95,10 +125,9 @@ const MaterialTracking = () => {
         return matchesSearch && matchesCat;
     });
 
-    // Dynamic stats based on reference image values
     const totalMaterialsQty = materials.reduce((sum, item) => sum + item.quantity, 0) || 1254;
     const inStockCount = materials.filter(m => m.quantity > m.lowStockThreshold).reduce((sum, item) => sum + item.quantity, 0) || 750;
-    const inTransitCount = 230; // Reference mockup constant value
+    const inTransitCount = 230; 
     const lowStockCount = materials.filter(m => m.quantity <= m.lowStockThreshold).length || 23;
 
     return (
@@ -113,11 +142,14 @@ const MaterialTracking = () => {
             <header className="module-header">
                 <div>
                     <h1 className="header-title">Material Tracking</h1>
-                    <p className="header-subtitle">Monitor stock, in-transit items, low stock alerts, and material movements.</p>
+                    <p className="header-subtitle">Monitor stock, in-transit items, low stock alerts, and barcode/QR movements.</p>
                 </div>
                 <div className="header-actions">
                     <button className="btn-secondary-light flex-center gap-8" onClick={() => setShowFilters(!showFilters)}>
                         <Filter size={16} /> Filters
+                    </button>
+                    <button className="btn-secondary-light flex-center gap-8 text-indigo" onClick={() => { if (materials.length > 0) setScanSKU(materials[0].sku); setShowScanner(true); }}>
+                        <Camera size={16} /> Scan Item
                     </button>
                     <button className="btn-primary-blue flex-center gap-8" onClick={() => { setEditId(null); setFormData({ name: '', sku: '', category: '', quantity: 0, lowStockThreshold: 10, unit: 'pcs', price: 0 }); setShowModal(true); }}>
                         <Plus size={16} /> Add Material
@@ -198,16 +230,16 @@ const MaterialTracking = () => {
                                 <td><strong>{item.quantity}</strong> {item.unit}</td>
                                 <td>
                                     <span className={`status-badge-premium ${
-                                        item.quantity <= item.lowStockThreshold 
-                                        ? 'low' 
-                                        : item.quantity === 0 
+                                        item.quantity === 0 
                                         ? 'out' 
+                                        : item.quantity <= item.lowStockThreshold 
+                                        ? 'low' 
                                         : 'ok'
                                     }`}>
-                                        {item.quantity <= item.lowStockThreshold 
-                                            ? 'Low Stock' 
-                                            : item.quantity === 0 
+                                        {item.quantity === 0 
                                             ? 'Out of Stock' 
+                                            : item.quantity <= item.lowStockThreshold 
+                                            ? 'Low Stock' 
                                             : 'In Stock'
                                         }
                                     </span>
@@ -215,8 +247,9 @@ const MaterialTracking = () => {
                                 <td>${item.price}</td>
                                 <td>
                                     <div className="actions-flex">
-                                        <button className="action-btn edit" onClick={() => handleEditClick(item)}><Edit2 size={14} /></button>
-                                        <button className="action-btn delete" onClick={() => handleDelete(item._id)}><Trash2 size={14} /></button>
+                                        <button className="action-btn code" title="Barcode & QR Code" onClick={() => { setSelectedMaterialForCode(item); setShowGenerator(true); }}><QrCode size={14} /></button>
+                                        <button className="action-btn edit" title="Edit Item" onClick={() => handleEditClick(item)}><Edit2 size={14} /></button>
+                                        <button className="action-btn delete" title="Delete Item" onClick={() => handleDelete(item._id)}><Trash2 size={14} /></button>
                                     </div>
                                 </td>
                             </tr>
@@ -281,6 +314,104 @@ const MaterialTracking = () => {
                                 <button type="submit" className="btn-save">Save Record</button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {/* QR/Barcode Generator Modal */}
+            {showGenerator && selectedMaterialForCode && (
+                <div className="modal-overlay">
+                    <div className="modal-content animate-pop" style={{ maxWidth: '400px', textAlign: 'center' }}>
+                        <div className="modal-header">
+                            <h2>Material Barcode & QR Code</h2>
+                            <button className="close-btn" onClick={() => setShowGenerator(false)}>✕</button>
+                        </div>
+                        <div className="code-generator-body" style={{ padding: '15px 0' }}>
+                            <h3 style={{ margin: '0 0 4px 0', fontSize: '16px', color: '#0f172a' }}>{selectedMaterialForCode.name}</h3>
+                            <span className="sku-code" style={{ display: 'inline-block', marginBottom: '20px' }}>{selectedMaterialForCode.sku}</span>
+                            
+                            {/* Simulated 1D Barcode */}
+                            <div className="barcode-simulation" style={{ background: '#f8fafc', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', marginBottom: '20px' }}>
+                                <div style={{ display: 'flex', height: '60px', width: '180px', background: '#000000', padding: '2px', gap: '3px' }}>
+                                    <div style={{ flex: 2, background: '#ffffff' }}></div>
+                                    <div style={{ flex: 1, background: '#000000' }}></div>
+                                    <div style={{ flex: 3, background: '#ffffff' }}></div>
+                                    <div style={{ flex: 1, background: '#000000' }}></div>
+                                    <div style={{ flex: 2, background: '#ffffff' }}></div>
+                                    <div style={{ flex: 4, background: '#000000' }}></div>
+                                    <div style={{ flex: 1, background: '#ffffff' }}></div>
+                                    <div style={{ flex: 2, background: '#000000' }}></div>
+                                    <div style={{ flex: 3, background: '#ffffff' }}></div>
+                                    <div style={{ flex: 2, background: '#000000' }}></div>
+                                    <div style={{ flex: 1, background: '#ffffff' }}></div>
+                                    <div style={{ flex: 4, background: '#000000' }}></div>
+                                </div>
+                                <span style={{ fontFamily: 'monospace', fontSize: '12px', marginTop: '8px', color: '#64748b', fontWeight: 'bold', letterSpacing: '2px' }}>*{selectedMaterialForCode.sku}*</span>
+                            </div>
+                            
+                            {/* Simulated 2D QR Code */}
+                            <div className="qr-simulation" style={{ background: '#f8fafc', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', marginBottom: '20px' }}>
+                                <div style={{ position: 'relative', width: '130px', height: '130px', background: '#ffffff', border: '1px solid #cbd5e1', padding: '8px', display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px' }}>
+                                    {/* Corner anchors */}
+                                    <div style={{ gridColumn: '1/3', gridRow: '1/3', background: '#0f172a', border: '2px solid #ffffff' }}></div>
+                                    <div style={{ gridColumn: '6/8', gridRow: '1/3', background: '#0f172a', border: '2px solid #ffffff' }}></div>
+                                    <div style={{ gridColumn: '1/3', gridRow: '6/8', background: '#0f172a', border: '2px solid #ffffff' }}></div>
+                                    {/* Random dots */}
+                                    <div style={{ background: '#0f172a' }}></div><div style={{ background: '#ffffff' }}></div>
+                                    <div style={{ background: '#0f172a' }}></div><div style={{ background: '#0f172a' }}></div>
+                                    <div style={{ background: '#ffffff' }}></div><div style={{ background: '#0f172a' }}></div>
+                                    <div style={{ background: '#0f172a' }}></div><div style={{ background: '#ffffff' }}></div>
+                                    <div style={{ background: '#0f172a' }}></div><div style={{ background: '#0f172a' }}></div>
+                                </div>
+                                <span style={{ fontSize: '11px', marginTop: '8px', color: '#64748b', fontWeight: 'bold' }}>Scan for Inventory Access</span>
+                            </div>
+
+                            <button type="button" className="btn-save" style={{ width: '100%' }} onClick={() => { alert('Simulated Code Download Successful!'); setShowGenerator(false); }}>Download Tag</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* QR/Barcode Scanner Simulator Modal */}
+            {showScanner && (
+                <div className="modal-overlay">
+                    <div className="modal-content animate-pop" style={{ maxWidth: '450px' }}>
+                        <div className="modal-header">
+                            <h2>Simulated Item Scanner</h2>
+                            <button className="close-btn" onClick={() => setShowScanner(false)}>✕</button>
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                            {/* Scanning Screen Container */}
+                            <div className="scanner-screen" style={{ position: 'relative', height: '220px', background: '#0f172a', borderRadius: '12px', border: '2px solid #6366f1', overflow: 'hidden', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#ffffff' }}>
+                                <div style={{ border: '2px dashed rgba(255,255,255,0.4)', padding: '16px', borderRadius: '8px', display: 'flex', flexDirection: 'column', alignItems: 'center', background: 'rgba(0,0,0,0.3)' }}>
+                                    <Camera size={44} className="text-indigo" style={{ marginBottom: '8px', opacity: 0.8 }} />
+                                    <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#cbd5e1' }}>ALIGN BARCODE / QR IN CENTER</span>
+                                </div>
+                                
+                                {/* Animated scanline */}
+                                <div className="scanline" style={{ position: 'absolute', left: 0, width: '100%', height: '4px', background: 'linear-gradient(to right, transparent, #ef4444, transparent)', boxShadow: '0 0 12px #ef4444' }}></div>
+                            </div>
+
+                            <div className="form-group">
+                                <label>Select SKU to Scan</label>
+                                <select value={scanSKU} onChange={e => setScanSKU(e.target.value)}>
+                                    {materials.map(m => (
+                                        <option key={m._id} value={m.sku}>{m.sku} - {m.name} ({m.quantity} {m.unit || 'pcs'} in stock)</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '12px', fontSize: '12px', color: '#475569', lineHeight: '1.4' }}>
+                                💡 <strong>Replenishment Simulation:</strong> Scanning an item simulates a physical barcode reading at the warehouse entry gate, immediately adding <strong>10 units</strong> to stock.
+                            </div>
+
+                            <div className="modal-actions">
+                                <button type="button" className="btn-cancel" onClick={() => setShowScanner(false)}>Cancel</button>
+                                <button type="button" className="btn-save flex-center gap-8" style={{ background: '#6366f1' }} onClick={handleSimulateScan}>
+                                    <Camera size={14} /> Simulate Scan
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             )}
@@ -381,6 +512,9 @@ const MaterialTracking = () => {
                     background: #f8fafc;
                     border-color: #cbd5e1;
                 }
+
+                .text-indigo { color: #6366f1 !important; }
+                .action-btn.code:hover { background: #6366f1; color: #ffffff; border-color: #6366f1; }
 
                 /* Metric Summary Cards styling */
                 .mat-metrics-grid {
@@ -721,6 +855,21 @@ const MaterialTracking = () => {
 
                 .flex-center { display: flex; align-items: center; justify-content: center; }
                 .gap-8 { gap: 8px; }
+
+                .scanline {
+                    position: absolute;
+                    left: 0;
+                    width: 100%;
+                    height: 4px;
+                    background: linear-gradient(to right, transparent, #ef4444, transparent);
+                    box-shadow: 0 0 12px #ef4444;
+                    animation: scan 2.5s linear infinite;
+                }
+                @keyframes scan {
+                    0% { top: 0px; }
+                    50% { top: 220px; }
+                    100% { top: 0px; }
+                }
 
                 .animate-pop { animation: pop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
                 @keyframes pop { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }

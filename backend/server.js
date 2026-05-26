@@ -20,6 +20,8 @@ const notificationRoutes = require('./src/routes/notificationRoutes');
 const leaveRoutes = require('./src/routes/leaveRoutes');
 const salaryRoutes = require('./src/routes/salaryRoutes');
 const taskRoutes = require('./src/routes/taskRoutes');
+const followupRoutes = require('./src/routes/followupRoutes');
+const ticketRoutes = require('./src/routes/ticketRoutes');
 
 const app = express();
 
@@ -45,6 +47,8 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/leaves', leaveRoutes);
 app.use('/api/salaries', salaryRoutes);
 app.use('/api/tasks', taskRoutes);
+app.use('/api/follow-ups', followupRoutes);
+app.use('/api/tickets', ticketRoutes);
 
 // 404 Handler
 app.use((req, res, next) => {

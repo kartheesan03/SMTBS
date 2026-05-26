@@ -1,20 +1,96 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import API from '../api/axios';
 import DataTable from '../components/Dashboard/DataTable';
-import { PhoneCall, Mail, Calendar, Clock, CheckCircle, AlertCircle } from 'lucide-react';
+import { PhoneCall, Mail, Calendar, Clock, CheckCircle, AlertCircle, Plus, Filter, RefreshCw, X, HelpCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const FollowUps = () => {
-    const alerts = [
-        { id: 1, name: 'Sarah Connor', type: 'Call', time: '10:00 AM', status: 'Overdue', phone: '+1 555-9012' },
-        { id: 2, name: 'John Wick', type: 'Email', time: '02:30 PM', status: 'Pending', email: 'j.wick@continental.com' },
-        { id: 3, name: 'Gordon Freeman', type: 'Call', time: '04:00 PM', status: 'Pending', phone: '+1 555-8821' },
-    ];
+    const navigate = useNavigate();
+    const [followups, setFollowups] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [showModal, setShowModal] = useState(false);
+    const [formData, setFormData] = useState({
+        name: '',
+        type: 'Call',
+        time: '',
+        phone: '',
+        email: '',
+        notes: '',
+        status: 'Pending'
+    });
+
+    const fetchFollowUps = async () => {
+        try {
+            setLoading(true);
+            const res = await API.get('/follow-ups');
+            setFollowups(res.data);
+        } catch (err) {
+            console.error('Error fetching follow-ups:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchFollowUps();
+    }, []);
+
+    const handleCreateFollowUp = async (e) => {
+        e.preventDefault();
+        try {
+            await API.post('/follow-ups', formData);
+            setShowModal(false);
+            setFormData({
+                name: '',
+                type: 'Call',
+                time: '',
+                phone: '',
+                email: '',
+                notes: '',
+                status: 'Pending'
+            });
+            fetchFollowUps();
+        } catch (err) {
+            alert(err.response?.data?.message || 'Error creating follow-up');
+        }
+    };
+
+    const handleMarkComplete = async (id) => {
+        try {
+            await API.put(`/follow-ups/${id}/status`, { status: 'Completed' });
+            fetchFollowUps();
+        } catch (err) {
+            alert(err.response?.data?.message || 'Error updating status');
+        }
+    };
+
+    const overdueCount = followups.filter(f => f.status === 'Overdue').length;
+    const pendingCount = followups.filter(f => f.status === 'Pending').length;
+    const completedCount = followups.filter(f => f.status === 'Completed').length;
 
     return (
         <div className="module-container">
-            <header className="module-header">
+            {/* Breadcrumbs */}
+            <div className="breadcrumb-nav">
+                <span className="crumb" onClick={() => navigate('/')}>Dashboard</span>
+                <span className="separator">/</span>
+                <span className="crumb" onClick={() => navigate('/crm')}>CRM</span>
+                <span className="separator">/</span>
+                <span className="crumb active">Follow-ups</span>
+            </div>
+
+            <header className="module-header mt-15">
                 <div>
                     <h1 className="title-gradient">Sales Follow-ups</h1>
-                    <p className="text-muted">Manage interaction schedules and engagement priorities.</p>
+                    <p className="text-muted">Manage interaction schedules and engagement priorities for your leads.</p>
+                </div>
+                <div className="header-actions">
+                    <button className="btn-secondary flex-center gap-8" onClick={fetchFollowUps}>
+                        <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Refresh
+                    </button>
+                    <button className="btn-primary-blue flex-center gap-8" onClick={() => setShowModal(true)}>
+                        <Plus size={16} /> Add Follow-up
+                    </button>
                 </div>
             </header>
 
@@ -22,61 +98,225 @@ const FollowUps = () => {
                 <div className="glass-card alert-summary shadow-red">
                     <AlertCircle color="#ef4444" size={24}/>
                     <div>
-                        <h3>Overdue Follow-ups</h3>
-                        <p className="val text-danger">3 Alerts</p>
+                        <h3>Overdue Interactions</h3>
+                        <p className="val text-danger">{overdueCount} Alerts</p>
                     </div>
                 </div>
-                <div className="glass-card alert-summary">
+                <div className="glass-card alert-summary shadow-amber">
                     <Clock color="#f59e0b" size={24}/>
                     <div>
-                        <h3>Scheduled Today</h3>
-                        <p className="val">8 Tasks</p>
+                        <h3>Pending Schedules</h3>
+                        <p className="val text-warning">{pendingCount} Active</p>
+                    </div>
+                </div>
+                <div className="glass-card alert-summary shadow-emerald">
+                    <CheckCircle color="#10b981" size={24}/>
+                    <div>
+                        <h3>Completed Today</h3>
+                        <p className="val text-success">{completedCount} Logged</p>
                     </div>
                 </div>
             </div>
 
             <div className="module-content mt-30">
-                <DataTable 
-                    title="Communication Ledger"
-                    headers={['Customer/Lead', 'Contact Type', 'Scheduled Time', 'Status', 'Actions']}
-                    data={alerts}
-                    renderRow={(a) => (
-                        <>
-                            <td><strong>{a.name}</strong></td>
-                            <td>
-                                <div className="contact-type-chip">
-                                    {a.type === 'Call' ? <PhoneCall size={14}/> : <Mail size={14}/>}
-                                    {a.type}
-                                </div>
-                            </td>
-                            <td><div className="flex-center gap-5" style={{justifyContent: 'flex-start'}}><Calendar size={14}/> {a.time}</div></td>
-                            <td><span className={`status-pill ${a.status.toLowerCase()}`}>{a.status}</span></td>
-                            <td>
-                                <div className="action-btns-flex">
-                                    <button className="btn-done"><CheckCircle size={16}/> Mark Done</button>
-                                </div>
-                            </td>
-                        </>
-                    )}
-                />
+                {loading ? (
+                    <div className="loading-card flex-center">
+                        <RefreshCw className="animate-spin text-primary" size={28} />
+                        <span className="ml-10">Fetching communication logs...</span>
+                    </div>
+                ) : (
+                    <DataTable 
+                        title="Communication Ledger"
+                        headers={['Customer/Lead', 'Contact Type', 'Scheduled Time', 'Details & Notes', 'Status', 'Actions']}
+                        data={followups}
+                        renderRow={(a) => (
+                            <>
+                                <td>
+                                    <div className="client-info">
+                                        <strong>{a.name}</strong>
+                                        <span className="client-contact text-muted">
+                                            {a.phone || a.email || 'No contact provided'}
+                                        </span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div className={`contact-type-chip ${a.type.toLowerCase()}`}>
+                                        {a.type === 'Call' ? <PhoneCall size={13}/> : a.type === 'Email' ? <Mail size={13}/> : <Calendar size={13}/>}
+                                        {a.type}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div className="flex-center gap-5" style={{justifyContent: 'flex-start', color: 'var(--text-main)'}}>
+                                        <Calendar size={13} className="text-muted"/> {a.time}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div className="notes-preview text-muted" title={a.notes}>
+                                        {a.notes || 'No description added'}
+                                    </div>
+                                </td>
+                                <td>
+                                    <span className={`status-pill ${a.status.toLowerCase()}`}>{a.status}</span>
+                                </td>
+                                <td>
+                                    {a.status !== 'Completed' ? (
+                                        <button className="btn-done" onClick={() => handleMarkComplete(a._id)}>
+                                            <CheckCircle size={14}/> Mark Done
+                                        </button>
+                                    ) : (
+                                        <span className="text-success flex-center gap-5" style={{justifyContent: 'flex-start', fontSize: '12px', fontWeight: 600}}>
+                                            <CheckCircle size={14}/> Handled
+                                        </span>
+                                    )}
+                                </td>
+                            </>
+                        )}
+                    />
+                )}
             </div>
+
+            {/* Modal */}
+            {showModal && (
+                <div className="modal-overlay">
+                    <div className="modal-content animate-pop">
+                        <div className="modal-header">
+                            <h2>Draft Follow-up Action</h2>
+                            <button className="close-btn" onClick={() => setShowModal(false)}>✕</button>
+                        </div>
+                        <form onSubmit={handleCreateFollowUp} className="modal-form">
+                            <div className="form-group">
+                                <label>Client Name / Lead</label>
+                                <input 
+                                    type="text" 
+                                    required 
+                                    placeholder="e.g. John Doe"
+                                    value={formData.name} 
+                                    onChange={e => setFormData({...formData, name: e.target.value})} 
+                                />
+                            </div>
+
+                            <div className="form-row-2">
+                                <div className="form-group">
+                                    <label>Interaction Type</label>
+                                    <select value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})}>
+                                        <option value="Call">Phone Call</option>
+                                        <option value="Email">Email Pitch</option>
+                                        <option value="Meeting">Direct Meeting</option>
+                                    </select>
+                                </div>
+                                <div className="form-group">
+                                    <label>Scheduled Date & Time</label>
+                                    <input 
+                                        type="text" 
+                                        required 
+                                        placeholder="e.g. Tomorrow 10:00 AM"
+                                        value={formData.time} 
+                                        onChange={e => setFormData({...formData, time: e.target.value})} 
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="form-row-2">
+                                <div className="form-group">
+                                    <label>Phone Number (Optional)</label>
+                                    <input 
+                                        type="text" 
+                                        placeholder="e.g. +91 98765 43210"
+                                        value={formData.phone} 
+                                        onChange={e => setFormData({...formData, phone: e.target.value})} 
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label>Email Address (Optional)</label>
+                                    <input 
+                                        type="email" 
+                                        placeholder="e.g. client@company.com"
+                                        value={formData.email} 
+                                        onChange={e => setFormData({...formData, email: e.target.value})} 
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="form-group">
+                                <label>Action Notes & Purpose</label>
+                                <textarea 
+                                    rows="3" 
+                                    placeholder="Explain the follow-up requirements..."
+                                    value={formData.notes} 
+                                    onChange={e => setFormData({...formData, notes: e.target.value})}
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label>Initial Status</label>
+                                <select value={formData.status} onChange={e => setFormData({...formData, status: e.target.value})}>
+                                    <option value="Pending">Pending (Scheduled)</option>
+                                    <option value="Overdue">Overdue (Delayed action)</option>
+                                </select>
+                            </div>
+
+                            <div className="modal-actions">
+                                <button type="button" className="btn-cancel" onClick={() => setShowModal(false)}>Cancel</button>
+                                <button type="submit" className="btn-save">Save Schedule</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
 
             <style jsx="true">{`
                 .module-container { padding: 30px; }
-                .module-header { margin-bottom: 30px; }
-                .alerts-summary-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-                .alert-summary { display: flex; align-items: center; gap: 25px; padding: 25px; }
-                .alert-summary h3 { font-size: 14px; color: var(--text-muted); margin-bottom: 5px; }
-                .alert-summary .val { font-size: 24px; font-weight: 700; color: var(--text-main); }
-                .shadow-red { border-left: 4px solid #ef4444; }
+                .breadcrumb-nav { display: flex; gap: 8px; font-size: 12px; font-weight: 600; color: var(--text-muted); }
+                .breadcrumb-nav .crumb { cursor: pointer; transition: color 0.2s; }
+                .breadcrumb-nav .crumb:hover { color: #2563eb; }
+                .breadcrumb-nav .crumb.active { color: var(--text-main); cursor: default; }
+                .breadcrumb-nav .separator { color: rgba(255, 255, 255, 0.15); }
                 
-                .contact-type-chip { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-muted); }
-                .status-pill { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+                .module-header { display: flex; justify-content: space-between; align-items: center; }
+                .header-actions { display: flex; gap: 10px; }
+                
+                .btn-primary-blue { background: #2563eb; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 700; font-size: 13px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
+                .btn-primary-blue:hover { background: #1d4ed8; transform: translateY(-1px); }
+                .btn-secondary { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: var(--text-main); padding: 10px 16px; border-radius: 8px; font-weight: 700; font-size: 13px; }
+                .btn-secondary:hover { background: rgba(255, 255, 255, 0.08); }
+
+                .alerts-summary-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+                .alert-summary { display: flex; align-items: center; gap: 20px; padding: 20px; border-radius: 12px; }
+                .alert-summary h3 { font-size: 12px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 4px; }
+                .alert-summary .val { font-size: 20px; font-weight: 800; }
+                
+                .shadow-red { border-left: 4px solid #ef4444; }
+                .shadow-amber { border-left: 4px solid #f59e0b; }
+                .shadow-emerald { border-left: 4px solid #10b981; }
+                
+                .loading-card { background: var(--glass); border: 1px solid var(--border); padding: 40px; border-radius: 16px; min-height: 200px; color: var(--text-main); }
+                
+                .client-info { display: flex; flex-direction: column; gap: 2px; }
+                .client-contact { font-size: 12px; }
+                
+                .contact-type-chip { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--text-muted); width: fit-content; padding: 4px 8px; border-radius: 6px; background: rgba(255, 255, 255, 0.05); }
+                .contact-type-chip.call { color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
+                .contact-type-chip.email { color: #7c3aed; background: rgba(124, 58, 237, 0.1); }
+                .contact-type-chip.meeting { color: #10b981; background: rgba(16, 185, 129, 0.1); }
+                
+                .notes-preview { max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
+                
+                .status-pill { padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
                 .status-pill.overdue { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
                 .status-pill.pending { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+                .status-pill.completed { background: rgba(16, 185, 129, 0.1); color: #10b981; }
                 
-                .btn-done { background: rgba(16, 185, 129, 0.1); color: #10b981; font-size: 12px; font-weight: 600; padding: 6px 15px; border-radius: 8px; display: flex; align-items: center; gap: 8px; }
+                .btn-done { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); color: #10b981; font-size: 12px; font-weight: 600; padding: 6px 14px; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; transition: all 0.2s; }
+                .btn-done:hover { background: #10b981; color: #ffffff; }
+                
+                .animate-spin { animation: spin 1s linear infinite; }
+                @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+                
+                .mt-15 { margin-top: 15px; }
                 .mt-30 { margin-top: 30px; }
+                .ml-10 { margin-left: 10px; }
+                .gap-8 { gap: 8px; }
+                .gap-5 { gap: 5px; }
             `}</style>
         </div>
     );

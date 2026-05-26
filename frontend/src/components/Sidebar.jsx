@@ -15,7 +15,8 @@ import {
     CheckCircle,
     DollarSign,
     PhoneCall,
-    X
+    X,
+    LifeBuoy
 } from 'lucide-react';
 
 const Sidebar = ({ logout, isOpen, onClose }) => {
@@ -37,6 +38,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
         { path: '/crm', name: 'Customers (CRM)', icon: <Briefcase size={20} /> },
         { path: '/vendors', name: 'Vendors', icon: <Users size={20} /> },
         { path: '/analytics', name: 'Reports & Analytics', icon: <BarChart3 size={20} /> },
+        { path: '/support', name: 'Support Tickets', icon: <LifeBuoy size={20} /> },
         { path: '/notifications', name: 'Notifications', icon: <Bell size={20} /> },
         { path: '/settings', name: 'Settings', icon: <Settings size={20} /> },
     ];
@@ -69,6 +71,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
         { path: '/team-performance', name: 'Team Performance', icon: <Users size={20} /> },
         { path: '/materials', name: 'Materials Overview', icon: <Briefcase size={20} /> },
         { path: '/analytics', name: 'Reports', icon: <BarChart3 size={20} /> },
+        { path: '/support', name: 'Support Tickets', icon: <LifeBuoy size={20} /> },
         { path: '/settings', name: 'Profile', icon: <Settings size={20} /> },
     ];
 
@@ -79,6 +82,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
         { path: '/sales-pipeline', name: 'Sales Pipeline', icon: <BarChart3 size={20} /> },
         { path: '/follow-ups', name: 'Follow-ups', icon: <PhoneCall size={20} /> },
         { path: '/analytics', name: 'Reports', icon: <BarChart3 size={20} /> },
+        { path: '/support', name: 'Support Tickets', icon: <LifeBuoy size={20} /> },
         { path: '/settings', name: 'Profile', icon: <Settings size={20} /> },
     ];
 

@@ -14,6 +14,8 @@ const Leave = require('./src/models/Leave');
 const Salary = require('./src/models/Salary');
 const Task = require('./src/models/Task');
 const Notification = require('./src/models/Notification');
+const FollowUp = require('./src/models/FollowUp');
+const Ticket = require('./src/models/Ticket');
 
 dotenv.config();
 
@@ -47,6 +49,8 @@ const seedData = async () => {
         await Salary.deleteMany();
         await Task.deleteMany();
         await Notification.deleteMany();
+        await FollowUp.deleteMany();
+        await Ticket.deleteMany();
         console.log('Cleared all existing database entries.');
 
         // ===================================================================
@@ -622,6 +626,29 @@ const seedData = async () => {
 
         const seededNotifications = await Notification.insertMany(notificationDocs);
         console.log(`Seeded ${seededNotifications.length} System Notifications.`);
+
+        // ===================================================================
+        // 14. CRM FOLLOW-UPS
+        // ===================================================================
+        const followupDocs = [
+            { name: 'Sarah Connor', type: 'Call', time: '10:00 AM', phone: '+1 555-9012', status: 'Pending', notes: 'Call Sarah to follow up on the TMT Steel bar quotation.', createdBy: salesUser._id },
+            { name: 'John Wick', type: 'Email', time: '02:30 PM', email: 'j.wick@continental.com', status: 'Pending', notes: 'Email John regarding brass fittings contract validation.', createdBy: salesUser._id },
+            { name: 'Gordon Freeman', type: 'Call', time: '04:00 PM', phone: '+1 555-8821', status: 'Pending', notes: 'Confirm delivery schedule for GI Pipes at Black Mesa division.', createdBy: salesUser2._id },
+            { name: 'Bruce Wayne', type: 'Meeting', time: '11:00 AM', phone: '+1 555-1939', status: 'Completed', notes: 'Discuss copper wire bulk orders for Wayne Enterprises.', createdBy: salesUser._id }
+        ];
+        const seededFollowups = await FollowUp.insertMany(followupDocs);
+        console.log(`Seeded ${seededFollowups.length} CRM Follow-Ups.`);
+
+        // ===================================================================
+        // 15. CUSTOMER SUPPORT TICKETS
+        // ===================================================================
+        const ticketDocs = [
+            { ticketNumber: 'TIC-203512', customer: createdCustomers[0]._id, subject: 'Delayed cement delivery', description: 'Order SO-2026-001 has cement bags which have not arrived at Coimbatore warehouse yet.', priority: 'High', status: 'Open', assignedTo: adminUser._id },
+            { ticketNumber: 'TIC-948123', customer: createdCustomers[1]._id, subject: 'Wrong SKU invoice quantity', description: 'Invoice total counts 12 SS Sheets, but only 10 were delivered. Adjust credit ledger.', priority: 'Medium', status: 'In Progress', assignedTo: managerUser._id },
+            { ticketNumber: 'TIC-731054', customer: createdCustomers[2]._id, subject: 'Assistance with vendor details', description: 'Require complete contact person portfolio for Sri Lakshmi Steel Traders.', priority: 'Low', status: 'Resolved', assignedTo: hrUser._id }
+        ];
+        const seededTickets = await Ticket.insertMany(ticketDocs);
+        console.log(`Seeded ${seededTickets.length} Customer Support Tickets.`);
 
         console.log('\n========================================');
         console.log('  DATABASE SEEDING COMPLETED SUCCESSFULLY');
