@@ -15,6 +15,11 @@ const ticketSchema = new mongoose.Schema({
         enum: ['Open', 'In Progress', 'Resolved', 'Closed'], 
         default: 'Open' 
     },
+    category: {
+        type: String,
+        enum: ['General', 'Technical', 'Billing', 'Other'],
+        default: 'General'
+    },
     assignedTo: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 }, { timestamps: true });
 

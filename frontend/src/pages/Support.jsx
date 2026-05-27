@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import API from '../api/axios';
 import DataTable from '../components/Dashboard/DataTable';
 import { 
-    LifeBuoy, Plus, ChevronRight, Filter, RefreshCw, 
-    AlertTriangle, CheckCircle, Clock, Inbox, AlertCircle, FileText, User
+    ChevronRight, RefreshCw, AlertTriangle, CheckCircle, Clock, Inbox, User, HelpCircle, Search
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -12,17 +11,43 @@ const Support = () => {
     const [tickets, setTickets] = useState([]);
     const [customers, setCustomers] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [showModal, setShowModal] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
+    const [faqSearch, setFaqSearch] = useState('');
+    const [expandedFaq, setExpandedFaq] = useState(null);
+
     const [formData, setFormData] = useState({
         customer: '',
         subject: '',
         description: '',
-        priority: 'Medium'
+        priority: 'Low',
+        category: 'General'
     });
 
     const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
-    const isAdmin = userInfo.role === 'Admin';
-    const isSales = userInfo.role === 'Sales';
+
+    const faqs = [
+        {
+            question: "How do I register a new employee under SMTBMS?",
+            answer: "To register a new employee, go to the Employee Management page (HRMS) from the sidebar, click the \"Add Employee\" button, fill in the employee's first name, last name, department, designation, and contact info, and click \"Create Profile\". This will automatically set up their system user login as well."
+        },
+        {
+            question: "What is the \"Low Stock Alert\" trigger threshold?",
+            answer: "The default low stock warning threshold is set to 10 units for most materials. You can configure individual material thresholds directly on the Materials Tracking module under each item's details. If quantity falls below the threshold, an automated in-app system warning is instantly triggered for Warehouse Stock Controllers and Admins."
+        },
+        {
+            question: "How do manual database backups work in SMTBMS?",
+            answer: "SMTBMS schedules full automated database backups to our cloud storage vaults every night. For manual backups, administrators can trigger the backup runner task inside the System Settings module under the Maintenance tab to download a raw database export instantly."
+        },
+        {
+            question: "How can I connect the Slack Notifications workspace integration?",
+            answer: "Go to System Settings -> Integrations tab, find the Slack integration card, and click \"Connect\". You will be redirected to choose your target channel and authorize the SMTBMS webhook to stream instant notifications for stock warnings and critical order updates."
+        }
+    ];
+
+    const filteredFaqs = faqs.filter(faq => 
+        faq.question.toLowerCase().includes(faqSearch.toLowerCase()) ||
+        faq.answer.toLowerCase().includes(faqSearch.toLowerCase())
+    );
 
     const fetchTicketsAndCustomers = async () => {
         try {
@@ -47,12 +72,15 @@ const Support = () => {
     const handleCreateTicket = async (e) => {
         e.preventDefault();
         try {
+            setSubmitting(true);
             await API.post('/tickets', formData);
-            setShowModal(false);
-            setFormData({ customer: '', subject: '', description: '', priority: 'Medium' });
+            setFormData({ customer: '', subject: '', description: '', priority: 'Low', category: 'General' });
             fetchTicketsAndCustomers();
+            alert('Support Ticket submitted successfully!');
         } catch (err) {
             alert(err.response?.data?.message || 'Error creating ticket');
+        } finally {
+            setSubmitting(false);
         }
     };
 
@@ -75,25 +103,155 @@ const Support = () => {
             <div className="breadcrumb-nav">
                 <span className="crumb" onClick={() => navigate('/')}>Dashboard</span>
                 <ChevronRight size={14} className="separator" />
-                <span className="crumb active">Customer Support</span>
+                <span className="crumb active">Help & Support</span>
             </div>
 
             <header className="module-header">
                 <div>
-                    <h1 className="header-title">Support Tickets</h1>
-                    <p className="header-subtitle">Handle customer claims, technical issues, and dispatch tracking assistance.</p>
+                    <h1 className="header-title flex-center gap-8" style={{justifyContent: 'flex-start'}}>
+                        <span>🤝</span> Help & Support Desk
+                    </h1>
+                    <p className="header-subtitle">Explore user manuals, review common operational queries, or submit help tickets.</p>
                 </div>
                 <div className="header-actions">
                     <button className="btn-secondary-light flex-center gap-8" onClick={fetchTicketsAndCustomers}>
-                        <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Refresh
+                        <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Refresh Desk
                     </button>
-                    {['Admin', 'Sales', 'Manager'].includes(userInfo.role) && (
-                        <button className="btn-primary-blue flex-center gap-8" onClick={() => setShowModal(true)}>
-                            <Plus size={16} /> Open Ticket
-                        </button>
-                    )}
                 </div>
             </header>
+
+            {/* Support Desk Two-Column Layout */}
+            <div className="support-two-column-grid">
+                
+                {/* Left Column: FAQ Accordions */}
+                <div className="support-column-card card-faq">
+                    <div className="card-heading-section">
+                        <h2 className="card-title">Knowledge Base FAQs</h2>
+                        <p className="card-subtitle">Search system reference details instantly to guide operations.</p>
+                    </div>
+
+                    <div className="faq-search-wrapper">
+                        <Search size={16} className="faq-search-icon" />
+                        <input 
+                            type="text" 
+                            placeholder="Search FAQ articles..." 
+                            value={faqSearch}
+                            onChange={e => setFaqSearch(e.target.value)}
+                            className="faq-search-input"
+                        />
+                    </div>
+
+                    <div className="accordion-list">
+                        {filteredFaqs.length > 0 ? (
+                            filteredFaqs.map((faq, idx) => {
+                                const isExpanded = expandedFaq === idx;
+                                return (
+                                    <div key={idx} className={`accordion-item ${isExpanded ? 'expanded' : ''}`}>
+                                        <button 
+                                            type="button" 
+                                            className="accordion-header"
+                                            onClick={() => setExpandedFaq(isExpanded ? null : idx)}
+                                        >
+                                            <span className="faq-question">{faq.question}</span>
+                                            <span className="arrow-icon">{isExpanded ? '▲' : '▼'}</span>
+                                        </button>
+                                        {isExpanded && (
+                                            <div className="accordion-content animate-slide-down">
+                                                <p>{faq.answer}</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })
+                        ) : (
+                            <div className="no-faq-results">
+                                <HelpCircle size={24} className="text-muted mb-8" />
+                                <p className="text-muted">No FAQ articles found matching your query.</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Right Column: Inline Ticket Submission Form */}
+                <div className="support-column-card card-form">
+                    <div className="card-heading-section">
+                        <h2 className="card-title">Submit Helpdesk Support Ticket</h2>
+                        <p className="card-subtitle">Report system issues or request access logs directly from admins.</p>
+                    </div>
+
+                    <form onSubmit={handleCreateTicket} className="inline-ticket-form">
+                        <div className="form-group">
+                            <label className="form-label">Select Customer Profile</label>
+                            <select 
+                                required 
+                                value={formData.customer} 
+                                onChange={e => setFormData({...formData, customer: e.target.value})}
+                                className="form-input"
+                            >
+                                <option value="">Choose Customer...</option>
+                                {customers.map(c => <option key={c._id} value={c._id}>{c.name} ({c.company || 'Direct'})</option>)}
+                            </select>
+                        </div>
+
+                        <div className="form-group">
+                            <label className="form-label">Subject / Issue Title</label>
+                            <input 
+                                type="text" 
+                                required 
+                                placeholder="e.g. ERP procurement API error"
+                                value={formData.subject} 
+                                onChange={e => setFormData({...formData, subject: e.target.value})} 
+                                className="form-input"
+                            />
+                        </div>
+
+                        <div className="form-row-2">
+                            <div className="form-group">
+                                <label className="form-label">Category</label>
+                                <select 
+                                    value={formData.category} 
+                                    onChange={e => setFormData({...formData, category: e.target.value})}
+                                    className="form-input"
+                                >
+                                    <option value="General">General</option>
+                                    <option value="Technical">Technical</option>
+                                    <option value="Billing">Billing</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+
+                            <div className="form-group">
+                                <label className="form-label">Priority</label>
+                                <select 
+                                    value={formData.priority} 
+                                    onChange={e => setFormData({...formData, priority: e.target.value})}
+                                    className="form-input"
+                                >
+                                    <option value="Low">Low</option>
+                                    <option value="Medium">Medium</option>
+                                    <option value="High">High</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="form-group">
+                            <label className="form-label">Description</label>
+                            <textarea 
+                                rows="3" 
+                                required
+                                placeholder="Detail the issue or request instructions here..."
+                                value={formData.description} 
+                                onChange={e => setFormData({...formData, description: e.target.value})}
+                                className="form-input textarea-fixed"
+                            />
+                        </div>
+
+                        <button type="submit" className="btn-submit-ticket" disabled={submitting}>
+                            {submitting ? 'Launching Ticket...' : 'Submit Ticket'}
+                        </button>
+                    </form>
+                </div>
+            </div>
 
             {/* Metrics cards */}
             <section className="support-metrics-grid">
@@ -114,7 +272,7 @@ const Support = () => {
                 <div className="support-metric-card border-emerald">
                     <CheckCircle color="#10b981" size={24} />
                     <div>
-                        <span className="label text-success">Resolved Today</span>
+                        <span className="label text-success">Resolved/Closed</span>
                         <span className="value text-success">{resolvedCount}</span>
                     </div>
                 </div>
@@ -127,8 +285,8 @@ const Support = () => {
                 </div>
             </section>
 
-            {/* Active Tickets List */}
-            <div className="table-card mt-10">
+            {/* Active Tickets List (Wide Span Ledger) */}
+            <div className="table-card">
                 {loading ? (
                     <div className="loading-state flex-center">
                         <RefreshCw className="animate-spin text-primary" size={28} />
@@ -137,7 +295,7 @@ const Support = () => {
                 ) : (
                     <DataTable 
                         title="Customer Queries Ledger"
-                        headers={['Ticket Info', 'Organization', 'Subject & Description', 'Priority', 'Status', 'Representative']}
+                        headers={['Ticket Info', 'Organization', 'Subject & Details', 'Priority', 'Status', 'Representative']}
                         data={tickets}
                         renderRow={(t) => {
                             const statusClass = t.status.toLowerCase().replace(/ /g, '-');
@@ -159,7 +317,10 @@ const Support = () => {
                                     </td>
                                     <td>
                                         <div className="desc-cell">
-                                            <strong className="subj-title">{t.subject}</strong>
+                                            <div className="subj-header-inline">
+                                                <strong className="subj-title">{t.subject}</strong>
+                                                <span className="category-pill-small">{t.category || 'General'}</span>
+                                            </div>
                                             <p className="desc-para text-muted" title={t.description}>{t.description}</p>
                                         </div>
                                     </td>
@@ -194,77 +355,14 @@ const Support = () => {
                 )}
             </div>
 
-            {/* Modal */}
-            {showModal && (
-                <div className="modal-overlay">
-                    <div className="modal-content animate-pop">
-                        <div className="modal-header">
-                            <h2>Draft Support Ticket</h2>
-                            <button className="close-btn" onClick={() => setShowModal(false)}>✕</button>
-                        </div>
-                        <form onSubmit={handleCreateTicket} className="modal-form">
-                            <div className="form-group">
-                                <label>Select Customer Profile</label>
-                                <select 
-                                    required 
-                                    value={formData.customer} 
-                                    onChange={e => setFormData({...formData, customer: e.target.value})}
-                                >
-                                    <option value="">Choose Customer...</option>
-                                    {customers.map(c => <option key={c._id} value={c._id}>{c.name} ({c.company || 'Direct'})</option>)}
-                                </select>
-                            </div>
-
-                            <div className="form-group">
-                                <label>Subject / Headline</label>
-                                <input 
-                                    type="text" 
-                                    required 
-                                    placeholder="Explain the summary of the issue..."
-                                    value={formData.subject} 
-                                    onChange={e => setFormData({...formData, subject: e.target.value})} 
-                                />
-                            </div>
-
-                            <div className="form-group">
-                                <label>Detailed Description</label>
-                                <textarea 
-                                    rows="4" 
-                                    required
-                                    placeholder="Include order numbers, shipping details, or material complaints..."
-                                    value={formData.description} 
-                                    onChange={e => setFormData({...formData, description: e.target.value})}
-                                />
-                            </div>
-
-                            <div className="form-row-2">
-                                <div className="form-group">
-                                    <label>Incident Priority</label>
-                                    <select value={formData.priority} onChange={e => setFormData({...formData, priority: e.target.value})}>
-                                        <option value="Low">Low (General Query)</option>
-                                        <option value="Medium">Medium (Operational Hinder)</option>
-                                        <option value="High">High (Breaking Delay / Damage)</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div className="modal-actions">
-                                <button type="button" className="btn-cancel" onClick={() => setShowModal(false)}>Cancel</button>
-                                <button type="submit" className="btn-save">Launch Ticket</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
-
             <style jsx="true">{`
                 .support-workspace {
-                    padding: 24px;
-                    background-color: #f1f5f9;
+                    padding: 30px;
+                    background-color: #f8fafc;
                     min-height: 100vh;
                     display: flex;
                     flex-direction: column;
-                    gap: 20px;
+                    gap: 25px;
                 }
                 
                 .breadcrumb-nav {
@@ -273,7 +371,7 @@ const Support = () => {
                     gap: 6px;
                     font-size: 12px;
                     font-weight: 600;
-                    color: var(--dash-text-muted, #64748b);
+                    color: #64748b;
                 }
                 
                 .crumb {
@@ -290,14 +388,220 @@ const Support = () => {
                     align-items: center;
                 }
                 
-                .header-title { font-size: 24px; font-weight: 800; color: #0f172a; margin: 0 0 4px 0; }
+                .header-title { font-size: 26px; font-weight: 800; color: #0f172a; margin: 0 0 4px 0; }
                 .header-subtitle { font-size: 13px; color: #64748b; margin: 0; }
                 
-                .btn-primary-blue { background: #2563eb; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 700; font-size: 13px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
-                .btn-primary-blue:hover { background: #1d4ed8; transform: translateY(-1px); }
-                .btn-secondary-light { background: #ffffff; border: 1px solid #e2e8f0; color: #475569; padding: 10px 16px; border-radius: 8px; font-weight: 700; font-size: 13px; display: inline-flex; align-items: center; }
-                .btn-secondary-light:hover { background: #f8fafc; border-color: #cbd5e1; }
+                .btn-secondary-light { background: #ffffff; border: 1px solid #cbd5e1; color: #475569; padding: 10px 16px; border-radius: 8px; font-weight: 700; font-size: 13px; display: inline-flex; align-items: center; cursor: pointer; transition: all 0.2s; }
+                .btn-secondary-light:hover { background: #f1f5f9; border-color: #94a3b8; }
                 
+                /* Two-Column Support Section */
+                .support-two-column-grid {
+                    display: grid;
+                    grid-template-columns: 1.2fr 0.8fr;
+                    gap: 25px;
+                }
+                
+                .support-column-card {
+                    background: #ffffff;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 16px;
+                    padding: 24px;
+                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+                }
+                
+                .card-heading-section {
+                    margin-bottom: 20px;
+                }
+                
+                .card-title {
+                    font-size: 18px;
+                    font-weight: 800;
+                    color: #0f172a;
+                    margin: 0 0 4px 0;
+                }
+                
+                .card-subtitle {
+                    font-size: 13px;
+                    color: #64748b;
+                    margin: 0;
+                }
+                
+                /* FAQ Accordion Column */
+                .faq-search-wrapper {
+                    position: relative;
+                    margin-bottom: 20px;
+                    display: flex;
+                    align-items: center;
+                }
+                
+                .faq-search-icon {
+                    position: absolute;
+                    left: 14px;
+                    color: #64748b;
+                    pointer-events: none;
+                }
+                
+                .faq-search-input {
+                    width: 100%;
+                    padding: 11px 16px 11px 40px;
+                    border: 1px solid #cbd5e1;
+                    border-radius: 20px;
+                    font-size: 13px;
+                    background: #f8fafc;
+                    color: #0f172a;
+                    outline: none;
+                    transition: all 0.2s;
+                }
+                
+                .faq-search-input:focus {
+                    border-color: #2563eb;
+                    background: #ffffff;
+                    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+                }
+                
+                .accordion-list {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 12px;
+                }
+                
+                .accordion-item {
+                    border: 1px solid #e2e8f0;
+                    border-radius: 10px;
+                    overflow: hidden;
+                    transition: all 0.2s;
+                    background: #ffffff;
+                }
+                
+                .accordion-item.expanded {
+                    border-color: #cbd5e1;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+                }
+                
+                .accordion-header {
+                    width: 100%;
+                    padding: 16px 20px;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    background: #ffffff;
+                    border: none;
+                    outline: none;
+                    cursor: pointer;
+                    text-align: left;
+                    font-weight: 700;
+                    font-size: 14px;
+                    color: #1e293b;
+                    transition: background 0.2s;
+                }
+                
+                .accordion-header:hover {
+                    background: #f8fafc;
+                }
+                
+                .arrow-icon {
+                    font-size: 10px;
+                    color: #64748b;
+                    transition: transform 0.2s;
+                }
+                
+                .accordion-content {
+                    padding: 0 20px 18px 20px;
+                    background: #ffffff;
+                    border-top: none;
+                    color: #475569;
+                    font-size: 13px;
+                    line-height: 1.6;
+                }
+                
+                .no-faq-results {
+                    padding: 40px;
+                    text-align: center;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                }
+                
+                .mb-8 { margin-bottom: 8px; }
+                
+                /* Ticket Submission Form Column */
+                .inline-ticket-form {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 16px;
+                }
+                
+                .form-group {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 6px;
+                }
+                
+                .form-label {
+                    font-size: 11px;
+                    font-weight: 700;
+                    color: #475569;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                }
+                
+                .form-input {
+                    padding: 10px 12px;
+                    border: 1px solid #cbd5e1;
+                    border-radius: 8px;
+                    font-size: 13px;
+                    background: #ffffff !important;
+                    color: #0f172a !important;
+                    outline: none;
+                    transition: border-color 0.2s;
+                }
+                
+                .form-input:focus {
+                    border-color: #2563eb;
+                }
+                
+                .support-workspace select option {
+                    background-color: #ffffff !important;
+                    color: #0f172a !important;
+                }
+                
+                .form-row-2 {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 16px;
+                }
+                
+                .textarea-fixed {
+                    resize: vertical;
+                    min-height: 80px;
+                }
+                
+                .btn-submit-ticket {
+                    background: #2563eb;
+                    color: #ffffff;
+                    border: none;
+                    padding: 12px 20px;
+                    border-radius: 20px;
+                    font-weight: 700;
+                    font-size: 13px;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                    box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.1);
+                    text-align: center;
+                }
+                
+                .btn-submit-ticket:hover {
+                    background: #1d4ed8;
+                    transform: translateY(-0.5px);
+                }
+                
+                .btn-submit-ticket:disabled {
+                    background: #93c5fd;
+                    cursor: not-allowed;
+                }
+                
+                /* Metrics cards */
                 .support-metrics-grid {
                     display: grid;
                     grid-template-columns: repeat(4, 1fr);
@@ -308,11 +612,11 @@ const Support = () => {
                     background: #ffffff;
                     border: 1px solid #e2e8f0;
                     border-radius: 12px;
-                    padding: 20px;
+                    padding: 18px 20px;
                     display: flex;
                     align-items: center;
                     gap: 15px;
-                    box-shadow: var(--dash-shadow-sm, 0 1px 3px rgba(0,0,0,0.05));
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
                 }
                 
                 .border-red { border-left: 4px solid #ef4444; }
@@ -325,12 +629,13 @@ const Support = () => {
                 .text-warning { color: #f59e0b !important; }
                 .text-success { color: #10b981 !important; }
                 
+                /* Table Ledger */
                 .table-card {
                     background: #ffffff;
                     border: 1px solid #e2e8f0;
                     border-radius: 16px;
                     padding: 8px;
-                    box-shadow: var(--dash-shadow-sm);
+                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
                     overflow-x: auto;
                 }
                 
@@ -347,8 +652,10 @@ const Support = () => {
                 .org-cell { display: flex; flex-direction: column; gap: 2px; }
                 .company-tag { font-size: 11px; }
                 
-                .desc-cell { max-width: 300px; }
-                .subj-title { font-size: 14px; color: #1e293b; display: block; margin-bottom: 2px; }
+                .desc-cell { max-width: 320px; }
+                .subj-header-inline { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; flex-wrap: wrap; }
+                .subj-title { font-size: 14px; color: #1e293b; }
+                .category-pill-small { font-size: 10px; font-weight: 700; background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; }
                 .desc-para { font-size: 12px; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
                 
                 .priority-badge { font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; width: fit-content; display: inline-block; }
@@ -373,42 +680,18 @@ const Support = () => {
                 .status-select-premium.resolved, .status-badge-inline.resolved { background-color: rgba(16, 185, 129, 0.1); color: #10b981; }
                 .status-select-premium.closed, .status-badge-inline.closed { background-color: #f1f5f9; color: #64748b; }
                 
-                /* Modal Styles */
-                .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 2000; }
-                .modal-content { background: white; border-radius: 16px; width: 90%; max-width: 500px; padding: 30px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
-                .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-                .modal-header h2 { font-size: 18px; font-weight: 800; color: #0f172a; margin: 0; }
-                .close-btn { background: none; border: none; font-size: 18px; color: #64748b; cursor: pointer; }
-                
-                .modal-form { display: flex; flex-direction: column; gap: 16px; }
-                .form-group { display: flex; flex-direction: column; gap: 6px; }
-                .form-group label { font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; }
-                .form-group input, .form-group select, .form-group textarea {
-                    padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; background: #ffffff; color: #0f172a;
-                }
-                .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #2563eb; outline: none; }
-                .form-group select option {
-                    background: #ffffff;
-                    color: #0f172a;
+                .animate-slide-down { animation: slideDown 0.25s ease-out; }
+                @keyframes slideDown {
+                    from { opacity: 0; transform: translateY(-4px); }
+                    to { opacity: 1; transform: translateY(0); }
                 }
                 
-                .form-row-2 { display: grid; grid-template-columns: 1fr; gap: 16px; }
-                
-                .modal-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 10px; }
-                .btn-cancel { background: transparent; border: 1px solid #cbd5e1; color: #475569; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; }
-                .btn-save { background: #2563eb; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.1); }
-                .btn-save:hover { background: #1d4ed8; }
-                
-                .animate-pop { animation: pop 0.25s ease-out; }
-                @keyframes pop { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
                 .animate-spin { animation: spin 1s linear infinite; }
                 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
                 
-                .mt-10 { margin-top: 10px; }
-                .ml-10 { margin-left: 10px; }
+                .flex-center { display: flex; align-items: center; justify-content: center; }
                 .gap-8 { gap: 8px; }
                 .gap-5 { gap: 5px; }
-                .flex-center { display: flex; align-items: center; justify-content: center; }
             `}</style>
         </div>
     );
