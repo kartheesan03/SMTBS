@@ -50,19 +50,25 @@ const Support = () => {
     );
 
     const fetchTicketsAndCustomers = async () => {
+        setLoading(true);
+        
+        // 1. Fetch tickets
         try {
-            setLoading(true);
-            const [ticketsRes, customersRes] = await Promise.all([
-                API.get('/tickets'),
-                API.get('/customers')
-            ]);
+            const ticketsRes = await API.get('/tickets');
             setTickets(Array.isArray(ticketsRes.data) ? ticketsRes.data : []);
+        } catch (err) {
+            console.error('Error fetching support tickets:', err);
+        }
+
+        // 2. Fetch customers
+        try {
+            const customersRes = await API.get('/customers');
             setCustomers(Array.isArray(customersRes.data) ? customersRes.data : []);
         } catch (err) {
-            console.error('Error fetching support data:', err);
-        } finally {
-            setLoading(false);
+            console.error('Error fetching support customers:', err);
         }
+
+        setLoading(false);
     };
 
     useEffect(() => {
@@ -188,8 +194,8 @@ const Support = () => {
                                 onChange={e => setFormData({...formData, customer: e.target.value})}
                                 className="form-input"
                             >
-                                <option value="">Choose Customer...</option>
-                                {customers.map(c => <option key={c._id} value={c._id}>{c.name} ({c.company || 'Direct'})</option>)}
+                                <option value="" style={{ backgroundColor: '#ffffff', color: '#0f172a' }}>Choose Customer...</option>
+                                {customers.map(c => <option key={c._id} value={c._id} style={{ backgroundColor: '#ffffff', color: '#0f172a' }}>{c.name} ({c.company || 'Direct'})</option>)}
                             </select>
                         </div>
 
@@ -213,10 +219,10 @@ const Support = () => {
                                     onChange={e => setFormData({...formData, category: e.target.value})}
                                     className="form-input"
                                 >
-                                    <option value="General">General</option>
-                                    <option value="Technical">Technical</option>
-                                    <option value="Billing">Billing</option>
-                                    <option value="Other">Other</option>
+                                    <option value="General" style={{ backgroundColor: '#ffffff', color: '#0f172a' }}>General</option>
+                                    <option value="Technical" style={{ backgroundColor: '#ffffff', color: '#0f172a' }}>Technical</option>
+                                    <option value="Billing" style={{ backgroundColor: '#ffffff', color: '#0f172a' }}>Billing</option>
+                                    <option value="Other" style={{ backgroundColor: '#ffffff', color: '#0f172a' }}>Other</option>
                                 </select>
                             </div>
 
@@ -227,9 +233,9 @@ const Support = () => {
                                     onChange={e => setFormData({...formData, priority: e.target.value})}
                                     className="form-input"
                                 >
-                                    <option value="Low">Low</option>
-                                    <option value="Medium">Medium</option>
-                                    <option value="High">High</option>
+                                    <option value="Low" style={{ backgroundColor: '#ffffff', color: '#0f172a' }}>Low</option>
+                                    <option value="Medium" style={{ backgroundColor: '#ffffff', color: '#0f172a' }}>Medium</option>
+                                    <option value="High" style={{ backgroundColor: '#ffffff', color: '#0f172a' }}>High</option>
                                 </select>
                             </div>
                         </div>
@@ -334,10 +340,10 @@ const Support = () => {
                                                 onChange={(e) => handleStatusChange(t._id, e.target.value)}
                                                 className={`status-select-premium ${statusClass}`}
                                             >
-                                                <option value="Open">Open</option>
-                                                <option value="In Progress">In Progress</option>
-                                                <option value="Resolved">Resolved</option>
-                                                <option value="Closed">Closed</option>
+                                                <option value="Open" style={{ backgroundColor: '#ffffff', color: '#0f172a' }}>Open</option>
+                                                <option value="In Progress" style={{ backgroundColor: '#ffffff', color: '#0f172a' }}>In Progress</option>
+                                                <option value="Resolved" style={{ backgroundColor: '#ffffff', color: '#0f172a' }}>Resolved</option>
+                                                <option value="Closed" style={{ backgroundColor: '#ffffff', color: '#0f172a' }}>Closed</option>
                                             </select>
                                         ) : (
                                             <span className={`status-badge-inline ${statusClass}`}>{t.status}</span>
