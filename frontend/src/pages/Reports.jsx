@@ -150,7 +150,7 @@ const Reports = () => {
     ];
 
     return (
-        <div className="reports-container">
+        <div className="reports-workspace">
 
             {/* Toast */}
             {toast && (
@@ -302,20 +302,20 @@ const Reports = () => {
                                         <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
                                     </linearGradient>
                                 </defs>
-                                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                                 <XAxis dataKey="name" stroke="#64748b" fontSize={12} tickLine={false} />
                                 <YAxis stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} />
-                                <Tooltip contentStyle={{ background: '#0f172a', borderRadius: '10px', border: '1px solid #334155', color: '#fff' }} />
+                                <Tooltip contentStyle={{ background: '#ffffff', borderRadius: '8px', border: '1px solid #cbd5e1', color: '#0f172a', fontSize: '12px' }} />
                                 <Area type="monotone" dataKey="revenue" stroke="#6366f1" strokeWidth={3} fill="url(#revGrad)" name="Revenue ($)" />
                             </AreaChart>
                         </ResponsiveContainer>
                     ) : activeChart === 'orders' ? (
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={chartData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                                 <XAxis dataKey="name" stroke="#64748b" fontSize={12} tickLine={false} />
                                 <YAxis stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} />
-                                <Tooltip contentStyle={{ background: '#0f172a', borderRadius: '10px', border: '1px solid #334155', color: '#fff' }} />
+                                <Tooltip contentStyle={{ background: '#ffffff', borderRadius: '8px', border: '1px solid #cbd5e1', color: '#0f172a', fontSize: '12px' }} />
                                 <Bar dataKey="sales" fill="#14b8a6" radius={[6, 6, 0, 0]} name="Orders" />
                             </BarChart>
                         </ResponsiveContainer>
@@ -333,7 +333,7 @@ const Reports = () => {
                                         <Cell key={index} fill={COLORS[index % COLORS.length]} />
                                     ))}
                                 </Pie>
-                                <Tooltip contentStyle={{ background: '#0f172a', borderRadius: '10px', border: '1px solid #334155', color: '#fff' }} />
+                                <Tooltip contentStyle={{ background: '#ffffff', borderRadius: '8px', border: '1px solid #cbd5e1', color: '#0f172a', fontSize: '12px' }} />
                                 <Legend />
                             </PieChart>
                         </ResponsiveContainer>
@@ -382,8 +382,17 @@ const Reports = () => {
             )}
 
             <style jsx="true">{`
-                .reports-container { padding: 30px; position: relative; }
-
+                .reports-workspace {
+                    padding: 30px;
+                    background-color: #f8fafc;
+                    min-height: 100vh;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 25px;
+                    font-family: 'Outfit', sans-serif;
+                    color: #0f172a;
+                }
+                
                 /* Toast */
                 .toast-notification {
                     position: fixed; top: 20px; right: 20px; z-index: 9999;
@@ -391,23 +400,25 @@ const Reports = () => {
                     padding: 14px 22px; border-radius: 12px; font-size: 14px; font-weight: 600;
                     animation: slideInRight 0.3s ease;
                 }
-                .toast-notification.success { background: rgba(16,185,129,0.15); border: 1px solid #10b981; color: #10b981; }
-                .toast-notification.error { background: rgba(239,68,68,0.15); border: 1px solid #ef4444; color: #ef4444; }
+                .toast-notification.success { background: rgba(16,185,129,0.1); border: 1px solid #10b981; color: #10b981; }
+                .toast-notification.error { background: rgba(239,68,68,0.1); border: 1px solid #ef4444; color: #ef4444; }
                 @keyframes slideInRight { from { opacity:0; transform: translateX(50px); } to { opacity:1; transform: translateX(0); } }
 
                 /* Header */
-                .report-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px; gap: 20px; }
+                .report-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; gap: 20px; }
+                .title-gradient { font-size: 26px; font-weight: 800; color: #0f172a; margin: 0 0 4px 0; }
+                .text-muted { font-size: 13px; color: #64748b; margin: 0; }
                 .header-actions { display: flex; gap: 12px; align-items: center; }
 
                 /* Date Range Picker */
                 .date-range-wrapper { position: relative; }
                 .btn-date-picker {
-                    background: #f8fafc;
+                    background: #ffffff;
                     border: 1px solid #cbd5e1;
                     color: #1e293b;
-                    padding: 8px 18px;
-                    border-radius: 20px; /* Fully pill rounded */
-                    font-weight: 600;
+                    padding: 9px 18px;
+                    border-radius: 20px;
+                    font-weight: 700;
                     font-size: 13px;
                     box-shadow: 0 1px 2px rgba(0,0,0,0.05);
                     cursor: pointer;
@@ -416,7 +427,7 @@ const Reports = () => {
                     transition: all 0.2s ease;
                 }
                 .btn-date-picker:hover {
-                    background: #f1f5f9;
+                    background: #f8fafc;
                     border-color: #94a3b8;
                     transform: translateY(-0.5px);
                 }
@@ -427,82 +438,251 @@ const Reports = () => {
                 .date-range-text {
                     color: #1e293b;
                     font-weight: 700;
-                    font-family: 'Inter', sans-serif;
                     margin-right: 6px;
                 }
                 .arrow-down-icon {
                     color: #64748b;
                 }
-                .date-dropdown { position: absolute; top: 45px; right: 0; z-index: 100; min-width: 160px; padding: 8px; }
-                .date-option { padding: 10px 15px; border-radius: 8px; cursor: pointer; font-size: 14px; transition: 0.2s; }
-                .date-option:hover, .date-option.active { background: rgba(99,102,241,0.15); color: var(--primary); }
+                
+                .date-dropdown { 
+                    position: absolute; 
+                    top: 45px; 
+                    right: 0; 
+                    z-index: 100; 
+                    min-width: 160px; 
+                    padding: 8px;
+                    background: #ffffff;
+                    border: 1px solid #cbd5e1;
+                    border-radius: 12px;
+                    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+                }
+                .date-option { padding: 10px 15px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; color: #475569; transition: 0.2s; }
+                .date-option:hover, .date-option.active { background: #eff6ff; color: #2563eb; }
 
-                /* KPI Row */
-                .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 25px; }
-                .kpi-card { display: flex; align-items: center; gap: 15px; padding: 20px; }
-                .kpi-icon { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-                .kpi-label { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
-                .kpi-value { font-size: 22px; font-weight: 700; }
+                /* Buttons */
+                .btn-primary {
+                    background: #2563eb !important;
+                    color: white !important;
+                    padding: 10px 20px;
+                    border-radius: 20px;
+                    font-weight: 700;
+                    font-size: 13px;
+                    box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.15);
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                    text-transform: none;
+                    letter-spacing: normal;
+                }
+                .btn-primary:hover {
+                    background: #1d4ed8 !important;
+                    transform: translateY(-0.5px);
+                    box-shadow: 0 6px 12px -1px rgba(37, 99, 235, 0.25);
+                }
+
+                /* KPI Cards */
+                .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+                .kpi-card { 
+                    background: #ffffff !important;
+                    border: 1px solid #cbd5e1 !important;
+                    border-radius: 16px !important;
+                    display: flex; 
+                    align-items: center; 
+                    gap: 15px; 
+                    padding: 20px; 
+                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03) !important;
+                    position: relative;
+                }
+                .kpi-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+                .kpi-label { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.3px; margin: 0 0 2px 0; }
+                .kpi-value { font-size: 24px; font-weight: 800; color: #0f172a; margin: 0; }
 
                 /* Report Cards */
-                .reports-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-                .report-card { display: flex; align-items: center; gap: 20px; padding: 22px; transition: 0.3s; }
-                .report-card:hover { border-color: var(--primary); transform: translateY(-3px); }
-                .report-icon-box { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+                .reports-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+                .report-card { 
+                    background: #ffffff !important;
+                    border: 1px solid #cbd5e1 !important;
+                    border-radius: 16px !important;
+                    display: flex; 
+                    align-items: center; 
+                    gap: 20px; 
+                    padding: 22px; 
+                    transition: all 0.2s ease; 
+                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03) !important;
+                }
+                .report-card:hover { border-color: #2563eb !important; transform: translateY(-1.5px); }
+                .report-icon-box { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
                 .report-info { flex: 1; }
-                .report-info h3 { font-size: 15px; margin-bottom: 5px; }
-                .report-info p { font-size: 12px; color: var(--text-muted); }
-                .download-btn-circle { width: 45px; height: 45px; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; transition: 0.3s; flex-shrink: 0; }
-                .download-btn-circle:hover { transform: scale(1.1) rotate(15deg); opacity: 0.9; }
+                .report-info h3 { font-size: 15px; font-weight: 800; color: #0f172a; margin: 0 0 4px 0; }
+                .report-info p { font-size: 12px; color: #64748b; margin: 0; }
+                .download-btn-circle { width: 40px; height: 40px; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; flex-shrink: 0; cursor: pointer; }
+                .download-btn-circle:hover { transform: scale(1.05); opacity: 0.9; }
                 .download-btn-circle:disabled { opacity: 0.6; cursor: not-allowed; }
 
                 /* Analytics Section */
-                .analytics-section { padding: 25px; }
+                .analytics-section { 
+                    background: #ffffff !important;
+                    border: 1px solid #cbd5e1 !important;
+                    border-radius: 16px !important;
+                    padding: 25px; 
+                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03) !important;
+                }
                 .analytics-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px; }
+                .analytics-header h3 { font-size: 16px; font-weight: 800; color: #0f172a; margin: 0; }
                 .analytics-controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-                .chart-tabs { display: flex; background: rgba(255,255,255,0.03); border-radius: 10px; padding: 4px; border: 1px solid var(--border); overflow-x: auto; -webkit-overflow-scrolling: touch; }
-                .chart-tab { padding: 7px 16px; border-radius: 7px; font-size: 13px; font-weight: 500; color: var(--text-muted); transition: 0.2s; white-space: nowrap; }
-                .chart-tab.active { background: var(--primary); color: white; }
-                .chart-tab:hover:not(.active) { color: white; }
+                
+                .chart-tabs { 
+                    display: flex; 
+                    background: #f8fafc; 
+                    border-radius: 10px; 
+                    padding: 4px; 
+                    border: 1px solid #cbd5e1; 
+                    overflow-x: auto; 
+                    -webkit-overflow-scrolling: touch; 
+                }
+                .chart-tab { 
+                    padding: 7px 16px; 
+                    border-radius: 7px; 
+                    font-size: 12px; 
+                    font-weight: 700; 
+                    color: #475569; 
+                    transition: 0.2s; 
+                    white-space: nowrap; 
+                    background: transparent;
+                }
+                .chart-tab.active { background: #2563eb; color: white; }
+                .chart-tab:hover:not(.active) { color: #0f172a; }
+                
                 .chart-container { height: 320px; width: 100%; }
                 .chart-loading, .chart-empty { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; }
 
-                /* Filters */
+                /* Filters & Refresh */
                 .filter-wrapper { position: relative; }
-                .filter-btn { padding: 8px 14px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; color: var(--text-muted); font-size: 13px; cursor: pointer; }
-                .filter-dropdown { position: absolute; top: 40px; right: 0; z-index: 100; min-width: 160px; padding: 8px; }
-                .filter-label { font-size: 11px; color: var(--text-muted); padding: 5px 15px; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; }
-                .filter-option { padding: 9px 15px; border-radius: 8px; cursor: pointer; font-size: 13px; transition: 0.2s; }
-                .filter-option:hover, .filter-option.active { background: rgba(99,102,241,0.15); color: var(--primary); }
-                .refresh-btn { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; color: var(--text-muted); cursor: pointer; transition: 0.2s; flex-shrink: 0; }
-                .refresh-btn:hover { color: var(--primary); border-color: var(--primary); }
+                .filter-btn { 
+                    padding: 8px 14px; 
+                    background: #ffffff; 
+                    border: 1px solid #cbd5e1; 
+                    border-radius: 8px; 
+                    color: #475569; 
+                    font-size: 12px; 
+                    font-weight: 700; 
+                    cursor: pointer; 
+                    transition: all 0.2s ease;
+                }
+                .filter-btn:hover {
+                    background: #f8fafc;
+                    border-color: #94a3b8;
+                }
+                .filter-dropdown { 
+                    position: absolute; 
+                    top: 40px; 
+                    right: 0; 
+                    z-index: 100; 
+                    min-width: 160px; 
+                    padding: 8px;
+                    background: #ffffff;
+                    border: 1px solid #cbd5e1;
+                    border-radius: 12px;
+                    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+                }
+                .filter-label { font-size: 10px; color: #64748b; padding: 5px 15px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; margin: 0; }
+                .filter-option { padding: 9px 15px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; color: #475569; transition: 0.2s; }
+                .filter-option:hover, .filter-option.active { background: #eff6ff; color: #2563eb; }
+                
+                .refresh-btn { 
+                    width: 36px; 
+                    height: 36px; 
+                    display: flex; 
+                    align-items: center; 
+                    justify-content: center; 
+                    background: #ffffff; 
+                    border: 1px solid #cbd5e1; 
+                    border-radius: 8px; 
+                    color: #475569; 
+                    cursor: pointer; 
+                    transition: 0.2s; 
+                    flex-shrink: 0; 
+                }
+                .refresh-btn:hover { color: #2563eb; border-color: #2563eb; background: #f8fafc; }
 
                 /* Custom Report Modal */
-                .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 1100; padding: 20px; }
-                .modal-box { width: 100%; max-width: 500px; padding: 30px; max-height: 90vh; overflow-y: auto; }
-                .modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
-                .close-x { background: none; border: none; color: var(--text-muted); font-size: 18px; cursor: pointer; }
-                .form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
-                .form-group label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; }
-                .form-group input, .form-group select { padding: 11px 14px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 14px; width: 100%; }
-                .form-group select option { background: #1e293b; color: white; }
+                .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.3); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 1100; padding: 20px; }
+                
+                .modal-box { 
+                    width: 100%; 
+                    max-width: 500px; 
+                    padding: 30px; 
+                    max-height: 90vh; 
+                    overflow-y: auto; 
+                    background: #ffffff !important;
+                    border: 1px solid #cbd5e1 !important;
+                    border-radius: 16px !important;
+                    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+                }
+                .modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid #cbd5e1; padding-bottom: 15px; }
+                .modal-head h3 { font-size: 16px; font-weight: 800; color: #0f172a; margin: 0; }
+                .close-x { background: none; border: none; color: #64748b; font-size: 18px; cursor: pointer; }
+                
+                .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; }
+                .form-group label { font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; }
+                
+                .form-group input, .form-group select { 
+                    padding: 10px 14px; 
+                    background: #ffffff !important; 
+                    border: 1px solid #cbd5e1 !important; 
+                    border-radius: 8px !important; 
+                    color: #0f172a !important; 
+                    font-size: 13px !important; 
+                    width: 100% !important; 
+                    outline: none;
+                    transition: border-color 0.2s;
+                    box-shadow: none !important;
+                }
+                .form-group input:focus, .form-group select:focus {
+                    border-color: #2563eb !important;
+                }
+                .form-group select option { 
+                    background: #ffffff !important; 
+                    color: #0f172a !important; 
+                }
+                
                 .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-                .modal-foot { display: flex; justify-content: flex-end; gap: 12px; margin-top: 10px; border-top: 1px solid var(--border); padding-top: 20px; }
-                .btn-cancel { background: transparent; color: var(--text-muted); border: 1px solid var(--border); padding: 10px 22px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+                .modal-foot { display: flex; justify-content: flex-end; gap: 12px; margin-top: 10px; border-top: 1px solid #cbd5e1; padding-top: 20px; }
+                
+                .btn-cancel { 
+                    background: transparent; 
+                    color: #475569; 
+                    border: 1px solid #cbd5e1; 
+                    padding: 10px 22px; 
+                    border-radius: 20px; 
+                    font-weight: 700; 
+                    font-size: 13px;
+                    cursor: pointer; 
+                    transition: all 0.2s ease;
+                }
+                .btn-cancel:hover {
+                    background: #f8fafc;
+                    border-color: #94a3b8;
+                }
 
                 .mt-30 { margin-top: 30px; }
                 .flex-center { display: flex; align-items: center; justify-content: center; }
                 .gap-10 { gap: 10px; }
 
-                /* Spinner */
+                /* Spinner & Animation */
                 .spin-icon { animation: spin 1s linear infinite; }
                 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
                 .animate-pop { animation: pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
                 @keyframes pop { from { opacity:0; transform: scale(0.9); } to { opacity:1; transform: scale(1); } }
 
-                @media (max-width: 1100px) { .kpi-row { grid-template-columns: 1fr 1fr; } }
+                @media (max-width: 1100px) { 
+                    .kpi-row { grid-template-columns: 1fr 1fr; } 
+                    .reports-grid { grid-template-columns: 1fr; }
+                }
                 @media (max-width: 768px) {
-                    .reports-container { padding: 15px; }
+                    .reports-workspace { padding: 15px; }
                     .report-header { flex-direction: column; align-items: flex-start; }
                     .header-actions { width: 100%; flex-direction: column; }
                     .header-actions button, .date-range-wrapper { width: 100%; }
