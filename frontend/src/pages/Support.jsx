@@ -387,6 +387,10 @@ const Support = () => {
                     padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; background: #ffffff; color: #0f172a;
                 }
                 .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #2563eb; outline: none; }
+                .form-group select option {
+                    background: #ffffff;
+                    color: #0f172a;
+                }
                 
                 .form-row-2 { display: grid; grid-template-columns: 1fr; gap: 16px; }
                 
