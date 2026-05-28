@@ -195,7 +195,11 @@ const Support = () => {
                                 className="form-input"
                             >
                                 <option value="" style={{ backgroundColor: '#ffffff', color: '#0f172a' }}>Choose Customer...</option>
-                                {customers.map(c => <option key={c._id} value={c._id} style={{ backgroundColor: '#ffffff', color: '#0f172a' }}>{c.name} ({c.company || 'Direct'})</option>)}
+                                {customers.map(c => (
+                                    <option key={c._id} value={c._id} style={{ backgroundColor: '#ffffff', color: '#0f172a' }}>
+                                        {c.name}{c.company && c.company !== c.name ? ` (${c.company})` : ''}
+                                    </option>
+                                ))}
                             </select>
                         </div>
 
@@ -318,7 +322,9 @@ const Support = () => {
                                     <td>
                                         <div className="org-cell">
                                             <strong>{t.customer?.name || 'Walk-in'}</strong>
-                                            <span className="company-tag text-muted">{t.customer?.company || 'Direct'}</span>
+                                            {t.customer?.company && t.customer.company !== t.customer.name && (
+                                                <span className="company-tag text-muted">{t.customer.company}</span>
+                                            )}
                                         </div>
                                     </td>
                                     <td>

@@ -20,6 +20,10 @@ const createCustomer = async (req, res) => {
         const { role, _id } = req.user;
         const customerData = { ...req.body, createdBy: _id };
 
+        if (!customerData.company && customerData.name) {
+            customerData.company = customerData.name;
+        }
+
         if (role === 'Sales') {
             customerData.status = 'Pending Review';
         }
@@ -57,7 +61,11 @@ const updateCustomer = async (req, res) => {
     try {
         const customer = await Customer.findById(req.params.id);
         if (customer) {
-            Object.assign(customer, req.body);
+            const updateData = { ...req.body };
+            if (!updateData.company && updateData.name) {
+                updateData.company = updateData.name;
+            }
+            Object.assign(customer, updateData);
             const updatedCustomer = await customer.save();
             res.json(updatedCustomer);
         } else {
