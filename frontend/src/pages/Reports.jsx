@@ -316,7 +316,11 @@ const Reports = () => {
                                 <XAxis dataKey="name" stroke="#64748b" fontSize={12} tickLine={false} />
                                 <YAxis stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} />
                                 <Tooltip contentStyle={{ background: '#ffffff', borderRadius: '8px', border: '1px solid #cbd5e1', color: '#0f172a', fontSize: '12px' }} />
-                                <Bar dataKey="sales" fill="#14b8a6" radius={[6, 6, 0, 0]} name="Orders" />
+                                <Bar dataKey="sales" radius={[6, 6, 0, 0]} name="Orders">
+                                    {chartData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                    ))}
+                                </Bar>
                             </BarChart>
                         </ResponsiveContainer>
                     ) : (
