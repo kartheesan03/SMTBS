@@ -28,13 +28,14 @@ const ERP = () => {
 
     const fetchData = async () => {
         try {
-            const [ordersRes, customersRes, materialsRes] = await Promise.all([
+            const [ordersRes, leadsRes, materialsRes] = await Promise.all([
                 API.get('/orders'),
-                API.get('/customers'),
+                API.get('/leads'),
                 API.get('/materials')
             ]);
             setOrders(ordersRes.data);
-            setCustomers(customersRes.data);
+            setCustomers((Array.isArray(leadsRes.data) ? leadsRes.data : [])
+                .map(l => ({ ...l, customerModel: 'Lead' })));
             setMaterials(materialsRes.data);
         } catch (err) {
             console.error(err);
@@ -55,7 +56,13 @@ const ERP = () => {
         e.preventDefault();
         try {
             const totalAmount = calculateTotal();
-            await API.post('/orders', { ...formData, totalAmount });
+            const selectedCust = customers.find(c => c._id === formData.customer);
+            
+            await API.post('/orders', { 
+                ...formData, 
+                customerModel: selectedCust?.customerModel || 'Customer',
+                totalAmount 
+            });
             setShowModal(false);
             setFormData({ customer: '', status: 'Pending', type: 'Sales', items: [{ material: '', quantity: 1, price: 0 }] });
             fetchData();

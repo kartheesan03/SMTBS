@@ -2,7 +2,16 @@ const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
     orderNumber: { type: String, unique: true },
-    customer: { type: mongoose.Schema.Types.ObjectId, ref: 'Customer' },
+    customer: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        refPath: 'customerModel' 
+    },
+    customerModel: { 
+        type: String, 
+        required: true, 
+        enum: ['Customer', 'Lead'], 
+        default: 'Customer' 
+    },
     vendor: { type: mongoose.Schema.Types.ObjectId, ref: 'Vendor' },
     items: [{
         material: { type: mongoose.Schema.Types.ObjectId, ref: 'Material' },

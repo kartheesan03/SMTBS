@@ -23,7 +23,7 @@ const getOrders = async (req, res) => {
 // @access  Private
 const createOrder = async (req, res) => {
     try {
-        const { customer, vendor, items, totalAmount, status, orderNumber, type } = req.body;
+        const { customer, customerModel, vendor, items, totalAmount, status, orderNumber, type } = req.body;
         
         if ((!customer && !vendor) || !items || items.length === 0) {
             return res.status(400).json({ message: 'Please provide customer/vendor and items' });
@@ -36,6 +36,7 @@ const createOrder = async (req, res) => {
         const order = new Order({
             orderNumber: orderNumber || `ORD-${Date.now().toString().slice(-6)}`,
             customer,
+            customerModel: customerModel || 'Customer',
             vendor,
             items,
             totalAmount,
