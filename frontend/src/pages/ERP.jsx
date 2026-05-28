@@ -403,7 +403,7 @@ const ERP = () => {
             <style jsx="true">{`
                 .erp-workspace {
                     padding: 24px;
-                    background-color: #f1f5f9;
+                    background-color: var(--dash-bg, #f1f5f9);
                     min-height: 100vh;
                     color: var(--dash-text-main);
                     display: flex;

@@ -422,7 +422,7 @@ const EmployeeDashboard = () => {
                     flex-direction: column; 
                     gap: 28px; 
                     position: relative; 
-                    background-color: #f1f5f9;
+                    background-color: var(--dash-bg, #f1f5f9);
                     min-height: 100vh;
                     color: #1e293b;
                 }

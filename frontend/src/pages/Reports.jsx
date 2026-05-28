@@ -388,7 +388,7 @@ const Reports = () => {
             <style jsx="true">{`
                 .reports-workspace {
                     padding: 30px;
-                    background-color: #f8fafc;
+                    background-color: var(--dash-bg, #f1f5f9);
                     min-height: 100vh;
                     display: flex;
                     flex-direction: column;
