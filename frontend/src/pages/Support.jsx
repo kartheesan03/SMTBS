@@ -60,22 +60,14 @@ const Support = () => {
             console.error('Error fetching support tickets:', err);
         }
 
-        // 2. Fetch customers and leads
+        // 2. Fetch leads only (shown under "Customers (CRM)" in sidebar)
         try {
-            const [customersRes, leadsRes] = await Promise.all([
-                API.get('/customers'),
-                API.get('/leads')
-            ]);
-            
-            const fetchedCustomers = (Array.isArray(customersRes.data) ? customersRes.data : [])
-                .map(c => ({ ...c, customerModel: 'Customer' }));
-                
+            const leadsRes = await API.get('/leads');
             const fetchedLeads = (Array.isArray(leadsRes.data) ? leadsRes.data : [])
                 .map(l => ({ ...l, customerModel: 'Lead', company: l.name }));
-                
-            setCustomers([...fetchedCustomers, ...fetchedLeads]);
+            setCustomers(fetchedLeads);
         } catch (err) {
-            console.error('Error fetching support customers and leads:', err);
+            console.error('Error fetching support leads:', err);
         }
 
         setLoading(false);
