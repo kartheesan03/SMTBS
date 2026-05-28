@@ -404,3 +404,10 @@ tbody tr:hover td {
   from { opacity: 0; transform: scale(0.995) translateY(10px); }
   to { opacity: 1; transform: scale(1) translateY(0); }
 }
+
+/* Override body styles for clean light theme dashboards when logged in */
+body.logged-in {
+  background-color: var(--dash-bg, #f1f5f9) !important;
+  background-image: none !important;
+  color: var(--dash-text-main, #0f172a) !important;
+}

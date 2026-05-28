@@ -272,7 +272,7 @@ const Dashboard = () => {
             </section>
 
             <style jsx="true">{`
-                .dashboard-layout { padding: 30px; display: flex; flex-direction: column; gap: 30px; }
+                .dashboard-layout { padding: 30px; display: flex; flex-direction: column; gap: 30px; background-color: var(--dash-bg, #f1f5f9); min-height: 100vh; color: var(--dash-text-main, #0f172a); }
                 .dashboard-top { display: flex; justify-content: space-between; align-items: center; }
                 .dashboard-controls { display: flex; align-items: center; gap: 20px; }
                 .dashboard-search { position: relative; display: flex; align-items: center; background: rgba(15, 23, 42, 0.4); border: 1px solid var(--border); border-radius: 10px; padding: 0 15px; }

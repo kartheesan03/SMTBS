@@ -128,7 +128,7 @@ const ManagerDashboard = () => {
             </section>
 
             <style jsx="true">{`
-                .manager-wrapper { padding: 30px; display: flex; flex-direction: column; gap: 30px; }
+                .manager-wrapper { padding: 30px; display: flex; flex-direction: column; gap: 30px; background-color: var(--dash-bg, #f1f5f9); min-height: 100vh; color: var(--dash-text-main, #0f172a); }
                 .manager-header { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; }
                 .search-box-glass { display: flex; align-items: center; gap: 10px; padding: 10px 20px; background: rgba(255,255,255,0.03); border-radius: 12px; }
                 .search-box-glass input { background: none; border: none; color: white; width: 250px; }

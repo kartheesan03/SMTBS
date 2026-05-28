@@ -38,6 +38,17 @@ const AppContent = () => {
     const { user, loading, logout } = useContext(AuthContext);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+    React.useEffect(() => {
+        if (user) {
+            document.body.classList.add('logged-in');
+        } else {
+            document.body.classList.remove('logged-in');
+        }
+        return () => {
+            document.body.classList.remove('logged-in');
+        };
+    }, [user]);
+
     if (loading) return <div className="app-loading">Loading...</div>;
 
     const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
