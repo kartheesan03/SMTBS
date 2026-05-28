@@ -60,12 +60,22 @@ const Support = () => {
             console.error('Error fetching support tickets:', err);
         }
 
-        // 2. Fetch customers
+        // 2. Fetch customers and leads
         try {
-            const customersRes = await API.get('/customers');
-            setCustomers(Array.isArray(customersRes.data) ? customersRes.data : []);
+            const [customersRes, leadsRes] = await Promise.all([
+                API.get('/customers'),
+                API.get('/leads')
+            ]);
+            
+            const fetchedCustomers = (Array.isArray(customersRes.data) ? customersRes.data : [])
+                .map(c => ({ ...c, customerModel: 'Customer' }));
+                
+            const fetchedLeads = (Array.isArray(leadsRes.data) ? leadsRes.data : [])
+                .map(l => ({ ...l, customerModel: 'Lead', company: l.name }));
+                
+            setCustomers([...fetchedCustomers, ...fetchedLeads]);
         } catch (err) {
-            console.error('Error fetching support customers:', err);
+            console.error('Error fetching support customers and leads:', err);
         }
 
         setLoading(false);
@@ -79,7 +89,14 @@ const Support = () => {
         e.preventDefault();
         try {
             setSubmitting(true);
-            await API.post('/tickets', formData);
+            
+            const selectedCust = customers.find(c => c._id === formData.customer);
+            const ticketPayload = {
+                ...formData,
+                customerModel: selectedCust?.customerModel || 'Customer'
+            };
+            
+            await API.post('/tickets', ticketPayload);
             setFormData({ customer: '', subject: '', description: '', priority: 'Low', category: 'General' });
             fetchTicketsAndCustomers();
             alert('Support Ticket submitted successfully!');

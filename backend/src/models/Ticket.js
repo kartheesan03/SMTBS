@@ -2,7 +2,17 @@ const mongoose = require('mongoose');
 
 const ticketSchema = new mongoose.Schema({
     ticketNumber: { type: String, required: true, unique: true },
-    customer: { type: mongoose.Schema.Types.ObjectId, ref: 'Customer', required: true },
+    customer: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        required: true, 
+        refPath: 'customerModel' 
+    },
+    customerModel: { 
+        type: String, 
+        required: true, 
+        enum: ['Customer', 'Lead'], 
+        default: 'Customer' 
+    },
     subject: { type: String, required: true },
     description: { type: String, required: true },
     priority: { 

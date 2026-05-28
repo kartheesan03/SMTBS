@@ -20,7 +20,7 @@ const getTickets = async (req, res) => {
 // @access  Private
 const createTicket = async (req, res) => {
     try {
-        const { customer, subject, description, priority, category, assignedTo } = req.body;
+        const { customer, customerModel, subject, description, priority, category, assignedTo } = req.body;
         
         if (!customer || !subject || !description) {
             return res.status(400).json({ message: 'Customer, subject, and description are required.' });
@@ -31,6 +31,7 @@ const createTicket = async (req, res) => {
         const ticket = new Ticket({
             ticketNumber,
             customer,
+            customerModel: customerModel || 'Customer',
             subject,
             description,
             priority: priority || 'Medium',
