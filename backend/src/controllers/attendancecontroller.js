@@ -160,12 +160,12 @@ const getAllAttendance = async (req, res) => {
     try {
         const today = new Date().toISOString().split('T')[0];
         // Fetch all employees
-        const employees = await Employee.find({}).select('id firstName lastName');
+        const employees = await Employee.find({}).select('id firstName lastName department employeeId');
         // Fetch attendance records for today
         const attendances = await Attendance.find({ date: today })
             .populate({
                 path: 'employee',
-                select: 'firstName lastName employeeId'
+                select: 'firstName lastName employeeId department'
             })
             .sort({ date: -1 });
         // Map employeeId to attendance
@@ -187,7 +187,8 @@ const getAllAttendance = async (req, res) => {
                 employee: {
                     firstName: emp.firstName,
                     lastName: emp.lastName,
-                    employeeId: emp.employeeId
+                    employeeId: emp.employeeId,
+                    department: emp.department
                 }
             };
         });
