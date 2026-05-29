@@ -391,17 +391,17 @@ const LeaveManagement = () => {
                 .form-group { display: flex; flex-direction: column; gap: 8px; }
                 .form-group label { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
                 .form-group input, .form-group select, .form-group textarea {
-                    padding: 11px 14px; background: rgba(255,255,255,0.05);
-                    border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 14px;
+                    padding: 11px 14px; background: #ffffff;
+                    border: 1px solid var(--border); border-radius: 8px; color: #0f172a; font-size: 14px;
                     transition: border-color 0.2s; width: 100%;
                 }
                 .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
                     outline: none; border-color: var(--primary);
                 }
-                .form-group select option { background: #1e293b; }
+                .form-group select option { background: #ffffff; color: #0f172a; }
                 .days-preview { font-size: 24px; font-weight: 800; color: var(--primary); padding-top: 4px; }
                 .lv-form-actions { display: flex; justify-content: flex-end; gap: 14px; }
-                .btn-secondary { background: transparent; color: white; border: 1px solid var(--border); padding: 11px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+                .btn-secondary { background: transparent; color: #0f172a; border: 1px solid var(--border); padding: 11px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; }
                 .close-btn { background: none; color: var(--text-muted); font-size: 20px; cursor: pointer; }
                 .animate-pop { animation: pop 0.25s cubic-bezier(0.34,1.56,0.64,1); }
                 @keyframes pop { from { opacity:0; transform:scale(0.9); } to { opacity:1; transform:scale(1); } }
