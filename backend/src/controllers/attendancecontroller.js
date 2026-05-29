@@ -28,6 +28,9 @@ const getAttendanceStatus = async (req, res) => {
             date: today
         });
 
+        if (!attendance) {
+            return res.json({ status: 'Absent', date: today });
+        }
         res.json(attendance);
     } catch (error) {
         console.error('getAttendanceStatus error:', error);
@@ -70,11 +73,18 @@ const checkIn = async (req, res) => {
             attendance.checkIn = checkInTime;
             await attendance.save();
         } else {
+            // Determine status based on check-in time (late after 9:00 AM)
+            const checkInDate = new Date(checkInTime);
+            const lateThreshold = new Date();
+            lateThreshold.setHours(9, 0, 0, 0); // 9:00 AM threshold
+            const status = checkInDate > lateThreshold ? 'Late' : 'Present';
             attendance = await Attendance.create({
                 employeeId: empId,
                 date: today,
                 checkIn: checkInTime,
-                status: 'Present'
+                status: status,
+                // Determine shift: Day (06:00-18:00) or Night
+                shift: (new Date(checkInTime).getHours() >= 6 && new Date(checkInTime).getHours() < 18) ? 'Day' : 'Night'
             });
         }
 
@@ -148,14 +158,40 @@ const getMyAttendanceHistory = async (req, res) => {
 // @access  Private
 const getAllAttendance = async (req, res) => {
     try {
-        const attendance = await Attendance.find({})
+        const today = new Date().toISOString().split('T')[0];
+        // Fetch all employees
+        const employees = await Employee.findAll({ attributes: ['id', 'firstName', 'lastName'] });
+        // Fetch attendance records for today
+        const attendances = await Attendance.find({ date: today })
             .populate({
                 path: 'employee',
-                populate: { path: 'userId', select: 'name email' }
+                select: 'firstName lastName employeeId'
             })
             .sort({ date: -1 });
-
-        res.json(attendance);
+        // Map employeeId to attendance
+        const attendanceMap = {};
+        attendances.forEach(att => {
+            const empId = att.employeeId?.toString();
+            attendanceMap[empId] = att;
+        });
+        // Build result list including absent employees
+        const result = employees.map(emp => {
+            const empId = emp._id?.toString() || emp.id?.toString();
+            if (attendanceMap[empId]) {
+                return attendanceMap[empId];
+            }
+            return {
+                employeeId: empId,
+                date: today,
+                status: 'Absent',
+                employee: {
+                    firstName: emp.firstName,
+                    lastName: emp.lastName,
+                    employeeId: emp.employeeId
+                }
+            };
+        });
+        res.json(result);
     } catch (error) {
         console.error('getAllAttendance error:', error);
         res.status(500).json({ message: error.message });

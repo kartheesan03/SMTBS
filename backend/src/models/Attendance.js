@@ -20,6 +20,10 @@ const AttendanceSequelize = sequelize.define('Attendance', {
         type: DataTypes.ENUM('Present', 'Absent', 'Leave', 'Late'),
         defaultValue: 'Present'
     },
+    shift: {
+        type: DataTypes.ENUM('Day', 'Night'),
+        defaultValue: 'Day'
+    },
     checkIn: {
         type: DataTypes.STRING,
         allowNull: true
