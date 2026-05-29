@@ -14,22 +14,25 @@ const createEmployee = async (req, res) => {
     try {
         const { employeeId, firstName, lastName, department, designation, contact, address, joinDate, password } = req.body;
 
-        // Check if user already exists
-        const userExists = await User.findOne({ email: contact });
-        if (userExists) {
-            return res.status(400).json({ message: 'User with this email already exists' });
-        }
-
-        // Create User
-        const user = await User.create({
-            name: `${firstName} ${lastName || ''}`.trim(),
-            email: contact,
-            password: password || 'password123', // Default if not provided
-            role: department || 'Employee'
+        // Check if user already exists; if so, reuse it
+        const [user, userCreated] = await User.findOrCreate({
+            where: { email: contact },
+            defaults: {
+                name: `${firstName} ${lastName || ''}`.trim(),
+                password: password || 'password123',
+                role: department || 'Employee'
+            }
         });
-
-        // Create Employee linked to User
-        const employee = new Employee({
+        // If user already existed, you may want to update its name/role if needed
+        if (!userCreated) {
+            // optional: update fields
+            await user.update({
+                name: `${firstName} ${lastName || ''}`.trim(),
+                role: department || user.role
+            });
+        }
+        // Create Employee linked to User via Employee.create
+        const createdEmployee = await Employee.create({
             userId: user._id,
             employeeId,
             firstName,
@@ -40,8 +43,6 @@ const createEmployee = async (req, res) => {
             address,
             joinDate
         });
-
-        const createdEmployee = await employee.save();
         res.status(201).json(createdEmployee);
     } catch (error) {
         res.status(400).json({ message: error.message });
