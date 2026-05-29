@@ -140,7 +140,12 @@ function wrapInstance(instance, modelName) {
             }
             
             if (prop === 'customer' && (modelName === 'Order' || modelName === 'Ticket')) {
-                return target.Customer || target.Lead || null;
+                const customerVal = target.Customer || target.Lead || null;
+                if (customerVal && typeof customerVal === 'object' && customerVal.dataValues && !customerVal._wrapped) {
+                    const assocModelName = customerVal.constructor.name;
+                    return wrapInstance(customerVal, assocModelName);
+                }
+                return customerVal;
             }
             if (prop === 'userId' && target.userIdField !== undefined) {
                 return target.userIdField;
@@ -158,6 +163,11 @@ function wrapInstance(instance, modelName) {
             // Return function wrapper bound to standard context
             if (typeof value === 'function') {
                 return value.bind(target);
+            }
+            
+            if (value && typeof value === 'object' && value.dataValues && !value._wrapped) {
+                const assocModelName = value.constructor.name;
+                return wrapInstance(value, assocModelName);
             }
             
             return value;
@@ -286,10 +296,14 @@ class MongooseQuery {
                         if (populateSelect) {
                             if (typeof populateSelect === 'string') {
                                 const fields = populateSelect.split(' ').filter(f => !f.startsWith('-'));
-                                includeOption.attributes = fields.filter(f => {
+                                const filteredFields = fields.filter(f => {
                                     if (f === 'id' || f === '_id') return true;
                                     return !!referencedModel.sequelizeModel.rawAttributes[f];
                                 });
+                                if (!filteredFields.includes('id')) {
+                                    filteredFields.push('id');
+                                }
+                                includeOption.attributes = filteredFields;
                             }
                         }
                         this.queryOptions.include.push(includeOption);
@@ -300,12 +314,19 @@ class MongooseQuery {
 
             // Find matching model association in registry
             let assocName = pathName;
-            // Match commonly capitalized models (e.g. employee -> Employee)
-            let matchModelName = pathName.charAt(0).toUpperCase() + pathName.slice(1);
-            if (matchModelName === 'Userid') matchModelName = 'User';
-            if (matchModelName === 'Employee') matchModelName = 'Employee';
-
-            const referencedModel = modelRegistry[matchModelName];
+            let referencedModel = null;
+            
+            if (this.sequelizeModel.associations[assocName]) {
+                const assoc = this.sequelizeModel.associations[assocName];
+                const targetModelName = assoc.target.name;
+                referencedModel = modelRegistry[targetModelName];
+            } else {
+                // Fallback to match commonly capitalized models
+                let matchModelName = pathName.charAt(0).toUpperCase() + pathName.slice(1);
+                if (matchModelName === 'Userid') matchModelName = 'User';
+                if (matchModelName === 'Employee') matchModelName = 'Employee';
+                referencedModel = modelRegistry[matchModelName];
+            }
             if (referencedModel) {
                 const includeOption = {
                     model: referencedModel.sequelizeModel,
@@ -315,10 +336,14 @@ class MongooseQuery {
                 if (populateSelect) {
                     if (typeof populateSelect === 'string') {
                         const fields = populateSelect.split(' ').filter(f => !f.startsWith('-'));
-                        includeOption.attributes = fields.filter(f => {
+                        const filteredFields = fields.filter(f => {
                             if (f === 'id' || f === '_id') return true;
                             return !!referencedModel.sequelizeModel.rawAttributes[f];
                         });
+                        if (!filteredFields.includes('id')) {
+                            filteredFields.push('id');
+                        }
+                        includeOption.attributes = filteredFields;
                     }
                 }
 
@@ -457,8 +482,25 @@ function makeBridgedModel(modelName, sequelizeModel) {
     };
 
     BridgedModel.insertMany = async function(docs) {
-        const processed = preprocessData(docs, sequelizeModel);
-        const records = await sequelizeModel.bulkCreate(processed);
+        const docArray = Array.isArray(docs) ? docs : [docs];
+        const instances = docArray.map(doc => {
+            const processed = preprocessData(doc, sequelizeModel);
+            const record = sequelizeModel.build(processed);
+            if (processed) {
+                for (const [k, v] of Object.entries(processed)) {
+                    if (!sequelizeModel.rawAttributes[k]) {
+                        record[k] = v;
+                    }
+                }
+            }
+            return record;
+        });
+        
+        const records = [];
+        for (const inst of instances) {
+            await inst.save();
+            records.push(inst);
+        }
         return records.map(r => wrapInstance(r, modelName));
     };
 
