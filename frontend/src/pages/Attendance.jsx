@@ -25,7 +25,8 @@ const Attendance = () => {
     }, []);
 
     const filteredLogs = attendanceLogs.filter(log => {
-        const matchesSearch = log.employee?.userId?.name?.toLowerCase().includes(searchQuery.toLowerCase());
+        const empName = `${log.employee?.firstName || ''} ${log.employee?.lastName || ''}`.trim();
+        const matchesSearch = empName.toLowerCase().includes(searchQuery.toLowerCase());
         const logDate = new Date(log.date).toISOString().split('T')[0];
         const matchesDate = !filterDate || logDate === filterDate;
         const matchesDept = filterDept === 'All' || log.employee?.department === filterDept;
@@ -119,11 +120,11 @@ const Attendance = () => {
                     data={filteredLogs}
                     renderRow={(a) => (
                         <>
-                            <td><strong>{a.employee?.userId?.name || 'N/A'}</strong></td>
+                            <td><strong>{`${a.employee?.firstName || ''} ${a.employee?.lastName || ''}`.trim() || 'N/A'}</strong></td>
                             <td>{a.employee?.department || 'N/A'}</td>
                             <td>
                                 <div className={`status-pill-flex ${a.status ? a.status.toLowerCase() : ''}`}>
-                                    {a.status === 'Present' ? <CheckCircle size={14}/> : <XCircle size={14}/>}
+                                    {a.status === 'Present' ? <CheckCircle size={14}/> : a.status === 'Late' ? <CheckCircle size={14} style={{color: '#f59e0b'}}/> : <XCircle size={14}/>}
                                     {a.status}
                                 </div>
                             </td>
@@ -140,25 +141,26 @@ const Attendance = () => {
                 .module-header { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; }
                 .header-actions { width: 100%; max-width: 300px; }
                 .search-bar-sm { display: flex; align-items: center; gap: 10px; padding: 10px 20px; }
-                .search-bar-sm input { background: none; border: none; color: white; width: 100%; }
+                .search-bar-sm input { background: none; border: none; color: var(--dash-text-main, #0f172a); width: 100%; outline: none; }
                 
                 .attendance-controls { display: flex; gap: 15px; flex-wrap: wrap; }
-                .date-selector, .dept-selector { padding: 8px 15px; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 10px; }
+                .date-selector, .dept-selector { padding: 8px 15px; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 10px; border: 1px solid #e2e8f0; }
                 
                 .date-input-clean, .dept-select-clean {
                     background: none;
                     border: none;
-                    color: white;
+                    color: var(--dash-text-main, #0f172a);
                     font-family: inherit;
                     font-size: 13px;
                     outline: none;
                     cursor: pointer;
                 }
-                .dept-select-clean option { background: #0f172a; color: white; }
+                .dept-select-clean option { background: #ffffff; color: #0f172a; }
 
                 .status-pill-flex { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap; }
                 .status-pill-flex.present { background: rgba(16, 185, 129, 0.1); color: #10b981; }
                 .status-pill-flex.absent { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+                .status-pill-flex.late { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
 
                 .mt-30 { margin-top: 30px; }
                 .mt-20 { margin-top: 20px; }
