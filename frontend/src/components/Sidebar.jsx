@@ -162,9 +162,9 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                 .sidebar {
                     width: 260px;
                     height: 100vh;
-                    background: #ffffff;
-                    border-right: 1px solid #e2e8f0;
-                    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.04);
+                    background: var(--dash-bg, #f1f5f9);
+                    border-right: none;
+                    box-shadow: none;
                     display: flex;
                     flex-direction: column;
                     position: fixed;
