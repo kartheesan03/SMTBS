@@ -100,6 +100,9 @@ function wrapInstance(instance, modelName) {
                 };
             }
             
+            if (prop === 'customer' && (modelName === 'Order' || modelName === 'Ticket')) {
+                return target.Customer || target.Lead || null;
+            }
             if (prop === 'userId' && target.userIdField !== undefined) {
                 return target.userIdField;
             }
@@ -230,6 +233,25 @@ class MongooseQuery {
             // Handle completions.user nested populates
             if (pathName.includes('.')) {
                 // E.g., completions.user -> completions is stored as JSON, so we fetch standard completions and mock in-memory population, or handle it
+                return;
+            }
+
+            if (pathName === 'customer' && (this.modelName === 'Order' || this.modelName === 'Ticket')) {
+                ['Customer', 'Lead'].forEach(modelKey => {
+                    const referencedModel = modelRegistry[modelKey];
+                    if (referencedModel) {
+                        const includeOption = {
+                            model: referencedModel.sequelizeModel,
+                            as: modelKey
+                        };
+                        if (populateSelect) {
+                            if (typeof populateSelect === 'string') {
+                                includeOption.attributes = populateSelect.split(' ').filter(f => !f.startsWith('-'));
+                            }
+                        }
+                        this.queryOptions.include.push(includeOption);
+                    }
+                });
                 return;
             }
 

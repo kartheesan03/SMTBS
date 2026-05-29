@@ -28,14 +28,20 @@ const ERP = () => {
 
     const fetchData = async () => {
         try {
-            const [ordersRes, leadsRes, materialsRes] = await Promise.all([
+            const [ordersRes, leadsRes, customersRes, materialsRes] = await Promise.all([
                 API.get('/orders'),
                 API.get('/leads'),
+                API.get('/customers'),
                 API.get('/materials')
             ]);
             setOrders(ordersRes.data);
-            setCustomers((Array.isArray(leadsRes.data) ? leadsRes.data : [])
-                .map(l => ({ ...l, customerModel: 'Lead' })));
+            
+            const mappedLeads = (Array.isArray(leadsRes.data) ? leadsRes.data : [])
+                .map(l => ({ ...l, customerModel: 'Lead' }));
+            const mappedCustomers = (Array.isArray(customersRes.data) ? customersRes.data : [])
+                .map(c => ({ ...c, customerModel: 'Customer' }));
+            
+            setCustomers([...mappedCustomers, ...mappedLeads]);
             setMaterials(materialsRes.data);
         } catch (err) {
             console.error(err);
@@ -348,7 +354,7 @@ const ERP = () => {
                                 <label>Select Customer</label>
                                 <select required value={formData.customer} onChange={e => setFormData({...formData, customer: e.target.value})}>
                                     <option value="">Select Customer...</option>
-                                    {customers.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
+                                    {customers.map(c => <option key={c._id} value={c._id}>{c.name} ({c.customerModel})</option>)}
                                 </select>
                             </div>
                             
