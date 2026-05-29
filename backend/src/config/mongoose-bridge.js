@@ -281,7 +281,11 @@ class MongooseQuery {
                         };
                         if (populateSelect) {
                             if (typeof populateSelect === 'string') {
-                                includeOption.attributes = populateSelect.split(' ').filter(f => !f.startsWith('-'));
+                                const fields = populateSelect.split(' ').filter(f => !f.startsWith('-'));
+                                includeOption.attributes = fields.filter(f => {
+                                    if (f === 'id' || f === '_id') return true;
+                                    return !!referencedModel.sequelizeModel.rawAttributes[f];
+                                });
                             }
                         }
                         this.queryOptions.include.push(includeOption);
@@ -306,7 +310,11 @@ class MongooseQuery {
 
                 if (populateSelect) {
                     if (typeof populateSelect === 'string') {
-                        includeOption.attributes = populateSelect.split(' ').filter(f => !f.startsWith('-'));
+                        const fields = populateSelect.split(' ').filter(f => !f.startsWith('-'));
+                        includeOption.attributes = fields.filter(f => {
+                            if (f === 'id' || f === '_id') return true;
+                            return !!referencedModel.sequelizeModel.rawAttributes[f];
+                        });
                     }
                 }
 
@@ -382,7 +390,9 @@ function preprocessData(data, model) {
         
         if (model && model.rawAttributes) {
             if (!model.rawAttributes[mappedKey]) {
-                if (model.rawAttributes[mappedKey + 'Id']) {
+                if (mappedKey === 'customer' && model.rawAttributes['customerModel']) {
+                    // Preserve 'customer' so that the beforeValidate hook resolves polymorphic mapping
+                } else if (model.rawAttributes[mappedKey + 'Id']) {
                     mappedKey = mappedKey + 'Id';
                 } else if (model.rawAttributes[mappedKey + 'Field']) {
                     mappedKey = mappedKey + 'Field';
@@ -401,6 +411,13 @@ function makeBridgedModel(modelName, sequelizeModel) {
         }
         const processed = preprocessData(data, sequelizeModel);
         const record = sequelizeModel.build(processed);
+        if (processed) {
+            for (const [k, v] of Object.entries(processed)) {
+                if (!sequelizeModel.rawAttributes[k]) {
+                    record[k] = v;
+                }
+            }
+        }
         return wrapInstance(record, modelName);
     }
 
@@ -423,7 +440,15 @@ function makeBridgedModel(modelName, sequelizeModel) {
             return await this.insertMany(data);
         }
         const processed = preprocessData(data, sequelizeModel);
-        const record = await sequelizeModel.create(processed);
+        const record = sequelizeModel.build(processed);
+        if (processed) {
+            for (const [k, v] of Object.entries(processed)) {
+                if (!sequelizeModel.rawAttributes[k]) {
+                    record[k] = v;
+                }
+            }
+        }
+        await record.save();
         return wrapInstance(record, modelName);
     };
 
