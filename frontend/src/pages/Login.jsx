@@ -4,8 +4,8 @@ import API from '../api/axios';
 import { AuthContext } from '../context/AuthContext';
 
 const Login = () => {
-    const [email, setEmail] = useState('admin@smtbms.com');
-    const [password, setPassword] = useState('password123');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const { login } = useContext(AuthContext);
     const navigate = useNavigate();
