@@ -41,21 +41,12 @@ const seedData = async () => {
         const lastMonthName = `${monthNames[lastMonthDate.getMonth()]} ${lastMonthDate.getFullYear()}`;
 
         // 1. Clear all existing collections
-        await User.deleteMany();
-        await Material.deleteMany();
-        await Employee.deleteMany();
-        await Customer.deleteMany();
-        await Lead.deleteMany();
-        await Vendor.deleteMany();
-        await Order.deleteMany();
-        await Attendance.deleteMany();
-        await Leave.deleteMany();
-        await Salary.deleteMany();
-        await Task.deleteMany();
-        await Notification.deleteMany();
-        await FollowUp.deleteMany();
-        await Ticket.deleteMany();
-        console.log('Cleared all existing database entries.');
+        const sequelize = require('./src/config/sequelize');
+        await sequelize.query('PRAGMA foreign_keys = OFF');
+        await sequelize.drop();
+        await sequelize.sync();
+        await sequelize.query('PRAGMA foreign_keys = ON');
+        console.log('Dropped and recreated all database tables.');
 
         // ===================================================================
         // 2. USERS — Tamil Nadu based names
