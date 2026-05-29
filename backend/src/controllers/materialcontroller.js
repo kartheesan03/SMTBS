@@ -88,12 +88,48 @@ const deleteMaterial = async (req, res) => {
     // @access  Private (HR, Manager, Sales)
     const getLowStockMaterials = async (req, res) => {
         try {
-            const allMaterials = await Material.find({});
-            const lowStockMaterials = allMaterials.filter(m => m.quantity <= (m.lowStockThreshold || 0));
+            const materials = await Material.find({});
+            // Ensure status is up‑to‑date for each material
+            for (const material of materials) {
+                if (material.quantity === 0) {
+                    material.status = 'Out of Stock';
+                } else if (material.quantity <= (material.lowStockThreshold || 0)) {
+                    material.status = 'Low Stock';
+                } else {
+                    material.status = 'In Stock';
+                }
+                // Save only if status changed
+                await material.save();
+            }
+            // Return only items that are low stock (exclude out‑of‑stock)
+            const lowStockMaterials = materials.filter(m => m.status === 'Low Stock');
             res.json(lowStockMaterials);
         } catch (error) {
             res.status(500).json({ message: error.message });
         }
     };
     
-    module.exports = { getMaterials, createMaterial, updateMaterial, deleteMaterial, getLowStockMaterials };
+
+// @desc    Recalculate stock status for all materials
+// @route   PUT /api/materials/recalculate-status
+// @access  Private (Admin, Manager, Sales)
+const recalculateStockStatus = async (req, res) => {
+    try {
+        const materials = await Material.find({});
+        for (const material of materials) {
+            if (material.quantity === 0) {
+                material.status = 'Out of Stock';
+            } else if (material.quantity <= (material.lowStockThreshold || 0)) {
+                material.status = 'Low Stock';
+            } else {
+                material.status = 'In Stock';
+            }
+            await material.save();
+        }
+        res.json({ message: 'Stock status recalculated for all materials' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+module.exports = { getMaterials, createMaterial, updateMaterial, deleteMaterial, getLowStockMaterials, recalculateStockStatus };
