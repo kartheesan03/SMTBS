@@ -83,4 +83,17 @@ const deleteMaterial = async (req, res) => {
     }
 };
 
-module.exports = { getMaterials, createMaterial, updateMaterial, deleteMaterial };
+    // @desc    Get low stock materials
+    // @route   GET /api/materials/low-stock
+    // @access  Private (HR, Manager, Sales)
+    const getLowStockMaterials = async (req, res) => {
+        try {
+            const allMaterials = await Material.find({});
+            const lowStockMaterials = allMaterials.filter(m => m.quantity <= (m.lowStockThreshold || 0));
+            res.json(lowStockMaterials);
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    };
+    
+    module.exports = { getMaterials, createMaterial, updateMaterial, deleteMaterial, getLowStockMaterials };

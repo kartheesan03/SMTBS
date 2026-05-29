@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getMaterials, createMaterial, updateMaterial, deleteMaterial } = require('../controllers/materialcontroller');
+const { getMaterials, createMaterial, updateMaterial, deleteMaterial, getLowStockMaterials } = require('../controllers/materialcontroller');
 const { protect } = require('../middleware/authMiddleware');
 const { authorize } = require('../middleware/roleMiddleware');
 
@@ -11,5 +11,7 @@ router.route('/')
 router.route('/:id')
     .put(protect, authorize('Admin', 'Manager', 'Sales'), updateMaterial)
     .delete(protect, authorize('Admin'), deleteMaterial);
+router.get('/low-stock', protect, authorize('HR', 'Manager', 'Sales'), getLowStockMaterials);
+
 
 module.exports = router;
