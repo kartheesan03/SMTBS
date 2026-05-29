@@ -323,7 +323,7 @@ class MongooseQuery {
             } else {
                 // Fallback to match commonly capitalized models
                 let matchModelName = pathName.charAt(0).toUpperCase() + pathName.slice(1);
-                if (matchModelName === 'Userid') matchModelName = 'User';
+                if (matchModelName.toLowerCase() === 'userid') matchModelName = 'User';
                 if (matchModelName === 'Employee') matchModelName = 'Employee';
                 referencedModel = modelRegistry[matchModelName];
             }
@@ -351,7 +351,7 @@ class MongooseQuery {
                     // Simple recursive include for one-level nesting
                     let nestedPath = typeof nestedPopulate === 'string' ? nestedPopulate : nestedPopulate.path;
                     let nestedMatch = nestedPath.charAt(0).toUpperCase() + nestedPath.slice(1);
-                    if (nestedMatch === 'Userid') nestedMatch = 'User';
+                    if (nestedMatch.toLowerCase() === 'userid') nestedMatch = 'User';
                     const nestedRef = modelRegistry[nestedMatch];
                     if (nestedRef) {
                         includeOption.include = [{

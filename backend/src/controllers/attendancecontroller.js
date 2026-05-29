@@ -160,7 +160,7 @@ const getAllAttendance = async (req, res) => {
     try {
         const today = new Date().toISOString().split('T')[0];
         // Fetch all employees
-        const employees = await Employee.findAll({ attributes: ['id', 'firstName', 'lastName'] });
+        const employees = await Employee.find({}).select('id firstName lastName');
         // Fetch attendance records for today
         const attendances = await Attendance.find({ date: today })
             .populate({
