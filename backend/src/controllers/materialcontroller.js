@@ -24,8 +24,7 @@ const createMaterial = async (req, res) => {
         } else if (Number(quantity) < Number(lowStockThreshold)) {
             status = 'Low Stock';
         }
-        const material = new Material({ name, sku, category, quantity, lowStockThreshold, unit, price, status });
-        const createdMaterial = await material.save();
+        const createdMaterial = await Material.create({ name, sku, category, quantity, lowStockThreshold, unit, price, status });
         res.status(201).json(createdMaterial);
     } catch (error) {
         res.status(400).json({ message: error.message });

@@ -15,6 +15,7 @@ const Login = () => {
         try {
             const { data } = await API.post('/auth/login', { email, password });
             login(data);
+            setError('');
             navigate('/');
         } catch (err) {
             setError(err.response?.data?.message || 'Login failed');
@@ -36,7 +37,7 @@ const Login = () => {
                             type="email" 
                             placeholder="name@company.com" 
                             value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            onChange={(e) => { setEmail(e.target.value); setError(''); }}
                             required
                         />
                     </div>
@@ -46,7 +47,7 @@ const Login = () => {
                             type="password" 
                             placeholder="••••••••" 
                             value={password}
-                            onChange={(e) => setPassword(e.target.value)}
+                            onChange={(e) => { setPassword(e.target.value); setError(''); }}
                             required
                         />
                     </div>
