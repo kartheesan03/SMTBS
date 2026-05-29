@@ -82,7 +82,7 @@ const Support = () => {
         try {
             setSubmitting(true);
             
-            const selectedCust = customers.find(c => c._id === formData.customer);
+            const selectedCust = customers.find(c => String(c._id) === String(formData.customer));
             const ticketPayload = {
                 ...formData,
                 customerModel: selectedCust?.customerModel || 'Customer'

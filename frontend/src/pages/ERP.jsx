@@ -62,7 +62,7 @@ const ERP = () => {
         e.preventDefault();
         try {
             const totalAmount = calculateTotal();
-            const selectedCust = customers.find(c => c._id === formData.customer);
+            const selectedCust = customers.find(c => String(c._id) === String(formData.customer));
             
             await API.post('/orders', { 
                 ...formData, 
@@ -366,7 +366,7 @@ const ERP = () => {
                                             required 
                                             value={item.material} 
                                             onChange={e => {
-                                                const mat = materials.find(m => m._id === e.target.value);
+                                                const mat = materials.find(m => String(m._id) === e.target.value);
                                                 const newItems = [...formData.items];
                                                 newItems[index] = { ...newItems[index], material: e.target.value, price: mat?.price || 0 };
                                                 setFormData({...formData, items: newItems});

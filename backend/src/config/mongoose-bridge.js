@@ -128,6 +128,12 @@ function wrapInstance(instance, modelName) {
                     return Promise.resolve(proxy);
                 };
             }
+            if (prop === 'save') {
+                return async function(...args) {
+                    await target.save(...args);
+                    return receiver;
+                };
+            }
             
             if (prop === 'customer' && (modelName === 'Order' || modelName === 'Ticket')) {
                 return target.Customer || target.Lead || null;
@@ -389,160 +395,167 @@ function preprocessData(data, model) {
 }
 
 function makeBridgedModel(modelName, sequelizeModel) {
-    const bridge = {
-        sequelizeModel,
-        
-        find(query = {}) {
-            return new MongooseQuery(sequelizeModel, modelName, 'find', query);
-        },
-
-        findOne(query = {}) {
-            return new MongooseQuery(sequelizeModel, modelName, 'findOne', query);
-        },
-
-        findById(id) {
-            return new MongooseQuery(sequelizeModel, modelName, 'findById', { _id: id });
-        },
-
-        async create(data) {
-            if (Array.isArray(data)) {
-                return await this.insertMany(data);
-            }
-            const processed = preprocessData(data, sequelizeModel);
-            const record = await sequelizeModel.create(processed);
-            return wrapInstance(record, modelName);
-        },
-
-        async insertMany(docs) {
-            const processed = preprocessData(docs, sequelizeModel);
-            const records = await sequelizeModel.bulkCreate(processed);
-            return records.map(r => wrapInstance(r, modelName));
-        },
-
-        async deleteMany(query = {}) {
-            const where = translateQuery(query, sequelizeModel);
-            const count = await sequelizeModel.destroy({ where });
-            return { deletedCount: count };
-        },
-
-        async countDocuments(query = {}) {
-            const where = translateQuery(query, sequelizeModel);
-            return await sequelizeModel.count({ where });
-        },
-
-        async findByIdAndDelete(id) {
-            const record = await sequelizeModel.findByPk(id);
-            if (record) {
-                await record.destroy();
-            }
-            return wrapInstance(record, modelName);
-        },
-
-        async findByIdAndUpdate(id, updateData, options = {}) {
-            const record = await sequelizeModel.findByPk(id);
-            if (record) {
-                const parsedUpdate = updateData.$set ? updateData.$set : updateData;
-                const processed = preprocessData(parsedUpdate, sequelizeModel);
-                await record.update(processed);
-            }
-            return wrapInstance(record, modelName);
-        },
-
-        async updateMany(query = {}, updateData) {
-            const where = translateQuery(query, sequelizeModel);
-            const parsedUpdate = updateData.$set ? updateData.$set : updateData;
-            const processed = preprocessData(parsedUpdate, sequelizeModel);
-            const [affectedCount] = await sequelizeModel.update(processed, { where });
-            return { matchedCount: affectedCount, modifiedCount: affectedCount };
-        },
-
-        async aggregate(pipeline) {
-            if (!pipeline || !Array.isArray(pipeline)) return [];
-
-            // 1. Order revenue sum
-            if (modelName === 'Order' && pipeline.some(stage => stage.$group && stage.$group.total && stage.$group.total.$sum === '$totalAmount')) {
-                const matchStage = pipeline.find(stage => stage.$match);
-                const rawWhere = matchStage ? matchStage.$match : {};
-                const where = translateQuery(rawWhere, sequelizeModel);
-                
-                const total = await sequelizeModel.sum('totalAmount', { where });
-                return [{ _id: null, total: total || 0 }];
-            }
-
-            // 2. Order monthly stats (in-memory aggregation)
-            if (modelName === 'Order' && pipeline.some(stage => stage.$group && stage.$group._id && stage.$group._id.$month)) {
-                const orders = await sequelizeModel.findAll({
-                    attributes: ['createdAt', 'totalAmount'],
-                    raw: true
-                });
-                
-                const months = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-                const counts = Array.from({ length: 13 }, (_, i) => ({
-                    _id: i,
-                    name: months[i],
-                    sales: 0,
-                    revenue: 0
-                }));
-
-                orders.forEach(o => {
-                    if (o.createdAt) {
-                        const date = new Date(o.createdAt);
-                        const month = date.getMonth() + 1; // 1-indexed
-                        counts[month].sales += 1;
-                        counts[month].revenue += (o.totalAmount || 0);
-                    }
-                });
-
-                return counts.slice(1).filter(m => m.sales > 0);
-            }
-
-            // 3. Group count by string field (Material categories, Employee departments, Lead statuses)
-            const groupStage = pipeline.find(stage => stage.$group);
-            if (groupStage && groupStage.$group && typeof groupStage.$group._id === 'string' && groupStage.$group._id.startsWith('$')) {
-                const fieldName = groupStage.$group._id.substring(1);
-                const matchStage = pipeline.find(stage => stage.$match);
-                const where = matchStage ? translateQuery(matchStage.$match, sequelizeModel) : {};
-
-                let queryField = fieldName === '_id' ? 'id' : fieldName;
-                if (sequelizeModel.rawAttributes && !sequelizeModel.rawAttributes[queryField] && sequelizeModel.rawAttributes[queryField + 'Field']) {
-                    queryField = queryField + 'Field';
-                }
-
-                const results = await sequelizeModel.findAll({
-                    attributes: [
-                        [queryField, '_id']
-                    ],
-                    where,
-                    raw: true
-                });
-
-                // Group in JavaScript for absolute SQL dialect/driver safety
-                const groupCounts = {};
-                results.forEach(r => {
-                    const key = r._id || '';
-                    groupCounts[key] = (groupCounts[key] || 0) + 1;
-                });
-
-                const finalResults = Object.entries(groupCounts).map(([key, val]) => ({
-                    _id: key,
-                    value: val
-                }));
-
-                if (modelName === 'Lead') {
-                    return finalResults.map(r => ({ name: r._id, value: r.value }));
-                }
-                if (modelName === 'Material') {
-                    return finalResults.map(r => ({ name: r._id || 'Uncategorized', value: r.value }));
-                }
-                return finalResults;
-            }
-
-            return [];
+    function BridgedModel(data) {
+        if (!(this instanceof BridgedModel)) {
+            return new BridgedModel(data);
         }
+        const processed = preprocessData(data, sequelizeModel);
+        const record = sequelizeModel.build(processed);
+        return wrapInstance(record, modelName);
+    }
+
+    BridgedModel.sequelizeModel = sequelizeModel;
+
+    BridgedModel.find = function(query = {}) {
+        return new MongooseQuery(sequelizeModel, modelName, 'find', query);
     };
 
-    registerModel(modelName, bridge);
-    return bridge;
+    BridgedModel.findOne = function(query = {}) {
+        return new MongooseQuery(sequelizeModel, modelName, 'findOne', query);
+    };
+
+    BridgedModel.findById = function(id) {
+        return new MongooseQuery(sequelizeModel, modelName, 'findById', { _id: id });
+    };
+
+    BridgedModel.create = async function(data) {
+        if (Array.isArray(data)) {
+            return await this.insertMany(data);
+        }
+        const processed = preprocessData(data, sequelizeModel);
+        const record = await sequelizeModel.create(processed);
+        return wrapInstance(record, modelName);
+    };
+
+    BridgedModel.insertMany = async function(docs) {
+        const processed = preprocessData(docs, sequelizeModel);
+        const records = await sequelizeModel.bulkCreate(processed);
+        return records.map(r => wrapInstance(r, modelName));
+    };
+
+    BridgedModel.deleteMany = async function(query = {}) {
+        const where = translateQuery(query, sequelizeModel);
+        const count = await sequelizeModel.destroy({ where });
+        return { deletedCount: count };
+    };
+
+    BridgedModel.countDocuments = async function(query = {}) {
+        const where = translateQuery(query, sequelizeModel);
+        return await sequelizeModel.count({ where });
+    };
+
+    BridgedModel.findByIdAndDelete = async function(id) {
+        const record = await sequelizeModel.findByPk(id);
+        if (record) {
+            await record.destroy();
+        }
+        return wrapInstance(record, modelName);
+    };
+
+    BridgedModel.findByIdAndUpdate = async function(id, updateData, options = {}) {
+        const record = await sequelizeModel.findByPk(id);
+        if (record) {
+            const parsedUpdate = updateData.$set ? updateData.$set : updateData;
+            const processed = preprocessData(parsedUpdate, sequelizeModel);
+            await record.update(processed);
+        }
+        return wrapInstance(record, modelName);
+    };
+
+    BridgedModel.updateMany = async function(query = {}, updateData) {
+        const where = translateQuery(query, sequelizeModel);
+        const parsedUpdate = updateData.$set ? updateData.$set : updateData;
+        const processed = preprocessData(parsedUpdate, sequelizeModel);
+        const [affectedCount] = await sequelizeModel.update(processed, { where });
+        return { matchedCount: affectedCount, modifiedCount: affectedCount };
+    };
+
+    BridgedModel.aggregate = async function(pipeline) {
+        if (!pipeline || !Array.isArray(pipeline)) return [];
+
+        // 1. Order revenue sum
+        if (modelName === 'Order' && pipeline.some(stage => stage.$group && stage.$group.total && stage.$group.total.$sum === '$totalAmount')) {
+            const matchStage = pipeline.find(stage => stage.$match);
+            const rawWhere = matchStage ? matchStage.$match : {};
+            const where = translateQuery(rawWhere, sequelizeModel);
+            
+            const total = await sequelizeModel.sum('totalAmount', { where });
+            return [{ _id: null, total: total || 0 }];
+        }
+
+        // 2. Order monthly stats (in-memory aggregation)
+        if (modelName === 'Order' && pipeline.some(stage => stage.$group && stage.$group._id && stage.$group._id.$month)) {
+            const orders = await sequelizeModel.findAll({
+                attributes: ['createdAt', 'totalAmount'],
+                raw: true
+            });
+            
+            const months = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const counts = Array.from({ length: 13 }, (_, i) => ({
+                _id: i,
+                name: months[i],
+                sales: 0,
+                revenue: 0
+            }));
+
+            orders.forEach(o => {
+                if (o.createdAt) {
+                    const date = new Date(o.createdAt);
+                    const month = date.getMonth() + 1; // 1-indexed
+                    counts[month].sales += 1;
+                    counts[month].revenue += (o.totalAmount || 0);
+                }
+            });
+
+            return counts.slice(1).filter(m => m.sales > 0);
+        }
+
+        // 3. Group count by string field (Material categories, Employee departments, Lead statuses)
+        const groupStage = pipeline.find(stage => stage.$group);
+        if (groupStage && groupStage.$group && typeof groupStage.$group._id === 'string' && groupStage.$group._id.startsWith('$')) {
+            const fieldName = groupStage.$group._id.substring(1);
+            const matchStage = pipeline.find(stage => stage.$match);
+            const where = matchStage ? translateQuery(matchStage.$match, sequelizeModel) : {};
+
+            let queryField = fieldName === '_id' ? 'id' : fieldName;
+            if (sequelizeModel.rawAttributes && !sequelizeModel.rawAttributes[queryField] && sequelizeModel.rawAttributes[queryField + 'Field']) {
+                queryField = queryField + 'Field';
+            }
+
+            const results = await sequelizeModel.findAll({
+                attributes: [
+                    [queryField, '_id']
+                ],
+                where,
+                raw: true
+            });
+
+            // Group in JavaScript for absolute SQL dialect/driver safety
+            const groupCounts = {};
+            results.forEach(r => {
+                const key = r._id || '';
+                groupCounts[key] = (groupCounts[key] || 0) + 1;
+            });
+
+            const finalResults = Object.entries(groupCounts).map(([key, val]) => ({
+                _id: key,
+                value: val
+            }));
+
+            if (modelName === 'Lead') {
+                return finalResults.map(r => ({ name: r._id, value: r.value }));
+            }
+            if (modelName === 'Material') {
+                return finalResults.map(r => ({ name: r._id || 'Uncategorized', value: r.value }));
+            }
+            return finalResults;
+        }
+
+        return [];
+    };
+
+    registerModel(modelName, BridgedModel);
+    return BridgedModel;
 }
 
 module.exports = {
