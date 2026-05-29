@@ -676,8 +676,8 @@ const Payroll = () => {
                 .status-pill.approved { background: rgba(99, 102, 241, 0.1); color: var(--primary); }
                 .status-pill.awaiting-approval { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
 
-                .btn-table-action { background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--border); font-size: 12px; padding: 6px 12px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s; }
-                .btn-table-action:hover { background: rgba(255,255,255,0.1); }
+                .btn-table-action { background: var(--bg-card, #ffffff); color: var(--dash-text-main, #0f172a); border: 1px solid var(--border); font-size: 12px; padding: 6px 12px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s; }
+                .btn-table-action:hover { background: rgba(0,0,0,0.05); }
                 .approve-btn { background: rgba(16, 185, 129, 0.1); color: #10b981; border-color: rgba(16, 185, 129, 0.2); }
                 .approve-btn:hover { background: rgba(16, 185, 129, 0.2); }
                 .pay-btn { background: rgba(99, 102, 241, 0.1); color: #818cf8; border-color: rgba(99, 102, 241, 0.25); }
@@ -708,7 +708,7 @@ const Payroll = () => {
                 .pay-header-icon.bulk { background: rgba(16,185,129,0.15); color: #10b981; }
 
                 /* Pay Employee Card */
-                .pay-emp-card { display: flex; align-items: center; gap: 16px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin-bottom: 20px; }
+                .pay-emp-card { display: flex; align-items: center; gap: 16px; background: var(--bg-card, #ffffff); border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin-bottom: 20px; }
                 .pay-emp-avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
                 .pay-emp-info { flex: 1; }
                 .pay-emp-info h4 { font-size: 16px; margin-bottom: 2px; }
@@ -718,25 +718,25 @@ const Payroll = () => {
                 .pay-emp-amount h2 { font-size: 24px; color: #10b981; margin-top: 2px; }
 
                 /* Breakdown */
-                .pay-breakdown { background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+                .pay-breakdown { background: var(--dash-bg, #f1f5f9); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
                 .pay-break-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; color: var(--text-muted); }
-                .pay-break-row.total { border-top: 1px dashed var(--border); margin-top: 8px; padding-top: 12px; font-weight: 700; color: white; font-size: 16px; }
+                .pay-break-row.total { border-top: 1px dashed var(--border); margin-top: 8px; padding-top: 12px; font-weight: 700; color: var(--dash-text-main, #0f172a); font-size: 16px; }
 
                 /* Payment Methods */
                 .pay-method-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-                .pay-method-btn { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 8px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 10px; color: var(--text-muted); font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-                .pay-method-btn:hover { background: rgba(255,255,255,0.06); color: white; }
+                .pay-method-btn { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 8px; background: var(--bg-card, #ffffff); border: 1px solid var(--border); border-radius: 10px; color: var(--text-muted); font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+                .pay-method-btn:hover { background: rgba(0,0,0,0.05); color: var(--dash-text-main, #0f172a); }
                 .pay-method-btn.active { background: rgba(99,102,241,0.12); border-color: var(--primary); color: var(--primary); box-shadow: 0 0 0 1px var(--primary); }
 
                 /* Bulk Pay */
-                .bulk-pay-summary { display: flex; align-items: center; justify-content: center; gap: 20px; padding: 24px; background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 14px; margin-bottom: 20px; }
+                .bulk-pay-summary { display: flex; align-items: center; justify-content: center; gap: 20px; padding: 24px; background: var(--bg-card, #ffffff); border: 1px solid var(--border); border-radius: 14px; margin-bottom: 20px; }
                 .bulk-stat { text-align: center; }
                 .bulk-stat span { font-size: 11px; color: var(--text-muted); text-transform: uppercase; }
                 .bulk-stat h3 { font-size: 26px; margin-top: 4px; }
                 .bulk-stat.total h3 { color: #10b981; }
                 .bulk-arrow { color: var(--text-muted); }
                 .bulk-emp-list { max-height: 200px; overflow-y: auto; border: 1px solid var(--border); border-radius: 10px; padding: 12px; margin-bottom: 16px; }
-                .bulk-emp-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 4px; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 14px; }
+                .bulk-emp-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 4px; border-bottom: 1px solid var(--border); font-size: 14px; }
                 .bulk-emp-row:last-child { border-bottom: none; }
                 .bulk-warning { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2); border-radius: 10px; font-size: 13px; color: #f59e0b; }
 
@@ -746,7 +746,7 @@ const Payroll = () => {
                 @keyframes scaleIn { from { transform: scale(0); } to { transform: scale(1); } }
                 .receipt-header h2 { font-size: 22px; margin-bottom: 4px; }
                 .receipt-body { padding: 10px 30px 20px; }
-                .receipt-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 14px; }
+                .receipt-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
                 .receipt-row span { color: var(--text-muted); }
                 .receipt-row:last-child { border-bottom: none; }
                 .txn-id { font-family: 'JetBrains Mono', monospace; font-size: 12px; background: rgba(99,102,241,0.1); padding: 2px 8px; border-radius: 4px; color: var(--primary); }
@@ -762,10 +762,10 @@ const Payroll = () => {
                 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
                 .form-group { display: flex; flex-direction: column; gap: 8px; }
                 .form-group label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-                .form-group input, .form-group select { padding: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 14px; }
-                .form-group select { appearance: none; padding-right: 40px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
-                .form-group select option { background: #1e293b; color: white; }
-                .form-group input::placeholder { color: rgba(255,255,255,0.4); }
+                .form-group input, .form-group select { padding: 12px; background: var(--bg-card, #ffffff); border: 1px solid var(--border); border-radius: 8px; color: var(--dash-text-main, #0f172a); font-size: 14px; }
+                .form-group select { appearance: none; padding-right: 40px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
+                .form-group select option { background: #ffffff; color: var(--dash-text-main, #0f172a); }
+                .form-group input::placeholder { color: var(--text-muted); }
                 .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(99,102,241,0.15); }
 
                 .modal-body { padding: 30px; }
@@ -773,7 +773,7 @@ const Payroll = () => {
                 .label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; font-weight: 600; }
                 .val { font-size: 16px; font-weight: 600; }
                 .ps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 25px; }
-                .ps-box { background: rgba(255,255,255,0.03); padding: 12px; border-radius: 10px; border: 1px solid var(--border); }
+                .ps-box { background: var(--bg-card, #ffffff); padding: 12px; border-radius: 10px; border: 1px solid var(--border); }
                 
                 .ps-total-row { background: rgba(99, 102, 241, 0.05); padding: 20px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; }
                 .ps-total-row h2 { font-size: 28px; color: var(--primary); }
@@ -782,11 +782,11 @@ const Payroll = () => {
                 .status-tag.approved { color: var(--primary); }
                 .status-tag.paid { color: #10b981; }
 
-                .modal-footer { padding: 20px 25px; background: rgba(255,255,255,0.02); border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 12px; flex-wrap: wrap; }
+                .modal-footer { padding: 20px 25px; background: var(--dash-bg, #f1f5f9); border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 12px; flex-wrap: wrap; }
                 .modal-actions { display: flex; justify-content: flex-end; gap: 12px; }
-                .btn-cancel { background: transparent; color: white; border: 1px solid var(--border); padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 14px; }
-                .btn-cancel:hover { background: rgba(255,255,255,0.04); }
-                .btn-secondary { background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: white; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 14px; }
+                .btn-cancel { background: transparent; color: var(--dash-text-main, #0f172a); border: 1px solid var(--border); padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 14px; }
+                .btn-cancel:hover { background: rgba(0,0,0,0.05); }
+                .btn-secondary { background: var(--bg-card, #ffffff); border: 1px solid var(--border); color: var(--dash-text-main, #0f172a); padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 14px; }
                 
                 .spin-icon { animation: spin 1s linear infinite; }
                 @keyframes spin { to { transform: rotate(360deg); } }

@@ -62,7 +62,7 @@ const AdminDashboard = () => {
 
     // Reference Mockup Data or Live Data
     const totalMaterials = data?.stats?.totalMaterials ?? 1254;
-    const lowStock = data?.stats?.lowStockCount ?? 23;
+    const lowStock = data?.stats?.lowStockCount ?? 0;
     const totalEmployees = data?.stats?.totalEmployees ?? 356;
     const openOrders = data?.stats?.pendingOrders ?? 89;
     const activeCustomers = data?.stats?.totalCustomers ?? 682;

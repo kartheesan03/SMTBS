@@ -248,11 +248,12 @@ const MyAttendance = () => {
             <div className="module-content mt-30">
                 <DataTable 
                     title="Recent Daily Logs"
-                    headers={['Date', 'Check In', 'Check Out', 'Total Hours', 'Status']}
+                    headers={['Date', 'Shift', 'Check In', 'Check Out', 'Total Hours', 'Status']}
                     data={history}
                     renderRow={(a) => (
                         <>
                             <td><strong>{new Date(a.date).toLocaleDateString()}</strong></td>
+                            <td>{a.shift || 'Day'}</td>
                             <td>{formatTime(a.checkIn, a.date)}</td>
                             <td>{formatTime(a.checkOut, a.date)}</td>
                             <td>{calculateDuration(a.checkIn, a.checkOut, a.date)}</td>

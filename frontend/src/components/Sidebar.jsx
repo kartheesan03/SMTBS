@@ -53,6 +53,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
         { path: '/my-salary', name: 'My Salary', icon: <DollarSign size={20} /> },
         { path: '/leave-management', name: 'Leave Management', icon: <Calendar size={20} /> },
         { path: '/erp', name: 'Orders (ERP)', icon: <ShoppingCart size={20} /> },
+        { path: '/support', name: 'Support Tickets', icon: <LifeBuoy size={20} /> },
         { path: '/notifications', name: 'Notifications', icon: <Bell size={20} /> },
         { path: '/settings', name: 'My Profile', icon: <Settings size={20} /> },
     ];
@@ -66,6 +67,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
         { path: '/leave-management', name: 'Leave Management', icon: <Calendar size={20} /> },
         { path: '/payroll', name: 'Payroll', icon: <DollarSign size={20} /> },
         { path: '/erp', name: 'Orders (ERP)', icon: <ShoppingCart size={20} /> },
+        { path: '/support', name: 'Support Tickets', icon: <LifeBuoy size={20} /> },
         { path: '/notifications', name: 'Notifications', icon: <Bell size={20} /> },
         { path: '/hr-reports', name: 'Reports', icon: <BarChart3 size={20} /> },
         { path: '/settings', name: 'Profile', icon: <Settings size={20} /> },
@@ -160,8 +162,9 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                 .sidebar {
                     width: 260px;
                     height: 100vh;
-                    background: #0f172a; /* Slate 900 Deep Navy */
-                    border-right: 1px solid rgba(255, 255, 255, 0.05);
+                    background: #ffffff;
+                    border-right: 1px solid #e2e8f0;
+                    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.04);
                     display: flex;
                     flex-direction: column;
                     position: fixed;
@@ -176,18 +179,18 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                     align-items: center;
                     justify-content: space-between;
                     padding: 0 24px 20px;
-                    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                    border-bottom: 1px solid var(--dash-border, #e2e8f0);
                 }
                 .sidebar-logo h2 {
                     font-size: 22px;
                     font-weight: 800;
                     font-family: 'Outfit', sans-serif;
-                    color: #ffffff;
+                    color: var(--dash-text-main, #0f172a);
                     letter-spacing: 0.5px;
                 }
                 .close-sidebar {
                     background: transparent;
-                    color: #ffffff;
+                    color: var(--dash-text-main, #0f172a);
                     padding: 0;
                     display: flex;
                     align-items: center;
@@ -200,7 +203,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                     align-items: center;
                     gap: 15px;
                     padding: 20px 24px;
-                    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                    border-bottom: 1px solid var(--dash-border, #e2e8f0);
                     margin-bottom: 15px;
                 }
                 .user-avatar-wrapper {
@@ -211,8 +214,8 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                     height: 44px;
                     border-radius: 50%;
                     overflow: hidden;
-                    border: 2px solid rgba(255, 255, 255, 0.1);
-                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+                    border: 2px solid var(--dash-border, #e2e8f0);
+                    box-shadow: var(--dash-shadow-sm);
                 }
                 .user-avatar-circle img {
                     width: 100%;
@@ -225,14 +228,14 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                     justify-content: center;
                 }
                 .user-name {
-                    color: #ffffff;
+                    color: var(--dash-text-main, #0f172a);
                     font-size: 15px;
                     font-weight: 600;
                     margin: 0;
                     line-height: 1.2;
                 }
                 .user-role {
-                    color: #94a3b8;
+                    color: var(--dash-text-muted, #64748b);
                     font-size: 12px;
                     font-weight: 500;
                     margin-top: 2px;
@@ -270,14 +273,14 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                     width: 4px;
                 }
                 .sidebar-nav::-webkit-scrollbar-thumb {
-                    background: rgba(255, 255, 255, 0.05);
+                    background: rgba(0, 0, 0, 0.05);
                     border-radius: 4px;
                 }
                 .nav-item {
                     display: flex;
                     align-items: center;
                     padding: 10px 16px;
-                    color: #94a3b8;
+                    color: var(--dash-text-muted, #64748b);
                     border-radius: 8px;
                     transition: all 0.2s ease;
                     cursor: pointer;
@@ -299,13 +302,13 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                 }
                 .chevron-indicator {
                     font-size: 12px;
-                    color: #475569;
+                    color: var(--dash-text-muted, #94a3b8);
                     margin-left: auto;
                 }
                 
                 .nav-item:hover {
-                    background: rgba(255, 255, 255, 0.03);
-                    color: #ffffff;
+                    background: rgba(0, 0, 0, 0.03);
+                    color: var(--dash-text-main, #0f172a);
                 }
                 .nav-item:hover .item-icon-wrapper {
                     color: #3b82f6;
@@ -325,14 +328,14 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                 
                 .sidebar-footer {
                     padding: 15px 12px 0;
-                    border-top: 1px solid rgba(255, 255, 255, 0.05);
+                    border-top: 1px solid var(--dash-border, #e2e8f0);
                 }
                 .logout-btn {
                     width: 100%;
                     background: transparent;
                     border: none;
                     text-align: left;
-                    color: #94a3b8;
+                    color: var(--dash-text-muted, #94a3b8);
                     display: flex;
                     align-items: center;
                     gap: 12px;

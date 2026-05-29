@@ -128,7 +128,7 @@ const MaterialTracking = () => {
     const totalMaterialsQty = materials.reduce((sum, item) => sum + item.quantity, 0) || 1254;
     const inStockCount = materials.filter(m => m.quantity > m.lowStockThreshold).reduce((sum, item) => sum + item.quantity, 0) || 750;
     const inTransitCount = 230; 
-    const lowStockCount = materials.filter(m => m.quantity <= m.lowStockThreshold).length || 23;
+    const lowStockCount = materials.length > 0 ? materials.filter(m => m.quantity <= m.lowStockThreshold).length : 0;
 
     return (
         <div className="materials-workspace">

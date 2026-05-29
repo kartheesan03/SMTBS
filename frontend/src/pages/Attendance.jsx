@@ -115,7 +115,7 @@ const Attendance = () => {
             <div className="module-content mt-30">
                 <DataTable 
                     title="Daily Records"
-                    headers={['Employee Name', 'Department', 'Current Status', 'Check-In', 'Check-Out']}
+                    headers={['Employee Name', 'Department', 'Current Status', 'Shift', 'Check-In', 'Check-Out']}
                     data={filteredLogs}
                     renderRow={(a) => (
                         <>
@@ -127,6 +127,7 @@ const Attendance = () => {
                                     {a.status}
                                 </div>
                             </td>
+                            <td>{a.shift || 'Day'}</td>
                             <td>{formatTime(a.checkIn, a.date)}</td>
                             <td>{formatTime(a.checkOut, a.date)}</td>
                         </>

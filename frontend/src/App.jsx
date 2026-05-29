@@ -106,9 +106,7 @@ const AppContent = () => {
                     <Route path="/customers" element={<ProtectedRoute allowedRoles={['Admin', 'Sales', 'Manager']}><Customers /></ProtectedRoute>} />
                     <Route path="/sales-pipeline" element={<ProtectedRoute allowedRoles={['Admin', 'Sales', 'Manager']}><SalesPipeline /></ProtectedRoute>} />
                     <Route path="/follow-ups" element={<ProtectedRoute allowedRoles={['Admin', 'Sales', 'Manager']}><FollowUps /></ProtectedRoute>} />
-                    <Route path="/support" element={<ProtectedRoute allowedRoles={['Admin', 'Sales', 'Manager']}><Support /></ProtectedRoute>} />
-
-                    {/* Employee Routes */}
+                    <Route path="/support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
                     <Route path="/my-tasks" element={<ProtectedRoute><MyTasks /></ProtectedRoute>} />
                     <Route path="/my-attendance" element={<ProtectedRoute><MyAttendance /></ProtectedRoute>} />
                     <Route path="/my-salary" element={<ProtectedRoute><MySalaryPage /></ProtectedRoute>} />

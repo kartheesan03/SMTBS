@@ -199,8 +199,8 @@ const Settings = () => {
             <style jsx="true">{`
                 .settings-container { padding: 30px; }
                 .settings-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 30px; margin-top: 30px; }
-                .setting-item { display: flex; gap: 15px; padding: 15px; border-radius: 12px; cursor: pointer; border: 1px solid transparent; transition: 0.2s; }
-                .setting-item:hover { background: rgba(255,255,255,0.03); }
+                .setting-item { display: flex; gap: 15px; padding: 15px; border-radius: 12px; cursor: pointer; border: 1px solid transparent; transition: 0.2s; color: var(--dash-text-main, #0f172a); }
+                .setting-item:hover { background: rgba(0,0,0,0.03); }
                 .setting-item.active { background: rgba(99, 102, 241, 0.1); border-color: var(--primary); }
                 .s-icon { color: var(--text-muted); }
                 .setting-item.active .s-icon { color: var(--primary); }
@@ -217,21 +217,21 @@ const Settings = () => {
                 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
                 .form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; }
                 .form-group label { font-size: 13px; font-weight: 600; color: var(--text-muted); }
-                .form-group input, .form-group select { padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; color: white; }
-                .form-group select option { background: #1e293b; color: white; }
+                .form-group input, .form-group select { padding: 12px; background: var(--bg-card, #ffffff); border: 1px solid var(--border); border-radius: 8px; color: var(--dash-text-main, #0f172a); }
+                .form-group select option { background: #ffffff; color: var(--dash-text-main, #0f172a); }
                 .disabled-input { opacity: 0.6; cursor: not-allowed; }
                 .btn-row { margin-top: 20px; }
                 .empty-state { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 10px; }
                 
                 /* Toggles */
                 .toggle-list { display: flex; flex-direction: column; gap: 10px; }
-                .toggle-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: rgba(255,255,255,0.02); border-radius: 12px; border: 1px solid var(--border); }
+                .toggle-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: var(--bg-card, #ffffff); border-radius: 12px; border: 1px solid var(--border); color: var(--dash-text-main, #0f172a); }
                 .toggle-text h4 { font-size: 14px; margin-bottom: 4px; }
                 .toggle-text p { font-size: 12px; color: var(--text-muted); }
                 
                 .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
                 .switch input { opacity: 0; width: 0; height: 0; }
-                .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.1); transition: .4s; border-radius: 24px; }
+                .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.1); transition: .4s; border-radius: 24px; }
                 .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
                 input:checked + .slider { background-color: var(--primary); }
                 input:checked + .slider:before { transform: translateX(20px); }
@@ -248,7 +248,7 @@ const Settings = () => {
 
                 /* Logs Ledger */
                 .logs-ledger { display: flex; flex-direction: column; gap: 8px; }
-                .log-row { display: grid; grid-template-columns: 2fr 1fr 1fr; padding: 15px 20px; background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 10px; align-items: center; font-size: 13px; }
+                .log-row { display: grid; grid-template-columns: 2fr 1fr 1fr; padding: 15px 20px; background: var(--bg-card, #ffffff); border: 1px solid var(--border); border-radius: 10px; align-items: center; font-size: 13px; color: var(--dash-text-main, #0f172a); }
                 .log-info { display: flex; align-items: center; gap: 10px; }
                 .log-icon { color: #10b981; }
                 .log-time { color: var(--text-muted); }

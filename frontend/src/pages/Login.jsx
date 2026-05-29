@@ -63,92 +63,118 @@ const Login = () => {
                     justify-content: center;
                     min-height: 100vh;
                     padding: 20px;
-                    background-image: 
-                        linear-gradient(rgba(255, 255, 255, 0.005) 1px, transparent 1px),
-                        linear-gradient(90deg, rgba(255, 255, 255, 0.005) 1px, transparent 1px),
-                        radial-gradient(circle at 35% 30%, rgba(139, 92, 246, 0.18) 0%, transparent 45%),
-                        radial-gradient(circle at 65% 70%, rgba(6, 182, 212, 0.18) 0%, transparent 45%);
-                    background-size: 30px 30px, 30px 30px, auto, auto;
+                    background: linear-gradient(135deg, #e0e7ff 0%, #f1f5f9 40%, #dbeafe 70%, #ede9fe 100%);
+                    position: relative;
+                }
+                .auth-wrapper::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: 
+                        radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.06) 0%, transparent 50%);
+                    pointer-events: none;
                 }
                 .auth-card {
                     width: 100%;
                     max-width: 420px;
                     text-align: center;
-                    padding: 40px;
-                    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7), 0 0 25px rgba(6, 182, 212, 0.08);
-                    border: 1px solid transparent;
-                    border-image: var(--border-gradient) 1;
-                    border-radius: 2px;
+                    padding: 44px 40px;
+                    background: #ffffff;
+                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+                    border: 1px solid #e2e8f0;
+                    border-radius: 16px;
                     position: relative;
                     animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+                    z-index: 1;
                 }
-                .auth-card::before {
-                    content: '';
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    width: 6px;
-                    height: 6px;
-                    background: var(--cyber-blue);
-                }
+                .auth-card::before,
                 .auth-card::after {
-                    content: '';
-                    position: absolute;
-                    bottom: 0;
-                    right: 0;
-                    width: 6px;
-                    height: 6px;
-                    background: var(--cyber-pink);
+                    display: none;
                 }
                 .auth-card h2 {
-                    font-size: 34px;
-                    font-family: 'Share Tech Mono', monospace;
+                    font-size: 28px;
+                    font-family: 'Outfit', sans-serif;
+                    font-weight: 700;
                     margin-bottom: 8px;
-                    letter-spacing: 1px;
+                    letter-spacing: 0.3px;
+                    color: #0f172a;
+                    background: none;
+                    -webkit-text-fill-color: #0f172a;
                 }
                 .auth-card p {
-                    font-size: 13px;
+                    font-size: 14px;
                     margin-bottom: 10px;
-                    letter-spacing: 0.5px;
+                    letter-spacing: 0.2px;
+                    color: #64748b;
                 }
                 .auth-card form {
                     margin-top: 32px;
                     text-align: left;
                 }
                 .form-group {
-                    margin-bottom: 24px;
+                    margin-bottom: 22px;
                 }
                 .form-group label {
                     display: block;
                     margin-bottom: 8px;
-                    font-size: 12px;
-                    font-weight: 700;
-                    color: var(--text-muted);
-                    text-transform: uppercase;
-                    letter-spacing: 1px;
+                    font-size: 13px;
+                    font-weight: 600;
+                    color: #334155;
+                    text-transform: none;
+                    letter-spacing: 0.2px;
                 }
                 .form-group input {
                     width: 100%;
-                    padding: 12px 18px;
-                    border-radius: 4px;
+                    padding: 12px 16px;
+                    border-radius: 10px;
+                    background: #f8fafc;
+                    border: 1px solid #e2e8f0;
+                    color: #0f172a;
+                    font-size: 14px;
+                    transition: all 0.2s ease;
+                }
+                .form-group input:focus {
+                    background: #ffffff;
+                    border-color: #3b82f6;
+                    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+                    outline: none;
+                }
+                .form-group input::placeholder {
+                    color: #94a3b8;
                 }
                 .auth-btn {
                     width: 100%;
                     margin-top: 10px;
-                    padding: 14px;
-                    font-size: 13px;
-                    border-radius: 4px;
+                    padding: 13px;
+                    font-size: 14px;
+                    font-weight: 600;
+                    border-radius: 10px;
+                    background: #2563eb;
+                    color: #ffffff;
+                    border: none;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+                }
+                .auth-btn:hover {
+                    background: #1d4ed8;
+                    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+                    transform: translateY(-1px);
                 }
                 .error-msg {
-                    background: rgba(244, 63, 94, 0.08);
-                    color: var(--danger);
-                    padding: 12px;
-                    border-radius: 4px;
+                    background: #fef2f2;
+                    color: #dc2626;
+                    padding: 12px 16px;
+                    border-radius: 10px;
                     margin-top: 20px;
                     font-size: 13px;
-                    border: 1px solid rgba(244, 63, 94, 0.2);
+                    border: 1px solid #fecaca;
                     text-align: left;
-                    font-family: 'Share Tech Mono', monospace;
+                    font-family: 'Outfit', sans-serif;
                 }
 
                 @keyframes slideUp {
@@ -164,10 +190,11 @@ const Login = () => {
 
                 @media (max-width: 480px) {
                     .auth-card {
-                        padding: 30px 20px;
+                        padding: 30px 24px;
+                        border-radius: 12px;
                     }
                     .auth-card h2 {
-                        font-size: 28px;
+                        font-size: 24px;
                     }
                     .auth-wrapper {
                         padding: 15px;
