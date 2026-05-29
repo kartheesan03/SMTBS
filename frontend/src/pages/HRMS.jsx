@@ -252,36 +252,39 @@ const HRMS = () => {
                 .detail-item { display: flex; align-items: center; gap: 10px; color: var(--text-muted); font-size: 13px; margin-bottom: 8px; }
                 .emp-footer { width: 100%; display: flex; justify-content: space-between; align-items: center; padding-top: 15px; border-top: 1px solid var(--border); }
                 .dept-badge { background: rgba(20, 184, 166, 0.1); color: var(--secondary); padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
-                .action-btn-sm { background: transparent; border: 1px solid var(--border); color: white; padding: 5px 12px; border-radius: 6px; font-size: 12px; transition: 0.3s; }
+                .action-btn-sm { background: transparent; border: 1px solid var(--border); color: var(--dash-text-main, #0f172a); padding: 5px 12px; border-radius: 6px; font-size: 12px; transition: 0.3s; }
                 .action-btn-sm:hover { border-color: var(--primary); color: var(--primary); }
                 .w-full { grid-column: 1 / -1; }
 
                 /* Modal Styles */
-                .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 1100; padding: 20px; }
-                .modal-content { width: 100%; max-width: 600px; padding: 30px; position: relative; text-align: left; max-height: 90vh; overflow-y: auto; }
-                .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
+                .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; z-index: 1100; padding: 20px; }
+                .modal-content { width: 100%; max-width: 600px; padding: 30px; position: relative; text-align: left; max-height: 90vh; overflow-y: auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; color: var(--dash-text-main, #0f172a); }
+                .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid #e2e8f0; padding-bottom: 15px; }
+                .modal-header h2 { color: var(--dash-text-main, #0f172a); }
                 .close-btn { background: none; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; }
                 .modal-form { display: flex; flex-direction: column; gap: 20px; }
                 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
                 .form-group { display: flex; flex-direction: column; gap: 8px; }
-                .form-group label { font-size: 13px; font-weight: 600; color: var(--text-muted); }
-                .form-group input, .form-group select { padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; color: white; width: 100%; }
-                .form-group select option { background: #1e293b; color: white; }
+                .form-group label { font-size: 13px; font-weight: 600; color: #64748b; }
+                .form-group input, .form-group select { padding: 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; color: #0f172a; width: 100%; }
+                .form-group input:focus, .form-group select:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.12); outline: none; background: #ffffff; }
+                .form-group select option { background: #ffffff; color: #0f172a; }
                 .full-width { grid-column: 1 / -1; }
                 .modal-actions { display: flex; justify-content: flex-end; gap: 15px; margin-top: 10px; }
-                .btn-cancel { background: transparent; color: white; border: 1px solid var(--border); padding: 12px 25px; border-radius: 8px; font-weight: 600; }
+                .btn-cancel { background: transparent; color: var(--dash-text-main, #0f172a); border: 1px solid #e2e8f0; padding: 12px 25px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+                .btn-cancel:hover { background: #f1f5f9; }
                 
                 .animate-pop { animation: pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
                 @keyframes pop { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
                 
                 /* Profile View Styles */
-                .profile-view { background: rgba(255,255,255,0.02); border-radius: 15px; padding: 25px; border: 1px solid var(--border); }
-                .profile-top { display: flex; align-items: center; gap: 20px; margin-bottom: 30px; border-bottom: 1px solid var(--border); padding-bottom: 20px; }
+                .profile-view { background: #f8fafc; border-radius: 15px; padding: 25px; border: 1px solid #e2e8f0; }
+                .profile-top { display: flex; align-items: center; gap: 20px; margin-bottom: 30px; border-bottom: 1px solid #e2e8f0; padding-bottom: 20px; }
                 .emp-avatar-lg { width: 80px; height: 80px; background: var(--primary); color: white; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: bold; flex-shrink: 0; }
-                .profile-titles h3 { font-size: 20px; margin-bottom: 5px; }
+                .profile-titles h3 { font-size: 20px; margin-bottom: 5px; color: var(--dash-text-main, #0f172a); }
                 .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
-                .profile-item label { display: block; font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-bottom: 5px; letter-spacing: 0.5px; }
-                .profile-item p { font-size: 15px; color: white; font-weight: 500; }
+                .profile-item label { display: block; font-size: 12px; color: #64748b; font-weight: 600; text-transform: uppercase; margin-bottom: 5px; letter-spacing: 0.5px; }
+                .profile-item p { font-size: 15px; color: var(--dash-text-main, #0f172a); font-weight: 500; }
                 
                 .input-btn-group { display: flex; gap: 10px; }
                 .input-btn-group input { flex: 1; }
