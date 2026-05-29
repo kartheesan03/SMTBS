@@ -481,6 +481,16 @@ function makeBridgedModel(modelName, sequelizeModel) {
         return wrapInstance(record, modelName);
     };
 
+    BridgedModel.findOrCreate = async function(options = {}) {
+        const where = translateQuery(options.where, sequelizeModel);
+        const defaults = preprocessData(options.defaults || {}, sequelizeModel);
+        const [record, created] = await sequelizeModel.findOrCreate({
+            where,
+            defaults
+        });
+        return [wrapInstance(record, modelName), created];
+    };
+
     BridgedModel.insertMany = async function(docs) {
         const docArray = Array.isArray(docs) ? docs : [docs];
         const instances = docArray.map(doc => {
