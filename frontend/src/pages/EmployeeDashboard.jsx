@@ -30,13 +30,46 @@ const EmployeeDashboard = () => {
         setTimeout(() => setToast(null), 3000);
     };
 
-    const fmt = (iso) => iso
-        ? new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        : '—';
+    const parseDateTime = (timeStr, baseDateStr) => {
+        if (!timeStr) return null;
+        if (timeStr.includes('T') || (timeStr.includes('-') && timeStr.includes(':') && timeStr.length > 10)) {
+            const d = new Date(timeStr);
+            if (!isNaN(d.getTime())) return d;
+        }
+        const datePart = baseDateStr ? baseDateStr.split('T')[0] : new Date().toISOString().split('T')[0];
+        const combined = `${datePart} ${timeStr}`;
+        const d = new Date(combined);
+        if (!isNaN(d.getTime())) return d;
+        
+        const match = timeStr.match(/^(\d+):(\d+)\s*(AM|PM)$/i);
+        if (match) {
+            let [_, hours, minutes, ampm] = match;
+            hours = parseInt(hours, 10);
+            minutes = parseInt(minutes, 10);
+            if (ampm.toUpperCase() === 'PM' && hours < 12) hours += 12;
+            if (ampm.toUpperCase() === 'AM' && hours === 12) hours = 0;
+            const d = new Date(datePart);
+            d.setHours(hours, minutes, 0, 0);
+            return d;
+        }
+        
+        const fallback = new Date(timeStr);
+        return isNaN(fallback.getTime()) ? null : fallback;
+    };
 
-    const calcDuration = (ci, co) => {
+    const fmt = (timeStr, baseDateStr) => {
+        if (!timeStr) return '—';
+        const d = parseDateTime(timeStr, baseDateStr);
+        if (!d) return '—';
+        return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    };
+
+    const calcDuration = (ci, co, baseDateStr) => {
         if (!ci || !co) return null;
-        const d = new Date(co) - new Date(ci);
+        const start = parseDateTime(ci, baseDateStr);
+        const end = parseDateTime(co, baseDateStr);
+        if (!start || !end) return null;
+        const d = end - start;
         return `${Math.floor(d / 3600000)}h ${Math.floor((d % 3600000) / 60000)}m`;
     };
 
@@ -71,14 +104,16 @@ const EmployeeDashboard = () => {
         let iv;
         if (status?.checkIn && !status?.checkOut) {
             iv = setInterval(() => {
-                const d = Date.now() - new Date(status.checkIn).getTime();
+                const start = parseDateTime(status.checkIn, status.date);
+                if (!start) return;
+                const d = Date.now() - start.getTime();
                 const h = Math.floor(d / 3600000);
                 const m = Math.floor((d % 3600000) / 60000);
                 const s = Math.floor((d % 60000) / 1000);
                 setTimer(`${h}h ${m}m ${s}s`);
             }, 1000);
         } else if (status?.checkOut) {
-            setTimer(calcDuration(status.checkIn, status.checkOut) || '0h 0m');
+            setTimer(calcDuration(status.checkIn, status.checkOut, status.date) || '0h 0m');
         } else {
             setTimer('0h 0m 0s');
         }
@@ -123,7 +158,10 @@ const EmployeeDashboard = () => {
         }) : null;
         
         if (!rec || !rec.checkIn || !rec.checkOut) return { d, h: 0 };
-        const hrs = (new Date(rec.checkOut) - new Date(rec.checkIn)) / 3600000;
+        const start = parseDateTime(rec.checkIn, rec.date);
+        const end = parseDateTime(rec.checkOut, rec.date);
+        if (!start || !end) return { d, h: 0 };
+        const hrs = (end - start) / 3600000;
         return { d, h: parseFloat(hrs.toFixed(1)) };
     });
 
@@ -258,13 +296,13 @@ const EmployeeDashboard = () => {
                             <div className="time-pill">
                                 <LogIn size={14} className="pill-icon in" />
                                 <span className="pill-label">In</span>
-                                <span className="pill-value">{fmt(status?.checkIn)}</span>
+                                <span className="pill-value">{fmt(status?.checkIn, status?.date)}</span>
                             </div>
                             <div className="time-divider" />
                             <div className="time-pill">
                                 <LogOut size={14} className="pill-icon out" />
                                 <span className="pill-label">Out</span>
-                                <span className="pill-value">{fmt(status?.checkOut)}</span>
+                                <span className="pill-value">{fmt(status?.checkOut, status?.date)}</span>
                             </div>
                             {isCompleted && (
                                 <>
@@ -272,7 +310,7 @@ const EmployeeDashboard = () => {
                                     <div className="time-pill">
                                         <TrendingUp size={14} className="pill-icon" style={{ color: '#10b981' }} />
                                         <span className="pill-label">Total</span>
-                                        <span className="pill-value">{calcDuration(status?.checkIn, status?.checkOut)}</span>
+                                        <span className="pill-value">{calcDuration(status?.checkIn, status?.checkOut, status?.date)}</span>
                                     </div>
                                 </>
                             )}

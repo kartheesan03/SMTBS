@@ -46,7 +46,7 @@ const createTask = async (req, res) => {
                     category: req.user.role === 'HR' ? 'hr' : 'general',
                     link: '/my-tasks'
                 }));
-                await Notification.insertMany(notifications);
+                await Notification.bulkCreate(notifications);
             } catch (err) {
                 console.error('Error generating task notifications:', err.message);
             }

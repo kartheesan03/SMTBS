@@ -11,6 +11,33 @@ const MyAttendance = () => {
     const [timer, setTimer] = useState("0h 0m 0s");
     const [stats, setStats] = useState({ avg: '0h', present: 0 });
 
+    const parseDateTime = (timeStr, baseDateStr) => {
+        if (!timeStr) return null;
+        if (timeStr.includes('T') || (timeStr.includes('-') && timeStr.includes(':') && timeStr.length > 10)) {
+            const d = new Date(timeStr);
+            if (!isNaN(d.getTime())) return d;
+        }
+        const datePart = baseDateStr ? baseDateStr.split('T')[0] : new Date().toISOString().split('T')[0];
+        const combined = `${datePart} ${timeStr}`;
+        const d = new Date(combined);
+        if (!isNaN(d.getTime())) return d;
+        
+        const match = timeStr.match(/^(\d+):(\d+)\s*(AM|PM)$/i);
+        if (match) {
+            let [_, hours, minutes, ampm] = match;
+            hours = parseInt(hours, 10);
+            minutes = parseInt(minutes, 10);
+            if (ampm.toUpperCase() === 'PM' && hours < 12) hours += 12;
+            if (ampm.toUpperCase() === 'AM' && hours === 12) hours = 0;
+            const d = new Date(datePart);
+            d.setHours(hours, minutes, 0, 0);
+            return d;
+        }
+        
+        const fallback = new Date(timeStr);
+        return isNaN(fallback.getTime()) ? null : fallback;
+    };
+
     useEffect(() => {
         fetchData();
     }, []);
@@ -19,7 +46,8 @@ const MyAttendance = () => {
         let interval;
         if (status && status.checkIn && !status.checkOut) {
             interval = setInterval(() => {
-                const start = new Date(status.checkIn);
+                const start = parseDateTime(status.checkIn, status.date);
+                if (!start) return;
                 const now = new Date();
                 const diff = now - start;
                 
@@ -30,12 +58,16 @@ const MyAttendance = () => {
                 setTimer(`${hours}h ${minutes}m ${seconds}s`);
             }, 1000);
         } else if (status && status.checkIn && status.checkOut) {
-            const start = new Date(status.checkIn);
-            const end = new Date(status.checkOut);
-            const diff = end - start;
-            const hours = Math.floor(diff / 3600000);
-            const minutes = Math.floor((diff % 3600000) / 60000);
-            setTimer(`${hours}h ${minutes}m`);
+            const start = parseDateTime(status.checkIn, status.date);
+            const end = parseDateTime(status.checkOut, status.date);
+            if (start && end) {
+                const diff = end - start;
+                const hours = Math.floor(diff / 3600000);
+                const minutes = Math.floor((diff % 3600000) / 60000);
+                setTimer(`${hours}h ${minutes}m`);
+            } else {
+                setTimer("-");
+            }
         } else {
             setTimer("0h 0m 0s");
         }
@@ -57,7 +89,12 @@ const MyAttendance = () => {
                 // Real avg hours from records that have both checkIn and checkOut
                 const withHours = historyRes.data.filter(h => h.checkIn && h.checkOut);
                 const totalHours = withHours.reduce((sum, h) => {
-                    return sum + (new Date(h.checkOut) - new Date(h.checkIn)) / 3600000;
+                    const start = parseDateTime(h.checkIn, h.date);
+                    const end = parseDateTime(h.checkOut, h.date);
+                    if (start && end) {
+                        return sum + (end - start) / 3600000;
+                    }
+                    return sum;
                 }, 0);
                 const avg = withHours.length > 0
                     ? `${(totalHours / withHours.length).toFixed(1)}h`
@@ -91,14 +128,19 @@ const MyAttendance = () => {
         }
     };
 
-    const formatTime = (isoString) => {
-        if (!isoString) return '-';
-        return new Date(isoString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const formatTime = (timeStr, baseDateStr) => {
+        if (!timeStr) return '-';
+        const d = parseDateTime(timeStr, baseDateStr);
+        if (!d) return '-';
+        return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     };
 
-    const calculateDuration = (checkIn, checkOut) => {
+    const calculateDuration = (checkIn, checkOut, baseDateStr) => {
         if (!checkIn || !checkOut) return '-';
-        const diff = new Date(checkOut) - new Date(checkIn);
+        const start = parseDateTime(checkIn, baseDateStr);
+        const end = parseDateTime(checkOut, baseDateStr);
+        if (!start || !end) return '-';
+        const diff = end - start;
         const hours = Math.floor(diff / 3600000);
         const minutes = Math.floor((diff % 3600000) / 60000);
         return `${hours}h ${minutes}m`;
@@ -143,11 +185,11 @@ const MyAttendance = () => {
                     <div className="session-details">
                         <div className="detail">
                             <span className="label">Check In</span>
-                            <span className="value">{formatTime(status?.checkIn)}</span>
+                            <span className="value">{formatTime(status?.checkIn, status?.date)}</span>
                         </div>
                         <div className="detail">
                             <span className="label">Check Out</span>
-                            <span className="value">{formatTime(status?.checkOut)}</span>
+                            <span className="value">{formatTime(status?.checkOut, status?.date)}</span>
                         </div>
                     </div>
                 </div>
@@ -164,7 +206,10 @@ const MyAttendance = () => {
                                         return dn === d;
                                     });
                                     if (!rec || !rec.checkIn || !rec.checkOut) return { n: d, h: 0 };
-                                    const hrs = (new Date(rec.checkOut) - new Date(rec.checkIn)) / 3600000;
+                                    const start = parseDateTime(rec.checkIn, rec.date);
+                                    const end = parseDateTime(rec.checkOut, rec.date);
+                                    if (!start || !end) return { n: d, h: 0 };
+                                    const hrs = (end - start) / 3600000;
                                     return { n: d, h: parseFloat(hrs.toFixed(1)) };
                                 });
                             })()}>
@@ -208,9 +253,9 @@ const MyAttendance = () => {
                     renderRow={(a) => (
                         <>
                             <td><strong>{new Date(a.date).toLocaleDateString()}</strong></td>
-                            <td>{formatTime(a.checkIn)}</td>
-                            <td>{formatTime(a.checkOut)}</td>
-                            <td>{calculateDuration(a.checkIn, a.checkOut)}</td>
+                            <td>{formatTime(a.checkIn, a.date)}</td>
+                            <td>{formatTime(a.checkOut, a.date)}</td>
+                            <td>{calculateDuration(a.checkIn, a.checkOut, a.date)}</td>
                             <td><span className={`status-pill ${a.status.toLowerCase()}`}>{a.status}</span></td>
                         </>
                     )}

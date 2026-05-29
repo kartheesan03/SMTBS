@@ -34,9 +34,38 @@ const Attendance = () => {
 
     const departments = ['All', ...new Set(attendanceLogs.map(l => l.employee?.department).filter(Boolean))];
 
-    const formatTime = (isoString) => {
-        if (!isoString) return '-';
-        return new Date(isoString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const parseDateTime = (timeStr, baseDateStr) => {
+        if (!timeStr) return null;
+        if (timeStr.includes('T') || (timeStr.includes('-') && timeStr.includes(':') && timeStr.length > 10)) {
+            const d = new Date(timeStr);
+            if (!isNaN(d.getTime())) return d;
+        }
+        const datePart = baseDateStr ? baseDateStr.split('T')[0] : new Date().toISOString().split('T')[0];
+        const combined = `${datePart} ${timeStr}`;
+        const d = new Date(combined);
+        if (!isNaN(d.getTime())) return d;
+        
+        const match = timeStr.match(/^(\d+):(\d+)\s*(AM|PM)$/i);
+        if (match) {
+            let [_, hours, minutes, ampm] = match;
+            hours = parseInt(hours, 10);
+            minutes = parseInt(minutes, 10);
+            if (ampm.toUpperCase() === 'PM' && hours < 12) hours += 12;
+            if (ampm.toUpperCase() === 'AM' && hours === 12) hours = 0;
+            const d = new Date(datePart);
+            d.setHours(hours, minutes, 0, 0);
+            return d;
+        }
+        
+        const fallback = new Date(timeStr);
+        return isNaN(fallback.getTime()) ? null : fallback;
+    };
+
+    const formatTime = (timeStr, baseDateStr) => {
+        if (!timeStr) return '-';
+        const d = parseDateTime(timeStr, baseDateStr);
+        if (!d) return '-';
+        return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     };
 
     if (loading) return <div className="p-30 text-center">Loading records...</div>;
@@ -98,8 +127,8 @@ const Attendance = () => {
                                     {a.status}
                                 </div>
                             </td>
-                            <td>{formatTime(a.checkIn)}</td>
-                            <td>{formatTime(a.checkOut)}</td>
+                            <td>{formatTime(a.checkIn, a.date)}</td>
+                            <td>{formatTime(a.checkOut, a.date)}</td>
                         </>
                     )}
                 />
