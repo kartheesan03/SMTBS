@@ -34,6 +34,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
         { path: '/', name: 'Dashboard', icon: <LayoutDashboard size={20} /> },
         { path: '/materials', name: 'Materials', icon: <Box size={20} /> },
         { path: '/hrms', name: 'Employees (HRMS)', icon: <Users size={20} /> },
+        { path: '/payroll', name: 'Payroll', icon: <DollarSign size={20} /> },
         { path: '/erp', name: 'Orders (ERP)', icon: <ShoppingCart size={20} /> },
         { path: '/crm', name: 'Customers (CRM)', icon: <Briefcase size={20} /> },
         { path: '/vendors', name: 'Vendors', icon: <Users size={20} /> },
