@@ -1,28 +1,46 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/sequelize');
+const { makeBridgedModel } = require('../config/mongoose-bridge');
 
-const leaveSchema = new mongoose.Schema({
-    employee: { type: mongoose.Schema.Types.ObjectId, ref: 'Employee', required: true },
+const LeaveSequelize = sequelize.define('Leave', {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
+    employeeId: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+    },
     type: {
-        type: String,
-        enum: ['Annual', 'Sick', 'Casual', 'Unpaid'],
-        required: true
+        type: DataTypes.ENUM('Annual', 'Sick', 'Casual', 'Unpaid'),
+        allowNull: false
     },
-    startDate: { type: Date, required: true },
-    endDate:   { type: Date, required: true },
-    reason:    { type: String, default: '' },
+    startDate: {
+        type: DataTypes.DATE,
+        allowNull: false
+    },
+    endDate: {
+        type: DataTypes.DATE,
+        allowNull: false
+    },
+    reason: {
+        type: DataTypes.TEXT,
+        defaultValue: ''
+    },
     status: {
-        type: String,
-        enum: ['Pending', 'Approved', 'Rejected', 'Cancelled'],
-        default: 'Pending'
+        type: DataTypes.ENUM('Pending', 'Approved', 'Rejected', 'Cancelled'),
+        defaultValue: 'Pending'
     },
-    reviewedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
-    reviewNote: { type: String, default: '' }
-}, { timestamps: true });
-
-// Virtual: number of days requested
-leaveSchema.virtual('days').get(function () {
-    const ms = new Date(this.endDate) - new Date(this.startDate);
-    return Math.ceil(ms / 86400000) + 1;
+    reviewedById: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+    },
+    reviewNote: {
+        type: DataTypes.TEXT,
+        defaultValue: ''
+    }
 });
 
-module.exports = mongoose.model('Leave', leaveSchema);
+const Leave = makeBridgedModel('Leave', LeaveSequelize);
+module.exports = Leave;

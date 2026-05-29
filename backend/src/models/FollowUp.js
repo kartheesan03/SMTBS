@@ -1,22 +1,46 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/sequelize');
+const { makeBridgedModel } = require('../config/mongoose-bridge');
 
-const followupSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    type: { 
-        type: String, 
-        enum: ['Call', 'Email', 'Meeting'], 
-        default: 'Call' 
+const FollowUpSequelize = sequelize.define('FollowUp', {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
     },
-    time: { type: String, required: true },
-    status: { 
-        type: String, 
-        enum: ['Pending', 'Completed', 'Overdue'], 
-        default: 'Pending' 
+    name: {
+        type: DataTypes.STRING,
+        allowNull: false
     },
-    phone: { type: String },
-    email: { type: String },
-    notes: { type: String },
-    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
-}, { timestamps: true });
+    type: {
+        type: DataTypes.ENUM('Call', 'Email', 'Meeting'),
+        defaultValue: 'Call'
+    },
+    time: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    status: {
+        type: DataTypes.ENUM('Pending', 'Completed', 'Overdue'),
+        defaultValue: 'Pending'
+    },
+    phone: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    email: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    notes: {
+        type: DataTypes.TEXT,
+        allowNull: true
+    },
+    createdById: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+    }
+});
 
-module.exports = mongoose.model('FollowUp', followupSchema);
+const FollowUp = makeBridgedModel('FollowUp', FollowUpSequelize);
+module.exports = FollowUp;

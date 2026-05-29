@@ -1,12 +1,38 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/sequelize');
+const { makeBridgedModel } = require('../config/mongoose-bridge');
 
-const vendorSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    contactPerson: { type: String },
-    email: { type: String },
-    phone: { type: String },
-    address: { type: String },
-    category: { type: String }
-}, { timestamps: true });
+const VendorSequelize = sequelize.define('Vendor', {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
+    name: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    contactPerson: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    email: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    phone: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    address: {
+        type: DataTypes.TEXT,
+        allowNull: true
+    },
+    category: {
+        type: DataTypes.STRING,
+        allowNull: true
+    }
+});
 
-module.exports = mongoose.model('Vendor', vendorSchema);
+const Vendor = makeBridgedModel('Vendor', VendorSequelize);
+module.exports = Vendor;

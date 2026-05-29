@@ -1,16 +1,55 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/sequelize');
+const { makeBridgedModel } = require('../config/mongoose-bridge');
 
-const employeeSchema = new mongoose.Schema({
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    employeeId: { type: String, unique: true, required: true },
-    firstName: { type: String, required: true },
-    lastName: { type: String },
-    department: { type: String },
-    designation: { type: String },
-    salary: { type: Number },
-    joinDate: { type: Date, default: Date.now },
-    contact: { type: String },
-    address: { type: String }
-}, { timestamps: true });
+const EmployeeSequelize = sequelize.define('Employee', {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
+    userId: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+    },
+    employeeId: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true
+    },
+    firstName: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    lastName: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    department: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    designation: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    salary: {
+        type: DataTypes.DOUBLE,
+        allowNull: true
+    },
+    joinDate: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW
+    },
+    contact: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    address: {
+        type: DataTypes.TEXT,
+        allowNull: true
+    }
+});
 
-module.exports = mongoose.model('Employee', employeeSchema);
+const Employee = makeBridgedModel('Employee', EmployeeSequelize);
+module.exports = Employee;

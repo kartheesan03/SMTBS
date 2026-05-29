@@ -1,14 +1,47 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/sequelize');
+const { makeBridgedModel } = require('../config/mongoose-bridge');
 
-const materialSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    sku: { type: String, unique: true },
-    category: { type: String },
-    quantity: { type: Number, default: 0 },
-    lowStockThreshold: { type: Number, default: 10 },
-    unit: { type: String, default: 'pcs' },
-    price: { type: Number, default: 0 },
-    status: { type: String, enum: ['In Stock', 'Out of Stock', 'Low Stock'], default: 'In Stock' }
-}, { timestamps: true });
+const MaterialSequelize = sequelize.define('Material', {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
+    name: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    sku: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        unique: true
+    },
+    category: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    quantity: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0
+    },
+    lowStockThreshold: {
+        type: DataTypes.INTEGER,
+        defaultValue: 10
+    },
+    unit: {
+        type: DataTypes.STRING,
+        defaultValue: 'pcs'
+    },
+    price: {
+        type: DataTypes.DOUBLE,
+        defaultValue: 0
+    },
+    status: {
+        type: DataTypes.ENUM('In Stock', 'Out of Stock', 'Low Stock'),
+        defaultValue: 'In Stock'
+    }
+});
 
-module.exports = mongoose.model('Material', materialSchema);
+const Material = makeBridgedModel('Material', MaterialSequelize);
+module.exports = Material;

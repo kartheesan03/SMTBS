@@ -1,36 +1,70 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/sequelize');
+const { makeBridgedModel } = require('../config/mongoose-bridge');
 
-const ticketSchema = new mongoose.Schema({
-    ticketNumber: { type: String, required: true, unique: true },
-    customer: { 
-        type: mongoose.Schema.Types.ObjectId, 
-        required: true, 
-        refPath: 'customerModel' 
+const TicketSequelize = sequelize.define('Ticket', {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
     },
-    customerModel: { 
-        type: String, 
-        required: true, 
-        enum: ['Customer', 'Lead'], 
-        default: 'Customer' 
+    ticketNumber: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true
     },
-    subject: { type: String, required: true },
-    description: { type: String, required: true },
-    priority: { 
-        type: String, 
-        enum: ['Low', 'Medium', 'High'], 
-        default: 'Medium' 
+    customerId: {
+        type: DataTypes.INTEGER,
+        allowNull: true
     },
-    status: { 
-        type: String, 
-        enum: ['Open', 'In Progress', 'Resolved', 'Closed'], 
-        default: 'Open' 
+    leadId: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+    },
+    customerModel: {
+        type: DataTypes.ENUM('Customer', 'Lead'),
+        defaultValue: 'Customer'
+    },
+    subject: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    description: {
+        type: DataTypes.TEXT,
+        allowNull: false
+    },
+    priority: {
+        type: DataTypes.ENUM('Low', 'Medium', 'High'),
+        defaultValue: 'Medium'
+    },
+    status: {
+        type: DataTypes.ENUM('Open', 'In Progress', 'Resolved', 'Closed'),
+        defaultValue: 'Open'
     },
     category: {
-        type: String,
-        enum: ['General', 'Technical', 'Billing', 'Other'],
-        default: 'General'
+        type: DataTypes.ENUM('General', 'Technical', 'Billing', 'Other'),
+        defaultValue: 'General'
     },
-    assignedTo: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
-}, { timestamps: true });
+    assignedToId: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+    }
+}, {
+    hooks: {
+        beforeValidate: (ticket) => {
+            // Polymorphic resolution before save
+            if (ticket.customer) {
+                if (ticket.customerModel === 'Customer') {
+                    ticket.customerId = ticket.customer;
+                    ticket.leadId = null;
+                } else if (ticket.customerModel === 'Lead') {
+                    ticket.leadId = ticket.customer;
+                    ticket.customerId = null;
+                }
+            }
+        }
+    }
+});
 
-module.exports = mongoose.model('Ticket', ticketSchema);
+const Ticket = makeBridgedModel('Ticket', TicketSequelize);
+module.exports = Ticket;

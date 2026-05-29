@@ -1,15 +1,50 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/sequelize');
+const { makeBridgedModel } = require('../config/mongoose-bridge');
 
-const salarySchema = new mongoose.Schema({
-    employee: { type: mongoose.Schema.Types.ObjectId, ref: 'Employee', required: true },
-    month: { type: String, required: true }, // e.g., "April 2026"
-    basicSalary: { type: Number, required: true },
-    allowances: { type: Number, default: 0 },
-    deductions: { type: Number, default: 0 },
-    netSalary: { type: Number, required: true },
-    status: { type: String, enum: ['Paid', 'Pending', 'Processing', 'Awaiting Approval', 'Approved'], default: 'Awaiting Approval' },
-    paymentDate: { type: Date },
-    transactionId: { type: String }
-}, { timestamps: true });
+const SalarySequelize = sequelize.define('Salary', {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
+    employeeId: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+    },
+    month: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    basicSalary: {
+        type: DataTypes.DOUBLE,
+        allowNull: false
+    },
+    allowances: {
+        type: DataTypes.DOUBLE,
+        defaultValue: 0
+    },
+    deductions: {
+        type: DataTypes.DOUBLE,
+        defaultValue: 0
+    },
+    netSalary: {
+        type: DataTypes.DOUBLE,
+        allowNull: false
+    },
+    status: {
+        type: DataTypes.ENUM('Paid', 'Pending', 'Processing', 'Awaiting Approval', 'Approved'),
+        defaultValue: 'Awaiting Approval'
+    },
+    paymentDate: {
+        type: DataTypes.DATE,
+        allowNull: true
+    },
+    transactionId: {
+        type: DataTypes.STRING,
+        allowNull: true
+    }
+});
 
-module.exports = mongoose.model('Salary', salarySchema);
+const Salary = makeBridgedModel('Salary', SalarySequelize);
+module.exports = Salary;

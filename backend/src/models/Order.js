@@ -1,32 +1,74 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/sequelize');
+const { makeBridgedModel } = require('../config/mongoose-bridge');
 
-const orderSchema = new mongoose.Schema({
-    orderNumber: { type: String, unique: true },
-    customer: { 
-        type: mongoose.Schema.Types.ObjectId, 
-        refPath: 'customerModel' 
+const OrderSequelize = sequelize.define('Order', {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
     },
-    customerModel: { 
-        type: String, 
-        required: true, 
-        enum: ['Customer', 'Lead'], 
-        default: 'Customer' 
+    orderNumber: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        unique: true
     },
-    vendor: { type: mongoose.Schema.Types.ObjectId, ref: 'Vendor' },
-    items: [{
-        material: { type: mongoose.Schema.Types.ObjectId, ref: 'Material' },
-        quantity: { type: Number, required: true },
-        price: { type: Number }
-    }],
-    totalAmount: { type: Number },
-    status: { 
-        type: String, 
-        enum: ['Awaiting Approval', 'Approved', 'Pending', 'Confirmed', 'Shipped', 'Delivered', 'Cancelled', 'Awaiting Stock Check', 'Ready for Delivery', 'Low Stock Alert'], 
-        default: 'Pending' 
+    customerId: {
+        type: DataTypes.INTEGER,
+        allowNull: true
     },
-    type: { type: String, enum: ['Purchase', 'Sales'], required: true },
-    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
-}, { timestamps: true });
+    leadId: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+    },
+    customerModel: {
+        type: DataTypes.ENUM('Customer', 'Lead'),
+        defaultValue: 'Customer'
+    },
+    vendorId: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+    },
+    items: {
+        type: DataTypes.JSON,
+        allowNull: true
+    },
+    totalAmount: {
+        type: DataTypes.DOUBLE,
+        allowNull: true
+    },
+    status: {
+        type: DataTypes.ENUM('Awaiting Approval', 'Approved', 'Pending', 'Confirmed', 'Shipped', 'Delivered', 'Cancelled', 'Awaiting Stock Check', 'Ready for Delivery', 'Low Stock Alert'),
+        defaultValue: 'Pending'
+    },
+    type: {
+        type: DataTypes.ENUM('Purchase', 'Sales'),
+        allowNull: false
+    },
+    createdById: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+    },
+    updatedById: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+    }
+}, {
+    hooks: {
+        beforeValidate: (order) => {
+            // Polymorphic resolution before save
+            if (order.customer) {
+                if (order.customerModel === 'Customer') {
+                    order.customerId = order.customer;
+                    order.leadId = null;
+                } else if (order.customerModel === 'Lead') {
+                    order.leadId = order.customer;
+                    order.customerId = null;
+                }
+            }
+        }
+    }
+});
 
-module.exports = mongoose.model('Order', orderSchema);
+const Order = makeBridgedModel('Order', OrderSequelize);
+module.exports = Order;

@@ -1,11 +1,34 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/sequelize');
+const { makeBridgedModel } = require('../config/mongoose-bridge');
 
-const attendanceSchema = new mongoose.Schema({
-    employee: { type: mongoose.Schema.Types.ObjectId, ref: 'Employee', required: true },
-    date: { type: Date, default: () => new Date().setHours(0,0,0,0) },
-    status: { type: String, enum: ['Present', 'Absent', 'Leave', 'Late'], default: 'Present' },
-    checkIn: { type: String },
-    checkOut: { type: String }
-}, { timestamps: true });
+const AttendanceSequelize = sequelize.define('Attendance', {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
+    employeeId: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+    },
+    date: {
+        type: DataTypes.DATEONLY,
+        defaultValue: DataTypes.NOW
+    },
+    status: {
+        type: DataTypes.ENUM('Present', 'Absent', 'Leave', 'Late'),
+        defaultValue: 'Present'
+    },
+    checkIn: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    checkOut: {
+        type: DataTypes.STRING,
+        allowNull: true
+    }
+});
 
-module.exports = mongoose.model('Attendance', attendanceSchema);
+const Attendance = makeBridgedModel('Attendance', AttendanceSequelize);
+module.exports = Attendance;

@@ -1,18 +1,46 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/sequelize');
+const { makeBridgedModel } = require('../config/mongoose-bridge');
 
-const leadSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    source: { type: String },
-    phone: { type: String },
-    email: { type: String },
-    status: { 
-        type: String, 
-        enum: ['Awaiting Review', 'Initial Contact', 'Qualified Lead', 'Negotiation', 'Closing Deal', 'Converted to Vendor', 'Lost'], 
-        default: 'Awaiting Review' 
+const LeadSequelize = sequelize.define('Lead', {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
     },
-    assignedTo: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    notes: { type: String },
-    estimatedValue: { type: Number, default: 0 }
-}, { timestamps: true });
+    name: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    source: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    phone: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    email: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    status: {
+        type: DataTypes.ENUM('Awaiting Review', 'Initial Contact', 'Qualified Lead', 'Negotiation', 'Closing Deal', 'Converted to Vendor', 'Lost'),
+        defaultValue: 'Awaiting Review'
+    },
+    assignedTo: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+    },
+    notes: {
+        type: DataTypes.TEXT,
+        allowNull: true
+    },
+    estimatedValue: {
+        type: DataTypes.DOUBLE,
+        defaultValue: 0
+    }
+});
 
-module.exports = mongoose.model('Lead', leadSchema);
+const Lead = makeBridgedModel('Lead', LeadSequelize);
+module.exports = Lead;

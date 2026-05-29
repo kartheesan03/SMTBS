@@ -1,26 +1,50 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/sequelize');
 const bcrypt = require('bcryptjs');
+const { makeBridgedModel } = require('../config/mongoose-bridge');
 
-const userSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-    role: { 
-        type: String, 
-        enum: ['Admin', 'HR', 'Manager', 'Employee', 'Sales'], 
-        default: 'Employee' 
+const UserSequelize = sequelize.define('User', {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
     },
-    active: { type: Boolean, default: true }
-}, { timestamps: true });
-
-userSchema.pre('save', async function() {
-    if (!this.isModified('password')) return;
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
+    name: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true
+    },
+    password: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    role: {
+        type: DataTypes.ENUM('Admin', 'HR', 'Manager', 'Employee', 'Sales'),
+        defaultValue: 'Employee'
+    },
+    active: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true
+    }
+}, {
+    hooks: {
+        beforeSave: async (user) => {
+            if (user.changed('password')) {
+                const salt = await bcrypt.genSalt(10);
+                user.password = await bcrypt.hash(user.password, salt);
+            }
+        }
+    }
 });
 
-userSchema.methods.matchPassword = async function(enteredPassword) {
+// Instance method for matching passwords
+UserSequelize.prototype.matchPassword = async function (enteredPassword) {
     return await bcrypt.compare(enteredPassword, this.password);
 };
 
-module.exports = mongoose.model('User', userSchema);
+const User = makeBridgedModel('User', UserSequelize);
+module.exports = User;

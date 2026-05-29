@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
 const dotenv = require('dotenv');
+const connectDB = require('./src/config/db');
 
 // Import all models
 const User = require('./src/models/User');
@@ -21,8 +21,8 @@ dotenv.config();
 
 const seedData = async () => {
     try {
-        await mongoose.connect(process.env.MONGO_URI);
-        console.log('MongoDB connected for seeding...');
+        await connectDB();
+        console.log('MySQL connected for seeding...');
 
         const today = new Date();
         const getPastDate = (monthsAgo, dayOfMonth) => {

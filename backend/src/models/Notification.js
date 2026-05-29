@@ -1,21 +1,42 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/sequelize');
+const { makeBridgedModel } = require('../config/mongoose-bridge');
 
-const notificationSchema = new mongoose.Schema({
-    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null }, // null = global/admin
-    title: { type: String, required: true },
-    message: { type: String, required: true },
+const NotificationSequelize = sequelize.define('Notification', {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
+    userId: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+    },
+    title: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    message: {
+        type: DataTypes.TEXT,
+        allowNull: false
+    },
     type: {
-        type: String,
-        enum: ['warning', 'info', 'success', 'error'],
-        default: 'info'
+        type: DataTypes.ENUM('warning', 'info', 'success', 'error'),
+        defaultValue: 'info'
     },
     category: {
-        type: String,
-        enum: ['stock', 'hr', 'order', 'system', 'general'],
-        default: 'general'
+        type: DataTypes.ENUM('stock', 'hr', 'order', 'system', 'general'),
+        defaultValue: 'general'
     },
-    isRead: { type: Boolean, default: false },
-    link: { type: String, default: null }, // optional navigation link
-}, { timestamps: true });
+    isRead: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+    },
+    link: {
+        type: DataTypes.STRING,
+        allowNull: true
+    }
+});
 
-module.exports = mongoose.model('Notification', notificationSchema);
+const Notification = makeBridgedModel('Notification', NotificationSequelize);
+module.exports = Notification;
