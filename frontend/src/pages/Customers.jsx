@@ -246,18 +246,18 @@ const Customers = () => {
                 .form-group { display: flex; flex-direction: column; gap: 8px; }
                 .form-group label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
                 
-                .input-with-icon { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; padding: 0 12px; }
-                .input-with-icon input { background: none; border: none; padding: 12px 0; color: white; width: 100%; font-size: 14px; }
+                .input-with-icon { display: flex; align-items: center; gap: 10px; background: #ffffff; border: 1px solid var(--border); border-radius: 8px; padding: 0 12px; }
+                .input-with-icon input { background: none; border: none; padding: 12px 0; color: #0f172a; width: 100%; font-size: 14px; }
                 
                 .form-group input:not([type]), .form-group input[type="text"], .form-group input[type="email"], .form-group input[type="url"], .form-group select, .form-group textarea {
-                    padding: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 14px;
+                    padding: 12px; background: #ffffff; border: 1px solid var(--border); border-radius: 8px; color: #0f172a; font-size: 14px;
                 }
-                .form-group input::placeholder, .form-group textarea::placeholder { color: rgba(255,255,255,0.4); }
-                .form-group select { appearance: none; padding-right: 40px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
-                .form-group select option { background: #1e293b; color: white; }
+                .form-group input::placeholder, .form-group textarea::placeholder { color: var(--text-muted); }
+                .form-group select { appearance: none; padding-right: 40px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%230f172a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
+                .form-group select option { background: #ffffff; color: #0f172a; }
 
                 .modal-actions { display: flex; justify-content: flex-end; gap: 15px; margin-top: 20px; }
-                .btn-cancel { background: transparent; color: white; border: 1px solid var(--border); padding: 12px 25px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+                .btn-cancel { background: transparent; color: #0f172a; border: 1px solid var(--border); padding: 12px 25px; border-radius: 8px; font-weight: 600; cursor: pointer; }
                 
                 .animate-pop { animation: pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
                 @keyframes pop { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }

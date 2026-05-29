@@ -516,10 +516,10 @@ const MyTasks = () => {
                 .form-group { display: flex; flex-direction: column; gap: 8px; }
                 .form-group label { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
                 .badge-count { background: var(--primary); color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
-                .form-group input, .form-group select, .form-group textarea { padding: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 14px; width: 100%; }
-                .form-group input::placeholder, .form-group textarea::placeholder { color: rgba(255,255,255,0.4); }
-                .form-group select { appearance: none; padding-right: 40px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
-                .form-group select option { background: #1e293b; color: white; }
+                .form-group input, .form-group select, .form-group textarea { padding: 12px; background: #ffffff; border: 1px solid var(--border); border-radius: 8px; color: #0f172a; font-size: 14px; width: 100%; }
+                .form-group input::placeholder, .form-group textarea::placeholder { color: var(--text-muted); }
+                .form-group select { appearance: none; padding-right: 40px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%230f172a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
+                .form-group select option { background: #ffffff; color: #0f172a; }
                 .form-hint { font-size: 11px; color: var(--text-muted); font-style: italic; margin-top: 4px; }
                 
                 .toggle-group { display: flex; background: rgba(255,255,255,0.03); border-radius: 8px; padding: 4px; border: 1px solid var(--border); }
@@ -548,7 +548,7 @@ const MyTasks = () => {
                 .notification-info { display: flex; align-items: center; gap: 10px; padding: 12px 16px; font-size: 13px; color: #60a5fa; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 10px; }
 
                 .modal-actions { display: flex; justify-content: flex-end; gap: 15px; margin-top: 10px; }
-                .btn-cancel { background: transparent; color: white; border: 1px solid var(--border); padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+                .btn-cancel { background: transparent; color: #0f172a; border: 1px solid var(--border); padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; }
                 
                 .spin-icon { animation: spin 1s linear infinite; }
                 @keyframes spin { to { transform: rotate(360deg); } }
