@@ -411,3 +411,23 @@ body.logged-in {
   background-image: none !important;
   color: var(--dash-text-main, #0f172a) !important;
 }
+
+/* Ensure all page main wrappers and layout containers render with the exact same background color */
+body.logged-in .main-content,
+body.logged-in .main-content.with-sidebar,
+body.logged-in .module-container,
+body.logged-in .settings-container,
+body.logged-in .admin-workspace,
+body.logged-in .crm-workspace,
+body.logged-in .erp-workspace,
+body.logged-in .support-workspace,
+body.logged-in .reports-workspace,
+body.logged-in .materials-workspace,
+body.logged-in .sales-wrapper,
+body.logged-in .manager-wrapper,
+body.logged-in .employee-wrapper,
+body.logged-in .hr-dashboard,
+body.logged-in .dashboard-layout {
+  background-color: var(--dash-bg, #f1f5f9) !important;
+  background-image: none !important;
+}
