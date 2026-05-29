@@ -81,6 +81,10 @@ function translateQuery(query, model) {
                 else if (op === '$gt') opConditions[Op.gt] = opVal;
                 else if (op === '$lt') opConditions[Op.lt] = opVal;
                 else if (op === '$ne') opConditions[Op.ne] = opVal;
+                else if (op === '$exists') {
+                    if (opVal) opConditions[Op.ne] = null;
+                    else opConditions[Op.eq] = null;
+                }
                 else opConditions[op] = opVal;
             }
             sequelizeQuery[mappedKey] = opConditions;
