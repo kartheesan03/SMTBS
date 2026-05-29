@@ -12,6 +12,33 @@ function translateQuery(query, model) {
     if (!query) return {};
     const sequelizeQuery = {};
     for (const [key, value] of Object.entries(query)) {
+        // Handle $or operator: translate each branch recursively
+        if (key === '$or' && Array.isArray(value)) {
+            sequelizeQuery[Op.or] = value.map(branch => translateQuery(branch, model));
+            continue;
+        }
+        // Handle $and operator
+        if (key === '$and' && Array.isArray(value)) {
+            sequelizeQuery[Op.and] = value.map(branch => translateQuery(branch, model));
+            continue;
+        }
+        // Handle $expr operator (column-to-column comparisons)
+        if (key === '$expr' && value && typeof value === 'object') {
+            // Support { $lte: ['$colA', '$colB'] } → colA <= colB
+            const exprOps = { '$lte': '<=', '$gte': '>=', '$lt': '<', '$gt': '>', '$eq': '=' };
+            for (const [exprOp, operands] of Object.entries(value)) {
+                if (exprOps[exprOp] && Array.isArray(operands) && operands.length === 2) {
+                    const left = operands[0].startsWith('$') ? operands[0].substring(1) : operands[0];
+                    const right = operands[1].startsWith('$') ? operands[1].substring(1) : operands[1];
+                    sequelizeQuery[Op.and] = sequelizeQuery[Op.and] || [];
+                    sequelizeQuery[Op.and].push(
+                        sequelize.literal(`\`${left}\` ${exprOps[exprOp]} \`${right}\``)
+                    );
+                }
+            }
+            continue;
+        }
+
         let mappedKey = key === '_id' ? 'id' : key;
         
         // Handle virtual associations to underlying foreign keys (e.g. employee -> employeeId)
@@ -425,6 +452,90 @@ function makeBridgedModel(modelName, sequelizeModel) {
             const processed = preprocessData(parsedUpdate, sequelizeModel);
             const [affectedCount] = await sequelizeModel.update(processed, { where });
             return { matchedCount: affectedCount, modifiedCount: affectedCount };
+        },
+
+        async aggregate(pipeline) {
+            if (!pipeline || !Array.isArray(pipeline)) return [];
+
+            // 1. Order revenue sum
+            if (modelName === 'Order' && pipeline.some(stage => stage.$group && stage.$group.total && stage.$group.total.$sum === '$totalAmount')) {
+                const matchStage = pipeline.find(stage => stage.$match);
+                const rawWhere = matchStage ? matchStage.$match : {};
+                const where = translateQuery(rawWhere, sequelizeModel);
+                
+                const total = await sequelizeModel.sum('totalAmount', { where });
+                return [{ _id: null, total: total || 0 }];
+            }
+
+            // 2. Order monthly stats (in-memory aggregation)
+            if (modelName === 'Order' && pipeline.some(stage => stage.$group && stage.$group._id && stage.$group._id.$month)) {
+                const orders = await sequelizeModel.findAll({
+                    attributes: ['createdAt', 'totalAmount'],
+                    raw: true
+                });
+                
+                const months = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                const counts = Array.from({ length: 13 }, (_, i) => ({
+                    _id: i,
+                    name: months[i],
+                    sales: 0,
+                    revenue: 0
+                }));
+
+                orders.forEach(o => {
+                    if (o.createdAt) {
+                        const date = new Date(o.createdAt);
+                        const month = date.getMonth() + 1; // 1-indexed
+                        counts[month].sales += 1;
+                        counts[month].revenue += (o.totalAmount || 0);
+                    }
+                });
+
+                return counts.slice(1).filter(m => m.sales > 0);
+            }
+
+            // 3. Group count by string field (Material categories, Employee departments, Lead statuses)
+            const groupStage = pipeline.find(stage => stage.$group);
+            if (groupStage && groupStage.$group && typeof groupStage.$group._id === 'string' && groupStage.$group._id.startsWith('$')) {
+                const fieldName = groupStage.$group._id.substring(1);
+                const matchStage = pipeline.find(stage => stage.$match);
+                const where = matchStage ? translateQuery(matchStage.$match, sequelizeModel) : {};
+
+                let queryField = fieldName === '_id' ? 'id' : fieldName;
+                if (sequelizeModel.rawAttributes && !sequelizeModel.rawAttributes[queryField] && sequelizeModel.rawAttributes[queryField + 'Field']) {
+                    queryField = queryField + 'Field';
+                }
+
+                const results = await sequelizeModel.findAll({
+                    attributes: [
+                        [queryField, '_id']
+                    ],
+                    where,
+                    raw: true
+                });
+
+                // Group in JavaScript for absolute SQL dialect/driver safety
+                const groupCounts = {};
+                results.forEach(r => {
+                    const key = r._id || '';
+                    groupCounts[key] = (groupCounts[key] || 0) + 1;
+                });
+
+                const finalResults = Object.entries(groupCounts).map(([key, val]) => ({
+                    _id: key,
+                    value: val
+                }));
+
+                if (modelName === 'Lead') {
+                    return finalResults.map(r => ({ name: r._id, value: r.value }));
+                }
+                if (modelName === 'Material') {
+                    return finalResults.map(r => ({ name: r._id || 'Uncategorized', value: r.value }));
+                }
+                return finalResults;
+            }
+
+            return [];
         }
     };
 
