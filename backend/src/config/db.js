@@ -35,11 +35,18 @@ const connectDB = async () => {
         // Synchronize Sequelize schemas with MySQL database
         await sequelize.sync({ alter: true });
         console.log('MySQL Database tables synchronized and updated.');
+        return true;
     } catch (error) {
-        console.error('MySQL Connection / Synchronization failed:');
-        console.error(`Message: ${error.message}`);
-        console.error(`Stack: ${error.stack}`);
-        process.exit(1);
+        console.error('\n******************************************************************************');
+        console.error('  DATABASE CONNECTION / MIGRATION ERROR:');
+        console.error(`  Message: ${error.message}`);
+        console.error('\n  Please ensure:');
+        console.error('  1. Your MySQL server is running (Service "MySQL80").');
+        console.error('  2. You have configured the correct credentials in "backend/.env":');
+        console.error('     MYSQL_PASSWORD=your_actual_password');
+        console.error('******************************************************************************\n');
+        // Omit process.exit(1) to avoid nodemon crash loops. When you save .env with the correct password, nodemon will automatically reload!
+        return false;
     }
 };
 

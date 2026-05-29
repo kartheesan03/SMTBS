@@ -21,7 +21,11 @@ dotenv.config();
 
 const seedData = async () => {
     try {
-        await connectDB();
+        const success = await connectDB();
+        if (!success) {
+            console.error('MySQL database connection failed. Aborting seed process.');
+            process.exit(1);
+        }
         console.log('MySQL connected for seeding...');
 
         const today = new Date();
