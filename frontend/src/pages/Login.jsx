@@ -63,20 +63,8 @@ const Login = () => {
                     justify-content: center;
                     min-height: 100vh;
                     padding: 20px;
-                    background: linear-gradient(135deg, #e0e7ff 0%, #f1f5f9 40%, #dbeafe 70%, #ede9fe 100%);
+                    background: #f1f5f9;
                     position: relative;
-                }
-                .auth-wrapper::before {
-                    content: '';
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    bottom: 0;
-                    background: 
-                        radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.06) 0%, transparent 50%);
-                    pointer-events: none;
                 }
                 .auth-card {
                     width: 100%;
