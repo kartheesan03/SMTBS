@@ -51,16 +51,19 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
         { path: '/my-salary', name: 'My Salary', icon: <DollarSign size={20} /> },
         { path: '/leave-management', name: 'Leave Management', icon: <Calendar size={20} /> },
         { path: '/erp', name: 'Orders (ERP)', icon: <ShoppingCart size={20} /> },
+        { path: '/notifications', name: 'Notifications', icon: <Bell size={20} /> },
         { path: '/settings', name: 'My Profile', icon: <Settings size={20} /> },
     ];
 
     const hrMenu = [
         { path: '/', name: 'Dashboard', icon: <LayoutDashboard size={20} /> },
         { path: '/hrms', name: 'Employees', icon: <Users size={20} /> },
+        { path: '/my-tasks', name: 'Task Management', icon: <Box size={20} /> },
         { path: '/attendance', name: 'Attendance', icon: <CheckCircle size={20} /> },
         { path: '/leave-management', name: 'Leave Management', icon: <Calendar size={20} /> },
         { path: '/payroll', name: 'Payroll', icon: <DollarSign size={20} /> },
         { path: '/erp', name: 'Orders (ERP)', icon: <ShoppingCart size={20} /> },
+        { path: '/notifications', name: 'Notifications', icon: <Bell size={20} /> },
         { path: '/hr-reports', name: 'Reports', icon: <BarChart3 size={20} /> },
         { path: '/settings', name: 'Profile', icon: <Settings size={20} /> },
     ];
@@ -78,10 +81,12 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
 
     const salesMenu = [
         { path: '/', name: 'Dashboard', icon: <LayoutDashboard size={20} /> },
+        { path: '/my-tasks', name: 'My Tasks', icon: <Box size={20} /> },
         { path: '/crm', name: 'Leads', icon: <Users size={20} /> },
         { path: '/customers', name: 'Customers', icon: <Users size={20} /> },
         { path: '/sales-pipeline', name: 'Sales Pipeline', icon: <BarChart3 size={20} /> },
         { path: '/follow-ups', name: 'Follow-ups', icon: <PhoneCall size={20} /> },
+        { path: '/notifications', name: 'Notifications', icon: <Bell size={20} /> },
         { path: '/analytics', name: 'Reports', icon: <BarChart3 size={20} /> },
         { path: '/support', name: 'Support Tickets', icon: <LifeBuoy size={20} /> },
         { path: '/settings', name: 'Profile', icon: <Settings size={20} /> },
