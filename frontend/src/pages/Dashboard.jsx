@@ -39,6 +39,19 @@ const Dashboard = () => {
         fetchDashboard();
     }, []);
 
+  // Fetch low stock count from backend
+  useEffect(() => {
+    const fetchLowStockCount = async () => {
+      try {
+        const { data } = await API.get('/materials/low-stock-count');
+        setLowStockCount(data.count);
+      } catch (err) {
+        console.error('Failed to fetch low stock count', err);
+      }
+    };
+    fetchLowStockCount();
+  }, []);
+
     if (loading) return <div className="loading-container">
         <div className="loader"></div>
         <p>Synchronizing Business Intelligence...</p>

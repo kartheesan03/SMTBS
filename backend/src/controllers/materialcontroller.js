@@ -21,7 +21,7 @@ const createMaterial = async (req, res) => {
         let status = 'In Stock';
         if (Number(quantity) === 0) {
             status = 'Out of Stock';
-        } else if (Number(quantity) <= Number(lowStockThreshold)) {
+        } else if (Number(quantity) < Number(lowStockThreshold)) {
             status = 'Low Stock';
         }
         const material = new Material({ name, sku, category, quantity, lowStockThreshold, unit, price, status });
@@ -49,12 +49,12 @@ const updateMaterial = async (req, res) => {
             material.price = price || material.price;
             
             if (material.quantity === 0) {
-                material.status = 'Out of Stock';
-            } else if (material.quantity <= material.lowStockThreshold) {
-                material.status = 'Low Stock';
-            } else {
-                material.status = 'In Stock';
-            }
+            material.status = 'Out of Stock';
+        } else if (material.quantity < material.lowStockThreshold) {
+            material.status = 'Low Stock';
+        } else {
+            material.status = 'In Stock';
+        }    
 
             const updatedMaterial = await material.save();
             res.json(updatedMaterial);
@@ -83,32 +83,42 @@ const deleteMaterial = async (req, res) => {
     }
 };
 
-    // @desc    Get low stock materials
-    // @route   GET /api/materials/low-stock
-    // @access  Private (HR, Manager, Sales)
-    const getLowStockMaterials = async (req, res) => {
-        try {
-            const materials = await Material.find({});
-            // Ensure status is up‑to‑date for each material
-            for (const material of materials) {
-                if (material.quantity === 0) {
-                    material.status = 'Out of Stock';
-                } else if (material.quantity <= (material.lowStockThreshold || 0)) {
-                    material.status = 'Low Stock';
-                } else {
-                    material.status = 'In Stock';
-                }
-                // Save only if status changed
-                await material.save();
+// @desc    Get low stock materials
+// @route   GET /api/materials/low-stock
+// @access  Private (HR, Manager, Sales)
+const getLowStockMaterials = async (req, res) => {
+    try {
+        // Recalculate statuses for all materials
+        const materials = await Material.find({});
+        for (const material of materials) {
+            if (material.quantity === 0) {
+                material.status = 'Out of Stock';
+            } else if (material.lowStockThreshold && material.quantity <= material.lowStockThreshold) {
+                material.status = 'Low Stock';
+            } else {
+                material.status = 'In Stock';
             }
-            // Return only items that are low stock (exclude out‑of‑stock)
-            const lowStockMaterials = materials.filter(m => m.status === 'Low Stock');
-            res.json(lowStockMaterials);
+            await material.save();
+        }
+        // Return only materials with status 'Low Stock'
+        const lowStockMaterials = await Material.find({ status: 'Low Stock' });
+        res.json(lowStockMaterials);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+    // @desc    Get count of low stock materials
+    // @route   GET /api/materials/low-stock-count
+    // @access  Private (HR, Manager, Sales)
+    const getLowStockCount = async (req, res) => {
+        try {
+            const lowStockMaterials = await Material.find({ status: 'Low Stock' });
+            res.json({ count: lowStockMaterials.length });
         } catch (error) {
             res.status(500).json({ message: error.message });
         }
     };
-    
 
 // @desc    Recalculate stock status for all materials
 // @route   PUT /api/materials/recalculate-status
@@ -119,9 +129,10 @@ const recalculateStockStatus = async (req, res) => {
         for (const material of materials) {
             if (material.quantity === 0) {
                 material.status = 'Out of Stock';
-            } else if (material.quantity <= (material.lowStockThreshold || 0)) {
+            } else if (material.lowStockThreshold && material.quantity < material.lowStockThreshold) {
                 material.status = 'Low Stock';
             } else {
+
                 material.status = 'In Stock';
             }
             await material.save();
@@ -132,4 +143,4 @@ const recalculateStockStatus = async (req, res) => {
     }
 };
 
-module.exports = { getMaterials, createMaterial, updateMaterial, deleteMaterial, getLowStockMaterials, recalculateStockStatus };
+module.exports = { getMaterials, createMaterial, updateMaterial, deleteMaterial, getLowStockMaterials, recalculateStockStatus, getLowStockCount };
