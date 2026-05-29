@@ -28,10 +28,6 @@ const LeadSequelize = sequelize.define('Lead', {
         type: DataTypes.ENUM('Awaiting Review', 'Initial Contact', 'Qualified Lead', 'Negotiation', 'Closing Deal', 'Converted to Vendor', 'Lost'),
         defaultValue: 'Awaiting Review'
     },
-    assignedTo: {
-        type: DataTypes.INTEGER,
-        allowNull: true
-    },
     notes: {
         type: DataTypes.TEXT,
         allowNull: true

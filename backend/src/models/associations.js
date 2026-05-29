@@ -15,14 +15,14 @@ const Notification = require('./Notification');
 
 function setupAssociations() {
     // 1. Employee -> User
-    Employee.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'userId', as: 'userId' });
-    User.sequelizeModel.hasOne(Employee.sequelizeModel, { foreignKey: 'userId', as: 'employee' });
+    Employee.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'userIdField', as: 'userId' });
+    User.sequelizeModel.hasOne(Employee.sequelizeModel, { foreignKey: 'userIdField', as: 'employee' });
 
     // 2. Lead -> User
-    Lead.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'assignedTo', as: 'assignedTo' });
+    Lead.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'assignedToField', as: 'assignedTo' });
 
     // 3. Customer -> User
-    Customer.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'createdBy', as: 'createdBy' });
+    Customer.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'createdByField', as: 'createdBy' });
 
     // 4. Attendance -> Employee
     Attendance.sequelizeModel.belongsTo(Employee.sequelizeModel, { foreignKey: 'employeeId', as: 'employee' });

@@ -45,10 +45,6 @@ const CustomerSequelize = sequelize.define('Customer', {
         type: DataTypes.ENUM('Active', 'Lead', 'Inactive', 'Pending Review'),
         defaultValue: 'Active'
     },
-    createdBy: {
-        type: DataTypes.INTEGER,
-        allowNull: true
-    }
 });
 
 const Customer = makeBridgedModel('Customer', CustomerSequelize);

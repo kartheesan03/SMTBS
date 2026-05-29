@@ -18,6 +18,9 @@ function translateQuery(query, model) {
         if (model && model.rawAttributes && !model.rawAttributes[mappedKey] && model.rawAttributes[mappedKey + 'Id']) {
             mappedKey = mappedKey + 'Id';
         }
+        if (model && model.rawAttributes && !model.rawAttributes[mappedKey] && model.rawAttributes[mappedKey + 'Field']) {
+            mappedKey = mappedKey + 'Field';
+        }
         if (model && model.rawAttributes && !model.rawAttributes[mappedKey] && model.rawAttributes[mappedKey + 'Model']) {
             // Polymorphic mapping: customer -> customerId or lead -> leadId
             if (value && typeof value === 'string') {
@@ -97,6 +100,16 @@ function wrapInstance(instance, modelName) {
                 };
             }
             
+            if (prop === 'userId' && target.userIdField !== undefined) {
+                return target.userIdField;
+            }
+            if (prop === 'assignedTo' && target.assignedToField !== undefined) {
+                return target.assignedToField;
+            }
+            if (prop === 'createdBy' && target.createdByField !== undefined) {
+                return target.createdByField;
+            }
+            
             // Standard property retrieval
             const value = Reflect.get(target, prop, receiver);
             
@@ -108,7 +121,16 @@ function wrapInstance(instance, modelName) {
             return value;
         },
         set(target, prop, value, receiver) {
-            const mappedProp = prop === '_id' ? 'id' : prop;
+            let mappedProp = prop === '_id' ? 'id' : prop;
+            if (mappedProp === 'userId' && target.userIdField !== undefined) {
+                mappedProp = 'userIdField';
+            }
+            if (mappedProp === 'assignedTo' && target.assignedToField !== undefined) {
+                mappedProp = 'assignedToField';
+            }
+            if (mappedProp === 'createdBy' && target.createdByField !== undefined) {
+                mappedProp = 'createdByField';
+            }
             return Reflect.set(target, mappedProp, value, receiver);
         }
     });
@@ -283,6 +305,38 @@ class MongooseQuery {
     }
 }
 
+function preprocessData(data, model) {
+    if (!data) return data;
+    if (Array.isArray(data)) {
+        return data.map(item => preprocessData(item, model));
+    }
+    const preprocessed = {};
+    for (let [key, value] of Object.entries(data)) {
+        let mappedKey = key === '_id' ? 'id' : key;
+        
+        // Extract raw ID if it is a bridged instance or object
+        if (value && typeof value === 'object') {
+            if (value._wrapped) {
+                value = value.id;
+            } else if (value._id) {
+                value = value._id;
+            }
+        }
+        
+        if (model && model.rawAttributes) {
+            if (!model.rawAttributes[mappedKey]) {
+                if (model.rawAttributes[mappedKey + 'Id']) {
+                    mappedKey = mappedKey + 'Id';
+                } else if (model.rawAttributes[mappedKey + 'Field']) {
+                    mappedKey = mappedKey + 'Field';
+                }
+            }
+        }
+        preprocessed[mappedKey] = value;
+    }
+    return preprocessed;
+}
+
 function makeBridgedModel(modelName, sequelizeModel) {
     const bridge = {
         sequelizeModel,
@@ -303,12 +357,14 @@ function makeBridgedModel(modelName, sequelizeModel) {
             if (Array.isArray(data)) {
                 return await this.insertMany(data);
             }
-            const record = await sequelizeModel.create(data);
+            const processed = preprocessData(data, sequelizeModel);
+            const record = await sequelizeModel.create(processed);
             return wrapInstance(record, modelName);
         },
 
         async insertMany(docs) {
-            const records = await sequelizeModel.bulkCreate(docs);
+            const processed = preprocessData(docs, sequelizeModel);
+            const records = await sequelizeModel.bulkCreate(processed);
             return records.map(r => wrapInstance(r, modelName));
         },
 
@@ -334,9 +390,9 @@ function makeBridgedModel(modelName, sequelizeModel) {
         async findByIdAndUpdate(id, updateData, options = {}) {
             const record = await sequelizeModel.findByPk(id);
             if (record) {
-                // Mongoose operators compatibility like $set
                 const parsedUpdate = updateData.$set ? updateData.$set : updateData;
-                await record.update(parsedUpdate);
+                const processed = preprocessData(parsedUpdate, sequelizeModel);
+                await record.update(processed);
             }
             return wrapInstance(record, modelName);
         },
@@ -344,7 +400,8 @@ function makeBridgedModel(modelName, sequelizeModel) {
         async updateMany(query = {}, updateData) {
             const where = translateQuery(query, sequelizeModel);
             const parsedUpdate = updateData.$set ? updateData.$set : updateData;
-            const [affectedCount] = await sequelizeModel.update(parsedUpdate, { where });
+            const processed = preprocessData(parsedUpdate, sequelizeModel);
+            const [affectedCount] = await sequelizeModel.update(processed, { where });
             return { matchedCount: affectedCount, modifiedCount: affectedCount };
         }
     };
