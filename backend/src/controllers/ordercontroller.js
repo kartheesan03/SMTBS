@@ -57,7 +57,7 @@ const createOrder = async (req, res) => {
             try {
                 const employees = await User.find({ role: 'Employee' });
                 const notifications = employees.map(emp => ({
-                    user: emp._id,
+                    userId: emp._id,
                     title: `New Order Stock Check: ${createdOrder.orderNumber}`,
                     message: `New order ${createdOrder.orderNumber} created by ${req.user.role} ${req.user.name}. Please check stock availability.`,
                     type: 'info',
@@ -74,7 +74,7 @@ const createOrder = async (req, res) => {
             try {
                 const employees = await User.find({ role: 'Employee' });
                 const notifications = employees.map(emp => ({
-                    user: emp._id,
+                    userId: emp._id,
                     title: `New Order: ${createdOrder.orderNumber}`,
                     message: `${req.user.role} ${req.user.name} created order ${createdOrder.orderNumber}.`,
                     type: 'info',
@@ -139,7 +139,7 @@ const updateOrderStatus = async (req, res) => {
             if (status === 'Ready for Delivery') {
                 const salesUsers = await User.find({ role: 'Sales' });
                 const notifications = salesUsers.map(sales => ({
-                    user: sales._id,
+                    userId: sales._id,
                     title: `Ready for Delivery: ${order.orderNumber}`,
                     message: `Order ${order.orderNumber} has sufficient stock and is Ready for Delivery. Please coordinate shipping to customer.`,
                     type: 'info',
@@ -155,7 +155,7 @@ const updateOrderStatus = async (req, res) => {
             else if (status === 'Low Stock Alert') {
                 const adminsAndHr = await User.find({ role: { $in: ['Admin', 'HR'] } });
                 const notifications = adminsAndHr.map(u => ({
-                    user: u._id,
+                    userId: u._id,
                     title: `Low Stock Alert: ${order.orderNumber}`,
                     message: `Low stock alert generated for order ${order.orderNumber}. Please purchase new material supply.`,
                     type: 'warning',
@@ -171,7 +171,7 @@ const updateOrderStatus = async (req, res) => {
             else if (status === 'Delivered') {
                 const allUsers = await User.find({});
                 const notifications = allUsers.map(u => ({
-                    user: u._id,
+                    userId: u._id,
                     title: `Order Delivered: ${order.orderNumber}`,
                     message: `Order ${order.orderNumber} has been successfully delivered to customer "${order.customer?.name || 'Walk-in'}" by Sales Representative ${req.user.name}!`,
                     type: 'success',
@@ -188,7 +188,7 @@ const updateOrderStatus = async (req, res) => {
                 if (req.user.role === 'Employee') {
                     const salesUsers = await User.find({ role: 'Sales' });
                     const notifications = salesUsers.map(sales => ({
-                        user: sales._id,
+                        userId: sales._id,
                         title: `Order Status Updated: ${order.orderNumber}`,
                         message: `Employee ${req.user.name} updated the status of order ${order.orderNumber} to "${status}".`,
                         type: 'info',
@@ -201,7 +201,7 @@ const updateOrderStatus = async (req, res) => {
                 } else if (req.user.role === 'Sales') {
                     const adminsAndHr = await User.find({ role: { $in: ['Admin', 'HR'] } });
                     const notifications = adminsAndHr.map(u => ({
-                        user: u._id,
+                        userId: u._id,
                         title: `Order Updated by Sales: ${order.orderNumber}`,
                         message: `Sales Representative ${req.user.name} updated order ${order.orderNumber} to "${status}".`,
                         type: 'info',

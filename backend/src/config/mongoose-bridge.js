@@ -32,7 +32,7 @@ function translateQuery(query, model) {
                     const right = operands[1].startsWith('$') ? operands[1].substring(1) : operands[1];
                     sequelizeQuery[Op.and] = sequelizeQuery[Op.and] || [];
                     sequelizeQuery[Op.and].push(
-                        sequelize.literal(`\`${left}\` ${exprOps[exprOp]} \`${right}\``)
+                        sequelize.literal(`"${left}" ${exprOps[exprOp]} "${right}"`)
                     );
                 }
             }
@@ -63,8 +63,10 @@ function translateQuery(query, model) {
         // Support JSON array query matching (e.g. assignedTo contains user ID)
         if (model && model.rawAttributes && model.rawAttributes[mappedKey] && model.rawAttributes[mappedKey].type.constructor.name === 'JSON') {
             sequelizeQuery[Op.and] = sequelizeQuery[Op.and] || [];
+            // Use LIKE for cross-dialect compatibility (SQLite has no JSON_CONTAINS)
+            const searchVal = typeof value === 'string' ? value : JSON.stringify(value);
             sequelizeQuery[Op.and].push(
-                sequelize.literal(`JSON_CONTAINS(${mappedKey}, '${value}')`)
+                sequelize.literal(`"${mappedKey}" LIKE '%${searchVal.replace(/'/g, "''")}%'`)
             );
             continue;
         }

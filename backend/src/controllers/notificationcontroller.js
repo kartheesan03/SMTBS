@@ -9,8 +9,8 @@ const getNotifications = async (req, res) => {
     try {
         const notifications = await Notification.find({
             $or: [
-                { user: null },             // global notifications visible to all
-                { user: req.user._id }      // user-specific notifications
+                { userId: null },             // global notifications visible to all
+                { userId: req.user._id }      // user-specific notifications
             ]
         }).sort({ createdAt: -1 });
 
@@ -18,6 +18,7 @@ const getNotifications = async (req, res) => {
 
         res.json({ notifications, unreadCount });
     } catch (error) {
+        console.error('getNotifications error:', error);
         res.status(500).json({ message: error.message });
     }
 };
@@ -34,7 +35,7 @@ const markAsRead = async (req, res) => {
         }
 
         // Only allow read if it belongs to this user or is global
-        if (notification.user && notification.user.toString() !== req.user._id.toString()) {
+        if (notification.userId && notification.userId.toString() !== req.user._id.toString()) {
             return res.status(403).json({ message: 'Not authorized to update this notification' });
         }
 
@@ -56,8 +57,8 @@ const markAllAsRead = async (req, res) => {
             {
                 isRead: false,
                 $or: [
-                    { user: null },
-                    { user: req.user._id }
+                    { userId: null },
+                    { userId: req.user._id }
                 ]
             },
             { $set: { isRead: true } }
@@ -80,7 +81,7 @@ const deleteNotification = async (req, res) => {
             return res.status(404).json({ message: 'Notification not found' });
         }
 
-        await notification.deleteOne();
+        await notification.destroy();
         res.json({ message: 'Notification deleted' });
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -92,54 +93,64 @@ const deleteNotification = async (req, res) => {
 // @access  Private (Admin only)
 const seedNotifications = async (req, res) => {
     try {
-        // Check for actual low-stock materials and create real notifications
-        const lowStock = await Material.find({
-            $expr: { $lte: ['$quantity', '$lowStockThreshold'] }
-        });
-
         const seedData = [];
 
-        // Add real low-stock alerts
-        for (const mat of lowStock) {
-            const exists = await Notification.findOne({
-                category: 'stock',
-                title: `Low Stock Alert: ${mat.name}`
+        // Check for actual low-stock materials and create real notifications
+        try {
+            const allMaterials = await Material.find({});
+            const lowStock = allMaterials.filter(mat => {
+                const qty = mat.quantity || 0;
+                const threshold = mat.lowStockThreshold || 0;
+                return qty <= threshold && threshold > 0;
             });
-            if (!exists) {
-                seedData.push({
-                    title: `Low Stock Alert: ${mat.name}`,
-                    message: `${mat.name} (SKU: ${mat.sku}) reached critical level: ${mat.quantity} ${mat.unit}.`,
-                    type: 'warning',
+
+            for (const mat of lowStock) {
+                const exists = await Notification.findOne({
                     category: 'stock',
-                    user: null
+                    title: `Low Stock Alert: ${mat.name}`
                 });
+                if (!exists) {
+                    seedData.push({
+                        title: `Low Stock Alert: ${mat.name}`,
+                        message: `${mat.name} (SKU: ${mat.sku || 'N/A'}) reached critical level: ${mat.quantity} ${mat.unit || 'units'}.`,
+                        type: 'warning',
+                        category: 'stock',
+                        userId: null
+                    });
+                }
             }
+        } catch (matErr) {
+            console.warn('Could not check materials for low stock:', matErr.message);
         }
 
         // Add recent confirmed orders as notifications
-        const confirmedOrders = await Order.find({ status: 'Confirmed' })
-            .populate('customer', 'name')
-            .sort({ createdAt: -1 })
-            .limit(3);
+        try {
+            const confirmedOrders = await Order.find({ status: 'Confirmed' })
+                .populate('customer', 'name')
+                .sort({ createdAt: -1 })
+                .limit(3);
 
-        for (const order of confirmedOrders) {
-            const exists = await Notification.findOne({
-                category: 'order',
-                title: `Order Confirmed: ${order.orderNumber}`
-            });
-            if (!exists) {
-                seedData.push({
-                    title: `Order Confirmed: ${order.orderNumber}`,
-                    message: `Order ${order.orderNumber} from ${order.customer?.name || 'a customer'} has been confirmed.`,
-                    type: 'success',
+            for (const order of confirmedOrders) {
+                const exists = await Notification.findOne({
                     category: 'order',
-                    user: null
+                    title: `Order Confirmed: ${order.orderNumber}`
                 });
+                if (!exists) {
+                    seedData.push({
+                        title: `Order Confirmed: ${order.orderNumber}`,
+                        message: `Order ${order.orderNumber} from ${order.customer?.name || 'a customer'} has been confirmed.`,
+                        type: 'success',
+                        category: 'order',
+                        userId: null
+                    });
+                }
             }
+        } catch (orderErr) {
+            console.warn('Could not check orders:', orderErr.message);
         }
 
         // Seed default system notification if none exist at all
-        const total = await Notification.countDocuments();
+        const total = await Notification.countDocuments({});
         if (total === 0) {
             seedData.push(
                 {
@@ -147,14 +158,14 @@ const seedNotifications = async (req, res) => {
                     message: 'System is up and running. All modules are operational.',
                     type: 'info',
                     category: 'system',
-                    user: null
+                    userId: null
                 },
                 {
                     title: 'System Maintenance',
                     message: 'Scheduled backup starting at 11:00 PM tonight.',
                     type: 'info',
                     category: 'system',
-                    user: null
+                    userId: null
                 }
             );
         }
@@ -165,7 +176,33 @@ const seedNotifications = async (req, res) => {
 
         res.json({ message: `Seeded ${seedData.length} notifications.` });
     } catch (error) {
+        console.error('seedNotifications error:', error);
         res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Create a notification for order events (reusable helper)
+// @access  Internal - called from other controllers
+const createOrderNotification = async ({ orderNumber, customerName, status, userId }) => {
+    try {
+        const typeMap = {
+            'Created': 'info',
+            'Confirmed': 'success',
+            'Processing': 'info',
+            'Shipped': 'info',
+            'Delivered': 'success',
+            'Cancelled': 'error'
+        };
+        const notification = await Notification.create({
+            title: `Order ${status}: ${orderNumber}`,
+            message: `Order ${orderNumber} for ${customerName || 'a customer'} has been ${status.toLowerCase()}.`,
+            type: typeMap[status] || 'info',
+            category: 'order',
+            userId: userId || null  // null = global/visible to all
+        });
+        return notification;
+    } catch (err) {
+        console.error('Failed to create order notification:', err.message);
     }
 };
 
@@ -174,5 +211,6 @@ module.exports = {
     markAsRead,
     markAllAsRead,
     deleteNotification,
-    seedNotifications
+    seedNotifications,
+    createOrderNotification
 };
