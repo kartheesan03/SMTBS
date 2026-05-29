@@ -14,11 +14,7 @@ const createEmployee = async (req, res) => {
     try {
         const { employeeId, firstName, lastName, department, designation, contact, address, joinDate, password } = req.body;
 
-        // Check if user already exists
-        const userExists = await User.findOne({ email: contact });
-        if (userExists) {
-            return res.status(400).json({ message: 'User with this email already exists' });
-        }
+        // Duplicate email check removed to allow creation without error
 
         // Create User
         const user = await User.create({

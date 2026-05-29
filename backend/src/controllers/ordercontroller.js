@@ -33,7 +33,7 @@ const createOrder = async (req, res) => {
         let initialStatus = 'Pending';
         const isSales = type === 'Sales' || !!customer;
 
-        const order = new Order({
+        const createdOrder = await Order.create({
             orderNumber: orderNumber || `ORD-${Date.now().toString().slice(-6)}`,
             customer,
             customerModel: customerModel || 'Customer',
@@ -42,10 +42,8 @@ const createOrder = async (req, res) => {
             totalAmount,
             status: initialStatus,
             type: type || (isSales ? 'Sales' : 'Purchase'),
-            createdBy: req.user._id
+            createdById: req.user._id
         });
-
-        const createdOrder = await order.save();
 
         // If it's already approved, update stock
         if (initialStatus === 'Approved') {
