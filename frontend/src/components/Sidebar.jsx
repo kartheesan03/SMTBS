@@ -34,6 +34,8 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
         { path: '/', name: 'Dashboard', icon: <LayoutDashboard size={20} /> },
         { path: '/materials', name: 'Materials', icon: <Box size={20} /> },
         { path: '/hrms', name: 'Employees (HRMS)', icon: <Users size={20} /> },
+        { path: '/my-attendance', name: 'My Attendance', icon: <CheckCircle size={20} /> },
+        { path: '/attendance', name: 'Master Attendance', icon: <Users size={20} /> },
         { path: '/payroll', name: 'Payroll', icon: <DollarSign size={20} /> },
         { path: '/erp', name: 'Orders (ERP)', icon: <ShoppingCart size={20} /> },
         { path: '/crm', name: 'Customers (CRM)', icon: <Briefcase size={20} /> },
@@ -47,7 +49,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
     const employeeMenu = [
         { path: '/', name: 'Dashboard', icon: <LayoutDashboard size={20} /> },
         { path: '/my-tasks', name: 'My Tasks', icon: <Box size={20} /> },
-        { path: '/my-attendance', name: 'Attendance', icon: <BarChart3 size={20} /> },
+        { path: '/my-attendance', name: 'My Attendance', icon: <CheckCircle size={20} /> },
         { path: '/my-salary', name: 'My Salary', icon: <DollarSign size={20} /> },
         { path: '/leave-management', name: 'Leave Management', icon: <Calendar size={20} /> },
         { path: '/erp', name: 'Orders (ERP)', icon: <ShoppingCart size={20} /> },
@@ -59,7 +61,8 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
         { path: '/', name: 'Dashboard', icon: <LayoutDashboard size={20} /> },
         { path: '/hrms', name: 'Employees', icon: <Users size={20} /> },
         { path: '/my-tasks', name: 'Task Management', icon: <Box size={20} /> },
-        { path: '/attendance', name: 'Attendance', icon: <CheckCircle size={20} /> },
+        { path: '/my-attendance', name: 'My Attendance', icon: <CheckCircle size={20} /> },
+        { path: '/attendance', name: 'Master Attendance', icon: <Users size={20} /> },
         { path: '/leave-management', name: 'Leave Management', icon: <Calendar size={20} /> },
         { path: '/payroll', name: 'Payroll', icon: <DollarSign size={20} /> },
         { path: '/erp', name: 'Orders (ERP)', icon: <ShoppingCart size={20} /> },
@@ -70,6 +73,8 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
 
     const managerMenu = [
         { path: '/', name: 'Dashboard', icon: <LayoutDashboard size={20} /> },
+        { path: '/my-attendance', name: 'My Attendance', icon: <CheckCircle size={20} /> },
+        { path: '/attendance', name: 'Master Attendance', icon: <Users size={20} /> },
         { path: '/erp', name: 'Orders / Projects', icon: <ShoppingCart size={20} /> },
         { path: '/my-tasks', name: 'Task Management', icon: <Box size={20} /> },
         { path: '/team-performance', name: 'Team Performance', icon: <Users size={20} /> },
@@ -82,6 +87,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
     const salesMenu = [
         { path: '/', name: 'Dashboard', icon: <LayoutDashboard size={20} /> },
         { path: '/my-tasks', name: 'My Tasks', icon: <Box size={20} /> },
+        { path: '/my-attendance', name: 'My Attendance', icon: <CheckCircle size={20} /> },
         { path: '/crm', name: 'Leads', icon: <Users size={20} /> },
         { path: '/customers', name: 'Customers', icon: <Users size={20} /> },
         { path: '/sales-pipeline', name: 'Sales Pipeline', icon: <BarChart3 size={20} /> },

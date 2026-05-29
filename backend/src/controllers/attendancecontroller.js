@@ -6,8 +6,7 @@ const Employee = require('../models/Employee');
 // @access  Private
 const getAttendanceStatus = async (req, res) => {
     try {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format for DATEONLY
 
         // Find employee linked to this user
         let employee = await Employee.findOne({ userId: req.user._id });
@@ -23,13 +22,15 @@ const getAttendanceStatus = async (req, res) => {
             });
         }
 
+        const empId = employee._id || employee.id;
         const attendance = await Attendance.findOne({
-            employee: employee._id,
+            employeeId: empId,
             date: today
         });
 
         res.json(attendance);
     } catch (error) {
+        console.error('getAttendanceStatus error:', error);
         res.status(500).json({ message: error.message });
     }
 };
@@ -39,8 +40,7 @@ const getAttendanceStatus = async (req, res) => {
 // @access  Private
 const checkIn = async (req, res) => {
     try {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        const today = new Date().toISOString().split('T')[0];
 
         let employee = await Employee.findOne({ userId: req.user._id });
         if (!employee) {
@@ -54,8 +54,9 @@ const checkIn = async (req, res) => {
             });
         }
 
+        const empId = employee._id || employee.id;
         let attendance = await Attendance.findOne({
-            employee: employee._id,
+            employeeId: empId,
             date: today
         });
 
@@ -70,7 +71,7 @@ const checkIn = async (req, res) => {
             await attendance.save();
         } else {
             attendance = await Attendance.create({
-                employee: employee._id,
+                employeeId: empId,
                 date: today,
                 checkIn: checkInTime,
                 status: 'Present'
@@ -79,6 +80,7 @@ const checkIn = async (req, res) => {
 
         res.status(201).json(attendance);
     } catch (error) {
+        console.error('checkIn error:', error);
         res.status(500).json({ message: error.message });
     }
 };
@@ -88,16 +90,16 @@ const checkIn = async (req, res) => {
 // @access  Private
 const checkOut = async (req, res) => {
     try {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        const today = new Date().toISOString().split('T')[0];
 
         let employee = await Employee.findOne({ userId: req.user._id });
         if (!employee) {
             return res.status(404).json({ message: 'Employee profile not found. Please check in first.' });
         }
 
+        const empId = employee._id || employee.id;
         const attendance = await Attendance.findOne({
-            employee: employee._id,
+            employeeId: empId,
             date: today
         });
 
@@ -114,6 +116,7 @@ const checkOut = async (req, res) => {
 
         res.json(attendance);
     } catch (error) {
+        console.error('checkOut error:', error);
         res.status(500).json({ message: error.message });
     }
 };
@@ -128,12 +131,14 @@ const getMyAttendanceHistory = async (req, res) => {
             return res.json([]); // Return empty history if no profile
         }
 
-        const history = await Attendance.find({ employee: employee._id })
+        const empId = employee._id || employee.id;
+        const history = await Attendance.find({ employeeId: empId })
             .sort({ date: -1 })
             .limit(30);
 
         res.json(history);
     } catch (error) {
+        console.error('getMyAttendanceHistory error:', error);
         res.status(500).json({ message: error.message });
     }
 };
@@ -152,6 +157,7 @@ const getAllAttendance = async (req, res) => {
 
         res.json(attendance);
     } catch (error) {
+        console.error('getAllAttendance error:', error);
         res.status(500).json({ message: error.message });
     }
 };
