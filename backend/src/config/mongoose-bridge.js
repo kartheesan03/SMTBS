@@ -138,6 +138,12 @@ function wrapInstance(instance, modelName) {
                     return receiver;
                 };
             }
+            if (prop === 'deleteOne' || prop === 'remove') {
+                return async function() {
+                    await target.destroy();
+                    return receiver;
+                };
+            }
             
             if (prop === 'customer' && (modelName === 'Order' || modelName === 'Ticket')) {
                 const customerVal = target.Customer || target.Lead || null;
