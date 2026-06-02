@@ -36,6 +36,7 @@
   --neon-glow-strong: 0 0 30px rgba(6, 182, 212, 0.4);
   
   --sidebar-width: 260px;
+  --right-panel-width: 320px;
 
   /* Premium Hybrid Dashboard Theme (Light Indigo Workspace) */
   --dash-bg: #f1f5f9;
@@ -430,4 +431,9 @@ body.logged-in .hr-dashboard,
 body.logged-in .dashboard-layout {
   background-color: var(--dash-bg, #f1f5f9) !important;
   background-image: none !important;
+}
+
+/* Right panel theming */
+body.logged-in .right-panel {
+  background-color: #ffffff !important;
 }

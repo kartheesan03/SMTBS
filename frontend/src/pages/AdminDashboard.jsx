@@ -13,7 +13,7 @@ import {
     Inbox, FileText, CheckCircle2, UserPlus, Clock
 } from 'lucide-react';
 
-import DashboardFeatures from '../components/Dashboard/DashboardFeatures';
+
 
 const AdminDashboard = () => {
     const { user } = useContext(AuthContext);
@@ -594,15 +594,12 @@ const AdminDashboard = () => {
                 </section>
             </div>
 
-            {/* Sidebar Features Column (Right side) */}
-            <aside className="workspace-features-sidebar">
-                <DashboardFeatures />
-            </aside>
+
 
             <style jsx="true">{`
                 .admin-workspace {
-                    display: grid;
-                    grid-template-columns: 1fr 340px;
+                    display: flex;
+                    flex-direction: column;
                     background-color: var(--dash-bg, #f1f5f9);
                     min-height: 100vh;
                     color: var(--dash-text-main);
@@ -617,15 +614,7 @@ const AdminDashboard = () => {
                     overflow-x: hidden;
                 }
                 
-                .workspace-features-sidebar {
-                    padding: 24px;
-                    background-color: var(--dash-bg, #f1f5f9);
-                    border-left: 1px solid var(--dash-border);
-                    height: 100vh;
-                    position: sticky;
-                    top: 0;
-                    overflow-y: auto;
-                }
+
                 
                 /* Header Styling */
                 .workspace-header {
@@ -1373,17 +1362,7 @@ const AdminDashboard = () => {
                     100% { transform: rotate(360deg); }
                 }
 
-                @media (max-width: 1400px) {
-                    .admin-workspace {
-                        grid-template-columns: 1fr;
-                    }
-                    .workspace-features-sidebar {
-                        height: auto;
-                        border-left: none;
-                        border-top: 1px solid var(--dash-border);
-                        position: relative;
-                    }
-                }
+
 
                 @media (max-width: 1200px) {
                     .metrics-grid {
