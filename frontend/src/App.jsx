@@ -2,8 +2,9 @@ import React, { useContext, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthContext, AuthProvider } from './context/AuthContext';
 import Sidebar from './components/Sidebar';
+import RightPanel from './components/RightPanel';
 import ProtectedRoute from './components/ProtectedRoute';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, PanelRightOpen, PanelRightClose } from 'lucide-react';
 
 // Pages
 import Dashboard from './pages/Dashboard';
@@ -37,6 +38,7 @@ import Support from './pages/Support';
 const AppContent = () => {
     const { user, loading, logout } = useContext(AuthContext);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [isRightPanelOpen, setIsRightPanelOpen] = useState(false);
 
     React.useEffect(() => {
         if (user) {
@@ -52,9 +54,10 @@ const AppContent = () => {
     if (loading) return <div className="app-loading">Loading...</div>;
 
     const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+    const toggleRightPanel = () => setIsRightPanelOpen(!isRightPanelOpen);
 
     return (
-        <div className="app-layout">
+        <div className={`app-layout ${user ? 'triple-layout' : ''}`}>
             {user && (
                 <>
                     <header className="mobile-header">
@@ -62,7 +65,9 @@ const AppContent = () => {
                             {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
                         </button>
                         <h2 className="title-gradient">SMTBMS</h2>
-                        <div style={{ width: 24 }}></div> {/* Spacer */}
+                        <button onClick={toggleRightPanel} className="menu-toggle right-panel-toggle-mobile">
+                            {isRightPanelOpen ? <PanelRightClose size={22} /> : <PanelRightOpen size={22} />}
+                        </button>
                     </header>
                     <Sidebar 
                         logout={logout} 
@@ -72,7 +77,7 @@ const AppContent = () => {
                     {isSidebarOpen && <div className="sidebar-overlay" onClick={() => setIsSidebarOpen(false)}></div>}
                 </>
             )}
-            <main className={`main-content ${user ? 'with-sidebar' : ''}`}>
+            <main className={`main-content ${user ? 'with-sidebar with-right-panel' : ''}`}>
                 <Routes>
                     {/* Public Route */}
                     <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
@@ -117,12 +122,39 @@ const AppContent = () => {
                 </Routes>
             </main>
 
+            {/* ── Global Right Panel ── */}
+            {user && (
+                <>
+                    <RightPanel 
+                        isOpen={isRightPanelOpen}
+                        onClose={() => setIsRightPanelOpen(false)}
+                    />
+                    {isRightPanelOpen && <div className="right-panel-overlay" onClick={() => setIsRightPanelOpen(false)}></div>}
+                    
+                    {/* Desktop right panel toggle (visible on medium screens where panel is hidden) */}
+                    <button 
+                        className="right-panel-toggle-desktop"
+                        onClick={toggleRightPanel}
+                        title={isRightPanelOpen ? 'Close Panel' : 'Open Panel'}
+                    >
+                        {isRightPanelOpen ? <PanelRightClose size={18} /> : <PanelRightOpen size={18} />}
+                    </button>
+                </>
+            )}
+
             <style jsx="true">{`
                 .app-layout {
                     display: flex;
                     min-height: 100vh;
                     flex-direction: column;
                 }
+
+                /* ── Triple Layout: 3-Column Grid ── */
+                .app-layout.triple-layout {
+                    display: flex;
+                    flex-direction: column;
+                }
+
                 .mobile-header {
                     display: none;
                     height: 60px;
@@ -153,18 +185,71 @@ const AppContent = () => {
                     z-index: 950;
                     backdrop-filter: blur(2px);
                 }
+                .right-panel-overlay {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: rgba(0, 0, 0, 0.35);
+                    z-index: 980;
+                    backdrop-filter: blur(2px);
+                    display: none;
+                }
                 .main-content {
                     flex: 1;
                     transition: all 0.3s ease;
                     width: 100%;
                 }
-                .main-content.with-sidebar {
+
+                /* ── Desktop: 3-column (Sidebar 260 + Content + Right Panel 320) ── */
+                .main-content.with-sidebar.with-right-panel {
                     margin-left: 260px;
-                    width: calc(100% - 260px);
+                    margin-right: 320px;
+                    width: calc(100% - 260px - 320px);
                     background-color: var(--dash-bg, #f1f5f9);
                 }
                 .p-30 { padding: 30px; }
 
+                /* ── Right Panel Toggle (medium screens only) ── */
+                .right-panel-toggle-desktop {
+                    display: none;
+                    position: fixed;
+                    right: 16px;
+                    bottom: 24px;
+                    z-index: 999;
+                    width: 44px;
+                    height: 44px;
+                    border-radius: 12px;
+                    background: #2563eb;
+                    color: #ffffff;
+                    border: none;
+                    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+                    cursor: pointer;
+                    align-items: center;
+                    justify-content: center;
+                    transition: all 0.25s ease;
+                }
+                .right-panel-toggle-desktop:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.45);
+                }
+
+                /* ── Medium screens: hide right panel, show toggle ── */
+                @media (max-width: 1199px) {
+                    .main-content.with-sidebar.with-right-panel {
+                        margin-right: 0;
+                        width: calc(100% - 260px);
+                    }
+                    .right-panel-toggle-desktop {
+                        display: flex;
+                    }
+                    .right-panel-overlay {
+                        display: block;
+                    }
+                }
+
+                /* ── Mobile: all panels hidden ── */
                 @media (max-width: 768px) {
                     .app-layout {
                         flex-direction: column;
@@ -172,13 +257,23 @@ const AppContent = () => {
                     .mobile-header {
                         display: flex;
                     }
-                    .main-content.with-sidebar {
+                    .main-content.with-sidebar.with-right-panel {
                         margin-left: 0;
+                        margin-right: 0;
                         width: 100%;
                         padding-top: 0;
                     }
                     .p-30 {
                         padding: 15px;
+                    }
+                    .right-panel-toggle-desktop {
+                        display: none;
+                    }
+                    .right-panel-toggle-mobile {
+                        display: flex;
+                    }
+                    .right-panel-overlay {
+                        display: block;
                     }
                 }
             `}</style>
