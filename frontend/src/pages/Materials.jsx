@@ -10,6 +10,7 @@ const MaterialTracking = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const [materials, setMaterials] = useState([]);
+    const [materialStats, setMaterialStats] = useState({ totalMaterialTypes: 0, totalStockQuantity: 0, lowStockCount: 0, inTransitCount: 0 });
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [showModal, setShowModal] = useState(false);
@@ -28,10 +29,16 @@ const MaterialTracking = () => {
     const [selectedMaterialForCode, setSelectedMaterialForCode] = useState(null);
     const [scanSKU, setScanSKU] = useState('');
 
-    const fetchMaterials = async () => {
+    const fetchMaterialsAndStats = async () => {
         try {
-            const { data } = await API.get('/materials');
-            setMaterials(data);
+            const [materialsRes, statsRes] = await Promise.all([
+                API.get('/materials'),
+                API.get('/dashboard/stats')
+            ]);
+            setMaterials(materialsRes.data);
+            if (statsRes.data && statsRes.data.materialStats) {
+                setMaterialStats(statsRes.data.materialStats);
+            }
         } catch (error) {
             console.error(error);
         } finally {
@@ -40,7 +47,7 @@ const MaterialTracking = () => {
     };
 
     useEffect(() => {
-        fetchMaterials();
+        fetchMaterialsAndStats();
         if (location.state?.openModal) {
             setShowModal(true);
             window.history.replaceState({}, document.title);
@@ -78,7 +85,7 @@ const MaterialTracking = () => {
             setShowModal(false);
             setEditId(null);
             setFormData({ name: '', sku: '', category: '', quantity: 0, lowStockThreshold: 10, unit: 'pcs', price: 0 });
-            fetchMaterials();
+            fetchMaterialsAndStats();
         } catch (error) {
             alert(error.response?.data?.message || 'Error processing material');
         }
@@ -88,7 +95,7 @@ const MaterialTracking = () => {
         if (!window.confirm('Are you sure you want to delete this material?')) return;
         try {
             await API.delete(`/materials/${id}`);
-            fetchMaterials();
+            fetchMaterialsAndStats();
         } catch (error) {
             alert(error.response?.data?.message || 'Error deleting material');
         }
@@ -112,7 +119,7 @@ const MaterialTracking = () => {
             });
             alert(`Scan Successful!\nSKU: ${mat.sku} (${mat.name})\nStock replenished (+10 ${mat.unit || 'pcs'}).`);
             setShowScanner(false);
-            fetchMaterials();
+            fetchMaterialsAndStats();
         } catch (err) {
             alert(err.response?.data?.message || 'Error updating stock from scan');
         }
@@ -124,11 +131,6 @@ const MaterialTracking = () => {
         const matchesCat = catFilter === 'All' || m.category === catFilter;
         return matchesSearch && matchesCat;
     });
-
-    const totalMaterialsQty = materials.reduce((sum, item) => sum + item.quantity, 0) || 1254;
-    const inStockCount = materials.filter(m => m.quantity > m.lowStockThreshold).reduce((sum, item) => sum + item.quantity, 0) || 750;
-    const inTransitCount = 230; 
-    const lowStockCount = materials.length > 0 ? materials.filter(m => m.quantity <= m.lowStockThreshold).length : 0;
 
     return (
         <div className="materials-workspace">
@@ -160,20 +162,20 @@ const MaterialTracking = () => {
             {/* Metric Summary Cards */}
             <section className="mat-metrics-grid">
                 <div className="mat-metric-card">
-                    <span className="mat-metric-label">Total Items</span>
-                    <span className="mat-metric-val">{totalMaterialsQty.toLocaleString()}</span>
+                    <span className="mat-metric-label">Total Material Types</span>
+                    <span className="mat-metric-val">{materialStats.totalMaterialTypes.toLocaleString()}</span>
                 </div>
                 <div className="mat-metric-card">
-                    <span className="mat-metric-label">In Stock</span>
-                    <span className="mat-metric-val">{inStockCount.toLocaleString()}</span>
+                    <span className="mat-metric-label">Total Stock Quantity</span>
+                    <span className="mat-metric-val">{materialStats.totalStockQuantity.toLocaleString()}</span>
                 </div>
                 <div className="mat-metric-card">
                     <span className="mat-metric-label">In Transit</span>
-                    <span className="mat-metric-val">{inTransitCount}</span>
+                    <span className="mat-metric-val">{materialStats.inTransitCount}</span>
                 </div>
                 <div className="mat-metric-card border-red">
-                    <span className="mat-metric-label text-red">Low Stock</span>
-                    <span className="mat-metric-val text-red">{lowStockCount}</span>
+                    <span className="mat-metric-label text-red">Low Stock Items</span>
+                    <span className="mat-metric-val text-red">{materialStats.lowStockCount}</span>
                 </div>
             </section>
 

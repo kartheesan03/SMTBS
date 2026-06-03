@@ -39,19 +39,7 @@ const Dashboard = () => {
         fetchDashboard();
     }, []);
 
-  // Fetch low stock count from backend
-  useEffect(() => {
-    const fetchLowStockCount = async () => {
-      try {
-        const { data } = await API.get('/materials/low-stock-count');
-        setLowStockCount(data.count);
-      } catch (err) {
-        console.error('Failed to fetch low stock count', err);
-      }
-    };
-    fetchLowStockCount();
-  }, []);
-
+    // Removed broken fetchLowStockCount
     if (loading) return <div className="loading-container">
         <div className="loader"></div>
         <p>Synchronizing Business Intelligence...</p>
@@ -66,7 +54,7 @@ const Dashboard = () => {
                 return {
                     title: "Admin Control Center",
                     stats: [
-                        { title: 'Total Materials', value: data?.stats?.totalMaterials ?? 0, icon: <Package />, color: '#6366f1', trend: 0 },
+                        { title: 'Total Material Types', value: data?.materialStats?.totalMaterialTypes ?? 0, icon: <Package />, color: '#6366f1', trend: 0 },
                         { title: 'Total Employees', value: data?.stats?.totalEmployees ?? 0, icon: <Users />, color: '#14b8a6', trend: 0 },
                         { title: 'System Revenue', value: `$${(data?.stats?.revenue || 0).toLocaleString()}`, icon: <DollarSign />, color: '#10b981', trend: 0 },
                         { title: 'Total Orders', value: data?.stats?.totalOrders ?? 0, icon: <TrendingUp />, color: '#f59e0b', trend: 0 },

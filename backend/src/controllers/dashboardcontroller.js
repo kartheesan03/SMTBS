@@ -33,11 +33,19 @@ const getDashboardStats = async (req, res) => {
         } catch (e) { console.error('Revenue Aggregation Error:', e); }
 
         let lowStockMaterials = [];
+        let totalStockQuantity = 0;
+        let inTransitCount = 0; // Hardcoded fake removed, start at 0
         try {
-            lowStockMaterials = await Material.find({
-                $expr: { $lte: ["$quantity", "$lowStockThreshold"] }
+            const allMaterials = await Material.find();
+            allMaterials.forEach(m => {
+                totalStockQuantity += (m.quantity || 0);
+                if (m.quantity <= (m.lowStockThreshold || 0)) {
+                    lowStockMaterials.push(m);
+                }
             });
-        } catch (e) { console.error('Low Stock Find Error:', e); }
+            // Try to find in transit from orders or just 0
+            inTransitCount = 0;
+        } catch (e) { console.error('Material Find Error:', e); }
 
         let categoryData = [];
         try {
@@ -100,6 +108,12 @@ const getDashboardStats = async (req, res) => {
                 pendingOrders: await Order.countDocuments({ status: 'Awaiting Approval' }),
                 pendingSalaries: await Salary.countDocuments({ status: 'Awaiting Approval' }),
                 pendingCustomers: await Customer.countDocuments({ status: 'Pending Review' })
+            },
+            materialStats: {
+                totalMaterialTypes: stats.totalMaterials || 0,
+                totalStockQuantity: totalStockQuantity,
+                lowStockCount: lowStockMaterials.length,
+                inTransitCount: inTransitCount
             },
             charts: { monthlyStats, categoryData: categoryData || [] },
             tables: { 

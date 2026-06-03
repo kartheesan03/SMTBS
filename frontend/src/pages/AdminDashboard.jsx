@@ -61,12 +61,16 @@ const AdminDashboard = () => {
     }
 
     // Reference Mockup Data or Live Data
-    const totalMaterials = data?.stats?.totalMaterials ?? 1254;
-    const lowStock = data?.stats?.lowStockCount ?? 0;
-    const totalEmployees = data?.stats?.totalEmployees ?? 356;
-    const openOrders = data?.stats?.pendingOrders ?? 89;
-    const activeCustomers = data?.stats?.totalCustomers ?? 682;
-    const totalRevenue = data?.stats?.revenue ?? 47500000; // ₹4.75 Cr
+    const materialStats = data?.materialStats || {};
+    const totalMaterials = materialStats.totalMaterialTypes ?? 0;
+    const totalStockQuantity = materialStats.totalStockQuantity ?? 0;
+    const lowStock = materialStats.lowStockCount ?? 0;
+    const inTransitCount = materialStats.inTransitCount ?? 0;
+
+    const totalEmployees = data?.stats?.totalEmployees ?? 0;
+    const openOrders = data?.stats?.pendingOrders ?? 0;
+    const activeCustomers = data?.stats?.totalCustomers ?? 0;
+    const totalRevenue = data?.stats?.revenue ?? 0;
 
     const hrStats = data?.hrStats || {};
     const hrTotalEmployees = hrStats.totalEmployees ?? totalEmployees;
@@ -76,10 +80,10 @@ const AdminDashboard = () => {
 
     // Donut Chart Data
     const materialOverviewData = [
-        { name: 'In Stock', value: 750, percentage: '59.8%', color: '#2563eb' },
-        { name: 'In Transit', value: 230, percentage: '18.3%', color: '#10b981' },
-        { name: 'Issued', value: 180, percentage: '14.3%', color: '#f59e0b' },
-        { name: 'Returned', value: 94, percentage: '7.5%', color: '#ef4444' },
+        { name: 'In Stock', value: totalStockQuantity, percentage: '59.8%', color: '#2563eb' },
+        { name: 'In Transit', value: inTransitCount, percentage: '18.3%', color: '#10b981' },
+        { name: 'Issued', value: 0, percentage: '14.3%', color: '#f59e0b' },
+        { name: 'Returned', value: 0, percentage: '7.5%', color: '#ef4444' },
     ];
 
     // Bar Chart Data
@@ -191,7 +195,7 @@ const AdminDashboard = () => {
                             <Package size={22} />
                         </div>
                         <div className="stat-info">
-                            <span className="stat-label">Total Materials</span>
+                            <span className="stat-label">Total Material Types</span>
                             <span className="stat-value">{totalMaterials.toLocaleString()}</span>
                             <span className="stat-trend trend-up">
                                 <span className="arrow">▲</span> +8.5% from last month
@@ -205,7 +209,7 @@ const AdminDashboard = () => {
                             <AlertTriangle size={22} />
                         </div>
                         <div className="stat-info">
-                            <span className="stat-label">Low Stock items</span>
+                            <span className="stat-label">Low Stock Items</span>
                             <span className="stat-value">{lowStock}</span>
                             <span className="stat-trend trend-down">
                                 <span className="arrow">▼</span> -12.3% from last month
@@ -293,8 +297,8 @@ const AdminDashboard = () => {
                                     </PieChart>
                                 </ResponsiveContainer>
                                 <div className="donut-center-label">
-                                    <span className="donut-count">{totalMaterials.toLocaleString()}</span>
-                                    <span className="donut-label">Total</span>
+                                    <span className="donut-count">{totalStockQuantity.toLocaleString()}</span>
+                                    <span className="donut-label">Total Stock Quantity</span>
                                 </div>
                             </div>
                             <div className="donut-legend">
@@ -489,10 +493,10 @@ const AdminDashboard = () => {
                             </div>
                             <div className="preview-body">
                                 <div className="preview-metrics">
-                                    <div className="preview-metric"><span className="p-num">1,254</span><span className="p-lbl">Total</span></div>
-                                    <div className="preview-metric"><span className="p-num">750</span><span className="p-lbl">Stock</span></div>
-                                    <div className="preview-metric"><span className="p-num">230</span><span className="p-lbl">Transit</span></div>
-                                    <div className="preview-metric text-red"><span className="p-num">23</span><span className="p-lbl">Low</span></div>
+                                    <div className="preview-metric"><span className="p-num">{totalMaterials}</span><span className="p-lbl">Types</span></div>
+                                    <div className="preview-metric"><span className="p-num">{totalStockQuantity}</span><span className="p-lbl">Stock</span></div>
+                                    <div className="preview-metric"><span className="p-num">{inTransitCount}</span><span className="p-lbl">Transit</span></div>
+                                    <div className="preview-metric text-red"><span className="p-num">{lowStock}</span><span className="p-lbl">Low</span></div>
                                 </div>
                                 <div className="preview-mock-table">
                                     <div className="mock-row header-row">
