@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 
 const Attendance = () => {
+    const [attendanceData, setAttendanceData] = useState(null);
     const [attendanceLogs, setAttendanceLogs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
@@ -17,7 +18,8 @@ const Attendance = () => {
         const fetchAttendance = async () => {
             try {
                 const { data } = await API.get('/attendance');
-                setAttendanceLogs(data);
+                setAttendanceData(data);
+                setAttendanceLogs(data.employeeAttendanceList || []);
             } catch (error) {
                 console.error('Error fetching attendance logs:', error);
             } finally {
@@ -91,11 +93,11 @@ const Attendance = () => {
 
     if (loading) return <div className="p-30 text-center">Loading records...</div>;
 
-    const totalCount = filteredLogs.length;
-    const presentCount = filteredLogs.filter(a => a.status === 'Present' || a.status === 'Late').length;
-    const pendingCount = filteredLogs.filter(a => a.status === 'Pending').length;
-    const absentCount = filteredLogs.filter(a => a.status === 'Absent').length;
-    const leaveCount = filteredLogs.filter(a => a.status === 'On Leave').length;
+    const totalCount = attendanceData?.totalEmployees || 0;
+    const presentCount = attendanceData?.presentToday || 0;
+    const pendingCount = attendanceData?.pendingToday || 0;
+    const absentCount = attendanceData?.absentToday || 0;
+    const leaveCount = attendanceData?.onLeaveToday || 0;
 
     return (
         <div className="module-container">

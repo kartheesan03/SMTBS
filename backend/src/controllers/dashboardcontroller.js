@@ -131,17 +131,6 @@ const getDashboardStats = async (req, res) => {
                 const todayEnd = new Date();
                 todayEnd.setHours(23,59,59,999);
 
-                const presentTodayCount = await Attendance.countDocuments({
-                    date: { $gte: todayStart, $lte: todayEnd },
-                    status: { $in: ['Present', 'Late'] }
-                });
-
-                const onLeaveCount = await Leave.countDocuments({
-                    startDate: { $lte: todayEnd },
-                    endDate: { $gte: todayStart },
-                    status: 'Approved'
-                });
-
                 const activeEmployeesCount = await Employee.countDocuments({
                     $or: [
                         { status: 'Active' },
@@ -150,13 +139,6 @@ const getDashboardStats = async (req, res) => {
                         { active: { $exists: false } }
                     ]
                 });
-
-                const absentTodayRecordsCount = await Attendance.countDocuments({
-                    date: { $gte: todayStart, $lte: todayEnd },
-                    status: 'Absent'
-                });
-
-                const pendingCount = Math.max(0, activeEmployeesCount - presentTodayCount - onLeaveCount - absentTodayRecordsCount);
 
                 const thirtyDaysAgo = new Date();
                 thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
@@ -207,10 +189,10 @@ const getDashboardStats = async (req, res) => {
 
                 data.hrStats = {
                     totalEmployees: activeEmployeesCount,
-                    presentToday: presentTodayCount,
-                    onLeave: onLeaveCount,
-                    pending: pendingCount,
-                    absentToday: absentTodayRecordsCount,
+                    presentToday: 0,
+                    onLeave: 0,
+                    pending: 0,
+                    absentToday: 0,
                     newJoiners: newJoinersCount,
                     employeeDistribution,
                     recentEmployees: recentEmployeesFormatted,

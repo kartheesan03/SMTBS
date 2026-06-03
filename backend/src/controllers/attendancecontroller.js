@@ -182,8 +182,16 @@ const getMyAttendanceHistory = async (req, res) => {
 const getAllAttendance = async (req, res) => {
     try {
         const today = new Date().toISOString().split('T')[0];
-        // Fetch all employees
-        const employees = await Employee.find({}).select('id firstName lastName department employeeId');
+        // Fetch all active employees
+        const employees = await Employee.find({
+            $or: [
+                { status: 'Active' },
+                { status: { $exists: false } },
+                { active: true },
+                { active: { $exists: false } }
+            ]
+        }).select('id firstName lastName department employeeId status active');
+
         // Fetch attendance records for today
         const attendances = await Attendance.find({ date: today })
             .populate({
@@ -191,12 +199,14 @@ const getAllAttendance = async (req, res) => {
                 select: 'firstName lastName employeeId department'
             })
             .sort({ date: -1 });
+
         // Map employeeId to attendance
         const attendanceMap = {};
         attendances.forEach(att => {
             const empId = att.employeeId?.toString();
             attendanceMap[empId] = att;
         });
+
         const todayStart = new Date();
         todayStart.setHours(0,0,0,0);
         const todayEnd = new Date();
@@ -215,16 +225,37 @@ const getAllAttendance = async (req, res) => {
         const istTime = new Date(now.getTime() + istOffset);
         const defaultStatus = istTime.getUTCHours() < 17 ? 'Pending' : 'Absent';
 
+        let presentToday = 0;
+        let absentToday = 0;
+        let pendingToday = 0;
+        let onLeaveToday = 0;
+        const totalEmployees = employees.length;
+
         // Build result list including absent employees
         const result = employees.map(emp => {
             const empId = emp._id?.toString() || emp.id?.toString();
+            let finalStatus = defaultStatus;
+            let record = null;
+            
             if (attendanceMap[empId]) {
-                return attendanceMap[empId];
+                record = attendanceMap[empId];
+                finalStatus = record.status;
+            } else if (leaveMap[empId]) {
+                finalStatus = 'On Leave';
+            }
+            
+            if (finalStatus === 'Present' || finalStatus === 'Late') presentToday++;
+            else if (finalStatus === 'Absent') absentToday++;
+            else if (finalStatus === 'Pending') pendingToday++;
+            else if (finalStatus === 'On Leave') onLeaveToday++;
+
+            if (record) {
+                return record;
             }
             return {
                 employeeId: empId,
                 date: today,
-                status: leaveMap[empId] ? 'On Leave' : defaultStatus,
+                status: finalStatus,
                 employee: {
                     firstName: emp.firstName,
                     lastName: emp.lastName,
@@ -233,7 +264,15 @@ const getAllAttendance = async (req, res) => {
                 }
             };
         });
-        res.json(result);
+
+        res.json({
+            totalEmployees,
+            presentToday,
+            pendingToday,
+            absentToday,
+            onLeaveToday,
+            employeeAttendanceList: result
+        });
     } catch (error) {
         console.error('getAllAttendance error:', error);
         res.status(500).json({ message: error.message });

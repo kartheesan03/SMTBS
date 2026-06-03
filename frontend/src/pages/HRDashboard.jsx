@@ -14,6 +14,7 @@ const HRDashboard = () => {
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
     const [data, setData] = useState(null);
+    const [attendanceData, setAttendanceData] = useState(null);
     const [loading, setLoading] = useState(true);
 
     const COLORS = ['#2563eb', '#10b981', '#f59e0b', '#7c3aed', '#0d9488'];
@@ -21,8 +22,12 @@ const HRDashboard = () => {
     useEffect(() => {
         const fetchHRData = async () => {
             try {
-                const { data } = await API.get('/dashboard/stats');
-                setData(data);
+                const [dashRes, attRes] = await Promise.all([
+                    API.get('/dashboard/stats'),
+                    API.get('/attendance')
+                ]);
+                setData(dashRes.data);
+                setAttendanceData(attRes.data);
             } catch (error) {
                 console.error(error);
             } finally {
@@ -57,12 +62,12 @@ const HRDashboard = () => {
         ? hrStats.recentEmployees
         : [];
 
-    // Stats mapping to reference dynamic stats
-    const totalEmployees = hrStats.totalEmployees ?? data?.stats?.totalEmployees ?? 0;
-    const presentToday = hrStats.presentToday ?? 0;
-    const onLeave = hrStats.onLeave ?? 0;
-    const pending = hrStats.pending ?? 0;
-    const absentToday = hrStats.absentToday ?? 0;
+    // Stats mapping using single source of truth from attendance API
+    const totalEmployees = attendanceData?.totalEmployees || 0;
+    const presentToday = attendanceData?.presentToday || 0;
+    const onLeave = attendanceData?.onLeaveToday || 0;
+    const pending = attendanceData?.pendingToday || 0;
+    const absentToday = attendanceData?.absentToday || 0;
 
     // Determine IST time for the banner message
     const now = new Date();
