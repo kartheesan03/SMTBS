@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import API from '../api/axios';
-import { Plus, Search, UserPlus, Mail, Phone, Calendar } from 'lucide-react';
+import { Plus, Search, UserPlus, Mail, Phone, Calendar, Trash2 } from 'lucide-react';
 
 const HRMS = () => {
     const [employees, setEmployees] = useState([]);
@@ -16,6 +16,7 @@ const HRMS = () => {
     const [selectedEmployee, setSelectedEmployee] = useState(null);
     const [editingId, setEditingId] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
+    const [deleteConfirm, setDeleteConfirm] = useState(null);
 
     const fetchEmployees = async () => {
         try {
@@ -57,6 +58,17 @@ const HRMS = () => {
             fetchEmployees();
         } catch (error) {
             alert(error.response?.data?.message || 'Error saving employee');
+        }
+    };
+
+    const handleDelete = async (employee) => {
+        try {
+            await API.delete(`/employees/${employee._id}`);
+            setDeleteConfirm(null);
+            setSelectedEmployee(null);
+            fetchEmployees();
+        } catch (error) {
+            alert(error.response?.data?.message || 'Error deleting employee');
         }
     };
 
@@ -190,6 +202,10 @@ const HRMS = () => {
                             </div>
                         </div>
                         <div className="modal-actions">
+                            <button type="button" className="btn-delete" onClick={() => setDeleteConfirm(selectedEmployee)}>
+                                <Trash2 size={15} /> Delete
+                            </button>
+                            <div style={{flex: 1}} />
                             <button type="button" className="btn-cancel" onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
@@ -215,6 +231,25 @@ const HRMS = () => {
                 </div>
             )}
 
+            {deleteConfirm && (
+                <div className="modal-overlay">
+                    <div className="glass-card modal-content animate-pop delete-confirm-modal">
+                        <div className="delete-confirm-icon">
+                            <Trash2 size={32} />
+                        </div>
+                        <h2>Delete Employee</h2>
+                        <p className="delete-confirm-text">
+                            Are you sure you want to delete <strong>{deleteConfirm.firstName} {deleteConfirm.lastName}</strong>?
+                            This action cannot be undone.
+                        </p>
+                        <div className="modal-actions">
+                            <button className="btn-cancel" onClick={() => setDeleteConfirm(null)}>Cancel</button>
+                            <button className="btn-danger" onClick={() => handleDelete(deleteConfirm)}>Yes, Delete</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div className="employee-grid">
                 {employees.length > 0 ? employees.map((emp) => (
                     <div key={emp._id} className="glass-card employee-card">
@@ -233,7 +268,12 @@ const HRMS = () => {
                         </div>
                         <div className="emp-footer">
                             <span className="dept-badge">{emp.department}</span>
-                            <button className="action-btn-sm" onClick={() => setSelectedEmployee(emp)}>View Profile</button>
+                            <div className="emp-footer-actions">
+                                <button className="action-btn-sm" onClick={() => setSelectedEmployee(emp)}>View Profile</button>
+                                <button className="delete-btn-sm" title="Delete Employee" onClick={(e) => { e.stopPropagation(); setDeleteConfirm(emp); }}>
+                                    <Trash2 size={14} />
+                                </button>
+                            </div>
                         </div>
                     </div>
                 )) : (
@@ -251,9 +291,21 @@ const HRMS = () => {
                 .emp-details { width: 100%; text-align: left; margin-bottom: 20px; border-top: 1px solid var(--border); padding-top: 15px; }
                 .detail-item { display: flex; align-items: center; gap: 10px; color: var(--text-muted); font-size: 13px; margin-bottom: 8px; }
                 .emp-footer { width: 100%; display: flex; justify-content: space-between; align-items: center; padding-top: 15px; border-top: 1px solid var(--border); }
+                .emp-footer-actions { display: flex; align-items: center; gap: 8px; }
                 .dept-badge { background: rgba(20, 184, 166, 0.1); color: var(--secondary); padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
                 .action-btn-sm { background: transparent; border: 1px solid var(--border); color: var(--dash-text-main, #0f172a); padding: 5px 12px; border-radius: 6px; font-size: 12px; transition: 0.3s; }
                 .action-btn-sm:hover { border-color: var(--primary); color: var(--primary); }
+                .delete-btn-sm { background: transparent; border: 1px solid var(--border); color: #94a3b8; padding: 5px 8px; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: all 0.3s; cursor: pointer; }
+                .delete-btn-sm:hover { border-color: #ef4444; color: #ef4444; background: rgba(239, 68, 68, 0.08); }
+                .btn-delete { background: transparent; border: 1px solid #fecaca; color: #ef4444; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.3s; }
+                .btn-delete:hover { background: #fef2f2; border-color: #ef4444; }
+                .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); }
+                .btn-danger:hover { background: linear-gradient(135deg, #dc2626, #b91c1c); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4); }
+                .delete-confirm-modal { text-align: center; max-width: 420px; }
+                .delete-confirm-modal h2 { color: #ef4444; margin-bottom: 10px; }
+                .delete-confirm-icon { width: 64px; height: 64px; background: linear-gradient(135deg, #fef2f2, #fee2e2); color: #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
+                .delete-confirm-text { color: #64748b; font-size: 14px; line-height: 1.6; margin-bottom: 10px; }
+                .delete-confirm-modal .modal-actions { justify-content: center; }
                 .w-full { grid-column: 1 / -1; }
 
                 /* Modal Styles */
