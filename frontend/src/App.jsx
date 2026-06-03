@@ -2,7 +2,6 @@ import React, { useContext, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthContext, AuthProvider } from './context/AuthContext';
 import Sidebar from './components/Sidebar';
-import Sidebar from './components/Sidebar';
 import ProtectedRoute from './components/ProtectedRoute';
 import { Menu, X } from 'lucide-react';
 
