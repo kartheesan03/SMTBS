@@ -10,10 +10,9 @@ const getMySalaryHistory = async (req, res) => {
         const employee = await Employee.findOne({ userId: req.user._id });
         if (!employee) return res.status(404).json({ message: 'Employee profile not found' });
 
-        // Only show approved or paid salaries to employees
+        // Show all salary records to the employee so they can track status
         const history = await Salary.find({ 
-            employeeId: employee._id,
-            status: { $in: ['Approved', 'Paid'] }
+            employeeId: employee._id
         }).sort({ createdAt: -1 });
         res.json(history);
     } catch (error) {
@@ -30,10 +29,17 @@ const getMySalarySummary = async (req, res) => {
         if (!employee) return res.status(404).json({ message: 'Employee profile not found' });
 
         const latest = await Salary.findOne({ 
-            employeeId: employee._id,
-            status: { $in: ['Approved', 'Paid'] }
+            employeeId: employee._id
         }).sort({ createdAt: -1 });
-        res.json(latest || { message: 'No salary records found' });
+
+        if (!latest) {
+            // No salary record exists at all for this employee
+            return res.json({ status: 'Not Generated', message: 'No salary records found' });
+        }
+
+        // Derive effective status based on paymentDate for safety
+        const effectiveStatus = latest.paymentDate ? 'Paid' : latest.status;
+        res.json({ ...latest.toJSON ? latest.toJSON() : latest._doc || latest, status: effectiveStatus });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

@@ -631,9 +631,15 @@ const Payroll = () => {
                             )}
                         </div>
                         <div className="modal-footer">
-                            <button className="btn-secondary flex-center gap-10" onClick={() => handleDownload(selectedSalary)} disabled={downloading}>
-                                <Download size={18} /> {downloading ? 'Generating...' : 'Download Payslip'}
-                            </button>
+                            {selectedSalary.status === 'Paid' ? (
+                                <button className="btn-secondary flex-center gap-10" onClick={() => handleDownload(selectedSalary)} disabled={downloading}>
+                                    <Download size={18} /> {downloading ? 'Generating...' : 'Download Payslip'}
+                                </button>
+                            ) : (
+                                <span className="payslip-pending-msg">
+                                    <Clock size={14} /> Payslip available after payment
+                                </span>
+                            )}
                             {isAdmin && selectedSalary.status === 'Awaiting Approval' && (
                                 <button className="btn-primary" style={{background: '#10b981', borderColor: '#10b981'}} onClick={() => handleApprove(selectedSalary._id)}>
                                     Approve Now
@@ -675,6 +681,8 @@ const Payroll = () => {
                 .status-pill.paid { background: rgba(16, 185, 129, 0.1); color: #10b981; }
                 .status-pill.approved { background: rgba(99, 102, 241, 0.1); color: var(--primary); }
                 .status-pill.awaiting-approval { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+
+                .payslip-pending-msg { display: flex; align-items: center; gap: 8px; color: #f59e0b; font-size: 12px; font-weight: 600; background: rgba(245, 158, 11, 0.08); padding: 8px 16px; border-radius: 8px; border: 1px solid rgba(245, 158, 11, 0.15); }
 
                 .btn-table-action { background: var(--bg-card, #ffffff); color: var(--dash-text-main, #0f172a); border: 1px solid var(--border); font-size: 12px; padding: 6px 12px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s; }
                 .btn-table-action:hover { background: rgba(0,0,0,0.05); }

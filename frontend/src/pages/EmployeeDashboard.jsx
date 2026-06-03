@@ -187,10 +187,20 @@ const EmployeeDashboard = () => {
         },
         {
             title: 'Salary Status',
-            value: salary?.status || 'Pending',
+            value: salary?.status === 'Not Generated' ? 'Not Generated' 
+                 : salary?.status === 'Paid' ? 'Paid'
+                 : salary?.status === 'Approved' ? 'Approved'
+                 : salary?.status === 'Awaiting Approval' ? 'Pending Approval'
+                 : salary?.status || 'Not Generated',
             icon: <DollarSign size={22} />,
-            color: salary?.status === 'Paid' ? '#10b981' : '#f59e0b',
-            bgColor: salary?.status === 'Paid' ? '#ecfdf5' : '#fffbeb',
+            color: salary?.status === 'Paid' ? '#10b981' 
+                 : salary?.status === 'Approved' ? '#6366f1'
+                 : salary?.status === 'Not Generated' || !salary?.status ? '#94a3b8' 
+                 : '#f59e0b',
+            bgColor: salary?.status === 'Paid' ? '#ecfdf5' 
+                   : salary?.status === 'Approved' ? '#eef2ff'
+                   : salary?.status === 'Not Generated' || !salary?.status ? '#f8fafc' 
+                   : '#fffbeb',
             onClick: () => navigate('/my-salary')
         },
         {

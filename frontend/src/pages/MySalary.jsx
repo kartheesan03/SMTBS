@@ -70,6 +70,13 @@ const MySalaryPage = () => {
             </header>
 
             <div className="module-content mt-30">
+                {history.length === 0 ? (
+                    <div className="no-salary-card">
+                        <DollarSign size={48} className="no-salary-icon" />
+                        <h3>No Salary Generated</h3>
+                        <p>Your payroll has not been generated yet. Please contact HR or your administrator.</p>
+                    </div>
+                ) : (
                 <DataTable 
                     title="Payment Ledger"
                     headers={['Month', 'Net Amount', 'Status', 'Date Paid', 'Actions']}
@@ -77,27 +84,30 @@ const MySalaryPage = () => {
                     renderRow={(s) => (
                         <tr key={s._id}>
                             <td><strong>{s.month}</strong></td>
-                            <td>${s.netSalary?.toLocaleString()}</td>
+                            <td>₹{s.netSalary?.toLocaleString()}</td>
                             <td>
-                                <div className={`status-badge ${s.status?.toLowerCase().replace(' ', '-')}`}>
+                                <div className={`status-badge ${s.status?.toLowerCase().replace(/\s+/g, '-')}`}>
                                     {s.status === 'Paid' ? <CheckCircle size={14}/> : s.status === 'Approved' ? <CheckCircle size={14}/> : <Clock size={14}/>}
                                     {s.status}
                                 </div>
                             </td>
-                            <td>{s.paymentDate ? new Date(s.paymentDate).toLocaleDateString() : '-'}</td>
+                            <td>{s.paymentDate ? new Date(s.paymentDate).toLocaleDateString() : '—'}</td>
                             <td>
                                 <div className="action-row">
                                     <button className="icon-btn" title="View Details" onClick={() => handleViewPayslip(s)}>
                                         <Eye size={16}/>
                                     </button>
-                                    <button className="icon-btn" title="Download" onClick={() => handleDownload(s)}>
-                                        <Download size={16}/>
-                                    </button>
+                                    {s.status === 'Paid' && (
+                                        <button className="icon-btn" title="Download" onClick={() => handleDownload(s)}>
+                                            <Download size={16}/>
+                                        </button>
+                                    )}
                                 </div>
                             </td>
                         </tr>
                     )}
                 />
+                )}
             </div>
 
             {showModal && selectedPayslip && (
@@ -147,9 +157,16 @@ const MySalaryPage = () => {
                         </div>
 
                         <div className="modal-actions">
-                            <button className="btn-primary flex-center gap-10" onClick={() => handleDownload(selectedPayslip)} disabled={downloading}>
-                                <Download size={18} /> {downloading ? 'Generating PDF...' : 'Download Payslip (PDF)'}
-                            </button>
+                            {selectedPayslip.status === 'Paid' ? (
+                                <button className="btn-primary flex-center gap-10" onClick={() => handleDownload(selectedPayslip)} disabled={downloading}>
+                                    <Download size={18} /> {downloading ? 'Generating PDF...' : 'Download Payslip (PDF)'}
+                                </button>
+                            ) : (
+                                <div className="no-payslip-msg">
+                                    <Clock size={16} />
+                                    <span>Payslip will be available after salary is paid</span>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -162,6 +179,13 @@ const MySalaryPage = () => {
                 .status-badge.approved { background: rgba(99, 102, 241, 0.1); color: var(--primary); }
                 .status-badge.awaiting-approval { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
                 .status-badge.pending { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+
+                .no-salary-card { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 30px; background: var(--bg-card, #ffffff); border: 1px dashed var(--border, #e2e8f0); border-radius: 16px; text-align: center; }
+                .no-salary-icon { color: #94a3b8; margin-bottom: 16px; }
+                .no-salary-card h3 { font-size: 18px; color: var(--dash-text-main, #0f172a); margin-bottom: 8px; }
+                .no-salary-card p { font-size: 14px; color: #64748b; max-width: 400px; line-height: 1.6; }
+
+                .no-payslip-msg { display: flex; align-items: center; gap: 8px; color: #f59e0b; font-size: 13px; font-weight: 600; background: rgba(245, 158, 11, 0.08); padding: 12px 20px; border-radius: 10px; border: 1px solid rgba(245, 158, 11, 0.2); }
                 
                 .action-row { display: flex; gap: 10px; }
                 .icon-btn { background: rgba(255,255,255,0.05); color: var(--text-muted); padding: 8px; border-radius: 8px; }

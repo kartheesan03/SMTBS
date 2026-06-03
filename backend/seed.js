@@ -411,8 +411,13 @@ const seedData = async () => {
         // 11. SALARIES — Indian payroll with INR amounts
         // ===================================================================
         const salaryDocs = [];
-        // Paid salaries for all employees (last month)
-        for (const emp of createdEmployees) {
+        // Last month salaries — realistic mix of statuses
+        for (let i = 0; i < createdEmployees.length; i++) {
+            const emp = createdEmployees[i];
+            const isPaid = i < 6;       // First 6 employees were paid last month
+            const isApproved = i >= 6 && i < 8;  // Next 2 are approved but not yet paid
+            // Remaining (9-10) are still awaiting approval
+
             salaryDocs.push({
                 employee: emp._id,
                 month: lastMonthName,
@@ -420,12 +425,12 @@ const seedData = async () => {
                 allowances: Math.round(emp.salary * 0.15),
                 deductions: Math.round(emp.salary * 0.05),
                 netSalary: emp.salary + Math.round(emp.salary * 0.15) - Math.round(emp.salary * 0.05),
-                status: 'Paid',
-                paymentDate: getPastDate(0, 1),
-                transactionId: `TXN-${monthNames[lastMonthDate.getMonth()].toUpperCase()}-${emp.employeeId}`
+                status: isPaid ? 'Paid' : isApproved ? 'Approved' : 'Awaiting Approval',
+                paymentDate: isPaid ? getPastDate(0, 1) : null,
+                transactionId: isPaid ? `TXN-${monthNames[lastMonthDate.getMonth()].toUpperCase()}-${emp.employeeId}` : null
             });
         }
-        // Awaiting Approval / Pending (this month)
+        // This month — all awaiting approval (payroll not yet processed)
         for (let i = 0; i < createdEmployees.length; i++) {
             const emp = createdEmployees[i];
             salaryDocs.push({
@@ -435,7 +440,7 @@ const seedData = async () => {
                 allowances: Math.round(emp.salary * 0.15),
                 deductions: Math.round(emp.salary * 0.04),
                 netSalary: emp.salary + Math.round(emp.salary * 0.15) - Math.round(emp.salary * 0.04),
-                status: i < 5 ? 'Awaiting Approval' : 'Pending'
+                status: 'Awaiting Approval'
             });
         }
 
