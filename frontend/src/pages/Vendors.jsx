@@ -107,22 +107,21 @@ const Vendors = () => {
                 <div className="glass-card table-wrapper">
                     <DataTable 
                         title="Supplier Directory"
-                        headers={['Vendor Name', 'Category', 'Address', 'Contact', 'Action']}
+                        headers={['Vendor Name', 'Category', 'Address', 'Contact', 'Email', 'Phone', 'Action']}
                         data={vendors}
                         onViewAll={fetchVendors}
-                        renderRow={(v) => (
-                            <>
+                        renderRow={(v, index) => (
+                            <tr key={v._id || index}>
                                 <td><strong>{v.name}</strong></td>
                                 <td><span className="cat-tag">{v.category}</span></td>
-                                <td><div className="info-cell"><MapPin size={12}/> {v.address}</div></td>
-                                <td>
-                                    <div className="contact-cell">
-                                        <span><Mail size={12}/> {v.email}</span>
-                                        <span><Phone size={12}/> {v.phone}</span>
-                                    </div>
+                                <td><div className="info-cell address-wrap"><MapPin size={14}/> <span>{v.address}</span></div></td>
+                                <td>{v.contactPerson || '-'}</td>
+                                <td><div className="info-cell"><Mail size={14}/> {v.email}</div></td>
+                                <td><div className="info-cell"><Phone size={14}/> {v.phone}</div></td>
+                                <td style={{ textAlign: 'center' }}>
+                                    <button className="btn-icon view-btn" title="View Vendor"><ExternalLink size={16}/></button>
                                 </td>
-                                <td><button className="btn-icon"><ExternalLink size={16}/></button></td>
-                            </>
+                            </tr>
                         )}
                     />
                 </div>
@@ -131,9 +130,12 @@ const Vendors = () => {
                 .module-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px; padding: 25px; gap: 20px; }
                 .table-wrapper { padding: 10px; }
                 .cat-tag { background: rgba(99, 102, 241, 0.1); color: var(--primary); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; white-space: nowrap; }
-                .info-cell { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-muted); }
-                .contact-cell { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--text-muted); }
-                .btn-icon { background: none; color: var(--primary); }
+                .info-cell { display: flex; align-items: flex-start; gap: 6px; font-size: 13px; color: var(--text-muted); white-space: nowrap; }
+                .address-wrap { max-width: 250px; white-space: normal; line-height: 1.5; word-wrap: break-word; }
+                .address-wrap svg { flex-shrink: 0; margin-top: 2px; }
+                .btn-icon { background: none; color: var(--primary); border: none; }
+                .view-btn { padding: 6px; border-radius: 6px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; }
+                .view-btn:hover { background: var(--primary-light); color: var(--primary); }
 
                 /* Modal Styles */
                 .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 1100; padding: 20px; }
