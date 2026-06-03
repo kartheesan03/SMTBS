@@ -18,13 +18,14 @@ const Settings = () => {
                 const { data } = await API.get('/employees');
                 const myEmp = data.find(emp => 
                     (emp.userId && (emp.userId === user._id || emp.userId._id === user._id)) || 
-                    emp.contact === user.email
+                    emp.contact === user.email ||
+                    emp.email === user.email
                 );
                 if (myEmp) {
                     setEmployeeData(myEmp);
                     setFormData({
-                        name: `${myEmp.firstName} ${myEmp.lastName || ''}`.trim(),
-                        email: myEmp.contact || user.email
+                        name: `${myEmp.firstName || ''} ${myEmp.lastName || ''}`.trim() || myEmp.fullName || myEmp.name || user.name,
+                        email: myEmp.email || myEmp.contact || user.email
                     });
                 }
             } catch (err) {
@@ -34,13 +35,27 @@ const Settings = () => {
         if (user) fetchEmployeeData();
     }, [user]);
 
+    // 5. Create a normalized profile object
+    const profileData = {
+        employeeId: employeeData?.employeeId || employeeData?.employeeCode || (user?.id ? `EMP-${user.id.toString().padStart(4, '0')}` : null),
+        firstName: employeeData?.firstName || employeeData?.first_name || formData.name?.split(' ')[0] || user?.name?.split(' ')[0] || null,
+        lastName: employeeData?.lastName || employeeData?.last_name || formData.name?.split(' ').slice(1).join(' ') || user?.name?.split(' ').slice(1).join(' ') || null,
+        fullName: employeeData?.fullName || employeeData?.full_name || employeeData?.name || formData.name || user?.name || null,
+        department: employeeData?.department || (user?.role === 'Admin' ? 'Management' : (user?.role === 'Sales' ? 'Sales & Marketing' : 'Operations')) || null,
+        designation: employeeData?.designation || employeeData?.role || user?.role || null,
+        email: employeeData?.email || employeeData?.email_address || employeeData?.contact || formData.email || user?.email || null,
+        phone: employeeData?.phone || employeeData?.phone_number || (employeeData?.contact && !employeeData.contact.includes('@') ? employeeData.contact : null) || null,
+        joinDate: employeeData?.joinDate || employeeData?.join_date || employeeData?.joiningDate || employeeData?.dateOfJoining || null,
+        address: employeeData?.address || null,
+    };
+
     const handleUpdate = async (e) => {
         e.preventDefault();
         try {
             if (employeeData) {
                 const parts = formData.name.trim().split(' ');
-                const firstName = parts[0];
-                const lastName = parts.slice(1).join(' ');
+                const firstName = parts[0] || '';
+                const lastName = parts.slice(1).join(' ') || '';
                 await API.put(`/employees/${employeeData._id}`, {
                     ...employeeData,
                     firstName,
@@ -58,6 +73,9 @@ const Settings = () => {
             updateUser(data);
             setSuccess(true);
             setTimeout(() => setSuccess(false), 3000);
+            
+            // Close modal logic if the user has an external modal state handler
+            if (window.closeEditModal) window.closeEditModal();
         } catch (err) {
             alert(err.response?.data?.message || 'Error updating profile');
         }
@@ -96,10 +114,10 @@ const Settings = () => {
                     </div>
                     <div className="hero-details">
                         <div className="hero-title-row">
-                            <h2>{user?.name || 'Employee Name'}</h2>
-                            <span className="role-badge">{user?.role || 'Employee'}</span>
+                            <h2>{profileData.fullName || 'Not Provided'}</h2>
+                            <span className="role-badge">{profileData.designation || 'Not Provided'}</span>
                         </div>
-                        <p className="hero-email">{user?.email || 'email@example.com'}</p>
+                        <p className="hero-email">{profileData.email || 'Not Provided'}</p>
                     </div>
                     
                     <div className="hero-completion">
@@ -151,70 +169,56 @@ const Settings = () => {
                                 <Hash size={16} className="ov-icon" />
                                 <div className="ov-details">
                                     <span className="ov-label">Employee ID</span>
-                                    <span className="ov-value">{employeeData?.employeeId || 'Not Provided'}</span>
-                                </div>
-                            </div>
-                            <div className="overview-item">
-                                <User size={16} className="ov-icon" />
-                                <div className="ov-details">
-                                    <span className="ov-label">First Name</span>
-                                    <span className="ov-value">{employeeData?.firstName || 'Not Provided'}</span>
-                                </div>
-                            </div>
-                            <div className="overview-item">
-                                <User size={16} className="ov-icon" />
-                                <div className="ov-details">
-                                    <span className="ov-label">Last Name</span>
-                                    <span className="ov-value">{employeeData?.lastName || 'Not Provided'}</span>
+                                    <span className="ov-value">{profileData.employeeId || 'Not Provided'}</span>
                                 </div>
                             </div>
                             <div className="overview-item">
                                 <User size={16} className="ov-icon" />
                                 <div className="ov-details">
                                     <span className="ov-label">Full Name</span>
-                                    <span className="ov-value">{employeeData ? `${employeeData.firstName} ${employeeData.lastName || ''}`.trim() : user?.name || 'Not Provided'}</span>
+                                    <span className="ov-value">{profileData.fullName || 'Not Provided'}</span>
                                 </div>
                             </div>
                             <div className="overview-item">
                                 <Briefcase size={16} className="ov-icon" />
                                 <div className="ov-details">
                                     <span className="ov-label">Department</span>
-                                    <span className="ov-value">{employeeData?.department || 'Not Provided'}</span>
+                                    <span className="ov-value">{profileData.department || 'Not Provided'}</span>
                                 </div>
                             </div>
                             <div className="overview-item">
                                 <Briefcase size={16} className="ov-icon" />
                                 <div className="ov-details">
                                     <span className="ov-label">Designation / Role</span>
-                                    <span className="ov-value">{employeeData?.designation || user?.role || 'Not Provided'}</span>
+                                    <span className="ov-value">{profileData.designation || 'Not Provided'}</span>
                                 </div>
                             </div>
                             <div className="overview-item">
                                 <Mail size={16} className="ov-icon" />
                                 <div className="ov-details">
                                     <span className="ov-label">Email Address</span>
-                                    <span className="ov-value">{employeeData?.contact || user?.email || 'Not Provided'}</span>
+                                    <span className="ov-value">{profileData.email || 'Not Provided'}</span>
                                 </div>
                             </div>
                             <div className="overview-item">
                                 <Phone size={16} className="ov-icon" />
                                 <div className="ov-details">
                                     <span className="ov-label">Phone Number</span>
-                                    <span className="ov-value">Not Provided</span>
+                                    <span className="ov-value">{profileData.phone || 'Not Provided'}</span>
                                 </div>
                             </div>
                             <div className="overview-item">
                                 <Calendar size={16} className="ov-icon" />
                                 <div className="ov-details">
                                     <span className="ov-label">Join Date</span>
-                                    <span className="ov-value">{employeeData?.joinDate ? new Date(employeeData.joinDate).toLocaleDateString() : 'Not Provided'}</span>
+                                    <span className="ov-value">{profileData.joinDate ? new Date(profileData.joinDate).toLocaleDateString() : 'Not Provided'}</span>
                                 </div>
                             </div>
                             <div className="overview-item">
                                 <MapPin size={16} className="ov-icon" />
                                 <div className="ov-details">
                                     <span className="ov-label">Address</span>
-                                    <span className="ov-value">{employeeData?.address || 'Not Provided'}</span>
+                                    <span className="ov-value">{profileData.address || 'Not Provided'}</span>
                                 </div>
                             </div>
                         </div>
