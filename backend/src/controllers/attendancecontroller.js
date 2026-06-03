@@ -182,15 +182,8 @@ const getMyAttendanceHistory = async (req, res) => {
 const getAllAttendance = async (req, res) => {
     try {
         const today = new Date().toISOString().split('T')[0];
-        // Fetch all active employees
-        const employees = await Employee.find({
-            $or: [
-                { status: 'Active' },
-                { status: { $exists: false } },
-                { active: true },
-                { active: { $exists: false } }
-            ]
-        }).select('id firstName lastName department employeeId status active');
+        // Fetch all employees (since status field doesn't exist in the current schema)
+        const employees = await Employee.find({}).select('id firstName lastName department employeeId');
 
         // Fetch attendance records for today
         const attendances = await Attendance.find({ date: today })
@@ -289,15 +282,8 @@ const autoMarkAbsent = async () => {
         const todayEnd = new Date(now);
         todayEnd.setHours(23,59,59,999);
 
-        // Fetch active employees
-        const activeEmployees = await Employee.find({
-            $or: [
-                { status: 'Active' },
-                { status: { $exists: false } },
-                { active: true },
-                { active: { $exists: false } }
-            ]
-        });
+        // Fetch active employees (all employees in current minimal schema)
+        const activeEmployees = await Employee.find({});
 
         // Fetch today's attendance records
         const attendances = await Attendance.find({
