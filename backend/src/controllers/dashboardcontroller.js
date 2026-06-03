@@ -122,12 +122,22 @@ const getDashboardStats = async (req, res) => {
                     status: { $in: ['Present', 'Late'] }
                 });
 
-                const today = new Date();
                 const onLeaveCount = await Leave.countDocuments({
-                    startDate: { $lte: today },
-                    endDate: { $gte: today },
+                    startDate: { $lte: todayEnd },
+                    endDate: { $gte: todayStart },
                     status: 'Approved'
                 });
+
+                const activeEmployeesCount = await Employee.countDocuments({
+                    $or: [
+                        { status: 'Active' },
+                        { status: { $exists: false } },
+                        { active: true },
+                        { active: { $exists: false } }
+                    ]
+                });
+
+                const absentTodayCount = Math.max(0, activeEmployeesCount - presentTodayCount - onLeaveCount);
 
                 const thirtyDaysAgo = new Date();
                 thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
@@ -135,8 +145,9 @@ const getDashboardStats = async (req, res) => {
                     joinDate: { $gte: thirtyDaysAgo }
                 });
 
-                const totalEmps = stats.totalEmployees || 1;
+                const totalEmps = activeEmployeesCount || 1;
                 const deptStats = await Employee.aggregate([
+                    { $match: { $or: [{ status: 'Active' }, { status: { $exists: false } }, { active: true }, { active: { $exists: false } }] } },
                     { $group: { _id: "$department", value: { $sum: 1 } } }
                 ]);
                 
@@ -176,9 +187,10 @@ const getDashboardStats = async (req, res) => {
                 }
 
                 data.hrStats = {
-                    totalEmployees: stats.totalEmployees,
+                    totalEmployees: activeEmployeesCount,
                     presentToday: presentTodayCount,
                     onLeave: onLeaveCount,
+                    absentToday: absentTodayCount,
                     newJoiners: newJoinersCount,
                     employeeDistribution,
                     recentEmployees: recentEmployeesFormatted,

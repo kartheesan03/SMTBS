@@ -61,7 +61,7 @@ const HRDashboard = () => {
     const totalEmployees = hrStats.totalEmployees ?? data?.stats?.totalEmployees ?? 0;
     const presentToday = hrStats.presentToday ?? 0;
     const onLeave = hrStats.onLeave ?? 0;
-    const newJoiners = hrStats.newJoiners ?? 0;
+    const absentToday = hrStats.absentToday ?? 0;
 
     return (
         <div className="hr-workspace">
@@ -107,12 +107,12 @@ const HRDashboard = () => {
                     </div>
                     <span className="value text-orange">{onLeave}</span>
                 </div>
-                <div className="hr-metric-card border-purple">
+                <div className="hr-metric-card border-red">
                     <div className="card-top">
-                        <span className="label text-purple">New Joiners</span>
-                        <span className="icon">🆕</span>
+                        <span className="label text-red">Absent Today</span>
+                        <span className="icon">❌</span>
                     </div>
-                    <span className="value text-purple">{newJoiners}</span>
+                    <span className="value text-red">{absentToday}</span>
                 </div>
             </section>
 
