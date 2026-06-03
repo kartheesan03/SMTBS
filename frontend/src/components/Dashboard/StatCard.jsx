@@ -2,14 +2,14 @@ import React from 'react';
 
 const StatCard = ({ title, value, icon, color, trend, onClick }) => {
     return (
-        <div className={`glass-card stat-card ${onClick ? 'clickable' : ''}`} onClick={onClick}>
+        <div className={`stat-card-modern ${onClick ? 'clickable' : ''}`} onClick={onClick}>
             <div className="stat-card-inner">
-                <div className="stat-visual" style={{ backgroundColor: `${color}15`, color: color }}>
+                <div className="stat-visual" style={{ backgroundColor: `${color}12`, color: color }}>
                     {icon}
                 </div>
                 <div className="stat-content">
-                    <p className="text-muted">{title}</p>
-                    <h3>{value}</h3>
+                    <p className="stat-label-text">{title}</p>
+                    <h3 className="stat-value-text">{value}</h3>
                     {trend && (
                         <span className={`trend ${trend > 0 ? 'positive' : 'negative'}`}>
                             {trend > 0 ? '↑' : '↓'} {Math.abs(trend)}% vs last month
@@ -18,54 +18,59 @@ const StatCard = ({ title, value, icon, color, trend, onClick }) => {
                 </div>
             </div>
             <style jsx="true">{`
-                .stat-card {
-                    padding: 24px;
-                    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+                .stat-card-modern {
+                    background: var(--bg-card);
+                    border: 1px solid var(--border);
+                    border-radius: var(--radius-lg, 16px);
+                    padding: 22px;
+                    box-shadow: var(--shadow-sm);
+                    transition: all 0.25s ease;
                     position: relative;
                     overflow: hidden;
-                    border-radius: 2px !important;
                 }
-                .stat-card:hover {
-                    transform: translateY(-4px);
-                    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), 0 0 20px -5px rgba(6, 182, 212, 0.15);
-                    border-color: rgba(255, 255, 255, 0.08);
+                .stat-card-modern:hover {
+                    transform: translateY(-2px);
+                    box-shadow: var(--shadow-md);
+                    border-color: var(--border-hover);
                 }
-                .stat-card.clickable {
+                .stat-card-modern.clickable {
                     cursor: pointer;
                 }
                 .stat-card-inner {
                     display: flex;
                     align-items: center;
-                    gap: 20px;
+                    gap: 16px;
                 }
                 .stat-visual {
-                    width: 52px;
-                    height: 52px;
-                    border-radius: 4px;
+                    width: 48px;
+                    height: 48px;
+                    border-radius: var(--radius-md, 12px);
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    box-shadow: inset 0 0 12px rgba(255, 255, 255, 0.05);
-                    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+                    flex-shrink: 0;
+                    transition: transform 0.25s ease;
                 }
-                .stat-card:hover .stat-visual {
-                    transform: scale(1.08) rotate(5deg);
+                .stat-card-modern:hover .stat-visual {
+                    transform: scale(1.05);
                 }
-                .stat-content p {
-                    font-size: 11px;
-                    font-weight: 700;
-                    letter-spacing: 1px;
+                .stat-label-text {
+                    font-size: 12px;
+                    font-weight: 500;
+                    color: var(--text-muted);
                     text-transform: uppercase;
+                    letter-spacing: 0.3px;
+                    margin: 0;
                 }
-                .stat-content h3 {
-                    font-size: 26px;
-                    font-family: 'Share Tech Mono', monospace;
-                    font-weight: 700;
-                    margin: 2px 0 6px;
-                    color: white;
+                .stat-value-text {
+                    font-size: 24px;
+                    font-weight: 800;
+                    margin: 2px 0 4px;
+                    color: var(--text-primary);
+                    line-height: 1.1;
                 }
                 .trend {
-                    font-size: 11px;
+                    font-size: 12px;
                     font-weight: 600;
                     display: flex;
                     align-items: center;

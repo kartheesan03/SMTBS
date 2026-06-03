@@ -285,40 +285,66 @@ const Dashboard = () => {
             </section>
 
             <style jsx="true">{`
-                .dashboard-layout { padding: 30px; display: flex; flex-direction: column; gap: 30px; background-color: var(--dash-bg, #f1f5f9); min-height: 100vh; color: var(--dash-text-main, #0f172a); }
+                .dashboard-layout { 
+                    padding: 30px; 
+                    display: flex; 
+                    flex-direction: column; 
+                    gap: 30px; 
+                    background-color: var(--bg-body); 
+                    min-height: 100vh; 
+                    color: var(--text-primary); 
+                }
                 .dashboard-top { display: flex; justify-content: space-between; align-items: center; }
-                .dashboard-controls { display: flex; align-items: center; gap: 20px; }
-                .dashboard-search { position: relative; display: flex; align-items: center; background: rgba(15, 23, 42, 0.4); border: 1px solid var(--border); border-radius: 10px; padding: 0 15px; }
-                .dashboard-search input { background: none; border: none; padding: 10px; width: 200px; color: white; }
-                .bell-box { position: relative; color: var(--text-muted); cursor: pointer; }
-                .bell-box .badge { position: absolute; top: -5px; right: -5px; background: var(--danger); color: white; font-size: 10px; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-                .date-picker { padding: 8px 15px; display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 500; }
+                .header-info h1 { font-size: 28px; font-weight: 800; color: var(--text-primary); margin: 0 0 6px 0; letter-spacing: -0.5px; }
+                .header-info p { margin: 0; }
                 
-                .notifications-bar { display: flex; flex-direction: column; gap: 10px; }
-                .notif-item { display: flex; align-items: center; gap: 12px; padding: 12px 20px; border-radius: 10px; font-size: 14px; }
-                .notif-item.warning { background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.2); }
-                .notif-item.info { background: rgba(99, 102, 241, 0.1); color: var(--primary); border: 1px solid rgba(99, 102, 241, 0.2); }
-                .notif-item button { margin-left: auto; background: none; color: inherit; font-size: 16px; }
+                .dashboard-controls { display: flex; align-items: center; gap: 20px; }
+                .dashboard-search { position: relative; display: flex; align-items: center; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md, 12px); padding: 6px 15px; box-shadow: var(--shadow-sm); transition: all 0.2s ease; }
+                .dashboard-search:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-50); }
+                .dashboard-search input { background: none; border: none; padding: 6px; width: 220px; color: var(--text-primary); outline: none; font-size: 14px; }
+                .dashboard-search input::placeholder { color: var(--text-muted); }
+                .dashboard-search svg { color: var(--text-muted); }
+                
+                .bell-box { position: relative; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: var(--bg-card); border: 1px solid var(--border); box-shadow: var(--shadow-sm); transition: all 0.2s; }
+                .bell-box:hover { background: var(--bg-hover); color: var(--text-primary); }
+                .bell-box .badge { position: absolute; top: -4px; right: -4px; background: var(--danger); color: white; font-size: 10px; font-weight: 800; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3); }
+                
+                .date-picker { padding: 10px 18px; display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600; color: var(--text-secondary); background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md, 12px); box-shadow: var(--shadow-sm); }
+                
+                .glass-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg, 16px); box-shadow: var(--shadow-sm); padding: 24px; }
+                .glass-card h3 { font-size: 16px; font-weight: 800; color: var(--text-primary); margin: 0; }
 
-                .dashboard-section { display: grid; gap: 20px; }
+                .notifications-bar { display: flex; flex-direction: column; gap: 12px; }
+                .notif-item { display: flex; align-items: center; gap: 12px; padding: 14px 20px; border-radius: var(--radius-md, 12px); font-size: 14px; font-weight: 500; }
+                .notif-item.warning { background: var(--warning-light); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.2); }
+                .notif-item.info { background: var(--primary-50); color: var(--primary); border: 1px solid rgba(99, 102, 241, 0.2); }
+                .notif-item button { margin-left: auto; background: none; border: none; color: inherit; font-size: 16px; cursor: pointer; opacity: 0.7; transition: opacity 0.2s; }
+                .notif-item button:hover { opacity: 1; }
+
+                .dashboard-section { display: grid; gap: 24px; }
                 .stats-grid { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
                 .middle-grid { grid-template-columns: 2fr 1fr; }
                 .bottom-grid { grid-template-columns: 1fr; }
 
                 .flex-col-center { display: flex; flex-direction: column; align-items: center; }
-                .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
-                .status-badge.low-stock { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
-                .status-badge.in-stock { background: rgba(34, 197, 94, 0.1); color: #22c55e; }
-                .status-badge.new { background: rgba(99, 102, 241, 0.1); color: var(--primary); }
+                
+                .status-badge { padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; display: inline-block; }
+                .status-badge.low-stock { background: var(--danger-light); color: var(--danger); }
+                .status-badge.in-stock { background: var(--success-light); color: var(--success); }
+                .status-badge.new { background: var(--primary-50); color: var(--primary); }
+                
+                .text-muted { color: var(--text-muted); }
 
                 @media (max-width: 1024px) {
                     .middle-grid { grid-template-columns: 1fr; }
                     .dashboard-top { flex-direction: column; align-items: flex-start; gap: 20px; }
-                    .dashboard-controls { width: 100%; justify-content: space-between; }
+                    .dashboard-controls { width: 100%; justify-content: space-between; flex-wrap: wrap; }
+                    .dashboard-search { flex: 1; min-width: 200px; }
+                    .dashboard-search input { width: 100%; }
                 }
 
-                .loading-container { height: 70vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
-                .loader { width: 40px; height: 40px; border: 3px solid rgba(99, 102, 241, 0.1); border-top: 3px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+                .loading-container { height: 70vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+                .loader { width: 48px; height: 48px; border: 3px solid var(--primary-100); border-top: 3px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
                 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
             `}</style>
         </div>

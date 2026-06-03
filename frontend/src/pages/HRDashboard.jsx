@@ -180,39 +180,39 @@ const HRDashboard = () => {
             <style jsx="true">{`
                 .hr-workspace {
                     padding: 24px;
-                    background-color: var(--dash-bg, #f1f5f9);
+                    background-color: var(--bg-body);
                     min-height: 100vh;
-                    color: var(--dash-text-main);
+                    color: var(--text-primary);
                     display: flex;
                     flex-direction: column;
-                    gap: 20px;
+                    gap: 24px;
                 }
                 
                 .breadcrumb-nav {
                     display: flex;
                     align-items: center;
-                    gap: 6px;
-                    font-size: 12px;
+                    gap: 8px;
+                    font-size: 13px;
                     font-weight: 600;
-                    color: var(--dash-text-muted);
+                    color: var(--text-muted);
                 }
                 
                 .crumb {
                     cursor: pointer;
-                    transition: color 0.2s;
+                    transition: color 0.2s ease;
                 }
                 
                 .crumb:hover {
-                    color: #2563eb;
+                    color: var(--primary);
                 }
                 
                 .crumb.active {
-                    color: #0f172a;
+                    color: var(--text-primary);
                     cursor: default;
                 }
                 
                 .separator {
-                    color: #94a3b8;
+                    color: var(--text-muted);
                 }
                 
                 .module-header {
@@ -222,34 +222,38 @@ const HRDashboard = () => {
                 }
                 
                 .header-title {
-                    font-size: 24px;
+                    font-size: 26px;
                     font-weight: 800;
-                    color: #0f172a;
-                    margin: 0 0 4px 0;
+                    color: var(--text-primary);
+                    margin: 0 0 6px 0;
+                    letter-spacing: -0.5px;
                 }
                 
                 .header-subtitle {
-                    font-size: 13px;
-                    color: var(--dash-text-muted);
+                    font-size: 14px;
+                    color: var(--text-muted);
                     margin: 0;
                 }
                 
                 .btn-primary-blue {
-                    background: #2563eb;
+                    background: var(--primary);
                     color: #ffffff;
-                    padding: 10px 18px;
-                    border-radius: 8px;
+                    padding: 12px 20px;
+                    border-radius: var(--radius-md, 12px);
                     font-weight: 700;
-                    font-size: 13px;
-                    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+                    font-size: 14px;
+                    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
                     display: inline-flex;
                     align-items: center;
+                    border: none;
+                    cursor: pointer;
+                    transition: all 0.25s ease;
                 }
                 
                 .btn-primary-blue:hover {
                     background: #1d4ed8;
-                    transform: translateY(-1px);
-                    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
+                    transform: translateY(-2px);
+                    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
                 }
 
                 /* Stats Cards styling */
@@ -260,19 +264,26 @@ const HRDashboard = () => {
                 }
                 
                 .hr-metric-card {
-                    background: #ffffff;
-                    border: 1px solid #e2e8f0;
-                    border-radius: 12px;
-                    padding: 20px;
+                    background: var(--bg-card);
+                    border: 1px solid var(--border);
+                    border-radius: var(--radius-lg, 16px);
+                    padding: 24px;
                     display: flex;
                     flex-direction: column;
-                    gap: 8px;
-                    box-shadow: var(--dash-shadow-sm);
+                    gap: 12px;
+                    box-shadow: var(--shadow-sm);
+                    transition: all 0.25s ease;
+                }
+
+                .hr-metric-card:hover {
+                    transform: translateY(-2px);
+                    box-shadow: var(--shadow-md);
+                    border-color: var(--border-hover);
                 }
                 
-                .border-green { border-color: #bbf7d0; }
-                .border-orange { border-color: #fef3c7; }
-                .border-purple { border-color: #e9d5ff; }
+                .border-green { border-color: var(--success); }
+                .border-orange { border-color: var(--warning); }
+                .border-purple { border-color: #8b5cf6; }
                 
                 .card-top {
                     display: flex;
@@ -281,61 +292,66 @@ const HRDashboard = () => {
                 }
                 
                 .card-top .label {
-                    font-size: 12px;
+                    font-size: 13px;
                     font-weight: 700;
-                    color: var(--dash-text-muted);
+                    color: var(--text-muted);
                     text-transform: uppercase;
-                    letter-spacing: 0.3px;
+                    letter-spacing: 0.5px;
                 }
                 
                 .card-top .icon {
-                    font-size: 18px;
+                    font-size: 20px;
+                    transition: transform 0.2s ease;
+                }
+
+                .hr-metric-card:hover .icon {
+                    transform: scale(1.1);
                 }
                 
                 .hr-metric-card .value {
-                    font-size: 28px;
+                    font-size: 32px;
                     font-weight: 800;
-                    color: #0f172a;
+                    color: var(--text-primary);
                     line-height: 1;
                 }
                 
-                .text-green { color: #10b981; }
-                .text-orange { color: #f59e0b; }
-                .text-purple { color: #7c3aed; }
+                .text-green { color: var(--success); }
+                .text-orange { color: var(--warning); }
+                .text-purple { color: #8b5cf6; }
 
                 /* Charts Row */
                 .charts-grid {
                     display: grid;
                     grid-template-columns: 1.5fr 1fr;
-                    gap: 20px;
+                    gap: 24px;
                 }
                 
                 .chart-card {
-                    background: #ffffff;
-                    border: 1px solid #e2e8f0;
-                    border-radius: 16px;
-                    padding: 20px;
-                    box-shadow: var(--dash-shadow-sm);
+                    background: var(--bg-card);
+                    border: 1px solid var(--border);
+                    border-radius: var(--radius-lg, 16px);
+                    padding: 24px;
+                    box-shadow: var(--shadow-sm);
                 }
                 
                 .card-title {
-                    font-size: 14px;
-                    font-weight: 700;
-                    color: #1e293b;
-                    margin: 0 0 16px 0;
+                    font-size: 16px;
+                    font-weight: 800;
+                    color: var(--text-primary);
+                    margin: 0 0 20px 0;
                 }
                 
                 .distribution-container {
                     display: flex;
                     align-items: center;
                     justify-content: space-between;
-                    gap: 20px;
+                    gap: 24px;
                 }
                 
                 .donut-chart-box {
                     position: relative;
-                    width: 180px;
-                    height: 180px;
+                    width: 200px;
+                    height: 200px;
                     flex-shrink: 0;
                 }
                 
@@ -351,75 +367,79 @@ const HRDashboard = () => {
                 }
                 
                 .donut-val {
-                    font-size: 22px;
+                    font-size: 26px;
                     font-weight: 800;
-                    color: #0f172a;
+                    color: var(--text-primary);
                 }
                 
                 .donut-lbl {
-                    font-size: 10px;
-                    color: var(--dash-text-muted);
+                    font-size: 12px;
+                    color: var(--text-muted);
                     font-weight: 600;
                 }
                 
                 .distribution-legend {
                     display: flex;
                     flex-direction: column;
-                    gap: 10px;
+                    gap: 12px;
                     flex: 1;
                 }
                 
                 .legend-item {
                     display: flex;
                     align-items: center;
-                    font-size: 11px;
+                    font-size: 13px;
                 }
                 
                 .legend-item .dot {
-                    width: 7px;
-                    height: 7px;
+                    width: 10px;
+                    height: 10px;
                     border-radius: 50%;
-                    margin-right: 8px;
+                    margin-right: 10px;
                     flex-shrink: 0;
                 }
                 
                 .legend-item .name {
                     font-weight: 600;
-                    color: #475569;
+                    color: var(--text-secondary);
                     flex: 1;
                 }
                 
                 .legend-item .val {
                     font-weight: 700;
-                    color: #0f172a;
+                    color: var(--text-primary);
                 }
 
                 .card-header-flex {
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
-                    margin-bottom: 16px;
+                    margin-bottom: 20px;
                 }
                 
                 .view-all {
-                    font-size: 11px;
-                    color: #2563eb;
+                    font-size: 12px;
+                    color: var(--primary);
                     font-weight: 700;
                     cursor: pointer;
+                    transition: color 0.2s ease;
+                }
+                .view-all:hover {
+                    color: #1d4ed8;
                 }
                 
                 .employees-list {
                     display: flex;
                     flex-direction: column;
-                    gap: 12px;
+                    gap: 14px;
                 }
                 
                 .employee-row {
                     display: flex;
                     align-items: center;
-                    gap: 12px;
-                    padding: 8px 0;
-                    border-bottom: 1px solid #f1f5f9;
+                    gap: 14px;
+                    padding: 10px 0;
+                    border-bottom: 1px solid var(--border);
                 }
                 
                 .employee-row:last-child {
@@ -427,15 +447,15 @@ const HRDashboard = () => {
                 }
                 
                 .avatar-circle {
-                    width: 36px;
-                    height: 36px;
+                    width: 42px;
+                    height: 42px;
                     border-radius: 50%;
-                    background: #eff6ff;
-                    color: #2563eb;
+                    background: var(--primary-50);
+                    color: var(--primary);
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    font-size: 12px;
+                    font-size: 14px;
                     font-weight: 700;
                     flex-shrink: 0;
                 }
@@ -443,18 +463,19 @@ const HRDashboard = () => {
                 .employee-row .info {
                     display: flex;
                     flex-direction: column;
-                    gap: 2px;
+                    gap: 4px;
                 }
                 
                 .employee-row .name {
-                    font-size: 13px;
+                    font-size: 14px;
                     font-weight: 700;
-                    color: #1e293b;
+                    color: var(--text-primary);
                 }
                 
                 .employee-row .role {
-                    font-size: 11px;
-                    color: var(--dash-text-muted);
+                    font-size: 12px;
+                    color: var(--text-muted);
+                    font-weight: 500;
                 }
                 
                 .dash-loading-wrapper {
@@ -464,13 +485,16 @@ const HRDashboard = () => {
                     align-items: center;
                     justify-content: center;
                     gap: 16px;
+                    color: var(--text-muted);
+                    font-size: 14px;
+                    font-weight: 500;
                 }
                 
                 .dash-spinner {
-                    width: 44px;
-                    height: 44px;
-                    border: 3px solid rgba(37, 99, 235, 0.1);
-                    border-top: 3px solid #2563eb;
+                    width: 48px;
+                    height: 48px;
+                    border: 3px solid var(--primary-100);
+                    border-top: 3px solid var(--primary);
                     border-radius: 50%;
                     animation: spin 1s linear infinite;
                 }

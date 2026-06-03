@@ -283,60 +283,73 @@ const HRMS = () => {
                 )}
             </div>
             <style jsx="true">{`
-                .module-container { padding: 30px; }
-                .employee-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-top: 25px; }
-                .employee-card { text-align: center; display: flex; flex-direction: column; align-items: center; }
-                .emp-avatar { width: 60px; height: 60px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; margin-bottom: 15px; }
-                .designation { color: var(--primary); font-size: 14px; margin-bottom: 20px; font-weight: 500; }
-                .emp-details { width: 100%; text-align: left; margin-bottom: 20px; border-top: 1px solid var(--border); padding-top: 15px; }
-                .detail-item { display: flex; align-items: center; gap: 10px; color: var(--text-muted); font-size: 13px; margin-bottom: 8px; }
-                .emp-footer { width: 100%; display: flex; justify-content: space-between; align-items: center; padding-top: 15px; border-top: 1px solid var(--border); }
+                .module-container { padding: 30px; color: var(--text-primary); }
+                .employee-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; margin-top: 25px; }
+                .employee-card { text-align: center; display: flex; flex-direction: column; align-items: center; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg, 16px); padding: 24px; box-shadow: var(--shadow-sm); transition: transform 0.2s, box-shadow 0.2s; }
+                .employee-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+                
+                .emp-avatar { width: 64px; height: 64px; background: var(--primary-50); color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 800; margin-bottom: 16px; border: 2px solid var(--bg-body); box-shadow: 0 4px 12px color-mix(in srgb, var(--primary) 20%, transparent); }
+                .employee-card h3 { font-size: 18px; font-weight: 800; margin: 0 0 4px 0; color: var(--text-primary); }
+                .designation { color: var(--text-muted); font-size: 14px; margin: 0 0 20px 0; font-weight: 600; }
+                
+                .emp-details { width: 100%; text-align: left; margin-bottom: 20px; border-top: 1px dashed var(--border); padding-top: 15px; }
+                .detail-item { display: flex; align-items: center; gap: 10px; color: var(--text-muted); font-size: 13px; margin-bottom: 10px; font-weight: 500; }
+                .emp-footer { width: 100%; display: flex; justify-content: space-between; align-items: center; padding-top: 16px; border-top: 1px solid var(--border); }
                 .emp-footer-actions { display: flex; align-items: center; gap: 8px; }
-                .dept-badge { background: rgba(20, 184, 166, 0.1); color: var(--secondary); padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
-                .action-btn-sm { background: transparent; border: 1px solid var(--border); color: var(--dash-text-main, #0f172a); padding: 5px 12px; border-radius: 6px; font-size: 12px; transition: 0.3s; }
-                .action-btn-sm:hover { border-color: var(--primary); color: var(--primary); }
-                .delete-btn-sm { background: transparent; border: 1px solid var(--border); color: #94a3b8; padding: 5px 8px; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: all 0.3s; cursor: pointer; }
-                .delete-btn-sm:hover { border-color: #ef4444; color: #ef4444; background: rgba(239, 68, 68, 0.08); }
-                .btn-delete { background: transparent; border: 1px solid #fecaca; color: #ef4444; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.3s; }
-                .btn-delete:hover { background: #fef2f2; border-color: #ef4444; }
-                .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); }
-                .btn-danger:hover { background: linear-gradient(135deg, #dc2626, #b91c1c); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4); }
-                .delete-confirm-modal { text-align: center; max-width: 420px; }
-                .delete-confirm-modal h2 { color: #ef4444; margin-bottom: 10px; }
-                .delete-confirm-icon { width: 64px; height: 64px; background: linear-gradient(135deg, #fef2f2, #fee2e2); color: #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
-                .delete-confirm-text { color: #64748b; font-size: 14px; line-height: 1.6; margin-bottom: 10px; }
-                .delete-confirm-modal .modal-actions { justify-content: center; }
+                .dept-badge { background: var(--primary-50); color: var(--primary); padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+                
+                .action-btn-sm { background: var(--bg-body); border: 1px solid var(--border); color: var(--text-primary); padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; transition: 0.2s; cursor: pointer; }
+                .action-btn-sm:hover { background: var(--bg-hover); border-color: var(--primary); color: var(--primary); }
+                
+                .delete-btn-sm { background: var(--bg-body); border: 1px solid var(--border); color: var(--text-muted); padding: 6px 10px; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; cursor: pointer; }
+                .delete-btn-sm:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-light); }
+                
+                .btn-delete { background: var(--danger-light); border: 1px solid transparent; color: var(--danger); padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; font-size: 14px; }
+                .btn-delete:hover { background: color-mix(in srgb, var(--danger) 20%, transparent); border-color: var(--danger); }
+                
+                .btn-danger { background: linear-gradient(135deg, var(--danger), #b91c1c); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); font-size: 14px; }
+                .btn-danger:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4); }
+                
+                .delete-confirm-modal { text-align: center; max-width: 420px; padding: 32px; }
+                .delete-confirm-modal h2 { color: var(--danger); margin: 0 0 12px 0; font-size: 24px; font-weight: 800; }
+                .delete-confirm-icon { width: 72px; height: 72px; background: var(--danger-light); color: var(--danger); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; }
+                .delete-confirm-text { color: var(--text-secondary); font-size: 15px; line-height: 1.6; margin-bottom: 24px; }
+                .delete-confirm-modal .modal-actions { justify-content: center; margin-top: 0; }
                 .w-full { grid-column: 1 / -1; }
 
                 /* Modal Styles */
-                .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; z-index: 1100; padding: 20px; }
-                .modal-content { width: 100%; max-width: 600px; padding: 30px; position: relative; text-align: left; max-height: 90vh; overflow-y: auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; color: var(--dash-text-main, #0f172a); }
-                .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid #e2e8f0; padding-bottom: 15px; }
-                .modal-header h2 { color: var(--dash-text-main, #0f172a); }
-                .close-btn { background: none; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; }
-                .modal-form { display: flex; flex-direction: column; gap: 20px; }
+                .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 1100; padding: 20px; }
+                .modal-content { width: 100%; max-width: 600px; padding: 32px; position: relative; text-align: left; max-height: 90vh; overflow-y: auto; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg, 16px); color: var(--text-primary); box-shadow: var(--shadow-lg); }
+                .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; border-bottom: 1px solid var(--border); padding-bottom: 16px; }
+                .modal-header h2 { color: var(--text-primary); font-size: 20px; font-weight: 800; margin: 0; }
+                .close-btn { background: none; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; padding: 4px; border-radius: 6px; transition: background 0.2s; }
+                .close-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+                
+                .modal-form { display: flex; flex-direction: column; gap: 24px; }
                 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
                 .form-group { display: flex; flex-direction: column; gap: 8px; }
-                .form-group label { font-size: 13px; font-weight: 600; color: #64748b; }
-                .form-group input, .form-group select { padding: 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; color: #0f172a; width: 100%; }
-                .form-group input:focus, .form-group select:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.12); outline: none; background: #ffffff; }
-                .form-group select option { background: #ffffff; color: #0f172a; }
+                .form-group label { font-size: 12px; font-weight: 700; color: var(--text-secondary); }
+                .form-group input, .form-group select { padding: 12px 16px; background: var(--bg-body); border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary); width: 100%; font-size: 14px; outline: none; transition: border-color 0.2s; }
+                .form-group input:focus, .form-group select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-50); background: var(--bg-card); }
+                .form-group select { appearance: none; padding-right: 40px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
+                
                 .full-width { grid-column: 1 / -1; }
-                .modal-actions { display: flex; justify-content: flex-end; gap: 15px; margin-top: 10px; }
-                .btn-cancel { background: transparent; color: var(--dash-text-main, #0f172a); border: 1px solid #e2e8f0; padding: 12px 25px; border-radius: 8px; font-weight: 600; cursor: pointer; }
-                .btn-cancel:hover { background: #f1f5f9; }
+                .modal-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 16px; }
+                .btn-cancel { background: var(--bg-body); color: var(--text-secondary); border: 1px solid var(--border); padding: 12px 24px; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; transition: 0.2s; }
+                .btn-cancel:hover { background: var(--bg-hover); border-color: var(--border-hover); color: var(--text-primary); }
                 
                 .animate-pop { animation: pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
                 @keyframes pop { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
                 
                 /* Profile View Styles */
-                .profile-view { background: #f8fafc; border-radius: 15px; padding: 25px; border: 1px solid #e2e8f0; }
-                .profile-top { display: flex; align-items: center; gap: 20px; margin-bottom: 30px; border-bottom: 1px solid #e2e8f0; padding-bottom: 20px; }
-                .emp-avatar-lg { width: 80px; height: 80px; background: var(--primary); color: white; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: bold; flex-shrink: 0; }
-                .profile-titles h3 { font-size: 20px; margin-bottom: 5px; color: var(--dash-text-main, #0f172a); }
-                .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
-                .profile-item label { display: block; font-size: 12px; color: #64748b; font-weight: 600; text-transform: uppercase; margin-bottom: 5px; letter-spacing: 0.5px; }
-                .profile-item p { font-size: 15px; color: var(--dash-text-main, #0f172a); font-weight: 500; }
+                .profile-view { background: var(--bg-body); border-radius: 12px; padding: 24px; border: 1px solid var(--border); }
+                .profile-top { display: flex; align-items: center; gap: 24px; margin-bottom: 24px; border-bottom: 1px dashed var(--border); padding-bottom: 24px; }
+                .emp-avatar-lg { width: 80px; height: 80px; background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%); color: white; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 800; flex-shrink: 0; box-shadow: 0 8px 16px rgba(99, 102, 241, 0.2); }
+                .profile-titles h3 { font-size: 22px; font-weight: 800; margin: 0 0 6px 0; color: var(--text-primary); }
+                .profile-titles .designation { font-size: 15px; margin-bottom: 12px; }
+                .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+                .profile-item label { display: block; font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px; }
+                .profile-item p { font-size: 15px; color: var(--text-primary); font-weight: 600; margin: 0; }
                 
                 .input-btn-group { display: flex; gap: 10px; }
                 .input-btn-group input { flex: 1; }
@@ -347,17 +360,17 @@ const HRMS = () => {
                 .gap-10 { gap: 10px; }
 
                 @media (max-width: 768px) {
-                    .module-container { padding: 15px; }
+                    .module-container { padding: 20px; }
                     .employee-grid { grid-template-columns: 1fr; }
                     .form-grid, .profile-grid { grid-template-columns: 1fr; }
                     .profile-top { flex-direction: column; text-align: center; }
-                    .modal-content { padding: 20px; }
+                    .modal-content { padding: 24px; }
                     .modal-actions { flex-direction: column; }
-                    .modal-actions button { width: 100%; }
-                    .profile-view { padding: 15px; }
-                    .header-top { flex-direction: column; align-items: flex-start; gap: 15px; }
-                    .header-top h1 { font-size: 24px; }
-                    .header-top button { width: 100%; }
+                    .modal-actions button { width: 100%; justify-content: center; }
+                    .profile-view { padding: 20px; }
+                    .header-top { flex-direction: column; align-items: flex-start; gap: 16px; }
+                    .header-top h1 { font-size: 24px; margin: 0; }
+                    .header-top button { width: 100%; justify-content: center; }
                 }
             `}</style>
         </div>

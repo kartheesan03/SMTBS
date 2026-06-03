@@ -9,20 +9,20 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-const EmployeeDashboard = () => {
+function EmployeeDashboard() {
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
 
-    const [status,      setStatus]      = useState(null);   // today's attendance record
-    const [history,     setHistory]     = useState([]);      // last 7 attendance records
-    const [balance,     setBalance]     = useState(null);    // leave balance
-    const [unread,      setUnread]      = useState(0);       // notification count
-    const [myLeaves,    setMyLeaves]    = useState([]);      // recent leave requests
-    const [salary,      setSalary]      = useState(null);    // latest salary
-    const [loading,     setLoading]     = useState(true);
+    const [status, setStatus] = useState(null); // today's attendance record
+    const [history, setHistory] = useState([]); // last 7 attendance records
+    const [balance, setBalance] = useState(null); // leave balance
+    const [unread, setUnread] = useState(0); // notification count
+    const [myLeaves, setMyLeaves] = useState([]); // recent leave requests
+    const [salary, setSalary] = useState(null); // latest salary
+    const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState(false);
-    const [timer,       setTimer]       = useState('0h 0m 0s');
-    const [toast,       setToast]       = useState(null);
+    const [timer, setTimer] = useState('0h 0m 0s');
+    const [toast, setToast] = useState(null);
 
     // ── helpers ─────────────────────────────────────────────────────────────
     const showToast = (msg, ok = true) => {
@@ -40,7 +40,7 @@ const EmployeeDashboard = () => {
         const combined = `${datePart} ${timeStr}`;
         const d = new Date(combined);
         if (!isNaN(d.getTime())) return d;
-        
+
         const match = timeStr.match(/^(\d+):(\d+)\s*(AM|PM)$/i);
         if (match) {
             let [_, hours, minutes, ampm] = match;
@@ -52,7 +52,7 @@ const EmployeeDashboard = () => {
             d.setHours(hours, minutes, 0, 0);
             return d;
         }
-        
+
         const fallback = new Date(timeStr);
         return isNaN(fallback.getTime()) ? null : fallback;
     };
@@ -156,7 +156,7 @@ const EmployeeDashboard = () => {
             const day = weekDays[new Date(h.date).getDay()];
             return day === d;
         }) : null;
-        
+
         if (!rec || !rec.checkIn || !rec.checkOut) return { d, h: 0 };
         const start = parseDateTime(rec.checkIn, rec.date);
         const end = parseDateTime(rec.checkOut, rec.date);
@@ -166,7 +166,7 @@ const EmployeeDashboard = () => {
     });
 
     // ── stat cards ───────────────────────────────────────────────────────────
-    const isActive    = status?.checkIn && !status?.checkOut;
+    const isActive = status?.checkIn && !status?.checkOut;
     const isCompleted = status?.checkIn && status?.checkOut;
 
     if (loading) return (
@@ -187,20 +187,20 @@ const EmployeeDashboard = () => {
         },
         {
             title: 'Salary Status',
-            value: salary?.status === 'Not Generated' ? 'Not Generated' 
-                 : salary?.status === 'Paid' ? 'Paid'
-                 : salary?.status === 'Approved' ? 'Approved'
-                 : salary?.status === 'Awaiting Approval' ? 'Pending Approval'
-                 : salary?.status || 'Not Generated',
+            value: salary?.status === 'Not Generated' ? 'Not Generated'
+                : salary?.status === 'Paid' ? 'Paid'
+                    : salary?.status === 'Approved' ? 'Approved'
+                        : salary?.status === 'Awaiting Approval' ? 'Pending Approval'
+                            : salary?.status || 'Not Generated',
             icon: <DollarSign size={22} />,
-            color: salary?.status === 'Paid' ? '#10b981' 
-                 : salary?.status === 'Approved' ? '#6366f1'
-                 : salary?.status === 'Not Generated' || !salary?.status ? '#94a3b8' 
-                 : '#f59e0b',
-            bgColor: salary?.status === 'Paid' ? '#ecfdf5' 
-                   : salary?.status === 'Approved' ? '#eef2ff'
-                   : salary?.status === 'Not Generated' || !salary?.status ? '#f8fafc' 
-                   : '#fffbeb',
+            color: salary?.status === 'Paid' ? '#10b981'
+                : salary?.status === 'Approved' ? '#6366f1'
+                    : salary?.status === 'Not Generated' || !salary?.status ? '#94a3b8'
+                        : '#f59e0b',
+            bgColor: salary?.status === 'Paid' ? '#ecfdf5'
+                : salary?.status === 'Approved' ? '#eef2ff'
+                    : salary?.status === 'Not Generated' || !salary?.status ? '#f8fafc'
+                        : '#fffbeb',
             onClick: () => navigate('/my-salary')
         },
         {
@@ -253,12 +253,12 @@ const EmployeeDashboard = () => {
             {/* ── Stat Cards ── */}
             <section className="emp-stats">
                 {stats.map((s, i) => (
-                    <div 
-                        key={i} 
+                    <div
+                        key={i}
                         className={`emp-stat-card ${s.onClick ? 'clickable' : ''}`}
                         onClick={s.onClick}
                     >
-                        <div 
+                        <div
                             className="stat-icon-box"
                             style={{ color: s.color, backgroundColor: s.bgColor }}
                         >
@@ -341,8 +341,7 @@ const EmployeeDashboard = () => {
                                 >
                                     {actionLoading
                                         ? <Loader size={18} className="spin-icon" />
-                                        : <Square size={18} />
-                                    }
+                                        : <Square size={18} />}
                                     Check Out
                                 </button>
                             ) : (
@@ -354,8 +353,7 @@ const EmployeeDashboard = () => {
                                 >
                                     {actionLoading
                                         ? <Loader size={18} className="spin-icon" />
-                                        : <Play size={18} />
-                                    }
+                                        : <Play size={18} />}
                                     Check In
                                 </button>
                             )}
@@ -374,8 +372,7 @@ const EmployeeDashboard = () => {
                                     <XAxis dataKey="d" fontSize={11} stroke="#94a3b8" axisLine={false} tickLine={false} />
                                     <Tooltip
                                         contentStyle={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 8 }}
-                                        formatter={(v) => [`${v}h`, 'Hours']}
-                                    />
+                                        formatter={(v) => [`${v}h`, 'Hours']} />
                                     <Bar dataKey="h" fill="#3b82f6" radius={[6, 6, 0, 0]} />
                                 </BarChart>
                             </ResponsiveContainer>
@@ -401,8 +398,7 @@ const EmployeeDashboard = () => {
                                     <div className="bal-bar-wrap">
                                         <div
                                             className="bal-bar"
-                                            style={{ width: `${(b.remaining / b.total) * 100}%` }}
-                                        />
+                                            style={{ width: `${(b.remaining / b.total) * 100}%` }} />
                                     </div>
                                     <span className="bal-count">{b.remaining}<small>/{b.total}</small></span>
                                 </div>
@@ -470,60 +466,62 @@ const EmployeeDashboard = () => {
                     flex-direction: column; 
                     gap: 28px; 
                     position: relative; 
-                    background-color: var(--dash-bg, #f1f5f9);
+                    background-color: var(--bg-body);
                     min-height: 100vh;
-                    color: #1e293b;
+                    color: var(--text-primary);
                 }
 
                 /* ── Toast ── */
-                .emp-toast { position: fixed; bottom: 28px; right: 28px; padding: 12px 22px; border-radius: 10px; font-size: 13px; font-weight: 600; z-index: 9999; animation: slideUp 0.3s ease; box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
-                .emp-toast.ok  { background: #ecfdf5; border: 1px solid #10b981; color: #10b981; }
-                .emp-toast.err { background: #fef2f2; border: 1px solid #ef4444; color: #ef4444; }
+                .emp-toast { position: fixed; bottom: 28px; right: 28px; padding: 12px 22px; border-radius: var(--radius-md, 12px); font-size: 13px; font-weight: 600; z-index: 9999; animation: slideUp 0.3s ease; box-shadow: var(--shadow-lg); }
+                .emp-toast.ok  { background: var(--success-light); border: 1px solid var(--success); color: var(--success); }
+                .emp-toast.err { background: #fef2f2; border: 1px solid var(--danger); color: var(--danger); }
                 @keyframes slideUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
 
                 /* ── Header ── */
                 .emp-header { display: flex; justify-content: space-between; align-items: flex-start; }
-                .emp-greeting { font-size: 14px; color: #64748b; font-weight: 600; }
-                .emp-name { font-size: 30px; font-weight: 800; margin: 4px 0 6px; color: #0f172a; }
-                .emp-date { font-size: 13px; color: #64748b; font-weight: 500; }
+                .emp-greeting { font-size: 14px; color: var(--text-secondary); font-weight: 600; }
+                .emp-name { font-size: 30px; font-weight: 800; margin: 4px 0 6px; color: var(--text-primary); letter-spacing: -0.5px; }
+                .emp-date { font-size: 13px; color: var(--text-muted); font-weight: 500; }
                 
                 .notif-btn { 
                     position: relative; 
                     width: 46px; 
                     height: 46px; 
                     border-radius: 50%; 
-                    background: #ffffff; 
-                    border: 1px solid #e2e8f0; 
+                    background: var(--bg-card); 
+                    border: 1px solid var(--border); 
                     display: flex; 
                     align-items: center; 
                     justify-content: center; 
-                    color: #64748b; 
+                    color: var(--text-secondary); 
                     cursor: pointer; 
-                    transition: all 0.2s; 
+                    transition: all 0.25s ease; 
+                    box-shadow: var(--shadow-xs);
                 }
-                .notif-btn:hover { background: #f8fafc; color: #0f172a; }
-                .notif-count { position: absolute; top: -4px; right: -4px; background: #ef4444; color: white; font-size: 10px; font-weight: 800; padding: 2px 5px; border-radius: 20px; }
+                .notif-btn:hover { background: var(--bg-hover); color: var(--text-primary); transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+                .notif-count { position: absolute; top: -4px; right: -4px; background: var(--danger); color: white; font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 20px; box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3); }
 
                 /* ── Stat Cards Overhaul ── */
                 .emp-stats { 
                     display: grid; 
                     grid-template-columns: repeat(4, 1fr); 
-                    gap: 18px; 
+                    gap: 20px; 
                 }
                 .emp-stat-card {
-                    background: #ffffff;
-                    border: 1px solid #e2e8f0;
-                    border-radius: 12px;
-                    padding: 18px 24px;
+                    background: var(--bg-card);
+                    border: 1px solid var(--border);
+                    border-radius: var(--radius-lg, 16px);
+                    padding: 20px;
                     display: flex;
                     align-items: center;
                     gap: 20px;
-                    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-                    transition: transform 0.2s, box-shadow 0.2s;
+                    box-shadow: var(--shadow-sm);
+                    transition: all 0.25s ease;
                 }
                 .emp-stat-card:hover {
                     transform: translateY(-2px);
-                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+                    box-shadow: var(--shadow-md);
+                    border-color: var(--border-hover);
                 }
                 .emp-stat-card.clickable {
                     cursor: pointer;
@@ -531,161 +529,165 @@ const EmployeeDashboard = () => {
                 .stat-icon-box {
                     width: 46px;
                     height: 46px;
-                    border-radius: 10px;
+                    border-radius: var(--radius-md, 12px);
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     flex-shrink: 0;
+                    transition: transform 0.2s ease;
+                }
+                .emp-stat-card:hover .stat-icon-box {
+                    transform: scale(1.05);
                 }
                 .stat-content {
                     display: flex;
                     flex-direction: column;
-                    gap: 2px;
+                    gap: 4px;
                 }
                 .stat-label {
-                    font-size: 11px;
-                    font-weight: 700;
-                    color: #64748b;
+                    font-size: 12px;
+                    font-weight: 600;
+                    color: var(--text-muted);
                     text-transform: uppercase;
                     letter-spacing: 0.3px;
                 }
                 .stat-value {
-                    font-size: 22px;
+                    font-size: 24px;
                     font-weight: 800;
-                    color: #0f172a;
+                    color: var(--text-primary);
                 }
 
                 /* ── White Cards Overhaul ── */
                 .white-card {
-                    background: #ffffff;
-                    border: 1px solid #e2e8f0;
-                    border-radius: 16px;
+                    background: var(--bg-card);
+                    border: 1px solid var(--border);
+                    border-radius: var(--radius-lg, 16px);
                     padding: 24px;
-                    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-                    color: #1e293b;
+                    box-shadow: var(--shadow-sm);
+                    color: var(--text-primary);
                 }
 
                 /* ── Main grid ── */
                 .emp-main-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px; }
-                .emp-left  { display: flex; flex-direction: column; gap: 20px; }
-                .emp-right { display: flex; flex-direction: column; gap: 20px; }
+                .emp-left  { display: flex; flex-direction: column; gap: 24px; }
+                .emp-right { display: flex; flex-direction: column; gap: 24px; }
 
                 /* ── Attendance card ── */
-                .attend-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; }
-                .attend-card-header h3 { font-size: 16px; font-weight: 700; color: #0f172a; }
+                .attend-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+                .attend-card-header h3 { font-size: 16px; font-weight: 800; color: var(--text-primary); }
                 .view-details-btn { 
                     display: flex; 
                     align-items: center; 
-                    gap: 5px; 
-                    background: #f8fafc; 
-                    border: 1px solid #e2e8f0; 
-                    color: #475569; 
+                    gap: 6px; 
+                    background: var(--bg-hover); 
+                    border: 1px solid var(--border); 
+                    color: var(--text-secondary); 
                     font-size: 12px; 
                     font-weight: 700; 
                     padding: 8px 14px;
-                    border-radius: 8px;
+                    border-radius: var(--radius-md, 10px);
                     cursor: pointer; 
-                    transition: background 0.2s;
+                    transition: all 0.2s;
                 }
-                .view-details-btn:hover { background: #f1f5f9; color: #1e293b; }
+                .view-details-btn:hover { background: var(--border); color: var(--text-primary); }
 
                 /* ── Timer ring ── */
-                .timer-ring-wrap { display: flex; justify-content: center; margin-bottom: 24px; }
+                .timer-ring-wrap { display: flex; justify-content: center; margin-bottom: 28px; }
                 .timer-ring {
-                    width: 160px; height: 160px; border-radius: 50%;
-                    border: 3px solid #e2e8f0;
+                    width: 170px; height: 170px; border-radius: 50%;
+                    border: 4px solid var(--border);
                     display: flex; flex-direction: column; align-items: center; justify-content: center;
-                    gap: 8px; color: #64748b;
+                    gap: 8px; color: var(--text-secondary);
                     transition: all 0.4s;
-                    background: #f8fafc;
+                    background: var(--bg-body);
                 }
                 .timer-ring.active {
-                    border-color: #3b82f6;
-                    color: #2563eb;
-                    background: #eff6ff;
-                    box-shadow: 0 0 20px rgba(59, 130, 246, 0.15);
+                    border-color: var(--primary);
+                    color: var(--primary);
+                    background: var(--primary-50);
+                    box-shadow: 0 0 24px rgba(37, 99, 235, 0.15);
                 }
                 .timer-ring.done { 
-                    border-color: #10b981; 
-                    color: #10b981; 
-                    background: #ecfdf5; 
-                    box-shadow: 0 0 20px rgba(16, 185, 129, 0.1); 
+                    border-color: var(--success); 
+                    color: var(--success); 
+                    background: var(--success-light); 
+                    box-shadow: 0 0 24px rgba(16, 185, 129, 0.15); 
                 }
-                .ring-timer { font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums; color: inherit; }
-                .ring-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+                .ring-timer { font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums; color: inherit; }
+                .ring-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
 
                 /* ── Time pills ── */
-                .time-pills { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 22px; }
+                .time-pills { display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 24px; }
                 .time-pill { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 64px; }
-                .pill-icon { color: #64748b; }
-                .pill-icon.in  { color: #10b981; }
-                .pill-icon.out { color: #ef4444; }
-                .pill-label { font-size: 10px; text-transform: uppercase; color: #64748b; font-weight: 700; letter-spacing: 0.5px; }
-                .pill-value { font-size: 15px; font-weight: 700; color: #0f172a; }
-                .time-divider { width: 1px; height: 36px; background: #e2e8f0; }
+                .pill-icon { color: var(--text-muted); }
+                .pill-icon.in  { color: var(--success); }
+                .pill-icon.out { color: var(--danger); }
+                .pill-label { font-size: 10px; text-transform: uppercase; color: var(--text-muted); font-weight: 700; letter-spacing: 0.5px; }
+                .pill-value { font-size: 16px; font-weight: 800; color: var(--text-primary); }
+                .time-divider { width: 1px; height: 36px; background: var(--border); }
 
                 /* ── Attendance action buttons ── */
                 .attend-actions { display: flex; justify-content: center; }
                 .attend-btn {
                     display: flex; align-items: center; justify-content: center; gap: 10px;
                     width: 100%; max-width: 260px;
-                    padding: 14px 24px; border-radius: 12px;
+                    padding: 16px 24px; border-radius: var(--radius-md, 12px);
                     font-size: 15px; font-weight: 700;
                     cursor: pointer; transition: all 0.25s;
                     border: none;
                 }
-                .checkin-btn  { background: #2563eb; color: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
-                .checkin-btn:hover  { transform: translateY(-1px); background: #1d4ed8; box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3); }
-                .checkout-btn { background: #ef4444; color: white; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2); }
-                .checkout-btn:hover { transform: translateY(-1px); background: #dc2626; box-shadow: 0 6px 16px rgba(239, 68, 68, 0.3); }
+                .checkin-btn  { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25); }
+                .checkin-btn:hover  { transform: translateY(-2px); background: #1d4ed8; box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35); }
+                .checkout-btn { background: var(--danger); color: white; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25); }
+                .checkout-btn:hover { transform: translateY(-2px); background: #dc2626; box-shadow: 0 6px 16px rgba(239, 68, 68, 0.35); }
                 .attend-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
                 .spin-icon { animation: spin 1s linear infinite; }
                 @keyframes spin { to { transform: rotate(360deg); } }
                 
                 .shift-done-badge {
                     display: flex; align-items: center; gap: 10px;
-                    background: #ecfdf5; border: 1px solid #bbf7d0;
-                    color: #10b981; padding: 14px 24px; border-radius: 12px; font-weight: 600; font-size: 14px;
+                    background: var(--success-light); border: 1px solid var(--success);
+                    color: var(--success); padding: 14px 24px; border-radius: var(--radius-md, 12px); font-weight: 600; font-size: 14px;
                 }
 
                 /* ── Weekly card ── */
-                .weekly-card { padding: 22px; }
+                .weekly-card { padding: 24px; }
 
                 /* ── Leave balance card ── */
-                .leave-balance-card { padding: 22px; }
-                .balance-list { display: flex; flex-direction: column; gap: 14px; margin-top: 4px; }
+                .leave-balance-card { padding: 24px; }
+                .balance-list { display: flex; flex-direction: column; gap: 16px; margin-top: 4px; }
                 .balance-row { display: flex; align-items: center; gap: 12px; }
-                .bal-type { width: 56px; font-size: 12px; font-weight: 600; color: #475569; }
-                .bal-bar-wrap { flex: 1; height: 6px; background: #f1f5f9; border-radius: 10px; overflow: hidden; }
-                .bal-bar { height: 100%; background: linear-gradient(90deg, #3b82f6, #8b5cf6); border-radius: 10px; transition: width 0.6s ease; }
-                .bal-count { font-size: 13px; font-weight: 700; min-width: 40px; text-align: right; color: #0f172a; }
-                .bal-count small { font-size: 11px; color: #64748b; font-weight: 400; }
+                .bal-type { width: 64px; font-size: 13px; font-weight: 600; color: var(--text-secondary); }
+                .bal-bar-wrap { flex: 1; height: 8px; background: var(--bg-body); border-radius: 10px; overflow: hidden; }
+                .bal-bar { height: 100%; background: linear-gradient(90deg, var(--primary), #8b5cf6); border-radius: 10px; transition: width 0.6s ease; }
+                .bal-count { font-size: 14px; font-weight: 800; min-width: 44px; text-align: right; color: var(--text-primary); }
+                .bal-count small { font-size: 11px; color: var(--text-muted); font-weight: 500; }
 
                 /* ── Recent leaves card ── */
-                .recent-leaves-card { padding: 22px; }
-                .leave-mini-list { display: flex; flex-direction: column; gap: 12px; margin-top: 4px; }
-                .leave-mini-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f1f5f9; }
+                .recent-leaves-card { padding: 24px; }
+                .leave-mini-list { display: flex; flex-direction: column; gap: 14px; margin-top: 4px; }
+                .leave-mini-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
                 .leave-mini-row:last-child { border-bottom: none; }
-                .lm-type { font-size: 13px; font-weight: 600; margin-right: 8px; color: #1e293b; }
-                .lm-dates { font-size: 12px; color: #64748b; }
-                .lm-status { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
-                .lm-status.pending  { background: #fffbeb;  color: #f59e0b; }
-                .lm-status.approved { background: #ecfdf5;  color: #10b981; }
-                .lm-status.rejected { background: #fef2f2;  color: #ef4444; }
-                .lm-status.cancelled { background: #f1f5f9; color: #64748b; }
+                .lm-type { font-size: 14px; font-weight: 700; margin-right: 8px; color: var(--text-primary); }
+                .lm-dates { font-size: 12px; color: var(--text-muted); }
+                .lm-status { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; }
+                .lm-status.pending  { background: var(--warning-light);  color: var(--warning); }
+                .lm-status.approved { background: var(--success-light);  color: var(--success); }
+                .lm-status.rejected { background: #fef2f2;  color: var(--danger); }
+                .lm-status.cancelled { background: var(--bg-body); color: var(--text-muted); }
 
                 /* ── Quick actions ── */
-                .quick-card { padding: 22px; }
-                .quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+                .quick-card { padding: 24px; }
+                .quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
                 .q-btn {
-                    display: flex; flex-direction: column; align-items: center; gap: 8px;
-                    padding: 16px 10px; border-radius: 12px;
-                    background: #f8fafc; border: 1px solid #e2e8f0;
-                    color: #475569; font-size: 12px; font-weight: 600;
-                    cursor: pointer; transition: all 0.2s; position: relative;
+                    display: flex; flex-direction: column; align-items: center; gap: 10px;
+                    padding: 16px; border-radius: var(--radius-md, 12px);
+                    background: var(--bg-body); border: 1px solid var(--border);
+                    color: var(--text-secondary); font-size: 13px; font-weight: 600;
+                    cursor: pointer; transition: all 0.2s ease; position: relative;
                 }
-                .q-btn:hover { background: #eff6ff; border-color: #3b82f6; color: #2563eb; }
-                .q-badge { position: absolute; top: 8px; right: 8px; background: #ef4444; color: white; font-size: 10px; font-weight: 800; padding: 1px 5px; border-radius: 10px; }
+                .q-btn:hover { background: var(--primary-50); border-color: var(--primary); color: var(--primary); }
+                .q-badge { position: absolute; top: -6px; right: -6px; background: var(--danger); color: white; font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 10px; box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3); }
 
                 /* ── Loading ── */
                 .emp-loading-wrapper {
@@ -695,13 +697,16 @@ const EmployeeDashboard = () => {
                     align-items: center;
                     justify-content: center;
                     gap: 16px;
+                    color: var(--text-muted);
+                    font-size: 14px;
+                    font-weight: 500;
                 }
                 
                 .dash-spinner {
-                    width: 44px;
-                    height: 44px;
-                    border: 3px solid rgba(37, 99, 235, 0.1);
-                    border-top: 3px solid #2563eb;
+                    width: 48px;
+                    height: 48px;
+                    border: 3px solid var(--primary-100);
+                    border-top: 3px solid var(--primary);
                     border-radius: 50%;
                     animation: spin 1s linear infinite;
                 }
@@ -716,17 +721,17 @@ const EmployeeDashboard = () => {
                 }
 
                 @media (max-width: 768px) {
-                    .emp-workspace { padding: 15px; gap: 20px; }
+                    .emp-workspace { padding: 20px; gap: 20px; }
                     .emp-header { flex-direction: column; gap: 15px; }
                     .emp-name { font-size: 24px; }
                     .notif-btn { display: none; }
-                    .emp-stats { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-                    .attend-card { padding: 16px; }
-                    .timer-ring { width: 140px; height: 140px; }
-                    .ring-timer { font-size: 18px; }
+                    .emp-stats { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+                    .attend-card { padding: 20px; }
+                    .timer-ring { width: 150px; height: 150px; }
+                    .ring-timer { font-size: 20px; }
                     .time-pills { gap: 10px; }
                     .time-pill { min-width: 50px; }
-                    .pill-value { font-size: 13px; }
+                    .pill-value { font-size: 14px; }
                     .quick-grid { grid-template-columns: repeat(2, 1fr); }
                 }
 
@@ -738,6 +743,6 @@ const EmployeeDashboard = () => {
             `}</style>
         </div>
     );
-};
+}
 
 export default EmployeeDashboard;

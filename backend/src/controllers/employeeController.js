@@ -101,8 +101,14 @@ const deleteEmployee = async (req, res) => {
     try {
         const employee = await Employee.findById(req.params.id);
         if (employee) {
+            // Delete associated user if exists
+            if (employee.userId) {
+                const user = await User.findById(employee.userId);
+                if (user) await user.deleteOne();
+            }
+            // Optionally, we could delete associated Salaries and Leaves here, but for now just deleting the employee and user is fine
             await employee.deleteOne();
-            res.json({ message: 'Employee removed' });
+            res.json({ message: 'Employee removed successfully' });
         } else {
             res.status(404).json({ message: 'Employee not found' });
         }

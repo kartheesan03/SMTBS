@@ -657,45 +657,49 @@ const Payroll = () => {
             )}
 
             <style>{`
-                .module-container { padding: 30px; position: relative; }
+                .module-container { padding: 30px; position: relative; color: var(--text-primary); }
                 .module-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px; flex-wrap: wrap; gap: 16px; }
-                .header-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+                .title-gradient { font-size: 26px; font-weight: 800; color: var(--text-primary); margin: 0 0 6px 0; letter-spacing: -0.5px; }
+                .text-muted { color: var(--text-muted) !important; font-size: 14px; margin: 0; }
+                .header-actions { display: flex; gap: 12px; flex-wrap: wrap; }
                 
                 .payroll-summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
-                .p-stat { padding: 22px 25px; display: flex; align-items: center; gap: 18px; }
-                .p-stat p { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
-                .p-stat h3 { font-size: 24px; }
-                .stat-sub { font-size: 13px; color: var(--text-muted); font-weight: 400; }
-                .stat-icon-wrap { width: 50px; height: 50px; border-radius: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-                    background: color-mix(in srgb, var(--sc) 12%, transparent);
-                    color: var(--sc); border: 1px solid color-mix(in srgb, var(--sc) 20%, transparent); }
+                .p-stat { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg, 16px); padding: 24px; display: flex; align-items: center; gap: 18px; box-shadow: var(--shadow-sm); transition: transform 0.2s, box-shadow 0.2s; }
+                .p-stat:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+                .p-stat p { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; }
+                .p-stat h3 { font-size: 24px; font-weight: 800; color: var(--text-primary); }
+                .stat-sub { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+                .stat-icon-wrap { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: color-mix(in srgb, var(--sc) 12%, transparent); color: var(--sc); border: 1px solid color-mix(in srgb, var(--sc) 20%, transparent); }
                 
                 .emp-cell { display: flex; align-items: center; gap: 12px; }
-                .emp-avatar { width: 32px; height: 32px; border-radius: 50%; background: rgba(99, 102, 241, 0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+                .emp-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--primary-50); color: var(--primary); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-weight: 700; }
                 .emp-avatar.sm { width: 26px; height: 26px; }
                 .small { font-size: 11px; }
 
-                .adj-cell { display: flex; flex-direction: column; font-size: 12px; font-weight: 600; }
+                .adj-cell { display: flex; flex-direction: column; font-size: 13px; font-weight: 600; }
                 
-                .status-pill { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; padding: 4px 10px; border-radius: 20px; width: fit-content; }
-                .status-pill.paid { background: rgba(16, 185, 129, 0.1); color: #10b981; }
-                .status-pill.approved { background: rgba(99, 102, 241, 0.1); color: var(--primary); }
-                .status-pill.awaiting-approval { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+                .status-pill { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; padding: 6px 12px; border-radius: 20px; width: fit-content; letter-spacing: 0.5px; }
+                .status-pill.paid { background: var(--success-light); color: var(--success); }
+                .status-pill.approved { background: var(--primary-50); color: var(--primary); }
+                .status-pill.awaiting-approval { background: var(--warning-light); color: var(--warning); }
 
-                .payslip-pending-msg { display: flex; align-items: center; gap: 8px; color: #f59e0b; font-size: 12px; font-weight: 600; background: rgba(245, 158, 11, 0.08); padding: 8px 16px; border-radius: 8px; border: 1px solid rgba(245, 158, 11, 0.15); }
+                .payslip-pending-msg { display: flex; align-items: center; gap: 8px; color: var(--warning); font-size: 13px; font-weight: 600; background: var(--warning-light); padding: 10px 16px; border-radius: 8px; }
 
-                .btn-table-action { background: var(--bg-card, #ffffff); color: var(--dash-text-main, #0f172a); border: 1px solid var(--border); font-size: 12px; padding: 6px 12px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s; }
-                .btn-table-action:hover { background: rgba(0,0,0,0.05); }
-                .approve-btn { background: rgba(16, 185, 129, 0.1); color: #10b981; border-color: rgba(16, 185, 129, 0.2); }
-                .approve-btn:hover { background: rgba(16, 185, 129, 0.2); }
-                .pay-btn { background: rgba(99, 102, 241, 0.1); color: #818cf8; border-color: rgba(99, 102, 241, 0.25); }
-                .pay-btn:hover { background: rgba(99, 102, 241, 0.25); color: #a5b4fc; }
-                .paid-badge-btn { background: rgba(16, 185, 129, 0.06); color: #10b981; border-color: rgba(16,185,129,0.15); cursor: default !important; opacity: 0.7; }
+                .btn-table-action { background: var(--bg-body); color: var(--text-primary); border: 1px solid var(--border); font-size: 13px; padding: 8px 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s; font-weight: 600; }
+                .btn-table-action:hover { background: var(--bg-hover); transform: translateY(-1px); }
+                .approve-btn { background: var(--success-light); color: var(--success); border-color: transparent; }
+                .approve-btn:hover { background: color-mix(in srgb, var(--success) 20%, transparent); border-color: var(--success); }
+                .pay-btn { background: var(--primary-50); color: var(--primary); border-color: transparent; }
+                .pay-btn:hover { background: var(--primary-100); border-color: var(--primary); color: var(--primary); }
+                .paid-badge-btn { background: var(--success-light); color: var(--success); border-color: transparent; cursor: default !important; opacity: 0.8; }
 
-                .btn-pay-all { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; padding: 10px 22px; border-radius: 10px; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); }
+                .btn-primary { background: var(--primary); color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 700; font-size: 13px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); display: inline-flex; align-items: center; cursor: pointer; border: none; transition: all 0.2s; }
+                .btn-primary:hover { background: #1d4ed8; transform: translateY(-1px); box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3); }
+
+                .btn-pay-all { background: linear-gradient(135deg, var(--success) 0%, #059669 100%); color: white; border: none; padding: 10px 22px; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); display: flex; align-items: center; }
                 .btn-pay-all:hover { box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5); transform: translateY(-1px); }
 
-                .btn-pay-confirm { display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); color: white; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); }
+                .btn-pay-confirm { display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, var(--primary) 0%, #4f46e5 100%); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); }
                 .btn-pay-confirm:hover { box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5); transform: translateY(-1px); }
                 .btn-pay-confirm:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
@@ -704,97 +708,104 @@ const Payroll = () => {
                 .mb-10 { margin-bottom: 10px; }
                 .p-30 { padding: 30px; }
 
-                .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 2000; }
-                .modal-content { width: 90%; max-width: 550px; }
+                .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 2000; padding: 20px; }
+                .modal-content, .glass-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg, 16px); box-shadow: var(--shadow-lg); overflow-y: auto; }
+                .modal-content { width: 100%; max-width: 550px; max-height: 90vh; }
                 .pay-modal { max-width: 580px; }
                 .receipt-modal { max-width: 440px; }
-                .payslip-modal-admin { width: 90%; max-width: 600px; }
-                .modal-header { padding: 20px 25px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-                .close-btn { background: none; color: var(--text-muted); cursor: pointer; font-size: 20px; border: none; }
+                .payslip-modal-admin { width: 100%; max-width: 600px; max-height: 90vh; }
+                .modal-header { padding: 20px 28px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+                .modal-header h3 { font-size: 20px; font-weight: 800; color: var(--text-primary); margin: 0; }
+                .close-btn { background: none; color: var(--text-muted); cursor: pointer; font-size: 20px; border: none; padding: 4px; border-radius: 6px; transition: background 0.2s; }
+                .close-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
                 
-                .pay-header-icon { width: 40px; height: 40px; border-radius: 12px; background: rgba(99,102,241,0.15); color: var(--primary); display: flex; align-items: center; justify-content: center; }
-                .pay-header-icon.bulk { background: rgba(16,185,129,0.15); color: #10b981; }
+                .pay-header-icon { width: 44px; height: 44px; border-radius: 12px; background: var(--primary-50); color: var(--primary); display: flex; align-items: center; justify-content: center; }
+                .pay-header-icon.bulk { background: var(--success-light); color: var(--success); }
 
                 /* Pay Employee Card */
-                .pay-emp-card { display: flex; align-items: center; gap: 16px; background: var(--bg-card, #ffffff); border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin-bottom: 20px; }
-                .pay-emp-avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+                .pay-emp-card { display: flex; align-items: center; gap: 16px; background: var(--bg-body); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+                .pay-emp-avatar { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%); color: white; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
                 .pay-emp-info { flex: 1; }
-                .pay-emp-info h4 { font-size: 16px; margin-bottom: 2px; }
-                .pay-emp-info span { font-size: 12px; color: var(--text-muted); }
+                .pay-emp-info h4 { font-size: 18px; margin: 0 0 4px 0; font-weight: 700; color: var(--text-primary); }
+                .pay-emp-info span { font-size: 13px; color: var(--text-muted); }
                 .pay-emp-amount { text-align: right; }
-                .pay-emp-amount .label { font-size: 10px; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; }
-                .pay-emp-amount h2 { font-size: 24px; color: #10b981; margin-top: 2px; }
+                .pay-emp-amount .label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; font-weight: 700; }
+                .pay-emp-amount h2 { font-size: 26px; color: var(--success); margin: 4px 0 0 0; font-weight: 800; }
 
                 /* Breakdown */
-                .pay-breakdown { background: var(--dash-bg, #f1f5f9); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
-                .pay-break-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; color: var(--text-muted); }
-                .pay-break-row.total { border-top: 1px dashed var(--border); margin-top: 8px; padding-top: 12px; font-weight: 700; color: var(--dash-text-main, #0f172a); font-size: 16px; }
+                .pay-breakdown { background: var(--bg-body); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+                .pay-break-row { display: flex; justify-content: space-between; padding: 10px 0; font-size: 14px; color: var(--text-muted); font-weight: 500; }
+                .pay-break-row.total { border-top: 1px dashed var(--border); margin-top: 12px; padding-top: 16px; font-weight: 800; color: var(--text-primary); font-size: 18px; }
 
                 /* Payment Methods */
-                .pay-method-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-                .pay-method-btn { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 8px; background: var(--bg-card, #ffffff); border: 1px solid var(--border); border-radius: 10px; color: var(--text-muted); font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-                .pay-method-btn:hover { background: rgba(0,0,0,0.05); color: var(--dash-text-main, #0f172a); }
-                .pay-method-btn.active { background: rgba(99,102,241,0.12); border-color: var(--primary); color: var(--primary); box-shadow: 0 0 0 1px var(--primary); }
+                .pay-method-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+                .pay-method-btn { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 16px 8px; background: var(--bg-body); border: 1px solid var(--border); border-radius: 10px; color: var(--text-muted); font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+                .pay-method-btn:hover { background: var(--bg-hover); color: var(--text-primary); border-color: var(--border-hover); }
+                .pay-method-btn.active { background: var(--primary-50); border-color: var(--primary); color: var(--primary); box-shadow: 0 0 0 1px var(--primary); }
 
                 /* Bulk Pay */
-                .bulk-pay-summary { display: flex; align-items: center; justify-content: center; gap: 20px; padding: 24px; background: var(--bg-card, #ffffff); border: 1px solid var(--border); border-radius: 14px; margin-bottom: 20px; }
+                .bulk-pay-summary { display: flex; align-items: center; justify-content: center; gap: 24px; padding: 28px; background: var(--bg-body); border: 1px solid var(--border); border-radius: 14px; margin-bottom: 24px; }
                 .bulk-stat { text-align: center; }
-                .bulk-stat span { font-size: 11px; color: var(--text-muted); text-transform: uppercase; }
-                .bulk-stat h3 { font-size: 26px; margin-top: 4px; }
-                .bulk-stat.total h3 { color: #10b981; }
+                .bulk-stat span { font-size: 12px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
+                .bulk-stat h3 { font-size: 28px; margin: 8px 0 0 0; font-weight: 800; color: var(--text-primary); }
+                .bulk-stat.total h3 { color: var(--success); }
                 .bulk-arrow { color: var(--text-muted); }
-                .bulk-emp-list { max-height: 200px; overflow-y: auto; border: 1px solid var(--border); border-radius: 10px; padding: 12px; margin-bottom: 16px; }
-                .bulk-emp-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 4px; border-bottom: 1px solid var(--border); font-size: 14px; }
+                .bulk-emp-list { max-height: 220px; overflow-y: auto; border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 20px; background: var(--bg-body); }
+                .bulk-emp-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 4px; border-bottom: 1px solid var(--border); font-size: 14px; font-weight: 500; color: var(--text-primary); }
                 .bulk-emp-row:last-child { border-bottom: none; }
-                .bulk-warning { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2); border-radius: 10px; font-size: 13px; color: #f59e0b; }
+                .bulk-warning { display: flex; align-items: center; gap: 12px; padding: 16px; background: var(--warning-light); border: 1px solid color-mix(in srgb, var(--warning) 20%, transparent); border-radius: 12px; font-size: 14px; color: var(--warning); font-weight: 500; }
 
                 /* Receipt */
-                .receipt-header { text-align: center; padding: 30px 30px 10px; }
-                .receipt-check-circle { width: 70px; height: 70px; border-radius: 50%; background: rgba(16,185,129,0.12); color: #10b981; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; animation: scaleIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+                .receipt-header { text-align: center; padding: 36px 30px 16px; }
+                .receipt-check-circle { width: 76px; height: 76px; border-radius: 50%; background: var(--success-light); color: var(--success); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; animation: scaleIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
                 @keyframes scaleIn { from { transform: scale(0); } to { transform: scale(1); } }
-                .receipt-header h2 { font-size: 22px; margin-bottom: 4px; }
-                .receipt-body { padding: 10px 30px 20px; }
-                .receipt-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+                .receipt-header h2 { font-size: 24px; margin: 0 0 8px 0; font-weight: 800; color: var(--text-primary); }
+                .receipt-body { padding: 16px 30px 24px; }
+                .receipt-row { display: flex; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--border); font-size: 15px; font-weight: 500; color: var(--text-primary); }
                 .receipt-row span { color: var(--text-muted); }
                 .receipt-row:last-child { border-bottom: none; }
-                .txn-id { font-family: 'JetBrains Mono', monospace; font-size: 12px; background: rgba(99,102,241,0.1); padding: 2px 8px; border-radius: 4px; color: var(--primary); }
-                .receipt-footer { padding: 15px 30px 25px; text-align: center; }
-                .receipt-footer .btn-primary { width: 100%; padding: 14px; font-size: 16px; }
+                .txn-id { font-family: monospace; font-size: 13px; background: var(--primary-50); padding: 4px 10px; border-radius: 6px; color: var(--primary); font-weight: 700; }
+                .receipt-footer { padding: 20px 30px 30px; text-align: center; }
+                .receipt-footer .btn-primary { width: 100%; padding: 14px; font-size: 16px; display: flex; justify-content: center; }
 
                 /* Net Preview in Gen Modal */
-                .net-preview { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; background: rgba(99,102,241,0.06); border: 1px solid rgba(99,102,241,0.15); border-radius: 10px; font-size: 16px; }
-                .net-preview strong { color: var(--primary); font-size: 20px; }
+                .net-preview { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; background: var(--primary-50); border: 1px solid var(--primary-100); border-radius: 12px; font-size: 16px; font-weight: 600; color: var(--text-primary); }
+                .net-preview strong { color: var(--primary); font-size: 22px; font-weight: 800; }
 
-                .ps-txn-info { display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 12px 16px; background: rgba(99,102,241,0.06); border-radius: 10px; color: var(--text-muted); }
+                .ps-txn-info { display: flex; align-items: center; gap: 10px; font-size: 14px; padding: 16px 20px; background: var(--primary-50); border-radius: 12px; color: var(--text-primary); font-weight: 500; }
 
                 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
                 .form-group { display: flex; flex-direction: column; gap: 8px; }
-                .form-group label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-                .form-group input, .form-group select { padding: 12px; background: var(--bg-card, #ffffff); border: 1px solid var(--border); border-radius: 8px; color: var(--dash-text-main, #0f172a); font-size: 14px; }
+                .form-group label { font-size: 12px; font-weight: 700; color: var(--text-secondary); }
+                .form-group input, .form-group select { padding: 12px 16px; background: var(--bg-body); border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary); font-size: 14px; outline: none; transition: border-color 0.2s; width: 100%; }
                 .form-group select { appearance: none; padding-right: 40px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
-                .form-group select option { background: #ffffff; color: var(--dash-text-main, #0f172a); }
                 .form-group input::placeholder { color: var(--text-muted); }
-                .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(99,102,241,0.15); }
+                .form-group input:focus, .form-group select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-50); }
 
                 .modal-body { padding: 30px; }
-                .ps-section { margin-bottom: 20px; }
-                .label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; font-weight: 600; }
-                .val { font-size: 16px; font-weight: 600; }
-                .ps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 25px; }
-                .ps-box { background: var(--bg-card, #ffffff); padding: 12px; border-radius: 10px; border: 1px solid var(--border); }
+                .ps-section { margin-bottom: 24px; }
+                .label { font-size: 12px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; font-weight: 700; letter-spacing: 0.5px; display: block; }
+                .val { font-size: 16px; font-weight: 700; color: var(--text-primary); margin: 0; }
+                .ps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 28px; }
+                .ps-box { background: var(--bg-body); padding: 16px; border-radius: 12px; border: 1px solid var(--border); }
                 
-                .ps-total-row { background: rgba(99, 102, 241, 0.05); padding: 20px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; }
-                .ps-total-row h2 { font-size: 28px; color: var(--primary); }
-                .status-tag { font-size: 12px; font-weight: 800; text-transform: uppercase; }
-                .status-tag.awaiting-approval { color: #f59e0b; }
+                .ps-total-row { background: var(--primary-50); padding: 24px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--primary-100); }
+                .ps-total-row h2 { font-size: 32px; color: var(--primary); margin: 0; font-weight: 800; }
+                .status-tag { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+                .status-tag.awaiting-approval { color: var(--warning); }
                 .status-tag.approved { color: var(--primary); }
-                .status-tag.paid { color: #10b981; }
+                .status-tag.paid { color: var(--success); }
+                .text-success { color: var(--success) !important; }
+                .text-danger { color: var(--danger) !important; }
+                .text-warning { color: var(--warning) !important; }
+                .text-primary { color: var(--primary) !important; }
 
-                .modal-footer { padding: 20px 25px; background: var(--dash-bg, #f1f5f9); border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 12px; flex-wrap: wrap; }
+                .modal-footer { padding: 24px 28px; background: var(--bg-card); border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 12px; flex-wrap: wrap; border-radius: 0 0 var(--radius-lg) var(--radius-lg); }
                 .modal-actions { display: flex; justify-content: flex-end; gap: 12px; }
-                .btn-cancel { background: transparent; color: var(--dash-text-main, #0f172a); border: 1px solid var(--border); padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 14px; }
-                .btn-cancel:hover { background: rgba(0,0,0,0.05); }
-                .btn-secondary { background: var(--bg-card, #ffffff); border: 1px solid var(--border); color: var(--dash-text-main, #0f172a); padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 14px; }
+                .btn-cancel { background: var(--bg-body); color: var(--text-secondary); border: 1px solid var(--border); padding: 12px 24px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 700; transition: all 0.2s; }
+                .btn-cancel:hover { background: var(--bg-hover); color: var(--text-primary); border-color: var(--border-hover); }
+                .btn-secondary { background: var(--bg-body); border: 1px solid var(--border); color: var(--text-primary); padding: 12px 24px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 700; transition: all 0.2s; }
+                .btn-secondary:hover { background: var(--bg-hover); border-color: var(--border-hover); }
                 
                 .spin-icon { animation: spin 1s linear infinite; }
                 @keyframes spin { to { transform: rotate(360deg); } }
@@ -804,26 +815,30 @@ const Payroll = () => {
                 .animate-pop { animation: pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
                 @keyframes pop { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-                .pay-toast { position: fixed; bottom: 30px; right: 30px; display: flex; align-items: center; gap: 8px; padding: 12px 20px; border-radius: 10px; font-size: 13px; font-weight: 600; z-index: 9999; animation: slideUp 0.3s ease-out; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
-                .pay-toast.ok  { background: rgba(16,185,129,0.15); border: 1px solid #10b981; color: #10b981; }
-                .pay-toast.err { background: rgba(239,68,68,0.15);  border: 1px solid #ef4444; color: #ef4444; }
-                @keyframes slideUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+                .pay-toast { position: fixed; bottom: 30px; right: 30px; display: flex; align-items: center; gap: 10px; padding: 14px 24px; border-radius: 12px; font-size: 14px; font-weight: 600; z-index: 9999; animation: slideUp 0.3s ease-out; box-shadow: 0 8px 30px rgba(0,0,0,0.15); }
+                .pay-toast.ok  { background: var(--bg-card); border-left: 4px solid var(--success); color: var(--text-primary); }
+                .pay-toast.ok svg { color: var(--success); }
+                .pay-toast.err { background: var(--bg-card); border-left: 4px solid var(--danger); color: var(--text-primary); }
+                .pay-toast.err svg { color: var(--danger); }
+                @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
                 @media (max-width: 1024px) {
                     .payroll-summary-grid { grid-template-columns: repeat(2, 1fr); }
                 }
                 @media (max-width: 768px) {
-                    .module-container { padding: 15px; }
-                    .module-header { flex-direction: column; align-items: flex-start; }
+                    .module-container { padding: 20px; }
+                    .module-header { flex-direction: column; align-items: flex-start; gap: 16px; }
                     .payroll-summary-grid { grid-template-columns: 1fr; }
                     .pay-method-grid { grid-template-columns: repeat(2, 1fr); }
                     .header-actions { width: 100%; }
-                    .header-actions button { width: 100%; justify-content: center; }
+                    .header-actions button { flex: 1; min-width: 150px; justify-content: center; }
                     .form-grid { grid-template-columns: 1fr; }
                     .ps-grid { grid-template-columns: 1fr; }
                     .pay-emp-card { flex-direction: column; text-align: center; }
                     .pay-emp-amount { text-align: center; }
-                    .pay-toast { left: 15px; right: 15px; }
+                    .pay-toast { left: 20px; right: 20px; bottom: 20px; }
+                    .modal-footer { flex-direction: column; }
+                    .modal-footer button { width: 100%; }
                 }
             `}</style>
         </div>

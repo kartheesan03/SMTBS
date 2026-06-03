@@ -100,35 +100,38 @@ const DashboardFeatures = () => {
 
             <style jsx="true">{`
                 .features-sidebar-card {
-                    background: #ffffff;
-                    border: 1px solid #e2e8f0;
-                    border-radius: 16px;
+                    background: var(--bg-card);
+                    border: 1px solid var(--border);
+                    border-radius: var(--radius-lg, 16px);
                     padding: 24px;
-                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+                    box-shadow: var(--shadow-sm);
                     height: 100%;
                 }
                 .features-sidebar-title {
                     font-size: 15px;
                     font-weight: 800;
-                    color: #1e3a8a; /* Deep primary color header */
-                    letter-spacing: 0.5px;
+                    color: var(--primary-700, #4338ca);
+                    letter-spacing: 0.3px;
                     margin-bottom: 24px;
-                    border-bottom: 2px solid #eff6ff;
+                    border-bottom: 2px solid var(--primary-light, #eef2ff);
                     padding-bottom: 12px;
                 }
                 .features-list {
                     display: flex;
                     flex-direction: column;
-                    gap: 20px;
+                    gap: 18px;
                 }
                 .feature-item {
                     display: flex;
                     align-items: flex-start;
-                    gap: 16px;
-                    transition: transform 0.2s ease;
+                    gap: 14px;
+                    padding: 8px;
+                    border-radius: var(--radius-md, 12px);
+                    transition: all 0.2s ease;
                 }
                 .feature-item:hover {
-                    transform: translateX(4px);
+                    background: #f8fafc;
+                    transform: translateX(2px);
                 }
                 .feature-icon {
                     display: flex;
@@ -136,23 +139,23 @@ const DashboardFeatures = () => {
                     justify-content: center;
                     width: 42px;
                     height: 42px;
-                    border-radius: 10px;
+                    border-radius: var(--radius-md, 12px);
                     flex-shrink: 0;
                 }
                 .feature-info {
                     display: flex;
                     flex-direction: column;
-                    gap: 4px;
+                    gap: 3px;
                 }
                 .feature-title {
                     font-size: 14px;
                     font-weight: 700;
-                    color: #1e293b;
+                    color: var(--text-primary);
                     margin: 0;
                 }
                 .feature-desc {
                     font-size: 12px;
-                    color: #64748b;
+                    color: var(--text-muted);
                     margin: 0;
                     line-height: 1.5;
                 }

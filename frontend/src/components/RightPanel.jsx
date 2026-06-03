@@ -248,13 +248,13 @@ const RightPanel = ({ isOpen, onClose }) => {
 
             <style jsx="true">{`
                 .right-panel {
-                    width: 320px;
+                    width: var(--right-panel-width, 320px);
                     height: 100vh;
                     position: fixed;
                     right: 0;
                     top: 0;
-                    background: #ffffff;
-                    border-left: 1px solid #e2e8f0;
+                    background: var(--bg-card);
+                    border-left: 1px solid var(--border);
                     display: flex;
                     flex-direction: column;
                     z-index: 990;
@@ -264,18 +264,18 @@ const RightPanel = ({ isOpen, onClose }) => {
                 .right-panel-inner {
                     flex: 1;
                     overflow-y: auto;
-                    padding: 20px 16px;
+                    padding: 24px 20px;
                     display: flex;
                     flex-direction: column;
-                    gap: 16px;
+                    gap: 20px;
                 }
 
                 .right-panel-inner::-webkit-scrollbar {
-                    width: 3px;
+                    width: 4px;
                 }
                 .right-panel-inner::-webkit-scrollbar-thumb {
-                    background: #e2e8f0;
-                    border-radius: 3px;
+                    background: #cbd5e1;
+                    border-radius: 4px;
                 }
 
                 /* ── Profile Card ── */
@@ -284,17 +284,17 @@ const RightPanel = ({ isOpen, onClose }) => {
                     align-items: center;
                     gap: 14px;
                     padding: 16px;
-                    background: linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%);
-                    border: 1px solid #e2e8f0;
-                    border-radius: 14px;
+                    background: var(--primary-light, #eef2ff);
+                    border: 1px solid var(--primary-100, #e0e7ff);
+                    border-radius: var(--radius-lg, 16px);
                     cursor: pointer;
                     transition: all 0.25s ease;
                     position: relative;
                 }
                 .rp-profile-card:hover {
-                    border-color: #bfdbfe;
-                    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);
-                    transform: translateY(-1px);
+                    border-color: var(--primary);
+                    box-shadow: var(--shadow-md);
+                    transform: translateY(-2px);
                 }
 
                 .rp-avatar-ring {
@@ -306,7 +306,7 @@ const RightPanel = ({ isOpen, onClose }) => {
                     height: 44px;
                     border-radius: 50%;
                     border: 2px solid #ffffff;
-                    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+                    box-shadow: var(--shadow-sm);
                 }
                 .rp-online-dot {
                     position: absolute;
@@ -314,10 +314,10 @@ const RightPanel = ({ isOpen, onClose }) => {
                     right: 1px;
                     width: 10px;
                     height: 10px;
-                    background: #10b981;
+                    background: var(--success);
                     border: 2px solid #ffffff;
                     border-radius: 50%;
-                    box-shadow: 0 0 6px rgba(16, 185, 129, 0.4);
+                    box-shadow: 0 0 6px var(--success);
                 }
 
                 .rp-user-info {
@@ -325,9 +325,9 @@ const RightPanel = ({ isOpen, onClose }) => {
                     min-width: 0;
                 }
                 .rp-user-name {
-                    font-size: 14px;
+                    font-size: 15px;
                     font-weight: 700;
-                    color: #0f172a;
+                    color: var(--text-primary);
                     margin: 0;
                     white-space: nowrap;
                     overflow: hidden;
@@ -336,49 +336,48 @@ const RightPanel = ({ isOpen, onClose }) => {
                 .rp-user-role {
                     font-size: 11px;
                     font-weight: 600;
-                    color: #64748b;
+                    color: var(--text-secondary);
                     text-transform: uppercase;
                     letter-spacing: 0.3px;
                 }
 
                 .rp-profile-arrow {
-                    color: #94a3b8;
+                    color: var(--primary);
                     flex-shrink: 0;
                     transition: transform 0.2s;
                 }
                 .rp-profile-card:hover .rp-profile-arrow {
                     transform: translateX(3px);
-                    color: #3b82f6;
                 }
 
                 /* ── Section Cards ── */
                 .rp-section-card {
-                    background: #ffffff;
-                    border: 1px solid #e2e8f0;
-                    border-radius: 14px;
-                    padding: 16px;
+                    background: var(--bg-card);
+                    border: 1px solid var(--border);
+                    border-radius: var(--radius-lg, 16px);
+                    padding: 18px;
+                    box-shadow: var(--shadow-xs);
                     transition: box-shadow 0.2s;
                 }
                 .rp-section-card:hover {
-                    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+                    box-shadow: var(--shadow-sm);
                 }
 
                 .rp-section-header {
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
-                    margin-bottom: 14px;
+                    margin-bottom: 16px;
                 }
 
                 .rp-section-title {
-                    font-size: 13px;
+                    font-size: 14px;
                     font-weight: 700;
-                    color: #1e293b;
-                    margin: 0 0 14px 0;
+                    color: var(--text-primary);
+                    margin: 0 0 16px 0;
                     display: flex;
                     align-items: center;
                     gap: 8px;
-                    letter-spacing: 0.2px;
                 }
                 .rp-section-header .rp-section-title {
                     margin-bottom: 0;
@@ -387,7 +386,7 @@ const RightPanel = ({ isOpen, onClose }) => {
                 .rp-view-all {
                     background: none;
                     border: none;
-                    color: #3b82f6;
+                    color: var(--primary);
                     font-size: 11px;
                     font-weight: 700;
                     cursor: pointer;
@@ -396,7 +395,7 @@ const RightPanel = ({ isOpen, onClose }) => {
                     transition: background 0.2s;
                 }
                 .rp-view-all:hover {
-                    background: #eff6ff;
+                    background: var(--primary-light);
                 }
 
                 /* ── Calendar ── */
@@ -404,17 +403,17 @@ const RightPanel = ({ isOpen, onClose }) => {
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
-                    margin-bottom: 14px;
+                    margin-bottom: 16px;
                 }
                 .rp-cal-month {
-                    font-size: 13px;
+                    font-size: 14px;
                     font-weight: 700;
-                    color: #1e293b;
+                    color: var(--text-primary);
                 }
                 .rp-cal-nav {
-                    background: #f8fafc;
-                    border: 1px solid #e2e8f0;
-                    color: #64748b;
+                    background: var(--bg-hover);
+                    border: 1px solid var(--border);
+                    color: var(--text-secondary);
                     width: 28px;
                     height: 28px;
                     border-radius: 8px;
@@ -425,21 +424,21 @@ const RightPanel = ({ isOpen, onClose }) => {
                     transition: all 0.2s;
                 }
                 .rp-cal-nav:hover {
-                    background: #eff6ff;
-                    color: #3b82f6;
-                    border-color: #bfdbfe;
+                    background: var(--primary-light);
+                    color: var(--primary);
+                    border-color: var(--primary-100);
                 }
 
                 .rp-cal-grid {
                     display: grid;
                     grid-template-columns: repeat(7, 1fr);
-                    gap: 2px;
+                    gap: 4px;
                     text-align: center;
                 }
                 .rp-cal-day-label {
                     font-size: 10px;
                     font-weight: 700;
-                    color: #94a3b8;
+                    color: var(--text-muted);
                     text-transform: uppercase;
                     padding: 4px 0;
                     letter-spacing: 0.5px;
@@ -449,60 +448,65 @@ const RightPanel = ({ isOpen, onClose }) => {
                 }
                 .rp-cal-day {
                     font-size: 12px;
-                    font-weight: 500;
-                    color: #475569;
-                    padding: 5px 0;
+                    font-weight: 600;
+                    color: var(--text-secondary);
+                    padding: 6px 0;
                     border-radius: 8px;
                     cursor: default;
                     transition: all 0.15s;
                 }
                 .rp-cal-day:hover {
-                    background: #f1f5f9;
+                    background: var(--bg-hover);
+                    color: var(--text-primary);
                 }
                 .rp-cal-today {
-                    background: #2563eb !important;
+                    background: var(--primary) !important;
                     color: #ffffff !important;
                     font-weight: 700;
-                    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+                    box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
                 }
 
                 /* ── Quick Actions Grid ── */
                 .rp-actions-grid {
                     display: grid;
                     grid-template-columns: 1fr 1fr;
-                    gap: 8px;
+                    gap: 10px;
                 }
                 .rp-action-btn {
                     display: flex;
                     align-items: center;
-                    gap: 10px;
+                    gap: 12px;
                     padding: 12px;
-                    background: #f8fafc;
-                    border: 1px solid #e2e8f0;
-                    border-radius: 10px;
+                    background: var(--bg-body);
+                    border: 1px solid var(--border);
+                    border-radius: var(--radius-md, 12px);
                     cursor: pointer;
                     transition: all 0.2s ease;
                     text-align: left;
                 }
                 .rp-action-btn:hover {
                     background: #ffffff;
-                    border-color: #bfdbfe;
-                    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.08);
+                    border-color: var(--primary-100);
+                    box-shadow: var(--shadow-sm);
                     transform: translateY(-1px);
                 }
                 .rp-action-icon {
-                    width: 32px;
-                    height: 32px;
-                    border-radius: 8px;
+                    width: 34px;
+                    height: 34px;
+                    border-radius: 10px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     flex-shrink: 0;
+                    transition: transform 0.2s ease;
+                }
+                .rp-action-btn:hover .rp-action-icon {
+                    transform: scale(1.08);
                 }
                 .rp-action-label {
                     font-size: 12px;
                     font-weight: 600;
-                    color: #334155;
+                    color: var(--text-primary);
                 }
 
                 /* ── Activity Feed ── */
@@ -513,24 +517,24 @@ const RightPanel = ({ isOpen, onClose }) => {
                 .rp-activity-list {
                     display: flex;
                     flex-direction: column;
-                    gap: 4px;
+                    gap: 8px;
                 }
                 .rp-activity-item {
                     display: flex;
                     align-items: flex-start;
-                    gap: 12px;
-                    padding: 10px 8px;
-                    border-radius: 10px;
+                    gap: 14px;
+                    padding: 10px;
+                    border-radius: var(--radius-md, 12px);
                     transition: background 0.15s;
                     cursor: default;
                 }
                 .rp-activity-item:hover {
-                    background: #f8fafc;
+                    background: var(--bg-hover);
                 }
                 .rp-activity-dot {
-                    width: 30px;
-                    height: 30px;
-                    border-radius: 8px;
+                    width: 32px;
+                    height: 32px;
+                    border-radius: 10px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
@@ -542,9 +546,9 @@ const RightPanel = ({ isOpen, onClose }) => {
                     min-width: 0;
                 }
                 .rp-activity-text {
-                    font-size: 12px;
+                    font-size: 13px;
                     font-weight: 500;
-                    color: #334155;
+                    color: var(--text-primary);
                     margin: 0;
                     line-height: 1.4;
                     display: -webkit-box;
@@ -553,10 +557,10 @@ const RightPanel = ({ isOpen, onClose }) => {
                     overflow: hidden;
                 }
                 .rp-activity-time {
-                    font-size: 10px;
-                    font-weight: 600;
-                    color: #94a3b8;
-                    margin-top: 3px;
+                    font-size: 11px;
+                    font-weight: 500;
+                    color: var(--text-muted);
+                    margin-top: 4px;
                     display: inline-block;
                 }
 
@@ -564,25 +568,25 @@ const RightPanel = ({ isOpen, onClose }) => {
                     display: flex;
                     flex-direction: column;
                     align-items: center;
-                    gap: 8px;
-                    padding: 24px 0;
-                    color: #94a3b8;
-                    font-size: 12px;
+                    gap: 10px;
+                    padding: 30px 0;
+                    color: var(--text-muted);
+                    font-size: 13px;
                     font-weight: 500;
                 }
                 .rp-empty-icon {
-                    opacity: 0.4;
+                    opacity: 0.5;
                 }
 
                 /* ── System Footer ── */
                 .rp-sys-footer {
-                    padding: 14px 16px;
-                    background: #f8fafc;
-                    border: 1px solid #e2e8f0;
-                    border-radius: 12px;
+                    padding: 16px 20px;
+                    background: var(--bg-body);
+                    border: 1px solid var(--border);
+                    border-radius: var(--radius-lg, 16px);
                     display: flex;
                     flex-direction: column;
-                    gap: 8px;
+                    gap: 10px;
                 }
                 .rp-sys-row {
                     display: flex;
@@ -592,28 +596,28 @@ const RightPanel = ({ isOpen, onClose }) => {
                 .rp-sys-label {
                     font-size: 11px;
                     font-weight: 600;
-                    color: #94a3b8;
+                    color: var(--text-muted);
                     text-transform: uppercase;
                     letter-spacing: 0.3px;
                 }
                 .rp-sys-val {
-                    font-size: 11px;
+                    font-size: 12px;
                     font-weight: 700;
-                    color: #475569;
+                    color: var(--text-primary);
                 }
                 .rp-sys-online {
                     display: flex;
                     align-items: center;
-                    gap: 6px;
-                    font-size: 11px;
+                    gap: 8px;
+                    font-size: 12px;
                     font-weight: 600;
-                    color: #10b981;
+                    color: var(--success);
                 }
                 .rp-sys-dot {
                     width: 6px;
                     height: 6px;
                     border-radius: 50%;
-                    background: #10b981;
+                    background: var(--success);
                     box-shadow: 0 0 6px rgba(16, 185, 129, 0.4);
                     animation: rp-pulse 2s ease-in-out infinite;
                 }
@@ -630,7 +634,7 @@ const RightPanel = ({ isOpen, onClose }) => {
                     }
                     .right-panel.right-panel-open {
                         transform: translateX(0);
-                        box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
+                        box-shadow: var(--shadow-xl);
                     }
                 }
             `}</style>

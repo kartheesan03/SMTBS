@@ -2,78 +2,82 @@ import React from 'react';
 
 const QuickActions = ({ actions }) => {
     return (
-        <div className="glass-card actions-container">
-            <h3>Quick Actions</h3>
-            <div className="actions-grid">
+        <div className="qa-card">
+            <h3 className="qa-title">Quick Actions</h3>
+            <div className="qa-grid">
                 {actions.map((action, i) => (
                     <button 
                         key={i} 
-                        className="action-tile"
+                        className="qa-tile"
                         onClick={action.onClick}
                     >
-                        <div className="action-icon">{action.icon}</div>
-                        <span>{action.label}</span>
+                        <div className="qa-icon" style={{ color: action.color || 'var(--primary)', backgroundColor: `${action.color || 'var(--primary)'}12` }}>
+                            {action.icon}
+                        </div>
+                        <span className="qa-label">{action.label}</span>
                     </button>
                 ))}
             </div>
             <style jsx="true">{`
-                .actions-container {
-                    padding: 24px;
-                    border-radius: 2px !important;
-                }
-                .actions-container h3 {
-                    font-size: 14px;
-                    font-family: 'Share Tech Mono', monospace;
-                    font-weight: 700;
-                    text-transform: uppercase;
-                    letter-spacing: 1.5px;
-                }
-                .actions-grid {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-                    gap: 12px;
-                    margin-top: 18px;
-                }
-                .action-tile {
-                    background: rgba(255, 255, 255, 0.01);
+                .qa-card {
+                    background: var(--bg-card);
                     border: 1px solid var(--border);
-                    padding: 16px;
-                    border-radius: 2px;
-                    color: white;
+                    border-radius: var(--radius-lg, 16px);
+                    padding: 22px;
+                    box-shadow: var(--shadow-sm);
+                }
+                .qa-title {
+                    font-size: 15px;
+                    font-weight: 700;
+                    color: var(--text-primary);
+                    margin-bottom: 16px;
+                }
+                .qa-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+                    gap: 10px;
+                }
+                .qa-tile {
+                    background: var(--bg-hover, #f8fafc);
+                    border: 1px solid var(--border);
+                    padding: 16px 10px;
+                    border-radius: var(--radius-md, 12px);
+                    color: var(--text-secondary);
                     display: flex;
                     flex-direction: column;
                     align-items: center;
                     justify-content: center;
-                    gap: 12px;
-                    transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+                    gap: 10px;
+                    transition: all 0.2s ease;
+                    cursor: pointer;
                 }
-                .action-tile:hover {
-                    background: var(--primary-gradient);
-                    border-color: transparent;
-                    transform: translateY(-3px);
-                    box-shadow: 0 8px 20px -4px rgba(139, 92, 246, 0.4), 0 0 10px rgba(6, 182, 212, 0.2);
+                .qa-tile:hover {
+                    background: var(--primary-light, #eef2ff);
+                    border-color: var(--primary-100, #e0e7ff);
+                    transform: translateY(-2px);
+                    box-shadow: var(--shadow-sm);
                 }
-                .action-icon {
-                    color: var(--cyber-blue);
-                    background: rgba(6, 182, 212, 0.08);
-                    padding: 10px;
-                    border-radius: 2px;
+                .qa-icon {
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 10px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    transition: all 0.25s ease;
+                    transition: transform 0.2s ease;
                 }
-                .action-tile:hover .action-icon {
-                    color: white;
-                    background: rgba(255, 255, 255, 0.15);
-                    transform: scale(1.05);
+                .qa-tile:hover .qa-icon {
+                    transform: scale(1.08);
                 }
-                .action-tile span {
+                .qa-label {
                     font-size: 11px;
-                    font-weight: 700;
-                    text-transform: uppercase;
-                    letter-spacing: 0.5px;
+                    font-weight: 600;
                     text-align: center;
+                    color: var(--text-secondary);
+                    line-height: 1.3;
+                }
+                .qa-tile:hover .qa-label {
+                    color: var(--primary);
                 }
             `}</style>
         </div>

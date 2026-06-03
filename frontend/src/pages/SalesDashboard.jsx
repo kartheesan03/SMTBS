@@ -149,52 +149,85 @@ const SalesDashboard = () => {
             </div>
 
             <style jsx="true">{`
-                .sales-wrapper { padding: 30px; display: flex; flex-direction: column; gap: 30px; background-color: var(--dash-bg, #f1f5f9); min-height: 100vh; color: var(--dash-text-main, #0f172a); }
+                .sales-wrapper { 
+                    padding: 30px; 
+                    display: flex; 
+                    flex-direction: column; 
+                    gap: 30px; 
+                    background-color: var(--bg-body); 
+                    min-height: 100vh; 
+                    color: var(--text-primary); 
+                }
                 .sales-header { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; }
-                .search-bar-glass { display: flex; align-items: center; gap: 10px; padding: 10px 20px; background: rgba(255,255,255,0.03); border-radius: 12px; }
-                .search-bar-glass input { background: none; border: none; color: white; width: 250px; }
+                .title-gradient { font-size: 26px; font-weight: 800; color: var(--text-primary); margin: 0 0 6px 0; letter-spacing: -0.5px; }
+                .search-bar-glass { display: flex; align-items: center; gap: 10px; padding: 12px 20px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md, 12px); box-shadow: var(--shadow-sm); transition: all 0.2s ease; }
+                .search-bar-glass:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-50); }
+                .search-bar-glass input { background: none; border: none; color: var(--text-primary); width: 250px; outline: none; font-size: 14px; }
+                .search-bar-glass input::placeholder { color: var(--text-muted); }
+                .search-bar-glass svg { color: var(--text-muted); }
                 
                 .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
                 .sales-main-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 25px; }
                 
-                .performance-chart-box, .pipeline-box { padding: 25px; }
-                .chart-container-s { height: 250px; margin-top: 20px; }
+                .glass-card { 
+                    background: var(--bg-card); 
+                    border: 1px solid var(--border); 
+                    border-radius: var(--radius-lg, 16px); 
+                    padding: 24px; 
+                    box-shadow: var(--shadow-sm); 
+                }
+                .performance-chart-box, .pipeline-box { padding: 24px; }
+                .chart-container-s { height: 250px; margin-top: 24px; }
                 
-                .pipeline-viz { display: flex; align-items: center; justify-content: space-around; height: 180px; }
-                .pipeline-stats { display: flex; flex-direction: column; gap: 10px; font-size: 13px; }
-                .p-stat-item { display: flex; align-items: center; gap: 10px; color: var(--text-muted); }
-                .dot { width: 8px; height: 8px; border-radius: 50%; }
+                .glass-card h3 { font-size: 16px; font-weight: 800; color: var(--text-primary); margin: 0; }
+                .card-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
                 
-                .status-pill { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
-                .status-pill.negotiation { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
-                .status-pill.qualified { background: rgba(16, 185, 129, 0.1); color: #10b981; }
-                .status-pill.contacted { background: rgba(99, 102, 241, 0.1); color: var(--primary); }
+                .pipeline-viz { display: flex; align-items: center; justify-content: space-around; height: 180px; margin-top: 24px; }
+                .pipeline-stats { display: flex; flex-direction: column; gap: 12px; font-size: 13px; }
+                .p-stat-item { display: flex; align-items: center; gap: 10px; color: var(--text-secondary); }
+                .p-stat-item strong { color: var(--text-primary); }
+                .dot { width: 10px; height: 10px; border-radius: 50%; }
+                
+                .status-pill { padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; display: inline-block; }
+                .status-pill.negotiation { background: var(--warning-light); color: var(--warning); }
+                .status-pill.qualified { background: var(--success-light); color: var(--success); }
+                .status-pill.contacted { background: var(--primary-50); color: var(--primary); }
                 
                 .val-text { color: var(--primary); }
-                .view-more { margin-left: 8px; color: var(--primary); cursor: pointer; }
+                .view-more { margin-left: 8px; color: var(--primary); cursor: pointer; transition: color 0.2s; }
+                .view-more:hover { color: #1d4ed8; }
                 
-                .follow-up-card { padding: 25px; }
-                .f-list { display: flex; flex-direction: column; gap: 12px; margin-top: 15px; }
-                .f-item { display: flex; align-items: center; gap: 15px; padding: 12px; background: rgba(255,255,255,0.02); border-radius: 10px; }
-                .f-item.overdue { border-left: 3px solid #ef4444; }
-                .f-info { display: flex; flex-direction: column; }
-                .f-info span { font-size: 11px; color: var(--text-muted); }
+                .follow-up-card { padding: 24px; }
+                .f-list { display: flex; flex-direction: column; gap: 14px; margin-top: 20px; }
+                .f-item { display: flex; align-items: center; gap: 15px; padding: 14px; background: var(--bg-hover); border: 1px solid var(--border); border-radius: var(--radius-md, 12px); transition: all 0.2s ease; }
+                .f-item:hover { border-color: var(--border-hover); background: var(--bg-card); }
+                .f-item.overdue { border-left: 4px solid var(--danger); }
+                .f-info { display: flex; flex-direction: column; gap: 4px; }
+                .f-info span { font-size: 12px; color: var(--text-muted); }
+                
+                .sales-bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
                 
                 .mt-30 { margin-top: 30px; }
-                .badge-pill { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-                .badge-pill.info { background: rgba(99, 102, 241, 0.1); color: var(--primary); }
+                .text-muted { color: var(--text-muted); }
+                .badge-pill { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+                .badge-pill.info { background: var(--primary-50); color: var(--primary); }
+
+                /* Loading */
+                .loading-container { height: 80vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+                .loader { width: 48px; height: 48px; border: 3px solid var(--primary-100); border-top: 3px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+                @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
                 @media (max-width: 1024px) {
-                    .sales-main-grid { grid-template-columns: 1fr; }
+                    .sales-main-grid, .sales-bottom-grid { grid-template-columns: 1fr; }
                 }
 
                 @media (max-width: 768px) {
-                    .sales-wrapper { padding: 15px; gap: 20px; }
-                    .sales-header { flex-direction: column; align-items: flex-start; }
+                    .sales-wrapper { padding: 20px; gap: 20px; }
+                    .sales-header { flex-direction: column; align-items: flex-start; gap: 15px; }
                     .search-bar-glass { width: 100%; }
                     .search-bar-glass input { width: 100%; }
                     .grid-4 { grid-template-columns: repeat(2, 1fr); }
-                    .pipeline-viz { flex-direction: column; height: auto; gap: 20px; }
+                    .pipeline-viz { flex-direction: column; height: auto; gap: 24px; }
                 }
 
                 @media (max-width: 480px) {

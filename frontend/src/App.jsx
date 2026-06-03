@@ -64,7 +64,7 @@ const AppContent = () => {
                         <button onClick={toggleSidebar} className="menu-toggle">
                             {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
                         </button>
-                        <h2 className="title-gradient">SMTBMS</h2>
+                        <h2>SMTBMS</h2>
                         <button onClick={toggleRightPanel} className="menu-toggle right-panel-toggle-mobile">
                             {isRightPanelOpen ? <PanelRightClose size={22} /> : <PanelRightOpen size={22} />}
                         </button>
@@ -158,8 +158,7 @@ const AppContent = () => {
                 .mobile-header {
                     display: none;
                     height: 60px;
-                    background: var(--glass);
-                    backdrop-filter: blur(10px);
+                    background: var(--bg-card);
                     border-bottom: 1px solid var(--border);
                     position: sticky;
                     top: 0;
@@ -168,9 +167,16 @@ const AppContent = () => {
                     align-items: center;
                     justify-content: space-between;
                 }
+                .mobile-header h2 {
+                    font-size: 20px;
+                    font-weight: 800;
+                    color: var(--primary);
+                    margin: 0;
+                    letter-spacing: 0.5px;
+                }
                 .menu-toggle {
                     background: transparent;
-                    color: var(--text-main);
+                    color: var(--text-primary);
                     display: flex;
                     align-items: center;
                     justify-content: center;
@@ -181,7 +187,7 @@ const AppContent = () => {
                     left: 0;
                     right: 0;
                     bottom: 0;
-                    background: rgba(0, 0, 0, 0.5);
+                    background: rgba(15, 23, 42, 0.4);
                     z-index: 950;
                     backdrop-filter: blur(2px);
                 }
@@ -191,7 +197,7 @@ const AppContent = () => {
                     left: 0;
                     right: 0;
                     bottom: 0;
-                    background: rgba(0, 0, 0, 0.35);
+                    background: rgba(15, 23, 42, 0.4);
                     z-index: 980;
                     backdrop-filter: blur(2px);
                     display: none;
@@ -207,7 +213,7 @@ const AppContent = () => {
                     margin-left: 260px;
                     margin-right: 320px;
                     width: calc(100% - 260px - 320px);
-                    background-color: var(--dash-bg, #f1f5f9);
+                    background-color: var(--bg-body);
                 }
                 .p-30 { padding: 30px; }
 
@@ -215,16 +221,16 @@ const AppContent = () => {
                 .right-panel-toggle-desktop {
                     display: none;
                     position: fixed;
-                    right: 16px;
+                    right: 20px;
                     bottom: 24px;
                     z-index: 999;
                     width: 44px;
                     height: 44px;
-                    border-radius: 12px;
-                    background: #2563eb;
+                    border-radius: var(--radius-md, 12px);
+                    background: var(--primary);
                     color: #ffffff;
                     border: none;
-                    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+                    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
                     cursor: pointer;
                     align-items: center;
                     justify-content: center;
@@ -232,7 +238,8 @@ const AppContent = () => {
                 }
                 .right-panel-toggle-desktop:hover {
                     transform: translateY(-2px);
-                    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.45);
+                    background: var(--primary-hover);
+                    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
                 }
 
                 /* ── Medium screens: hide right panel, show toggle ── */
@@ -264,7 +271,7 @@ const AppContent = () => {
                         padding-top: 0;
                     }
                     .p-30 {
-                        padding: 15px;
+                        padding: 16px;
                     }
                     .right-panel-toggle-desktop {
                         display: none;

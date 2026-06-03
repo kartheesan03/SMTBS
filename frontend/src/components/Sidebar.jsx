@@ -160,17 +160,16 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
 
             <style jsx="true">{`
                 .sidebar {
-                    width: 260px;
+                    width: var(--sidebar-width, 260px);
                     height: 100vh;
-                    background: var(--dash-bg, #f1f5f9);
-                    border-right: none;
-                    box-shadow: none;
+                    background: var(--bg-card);
+                    border-right: 1px solid var(--border);
                     display: flex;
                     flex-direction: column;
                     position: fixed;
                     left: 0;
                     top: 0;
-                    padding: 20px 0;
+                    padding: 24px 0;
                     z-index: 1000;
                     transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
                 }
@@ -178,19 +177,18 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                     display: flex;
                     align-items: center;
                     justify-content: space-between;
-                    padding: 0 24px 20px;
-                    border-bottom: 1px solid var(--dash-border, #e2e8f0);
+                    padding: 0 24px 24px;
                 }
                 .sidebar-logo h2 {
                     font-size: 22px;
-                    font-weight: 800;
-                    font-family: 'Outfit', sans-serif;
-                    color: var(--dash-text-main, #0f172a);
-                    letter-spacing: 0.5px;
+                    font-weight: 900;
+                    font-family: 'Inter', sans-serif;
+                    color: var(--primary-700, #4338ca);
+                    letter-spacing: -0.5px;
                 }
                 .close-sidebar {
                     background: transparent;
-                    color: var(--dash-text-main, #0f172a);
+                    color: var(--text-primary);
                     padding: 0;
                     display: flex;
                     align-items: center;
@@ -201,21 +199,21 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                 .sidebar-user-card {
                     display: flex;
                     align-items: center;
-                    gap: 15px;
-                    padding: 20px 24px;
-                    border-bottom: 1px solid var(--dash-border, #e2e8f0);
-                    margin-bottom: 15px;
+                    gap: 12px;
+                    padding: 16px 20px;
+                    margin: 0 16px 24px;
+                    background: var(--bg-body, #f8fafc);
+                    border-radius: var(--radius-md, 12px);
+                    border: 1px solid var(--border);
                 }
                 .user-avatar-wrapper {
                     position: relative;
                 }
                 .user-avatar-circle {
-                    width: 44px;
-                    height: 44px;
+                    width: 40px;
+                    height: 40px;
                     border-radius: 50%;
                     overflow: hidden;
-                    border: 2px solid var(--dash-border, #e2e8f0);
-                    box-shadow: var(--dash-shadow-sm);
                 }
                 .user-avatar-circle img {
                     width: 100%;
@@ -228,17 +226,19 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                     justify-content: center;
                 }
                 .user-name {
-                    color: var(--dash-text-main, #0f172a);
-                    font-size: 15px;
+                    color: var(--text-primary);
+                    font-size: 14px;
                     font-weight: 600;
                     margin: 0;
                     line-height: 1.2;
                 }
                 .user-role {
-                    color: var(--dash-text-muted, #64748b);
-                    font-size: 12px;
+                    color: var(--text-muted);
+                    font-size: 11px;
                     font-weight: 500;
                     margin-top: 2px;
+                    text-transform: uppercase;
+                    letter-spacing: 0.3px;
                 }
                 .user-status {
                     display: flex;
@@ -247,15 +247,15 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                     margin-top: 4px;
                 }
                 .status-dot {
-                    width: 7px;
-                    height: 7px;
+                    width: 6px;
+                    height: 6px;
                     border-radius: 50%;
-                    background: #10b981;
-                    box-shadow: 0 0 8px #10b981;
+                    background: var(--success);
+                    box-shadow: 0 0 6px var(--success);
                 }
                 .status-text {
-                    color: #10b981;
-                    font-size: 11px;
+                    color: var(--success);
+                    font-size: 10px;
                     font-weight: 600;
                     text-transform: uppercase;
                     letter-spacing: 0.5px;
@@ -263,38 +263,30 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
 
                 .sidebar-nav {
                     flex: 1;
-                    padding: 0 12px;
+                    padding: 0 16px;
                     overflow-y: auto;
                     display: flex;
                     flex-direction: column;
-                    gap: 4px;
-                }
-                .sidebar-nav::-webkit-scrollbar {
-                    width: 4px;
-                }
-                .sidebar-nav::-webkit-scrollbar-thumb {
-                    background: rgba(0, 0, 0, 0.05);
-                    border-radius: 4px;
+                    gap: 6px;
                 }
                 .nav-item {
                     display: flex;
                     align-items: center;
-                    padding: 10px 16px;
-                    color: var(--dash-text-muted, #64748b);
-                    border-radius: 8px;
+                    padding: 12px 16px;
+                    color: var(--text-secondary);
+                    border-radius: var(--radius-md, 12px);
                     transition: all 0.2s ease;
                     cursor: pointer;
                     font-weight: 500;
-                    font-size: 13px;
-                    letter-spacing: 0.2px;
-                    text-transform: none; /* Reference image uses standard casing */
+                    font-size: 14px;
                     text-decoration: none;
+                    position: relative;
                 }
                 .item-icon-wrapper {
                     display: flex;
                     align-items: center;
-                    margin-right: 12px;
-                    color: #64748b;
+                    margin-right: 14px;
+                    color: var(--text-muted);
                     transition: color 0.2s ease;
                 }
                 .item-name {
@@ -302,47 +294,59 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                 }
                 .chevron-indicator {
                     font-size: 12px;
-                    color: var(--dash-text-muted, #94a3b8);
+                    color: var(--text-muted);
                     margin-left: auto;
                 }
                 
                 .nav-item:hover {
-                    background: rgba(0, 0, 0, 0.03);
-                    color: var(--dash-text-main, #0f172a);
+                    background: var(--bg-hover, #f1f5f9);
+                    color: var(--text-primary);
                 }
                 .nav-item:hover .item-icon-wrapper {
-                    color: #3b82f6;
+                    color: var(--primary);
                 }
                 
                 .nav-item.active {
-                    background: #2563eb; /* Vibrant blue active state */
-                    color: #ffffff !important;
-                    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+                    background: var(--primary-50, #eef2ff);
+                    color: var(--primary-700, #4338ca) !important;
+                    font-weight: 600;
+                }
+                .nav-item.active::before {
+                    content: '';
+                    position: absolute;
+                    left: -16px;
+                    top: 15%;
+                    height: 70%;
+                    width: 4px;
+                    background: var(--primary);
+                    border-radius: 0 4px 4px 0;
                 }
                 .nav-item.active .item-icon-wrapper {
-                    color: #ffffff !important;
+                    color: var(--primary) !important;
                 }
                 .nav-item.active .chevron-indicator {
-                    color: rgba(255, 255, 255, 0.6);
+                    color: var(--primary);
                 }
                 
                 .sidebar-footer {
-                    padding: 15px 12px 0;
-                    border-top: 1px solid var(--dash-border, #e2e8f0);
+                    padding: 16px;
+                    margin-top: auto;
                 }
                 .logout-btn {
                     width: 100%;
                     background: transparent;
                     border: none;
                     text-align: left;
-                    color: var(--dash-text-muted, #94a3b8);
+                    color: var(--text-secondary);
                     display: flex;
                     align-items: center;
-                    gap: 12px;
+                    gap: 14px;
+                    padding: 12px 16px;
                 }
                 .logout-btn:hover {
-                    color: #ef4444;
-                    background: rgba(239, 68, 68, 0.08);
+                    color: var(--danger);
+                    background: var(--danger-light);
+                    border-radius: var(--radius-md, 12px);
                 }
 
                 @media (max-width: 768px) {
