@@ -1,6 +1,6 @@
 import React from 'react';
 
-const DataTable = ({ title, headers, data, renderRow, onViewAll }) => {
+const DataTable = ({ title, headers, data, renderRow, onViewAll, emptyText }) => {
     return (
         <div className="dt-card">
             <div className="dt-header">
@@ -10,7 +10,7 @@ const DataTable = ({ title, headers, data, renderRow, onViewAll }) => {
             <div className="dt-body">
                 {data.length === 0 ? (
                     <div className="dt-empty">
-                        <p>No records found</p>
+                        <p>{emptyText || 'No records found'}</p>
                     </div>
                 ) : (
                     <div className="table-responsive">

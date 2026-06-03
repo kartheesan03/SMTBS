@@ -69,6 +69,29 @@ const Attendance = () => {
         return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     };
 
+    const calculateDuration = (checkIn, checkOut, baseDateStr) => {
+        if (!checkIn || !checkOut) return '-';
+        const start = parseDateTime(checkIn, baseDateStr);
+        const end = parseDateTime(checkOut, baseDateStr);
+        if (!start || !end) return '-';
+        const diff = end - start;
+        const hours = Math.floor(diff / 3600000);
+        const minutes = Math.floor((diff % 3600000) / 60000);
+        return `${hours}h ${minutes}m`;
+    };
+
+    const getDisplayStatus = (status, dateStr) => {
+        if (status === 'Present' || status === 'Late' || status === 'On Leave') return status;
+        const today = new Date().toISOString().split('T')[0];
+        if (status === 'Absent' && dateStr && dateStr.split('T')[0] === today) {
+            const now = new Date();
+            const utcTime = now.getTime() + (now.getTimezoneOffset() * 60000);
+            const istTime = new Date(utcTime + (5.5 * 60 * 60 * 1000));
+            if (istTime.getHours() < 17) return 'Pending';
+        }
+        return status || '-';
+    };
+
     if (loading) return <div className="p-30 text-center">Loading records...</div>;
 
     return (
@@ -116,23 +139,34 @@ const Attendance = () => {
             <div className="module-content mt-30">
                 <DataTable 
                     title="Daily Records"
-                    headers={['Employee Name', 'Department', 'Current Status', 'Shift', 'Check-In', 'Check-Out']}
+                    headers={['Employee Name', 'Employee ID', 'Date', 'Shift', 'Check In', 'Check Out', 'Total Hours', 'Status']}
                     data={filteredLogs}
-                    renderRow={(a) => (
-                        <>
-                            <td><strong>{`${a.employee?.firstName || ''} ${a.employee?.lastName || ''}`.trim() || 'N/A'}</strong></td>
-                            <td>{a.employee?.department || 'N/A'}</td>
-                            <td>
-                                <div className={`status-pill-flex ${a.status ? a.status.toLowerCase() : ''}`}>
-                                    {a.status === 'Present' ? <CheckCircle size={14}/> : a.status === 'Late' ? <CheckCircle size={14} style={{color: '#f59e0b'}}/> : <XCircle size={14}/>}
-                                    {a.status}
-                                </div>
-                            </td>
-                            <td>{a.shift || 'Day'}</td>
-                            <td>{formatTime(a.checkIn, a.date)}</td>
-                            <td>{formatTime(a.checkOut, a.date)}</td>
-                        </>
-                    )}
+                    emptyText="No attendance records found."
+                    renderRow={(a, index) => {
+                        const displayStatus = getDisplayStatus(a.status, a.date);
+                        const statusClass = displayStatus.toLowerCase().replace(' ', '-');
+                        
+                        return (
+                            <tr key={a._id || index}>
+                                <td><strong>{`${a.employee?.firstName || ''} ${a.employee?.lastName || ''}`.trim() || 'N/A'}</strong></td>
+                                <td>{a.employee?.employeeId || '-'}</td>
+                                <td>{a.date ? new Date(a.date).toLocaleDateString() : '-'}</td>
+                                <td>{a.shift || 'Day'}</td>
+                                <td>{formatTime(a.checkIn, a.date)}</td>
+                                <td>{formatTime(a.checkOut, a.date)}</td>
+                                <td>{calculateDuration(a.checkIn, a.checkOut, a.date)}</td>
+                                <td>
+                                    <div className={`status-pill-flex ${statusClass}`}>
+                                        {displayStatus === 'Present' ? <CheckCircle size={14}/> : 
+                                         displayStatus === 'Pending' ? <CheckCircle size={14} style={{color: '#f59e0b'}}/> : 
+                                         displayStatus === 'Late' ? <CheckCircle size={14} style={{color: '#f59e0b'}}/> : 
+                                         <XCircle size={14}/>}
+                                        {displayStatus}
+                                    </div>
+                                </td>
+                            </tr>
+                        );
+                    }}
                 />
             </div>
 
@@ -164,10 +198,12 @@ const Attendance = () => {
                 .dept-select-clean { appearance: none; padding-right: 20px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right center; }
                 .dept-select-clean option { background: var(--bg-body); color: var(--text-primary); }
 
-                .status-pill-flex { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; white-space: nowrap; }
-                .status-pill-flex.present { background: var(--success-light); color: var(--success); }
-                .status-pill-flex.absent { background: var(--danger-light); color: var(--danger); }
-                .status-pill-flex.late { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
+                .status-pill-flex { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.5px; }
+                .status-pill-flex.present { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+                .status-pill-flex.pending { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+                .status-pill-flex.absent { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+                .status-pill-flex.on-leave { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
+                .status-pill-flex.late { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
 
                 .mt-30 { margin-top: 30px; }
                 .mt-20 { margin-top: 20px; }

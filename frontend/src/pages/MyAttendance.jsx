@@ -81,7 +81,25 @@ const MyAttendance = () => {
                 API.get('/attendance/my-history')
             ]);
             setStatus(statusRes.data);
-            setHistory(historyRes.data);
+            setStatus(statusRes.data);
+            
+            let finalHistory = historyRes.data;
+            const today = new Date().toISOString().split('T')[0];
+            const hasToday = historyRes.data.some(h => h.date && h.date.split('T')[0] === today);
+            
+            if (!hasToday) {
+                // Inject today's status if not checked in
+                const now = new Date();
+                const utcTime = now.getTime() + (now.getTimezoneOffset() * 60000);
+                const istTime = new Date(utcTime + (5.5 * 60 * 60 * 1000));
+                
+                let displayStatus = 'Absent';
+                if (istTime.getHours() < 17) displayStatus = 'Pending';
+                
+                finalHistory = [{ date: today, status: displayStatus }, ...historyRes.data];
+            }
+            
+            setHistory(finalHistory);
             
             // Calculate real stats from history
             if (historyRes.data.length > 0) {
@@ -250,15 +268,20 @@ const MyAttendance = () => {
                     title="Recent Daily Logs"
                     headers={['Date', 'Shift', 'Check In', 'Check Out', 'Total Hours', 'Status']}
                     data={history}
+                    emptyText="No attendance records found."
                     renderRow={(a) => (
-                        <>
+                        <tr key={a._id || a.date}>
                             <td><strong>{new Date(a.date).toLocaleDateString()}</strong></td>
                             <td>{a.shift || 'Day'}</td>
                             <td>{formatTime(a.checkIn, a.date)}</td>
                             <td>{formatTime(a.checkOut, a.date)}</td>
                             <td>{calculateDuration(a.checkIn, a.checkOut, a.date)}</td>
-                            <td><span className={`status-pill ${a.status.toLowerCase()}`}>{a.status}</span></td>
-                        </>
+                            <td>
+                                <span className={`status-pill ${a.status.toLowerCase().replace(' ', '-')}`}>
+                                    {a.status}
+                                </span>
+                            </td>
+                        </tr>
                     )}
                 />
             </div>
@@ -284,8 +307,11 @@ const MyAttendance = () => {
                 .s-text h4 { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
                 .s-text p { font-size: 18px; font-weight: 700; color: var(--text-main); }
                 
-                .status-pill { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+                .status-pill { padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; display: inline-block; }
                 .status-pill.present { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+                .status-pill.pending { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+                .status-pill.absent { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+                .status-pill.on-leave { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
                 .status-pill.late { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
                 
                 .pulse { animation: pulse-red 2s infinite; color: #10b981; }
