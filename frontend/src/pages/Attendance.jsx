@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import DataTable from '../components/Dashboard/DataTable';
-import { Calendar, CheckCircle, XCircle, Search, Filter } from 'lucide-react';
+import StatCard from '../components/Dashboard/StatCard';
+import { Calendar, CheckCircle, XCircle, Search, Filter, Users, Clock, Eye } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 
 const Attendance = () => {
@@ -9,6 +11,7 @@ const Attendance = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [filterDate, setFilterDate] = useState(new Date().toISOString().split('T')[0]);
     const [filterDept, setFilterDept] = useState('All');
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchAttendance = async () => {
@@ -86,6 +89,12 @@ const Attendance = () => {
 
     if (loading) return <div className="p-30 text-center">Loading records...</div>;
 
+    const totalCount = filteredLogs.length;
+    const presentCount = filteredLogs.filter(a => a.status === 'Present' || a.status === 'Late').length;
+    const pendingCount = filteredLogs.filter(a => a.status === 'Pending').length;
+    const absentCount = filteredLogs.filter(a => a.status === 'Absent').length;
+    const leaveCount = filteredLogs.filter(a => a.status === 'On Leave').length;
+
     return (
         <div className="module-container">
             <header className="module-header">
@@ -106,7 +115,41 @@ const Attendance = () => {
                 </div>
             </header>
 
-            <div className="attendance-controls mt-20">
+            <div className="attendance-dashboard-grid mt-30">
+                <StatCard 
+                    title="Total Employees" 
+                    value={totalCount} 
+                    icon={<Users />} 
+                    color="primary" 
+                    trend={{ value: 100, isPositive: true, label: "Active" }} 
+                />
+                <StatCard 
+                    title="Present Today" 
+                    value={presentCount} 
+                    icon={<CheckCircle />} 
+                    color="success" 
+                />
+                <StatCard 
+                    title="Pending" 
+                    value={pendingCount} 
+                    icon={<Clock />} 
+                    color="warning" 
+                />
+                <StatCard 
+                    title="Absent" 
+                    value={absentCount} 
+                    icon={<XCircle />} 
+                    color="danger" 
+                />
+                <StatCard 
+                    title="On Leave" 
+                    value={leaveCount} 
+                    icon={<Calendar />} 
+                    color="purple" 
+                />
+            </div>
+
+            <div className="attendance-controls mt-30">
                 <div className="date-selector glass-card flex-center gap-10">
                     <Calendar size={16}/>
                     <input 
@@ -130,8 +173,8 @@ const Attendance = () => {
 
             <div className="module-content mt-30">
                 <DataTable 
-                    title="Daily Records"
-                    headers={['Employee Name', 'Employee ID', 'Date', 'Shift', 'Check In', 'Check Out', 'Total Hours', 'Status']}
+                    title="All Employees Attendance"
+                    headers={['Employee Name', 'Employee ID', 'Department', 'Today\'s Status', 'Check In Time', 'Check Out Time', 'Total Hours', 'Action/View']}
                     data={filteredLogs}
                     emptyText="No attendance records found."
                     renderRow={(a, index) => {
@@ -142,11 +185,7 @@ const Attendance = () => {
                             <tr key={a._id || index}>
                                 <td><strong>{`${a.employee?.firstName || ''} ${a.employee?.lastName || ''}`.trim() || 'N/A'}</strong></td>
                                 <td>{a.employee?.employeeId || '-'}</td>
-                                <td>{a.date ? new Date(a.date).toLocaleDateString() : '-'}</td>
-                                <td>{a.shift || 'Day'}</td>
-                                <td>{formatTime(a.checkIn, a.date)}</td>
-                                <td>{formatTime(a.checkOut, a.date)}</td>
-                                <td>{calculateDuration(a.checkIn, a.checkOut, a.date)}</td>
+                                <td>{a.employee?.department || '-'}</td>
                                 <td>
                                     <div className={`status-pill-flex ${statusClass}`}>
                                         {displayStatus === 'Present' ? <CheckCircle size={14}/> : 
@@ -155,6 +194,18 @@ const Attendance = () => {
                                          <XCircle size={14}/>}
                                         {displayStatus}
                                     </div>
+                                </td>
+                                <td>{formatTime(a.checkIn, a.date)}</td>
+                                <td>{formatTime(a.checkOut, a.date)}</td>
+                                <td>{calculateDuration(a.checkIn, a.checkOut, a.date)}</td>
+                                <td>
+                                    <button 
+                                        className="btn-icon view-btn" 
+                                        title="View Details"
+                                        onClick={() => navigate('/hrms')}
+                                    >
+                                        <Eye size={16} />
+                                    </button>
                                 </td>
                             </tr>
                         );
@@ -197,6 +248,29 @@ const Attendance = () => {
                 .status-pill-flex.on-leave { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
                 .status-pill-flex.late { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
 
+                .attendance-dashboard-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                    gap: 20px;
+                }
+
+                .btn-icon {
+                    background: transparent;
+                    border: none;
+                    color: var(--text-muted);
+                    cursor: pointer;
+                    padding: 6px;
+                    border-radius: 6px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    transition: all 0.2s;
+                }
+                .btn-icon.view-btn:hover {
+                    background: var(--primary-light);
+                    color: var(--primary);
+                }
+
                 .mt-30 { margin-top: 30px; }
                 .mt-20 { margin-top: 20px; }
                 .flex-center { display: flex; align-items: center; justify-content: center; }
@@ -209,6 +283,7 @@ const Attendance = () => {
                     .attendance-controls { flex-direction: column; width: 100%; }
                     .date-selector, .dept-selector { width: 100%; justify-content: flex-start; }
                     .date-input-clean, .dept-select-clean { width: 100%; }
+                    .attendance-dashboard-grid { grid-template-columns: 1fr 1fr; }
                 }
             `}</style>
         </div>
