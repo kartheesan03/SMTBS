@@ -80,9 +80,9 @@ const startServer = async () => {
         app.listen(PORT, () => {
             console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
             
-            // Start the background job for marking absentees at 5:00 PM IST
+            // Start the background job for marking absentees at 6:00 PM IST
             const cron = require('node-cron');
-            cron.schedule('0 17 * * *', () => {
+            cron.schedule('0 18 * * *', () => {
                 console.log('Running autoMarkAbsent cron job');
                 autoMarkAbsent();
             }, {
