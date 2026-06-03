@@ -1,23 +1,15 @@
 import React, { useContext, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import API from '../api/axios';
-import { User, Bell, Shield, Moon, Monitor, HardDrive, CheckCircle } from 'lucide-react';
+import { User, Bell, Shield, Mail, Phone, Calendar, Briefcase, Hash, CheckCircle, Activity, Settings as SettingsIcon, LogOut } from 'lucide-react';
 
 const Settings = () => {
-    const { user, updateUser } = useContext(AuthContext);
-    const [activeTab, setActiveTab] = useState(0);
+    const { user, updateUser, logout } = useContext(AuthContext);
     const [formData, setFormData] = useState({
         name: user?.name || '',
         email: user?.email || ''
     });
     const [success, setSuccess] = useState(false);
-
-    const settingSections = [
-        { title: 'Account Settings', icon: <User />, desc: 'Manage your profile and account information' },
-        { title: 'Notifications', icon: <Bell />, desc: 'Configure system and email alerts' },
-        { title: 'Security', icon: <Shield />, desc: 'Update passwords and two-factor auth' },
-        { title: 'Display', icon: <Monitor />, desc: 'Theme preferences and UI layout' },
-    ];
 
     const handleUpdate = async (e) => {
         e.preventDefault();
@@ -31,80 +23,197 @@ const Settings = () => {
         }
     };
 
-    return (
-        <div className="settings-container">
-            <h1 className="title-gradient">System Settings</h1>
-            <p className="text-muted">Configure your SMTBMS environment and preferences.</p>
+    const handlePasswordUpdate = async (e) => {
+        e.preventDefault();
+        try {
+            const pass = e.target.newPass.value;
+            const confirm = e.target.confirmPass.value;
+            if (pass !== confirm) return alert('Passwords do not match');
+            await API.put('/auth/profile', { password: pass });
+            alert('Password Updated Successfully');
+            e.target.reset();
+        } catch (err) { alert('Update Failed'); }
+    };
 
-            <div className="settings-grid">
-                <div className="settings-menu glass-card">
-                    {settingSections.map((s, i) => (
-                        <div key={i} className={`setting-item ${activeTab === i ? 'active' : ''}`} onClick={() => setActiveTab(i)}>
-                            <div className="s-icon">{s.icon}</div>
-                            <div className="s-text">
-                                <h4>{s.title}</h4>
-                                <p>{s.desc}</p>
+    // Calculate a mock profile completion percentage
+    const profileCompletion = user?.email && user?.name ? 85 : 40;
+
+    return (
+        <div className="profile-dashboard-container">
+            {/* Header */}
+            <div className="profile-page-header">
+                <h1 className="title-gradient">My Profile</h1>
+                <p className="text-muted">Manage your personal information, security, and preferences.</p>
+            </div>
+
+            {/* Hero Gradient Profile Card */}
+            <div className="profile-hero-card">
+                <div className="hero-gradient-bg"></div>
+                <div className="hero-content">
+                    <div className="hero-avatar-wrapper">
+                        <img src={`https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=ffffff&color=4f46e5&size=120`} alt="Profile" className="hero-avatar" />
+                        <div className="status-indicator online" title="Online"></div>
+                    </div>
+                    <div className="hero-details">
+                        <div className="hero-title-row">
+                            <h2>{user?.name || 'Employee Name'}</h2>
+                            <span className="role-badge">{user?.role || 'Employee'}</span>
+                        </div>
+                        <p className="hero-email">{user?.email || 'email@example.com'}</p>
+                    </div>
+                    
+                    <div className="hero-completion">
+                        <div className="completion-header">
+                            <span>Profile Completion</span>
+                            <span className="completion-pct">{profileCompletion}%</span>
+                        </div>
+                        <div className="progress-bar-bg">
+                            <div className="progress-bar-fill" style={{ width: `${profileCompletion}%` }}></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Main 2-Column Grid */}
+            <div className="profile-main-grid">
+                
+                {/* LEFT COLUMN */}
+                <div className="profile-left-col">
+                    
+                    {/* Quick Actions Card */}
+                    <div className="glass-card section-card">
+                        <h3 className="section-title">Quick Actions</h3>
+                        <div className="quick-actions-grid">
+                            <button className="qa-btn" onClick={() => document.getElementById('account-info-section').scrollIntoView({behavior: 'smooth'})}>
+                                <div className="qa-icon-wrap blue"><User size={18} /></div>
+                                <span>Edit Profile</span>
+                            </button>
+                            <button className="qa-btn" onClick={() => document.getElementById('security-section').scrollIntoView({behavior: 'smooth'})}>
+                                <div className="qa-icon-wrap purple"><Shield size={18} /></div>
+                                <span>Security</span>
+                            </button>
+                            <button className="qa-btn" onClick={() => document.getElementById('notifications-section').scrollIntoView({behavior: 'smooth'})}>
+                                <div className="qa-icon-wrap orange"><Bell size={18} /></div>
+                                <span>Alerts</span>
+                            </button>
+                            <button className="qa-btn logout-action" onClick={logout}>
+                                <div className="qa-icon-wrap red"><LogOut size={18} /></div>
+                                <span>Sign Out</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Profile Overview Card */}
+                    <div className="glass-card section-card">
+                        <h3 className="section-title">Profile Overview</h3>
+                        <div className="overview-list">
+                            <div className="overview-item">
+                                <Hash size={16} className="ov-icon" />
+                                <div className="ov-details">
+                                    <span className="ov-label">Employee ID</span>
+                                    <span className="ov-value">EMP-{(user?.id || 1024).toString().padStart(4, '0')}</span>
+                                </div>
+                            </div>
+                            <div className="overview-item">
+                                <Briefcase size={16} className="ov-icon" />
+                                <div className="ov-details">
+                                    <span className="ov-label">Department</span>
+                                    <span className="ov-value">{user?.role === 'Admin' ? 'Management' : (user?.role === 'Sales' ? 'Sales & Marketing' : 'Operations')}</span>
+                                </div>
+                            </div>
+                            <div className="overview-item">
+                                <Mail size={16} className="ov-icon" />
+                                <div className="ov-details">
+                                    <span className="ov-label">Email Address</span>
+                                    <span className="ov-value">{user?.email || 'N/A'}</span>
+                                </div>
+                            </div>
+                            <div className="overview-item">
+                                <Phone size={16} className="ov-icon" />
+                                <div className="ov-details">
+                                    <span className="ov-label">Phone Number</span>
+                                    <span className="ov-value">+1 (555) 123-4567</span>
+                                </div>
+                            </div>
+                            <div className="overview-item">
+                                <Calendar size={16} className="ov-icon" />
+                                <div className="ov-details">
+                                    <span className="ov-label">Join Date</span>
+                                    <span className="ov-value">Jan 15, 2024</span>
+                                </div>
                             </div>
                         </div>
-                    ))}
+                    </div>
+
                 </div>
 
-                <div className="settings-form glass-card">
-                    {activeTab === 0 && (
-                        <>
-                            <div className="card-header-flex">
-                                <h3>Profile Information</h3>
-                                {success && <span className="success-msg animate-pop"><CheckCircle size={14}/> Profile Updated</span>}
-                            </div>
-                            <div className="profile-hero">
-                                <div className="avatar-lg">
-                                    <img src={`https://ui-avatars.com/api/?name=${user?.name}&background=6366f1&color=fff`} alt="User" />
-                                </div>
-                                <div className="hero-text">
-                                    <h4>{user?.name}</h4>
-                                    <p>{user?.role} Account</p>
-                                </div>
-                            </div>
-
-                            <form className="mt-30" onSubmit={handleUpdate}>
-                                <div className="form-row">
-                                    <div className="form-group">
-                                        <label>Full Name</label>
-                                        <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
-                                    </div>
-                                    <div className="form-group">
-                                        <label>Email Address</label>
-                                        <input type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
-                                    </div>
+                {/* RIGHT COLUMN */}
+                <div className="profile-right-col">
+                    
+                    {/* Account Information Form */}
+                    <div id="account-info-section" className="glass-card section-card">
+                        <div className="card-header-flex">
+                            <h3 className="section-title">Account Information</h3>
+                            {success && <span className="success-msg animate-pop"><CheckCircle size={14}/> Saved</span>}
+                        </div>
+                        <form className="modern-form" onSubmit={handleUpdate}>
+                            <div className="form-row">
+                                <div className="form-group">
+                                    <label>Full Name</label>
+                                    <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="e.g. Jane Doe" />
                                 </div>
                                 <div className="form-group">
-                                    <label>System Role</label>
-                                    <input type="text" value={user?.role} disabled className="disabled-input" />
+                                    <label>Email Address</label>
+                                    <input type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} placeholder="e.g. jane@company.com" />
                                 </div>
-                                <div className="btn-row">
-                                    <button type="submit" className="btn-primary">Save Changes</button>
-                                </div>
-                            </form>
-                        </>
-                    )}
+                            </div>
+                            <div className="form-group">
+                                <label>System Role</label>
+                                <input type="text" value={user?.role} disabled className="disabled-input" />
+                                <span className="input-hint">Your role is assigned by the system administrator.</span>
+                            </div>
+                            <div className="form-actions">
+                                <button type="submit" className="btn-primary">Save Changes</button>
+                            </div>
+                        </form>
+                    </div>
 
-                    {activeTab === 1 && (
-                        <div className="settings-tab-content">
-                            <h3>Notification Preferences</h3>
-                            <p className="text-muted mb-20">Control how you receive alerts and system updates.</p>
-                            
-                            <div className="toggle-list">
+                    {/* Security Settings */}
+                    <div id="security-section" className="glass-card section-card">
+                        <h3 className="section-title">Security Settings</h3>
+                        <p className="section-desc">Ensure your account is using a long, random password to stay secure.</p>
+                        <form className="modern-form mt-20" onSubmit={handlePasswordUpdate}>
+                            <div className="form-row">
+                                <div className="form-group">
+                                    <label>New Password</label>
+                                    <input type="password" name="newPass" required placeholder="••••••••" />
+                                </div>
+                                <div className="form-group">
+                                    <label>Confirm Password</label>
+                                    <input type="password" name="confirmPass" required placeholder="••••••••" />
+                                </div>
+                            </div>
+                            <div className="form-actions">
+                                <button type="submit" className="btn-secondary">Update Password</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    {/* Notification & Activity Row */}
+                    <div className="bottom-grid">
+                        
+                        {/* Notifications */}
+                        <div id="notifications-section" className="glass-card section-card">
+                            <h3 className="section-title">Notifications</h3>
+                            <div className="toggle-list mt-20">
                                 {[
-                                    { label: 'Email Notifications', desc: 'Receive daily summaries and critical alerts via email', default: true },
-                                    { label: 'Push Notifications', desc: 'Real-time browser alerts for immediate actions', default: true },
-                                    { label: 'Order Updates', desc: 'Get notified when an order status changes', default: true },
-                                    { label: 'Inventory Alerts', desc: 'Alerts when material levels fall below threshold', default: false }
+                                    { label: 'Email Summaries', default: true },
+                                    { label: 'Push Alerts', default: true },
+                                    { label: 'Task Assignments', default: true },
+                                    { label: 'System Updates', default: false }
                                 ].map((item, i) => (
                                     <div key={i} className="toggle-item">
-                                        <div className="toggle-text">
-                                            <h4>{item.label}</h4>
-                                            <p>{item.desc}</p>
-                                        </div>
+                                        <span className="toggle-label">{item.label}</span>
                                         <label className="switch">
                                             <input type="checkbox" defaultChecked={item.default} />
                                             <span className="slider round"></span>
@@ -113,151 +222,315 @@ const Settings = () => {
                                 ))}
                             </div>
                         </div>
-                    )}
 
-                    {activeTab === 2 && (
-                        <div className="settings-tab-content">
-                            <h3>Security & Privacy</h3>
-                            <form className="mt-30" onSubmit={async (e) => {
-                                e.preventDefault();
-                                try {
-                                    const pass = e.target.newPass.value;
-                                    const confirm = e.target.confirmPass.value;
-                                    if (pass !== confirm) return alert('Passwords do not match');
-                                    await API.put('/auth/profile', { password: pass });
-                                    alert('Password Updated Successfully');
-                                    e.target.reset();
-                                } catch (err) { alert('Update Failed'); }
-                            }}>
-                                <div className="form-group">
-                                    <label>New Password</label>
-                                    <input type="password" name="newPass" required placeholder="••••••••" />
-                                </div>
-                                <div className="form-group">
-                                    <label>Confirm New Password</label>
-                                    <input type="password" name="confirmPass" required placeholder="••••••••" />
-                                </div>
-                                <div className="btn-row">
-                                    <button type="submit" className="btn-primary">Change Password</button>
-                                </div>
-                            </form>
-                        </div>
-                    )}
-
-                    {activeTab === 3 && (
-                        <div className="settings-tab-content">
-                            <h3>Display Preferences</h3>
-                            <div className="display-options">
-                                <div className="display-grid">
-                                    <div className="display-card active">
-                                        <div className="display-preview dark-preview"></div>
-                                        <span>Midnight Dark (Default)</span>
-                                    </div>
-                                    <div className="display-card disabled">
-                                        <div className="display-preview light-preview"></div>
-                                        <span>Light Mode (Coming Soon)</span>
+                        {/* Recent Activity */}
+                        <div className="glass-card section-card">
+                            <h3 className="section-title">Recent Activity</h3>
+                            <div className="activity-timeline mt-20">
+                                <div className="timeline-item">
+                                    <div className="timeline-icon green"><Activity size={12} /></div>
+                                    <div className="timeline-content">
+                                        <p>Logged in successfully</p>
+                                        <span>2 hours ago</span>
                                     </div>
                                 </div>
-                                <div className="form-group mt-30">
-                                    <label>Sidebar Layout</label>
-                                    <select defaultValue="expanded">
-                                        <option value="expanded">Expanded (Full Width)</option>
-                                        <option value="collapsed">Compact (Icons Only)</option>
-                                    </select>
+                                <div className="timeline-item">
+                                    <div className="timeline-icon blue"><SettingsIcon size={12} /></div>
+                                    <div className="timeline-content">
+                                        <p>Updated profile preferences</p>
+                                        <span>Yesterday</span>
+                                    </div>
+                                </div>
+                                <div className="timeline-item">
+                                    <div className="timeline-icon purple"><Shield size={12} /></div>
+                                    <div className="timeline-content">
+                                        <p>Changed account password</p>
+                                        <span>Last week</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    )}
+
+                    </div>
 
                 </div>
             </div>
 
             <style jsx="true">{`
-                .settings-container { padding: 30px; background-color: var(--bg-body); min-height: 100vh; font-family: 'Outfit', sans-serif; color: var(--text-primary); }
-                .title-gradient { font-size: 26px; font-weight: 800; color: var(--text-primary); margin: 0 0 4px 0; }
-                .text-muted { color: var(--text-muted); }
-                .settings-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 30px; margin-top: 30px; }
+                .profile-dashboard-container { 
+                    padding: 30px; 
+                    background-color: var(--bg-body); 
+                    min-height: 100vh; 
+                    font-family: 'Outfit', 'Inter', sans-serif; 
+                    color: var(--text-primary); 
+                    max-width: 1400px;
+                    margin: 0 auto;
+                }
+                .profile-page-header { margin-bottom: 24px; }
+                .title-gradient { font-size: 28px; font-weight: 800; color: var(--text-primary); margin: 0 0 6px 0; letter-spacing: -0.5px; }
+                .text-muted { color: var(--text-muted); font-size: 15px; margin: 0; }
                 
-                .settings-menu { padding: 16px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg, 16px); box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 8px; }
-                .setting-item { display: flex; gap: 15px; padding: 15px; border-radius: var(--radius-md, 10px); cursor: pointer; border: 1px solid transparent; transition: all 0.2s; color: var(--text-primary); }
-                .setting-item:hover { background: var(--bg-hover); }
-                .setting-item.active { background: var(--primary-50); border-color: var(--primary); }
-                .s-icon { color: var(--text-muted); padding-top: 2px; }
-                .setting-item.active .s-icon { color: var(--primary); }
-                .s-text h4 { font-size: 15px; font-weight: 700; margin: 0 0 4px 0; }
-                .s-text p { font-size: 12px; color: var(--text-muted); margin: 0; }
+                /* Hero Card */
+                .profile-hero-card {
+                    background: var(--bg-card);
+                    border-radius: var(--radius-lg, 20px);
+                    overflow: hidden;
+                    box-shadow: var(--shadow-sm);
+                    border: 1px solid var(--border);
+                    margin-bottom: 30px;
+                    position: relative;
+                }
+                .hero-gradient-bg {
+                    height: 140px;
+                    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+                    width: 100%;
+                }
+                .hero-content {
+                    padding: 0 30px 30px;
+                    display: flex;
+                    align-items: flex-end;
+                    gap: 24px;
+                    margin-top: -60px;
+                    flex-wrap: wrap;
+                }
+                .hero-avatar-wrapper {
+                    position: relative;
+                    flex-shrink: 0;
+                }
+                .hero-avatar {
+                    width: 120px;
+                    height: 120px;
+                    border-radius: 50%;
+                    border: 4px solid var(--bg-card);
+                    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+                    background: #fff;
+                    object-fit: cover;
+                }
+                .status-indicator {
+                    position: absolute;
+                    bottom: 8px;
+                    right: 8px;
+                    width: 18px;
+                    height: 18px;
+                    border-radius: 50%;
+                    border: 3px solid var(--bg-card);
+                }
+                .status-indicator.online { background-color: var(--success); }
+                
+                .hero-details {
+                    flex: 1;
+                    padding-bottom: 8px;
+                    min-width: 250px;
+                }
+                .hero-title-row {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    margin-bottom: 6px;
+                }
+                .hero-title-row h2 {
+                    font-size: 24px;
+                    font-weight: 800;
+                    margin: 0;
+                    color: var(--text-primary);
+                }
+                .role-badge {
+                    background: var(--primary-50);
+                    color: var(--primary);
+                    padding: 4px 12px;
+                    border-radius: 99px;
+                    font-size: 12px;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                }
+                .hero-email {
+                    color: var(--text-secondary);
+                    font-size: 15px;
+                    margin: 0;
+                }
+                
+                .hero-completion {
+                    width: 280px;
+                    background: var(--bg-body);
+                    padding: 16px;
+                    border-radius: 12px;
+                    border: 1px solid var(--border);
+                    margin-bottom: 8px;
+                }
+                .completion-header {
+                    display: flex;
+                    justify-content: space-between;
+                    font-size: 13px;
+                    font-weight: 700;
+                    color: var(--text-secondary);
+                    margin-bottom: 10px;
+                }
+                .completion-pct { color: var(--primary); }
+                .progress-bar-bg {
+                    height: 6px;
+                    background: var(--border);
+                    border-radius: 99px;
+                    overflow: hidden;
+                }
+                .progress-bar-fill {
+                    height: 100%;
+                    background: var(--primary);
+                    border-radius: 99px;
+                    transition: width 1s ease-out;
+                }
 
-                .settings-form { padding: 30px; min-height: 500px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg, 16px); box-shadow: var(--shadow-sm); }
-                .card-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-                .card-header-flex h3 { font-size: 20px; font-weight: 800; margin: 0; color: var(--text-primary); }
-                .success-msg { color: var(--success); font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; background: var(--success-light); padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(16, 185, 129, 0.2); }
-                .profile-hero { display: flex; align-items: center; gap: 20px; padding-bottom: 30px; border-bottom: 1px dashed var(--border); }
-                .avatar-lg img { width: 80px; height: 80px; border-radius: 20px; box-shadow: 0 8px 16px rgba(99, 102, 241, 0.2); border: 2px solid var(--bg-body); }
-                .hero-text h4 { font-size: 22px; font-weight: 800; margin: 0 0 4px 0; color: var(--text-primary); }
-                .hero-text p { font-size: 14px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin: 0; }
+                /* Layout Grid */
+                .profile-main-grid {
+                    display: grid;
+                    grid-template-columns: 320px 1fr;
+                    gap: 30px;
+                }
+                .profile-left-col { display: flex; flex-direction: column; gap: 30px; }
+                .profile-right-col { display: flex; flex-direction: column; gap: 30px; }
+
+                /* Shared Card Styles */
+                .section-card {
+                    padding: 24px;
+                    background: var(--bg-card);
+                    border-radius: var(--radius-lg, 16px);
+                    border: 1px solid var(--border);
+                    box-shadow: var(--shadow-sm);
+                }
+                .section-title {
+                    font-size: 18px;
+                    font-weight: 800;
+                    color: var(--text-primary);
+                    margin: 0 0 20px 0;
+                }
+                .section-desc { font-size: 14px; color: var(--text-muted); margin: -14px 0 20px 0; }
                 
-                .mt-30 { margin-top: 30px; }
-                .mb-20 { margin-bottom: 20px; }
-                .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
-                .form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; }
-                .form-group label { font-size: 12px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
-                .form-group input, .form-group select { padding: 12px 16px; background: var(--bg-body) !important; border: 1px solid var(--border) !important; border-radius: var(--radius-md, 8px) !important; color: var(--text-primary) !important; font-size: 14px; transition: border-color 0.2s; outline: none; box-shadow: none !important; }
-                .form-group input:focus, .form-group select:focus { border-color: var(--primary) !important; box-shadow: 0 0 0 3px var(--primary-50) !important; }
-                .form-group select { appearance: none; padding-right: 40px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
-                .form-group select option { background: var(--bg-body) !important; color: var(--text-primary) !important; }
-                .disabled-input { opacity: 0.6; cursor: not-allowed; }
-                .btn-row { margin-top: 24px; display: flex; justify-content: flex-end; padding-top: 20px; border-top: 1px solid var(--border); }
-                .btn-primary { background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: var(--radius-full, 9999px); font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2); }
-                .btn-primary:hover { background: #1d4ed8; transform: translateY(-1px); box-shadow: 0 6px 12px -1px rgba(37, 99, 235, 0.3); }
-                .empty-state { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 10px; }
+                .card-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+                .card-header-flex .section-title { margin: 0; }
+                .success-msg { color: var(--success); font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 6px; background: var(--success-light); padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(16, 185, 129, 0.2); }
                 
-                /* Tab Content */
-                .settings-tab-content h3 { font-size: 20px; font-weight: 800; margin: 0 0 8px 0; color: var(--text-primary); }
+                /* Quick Actions */
+                .quick-actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+                .qa-btn {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 10px;
+                    padding: 16px 10px;
+                    background: var(--bg-body);
+                    border: 1px solid var(--border);
+                    border-radius: 12px;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                    color: var(--text-primary);
+                }
+                .qa-btn:hover { background: var(--bg-hover); border-color: var(--primary-300, #a5b4fc); transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+                .qa-btn span { font-size: 12px; font-weight: 600; }
+                .qa-icon-wrap { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+                .qa-icon-wrap.blue { background: #eff6ff; color: #3b82f6; }
+                .qa-icon-wrap.purple { background: #f5f3ff; color: #8b5cf6; }
+                .qa-icon-wrap.orange { background: #fff7ed; color: #f97316; }
+                .qa-icon-wrap.red { background: #fef2f2; color: #ef4444; }
+                .qa-btn.logout-action:hover { border-color: #fca5a5; background: #fef2f2; }
+
+                /* Profile Overview List */
+                .overview-list { display: flex; flex-direction: column; gap: 16px; }
+                .overview-item { display: flex; align-items: flex-start; gap: 14px; }
+                .ov-icon { color: var(--text-muted); margin-top: 3px; flex-shrink: 0; }
+                .ov-details { display: flex; flex-direction: column; gap: 2px; }
+                .ov-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+                .ov-value { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+
+                /* Modern Forms */
+                .modern-form .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+                .modern-form .form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+                .modern-form label { font-size: 12px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+                .modern-form input { 
+                    padding: 12px 16px; 
+                    background: var(--bg-body); 
+                    border: 1px solid var(--border); 
+                    border-radius: var(--radius-md, 8px); 
+                    color: var(--text-primary); 
+                    font-size: 14px; 
+                    transition: all 0.2s; 
+                    outline: none; 
+                    font-family: inherit;
+                }
+                .modern-form input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-50); background: var(--bg-card); }
+                .disabled-input { opacity: 0.6; cursor: not-allowed; background: #f1f5f9 !important; }
+                .input-hint { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+                .form-actions { display: flex; justify-content: flex-end; padding-top: 10px; }
+                
+                .btn-primary, .btn-secondary {
+                    padding: 12px 24px;
+                    border-radius: var(--radius-md, 8px);
+                    font-size: 14px;
+                    font-weight: 700;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                    border: none;
+                }
+                .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2); }
+                .btn-primary:hover { background: var(--primary-700, #4338ca); transform: translateY(-1px); box-shadow: 0 6px 12px -1px rgba(79, 70, 229, 0.3); }
+                .btn-secondary { background: var(--bg-body); color: var(--text-primary); border: 1px solid var(--border); }
+                .btn-secondary:hover { background: var(--bg-hover); border-color: var(--border-hover); }
+
+                /* Bottom Grid */
+                .bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
                 
                 /* Toggles */
-                .toggle-list { display: flex; flex-direction: column; gap: 12px; }
-                .toggle-item { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; background: var(--bg-body); border-radius: var(--radius-md, 10px); border: 1px solid var(--border); color: var(--text-primary); transition: all 0.2s; }
-                .toggle-item:hover { border-color: var(--border-hover); box-shadow: var(--shadow-sm); }
-                .toggle-text h4 { font-size: 14px; font-weight: 700; margin: 0 0 4px 0; }
-                .toggle-text p { font-size: 13px; color: var(--text-muted); margin: 0; }
-                
-                .switch { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; }
+                .toggle-list { display: flex; flex-direction: column; gap: 16px; }
+                .toggle-item { display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+                .toggle-item:last-child { border-bottom: none; padding-bottom: 0; }
+                .toggle-label { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+                .switch { position: relative; display: inline-block; width: 40px; height: 22px; flex-shrink: 0; }
                 .switch input { opacity: 0; width: 0; height: 0; }
                 .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--border); transition: .4s; border-radius: 24px; }
-                .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+                .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
                 input:checked + .slider { background-color: var(--primary); }
-                input:checked + .slider:before { transform: translateX(20px); }
+                input:checked + .slider:before { transform: translateX(18px); }
 
-                /* Display Cards */
-                .display-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
-                .display-card { padding: 16px; border: 2px solid var(--border); border-radius: var(--radius-md, 12px); cursor: pointer; display: flex; flex-direction: column; gap: 12px; align-items: center; background: var(--bg-body); transition: all 0.2s; }
-                .display-card:hover:not(.disabled) { border-color: var(--border-hover); transform: translateY(-2px); }
-                .display-card.active { border-color: var(--primary); background: var(--primary-50); box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1); }
-                .display-card.disabled { opacity: 0.5; cursor: default; }
-                .display-preview { width: 100%; height: 80px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-                .dark-preview { background: linear-gradient(135deg, #0f172a, #1e293b); border: 1px solid rgba(255,255,255,0.1); }
-                .light-preview { background: linear-gradient(135deg, #f8fafc, #e2e8f0); border: 1px solid rgba(0,0,0,0.1); }
-                .display-card span { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+                /* Timeline */
+                .activity-timeline { display: flex; flex-direction: column; gap: 20px; position: relative; }
+                .activity-timeline::before {
+                    content: '';
+                    position: absolute;
+                    left: 12px;
+                    top: 8px;
+                    bottom: 8px;
+                    width: 2px;
+                    background: var(--border);
+                    z-index: 0;
+                }
+                .timeline-item { display: flex; gap: 16px; position: relative; z-index: 1; }
+                .timeline-icon { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--bg-card); border: 2px solid var(--bg-card); box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+                .timeline-icon.green { background: #ecfeff; color: #0891b2; }
+                .timeline-icon.blue { background: #eff6ff; color: #2563eb; }
+                .timeline-icon.purple { background: #f5f3ff; color: #7c3aed; }
+                .timeline-content { display: flex; flex-direction: column; gap: 4px; padding-top: 3px; }
+                .timeline-content p { margin: 0; font-size: 13px; font-weight: 600; color: var(--text-primary); }
+                .timeline-content span { font-size: 12px; color: var(--text-muted); }
 
-                /* Logs Ledger */
-                .logs-ledger { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
-                .log-row { display: grid; grid-template-columns: 2fr 1fr 1fr; padding: 16px 20px; background: var(--bg-body); border: 1px solid var(--border); border-radius: var(--radius-md, 10px); align-items: center; font-size: 13px; color: var(--text-primary); transition: background 0.2s; }
-                .log-row:hover { background: var(--bg-hover); }
-                .log-info { display: flex; align-items: center; gap: 10px; font-weight: 600; }
-                .log-icon { color: var(--success); flex-shrink: 0; }
-                .log-time { color: var(--text-secondary); font-size: 12px; }
-                .log-device { color: var(--text-muted); font-family: 'JetBrains Mono', monospace; text-align: right; font-size: 12px; }
-
+                /* Utilities & Responsive */
+                .mt-20 { margin-top: 20px; }
                 .animate-pop { animation: pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
                 @keyframes pop { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+                @media (max-width: 1024px) {
+                    .profile-main-grid { grid-template-columns: 1fr; }
+                    .bottom-grid { grid-template-columns: 1fr; }
+                    .hero-content { flex-direction: column; align-items: center; text-align: center; margin-top: -60px; padding: 0 20px 20px; }
+                    .hero-title-row { justify-content: center; }
+                    .hero-completion { width: 100%; max-width: 400px; margin-top: 16px; }
+                    .status-indicator { right: 16px; bottom: 12px; }
+                }
                 
-                @media (max-width: 768px) {
-                    .settings-container { padding: 16px; }
-                    .settings-grid { grid-template-columns: 1fr; gap: 20px; }
-                    .form-row { grid-template-columns: 1fr; gap: 0; }
-                    .display-grid { grid-template-columns: 1fr; }
-                    .log-row { grid-template-columns: 1fr; gap: 8px; padding: 14px; }
-                    .log-device { text-align: left; }
+                @media (max-width: 640px) {
+                    .profile-dashboard-container { padding: 16px; }
+                    .modern-form .form-row { grid-template-columns: 1fr; gap: 0; }
+                    .section-card { padding: 20px; }
+                    .quick-actions-grid { grid-template-columns: 1fr 1fr; }
                 }
             `}</style>
         </div>
@@ -265,3 +538,4 @@ const Settings = () => {
 };
 
 export default Settings;
+
