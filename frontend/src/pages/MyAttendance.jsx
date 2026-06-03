@@ -88,15 +88,7 @@ const MyAttendance = () => {
             const hasToday = historyRes.data.some(h => h.date && h.date.split('T')[0] === today);
             
             if (!hasToday) {
-                // Inject today's status if not checked in
-                const now = new Date();
-                const utcTime = now.getTime() + (now.getTimezoneOffset() * 60000);
-                const istTime = new Date(utcTime + (5.5 * 60 * 60 * 1000));
-                
-                let displayStatus = 'Absent';
-                if (istTime.getHours() < 17) displayStatus = 'Pending';
-                
-                finalHistory = [{ date: today, status: displayStatus }, ...historyRes.data];
+                finalHistory = [{ date: today, status: statusRes.data?.status || 'Pending' }, ...historyRes.data];
             }
             
             setHistory(finalHistory);

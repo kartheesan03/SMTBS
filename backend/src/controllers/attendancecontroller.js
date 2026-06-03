@@ -30,6 +30,28 @@ const getAttendanceStatus = async (req, res) => {
         });
 
         if (!attendance) {
+            const todayStart = new Date();
+            todayStart.setHours(0,0,0,0);
+            const todayEnd = new Date();
+            todayEnd.setHours(23,59,59,999);
+            
+            const leave = await Leave.findOne({
+                employeeId: empId,
+                startDate: { $lte: todayEnd },
+                endDate: { $gte: todayStart },
+                status: 'Approved'
+            });
+
+            if (leave) {
+                return res.json({ status: 'On Leave', date: today });
+            }
+
+            const now = new Date();
+            const istOffset = 5.5 * 60 * 60 * 1000;
+            const istTime = new Date(now.getTime() + istOffset);
+            if (istTime.getUTCHours() < 17) {
+                return res.json({ status: 'Pending', date: today });
+            }
             return res.json({ status: 'Absent', date: today });
         }
         res.json(attendance);
@@ -175,6 +197,24 @@ const getAllAttendance = async (req, res) => {
             const empId = att.employeeId?.toString();
             attendanceMap[empId] = att;
         });
+        const todayStart = new Date();
+        todayStart.setHours(0,0,0,0);
+        const todayEnd = new Date();
+        todayEnd.setHours(23,59,59,999);
+        
+        const leaves = await Leave.find({
+            startDate: { $lte: todayEnd },
+            endDate: { $gte: todayStart },
+            status: 'Approved'
+        });
+        const leaveMap = {};
+        leaves.forEach(l => { leaveMap[l.employeeId?.toString()] = true });
+
+        const now = new Date();
+        const istOffset = 5.5 * 60 * 60 * 1000;
+        const istTime = new Date(now.getTime() + istOffset);
+        const defaultStatus = istTime.getUTCHours() < 17 ? 'Pending' : 'Absent';
+
         // Build result list including absent employees
         const result = employees.map(emp => {
             const empId = emp._id?.toString() || emp.id?.toString();
@@ -184,7 +224,7 @@ const getAllAttendance = async (req, res) => {
             return {
                 employeeId: empId,
                 date: today,
-                status: 'Absent',
+                status: leaveMap[empId] ? 'On Leave' : defaultStatus,
                 employee: {
                     firstName: emp.firstName,
                     lastName: emp.lastName,

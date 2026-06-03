@@ -80,15 +80,7 @@ const Attendance = () => {
         return `${hours}h ${minutes}m`;
     };
 
-    const getDisplayStatus = (status, dateStr) => {
-        if (status === 'Present' || status === 'Late' || status === 'On Leave') return status;
-        const today = new Date().toISOString().split('T')[0];
-        if (status === 'Absent' && dateStr && dateStr.split('T')[0] === today) {
-            const now = new Date();
-            const utcTime = now.getTime() + (now.getTimezoneOffset() * 60000);
-            const istTime = new Date(utcTime + (5.5 * 60 * 60 * 1000));
-            if (istTime.getHours() < 17) return 'Pending';
-        }
+    const getDisplayStatus = (status) => {
         return status || '-';
     };
 
@@ -143,7 +135,7 @@ const Attendance = () => {
                     data={filteredLogs}
                     emptyText="No attendance records found."
                     renderRow={(a, index) => {
-                        const displayStatus = getDisplayStatus(a.status, a.date);
+                        const displayStatus = getDisplayStatus(a.status);
                         const statusClass = displayStatus.toLowerCase().replace(' ', '-');
                         
                         return (
