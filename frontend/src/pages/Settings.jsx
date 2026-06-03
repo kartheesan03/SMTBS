@@ -1,19 +1,59 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import API from '../api/axios';
-import { User, Bell, Shield, Mail, Phone, Calendar, Briefcase, Hash, CheckCircle, Activity, Settings as SettingsIcon, LogOut } from 'lucide-react';
+import { User, Bell, Shield, Mail, Phone, Calendar, Briefcase, Hash, CheckCircle, Activity, Settings as SettingsIcon, LogOut, MapPin } from 'lucide-react';
 
 const Settings = () => {
     const { user, updateUser, logout } = useContext(AuthContext);
+    const [employeeData, setEmployeeData] = useState(null);
     const [formData, setFormData] = useState({
         name: user?.name || '',
         email: user?.email || ''
     });
     const [success, setSuccess] = useState(false);
 
+    useEffect(() => {
+        const fetchEmployeeData = async () => {
+            try {
+                const { data } = await API.get('/employees');
+                const myEmp = data.find(emp => 
+                    (emp.userId && (emp.userId === user._id || emp.userId._id === user._id)) || 
+                    emp.contact === user.email
+                );
+                if (myEmp) {
+                    setEmployeeData(myEmp);
+                    setFormData({
+                        name: `${myEmp.firstName} ${myEmp.lastName || ''}`.trim(),
+                        email: myEmp.contact || user.email
+                    });
+                }
+            } catch (err) {
+                console.error("Could not fetch employee data", err);
+            }
+        };
+        if (user) fetchEmployeeData();
+    }, [user]);
+
     const handleUpdate = async (e) => {
         e.preventDefault();
         try {
+            if (employeeData) {
+                const parts = formData.name.trim().split(' ');
+                const firstName = parts[0];
+                const lastName = parts.slice(1).join(' ');
+                await API.put(`/employees/${employeeData._id}`, {
+                    ...employeeData,
+                    firstName,
+                    lastName,
+                    contact: formData.email
+                });
+                
+                // Re-fetch to update immediately
+                const { data: empData } = await API.get('/employees');
+                const updatedEmp = empData.find(emp => emp._id === employeeData._id);
+                if (updatedEmp) setEmployeeData(updatedEmp);
+            }
+
             const { data } = await API.put('/auth/profile', formData);
             updateUser(data);
             setSuccess(true);
@@ -111,35 +151,70 @@ const Settings = () => {
                                 <Hash size={16} className="ov-icon" />
                                 <div className="ov-details">
                                     <span className="ov-label">Employee ID</span>
-                                    <span className="ov-value">EMP-{(user?.id || 1024).toString().padStart(4, '0')}</span>
+                                    <span className="ov-value">{employeeData?.employeeId || 'Not Provided'}</span>
+                                </div>
+                            </div>
+                            <div className="overview-item">
+                                <User size={16} className="ov-icon" />
+                                <div className="ov-details">
+                                    <span className="ov-label">First Name</span>
+                                    <span className="ov-value">{employeeData?.firstName || 'Not Provided'}</span>
+                                </div>
+                            </div>
+                            <div className="overview-item">
+                                <User size={16} className="ov-icon" />
+                                <div className="ov-details">
+                                    <span className="ov-label">Last Name</span>
+                                    <span className="ov-value">{employeeData?.lastName || 'Not Provided'}</span>
+                                </div>
+                            </div>
+                            <div className="overview-item">
+                                <User size={16} className="ov-icon" />
+                                <div className="ov-details">
+                                    <span className="ov-label">Full Name</span>
+                                    <span className="ov-value">{employeeData ? `${employeeData.firstName} ${employeeData.lastName || ''}`.trim() : user?.name || 'Not Provided'}</span>
                                 </div>
                             </div>
                             <div className="overview-item">
                                 <Briefcase size={16} className="ov-icon" />
                                 <div className="ov-details">
                                     <span className="ov-label">Department</span>
-                                    <span className="ov-value">{user?.role === 'Admin' ? 'Management' : (user?.role === 'Sales' ? 'Sales & Marketing' : 'Operations')}</span>
+                                    <span className="ov-value">{employeeData?.department || 'Not Provided'}</span>
+                                </div>
+                            </div>
+                            <div className="overview-item">
+                                <Briefcase size={16} className="ov-icon" />
+                                <div className="ov-details">
+                                    <span className="ov-label">Designation / Role</span>
+                                    <span className="ov-value">{employeeData?.designation || user?.role || 'Not Provided'}</span>
                                 </div>
                             </div>
                             <div className="overview-item">
                                 <Mail size={16} className="ov-icon" />
                                 <div className="ov-details">
                                     <span className="ov-label">Email Address</span>
-                                    <span className="ov-value">{user?.email || 'N/A'}</span>
+                                    <span className="ov-value">{employeeData?.contact || user?.email || 'Not Provided'}</span>
                                 </div>
                             </div>
                             <div className="overview-item">
                                 <Phone size={16} className="ov-icon" />
                                 <div className="ov-details">
                                     <span className="ov-label">Phone Number</span>
-                                    <span className="ov-value">+1 (555) 123-4567</span>
+                                    <span className="ov-value">Not Provided</span>
                                 </div>
                             </div>
                             <div className="overview-item">
                                 <Calendar size={16} className="ov-icon" />
                                 <div className="ov-details">
                                     <span className="ov-label">Join Date</span>
-                                    <span className="ov-value">Jan 15, 2024</span>
+                                    <span className="ov-value">{employeeData?.joinDate ? new Date(employeeData.joinDate).toLocaleDateString() : 'Not Provided'}</span>
+                                </div>
+                            </div>
+                            <div className="overview-item">
+                                <MapPin size={16} className="ov-icon" />
+                                <div className="ov-details">
+                                    <span className="ov-label">Address</span>
+                                    <span className="ov-value">{employeeData?.address || 'Not Provided'}</span>
                                 </div>
                             </div>
                         </div>

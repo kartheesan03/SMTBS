@@ -196,7 +196,7 @@ const HRMS = () => {
                                     <p>{selectedEmployee.contact || 'Not provided'}</p>
                                 </div>
                                 <div className="profile-item full-width">
-                                    <label>Office Address</label>
+                                    <label>Address</label>
                                     <p>{selectedEmployee.address || 'Not specified'}</p>
                                 </div>
                             </div>
