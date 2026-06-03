@@ -227,6 +227,63 @@ const createSalaryRecord = async (req, res) => {
     }
 };
 
+// @desc    Calculate deductions based on attendance
+// @route   POST /api/salaries/calculate-deductions
+// @access  Private/Admin/HR
+const calculatePayrollDeductions = async (req, res) => {
+    try {
+        const { employeeId, month, basicSalary } = req.body;
+        
+        if (!employeeId || !month || !basicSalary) {
+            return res.status(400).json({ message: 'employeeId, month, and basicSalary are required' });
+        }
+
+        const monthDate = new Date(`${month} 1`);
+        if (isNaN(monthDate.getTime())) {
+            return res.status(400).json({ message: 'Invalid month format. Expected "Month YYYY"' });
+        }
+        
+        const year = monthDate.getFullYear();
+        const monthIndex = monthDate.getMonth();
+        const startDate = new Date(year, monthIndex, 1);
+        const endDate = new Date(year, monthIndex + 1, 0, 23, 59, 59, 999);
+        const daysInMonth = endDate.getDate();
+
+        const Attendance = require('../models/Attendance');
+        const attendances = await Attendance.find({
+            employeeId,
+            date: { $gte: startDate, $lte: endDate }
+        });
+
+        let absentDays = 0;
+        let lateDays = 0;
+        let presentDays = 0;
+
+        attendances.forEach(att => {
+            if (att.status === 'Absent') absentDays++;
+            else if (att.status === 'Late') lateDays++;
+            else if (att.status === 'Present') presentDays++;
+        });
+
+        // 3 lates = 1 absent deduction (standard HR policy, optional)
+        const totalAbsentEquivalents = absentDays + Math.floor(lateDays / 3);
+        const perDaySalary = basicSalary / daysInMonth;
+        const suggestedDeduction = Math.round(perDaySalary * totalAbsentEquivalents);
+
+        res.json({
+            absentDays,
+            lateDays,
+            presentDays,
+            daysInMonth,
+            suggestedDeduction,
+            perDaySalary: Math.round(perDaySalary)
+        });
+    } catch (error) {
+        console.error('calculatePayrollDeductions error:', error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
 module.exports = {
     getMySalaryHistory,
     getMySalarySummary,
@@ -234,5 +291,6 @@ module.exports = {
     getAllSalaries,
     approveSalaryRecord,
     paySalaryRecord,
-    payAllApproved
+    payAllApproved,
+    calculatePayrollDeductions
 };

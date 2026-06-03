@@ -18,6 +18,8 @@ const Payroll = () => {
     const [paying, setPaying] = useState(false);
     const [downloading, setDownloading] = useState(false);
     const [toast, setToast] = useState(null);
+    const [calcStats, setCalcStats] = useState(null);
+    const [calculating, setCalculating] = useState(false);
 
     const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
     const isAdmin = userInfo.role === 'Admin';
@@ -76,12 +78,34 @@ const Payroll = () => {
                 allowances: 0,
                 deductions: 0
             });
+            setCalcStats(null);
             fetchData();
             showToast('Payroll entry generated successfully.');
         } catch (err) {
             showToast(err.response?.data?.message || 'Error generating payroll', false);
         } finally {
             setSubmitting(false);
+        }
+    };
+
+    const handleCalculateDeductions = async () => {
+        if (!formData.employeeId || !formData.month || !formData.basicSalary) {
+            return showToast('Please select an employee and enter basic salary first', false);
+        }
+        setCalculating(true);
+        try {
+            const { data } = await API.post('/salaries/calculate-deductions', {
+                employeeId: formData.employeeId,
+                month: formData.month,
+                basicSalary: Number(formData.basicSalary)
+            });
+            setCalcStats(data);
+            setFormData({ ...formData, deductions: data.suggestedDeduction || 0 });
+            showToast(`Calculated: ${data.absentDays} Absents, ${data.lateDays} Lates`);
+        } catch (err) {
+            showToast(err.response?.data?.message || 'Error calculating deductions', false);
+        } finally {
+            setCalculating(false);
         }
     };
 
@@ -339,7 +363,10 @@ const Payroll = () => {
                         <form onSubmit={handleGenerate} className="p-30">
                             <div className="form-group">
                                 <label>Select Employee</label>
-                                <select required value={formData.employeeId} onChange={e => setFormData({...formData, employeeId: e.target.value, basicSalary: employees.find(emp => String(emp._id) === e.target.value)?.salary || formData.basicSalary})}>
+                                <select required value={formData.employeeId} onChange={e => {
+                                    setFormData({...formData, employeeId: e.target.value, basicSalary: employees.find(emp => String(emp._id) === e.target.value)?.salary || formData.basicSalary});
+                                    setCalcStats(null);
+                                }}>
                                     <option value="">Choose...</option>
                                     {employees.map(emp => (
                                         <option key={emp._id} value={emp._id}>{emp.firstName} {emp.lastName || ''} ({emp.department})</option>
@@ -363,9 +390,24 @@ const Payroll = () => {
                                 </div>
                                 <div className="form-group">
                                     <label>Deductions (₹)</label>
-                                    <input type="number" value={formData.deductions} onChange={e => setFormData({...formData, deductions: Number(e.target.value)})} />
+                                    <div style={{ display: 'flex', gap: '10px' }}>
+                                        <input type="number" style={{ flex: 1 }} value={formData.deductions} onChange={e => setFormData({...formData, deductions: Number(e.target.value)})} />
+                                        <button type="button" className="btn-secondary" style={{ padding: '0 15px', whiteSpace: 'nowrap' }} onClick={handleCalculateDeductions} disabled={calculating}>
+                                            {calculating ? '...' : 'Auto-Calc'}
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
+                            
+                            {calcStats && (
+                                <div className="calc-stats-box mt-10">
+                                    <div className="flex-between"><span>Total Days:</span> <strong>{calcStats.daysInMonth}</strong></div>
+                                    <div className="flex-between"><span>Present:</span> <strong className="text-success">{calcStats.presentDays}</strong></div>
+                                    <div className="flex-between"><span>Absent:</span> <strong className="text-danger">{calcStats.absentDays}</strong></div>
+                                    <div className="flex-between"><span>Late:</span> <strong className="text-warning">{calcStats.lateDays}</strong></div>
+                                </div>
+                            )}
+
                             {formData.basicSalary > 0 && (
                                 <div className="net-preview mt-20">
                                     <span>Net Payable:</span>
@@ -708,6 +750,11 @@ const Payroll = () => {
                 .mb-10 { margin-bottom: 10px; }
                 .p-30 { padding: 30px; }
 
+                .flex-between { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; font-size: 13px; }
+                .calc-stats-box { background: var(--bg-hover); border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
+                .btn-secondary { background: var(--bg-body); color: var(--text-primary); border: 1px solid var(--border); border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+                .btn-secondary:hover { background: var(--bg-hover); }
+                
                 .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 2000; padding: 20px; }
                 .modal-content, .glass-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg, 16px); box-shadow: var(--shadow-lg); overflow-y: auto; }
                 .modal-content { width: 100%; max-width: 550px; max-height: 90vh; }

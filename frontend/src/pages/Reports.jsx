@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import API from '../api/axios';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 import {
     Download, FileText, BarChart2, PieChart as PieChartIcon,
     Calendar, Filter, TrendingUp, Package, Users, ShoppingCart,
@@ -62,56 +64,57 @@ const Reports = () => {
         }
     };
 
-    // Generate CSV content from data
-    const generateCSV = (headers, rows) => {
-        const csvRows = [headers.join(','), ...rows.map(r => r.join(','))];
-        return csvRows.join('\n');
-    };
-
-    // Trigger a browser download
-    const triggerDownload = (content, filename, mimeType) => {
-        const blob = new Blob([content], { type: mimeType });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        a.click();
-        URL.revokeObjectURL(url);
-    };
-
     const handleDownload = async (reportName, format) => {
         setDownloading(reportName);
         try {
-            let content = '';
-            let filename = '';
+            const doc = new jsPDF();
             const now = new Date().toISOString().split('T')[0];
+
+            doc.setFontSize(18);
+            doc.text(`SMTBMS - ${reportName}`, 14, 22);
+            doc.setFontSize(11);
+            doc.setTextColor(100);
+            doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 30);
 
             if (reportName === 'Monthly Revenue Report') {
                 const rows = (stats?.charts?.monthlyStats || []).map(m => [m.name, m.revenue || 0, m.sales || 0]);
-                content = generateCSV(['Month', 'Revenue ($)', 'Orders'], rows);
-                filename = `revenue-report-${now}.csv`;
+                doc.autoTable({
+                    startY: 40,
+                    head: [['Month', 'Revenue ($)', 'Orders']],
+                    body: rows,
+                });
             } else if (reportName === 'Inventory Usage Summary') {
                 const rows = (stats?.tables?.lowStock || []).map(m => [m.name, m.sku, m.quantity, m.unit, m.status || 'Low Stock']);
-                content = generateCSV(['Material Name', 'SKU', 'Quantity', 'Unit', 'Status'], rows);
-                filename = `inventory-report-${now}.csv`;
+                doc.autoTable({
+                    startY: 40,
+                    head: [['Material Name', 'SKU', 'Quantity', 'Unit', 'Status']],
+                    body: rows,
+                });
             } else if (reportName === 'Employee Performance Metrics') {
-                content = generateCSV(
-                    ['Metric', 'Value'],
-                    [['Total Employees', stats?.stats?.totalEmployees || 0], ['Report Date', now]]
-                );
-                filename = `employee-report-${now}.csv`;
+                doc.autoTable({
+                    startY: 40,
+                    head: [['Metric', 'Value']],
+                    body: [
+                        ['Total Employees', stats?.stats?.totalEmployees || 0],
+                        ['Report Date', now]
+                    ],
+                });
             } else if (reportName === 'Vendor Procurement Log') {
                 const rows = (stats?.tables?.recentOrders || []).map(o => [
                     o.orderNumber || 'N/A', o.customer?.name || 'Walk-in',
                     o.totalAmount || 0, o.status || 'Pending'
                 ]);
-                content = generateCSV(['Order#', 'Customer', 'Amount', 'Status'], rows);
-                filename = `vendor-procurement-${now}.csv`;
+                doc.autoTable({
+                    startY: 40,
+                    head: [['Order#', 'Customer', 'Amount', 'Status']],
+                    body: rows,
+                });
             }
 
-            triggerDownload(content, filename, 'text/csv');
+            doc.save(`${reportName.replace(/\s+/g, '-').toLowerCase()}-${now}.pdf`);
             showToast(`✅ ${reportName} downloaded successfully!`);
         } catch (err) {
+            console.error(err);
             showToast('❌ Download failed. Try again.', 'error');
         } finally {
             setDownloading(null);
@@ -120,22 +123,33 @@ const Reports = () => {
 
     const handleCustomReport = () => {
         if (!customReport.type) return showToast('Please select a report type.', 'error');
-        const content = generateCSV(
-            ['Report Type', 'Date From', 'Date To', 'Generated At'],
-            [[customReport.type, customReport.from || 'N/A', customReport.to || 'N/A', new Date().toLocaleString()]]
-        );
+        
+        const doc = new jsPDF();
         const now = new Date().toISOString().split('T')[0];
-        triggerDownload(content, `custom-report-${customReport.type.toLowerCase().replace(/\s+/g, '-')}-${now}.csv`, 'text/csv');
+        
+        doc.setFontSize(18);
+        doc.text(`SMTBMS - ${customReport.type}`, 14, 22);
+        doc.setFontSize(11);
+        doc.setTextColor(100);
+        doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 30);
+        
+        doc.autoTable({
+            startY: 40,
+            head: [['Report Type', 'Date From', 'Date To']],
+            body: [[customReport.type, customReport.from || 'N/A', customReport.to || 'N/A']],
+        });
+
+        doc.save(`custom-${customReport.type.replace(/\s+/g, '-').toLowerCase()}-${now}.pdf`);
         showToast(`✅ Custom report generated!`);
         setShowCustomReport(false);
         setCustomReport({ type: '', format: 'PDF', from: '', to: '' });
     };
 
     const reports = [
-        { name: 'Monthly Revenue Report', schedule: 'Daily', format: 'CSV', icon: <TrendingUp color="#6366f1" size={22} />, color: '#6366f1' },
-        { name: 'Inventory Usage Summary', schedule: 'Weekly', format: 'CSV', icon: <Package color="#14b8a6" size={22} />, color: '#14b8a6' },
-        { name: 'Employee Performance Metrics', schedule: 'Monthly', format: 'CSV', icon: <Users color="#f59e0b" size={22} />, color: '#f59e0b' },
-        { name: 'Vendor Procurement Log', schedule: 'Custom', format: 'CSV', icon: <ShoppingCart color="#ec4899" size={22} />, color: '#ec4899' },
+        { name: 'Monthly Revenue Report', schedule: 'Daily', format: 'PDF', icon: <TrendingUp color="#6366f1" size={22} />, color: '#6366f1' },
+        { name: 'Inventory Usage Summary', schedule: 'Weekly', format: 'PDF', icon: <Package color="#14b8a6" size={22} />, color: '#14b8a6' },
+        { name: 'Employee Performance Metrics', schedule: 'Monthly', format: 'PDF', icon: <Users color="#f59e0b" size={22} />, color: '#f59e0b' },
+        { name: 'Vendor Procurement Log', schedule: 'Custom', format: 'PDF', icon: <ShoppingCart color="#ec4899" size={22} />, color: '#ec4899' },
     ];
 
     const chartData = stats?.charts?.monthlyStats || [];

@@ -7,7 +7,8 @@ const {
     getAllSalaries,
     approveSalaryRecord,
     paySalaryRecord,
-    payAllApproved
+    payAllApproved,
+    calculatePayrollDeductions
 } = require('../controllers/salarycontroller');
 const { protect } = require('../middleware/authMiddleware');
 const { authorize } = require('../middleware/roleMiddleware');
@@ -15,6 +16,7 @@ const { authorize } = require('../middleware/roleMiddleware');
 router.get('/my', protect, getMySalaryHistory);
 router.get('/summary', protect, getMySalarySummary);
 router.get('/', protect, authorize('Admin', 'HR'), getAllSalaries);
+router.post('/calculate-deductions', protect, authorize('Admin', 'HR'), calculatePayrollDeductions);
 router.post('/', protect, authorize('Admin', 'HR'), createSalaryRecord);
 router.put('/pay-all', protect, authorize('Admin', 'HR'), payAllApproved);
 router.put('/:id/approve', protect, authorize('Admin'), approveSalaryRecord);
