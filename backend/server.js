@@ -22,6 +22,7 @@ const salaryRoutes = require('./src/routes/salaryRoutes');
 const taskRoutes = require('./src/routes/taskRoutes');
 const followupRoutes = require('./src/routes/followupRoutes');
 const ticketRoutes = require('./src/routes/ticketRoutes');
+const erpRoutes = require('./src/routes/erpRoutes');
 
 const app = express();
 
@@ -49,6 +50,7 @@ app.use('/api/salaries', salaryRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/follow-ups', followupRoutes);
 app.use('/api/tickets', ticketRoutes);
+app.use('/api/erp', erpRoutes);
 
 // 404 Handler
 app.use((req, res, next) => {

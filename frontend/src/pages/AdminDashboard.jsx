@@ -38,8 +38,11 @@ const AdminDashboard = () => {
     const fetchAdminStats = useCallback(async () => {
         try {
             setLoading(true);
-            const { data } = await API.get('/dashboard/stats');
-            setData(data);
+            const [dashRes, erpRes] = await Promise.all([
+                API.get('/dashboard/stats'),
+                API.get('/erp/stats')
+            ]);
+            setData({ ...dashRes.data, erpStats: erpRes.data });
         } catch (error) {
             console.error("Error fetching dashboard statistics", error);
         } finally {
@@ -68,7 +71,7 @@ const AdminDashboard = () => {
     const inTransitCount = materialStats.inTransitCount ?? 0;
 
     const totalEmployees = data?.stats?.totalEmployees ?? 0;
-    const openOrders = data?.stats?.pendingOrders ?? 0;
+    const openOrders = data?.erpStats?.openOrders ?? 0;
     const activeCustomers = data?.stats?.totalCustomers ?? 0;
     const totalRevenue = data?.stats?.revenue ?? 0;
 
@@ -547,10 +550,10 @@ const AdminDashboard = () => {
                             </div>
                             <div className="preview-body">
                                 <div className="preview-metrics">
-                                    <div className="preview-metric"><span className="p-num">89</span><span className="p-lbl">Orders</span></div>
-                                    <div className="preview-metric"><span className="p-num">45</span><span className="p-lbl">Vendors</span></div>
-                                    <div className="preview-metric"><span className="p-num">18</span><span className="p-lbl">Invoices</span></div>
-                                    <div className="preview-metric"><span className="p-num">₹1.25 Cr</span><span className="p-lbl">Expenses</span></div>
+                                    <div className="preview-metric"><span className="p-num">{openOrders}</span><span className="p-lbl">Orders</span></div>
+                                    <div className="preview-metric"><span className="p-num">{data?.erpStats?.totalPurchaseOrders || 0}</span><span className="p-lbl">Vendors</span></div>
+                                    <div className="preview-metric"><span className="p-num">{data?.erpStats?.pendingInvoices || 0}</span><span className="p-lbl">Invoices</span></div>
+                                    <div className="preview-metric"><span className="p-num">{data?.erpStats?.totalExpenses || 0}</span><span className="p-lbl">Expenses</span></div>
                                 </div>
                                 <div className="preview-mock-table">
                                     <div className="mock-row header-row">

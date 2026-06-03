@@ -28,8 +28,11 @@ const Dashboard = () => {
     useEffect(() => {
         const fetchDashboard = async () => {
             try {
-                const { data } = await API.get('/dashboard/stats');
-                setData(data);
+                const [dashRes, erpRes] = await Promise.all([
+                    API.get('/dashboard/stats'),
+                    API.get('/erp/stats')
+                ]);
+                setData({ ...dashRes.data, erpStats: erpRes.data });
             } catch (error) {
                 console.error(error);
             } finally {
@@ -193,7 +196,7 @@ const Dashboard = () => {
                     stats: [
                         { title: 'My Tasks', value: 0, icon: <FileText />, color: '#6366f1' },
                         { title: 'Attendance', value: '0%', icon: <CheckCircle2 />, color: '#10b981' },
-                        { title: 'Pending Orders', value: data?.stats?.totalOrders || 0, icon: <TrendingUp />, color: '#f59e0b' },
+                        { title: 'Pending Orders', value: data?.erpStats?.openOrders || 0, icon: <TrendingUp />, color: '#f59e0b' },
                     ],
                     actions: [
                         { label: 'Apply Leave', icon: <Calendar size={20}/>, onClick: () => navigate('/hrms') },

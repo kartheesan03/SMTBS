@@ -25,16 +25,28 @@ const ERP = () => {
 
     const [statusFilter, setStatusFilter] = useState('All');
     const [showFilters, setShowFilters] = useState(false);
+    const [erpStats, setErpStats] = useState({
+        openOrders: 0,
+        approvedOrders: 0,
+        pendingInvoices: 18,
+        totalExpenses: '₹1.25 Cr',
+        totalPurchaseOrders: 0,
+        orderSummary: []
+    });
 
     const fetchData = async () => {
         try {
-            const [ordersRes, leadsRes, customersRes, materialsRes] = await Promise.all([
+            const [ordersRes, leadsRes, customersRes, materialsRes, statsRes] = await Promise.all([
                 API.get('/orders'),
                 API.get('/leads'),
                 API.get('/customers'),
-                API.get('/materials')
+                API.get('/materials'),
+                API.get('/erp/stats')
             ]);
             setOrders(ordersRes.data);
+            if (statsRes.data) {
+                setErpStats(statsRes.data);
+            }
             
             const mappedLeads = (Array.isArray(leadsRes.data) ? leadsRes.data : [])
                 .map(l => ({ ...l, customerModel: 'Lead' }));
@@ -101,26 +113,18 @@ const ERP = () => {
         ? orders 
         : orders.filter(o => o.status === statusFilter);
 
-    // Mock/Dynamic stats based on reference image
-    const openOrdersCount = orders.filter(o => o.status === 'Pending' || o.status === 'Awaiting Approval').length || 89;
-    const totalVendors = 45;
-    const pendingInvoices = 18;
-    const totalExpensesVal = "₹1.25 Cr";
-
-    // Purchase Order summary donut data
-    const poSummaryData = [
-        { name: 'Draft', value: 15, percentage: '16.9%', color: '#2563eb' },
-        { name: 'Approved', value: 40, percentage: '44.9%', color: '#10b981' },
-        { name: 'Received', value: 25, percentage: '28.1%', color: '#f59e0b' },
-        { name: 'Cancelled', value: 9, percentage: '10.1%', color: '#ef4444' }
+    // Purchase Order summary donut data from API
+    const poSummaryData = erpStats.orderSummary && erpStats.orderSummary.length > 0 ? erpStats.orderSummary : [
+        { name: 'Draft', value: 0, percentage: '0%', color: '#2563eb' },
+        { name: 'Approved', value: 0, percentage: '0%', color: '#10b981' },
+        { name: 'Received', value: 0, percentage: '0%', color: '#f59e0b' },
+        { name: 'Cancelled', value: 0, percentage: '0%', color: '#ef4444' }
     ];
 
-    const recentPurchaseOrders = [
-        { id: `PO-${new Date().getFullYear()}-126`, vendor: 'ABC Traders', status: 'Approved' },
-        { id: `PO-${new Date().getFullYear()}-125`, vendor: 'Global Supplies', status: 'Received' },
-        { id: `PO-${new Date().getFullYear()}-124`, vendor: 'Bulbous Pvt Ltd', status: 'Received' },
-        { id: `PO-${new Date().getFullYear()}-123`, vendor: 'Steel Corp', status: 'Draft' }
-    ];
+    const recentPurchaseOrders = orders
+        .filter(o => o.type === 'Purchase' || o.vendor)
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .slice(0, 4);
 
     return (
         <div className="erp-workspace">
@@ -152,19 +156,19 @@ const ERP = () => {
             <section className="erp-metrics-grid">
                 <div className="erp-metric-card">
                     <span className="label">Open Orders</span>
-                    <span className="value">{openOrdersCount}</span>
+                    <span className="value">{erpStats.openOrders}</span>
                 </div>
                 <div className="erp-metric-card">
-                    <span className="label">Total Vendors</span>
-                    <span className="value">{totalVendors}</span>
+                    <span className="label">Total Purchase Orders</span>
+                    <span className="value">{erpStats.totalPurchaseOrders}</span>
                 </div>
                 <div className="erp-metric-card border-orange">
                     <span className="label text-orange">Pending Invoices</span>
-                    <span className="value text-orange">{pendingInvoices}</span>
+                    <span className="value text-orange">{erpStats.pendingInvoices}</span>
                 </div>
                 <div className="erp-metric-card border-teal">
                     <span className="label text-teal">Total Expenses</span>
-                    <span className="value text-teal">{totalExpensesVal}</span>
+                    <span className="value text-teal">{erpStats.totalExpenses}</span>
                 </div>
             </section>
 
@@ -191,7 +195,7 @@ const ERP = () => {
                                 </PieChart>
                             </ResponsiveContainer>
                             <div className="donut-label-box">
-                                <span className="donut-val">{openOrdersCount}</span>
+                                <span className="donut-val">{poSummaryData.reduce((acc, curr) => acc + curr.value, 0)}</span>
                                 <span className="donut-lbl">Total</span>
                             </div>
                         </div>
@@ -222,10 +226,10 @@ const ERP = () => {
                             <tbody>
                                 {recentPurchaseOrders.map((po, idx) => (
                                     <tr key={idx}>
-                                        <td><code className="po-code">{po.id}</code></td>
-                                        <td className="vendor-name-cell">{po.vendor}</td>
+                                        <td><code className="po-code">{po.orderNumber}</code></td>
+                                        <td className="vendor-name-cell">{po.vendor?.name || 'Walk-in Vendor'}</td>
                                         <td>
-                                            <span className={`po-status-badge ${po.status.toLowerCase()}`}>
+                                            <span className={`po-status-badge ${po.status.toLowerCase().replace(/ /g, '-')}`}>
                                                 {po.status}
                                             </span>
                                         </td>
