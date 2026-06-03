@@ -1,5 +1,6 @@
 const Attendance = require('../models/Attendance');
 const Employee = require('../models/Employee');
+const Leave = require('../models/Leave');
 
 // @desc    Get Current Attendance Status for logged in employee
 // @route   GET /api/attendance/status
@@ -199,10 +200,83 @@ const getAllAttendance = async (req, res) => {
     }
 };
 
+// Auto-mark absent logic (background task)
+const autoMarkAbsent = async () => {
+    try {
+        // Calculate current time in IST
+        const now = new Date();
+        const istOffset = 5.5 * 60 * 60 * 1000; // IST is UTC+5:30
+        const istTime = new Date(now.getTime() + istOffset);
+        
+        // Check if it is >= 5:00 PM IST (17:00)
+        if (istTime.getUTCHours() >= 17) {
+            const today = now.toISOString().split('T')[0];
+            const todayStart = new Date(now);
+            todayStart.setHours(0,0,0,0);
+            const todayEnd = new Date(now);
+            todayEnd.setHours(23,59,59,999);
+
+            // Fetch active employees
+            const activeEmployees = await Employee.find({
+                $or: [
+                    { status: 'Active' },
+                    { status: { $exists: false } },
+                    { active: true },
+                    { active: { $exists: false } }
+                ]
+            });
+
+            // Fetch today's attendance records
+            const attendances = await Attendance.find({
+                date: { $gte: todayStart, $lte: todayEnd }
+            });
+            const attendedEmpIds = attendances.map(a => a.employeeId?.toString());
+
+            // Fetch today's approved leaves
+            const leaves = await Leave.find({
+                startDate: { $lte: todayEnd },
+                endDate: { $gte: todayStart },
+                status: 'Approved'
+            });
+            const onLeaveEmpIds = leaves.map(l => l.employeeId?.toString());
+
+            // Determine who to mark absent
+            const absentRecords = [];
+            for (const emp of activeEmployees) {
+                const empId = emp._id?.toString() || emp.id?.toString();
+                if (!attendedEmpIds.includes(empId) && !onLeaveEmpIds.includes(empId)) {
+                    absentRecords.push({
+                        employeeId: empId,
+                        date: todayStart,
+                        status: 'Absent',
+                        checkIn: null,
+                        checkOut: null
+                    });
+                }
+            }
+
+            if (absentRecords.length > 0) {
+                // Bulk insert or avoid duplicates
+                for (const record of absentRecords) {
+                    await Attendance.updateOne(
+                        { employeeId: record.employeeId, date: { $gte: todayStart, $lte: todayEnd } },
+                        { $setOnInsert: record },
+                        { upsert: true }
+                    );
+                }
+                console.log(`Auto-marked ${absentRecords.length} employees as Absent for today.`);
+            }
+        }
+    } catch (err) {
+        console.error('autoMarkAbsent error:', err);
+    }
+};
+
 module.exports = {
     getAttendanceStatus,
     checkIn,
     checkOut,
     getMyAttendanceHistory,
-    getAllAttendance
+    getAllAttendance,
+    autoMarkAbsent
 };

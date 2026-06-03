@@ -61,7 +61,14 @@ const HRDashboard = () => {
     const totalEmployees = hrStats.totalEmployees ?? data?.stats?.totalEmployees ?? 0;
     const presentToday = hrStats.presentToday ?? 0;
     const onLeave = hrStats.onLeave ?? 0;
+    const pending = hrStats.pending ?? 0;
     const absentToday = hrStats.absentToday ?? 0;
+
+    // Determine IST time for the banner message
+    const now = new Date();
+    const utcTime = now.getTime() + (now.getTimezoneOffset() * 60000);
+    const istTime = new Date(utcTime + (5.5 * 60 * 60 * 1000));
+    const isAfter5PM = istTime.getHours() >= 17;
 
     return (
         <div className="hr-workspace">
@@ -76,6 +83,11 @@ const HRDashboard = () => {
                 <div>
                     <h1 className="header-title">HR Dashboard</h1>
                     <p className="header-subtitle">Overview of workforce attendance, department distributions, and recent hires.</p>
+                    <div className={`attendance-banner ${isAfter5PM ? 'success' : 'warning'}`}>
+                        {isAfter5PM 
+                            ? "Absent marking completed for today." 
+                            : "Absent will be automatically marked after 5:00 PM."}
+                    </div>
                 </div>
                 <div className="header-actions">
                     <button className="btn-primary-blue flex-center gap-8" onClick={() => navigate('/hrms')}>
@@ -84,7 +96,7 @@ const HRDashboard = () => {
                 </div>
             </header>
 
-            {/* 4 Stats Cards */}
+            {/* 5 Stats Cards */}
             <section className="hr-metrics-grid">
                 <div className="hr-metric-card">
                     <div className="card-top">
@@ -106,6 +118,13 @@ const HRDashboard = () => {
                         <span className="icon">🌴</span>
                     </div>
                     <span className="value text-orange">{onLeave}</span>
+                </div>
+                <div className="hr-metric-card border-blue">
+                    <div className="card-top">
+                        <span className="label text-blue">Pending</span>
+                        <span className="icon">⏳</span>
+                    </div>
+                    <span className="value text-blue">{pending}</span>
                 </div>
                 <div className="hr-metric-card border-red">
                     <div className="card-top">
@@ -259,7 +278,7 @@ const HRDashboard = () => {
                 /* Stats Cards styling */
                 .hr-metrics-grid {
                     display: grid;
-                    grid-template-columns: repeat(4, 1fr);
+                    grid-template-columns: repeat(5, 1fr);
                     gap: 20px;
                 }
                 
@@ -284,6 +303,7 @@ const HRDashboard = () => {
                 .border-green { border-color: var(--success); }
                 .border-orange { border-color: var(--warning); }
                 .border-purple { border-color: #8b5cf6; }
+                .border-blue { border-color: #3b82f6; }
                 
                 .card-top {
                     display: flex;
@@ -318,6 +338,27 @@ const HRDashboard = () => {
                 .text-green { color: var(--success); }
                 .text-orange { color: var(--warning); }
                 .text-purple { color: #8b5cf6; }
+                .text-blue { color: #3b82f6; }
+
+                /* Banner styling */
+                .attendance-banner {
+                    margin-top: 10px;
+                    padding: 8px 14px;
+                    border-radius: 8px;
+                    font-size: 13px;
+                    font-weight: 600;
+                    display: inline-block;
+                }
+                .attendance-banner.warning {
+                    background-color: #fffbeb;
+                    color: #b45309;
+                    border: 1px solid #fde68a;
+                }
+                .attendance-banner.success {
+                    background-color: #f0fdf4;
+                    color: #15803d;
+                    border: 1px solid #bbf7d0;
+                }
 
                 /* Charts Row */
                 .charts-grid {

@@ -70,11 +70,16 @@ app.use((err, req, res, next) => {
 // Start server
 const PORT = process.env.PORT || 5000;
 
+const { autoMarkAbsent } = require('./src/controllers/attendancecontroller');
+
 const startServer = async () => {
     try {
         await connectDB();
         app.listen(PORT, () => {
             console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+            
+            // Start the background job for marking absentees
+            setInterval(autoMarkAbsent, 60 * 1000); // Check every minute
         });
     } catch (error) {
         console.error(`Failed to start server: ${error.message}`);

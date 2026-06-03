@@ -137,7 +137,12 @@ const getDashboardStats = async (req, res) => {
                     ]
                 });
 
-                const absentTodayCount = Math.max(0, activeEmployeesCount - presentTodayCount - onLeaveCount);
+                const absentTodayRecordsCount = await Attendance.countDocuments({
+                    date: { $gte: todayStart, $lte: todayEnd },
+                    status: 'Absent'
+                });
+
+                const pendingCount = Math.max(0, activeEmployeesCount - presentTodayCount - onLeaveCount - absentTodayRecordsCount);
 
                 const thirtyDaysAgo = new Date();
                 thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
@@ -190,7 +195,8 @@ const getDashboardStats = async (req, res) => {
                     totalEmployees: activeEmployeesCount,
                     presentToday: presentTodayCount,
                     onLeave: onLeaveCount,
-                    absentToday: absentTodayCount,
+                    pending: pendingCount,
+                    absentToday: absentTodayRecordsCount,
                     newJoiners: newJoinersCount,
                     employeeDistribution,
                     recentEmployees: recentEmployeesFormatted,
