@@ -17,7 +17,6 @@ const Settings = () => {
         { title: 'Notifications', icon: <Bell />, desc: 'Configure system and email alerts' },
         { title: 'Security', icon: <Shield />, desc: 'Update passwords and two-factor auth' },
         { title: 'Display', icon: <Monitor />, desc: 'Theme preferences and UI layout' },
-        { title: 'System Logs', icon: <HardDrive />, desc: 'View your activity and session history' },
     ];
 
     const handleUpdate = async (e) => {
@@ -170,29 +169,6 @@ const Settings = () => {
                         </div>
                     )}
 
-                    {activeTab === 4 && (
-                        <div className="settings-tab-content">
-                            <h3>System Logs</h3>
-                            <div className="logs-ledger">
-                                {[
-                                    { event: 'Profile Updated', time: 'Just now', device: 'Chrome / Windows' },
-                                    { event: 'Login Successful', time: '2 hours ago', device: 'Chrome / Windows' },
-                                    { event: 'Password Changed', time: 'Yesterday', device: 'Chrome / Windows' },
-                                    { event: 'Login Successful', time: '3 days ago', device: 'Mobile / Android' },
-                                    { event: 'New Device Detected', time: '1 week ago', device: 'Safari / iPhone' }
-                                ].map((log, i) => (
-                                    <div key={i} className="log-row">
-                                        <div className="log-info">
-                                            <CheckCircle size={14} className="log-icon" />
-                                            <span>{log.event}</span>
-                                        </div>
-                                        <span className="log-time">{log.time}</span>
-                                        <span className="log-device">{log.device}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
                 </div>
             </div>
 
