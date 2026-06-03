@@ -65,8 +65,10 @@ const Attendance = () => {
         return isNaN(fallback.getTime()) ? null : fallback;
     };
 
-    const formatTime = (timeStr, baseDateStr) => {
-        if (!timeStr) return '-';
+    const formatTime = (timeStr, baseDateStr, isCheckOut = false, hasCheckIn = false) => {
+        if (!timeStr) {
+            return (isCheckOut && hasCheckIn) ? 'Active' : '-';
+        }
         const d = parseDateTime(timeStr, baseDateStr);
         if (!d) return '-';
         return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -196,7 +198,7 @@ const Attendance = () => {
                                     </div>
                                 </td>
                                 <td>{formatTime(a.checkIn, a.date)}</td>
-                                <td>{formatTime(a.checkOut, a.date)}</td>
+                                <td>{formatTime(a.checkOut, a.date, true, !!a.checkIn)}</td>
                                 <td>{calculateDuration(a.checkIn, a.checkOut, a.date)}</td>
                                 <td>
                                     <button 
