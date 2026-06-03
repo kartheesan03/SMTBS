@@ -2,9 +2,9 @@ import React, { useContext, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthContext, AuthProvider } from './context/AuthContext';
 import Sidebar from './components/Sidebar';
-import RightPanel from './components/RightPanel';
+import Sidebar from './components/Sidebar';
 import ProtectedRoute from './components/ProtectedRoute';
-import { Menu, X, PanelRightOpen, PanelRightClose } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 
 // Pages
 import Dashboard from './pages/Dashboard';
@@ -38,7 +38,6 @@ import Support from './pages/Support';
 const AppContent = () => {
     const { user, loading, logout } = useContext(AuthContext);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const [isRightPanelOpen, setIsRightPanelOpen] = useState(false);
 
     React.useEffect(() => {
         if (user) {
@@ -54,10 +53,9 @@ const AppContent = () => {
     if (loading) return <div className="app-loading">Loading...</div>;
 
     const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
-    const toggleRightPanel = () => setIsRightPanelOpen(!isRightPanelOpen);
 
     return (
-        <div className={`app-layout ${user ? 'triple-layout' : ''}`}>
+        <div className={`app-layout`}>
             {user && (
                 <>
                     <header className="mobile-header">
@@ -65,9 +63,6 @@ const AppContent = () => {
                             {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
                         </button>
                         <h2>SMTBMS</h2>
-                        <button onClick={toggleRightPanel} className="menu-toggle right-panel-toggle-mobile">
-                            {isRightPanelOpen ? <PanelRightClose size={22} /> : <PanelRightOpen size={22} />}
-                        </button>
                     </header>
                     <Sidebar 
                         logout={logout} 
@@ -77,7 +72,7 @@ const AppContent = () => {
                     {isSidebarOpen && <div className="sidebar-overlay" onClick={() => setIsSidebarOpen(false)}></div>}
                 </>
             )}
-            <main className={`main-content ${user ? 'with-sidebar with-right-panel' : ''}`}>
+            <main className={`main-content ${user ? 'with-sidebar' : ''}`}>
                 <Routes>
                     {/* Public Route */}
                     <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
@@ -122,36 +117,10 @@ const AppContent = () => {
                 </Routes>
             </main>
 
-            {/* ── Global Right Panel ── */}
-            {user && (
-                <>
-                    <RightPanel 
-                        isOpen={isRightPanelOpen}
-                        onClose={() => setIsRightPanelOpen(false)}
-                    />
-                    {isRightPanelOpen && <div className="right-panel-overlay" onClick={() => setIsRightPanelOpen(false)}></div>}
-                    
-                    {/* Desktop right panel toggle (visible on medium screens where panel is hidden) */}
-                    <button 
-                        className="right-panel-toggle-desktop"
-                        onClick={toggleRightPanel}
-                        title={isRightPanelOpen ? 'Close Panel' : 'Open Panel'}
-                    >
-                        {isRightPanelOpen ? <PanelRightClose size={18} /> : <PanelRightOpen size={18} />}
-                    </button>
-                </>
-            )}
-
             <style jsx="true">{`
                 .app-layout {
                     display: flex;
                     min-height: 100vh;
-                    flex-direction: column;
-                }
-
-                /* ── Triple Layout: 3-Column Grid ── */
-                .app-layout.triple-layout {
-                    display: flex;
                     flex-direction: column;
                 }
 
@@ -180,6 +149,8 @@ const AppContent = () => {
                     display: flex;
                     align-items: center;
                     justify-content: center;
+                    border: none;
+                    cursor: pointer;
                 }
                 .sidebar-overlay {
                     position: fixed;
@@ -191,72 +162,22 @@ const AppContent = () => {
                     z-index: 950;
                     backdrop-filter: blur(2px);
                 }
-                .right-panel-overlay {
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    bottom: 0;
-                    background: rgba(15, 23, 42, 0.4);
-                    z-index: 980;
-                    backdrop-filter: blur(2px);
-                    display: none;
-                }
+                
                 .main-content {
                     flex: 1;
                     transition: all 0.3s ease;
                     width: 100%;
                 }
 
-                /* ── Desktop: 3-column (Sidebar 260 + Content + Right Panel 320) ── */
-                .main-content.with-sidebar.with-right-panel {
+                /* ── Desktop: 2-column (Sidebar 260 + Content) ── */
+                .main-content.with-sidebar {
                     margin-left: 260px;
-                    margin-right: 320px;
-                    width: calc(100% - 260px - 320px);
+                    width: calc(100% - 260px);
                     background-color: var(--bg-body);
                 }
                 .p-30 { padding: 30px; }
 
-                /* ── Right Panel Toggle (medium screens only) ── */
-                .right-panel-toggle-desktop {
-                    display: none;
-                    position: fixed;
-                    right: 20px;
-                    bottom: 24px;
-                    z-index: 999;
-                    width: 44px;
-                    height: 44px;
-                    border-radius: var(--radius-md, 12px);
-                    background: var(--primary);
-                    color: #ffffff;
-                    border: none;
-                    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
-                    cursor: pointer;
-                    align-items: center;
-                    justify-content: center;
-                    transition: all 0.25s ease;
-                }
-                .right-panel-toggle-desktop:hover {
-                    transform: translateY(-2px);
-                    background: var(--primary-hover);
-                    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
-                }
-
-                /* ── Medium screens: hide right panel, show toggle ── */
-                @media (max-width: 1199px) {
-                    .main-content.with-sidebar.with-right-panel {
-                        margin-right: 0;
-                        width: calc(100% - 260px);
-                    }
-                    .right-panel-toggle-desktop {
-                        display: flex;
-                    }
-                    .right-panel-overlay {
-                        display: block;
-                    }
-                }
-
-                /* ── Mobile: all panels hidden ── */
+                /* ── Mobile: Sidebar hidden ── */
                 @media (max-width: 768px) {
                     .app-layout {
                         flex-direction: column;
@@ -264,23 +185,13 @@ const AppContent = () => {
                     .mobile-header {
                         display: flex;
                     }
-                    .main-content.with-sidebar.with-right-panel {
+                    .main-content.with-sidebar {
                         margin-left: 0;
-                        margin-right: 0;
                         width: 100%;
                         padding-top: 0;
                     }
                     .p-30 {
                         padding: 16px;
-                    }
-                    .right-panel-toggle-desktop {
-                        display: none;
-                    }
-                    .right-panel-toggle-mobile {
-                        display: flex;
-                    }
-                    .right-panel-overlay {
-                        display: block;
                     }
                 }
             `}</style>
