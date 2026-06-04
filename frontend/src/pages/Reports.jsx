@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import API from '../api/axios';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import {
     Download, FileText, BarChart2, PieChart as PieChartIcon,
     Calendar, Filter, TrendingUp, Package, Users, ShoppingCart,
@@ -78,20 +78,20 @@ const Reports = () => {
 
             if (reportName === 'Monthly Revenue Report') {
                 const rows = (stats?.charts?.monthlyStats || []).map(m => [m.name, m.revenue || 0, m.sales || 0]);
-                doc.autoTable({
+                autoTable(doc, {
                     startY: 40,
                     head: [['Month', 'Revenue ($)', 'Orders']],
                     body: rows,
                 });
             } else if (reportName === 'Inventory Usage Summary') {
                 const rows = (stats?.tables?.lowStock || []).map(m => [m.name, m.sku, m.quantity, m.unit, m.status || 'Low Stock']);
-                doc.autoTable({
+                autoTable(doc, {
                     startY: 40,
                     head: [['Material Name', 'SKU', 'Quantity', 'Unit', 'Status']],
                     body: rows,
                 });
             } else if (reportName === 'Employee Performance Metrics') {
-                doc.autoTable({
+                autoTable(doc, {
                     startY: 40,
                     head: [['Metric', 'Value']],
                     body: [
@@ -104,7 +104,7 @@ const Reports = () => {
                     o.orderNumber || 'N/A', o.customer?.name || 'Walk-in',
                     o.totalAmount || 0, o.status || 'Pending'
                 ]);
-                doc.autoTable({
+                autoTable(doc, {
                     startY: 40,
                     head: [['Order#', 'Customer', 'Amount', 'Status']],
                     body: rows,
@@ -220,7 +220,7 @@ const Reports = () => {
                 doc.setTextColor(200, 0, 0);
                 doc.text("No records found in this date range.", 14, 50);
             } else {
-                doc.autoTable({
+                autoTable(doc, {
                     startY: 42,
                     head: head,
                     body: rows,
