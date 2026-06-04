@@ -139,8 +139,8 @@ const Vendors = () => {
                 .status-badge-inline { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; white-space: nowrap; display: inline-block; }
                 .status-badge-inline.vendor-created { background-color: var(--primary-50, #eff6ff); color: var(--primary, #3b82f6); }
                 .status-badge-inline.approved-vendor { background-color: #f5f3ff; color: #7c3aed; }
-                .status-badge-inline.receives-purchase-orders { background-color: var(--warning-light, #fef3c7); color: var(--warning, #d97706); }
-                .status-badge-inline.supplies-materials { background-color: #e0f2fe; color: #0284c7; }
+                .status-badge-inline.purchase-order-received { background-color: var(--warning-light, #fef3c7); color: var(--warning, #d97706); }
+                .status-badge-inline.materials-supplied { background-color: #e0f2fe; color: #0284c7; }
                 .status-badge-inline.in-transit { background-color: #ffedd5; color: #ea580c; }
                 .status-badge-inline.delivered { background-color: var(--success-light, #dcfce7); color: var(--success, #16a34a); }
                 .status-badge-inline.completed { background-color: #d1fae5; color: #059669; }

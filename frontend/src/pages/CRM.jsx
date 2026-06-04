@@ -45,15 +45,6 @@ const CRM = () => {
         }
     };
 
-    const handleConvert = async (id) => {
-        try {
-            await API.put(`/leads/${id}/convert`);
-            fetchLeads();
-        } catch (err) {
-            alert(err.response?.data?.message || 'Conversion failed');
-        }
-    };
-
     // Reference Mockup metrics
     const totalLeads = leads.length || 620;
     const pipelineValue = leads.reduce((sum, l) => sum + (l.estimatedValue || 0), 0) || 3200000; // Mock 3.2M
@@ -196,9 +187,6 @@ const CRM = () => {
                                 </td>
                                 <td>
                                     <div className="flex-center gap-6">
-                                        {isAdmin && lead.status === 'Won' && (
-                                            <button className="btn-approve" onClick={() => handleConvert(lead._id)}>Convert to Customer</button>
-                                        )}
                                         <button className="action-btn"><ExternalLink size={14}/></button>
                                     </div>
                                 </td>
