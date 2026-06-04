@@ -7,6 +7,9 @@ const Vendors = () => {
     const [vendors, setVendors] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
+    const [showViewModal, setShowViewModal] = useState(false);
+    const [selectedVendor, setSelectedVendor] = useState(null);
+    const [vendorOrders, setVendorOrders] = useState([]);
     const [formData, setFormData] = useState({
         name: '', category: 'Raw Materials', contactPerson: '', email: '', phone: '', address: ''
     });
@@ -25,6 +28,19 @@ const Vendors = () => {
     useEffect(() => {
         fetchVendors();
     }, []);
+
+    const handleViewVendor = async (vendor) => {
+        setSelectedVendor(vendor);
+        setShowViewModal(true);
+        setVendorOrders([]);
+        try {
+            const { data } = await API.get('/orders');
+            const orders = data.filter(o => o.vendorId === vendor.id || o.vendor === vendor.id || (o.vendor && o.vendor.id === vendor.id));
+            setVendorOrders(orders);
+        } catch (err) {
+            console.error("Error fetching vendor orders", err);
+        }
+    };
 
     const handleAddVendor = async (e) => {
         e.preventDefault();
@@ -103,6 +119,68 @@ const Vendors = () => {
                 </div>
             )}
 
+            {showViewModal && selectedVendor && (
+                <div className="modal-overlay">
+                    <div className="glass-card modal-content animate-pop" style={{ maxWidth: '700px' }}>
+                        <div className="modal-header">
+                            <h2>Vendor Profile: {selectedVendor.name}</h2>
+                            <button className="close-btn" onClick={() => setShowViewModal(false)}>✕</button>
+                        </div>
+                        
+                        <div className="vendor-detail-grid">
+                            <div className="detail-section">
+                                <h3>Company Information</h3>
+                                <p><strong>Category:</strong> <span className="cat-tag">{selectedVendor.category}</span></p>
+                                <p><strong>Status:</strong> <span className={`status-badge-inline ${selectedVendor.status?.toLowerCase().replace(/ /g, '-') || 'vendor-created'}`}>{selectedVendor.status || 'Vendor Created'}</span></p>
+                                <p><strong>Registered On:</strong> {new Date(selectedVendor.createdAt).toLocaleDateString()}</p>
+                            </div>
+                            
+                            <div className="detail-section">
+                                <h3>Contact Details</h3>
+                                <p><strong>Contact Person:</strong> {selectedVendor.contactPerson || 'N/A'}</p>
+                                <p><strong>Email:</strong> {selectedVendor.email || 'N/A'}</p>
+                                <p><strong>Phone:</strong> {selectedVendor.phone || 'N/A'}</p>
+                                <p><strong>Address:</strong> {selectedVendor.address || 'N/A'}</p>
+                            </div>
+                        </div>
+
+                        <div className="vendor-orders-section" style={{ marginTop: '25px' }}>
+                            <h3 style={{ fontSize: '15px', marginBottom: '15px', color: 'var(--text-primary)' }}>Linked Purchase Orders ({vendorOrders.length})</h3>
+                            {vendorOrders.length === 0 ? (
+                                <p className="text-muted" style={{ fontSize: '13px' }}>No purchase orders found for this vendor.</p>
+                            ) : (
+                                <div className="table-responsive" style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                                    <table className="dt-table" style={{ width: '100%', fontSize: '13px', borderCollapse: 'collapse' }}>
+                                        <thead>
+                                            <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)' }}>
+                                                <th style={{ padding: '8px' }}>Order No</th>
+                                                <th style={{ padding: '8px' }}>Amount</th>
+                                                <th style={{ padding: '8px' }}>Status</th>
+                                                <th style={{ padding: '8px' }}>Date</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {vendorOrders.map(order => (
+                                                <tr key={order.id || order._id} style={{ borderBottom: '1px solid var(--border)' }}>
+                                                    <td style={{ padding: '8px', fontWeight: 600 }}>{order.orderNumber}</td>
+                                                    <td style={{ padding: '8px' }}>₹{(order.totalAmount || 0).toLocaleString()}</td>
+                                                    <td style={{ padding: '8px' }}><span className="status-badge-inline">{order.status}</span></td>
+                                                    <td style={{ padding: '8px' }}>{new Date(order.createdAt).toLocaleDateString()}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
+                        </div>
+                        
+                        <div className="modal-actions" style={{ marginTop: '25px' }}>
+                            <button type="button" className="btn-cancel" onClick={() => setShowViewModal(false)}>Close</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div className="module-content">
                 <div className="glass-card table-wrapper">
                     <DataTable 
@@ -124,7 +202,7 @@ const Vendors = () => {
                                 <td><div className="info-cell"><Mail size={14}/> {v.email}</div></td>
                                 <td><div className="info-cell"><Phone size={14}/> {v.phone}</div></td>
                                 <td style={{ textAlign: 'center' }}>
-                                    <button className="btn-icon view-btn" title="View Vendor"><ExternalLink size={16}/></button>
+                                    <button className="btn-icon view-btn" title="View Vendor" onClick={() => handleViewVendor(v)}><ExternalLink size={16}/></button>
                                 </td>
                             </tr>
                         )}
@@ -156,6 +234,10 @@ const Vendors = () => {
                 .modal-content { width: 100%; max-width: 600px; padding: 30px; position: relative; max-height: 90vh; overflow-y: auto; }
                 .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
                 .close-btn { background: none; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; }
+                .vendor-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; background: var(--bg-body); padding: 20px; border-radius: 12px; }
+                .detail-section h3 { font-size: 14px; font-weight: 700; color: var(--primary); margin: 0 0 15px 0; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+                .detail-section p { font-size: 13px; color: var(--text-secondary); margin: 8px 0; display: flex; flex-direction: column; gap: 4px; }
+                .detail-section p strong { color: var(--text-primary); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
                 .modal-form { display: flex; flex-direction: column; gap: 20px; }
                 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
                 .form-group { display: flex; flex-direction: column; gap: 8px; }
