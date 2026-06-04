@@ -52,12 +52,10 @@ const ERP = () => {
             }
             setVendors(vendorsRes.data);
             
-            const mappedLeads = (Array.isArray(leadsRes.data) ? leadsRes.data : [])
-                .map(l => ({ ...l, customerModel: 'Lead' }));
             const mappedCustomers = (Array.isArray(customersRes.data) ? customersRes.data : [])
                 .map(c => ({ ...c, customerModel: 'Customer' }));
             
-            setCustomers([...mappedCustomers, ...mappedLeads]);
+            setCustomers(mappedCustomers);
             setMaterials(materialsRes.data);
         } catch (err) {
             console.error(err);
