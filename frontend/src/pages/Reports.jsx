@@ -121,28 +121,88 @@ const Reports = () => {
         }
     };
 
-    const handleCustomReport = () => {
+    const handleCustomReport = async () => {
         if (!customReport.type) return showToast('Please select a report type.', 'error');
+        if (!customReport.from || !customReport.to) return showToast('Please select both Date From and Date To.', 'error');
         
-        const doc = new jsPDF();
-        const now = new Date().toISOString().split('T')[0];
+        const fromDate = new Date(customReport.from);
+        const toDate = new Date(customReport.to);
         
-        doc.setFontSize(18);
-        doc.text(`SMTBMS - ${customReport.type}`, 14, 22);
-        doc.setFontSize(11);
-        doc.setTextColor(100);
-        doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 30);
-        
-        doc.autoTable({
-            startY: 40,
-            head: [['Report Type', 'Date From', 'Date To']],
-            body: [[customReport.type, customReport.from || 'N/A', customReport.to || 'N/A']],
-        });
+        if (fromDate > toDate) {
+            return showToast('Date From cannot be greater than Date To.', 'error');
+        }
 
-        doc.save(`custom-${customReport.type.replace(/\s+/g, '-').toLowerCase()}-${now}.pdf`);
-        showToast(`✅ Custom report generated!`);
-        setShowCustomReport(false);
-        setCustomReport({ type: '', format: 'PDF', from: '', to: '' });
+        setDownloading('Custom Report');
+        try {
+            let data = [];
+            let head = [];
+            let rows = [];
+
+            if (customReport.type === 'Revenue Summary' || customReport.type === 'Order History') {
+                const res = await API.get('/orders');
+                data = res.data.filter(d => new Date(d.createdAt) >= fromDate && new Date(d.createdAt) <= new Date(toDate.getTime() + 86400000));
+                
+                if (customReport.type === 'Revenue Summary') {
+                    const salesOrders = data.filter(o => o.type === 'Sales' && o.status !== 'Cancelled');
+                    head = [['Order#', 'Date', 'Customer', 'Amount', 'Status']];
+                    rows = salesOrders.map(o => [o.orderNumber, new Date(o.createdAt).toLocaleDateString(), o.customer?.name || 'Walk-in', `$${o.totalAmount}`, o.status]);
+                } else {
+                    head = [['Order#', 'Type', 'Date', 'Amount', 'Status']];
+                    rows = data.map(o => [o.orderNumber, o.type || 'Sales', new Date(o.createdAt).toLocaleDateString(), `$${o.totalAmount}`, o.status]);
+                }
+            } else if (customReport.type === 'Inventory Report') {
+                const res = await API.get('/materials');
+                data = res.data;
+                head = [['Name', 'SKU', 'Category', 'Quantity', 'Price']];
+                rows = data.map(m => [m.name, m.sku, m.category, m.quantity, `$${m.price}`]);
+            } else if (customReport.type === 'Employee Report') {
+                const res = await API.get('/employees');
+                data = res.data.filter(d => new Date(d.createdAt || d.joinDate || '1970-01-01') <= new Date(toDate.getTime() + 86400000));
+                head = [['Name', 'Role', 'Department', 'Email', 'Status']];
+                rows = data.map(e => [e.name, e.role, e.department || 'N/A', e.email, e.status || 'Active']);
+            } else if (customReport.type === 'Customer Report') {
+                const res = await API.get('/customers');
+                data = res.data.filter(d => new Date(d.createdAt) >= fromDate && new Date(d.createdAt) <= new Date(toDate.getTime() + 86400000));
+                head = [['Name', 'Email', 'Phone', 'Company', 'Status']];
+                rows = data.map(c => [c.name, c.email, c.phone, c.company || 'N/A', c.status || 'Active']);
+            } else if (customReport.type === 'Vendor Report') {
+                const res = await API.get('/vendors');
+                data = res.data.filter(d => new Date(d.createdAt) >= fromDate && new Date(d.createdAt) <= new Date(toDate.getTime() + 86400000));
+                head = [['Name', 'Category', 'Contact Person', 'Email', 'Status']];
+                rows = data.map(v => [v.name, v.category, v.contactPerson || 'N/A', v.email, v.status || 'Active']);
+            }
+
+            const doc = new jsPDF();
+            
+            doc.setFontSize(18);
+            doc.text(`SMTBMS - ${customReport.type}`, 14, 22);
+            doc.setFontSize(11);
+            doc.setTextColor(100);
+            doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 30);
+            doc.text(`Date Range: ${customReport.from} to ${customReport.to}`, 14, 36);
+            
+            if (rows.length === 0) {
+                doc.setFontSize(14);
+                doc.setTextColor(200, 0, 0);
+                doc.text("No records found", 14, 50);
+            } else {
+                doc.autoTable({
+                    startY: 42,
+                    head: head,
+                    body: rows,
+                });
+            }
+
+            doc.save(`${customReport.type.replace(/\s+/g, '-').toLowerCase()}_${customReport.from}_${customReport.to}.pdf`);
+            showToast(`✅ Custom report generated!`);
+            setShowCustomReport(false);
+            setCustomReport({ type: '', format: 'PDF', from: '', to: '' });
+        } catch (err) {
+            console.error(err);
+            showToast('❌ Failed to generate report.', 'error');
+        } finally {
+            setDownloading(null);
+        }
     };
 
     const reports = [
