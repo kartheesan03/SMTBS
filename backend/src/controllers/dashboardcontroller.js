@@ -34,7 +34,7 @@ const getDashboardStats = async (req, res) => {
 
         let lowStockMaterials = [];
         let totalStockQuantity = 0;
-        let inTransitCount = 0; // Hardcoded fake removed, start at 0
+        let inTransitCount = 0;
         try {
             const allMaterials = await Material.find();
             allMaterials.forEach(m => {
@@ -43,8 +43,19 @@ const getDashboardStats = async (req, res) => {
                     lowStockMaterials.push(m);
                 }
             });
-            // Try to find in transit from orders or just 0
-            inTransitCount = 0;
+            
+            // Calculate inTransitCount from Purchase Orders
+            const purchaseOrders = await Order.find({ 
+                type: 'Purchase', 
+                status: { $in: ['Pending', 'Awaiting Approval', 'Approved'] } 
+            });
+            purchaseOrders.forEach(po => {
+                if (po.items && po.items.length > 0) {
+                    po.items.forEach(item => {
+                        inTransitCount += (item.quantity || 0);
+                    });
+                }
+            });
         } catch (e) { console.error('Material Find Error:', e); }
 
         let categoryData = [];
@@ -101,6 +112,19 @@ const getDashboardStats = async (req, res) => {
                 .sort({ createdAt: -1 });
         } catch (e) { console.error('Pending Salaries Find Error:', e); }
 
+        let recentActivity = [];
+        try {
+            const Notification = require('../models/Notification');
+            const notifs = await Notification.find().sort({ createdAt: -1 }).limit(5);
+            recentActivity = notifs.map(n => ({
+                id: n._id,
+                text: n.message || n.title,
+                category: n.category || 'general',
+                type: n.type || 'info',
+                time: n.createdAt
+            }));
+        } catch (e) { console.error('Recent Activity Error:', e); }
+
         let data = {
             stats: { 
                 ...stats,
@@ -120,7 +144,8 @@ const getDashboardStats = async (req, res) => {
                 lowStock: lowStockMaterials, 
                 recentOrders: recentOrders || [],
                 pendingSalaries: pendingSalaries || [],
-                leadList: role === 'Sales' ? await Lead.find().sort({ createdAt: -1 }).limit(5) : []
+                leadList: role === 'Sales' ? await Lead.find().sort({ createdAt: -1 }).limit(5) : [],
+                recentActivity: recentActivity || []
             }
         };
 

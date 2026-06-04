@@ -342,51 +342,24 @@ const AdminDashboard = () => {
                             <span className="view-all-link" onClick={() => navigate('/notifications')} style={{ cursor: 'pointer' }}>View All</span>
                         </div>
                         <div className="activity-list">
-                            <div className="activity-item">
-                                <div className="activity-icon blue-act">
-                                    <Package size={14} />
-                                </div>
-                                <div className="activity-details">
-                                    <p className="activity-text">Material <strong>MRN-1001</strong> received</p>
-                                    <span className="activity-time">10 mins ago</span>
-                                </div>
-                            </div>
-                            <div className="activity-item">
-                                <div className="activity-icon green-act">
-                                    <CheckCircle2 size={14} />
-                                </div>
-                                <div className="activity-details">
-                                    <p className="activity-text">Employee <strong>John Doe</strong> check-in</p>
-                                    <span className="activity-time">25 mins ago</span>
-                                </div>
-                            </div>
-                            <div className="activity-item">
-                                <div className="activity-icon orange-act">
-                                    <FileText size={14} />
-                                </div>
-                                <div className="activity-details">
-                                    <p className="activity-text">PO <strong>#PO-{new Date().getFullYear()}-125</strong> created</p>
-                                    <span className="activity-time">1 hour ago</span>
-                                </div>
-                            </div>
-                            <div className="activity-item">
-                                <div className="activity-icon purple-act">
-                                    <UserPlus size={14} />
-                                </div>
-                                <div className="activity-details">
-                                    <p className="activity-text">New customer <strong>Acme Corp</strong> added</p>
-                                    <span className="activity-time">2 hours ago</span>
-                                </div>
-                            </div>
-                            <div className="activity-item">
-                                <div className="activity-icon emerald-act">
-                                    <DollarSign size={14} />
-                                </div>
-                                <div className="activity-details">
-                                    <p className="activity-text">Invoice <strong>INV-{new Date().getFullYear()}-542</strong> paid</p>
-                                    <span className="activity-time">3 hours ago</span>
-                                </div>
-                            </div>
+                            {(data?.tables?.recentActivity || []).length > 0 ? (
+                                (data?.tables?.recentActivity || []).map((activity) => (
+                                    <div key={activity.id} className="activity-item">
+                                        <div className={`activity-icon ${activity.type === 'success' ? 'green-act' : activity.type === 'warning' ? 'orange-act' : 'blue-act'}`}>
+                                            {activity.category === 'hr' ? <UserPlus size={14} /> :
+                                             activity.category === 'order' ? <Package size={14} /> :
+                                             activity.category === 'stock' ? <AlertTriangle size={14} /> :
+                                             <Activity size={14} />}
+                                        </div>
+                                        <div className="activity-details">
+                                            <p className="activity-text">{activity.text}</p>
+                                            <span className="activity-time">{new Date(activity.time).toLocaleString()}</span>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <p className="text-muted" style={{ padding: '10px 0' }}>No recent activity.</p>
+                            )}
                         </div>
                     </div>
                 </section>

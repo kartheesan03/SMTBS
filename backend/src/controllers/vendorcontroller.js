@@ -11,7 +11,9 @@ exports.getVendors = async (req, res) => {
 
 exports.createVendor = async (req, res) => {
     try {
-        const vendor = new Vendor(req.body);
+        const vendorData = { ...req.body };
+        if (!vendorData.status) vendorData.status = 'Vendor Created';
+        const vendor = new Vendor(vendorData);
         await vendor.save();
         res.status(201).json(vendor);
     } catch (error) {

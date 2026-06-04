@@ -7,11 +7,18 @@ const getERPStats = async (req, res) => {
         let openOrders = 0;
         let approvedOrders = 0;
         let totalPurchaseOrders = 0;
-        const statusCounts = {};
+        let pendingInvoices = 0;
+        let totalExpensesNum = 0;
         
         orders.forEach(o => {
             if (o.type === 'Purchase') {
                 totalPurchaseOrders++;
+                if (['Pending', 'Awaiting Approval'].includes(o.status)) {
+                    pendingInvoices++;
+                }
+                if (['Approved', 'Delivered', 'Completed', 'Received'].includes(o.status)) {
+                    totalExpensesNum += (o.totalAmount || 0);
+                }
             }
             if (o.status !== 'Completed' && o.status !== 'Cancelled') {
                 openOrders++;
@@ -22,6 +29,12 @@ const getERPStats = async (req, res) => {
             
             statusCounts[o.status] = (statusCounts[o.status] || 0) + 1;
         });
+
+        const formatCurrency = (num) => {
+            if (num >= 10000000) return `₹${(num / 10000000).toFixed(2)} Cr`;
+            if (num >= 100000) return `₹${(num / 100000).toFixed(2)} L`;
+            return `₹${num.toLocaleString()}`;
+        };
 
         // Map summary exactly to chart expected format
         const orderSummary = [
@@ -46,8 +59,8 @@ const getERPStats = async (req, res) => {
         res.json({
             openOrders,
             approvedOrders,
-            pendingInvoices: 18, // Can be hardcoded or 0 if invoices not tracked
-            totalExpenses: "₹1.25 Cr", // Placeholder since we don't have expenses in db
+            pendingInvoices,
+            totalExpenses: formatCurrency(totalExpensesNum),
             totalPurchaseOrders,
             orderSummary
         });

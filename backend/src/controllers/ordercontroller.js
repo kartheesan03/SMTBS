@@ -94,12 +94,16 @@ const createOrder = async (req, res) => {
 };
 
 // Helper to update stock
-const updateStock = async (items) => {
+const updateStock = async (items, type = 'Sales') => {
     for (const item of items) {
         const material = await Material.findById(item.material);
         if (material) {
-            material.quantity -= item.quantity;
-            if (material.quantity < 0) material.quantity = 0;
+            if (type === 'Sales') {
+                material.quantity -= item.quantity;
+                if (material.quantity < 0) material.quantity = 0;
+            } else if (type === 'Purchase') {
+                material.quantity += item.quantity;
+            }
             await material.save();
         }
     }
@@ -123,12 +127,42 @@ const updateOrderStatus = async (req, res) => {
         order.updatedBy = req.user._id;
         const updatedOrder = await order.save();
 
-        // 1. Stock deduction trigger
-        const activeStates = ['Ready for Delivery', 'Approved', 'Confirmed', 'Delivered'];
+        // 1. Stock deduction/addition trigger
+        const activeStates = ['Ready for Delivery', 'Approved', 'Confirmed', 'Delivered', 'Received'];
         const inactiveStates = ['Awaiting Stock Check', 'Awaiting Approval', 'Pending', 'Low Stock Alert'];
         
-        if (activeStates.includes(status) && inactiveStates.includes(prevStatus)) {
-            await updateStock(order.items);
+        // For Sales: Deduct stock when moving from inactive to active
+        if (order.type === 'Sales' && activeStates.includes(status) && inactiveStates.includes(prevStatus)) {
+            await updateStock(order.items, 'Sales');
+        }
+        
+        // For Purchase: Add stock when moving to Delivered or Received
+        const purchaseFinalStates = ['Delivered', 'Received', 'Completed'];
+        if (order.type === 'Purchase' && purchaseFinalStates.includes(status) && !purchaseFinalStates.includes(prevStatus)) {
+            await updateStock(order.items, 'Purchase');
+        }
+
+        // 1.5 Update Vendor Status if applicable
+        if (order.type === 'Purchase' && order.vendor) {
+            try {
+                const Vendor = require('../models/Vendor');
+                const vendorObj = await Vendor.findById(order.vendor);
+                if (vendorObj) {
+                    let vendorStatus = vendorObj.status || 'Vendor Created';
+                    if (status === 'Approved') vendorStatus = 'Purchase Order Received';
+                    else if (status === 'Ready for Delivery') vendorStatus = 'Materials Supplied';
+                    else if (status === 'Shipped') vendorStatus = 'In Transit';
+                    else if (status === 'Delivered' || status === 'Received') vendorStatus = 'Delivered';
+                    else if (status === 'Completed') vendorStatus = 'Completed';
+                    
+                    if (vendorObj.status !== vendorStatus) {
+                        vendorObj.status = vendorStatus;
+                        await vendorObj.save();
+                    }
+                }
+            } catch (err) {
+                console.error('Error updating vendor status:', err);
+            }
         }
 
         // 2. Notification dispatching
