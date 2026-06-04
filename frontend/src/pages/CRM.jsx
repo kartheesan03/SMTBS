@@ -63,11 +63,10 @@ const CRM = () => {
         }
     };
 
-    // Reference Mockup metrics
-    const totalLeads = leads.length || 620;
-    const pipelineValue = leads.reduce((sum, l) => sum + (l.estimatedValue || 0), 0) || 3200000; // Mock 3.2M
-    const openDealsCount = 180;
-    const wonDealsCount = 45;
+    const totalLeads = leads.length;
+    const pipelineValue = leads.filter(l => !['Won', 'Converted To Customer', 'Lost'].includes(l.status)).reduce((sum, l) => sum + (l.estimatedValue || 0), 0);
+    const openDealsCount = leads.filter(l => !['Won', 'Converted To Customer', 'Lost'].includes(l.status)).length;
+    const wonDealsCount = leads.filter(l => ['Won', 'Converted To Customer'].includes(l.status)).length;
 
     const recentActivities = [
         { desc: 'New lead from Website', time: '10 mins ago', type: 'web' },
@@ -126,32 +125,32 @@ const CRM = () => {
                         <div className="funnel-stage stage-initial">
                             <span className="funnel-bg"></span>
                             <span className="stage-name">Initial Contact</span>
-                            <span className="stage-value">620</span>
+                            <span className="stage-value">{leads.filter(l => l.status === 'Initial Contact').length}</span>
                         </div>
                         <div className="funnel-stage stage-qualified">
                             <span className="funnel-bg"></span>
                             <span className="stage-name">Qualified</span>
-                            <span className="stage-value">320</span>
+                            <span className="stage-value">{leads.filter(l => l.status === 'Qualified Lead').length}</span>
                         </div>
                         <div className="funnel-stage stage-proposal">
                             <span className="funnel-bg"></span>
                             <span className="stage-name">Proposal</span>
-                            <span className="stage-value">180</span>
+                            <span className="stage-value">{leads.filter(l => l.status === 'Proposal Sent').length}</span>
                         </div>
                         <div className="funnel-stage stage-negotiation">
                             <span className="funnel-bg"></span>
                             <span className="stage-name">Negotiation</span>
-                            <span className="stage-value">89</span>
+                            <span className="stage-value">{leads.filter(l => l.status === 'Negotiation').length}</span>
                         </div>
                         <div className="funnel-stage stage-closing-deal">
                             <span className="funnel-bg"></span>
                             <span className="stage-name">Closing Deal</span>
-                            <span className="stage-value">65</span>
+                            <span className="stage-value">{leads.filter(l => l.status === 'Closing Deal').length}</span>
                         </div>
                         <div className="funnel-stage stage-won">
                             <span className="funnel-bg"></span>
                             <span className="stage-name">Won</span>
-                            <span className="stage-value">45</span>
+                            <span className="stage-value">{leads.filter(l => ['Won', 'Converted To Customer'].includes(l.status)).length}</span>
                         </div>
                     </div>
                 </div>
@@ -188,7 +187,7 @@ const CRM = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {leads.filter(l => ['Initial Contact', 'Qualified Lead', 'Proposal Sent', 'Negotiation', 'Closing Deal', 'Won'].includes(l.status)).map((lead) => (
+                        {leads.filter(l => ['Initial Contact', 'Qualified Lead', 'Proposal Sent', 'Negotiation', 'Closing Deal'].includes(l.status)).map((lead) => (
                             <tr key={lead._id}>
                                 <td className="lead-name-cell">{lead.name}</td>
                                 <td>

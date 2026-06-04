@@ -67,12 +67,27 @@ const updateLead = async (req, res) => {
     try {
         const lead = await Lead.findById(req.params.id);
         if (lead) {
+            const oldStatus = lead.status;
             lead.name = req.body.name || lead.name;
             lead.email = req.body.email || lead.email;
             lead.phone = req.body.phone || lead.phone;
             lead.status = req.body.status || lead.status;
             lead.notes = req.body.notes || lead.notes;
             lead.estimatedValue = req.body.estimatedValue !== undefined ? req.body.estimatedValue : lead.estimatedValue;
+
+            // Auto-convert to customer if status becomes 'Won'
+            if (lead.status === 'Won' && oldStatus !== 'Won') {
+                const existingCustomer = await Customer.findOne({ email: lead.email });
+                if (!existingCustomer && lead.email) {
+                    await Customer.create({
+                        name: lead.name,
+                        email: lead.email,
+                        phone: lead.phone,
+                        company: lead.name,
+                        status: 'Active'
+                    });
+                }
+            }
 
             const updatedLead = await lead.save();
             res.json(updatedLead);

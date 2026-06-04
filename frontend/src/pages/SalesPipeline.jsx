@@ -16,6 +16,7 @@ const SalesPipeline = () => {
         { name: 'Proposal Sent', color: '#ec4899' },
         { name: 'Negotiation', color: '#f59e0b' },
         { name: 'Closing Deal', color: '#10b981' },
+        { name: 'Won', color: '#22c55e' }
     ];
 
     const fetchLeads = async () => {
@@ -43,6 +44,9 @@ const SalesPipeline = () => {
     };
 
     const getStageLeads = (stageName) => {
+        if (stageName === 'Won') {
+            return leads.filter(l => ['Won', 'Converted To Customer', 'Converted to Customer'].includes(l.status));
+        }
         return leads.filter(l => l.status === stageName);
     };
 
@@ -64,7 +68,7 @@ const SalesPipeline = () => {
         .filter(l => ['Initial Contact', 'Qualified Lead', 'Proposal Sent', 'Negotiation', 'Closing Deal'].includes(l.status))
         .reduce((sum, l) => sum + (l.estimatedValue || 0), 0);
 
-    const convertedLeads = leads.filter(l => ['Won', 'Converted To Customer'].includes(l.status));
+    const convertedLeads = leads.filter(l => ['Won', 'Converted To Customer', 'Converted to Customer'].includes(l.status));
     const avgVelocity = convertedLeads.length > 0 
         ? Math.round(convertedLeads.reduce((sum, l) => {
             const diff = new Date(l.updatedAt) - new Date(l.createdAt);
@@ -185,7 +189,7 @@ const SalesPipeline = () => {
                 .pipeline-summary { padding: 15px 25px; display: flex; flex-direction: column; gap: 5px; border-radius: 12px; }
                 .pipeline-summary strong { font-size: 24px; color: var(--primary); }
 
-                .pipeline-container { display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; align-items: start; }
+                .pipeline-container { display: grid; grid-template-columns: repeat(6, 1fr); gap: 20px; align-items: start; }
                 .pipeline-stage { padding: 20px; display: flex; flex-direction: column; gap: 15px; min-height: 400px; }
                 .stage-head { display: flex; justify-content: space-between; align-items: center; }
                 .stage-head h3 { font-size: 14px; opacity: 0.9; }
