@@ -5,7 +5,7 @@ const Material = require('../models/Material');
 // @access  Private
 const getMaterials = async (req, res) => {
     try {
-        const materials = await Material.find({});
+        const materials = await Material.find({}).populate('vendor', 'name email contactPerson phone');
         res.json(materials);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -16,7 +16,7 @@ const getMaterials = async (req, res) => {
 // @route   POST /api/materials
 // @access  Private/Admin
 const createMaterial = async (req, res) => {
-    const { name, sku, category, quantity, lowStockThreshold, unit, price } = req.body;
+    const { name, sku, category, quantity, lowStockThreshold, unit, price, vendorId } = req.body;
     try {
         let status = 'In Stock';
         if (Number(quantity) === 0) {
@@ -24,7 +24,7 @@ const createMaterial = async (req, res) => {
         } else if (Number(quantity) < Number(lowStockThreshold)) {
             status = 'Low Stock';
         }
-        const createdMaterial = await Material.create({ name, sku, category, quantity, lowStockThreshold, unit, price, status });
+        const createdMaterial = await Material.create({ name, sku, category, quantity, lowStockThreshold, unit, price, status, vendorId });
         res.status(201).json(createdMaterial);
     } catch (error) {
         res.status(400).json({ message: error.message });
@@ -35,7 +35,7 @@ const createMaterial = async (req, res) => {
 // @route   PUT /api/materials/:id
 // @access  Private/Admin/Manager
 const updateMaterial = async (req, res) => {
-    const { name, sku, category, quantity, lowStockThreshold, unit, price } = req.body;
+    const { name, sku, category, quantity, lowStockThreshold, unit, price, vendorId } = req.body;
     try {
         const material = await Material.findById(req.params.id);
         if (material) {
@@ -45,7 +45,8 @@ const updateMaterial = async (req, res) => {
             material.quantity = quantity !== undefined ? quantity : material.quantity;
             material.lowStockThreshold = lowStockThreshold || material.lowStockThreshold;
             material.unit = unit || material.unit;
-            material.price = price || material.price;
+            material.price = price !== undefined ? price : material.price;
+            if (vendorId !== undefined) material.vendorId = vendorId;
             
             if (material.quantity === 0) {
             material.status = 'Out of Stock';

@@ -10,13 +10,14 @@ const MaterialTracking = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const [materials, setMaterials] = useState([]);
+    const [vendors, setVendors] = useState([]);
     const [materialStats, setMaterialStats] = useState({ totalMaterialTypes: 0, totalStockQuantity: 0, lowStockCount: 0, inTransitCount: 0 });
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [formData, setFormData] = useState({
         name: '', sku: '', category: '', quantity: 0, 
-        lowStockThreshold: 10, unit: 'pcs', price: 0
+        lowStockThreshold: 10, unit: 'pcs', price: 0, vendorId: ''
     });
 
     const [catFilter, setCatFilter] = useState('All');
@@ -31,11 +32,13 @@ const MaterialTracking = () => {
 
     const fetchMaterialsAndStats = async () => {
         try {
-            const [materialsRes, statsRes] = await Promise.all([
+            const [materialsRes, statsRes, vendorsRes] = await Promise.all([
                 API.get('/materials'),
-                API.get('/dashboard/stats')
+                API.get('/dashboard/stats'),
+                API.get('/vendors')
             ]);
             setMaterials(materialsRes.data);
+            setVendors(vendorsRes.data);
             if (statsRes.data && statsRes.data.materialStats) {
                 setMaterialStats(statsRes.data.materialStats);
             }
@@ -63,7 +66,8 @@ const MaterialTracking = () => {
             quantity: item.quantity,
             lowStockThreshold: item.lowStockThreshold,
             unit: item.unit,
-            price: item.price
+            price: item.price,
+            vendorId: item.vendor?._id || item.vendor?.id || ''
         });
         setShowModal(true);
     };
@@ -84,7 +88,7 @@ const MaterialTracking = () => {
             }
             setShowModal(false);
             setEditId(null);
-            setFormData({ name: '', sku: '', category: '', quantity: 0, lowStockThreshold: 10, unit: 'pcs', price: 0 });
+            setFormData({ name: '', sku: '', category: '', quantity: 0, lowStockThreshold: 10, unit: 'pcs', price: 0, vendorId: '' });
             fetchMaterialsAndStats();
         } catch (error) {
             alert(error.response?.data?.message || 'Error processing material');
@@ -117,7 +121,7 @@ const MaterialTracking = () => {
                 ...mat,
                 quantity: updatedQty
             });
-            alert(`Scan Successful!\nSKU: ${mat.sku} (${mat.name})\nStock replenished (+10 ${mat.unit || 'pcs'}).`);
+            alert(`Scan Successful!\nSKU: ${mat.sku} (${mat.name})\nStock replenished (+10 ${mat.unit || 'pcs'}) from supplier: ${mat.vendor?.name || 'Internal/Unknown'}.`);
             setShowScanner(false);
             fetchMaterialsAndStats();
         } catch (err) {
@@ -153,7 +157,7 @@ const MaterialTracking = () => {
                     <button className="btn-secondary-light flex-center gap-8 text-indigo" onClick={() => { if (materials.length > 0) setScanSKU(materials[0].sku); setShowScanner(true); }}>
                         <Camera size={16} /> Scan Item
                     </button>
-                    <button className="btn-primary-blue flex-center gap-8" onClick={() => { setEditId(null); setFormData({ name: '', sku: '', category: '', quantity: 0, lowStockThreshold: 10, unit: 'pcs', price: 0 }); setShowModal(true); }}>
+                    <button className="btn-primary-blue flex-center gap-8" onClick={() => { setEditId(null); setFormData({ name: '', sku: '', category: '', quantity: 0, lowStockThreshold: 10, unit: 'pcs', price: 0, vendorId: '' }); setShowModal(true); }}>
                         <Plus size={16} /> Add Material
                     </button>
                 </div>
@@ -217,6 +221,7 @@ const MaterialTracking = () => {
                             <th>SKU</th>
                             <th>Material Name</th>
                             <th>Category</th>
+                            <th>Vendor/Supplier</th>
                             <th>Stock Level</th>
                             <th>Status</th>
                             <th>Unit Price</th>
@@ -229,6 +234,7 @@ const MaterialTracking = () => {
                                 <td><code className="sku-code">{item.sku}</code></td>
                                 <td className="mat-name-cell">{item.name}</td>
                                 <td>{item.category}</td>
+                                <td>{item.vendor?.name || '-'}</td>
                                 <td><strong>{item.quantity}</strong> {item.unit}</td>
                                 <td>
                                     <span className={`status-badge-premium ${
@@ -305,6 +311,15 @@ const MaterialTracking = () => {
                                 <div className="form-group">
                                     <label>Unit Price ($)</label>
                                     <input type="number" step="0.01" required value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} />
+                                </div>
+                                <div className="form-group full-width">
+                                    <label>Vendor/Supplier</label>
+                                    <select value={formData.vendorId} onChange={e => setFormData({...formData, vendorId: e.target.value})}>
+                                        <option value="">No Supplier Assigned</option>
+                                        {vendors.map(v => (
+                                            <option key={v.id || v._id} value={v.id || v._id}>{v.name}</option>
+                                        ))}
+                                    </select>
                                 </div>
                                 <div className="form-group full-width">
                                     <label>Low Stock Alert Threshold</label>

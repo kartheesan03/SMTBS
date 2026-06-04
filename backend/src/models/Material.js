@@ -40,6 +40,10 @@ const MaterialSequelize = sequelize.define('Material', {
     status: {
         type: DataTypes.ENUM('In Stock', 'Out of Stock', 'Low Stock'),
         defaultValue: 'In Stock'
+    },
+    vendorId: {
+        type: DataTypes.INTEGER,
+        allowNull: true
     }
 });
 

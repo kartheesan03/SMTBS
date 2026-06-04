@@ -16,8 +16,10 @@ const ERP = () => {
     const [showModal, setShowModal] = useState(false);
     const [customers, setCustomers] = useState([]);
     const [materials, setMaterials] = useState([]);
+    const [vendors, setVendors] = useState([]);
     const [formData, setFormData] = useState({
         customer: '',
+        vendor: '',
         status: 'Pending',
         type: 'Sales',
         items: [{ material: '', quantity: 1, price: 0 }]
@@ -36,17 +38,19 @@ const ERP = () => {
 
     const fetchData = async () => {
         try {
-            const [ordersRes, leadsRes, customersRes, materialsRes, statsRes] = await Promise.all([
+            const [ordersRes, leadsRes, customersRes, materialsRes, statsRes, vendorsRes] = await Promise.all([
                 API.get('/orders'),
                 API.get('/leads'),
                 API.get('/customers'),
                 API.get('/materials'),
-                API.get('/erp/stats')
+                API.get('/erp/stats'),
+                API.get('/vendors')
             ]);
             setOrders(ordersRes.data);
             if (statsRes.data) {
                 setErpStats(statsRes.data);
             }
+            setVendors(vendorsRes.data);
             
             const mappedLeads = (Array.isArray(leadsRes.data) ? leadsRes.data : [])
                 .map(l => ({ ...l, customerModel: 'Lead' }));
@@ -82,7 +86,7 @@ const ERP = () => {
                 totalAmount 
             });
             setShowModal(false);
-            setFormData({ customer: '', status: 'Pending', type: 'Sales', items: [{ material: '', quantity: 1, price: 0 }] });
+            setFormData({ customer: '', vendor: '', status: 'Pending', type: 'Sales', items: [{ material: '', quantity: 1, price: 0 }] });
             fetchData();
         } catch (err) {
             alert(err.response?.data?.message || 'Error creating order');
@@ -355,12 +359,34 @@ const ERP = () => {
                         </div>
                         <form onSubmit={handleCreateOrder} className="modal-form">
                             <div className="form-group">
-                                <label>Select Customer</label>
-                                <select required value={formData.customer} onChange={e => setFormData({...formData, customer: e.target.value})}>
-                                    <option value="">Select Customer...</option>
-                                    {customers.map(c => <option key={c._id} value={c._id}>{c.name} ({c.customerModel})</option>)}
+                                <label>Order Type</label>
+                                <select required value={formData.type} onChange={e => {
+                                    setFormData({...formData, type: e.target.value, customer: '', vendor: '', items: [{ material: '', quantity: 1, price: 0 }]});
+                                }}>
+                                    <option value="Sales">Sales Order</option>
+                                    <option value="Purchase">Purchase Order</option>
                                 </select>
                             </div>
+
+                            {formData.type === 'Sales' ? (
+                                <div className="form-group">
+                                    <label>Select Customer</label>
+                                    <select required value={formData.customer} onChange={e => setFormData({...formData, customer: e.target.value})}>
+                                        <option value="">Select Customer...</option>
+                                        {customers.map(c => <option key={c._id} value={c._id}>{c.name} ({c.customerModel})</option>)}
+                                    </select>
+                                </div>
+                            ) : (
+                                <div className="form-group">
+                                    <label>Select Vendor</label>
+                                    <select required value={formData.vendor} onChange={e => {
+                                        setFormData({...formData, vendor: e.target.value, items: [{ material: '', quantity: 1, price: 0 }]});
+                                    }}>
+                                        <option value="">Select Vendor...</option>
+                                        {vendors.map(v => <option key={v._id || v.id} value={v._id || v.id}>{v.name}</option>)}
+                                    </select>
+                                </div>
+                            )}
                             
                             <div className="items-section">
                                 <label>Order Items</label>
@@ -377,7 +403,9 @@ const ERP = () => {
                                             }}
                                         >
                                             <option value="">Select Material...</option>
-                                            {materials.map(m => <option key={m._id} value={m._id}>{m.name} (${m.price})</option>)}
+                                            {materials
+                                                .filter(m => formData.type === 'Sales' || !formData.vendor || String(m.vendor?._id || m.vendor?.id || m.vendor) === String(formData.vendor))
+                                                .map(m => <option key={m._id} value={m._id}>{m.name} (${m.price})</option>)}
                                         </select>
                                         <input 
                                             type="number" 

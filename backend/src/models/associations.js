@@ -54,6 +54,10 @@ function setupAssociations() {
 
     // 11. Notification -> User
     Notification.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'userId', as: 'user' });
+
+    // 12. Material -> Vendor
+    Material.sequelizeModel.belongsTo(Vendor.sequelizeModel, { foreignKey: 'vendorId', as: 'vendor' });
+    Vendor.sequelizeModel.hasMany(Material.sequelizeModel, { foreignKey: 'vendorId', as: 'materials' });
 }
 
 module.exports = setupAssociations;

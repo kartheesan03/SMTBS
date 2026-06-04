@@ -10,6 +10,7 @@ const Vendors = () => {
     const [showViewModal, setShowViewModal] = useState(false);
     const [selectedVendor, setSelectedVendor] = useState(null);
     const [vendorOrders, setVendorOrders] = useState([]);
+    const [vendorMaterials, setVendorMaterials] = useState([]);
     const [formData, setFormData] = useState({
         name: '', category: 'Raw Materials', contactPerson: '', email: '', phone: '', address: ''
     });
@@ -33,12 +34,18 @@ const Vendors = () => {
         setSelectedVendor(vendor);
         setShowViewModal(true);
         setVendorOrders([]);
+        setVendorMaterials([]);
         try {
-            const { data } = await API.get('/orders');
-            const orders = data.filter(o => o.vendorId === vendor.id || o.vendor === vendor.id || (o.vendor && o.vendor.id === vendor.id));
-            setVendorOrders(orders);
+            const [{ data: orders }, { data: materials }] = await Promise.all([
+                API.get('/orders'),
+                API.get('/materials')
+            ]);
+            const filteredOrders = orders.filter(o => o.vendorId === vendor.id || o.vendor === vendor.id || (o.vendor && o.vendor.id === vendor.id));
+            setVendorOrders(filteredOrders);
+            const filteredMaterials = materials.filter(m => String(m.vendor?._id || m.vendor?.id || m.vendor) === String(vendor._id || vendor.id));
+            setVendorMaterials(filteredMaterials);
         } catch (err) {
-            console.error("Error fetching vendor orders", err);
+            console.error("Error fetching vendor data", err);
         }
     };
 
@@ -166,6 +173,36 @@ const Vendors = () => {
                                                     <td style={{ padding: '8px' }}>₹{(order.totalAmount || 0).toLocaleString()}</td>
                                                     <td style={{ padding: '8px' }}><span className="status-badge-inline">{order.status}</span></td>
                                                     <td style={{ padding: '8px' }}>{new Date(order.createdAt).toLocaleDateString()}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="vendor-orders-section" style={{ marginTop: '25px' }}>
+                            <h3 style={{ fontSize: '15px', marginBottom: '15px', color: 'var(--text-primary)' }}>Supplied Materials ({vendorMaterials.length})</h3>
+                            {vendorMaterials.length === 0 ? (
+                                <p className="text-muted" style={{ fontSize: '13px' }}>No materials supplied by this vendor.</p>
+                            ) : (
+                                <div className="table-responsive" style={{ maxHeight: '150px', overflowY: 'auto' }}>
+                                    <table className="dt-table" style={{ width: '100%', fontSize: '13px', borderCollapse: 'collapse' }}>
+                                        <thead>
+                                            <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)' }}>
+                                                <th style={{ padding: '8px' }}>SKU</th>
+                                                <th style={{ padding: '8px' }}>Material</th>
+                                                <th style={{ padding: '8px' }}>Category</th>
+                                                <th style={{ padding: '8px' }}>Stock</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {vendorMaterials.map(m => (
+                                                <tr key={m._id} style={{ borderBottom: '1px solid var(--border)' }}>
+                                                    <td style={{ padding: '8px' }}>{m.sku}</td>
+                                                    <td style={{ padding: '8px', fontWeight: 600 }}>{m.name}</td>
+                                                    <td style={{ padding: '8px' }}>{m.category}</td>
+                                                    <td style={{ padding: '8px' }}>{m.quantity} {m.unit}</td>
                                                 </tr>
                                             ))}
                                         </tbody>
