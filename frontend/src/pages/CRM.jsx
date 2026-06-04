@@ -12,7 +12,7 @@ const CRM = () => {
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [formData, setFormData] = useState({
-        name: '', email: '', source: 'Web', status: 'New Lead', estimatedValue: 0
+        name: '', email: '', source: 'Web', status: 'Initial Contact', estimatedValue: 0
     });
 
     const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
@@ -38,7 +38,7 @@ const CRM = () => {
         try {
             await API.post('/leads', formData);
             setShowModal(false);
-            setFormData({ name: '', email: '', source: 'Web', status: 'New Lead', estimatedValue: 0 });
+            setFormData({ name: '', email: '', source: 'Web', status: 'Initial Contact', estimatedValue: 0 });
             fetchLeads();
         } catch (err) {
             alert(err.response?.data?.message || 'Error creating lead');
@@ -105,9 +105,9 @@ const CRM = () => {
                 <div className="chart-card">
                     <h3 className="card-title">Sales Pipeline</h3>
                     <div className="funnel-container">
-                        <div className="funnel-stage stage-leads">
+                        <div className="funnel-stage stage-initial">
                             <span className="funnel-bg"></span>
-                            <span className="stage-name">Leads</span>
+                            <span className="stage-name">Initial Contact</span>
                             <span className="stage-value">620</span>
                         </div>
                         <div className="funnel-stage stage-qualified">
@@ -170,7 +170,7 @@ const CRM = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {leads.filter(l => l.status !== 'Converted To Customer').map((lead) => (
+                        {leads.filter(l => ['Initial Contact', 'Qualified Lead', 'Proposal Sent', 'Negotiation', 'Closing Deal', 'Won'].includes(l.status)).map((lead) => (
                             <tr key={lead._id}>
                                 <td className="lead-name-cell">{lead.name}</td>
                                 <td>
@@ -181,8 +181,8 @@ const CRM = () => {
                                 <td>{lead.source}</td>
                                 <td><strong>${(lead.estimatedValue || 0).toLocaleString()}</strong></td>
                                 <td>
-                                    <span className={`status-badge-inline ${lead.status?.toLowerCase().replace(/ /g, '-') || 'new-lead'}`}>
-                                        {lead.status || 'New Lead'}
+                                    <span className={`status-badge-inline ${lead.status?.toLowerCase().replace(/ /g, '-') || 'initial-contact'}`}>
+                                        {lead.status || 'Initial Contact'}
                                     </span>
                                 </td>
                                 <td>
@@ -427,8 +427,8 @@ const CRM = () => {
                     z-index: 2;
                 }
                 
-                .stage-leads { width: 100%; }
-                .stage-leads .funnel-bg { background-color: var(--primary); opacity: 0.7; }
+                .stage-initial { width: 100%; }
+                .stage-initial .funnel-bg { background-color: var(--primary); opacity: 0.7; }
                 
                 .stage-qualified { width: 90%; }
                 .stage-qualified .funnel-bg { background-color: var(--primary); opacity: 0.8; }
@@ -556,7 +556,6 @@ const CRM = () => {
                     letter-spacing: 0.5px;
                 }
                 
-                .status-badge-inline.new-lead { background-color: var(--warning-light); color: var(--warning); }
                 .status-badge-inline.initial-contact { background-color: var(--primary-50); color: var(--primary); }
                 .status-badge-inline.qualified-lead { background-color: var(--primary-50); color: var(--primary); }
                 .status-badge-inline.proposal-sent { background-color: #f5f3ff; color: #7c3aed; }

@@ -18,7 +18,9 @@ const getLeads = async (req, res) => {
 // @access  Private/Sales/Admin
 const createLead = async (req, res) => {
     try {
-        const leadData = { ...req.body, status: 'New Lead' };
+        const { _id } = req.user;
+        const leadData = { ...req.body, status: req.body.status || 'Initial Contact' };
+        leadData.assignedTo = _id;
         const lead = new Lead(leadData);
         const createdLead = await lead.save();
         res.status(201).json(createdLead);

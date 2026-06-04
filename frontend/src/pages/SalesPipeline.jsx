@@ -11,7 +11,6 @@ const SalesPipeline = () => {
     const [loading, setLoading] = useState(true);
 
     const stages = [
-        { name: 'New Lead', color: '#3b82f6' },
         { name: 'Initial Contact', color: '#6366f1' },
         { name: 'Qualified Lead', color: '#8b5cf6' },
         { name: 'Proposal Sent', color: '#ec4899' },
@@ -62,7 +61,7 @@ const SalesPipeline = () => {
 
     // Analytics
     const totalPipelineValue = leads
-        .filter(l => !['Won', 'Converted To Customer', 'Lost'].includes(l.status))
+        .filter(l => ['Initial Contact', 'Qualified Lead', 'Proposal Sent', 'Negotiation', 'Closing Deal'].includes(l.status))
         .reduce((sum, l) => sum + (l.estimatedValue || 0), 0);
 
     const convertedLeads = leads.filter(l => ['Won', 'Converted To Customer'].includes(l.status));
@@ -75,7 +74,7 @@ const SalesPipeline = () => {
 
     const stagnantLeads = leads.filter(l => {
         const diff = Date.now() - new Date(l.updatedAt).getTime();
-        return !['Won', 'Converted To Customer', 'Lost'].includes(l.status) && diff > (7 * 24 * 60 * 60 * 1000); // 7 days
+        return ['Initial Contact', 'Qualified Lead', 'Proposal Sent', 'Negotiation', 'Closing Deal'].includes(l.status) && diff > (7 * 24 * 60 * 60 * 1000); // 7 days
     });
 
     if (loading) return <div className="loading-container"><div className="loader"></div></div>;
@@ -186,7 +185,7 @@ const SalesPipeline = () => {
                 .pipeline-summary { padding: 15px 25px; display: flex; flex-direction: column; gap: 5px; border-radius: 12px; }
                 .pipeline-summary strong { font-size: 24px; color: var(--primary); }
 
-                .pipeline-container { display: grid; grid-template-columns: repeat(6, 1fr); gap: 20px; align-items: start; }
+                .pipeline-container { display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; align-items: start; }
                 .pipeline-stage { padding: 20px; display: flex; flex-direction: column; gap: 15px; min-height: 400px; }
                 .stage-head { display: flex; justify-content: space-between; align-items: center; }
                 .stage-head h3 { font-size: 14px; opacity: 0.9; }
