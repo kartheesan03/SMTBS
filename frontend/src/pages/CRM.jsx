@@ -11,6 +11,8 @@ const CRM = () => {
     const [leads, setLeads] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
+    const [showLeadModal, setShowLeadModal] = useState(false);
+    const [selectedLead, setSelectedLead] = useState(null);
     const [formData, setFormData] = useState({
         name: '', email: '', source: 'Web', status: 'Initial Contact', estimatedValue: 0
     });
@@ -42,6 +44,22 @@ const CRM = () => {
             fetchLeads();
         } catch (err) {
             alert(err.response?.data?.message || 'Error creating lead');
+        }
+    };
+
+    const handleViewLead = (lead) => {
+        setSelectedLead({ ...lead });
+        setShowLeadModal(true);
+    };
+
+    const handleUpdateLead = async (e) => {
+        e.preventDefault();
+        try {
+            await API.put(`/leads/${selectedLead._id}`, selectedLead);
+            setShowLeadModal(false);
+            fetchLeads();
+        } catch (err) {
+            alert(err.response?.data?.message || 'Error updating lead');
         }
     };
 
@@ -187,7 +205,9 @@ const CRM = () => {
                                 </td>
                                 <td>
                                     <div className="flex-center gap-6">
-                                        <button className="action-btn"><ExternalLink size={14}/></button>
+                                        <button className="action-btn" onClick={() => handleViewLead(lead)} title="View/Edit Lead">
+                                            <ExternalLink size={14}/>
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -231,6 +251,68 @@ const CRM = () => {
                             <div className="modal-actions">
                                 <button type="button" className="btn-cancel" onClick={() => setShowModal(false)}>Cancel</button>
                                 <button type="submit" className="btn-save">Register Lead</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* View/Edit Lead Modal */}
+            {showLeadModal && selectedLead && (
+                <div className="modal-overlay">
+                    <div className="modal-content animate-pop">
+                        <div className="modal-header">
+                            <h2>Lead Details</h2>
+                            <button className="close-btn" onClick={() => setShowLeadModal(false)}>✕</button>
+                        </div>
+                        <form onSubmit={handleUpdateLead} className="modal-form">
+                            <div className="form-group">
+                                <label>Customer Name</label>
+                                <input type="text" required value={selectedLead.name} onChange={e => setSelectedLead({...selectedLead, name: e.target.value})} />
+                            </div>
+                            <div className="form-group">
+                                <label>Contact Info (Email)</label>
+                                <input type="email" required value={selectedLead.email} onChange={e => setSelectedLead({...selectedLead, email: e.target.value})} />
+                            </div>
+                            <div className="form-grid">
+                                <div className="form-group">
+                                    <label>Lead Source</label>
+                                    <select value={selectedLead.source} onChange={e => setSelectedLead({...selectedLead, source: e.target.value})}>
+                                        <option value="Web">Web Form</option>
+                                        <option value="Referral">Referral</option>
+                                        <option value="Direct">Direct Contact</option>
+                                        <option value="Event">Marketing Event</option>
+                                    </select>
+                                </div>
+                                <div className="form-group">
+                                    <label>Estimated Value ($)</label>
+                                    <input type="number" value={selectedLead.estimatedValue} onChange={e => setSelectedLead({...selectedLead, estimatedValue: Number(e.target.value)})} />
+                                </div>
+                                <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                                    <label>Status</label>
+                                    <select value={selectedLead.status} onChange={e => setSelectedLead({...selectedLead, status: e.target.value})}>
+                                        <option value="Initial Contact">Initial Contact</option>
+                                        <option value="Qualified Lead">Qualified Lead</option>
+                                        <option value="Proposal Sent">Proposal Sent</option>
+                                        <option value="Negotiation">Negotiation</option>
+                                        <option value="Closing Deal">Closing Deal</option>
+                                        <option value="Won">Won</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div className="form-group">
+                                <label>Notes / Follow-up Details</label>
+                                <textarea 
+                                    rows="3" 
+                                    value={selectedLead.notes || ''} 
+                                    onChange={e => setSelectedLead({...selectedLead, notes: e.target.value})} 
+                                    placeholder="Add notes or follow-up details..."
+                                    className="textarea-input"
+                                ></textarea>
+                            </div>
+                            <div className="modal-actions">
+                                <button type="button" className="btn-cancel" onClick={() => setShowLeadModal(false)}>Close</button>
+                                <button type="submit" className="btn-save">Update Lead</button>
                             </div>
                         </form>
                     </div>
@@ -693,12 +775,25 @@ const CRM = () => {
                     outline: none;
                     transition: border-color 0.2s;
                 }
-                .form-group input:focus, .form-group select:focus {
+                .form-group input:focus, .form-group select:focus, .textarea-input:focus {
                     border-color: var(--primary);
                     box-shadow: 0 0 0 3px var(--primary-50);
                     background: var(--bg-card);
                 }
                 .form-group select { appearance: none; padding-right: 40px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
+                
+                .textarea-input {
+                    background: var(--bg-body);
+                    border: 1px solid var(--border);
+                    border-radius: 8px;
+                    padding: 12px 16px;
+                    color: var(--text-primary);
+                    font-size: 14px;
+                    width: 100%;
+                    outline: none;
+                    transition: border-color 0.2s;
+                    resize: vertical;
+                }
 
                 .modal-actions {
                     display: flex;
