@@ -117,4 +117,54 @@ const deleteEmployee = async (req, res) => {
     }
 };
 
-module.exports = { getEmployees, createEmployee, updateEmployee, deleteEmployee };
+const getMe = async (req, res) => {
+    try {
+        const employee = await Employee.findOne({ userId: req.user._id }).populate('userId', 'name email role');
+        if (!employee) {
+            return res.status(404).json({ message: 'Employee record not found for this user' });
+        }
+        res.json(employee);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+const updateMe = async (req, res) => {
+    try {
+        const employee = await Employee.findOne({ userId: req.user._id });
+        if (!employee) return res.status(404).json({ message: 'Employee not found' });
+
+        const { firstName, lastName, phone, email, address, password } = req.body;
+
+        if (employee.userId) {
+            const user = await User.findById(employee.userId);
+            if (user) {
+                if (email && email !== user.email) {
+                    const emailExists = await User.findOne({ email });
+                    if (emailExists && emailExists.id !== user.id) return res.status(400).json({ message: 'Email is already in use by another user' });
+                    user.email = email;
+                }
+                if (firstName || lastName) {
+                    user.name = `${firstName || employee.firstName} ${lastName || employee.lastName || ''}`.trim();
+                }
+                if (password && password.trim() !== '') user.password = password;
+                await user.save();
+            }
+        }
+
+        if (firstName) employee.firstName = firstName;
+        if (lastName !== undefined) employee.lastName = lastName;
+        if (phone !== undefined) employee.contact = phone;
+        if (address !== undefined) employee.address = address;
+
+        await employee.save();
+        
+        const populatedEmployee = await Employee.findOne({ userId: req.user._id }).populate('userId', 'name email role');
+        res.json(populatedEmployee);
+    } catch (error) {
+        console.error('Update Profile Error:', error);
+        res.status(400).json({ message: error.message || 'Internal Server Error during update' });
+    }
+};
+
+module.exports = { getEmployees, createEmployee, updateEmployee, deleteEmployee, getMe, updateMe };

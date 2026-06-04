@@ -17,21 +17,16 @@ const Profile = () => {
     useEffect(() => {
         const fetchEmployeeData = async () => {
             try {
-                const { data } = await API.get('/employees');
-                const myEmp = data.find(emp => 
-                    (emp.userId && (emp.userId === user._id || emp.userId._id === user._id)) || 
-                    emp.contact === user.email ||
-                    emp.email === user.email
-                );
+                const { data } = await API.get('/employees/me');
                 
-                if (myEmp) {
-                    setEmployeeData(myEmp);
-                    // Attempt to parse first and last name safely
-                    let fName = myEmp.firstName || myEmp.first_name;
-                    let lName = myEmp.lastName || myEmp.last_name;
+                if (data) {
+                    setEmployeeData(data);
+                    
+                    let fName = data.firstName || data.first_name;
+                    let lName = data.lastName || data.last_name;
                     
                     if (!fName && !lName) {
-                        const nameParts = (myEmp.fullName || myEmp.name || user?.name || '').split(' ');
+                        const nameParts = (data.fullName || data.name || user?.name || '').split(' ');
                         fName = nameParts[0] || '';
                         lName = nameParts.slice(1).join(' ') || '';
                     }
@@ -39,11 +34,14 @@ const Profile = () => {
                     setFormData({
                         firstName: fName || '',
                         lastName: lName || '',
-                        email: myEmp.email || myEmp.contact || user.email || '',
-                        phone: myEmp.phone || myEmp.phone_number || (myEmp.contact && !myEmp.contact.includes('@') ? myEmp.contact : '') || '',
-                        address: myEmp.address || ''
+                        email: data.userId?.email || user?.email || '',
+                        phone: data.contact || '',
+                        address: data.address || ''
                     });
-                } else if (user) {
+                }
+            } catch (err) {
+                console.error("Could not fetch employee data", err);
+                if (user) {
                     const nameParts = (user.name || '').split(' ');
                     setFormData(prev => ({
                         ...prev,
@@ -51,8 +49,6 @@ const Profile = () => {
                         lastName: nameParts.slice(1).join(' ') || ''
                     }));
                 }
-            } catch (err) {
-                console.error("Could not fetch employee data", err);
             }
         };
         if (user) fetchEmployeeData();
@@ -61,25 +57,24 @@ const Profile = () => {
     const handleUpdate = async (e) => {
         e.preventDefault();
         try {
-            if (employeeData) {
-                await API.put(`/employees/${employeeData._id}`, {
-                    ...employeeData,
-                    firstName: formData.firstName,
-                    lastName: formData.lastName,
-                    fullName: `${formData.firstName} ${formData.lastName}`.trim(),
-                    phone: formData.phone,
-                    address: formData.address,
-                    contact: formData.email
-                });
-            }
+            const payload = {
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                phone: formData.phone,
+                email: formData.email,
+                address: formData.address
+            };
+            
+            const { data } = await API.put(`/employees/me`, payload);
+            setEmployeeData(data);
             
             // Update auth profile if needed
             const authPayload = {
                 name: `${formData.firstName} ${formData.lastName}`.trim(),
                 email: formData.email
             };
-            const { data } = await API.put('/auth/profile', authPayload);
-            updateUser(data);
+            const authRes = await API.put('/auth/profile', authPayload);
+            updateUser(authRes.data);
             
             alert('Profile Updated Successfully');
         } catch (err) {
