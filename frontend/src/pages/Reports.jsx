@@ -125,12 +125,30 @@ const Reports = () => {
         if (!customReport.type) return showToast('Please select a report type.', 'error');
         if (!customReport.from || !customReport.to) return showToast('Please select both Date From and Date To.', 'error');
         
-        const fromDate = new Date(customReport.from);
-        const toDate = new Date(customReport.to);
+        const parseDate = (dStr) => {
+            if (!dStr) return new Date();
+            if (dStr.includes('-')) {
+                const parts = dStr.split('-');
+                if (parts[0].length === 2) {
+                    // Assuming DD-MM-YYYY
+                    return new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+                }
+            }
+            return new Date(dStr);
+        };
+
+        const fromDate = parseDate(customReport.from);
+        const toDate = parseDate(customReport.to);
         
+        if (isNaN(fromDate.getTime()) || isNaN(toDate.getTime())) {
+            return showToast('Invalid date format provided.', 'error');
+        }
+
         if (fromDate > toDate) {
             return showToast('Date From cannot be greater than Date To.', 'error');
         }
+
+        const toDateEnd = new Date(toDate.getTime() + 86400000); // include the end date fully
 
         setDownloading('Custom Report');
         try {
@@ -138,9 +156,16 @@ const Reports = () => {
             let head = [];
             let rows = [];
 
+            const getArrayData = (response) => {
+                if (Array.isArray(response.data)) return response.data;
+                if (response.data && Array.isArray(response.data.data)) return response.data.data;
+                return [];
+            };
+
             if (customReport.type === 'Revenue Summary' || customReport.type === 'Order History') {
                 const res = await API.get('/orders');
-                data = res.data.filter(d => new Date(d.createdAt) >= fromDate && new Date(d.createdAt) <= new Date(toDate.getTime() + 86400000));
+                const allData = getArrayData(res);
+                data = allData.filter(d => new Date(d.createdAt) >= fromDate && new Date(d.createdAt) <= toDateEnd);
                 
                 if (customReport.type === 'Revenue Summary') {
                     const salesOrders = data.filter(o => o.type === 'Sales' && o.status !== 'Cancelled');
@@ -152,24 +177,33 @@ const Reports = () => {
                 }
             } else if (customReport.type === 'Inventory Report') {
                 const res = await API.get('/materials');
-                data = res.data;
+                const allData = getArrayData(res);
+                data = allData;
                 head = [['Name', 'SKU', 'Category', 'Quantity', 'Price']];
                 rows = data.map(m => [m.name, m.sku, m.category, m.quantity, `$${m.price}`]);
             } else if (customReport.type === 'Employee Report') {
                 const res = await API.get('/employees');
-                data = res.data.filter(d => new Date(d.createdAt || d.joinDate || '1970-01-01') <= new Date(toDate.getTime() + 86400000));
+                const allData = getArrayData(res);
+                data = allData.filter(d => {
+                    const dDate = new Date(d.createdAt || d.joinDate || '1970-01-01');
+                    return dDate <= toDateEnd;
+                });
                 head = [['Name', 'Role', 'Department', 'Email', 'Status']];
                 rows = data.map(e => [e.name, e.role, e.department || 'N/A', e.email, e.status || 'Active']);
             } else if (customReport.type === 'Customer Report') {
                 const res = await API.get('/customers');
-                data = res.data.filter(d => new Date(d.createdAt) >= fromDate && new Date(d.createdAt) <= new Date(toDate.getTime() + 86400000));
+                const allData = getArrayData(res);
+                data = allData.filter(d => new Date(d.createdAt) >= fromDate && new Date(d.createdAt) <= toDateEnd);
                 head = [['Name', 'Email', 'Phone', 'Company', 'Status']];
                 rows = data.map(c => [c.name, c.email, c.phone, c.company || 'N/A', c.status || 'Active']);
             } else if (customReport.type === 'Vendor Report') {
                 const res = await API.get('/vendors');
-                data = res.data.filter(d => new Date(d.createdAt) >= fromDate && new Date(d.createdAt) <= new Date(toDate.getTime() + 86400000));
+                const allData = getArrayData(res);
+                data = allData.filter(d => new Date(d.createdAt) >= fromDate && new Date(d.createdAt) <= toDateEnd);
                 head = [['Name', 'Category', 'Contact Person', 'Email', 'Status']];
                 rows = data.map(v => [v.name, v.category, v.contactPerson || 'N/A', v.email, v.status || 'Active']);
+            } else {
+                throw new Error("Invalid Report Type selected.");
             }
 
             const doc = new jsPDF();
@@ -184,7 +218,7 @@ const Reports = () => {
             if (rows.length === 0) {
                 doc.setFontSize(14);
                 doc.setTextColor(200, 0, 0);
-                doc.text("No records found", 14, 50);
+                doc.text("No records found in this date range.", 14, 50);
             } else {
                 doc.autoTable({
                     startY: 42,
@@ -198,8 +232,9 @@ const Reports = () => {
             setShowCustomReport(false);
             setCustomReport({ type: '', format: 'PDF', from: '', to: '' });
         } catch (err) {
-            console.error(err);
-            showToast('❌ Failed to generate report.', 'error');
+            console.error('Report Generation Error:', err);
+            const errorMsg = err.response?.data?.message || err.message || 'Unknown error occurred.';
+            showToast(`❌ Failed to generate report: ${errorMsg}`, 'error');
         } finally {
             setDownloading(null);
         }
