@@ -210,7 +210,7 @@ const getDashboardStats = async (req, res) => {
                 ]);
                 data.salesStats = {
                     totalLeads: stats.totalLeads,
-                    convertedLeads: await Lead.countDocuments({ status: 'Converted to Vendor' }),
+                    convertedLeads: await Lead.countDocuments({ status: 'Converted to Customer' }),
                     pipelineData: pipelineData || []
                 };
             } catch (e) { console.error('Sales Pipeline Aggregation Error:', e); }

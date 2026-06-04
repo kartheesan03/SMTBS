@@ -1,5 +1,5 @@
 const Lead = require('../models/Lead');
-const Vendor = require('../models/Vendor');
+const Customer = require('../models/Customer');
 
 // @desc    Get all leads
 // @route   GET /api/leads
@@ -18,7 +18,7 @@ const getLeads = async (req, res) => {
 // @access  Private/Sales/Admin
 const createLead = async (req, res) => {
     try {
-        const leadData = { ...req.body, status: 'Awaiting Review' };
+        const leadData = { ...req.body, status: 'New Lead' };
         const lead = new Lead(leadData);
         const createdLead = await lead.save();
         res.status(201).json(createdLead);
@@ -27,32 +27,32 @@ const createLead = async (req, res) => {
     }
 };
 
-// @desc    Convert lead to vendor (Admin Review)
+// @desc    Convert lead to customer (Admin Review)
 // @route   PUT /api/leads/:id/convert
 // @access  Private/Admin
-const convertToVendor = async (req, res) => {
+const convertToCustomer = async (req, res) => {
     try {
         const lead = await Lead.findById(req.params.id);
         if (!lead) return res.status(404).json({ message: 'Lead not found' });
 
-        if (lead.status === 'Converted to Vendor') {
+        if (lead.status === 'Converted to Customer') {
             return res.status(400).json({ message: 'Lead already converted' });
         }
 
-        // Create Vendor
-        const vendor = await Vendor.create({
+        // Create Customer
+        const customer = await Customer.create({
             name: lead.name,
             email: lead.email,
             phone: lead.phone,
-            contactPerson: lead.name,
-            category: 'From Lead'
+            company: lead.name,
+            status: 'Active'
         });
 
         // Update Lead
-        lead.status = 'Converted to Vendor';
+        lead.status = 'Converted to Customer';
         await lead.save();
 
-        res.json({ message: 'Lead successfully converted to Vendor', vendor });
+        res.json({ message: 'Lead successfully converted to Customer', customer });
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
@@ -82,4 +82,4 @@ const updateLead = async (req, res) => {
     }
 };
 
-module.exports = { getLeads, createLead, updateLead, convertToVendor };
+module.exports = { getLeads, createLead, updateLead, convertToCustomer };

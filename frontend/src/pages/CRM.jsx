@@ -12,7 +12,7 @@ const CRM = () => {
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [formData, setFormData] = useState({
-        name: '', email: '', source: 'Web', status: 'Awaiting Review', estimatedValue: 0
+        name: '', email: '', source: 'Web', status: 'New Lead', estimatedValue: 0
     });
 
     const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
@@ -38,7 +38,7 @@ const CRM = () => {
         try {
             await API.post('/leads', formData);
             setShowModal(false);
-            setFormData({ name: '', email: '', source: 'Web', status: 'Awaiting Review', estimatedValue: 0 });
+            setFormData({ name: '', email: '', source: 'Web', status: 'New Lead', estimatedValue: 0 });
             fetchLeads();
         } catch (err) {
             alert(err.response?.data?.message || 'Error creating lead');
@@ -185,14 +185,14 @@ const CRM = () => {
                                 <td>{lead.source}</td>
                                 <td><strong>${(lead.estimatedValue || 0).toLocaleString()}</strong></td>
                                 <td>
-                                    <span className={`status-badge-inline ${lead.status?.toLowerCase().replace(/ /g, '-') || 'awaiting-review'}`}>
-                                        {lead.status || 'Awaiting Review'}
+                                    <span className={`status-badge-inline ${lead.status?.toLowerCase().replace(/ /g, '-') || 'new-lead'}`}>
+                                        {lead.status || 'New Lead'}
                                     </span>
                                 </td>
                                 <td>
                                     <div className="flex-center gap-6">
-                                        {isAdmin && lead.status === 'Awaiting Review' && (
-                                            <button className="btn-approve" onClick={() => handleConvert(lead._id)}>Quick Convert</button>
+                                        {isAdmin && lead.status === 'Won' && (
+                                            <button className="btn-approve" onClick={() => handleConvert(lead._id)}>Convert to Customer</button>
                                         )}
                                         <button className="action-btn"><ExternalLink size={14}/></button>
                                     </div>
@@ -560,12 +560,14 @@ const CRM = () => {
                     letter-spacing: 0.5px;
                 }
                 
-                .status-badge-inline.awaiting-review { background-color: var(--warning-light); color: var(--warning); }
+                .status-badge-inline.new-lead { background-color: var(--warning-light); color: var(--warning); }
+                .status-badge-inline.initial-contact { background-color: var(--primary-50); color: var(--primary); }
                 .status-badge-inline.qualified-lead { background-color: var(--primary-50); color: var(--primary); }
+                .status-badge-inline.proposal-sent { background-color: #f5f3ff; color: #7c3aed; }
                 .status-badge-inline.negotiation { background-color: var(--warning-light); color: var(--warning); }
-                .status-badge-inline.closing-deal { background-color: #f5f3ff; color: #7c3aed; }
-                .status-badge-inline.converted { background-color: var(--success-light); color: var(--success); }
+                .status-badge-inline.won { background-color: var(--success-light); color: var(--success); }
                 .status-badge-inline.lost { background-color: var(--danger-light); color: var(--danger); }
+                .status-badge-inline.converted-to-customer { background-color: var(--success-light); color: var(--success); }
                 
                 .btn-approve {
                     background: var(--success-light);

@@ -107,13 +107,18 @@ const Vendors = () => {
                 <div className="glass-card table-wrapper">
                     <DataTable 
                         title="Supplier Directory"
-                        headers={['Vendor Name', 'Category', 'Address', 'Contact', 'Email', 'Phone', 'Action']}
+                        headers={['Vendor Name', 'Category', 'Status', 'Address', 'Contact', 'Email', 'Phone', 'Action']}
                         data={vendors}
                         onViewAll={fetchVendors}
                         renderRow={(v, index) => (
                             <tr key={v._id || index}>
                                 <td><strong>{v.name}</strong></td>
                                 <td><span className="cat-tag">{v.category}</span></td>
+                                <td>
+                                    <span className={`status-badge-inline ${v.status?.toLowerCase().replace(/ /g, '-') || 'vendor-created'}`}>
+                                        {v.status || 'Vendor Created'}
+                                    </span>
+                                </td>
                                 <td><div className="info-cell address-wrap"><MapPin size={14}/> <span>{v.address}</span></div></td>
                                 <td>{v.contactPerson || '-'}</td>
                                 <td><div className="info-cell"><Mail size={14}/> {v.email}</div></td>
@@ -130,6 +135,15 @@ const Vendors = () => {
                 .module-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px; padding: 25px; gap: 20px; }
                 .table-wrapper { padding: 10px; }
                 .cat-tag { background: rgba(99, 102, 241, 0.1); color: var(--primary); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+                
+                .status-badge-inline { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; white-space: nowrap; display: inline-block; }
+                .status-badge-inline.vendor-created { background-color: var(--primary-50, #eff6ff); color: var(--primary, #3b82f6); }
+                .status-badge-inline.approved-vendor { background-color: #f5f3ff; color: #7c3aed; }
+                .status-badge-inline.receives-purchase-orders { background-color: var(--warning-light, #fef3c7); color: var(--warning, #d97706); }
+                .status-badge-inline.supplies-materials { background-color: #e0f2fe; color: #0284c7; }
+                .status-badge-inline.in-transit { background-color: #ffedd5; color: #ea580c; }
+                .status-badge-inline.delivered { background-color: var(--success-light, #dcfce7); color: var(--success, #16a34a); }
+                .status-badge-inline.completed { background-color: #d1fae5; color: #059669; }
                 .info-cell { display: flex; align-items: flex-start; gap: 6px; font-size: 13px; color: var(--text-muted); white-space: nowrap; }
                 .address-wrap { max-width: 250px; white-space: normal; line-height: 1.5; word-wrap: break-word; }
                 .address-wrap svg { flex-shrink: 0; margin-top: 2px; }
