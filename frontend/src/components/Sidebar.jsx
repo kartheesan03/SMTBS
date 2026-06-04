@@ -43,7 +43,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
         { path: '/analytics', name: 'Reports & Analytics', icon: <BarChart3 size={20} /> },
         { path: '/support', name: 'Support Tickets', icon: <LifeBuoy size={20} /> },
         { path: '/notifications', name: 'Notifications', icon: <Bell size={20} /> },
-        { path: '/settings', name: 'My Profile', icon: <Settings size={20} /> },
+        { path: '/profile', name: 'My Profile', icon: <Settings size={20} /> },
     ];
 
     const employeeMenu = [
@@ -55,7 +55,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
         { path: '/erp', name: 'Orders (ERP)', icon: <ShoppingCart size={20} /> },
         { path: '/support', name: 'Support Tickets', icon: <LifeBuoy size={20} /> },
         { path: '/notifications', name: 'Notifications', icon: <Bell size={20} /> },
-        { path: '/settings', name: 'My Profile', icon: <Settings size={20} /> },
+        { path: '/profile', name: 'My Profile', icon: <Settings size={20} /> },
     ];
 
     const hrMenu = [
@@ -70,7 +70,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
         { path: '/support', name: 'Support Tickets', icon: <LifeBuoy size={20} /> },
         { path: '/notifications', name: 'Notifications', icon: <Bell size={20} /> },
         { path: '/hr-reports', name: 'Reports', icon: <BarChart3 size={20} /> },
-        { path: '/settings', name: 'My Profile', icon: <Settings size={20} /> },
+        { path: '/profile', name: 'My Profile', icon: <Settings size={20} /> },
     ];
 
     const managerMenu = [
@@ -83,7 +83,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
         { path: '/materials', name: 'Materials Overview', icon: <Briefcase size={20} /> },
         { path: '/analytics', name: 'Reports', icon: <BarChart3 size={20} /> },
         { path: '/support', name: 'Support Tickets', icon: <LifeBuoy size={20} /> },
-        { path: '/settings', name: 'My Profile', icon: <Settings size={20} /> },
+        { path: '/profile', name: 'My Profile', icon: <Settings size={20} /> },
     ];
 
     const salesMenu = [
@@ -97,7 +97,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
         { path: '/notifications', name: 'Notifications', icon: <Bell size={20} /> },
         { path: '/analytics', name: 'Reports', icon: <BarChart3 size={20} /> },
         { path: '/support', name: 'Support Tickets', icon: <LifeBuoy size={20} /> },
-        { path: '/settings', name: 'My Profile', icon: <Settings size={20} /> },
+        { path: '/profile', name: 'My Profile', icon: <Settings size={20} /> },
     ];
 
     const menuItems = user?.role === 'Admin' ? adminMenu : 
@@ -117,7 +117,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
             </div>
 
             {user && (
-                <div className="sidebar-user-card">
+                <NavLink to="/profile" className="sidebar-user-card" style={{ textDecoration: 'none' }}>
                     <div className="user-avatar-wrapper">
                         <div className="user-avatar-circle">
                             <img src={`https://ui-avatars.com/api/?name=${user?.name || 'Admin'}&background=2563eb&color=fff`} alt="User Avatar" />
@@ -131,7 +131,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                             <span className="status-text">Online</span>
                         </div>
                     </div>
-                </div>
+                </NavLink>
             )}
 
             <nav className="sidebar-nav">

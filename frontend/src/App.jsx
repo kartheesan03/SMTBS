@@ -20,6 +20,7 @@ import Payroll from './pages/Payroll';
 import Attendance from './pages/Attendance';
 import HRReports from './pages/HRReports';
 import Settings from './pages/Settings';
+import Profile from './pages/Profile';
 import Reports from './pages/Reports';
 import ERP from './pages/ERP';
 import CRM from './pages/CRM';
@@ -99,6 +100,7 @@ const AppContent = () => {
                     <Route path="/vendors" element={<ProtectedRoute allowedRoles={['Admin', 'Manager', 'Sales']}><Vendors /></ProtectedRoute>} />
                     <Route path="/analytics" element={<ProtectedRoute allowedRoles={['Admin', 'Manager', 'Sales', 'HR']}><Reports /></ProtectedRoute>} />
                     <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
+                    <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                     <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
 
                     {/* Sales Routes */}
