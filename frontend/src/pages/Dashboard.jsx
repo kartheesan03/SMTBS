@@ -57,9 +57,9 @@ const Dashboard = () => {
                 return {
                     title: "Admin Control Center",
                     stats: [
-                        { title: 'Total Material Types', value: data?.materialStats?.totalMaterialTypes ?? 0, icon: <Package />, color: '#6366f1', trend: 0 },
-                        { title: 'Total Employees', value: data?.stats?.totalEmployees ?? 0, icon: <Users />, color: '#14b8a6', trend: 0 },
-                        { title: 'System Revenue', value: `$${(data?.stats?.revenue || 0).toLocaleString()}`, icon: <DollarSign />, color: '#10b981', trend: 0 },
+                        { title: 'Total Material Types', value: data?.totalMaterials ?? 0, icon: <Package />, color: '#6366f1', trend: 0 },
+                        { title: 'Total Employees', value: data?.totalEmployees ?? 0, icon: <Users />, color: '#14b8a6', trend: 0 },
+                        { title: 'System Revenue', value: `$${(data?.totalRevenue || 0).toLocaleString()}`, icon: <DollarSign />, color: '#10b981', trend: 0 },
                         { title: 'Total Orders', value: data?.stats?.totalOrders ?? 0, icon: <TrendingUp />, color: '#f59e0b', trend: 0 },
                     ],
                     actions: [
@@ -104,7 +104,7 @@ const Dashboard = () => {
                 return {
                     title: "HR Management Hub",
                     stats: [
-                        { title: 'Total Workforce', value: data?.stats?.totalEmployees ?? 0, icon: <Users />, color: '#6366f1' },
+                        { title: 'Total Workforce', value: data?.totalEmployees ?? 0, icon: <Users />, color: '#6366f1' },
                         { title: 'On Leave', value: data?.stats?.onLeave ?? 0, icon: <Calendar />, color: '#ef4444' },
                         { title: 'Present Today', value: data?.stats?.presentToday ?? 0, icon: <CheckCircle2 />, color: '#10b981' },
                         { title: 'Pending Leave', value: data?.stats?.pendingRequests ?? 0, icon: <FileText />, color: '#f59e0b' },

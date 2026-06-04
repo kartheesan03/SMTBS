@@ -105,10 +105,6 @@ const getDashboardStats = async (req, res) => {
         let pendingSalaries = [];
         try {
             pendingSalaries = await Salary.find({ status: 'Awaiting Approval' })
-                .populate({
-                    path: 'employee',
-                    populate: { path: 'userId', select: 'name' }
-                })
                 .sort({ createdAt: -1 });
         } catch (e) { console.error('Pending Salaries Find Error:', e); }
 
@@ -126,6 +122,13 @@ const getDashboardStats = async (req, res) => {
         } catch (e) { console.error('Recent Activity Error:', e); }
 
         let data = {
+            totalEmployees: stats.totalEmployees || 0,
+            totalMaterials: stats.totalMaterials || 0,
+            activeCustomers: stats.totalCustomers || 0,
+            openOrders: (await Order.countDocuments({ status: { $ne: 'Delivered' } })) || 0,
+            lowStockItems: lowStockMaterials.length,
+            totalStockQuantity: totalStockQuantity,
+            totalRevenue: revenue,
             stats: { 
                 ...stats,
                 revenue,
@@ -156,14 +159,7 @@ const getDashboardStats = async (req, res) => {
                 const todayEnd = new Date();
                 todayEnd.setHours(23,59,59,999);
 
-                const activeEmployeesCount = await Employee.countDocuments({
-                    $or: [
-                        { status: 'Active' },
-                        { status: { $exists: false } },
-                        { active: true },
-                        { active: { $exists: false } }
-                    ]
-                });
+                const activeEmployeesCount = await Employee.countDocuments({});
 
                 const thirtyDaysAgo = new Date();
                 thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
@@ -171,9 +167,7 @@ const getDashboardStats = async (req, res) => {
                     joinDate: { $gte: thirtyDaysAgo }
                 });
 
-                const totalEmps = activeEmployeesCount || 1;
                 const deptStats = await Employee.aggregate([
-                    { $match: { $or: [{ status: 'Active' }, { status: { $exists: false } }, { active: true }, { active: { $exists: false } }] } },
                     { $group: { _id: "$department", value: { $sum: 1 } } }
                 ]);
                 

@@ -65,15 +65,15 @@ const AdminDashboard = () => {
 
     // Reference Mockup Data or Live Data
     const materialStats = data?.materialStats || {};
-    const totalMaterials = materialStats.totalMaterialTypes ?? 0;
-    const totalStockQuantity = materialStats.totalStockQuantity ?? 0;
-    const lowStock = materialStats.lowStockCount ?? 0;
+    const totalMaterials = data?.totalMaterials ?? materialStats.totalMaterialTypes ?? 0;
+    const totalStockQuantity = data?.totalStockQuantity ?? materialStats.totalStockQuantity ?? 0;
+    const lowStock = data?.lowStockItems ?? materialStats.lowStockCount ?? 0;
     const inTransitCount = materialStats.inTransitCount ?? 0;
 
-    const totalEmployees = data?.stats?.totalEmployees ?? 0;
-    const openOrders = data?.erpStats?.openOrders ?? 0;
-    const activeCustomers = data?.stats?.totalCustomers ?? 0;
-    const totalRevenue = data?.stats?.revenue ?? 0;
+    const totalEmployees = data?.totalEmployees ?? data?.stats?.totalEmployees ?? 0;
+    const openOrders = data?.openOrders ?? data?.erpStats?.openOrders ?? 0;
+    const activeCustomers = data?.activeCustomers ?? data?.stats?.totalCustomers ?? 0;
+    const totalRevenue = data?.totalRevenue ?? data?.stats?.revenue ?? 0;
 
     const hrStats = data?.hrStats || {};
     const hrTotalEmployees = hrStats.totalEmployees ?? totalEmployees;
