@@ -9,6 +9,7 @@ const getERPStats = async (req, res) => {
         let totalPurchaseOrders = 0;
         let pendingInvoices = 0;
         let totalExpensesNum = 0;
+        let statusCounts = {};
         
         orders.forEach(o => {
             if (o.type === 'Purchase') {
