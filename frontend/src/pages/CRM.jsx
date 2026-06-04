@@ -134,6 +134,11 @@ const CRM = () => {
                             <span className="stage-name">Negotiation</span>
                             <span className="stage-value">89</span>
                         </div>
+                        <div className="funnel-stage stage-closing-deal">
+                            <span className="funnel-bg"></span>
+                            <span className="stage-name">Closing Deal</span>
+                            <span className="stage-value">65</span>
+                        </div>
                         <div className="funnel-stage stage-won">
                             <span className="funnel-bg"></span>
                             <span className="stage-name">Won</span>
@@ -174,7 +179,7 @@ const CRM = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {leads.map((lead) => (
+                        {leads.filter(l => l.status !== 'Converted To Customer').map((lead) => (
                             <tr key={lead._id}>
                                 <td className="lead-name-cell">{lead.name}</td>
                                 <td>
@@ -446,6 +451,9 @@ const CRM = () => {
                 .stage-negotiation { width: 70%; }
                 .stage-negotiation .funnel-bg { background-color: var(--primary); }
                 
+                .stage-closing-deal { width: 65%; }
+                .stage-closing-deal .funnel-bg { background-color: var(--primary); }
+                
                 .stage-won { width: 60%; }
                 .stage-won .funnel-bg { background-color: var(--success); }
 
@@ -565,6 +573,7 @@ const CRM = () => {
                 .status-badge-inline.qualified-lead { background-color: var(--primary-50); color: var(--primary); }
                 .status-badge-inline.proposal-sent { background-color: #f5f3ff; color: #7c3aed; }
                 .status-badge-inline.negotiation { background-color: var(--warning-light); color: var(--warning); }
+                .status-badge-inline.closing-deal { background-color: #f5f3ff; color: #7c3aed; }
                 .status-badge-inline.won { background-color: var(--success-light); color: var(--success); }
                 .status-badge-inline.lost { background-color: var(--danger-light); color: var(--danger); }
                 .status-badge-inline.converted-to-customer { background-color: var(--success-light); color: var(--success); }

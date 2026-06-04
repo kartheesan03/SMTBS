@@ -25,7 +25,7 @@ const LeadSequelize = sequelize.define('Lead', {
         allowNull: true
     },
     status: {
-        type: DataTypes.ENUM('New Lead', 'Initial Contact', 'Qualified Lead', 'Proposal Sent', 'Negotiation', 'Won', 'Lost', 'Converted to Customer'),
+        type: DataTypes.ENUM('New Lead', 'Initial Contact', 'Qualified Lead', 'Proposal Sent', 'Negotiation', 'Closing Deal', 'Won', 'Lost', 'Converted To Customer'),
         defaultValue: 'New Lead'
     },
     notes: {
