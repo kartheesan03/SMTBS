@@ -63,10 +63,11 @@ const CRM = () => {
         }
     };
 
-    const totalLeads = leads.length;
-    const pipelineValue = leads.filter(l => !['Won', 'Converted To Customer', 'Lost'].includes(l.status)).reduce((sum, l) => sum + (l.estimatedValue || 0), 0);
-    const openDealsCount = leads.filter(l => !['Won', 'Converted To Customer', 'Lost'].includes(l.status)).length;
+    const activeStatuses = ['Initial Contact', 'Qualified Lead', 'Proposal Sent', 'Negotiation', 'Closing Deal'];
+    const openDealsCount = leads.filter(l => activeStatuses.includes(l.status)).length;
     const wonDealsCount = leads.filter(l => ['Won', 'Converted To Customer'].includes(l.status)).length;
+    const totalLeads = openDealsCount + wonDealsCount;
+    const pipelineValue = leads.filter(l => activeStatuses.includes(l.status)).reduce((sum, l) => sum + (l.estimatedValue || 0), 0);
 
     const recentActivities = [
         { desc: 'New lead from Website', time: '10 mins ago', type: 'web' },

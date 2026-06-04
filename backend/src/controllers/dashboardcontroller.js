@@ -18,7 +18,7 @@ const getDashboardStats = async (req, res) => {
                 Employee.countDocuments(),
                 Order.countDocuments(),
                 Customer.countDocuments(),
-                Lead.countDocuments()
+                Lead.countDocuments({ status: { $in: ['Initial Contact', 'Qualified Lead', 'Proposal Sent', 'Negotiation', 'Closing Deal', 'Won', 'Converted To Customer'] } })
             ]);
             stats = { totalMaterials, totalEmployees, totalOrders, totalCustomers, totalLeads };
         } catch (e) { console.error('Count Stats Error:', e); }
@@ -147,7 +147,7 @@ const getDashboardStats = async (req, res) => {
                 lowStock: lowStockMaterials, 
                 recentOrders: recentOrders || [],
                 pendingSalaries: pendingSalaries || [],
-                leadList: role === 'Sales' ? await Lead.find().sort({ createdAt: -1 }).limit(5) : [],
+                leadList: role === 'Sales' ? await Lead.find({ status: { $in: ['Initial Contact', 'Qualified Lead', 'Proposal Sent', 'Negotiation', 'Closing Deal'] } }).sort({ createdAt: -1 }).limit(5) : [],
                 recentActivity: recentActivity || []
             }
         };
@@ -224,12 +224,13 @@ const getDashboardStats = async (req, res) => {
         } else if (role === 'Sales') {
             try {
                 const pipelineData = await Lead.aggregate([
+                    { $match: { status: { $in: ['Initial Contact', 'Qualified Lead', 'Proposal Sent', 'Negotiation', 'Closing Deal', 'Won', 'Converted To Customer'] } } },
                     { $group: { _id: "$status", value: { $sum: 1 } } },
                     { $project: { name: "$_id", value: 1 } }
                 ]);
                 data.salesStats = {
                     totalLeads: stats.totalLeads,
-                    convertedLeads: await Lead.countDocuments({ status: 'Converted To Customer' }),
+                    convertedLeads: await Lead.countDocuments({ status: { $in: ['Won', 'Converted To Customer'] } }),
                     pipelineData: pipelineData || []
                 };
             } catch (e) { console.error('Sales Pipeline Aggregation Error:', e); }
