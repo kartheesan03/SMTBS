@@ -9,6 +9,7 @@ import {
 const CRM = () => {
     const navigate = useNavigate();
     const [leads, setLeads] = useState([]);
+    const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [showLeadModal, setShowLeadModal] = useState(false);
@@ -22,8 +23,12 @@ const CRM = () => {
 
     const fetchLeads = async () => {
         try {
-            const { data } = await API.get('/leads');
-            setLeads(data);
+            const [leadsRes, statsRes] = await Promise.all([
+                API.get('/leads'),
+                API.get('/leads/stats')
+            ]);
+            setLeads(leadsRes.data);
+            setStats(statsRes.data);
         } catch (err) {
             console.error(err);
         } finally {
@@ -63,18 +68,36 @@ const CRM = () => {
         }
     };
 
-    const activeStatuses = ['Initial Contact', 'Qualified Lead', 'Proposal Sent', 'Negotiation', 'Closing Deal'];
-    const openDealsCount = leads.filter(l => activeStatuses.includes(l.status)).length;
-    const wonDealsCount = leads.filter(l => ['Won', 'Converted To Customer'].includes(l.status)).length;
-    const totalLeads = openDealsCount + wonDealsCount;
-    const pipelineValue = leads.filter(l => activeStatuses.includes(l.status)).reduce((sum, l) => sum + (l.estimatedValue || 0), 0);
+    useEffect(() => {
+        if (stats) {
+            const { openDeals, wonDeals, totalActivePipelineLeads, pipelineCounts } = stats;
+            const activeStatuses = ['Initial Contact', 'Qualified Lead', 'Proposal Sent', 'Negotiation', 'Closing Deal'];
+            const sumPipeline = activeStatuses.reduce((acc, curr) => acc + (pipelineCounts[curr] || 0), 0);
+            
+            if (totalActivePipelineLeads !== openDeals + wonDeals) {
+                console.error(`Mismatch: Total Active Pipeline Leads (${totalActivePipelineLeads}) != Open Deals (${openDeals}) + Won Deals (${wonDeals})`);
+            }
+            if (openDeals !== sumPipeline) {
+                console.error(`Mismatch: Open Deals (${openDeals}) != Sum of active pipeline stages (${sumPipeline})`);
+            }
+            
+            const tableRowsCount = leads.filter(l => activeStatuses.includes(l.status)).length;
+            if (openDeals !== tableRowsCount) {
+                console.error(`Mismatch: Open Deals (${openDeals}) != Active Leads Table Rows (${tableRowsCount})`);
+            }
+        }
+    }, [stats, leads]);
 
-    const recentActivities = [
-        { desc: 'New lead from Website', time: '10 mins ago', type: 'web' },
-        { desc: 'Meeting scheduled with Acme Corp', time: '1 hour ago', type: 'meet' },
-        { desc: 'Proposal sent to Tech Solutions', time: '2 hours ago', type: 'prop' },
-        { desc: 'Deal won with Global Industries', time: '3 hours ago', type: 'won' }
-    ];
+    if (loading || !stats) return <div style={{ padding: '24px' }}>Loading CRM data...</div>;
+
+    const { 
+        totalActivePipelineLeads, 
+        pipelineValue, 
+        openDeals, 
+        wonDeals, 
+        pipelineCounts, 
+        recentActivities 
+    } = stats;
 
     return (
         <div className="crm-workspace">
@@ -101,7 +124,7 @@ const CRM = () => {
             <section className="crm-metrics-grid">
                 <div className="crm-metric-card">
                     <span className="label">Total Leads</span>
-                    <span className="value">{totalLeads}</span>
+                    <span className="value">{totalActivePipelineLeads}</span>
                 </div>
                 <div className="crm-metric-card">
                     <span className="label">Pipeline Value</span>
@@ -109,11 +132,11 @@ const CRM = () => {
                 </div>
                 <div className="crm-metric-card border-orange">
                     <span className="label text-orange">Open Deals</span>
-                    <span className="value text-orange">{openDealsCount}</span>
+                    <span className="value text-orange">{openDeals}</span>
                 </div>
                 <div className="crm-metric-card border-green">
                     <span className="label text-green">Won Deals</span>
-                    <span className="value text-green">{wonDealsCount}</span>
+                    <span className="value text-green">{wonDeals}</span>
                 </div>
             </section>
 
@@ -126,32 +149,32 @@ const CRM = () => {
                         <div className="funnel-stage stage-initial">
                             <span className="funnel-bg"></span>
                             <span className="stage-name">Initial Contact</span>
-                            <span className="stage-value">{leads.filter(l => l.status === 'Initial Contact').length}</span>
+                            <span className="stage-value">{pipelineCounts['Initial Contact'] || 0}</span>
                         </div>
                         <div className="funnel-stage stage-qualified">
                             <span className="funnel-bg"></span>
                             <span className="stage-name">Qualified</span>
-                            <span className="stage-value">{leads.filter(l => l.status === 'Qualified Lead').length}</span>
+                            <span className="stage-value">{pipelineCounts['Qualified Lead'] || 0}</span>
                         </div>
                         <div className="funnel-stage stage-proposal">
                             <span className="funnel-bg"></span>
                             <span className="stage-name">Proposal</span>
-                            <span className="stage-value">{leads.filter(l => l.status === 'Proposal Sent').length}</span>
+                            <span className="stage-value">{pipelineCounts['Proposal Sent'] || 0}</span>
                         </div>
                         <div className="funnel-stage stage-negotiation">
                             <span className="funnel-bg"></span>
                             <span className="stage-name">Negotiation</span>
-                            <span className="stage-value">{leads.filter(l => l.status === 'Negotiation').length}</span>
+                            <span className="stage-value">{pipelineCounts['Negotiation'] || 0}</span>
                         </div>
                         <div className="funnel-stage stage-closing-deal">
                             <span className="funnel-bg"></span>
                             <span className="stage-name">Closing Deal</span>
-                            <span className="stage-value">{leads.filter(l => l.status === 'Closing Deal').length}</span>
+                            <span className="stage-value">{pipelineCounts['Closing Deal'] || 0}</span>
                         </div>
                         <div className="funnel-stage stage-won">
                             <span className="funnel-bg"></span>
                             <span className="stage-name">Won</span>
-                            <span className="stage-value">{leads.filter(l => ['Won', 'Converted To Customer'].includes(l.status)).length}</span>
+                            <span className="stage-value">{pipelineCounts['Won'] || 0}</span>
                         </div>
                     </div>
                 </div>

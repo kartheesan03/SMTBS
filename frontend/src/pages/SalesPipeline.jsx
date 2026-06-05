@@ -8,6 +8,7 @@ import {
 
 const SalesPipeline = () => {
     const [leads, setLeads] = useState([]);
+    const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
 
     const stages = [
@@ -21,8 +22,12 @@ const SalesPipeline = () => {
 
     const fetchLeads = async () => {
         try {
-            const { data } = await API.get('/leads');
-            setLeads(data);
+            const [leadsRes, statsRes] = await Promise.all([
+                API.get('/leads'),
+                API.get('/leads/stats')
+            ]);
+            setLeads(leadsRes.data);
+            setStats(statsRes.data);
         } catch (err) {
             console.error(err);
         } finally {
@@ -63,25 +68,16 @@ const SalesPipeline = () => {
         }).format(val);
     };
 
-    // Analytics
-    const totalPipelineValue = leads
-        .filter(l => ['Initial Contact', 'Qualified Lead', 'Proposal Sent', 'Negotiation', 'Closing Deal'].includes(l.status))
-        .reduce((sum, l) => sum + (l.estimatedValue || 0), 0);
+    // Analytics from backend stats
+    if (loading || !stats) return <div className="loading-container"><div className="loader"></div></div>;
 
-    const convertedLeads = leads.filter(l => ['Won', 'Converted To Customer', 'Converted to Customer'].includes(l.status));
-    const avgVelocity = convertedLeads.length > 0 
-        ? Math.round(convertedLeads.reduce((sum, l) => {
-            const diff = new Date(l.updatedAt) - new Date(l.createdAt);
-            return sum + (diff / (1000 * 60 * 60 * 24));
-          }, 0) / convertedLeads.length)
-        : 14; // Default placeholder
-
-    const stagnantLeads = leads.filter(l => {
-        const diff = Date.now() - new Date(l.updatedAt).getTime();
-        return ['Initial Contact', 'Qualified Lead', 'Proposal Sent', 'Negotiation', 'Closing Deal'].includes(l.status) && diff > (7 * 24 * 60 * 60 * 1000); // 7 days
-    });
-
-    if (loading) return <div className="loading-container"><div className="loader"></div></div>;
+    const { 
+        pipelineValue,
+        pipelineCounts,
+        pipelineValueByStage,
+        avgVelocity,
+        stagnantLeads
+    } = stats;
 
     return (
         <div className="module-container">
@@ -92,7 +88,7 @@ const SalesPipeline = () => {
                 </div>
                 <div className="pipeline-summary glass-card">
                     <span className="text-muted">Total Pipeline Value:</span>
-                    <strong>{formatCurrency(totalPipelineValue)}</strong>
+                    <strong>{formatCurrency(pipelineValue)}</strong>
                 </div>
             </header>
 
@@ -101,11 +97,11 @@ const SalesPipeline = () => {
                     <div key={i} className="pipeline-stage glass-card" style={{ borderTop: `4px solid ${s.color}` }}>
                         <div className="stage-head">
                             <h3>{s.name}</h3>
-                            <span className="stage-count">{getStageLeads(s.name).length}</span>
+                            <span className="stage-count">{pipelineCounts[s.name] || 0}</span>
                         </div>
                         <div className="stage-value">
                             <Zap size={14} color={s.color}/>
-                            <strong>{formatCurrency(calculateStageValue(s.name))}</strong>
+                            <strong>{formatCurrency(pipelineValueByStage[s.name] || 0)}</strong>
                         </div>
                         
                         <div className="lead-preview-stack">
@@ -174,10 +170,10 @@ const SalesPipeline = () => {
                     </div>
                 </div>
                 <div className="glass-card ana-box">
-                    <Clock color={stagnantLeads.length > 0 ? "#f59e0b" : "#10b981"} size={24}/>
+                    <Clock color={stagnantLeads > 0 ? "#f59e0b" : "#10b981"} size={24}/>
                     <div>
                         <h4>Pipeline Health</h4>
-                        <p>{stagnantLeads.length > 0 ? `Attention Needed (${stagnantLeads.length} Stagnant)` : 'Healthy (All active)'}</p>
+                        <p>{stagnantLeads > 0 ? `Attention Needed (${stagnantLeads} Stagnant)` : 'Healthy (All active)'}</p>
                     </div>
                 </div>
             </div>

@@ -99,4 +99,119 @@ const updateLead = async (req, res) => {
     }
 };
 
-module.exports = { getLeads, createLead, updateLead, convertToCustomer };
+// @desc    Get CRM Statistics
+// @route   GET /api/leads/stats
+// @access  Private
+const getLeadStats = async (req, res) => {
+    try {
+        const leads = await Lead.find({}).sort({ createdAt: -1 });
+
+        const activeStatuses = ['Initial Contact', 'Qualified Lead', 'Proposal Sent', 'Negotiation', 'Closing Deal'];
+        const wonStatuses = ['Won', 'Converted To Customer'];
+        
+        let openDealsCount = 0;
+        let wonDealsCount = 0;
+        let pipelineValue = 0;
+        let stagnantLeadsCount = 0;
+        
+        const pipelineCounts = {
+            'Initial Contact': 0,
+            'Qualified Lead': 0,
+            'Proposal Sent': 0,
+            'Negotiation': 0,
+            'Closing Deal': 0,
+            'Won': 0
+        };
+        
+        const pipelineValueByStage = {
+            'Initial Contact': 0,
+            'Qualified Lead': 0,
+            'Proposal Sent': 0,
+            'Negotiation': 0,
+            'Closing Deal': 0,
+            'Won': 0
+        };
+
+        let totalDaysToClose = 0;
+        let convertedCount = 0;
+
+        const now = Date.now();
+
+        leads.forEach(l => {
+            const val = l.estimatedValue || 0;
+            const status = l.status;
+
+            if (activeStatuses.includes(status)) {
+                openDealsCount++;
+                pipelineValue += val;
+                
+                pipelineCounts[status] = (pipelineCounts[status] || 0) + 1;
+                pipelineValueByStage[status] = (pipelineValueByStage[status] || 0) + val;
+
+                const diff = now - new Date(l.updatedAt).getTime();
+                if (diff > (7 * 24 * 60 * 60 * 1000)) {
+                    stagnantLeadsCount++;
+                }
+            } else if (wonStatuses.includes(status)) {
+                wonDealsCount++;
+                
+                // Keep 'Won' count for funnel chart (combining both won statuses)
+                pipelineCounts['Won'] = (pipelineCounts['Won'] || 0) + 1;
+                pipelineValueByStage['Won'] = (pipelineValueByStage['Won'] || 0) + val;
+
+                const diff = new Date(l.updatedAt).getTime() - new Date(l.createdAt).getTime();
+                totalDaysToClose += (diff / (1000 * 60 * 60 * 24));
+                convertedCount++;
+            }
+        });
+
+        const avgVelocity = convertedCount > 0 ? Math.round(totalDaysToClose / convertedCount) : 14;
+
+        // Recent activities based on the latest updated leads
+        const recentLeads = [...leads].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)).slice(0, 4);
+        
+        const formatTimeAgo = (date) => {
+            const diffMin = Math.round((now - new Date(date).getTime()) / 60000);
+            if (diffMin < 60) return `${diffMin} mins ago`;
+            const diffHours = Math.round(diffMin / 60);
+            if (diffHours < 24) return `${diffHours} hours ago`;
+            return `${Math.round(diffHours / 24)} days ago`;
+        };
+
+        const recentActivities = recentLeads.map(l => {
+            let type = 'web';
+            if (['Won', 'Converted To Customer'].includes(l.status)) type = 'won';
+            else if (['Proposal Sent', 'Negotiation'].includes(l.status)) type = 'prop';
+            else if (l.status === 'Closing Deal') type = 'meet';
+
+            let desc = `Lead created: ${l.name}`;
+            if (l.status === 'Won') desc = `Deal won with ${l.name}`;
+            else if (l.status === 'Proposal Sent') desc = `Proposal sent to ${l.name}`;
+            else if (l.status === 'Negotiation') desc = `Negotiating with ${l.name}`;
+            else if (l.status !== 'Initial Contact') desc = `Status updated to ${l.status} for ${l.name}`;
+
+            return {
+                desc,
+                time: formatTimeAgo(l.updatedAt),
+                type
+            };
+        });
+
+        res.json({
+            openDeals: openDealsCount,
+            wonDeals: wonDealsCount,
+            totalActivePipelineLeads: openDealsCount + wonDealsCount,
+            pipelineValue,
+            pipelineCounts,
+            pipelineValueByStage,
+            avgVelocity,
+            stagnantLeads: stagnantLeadsCount,
+            recentActivities
+        });
+
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+module.exports = { getLeads, createLead, updateLead, convertToCustomer, getLeadStats };
