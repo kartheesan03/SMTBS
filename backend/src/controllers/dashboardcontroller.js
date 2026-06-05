@@ -125,7 +125,7 @@ const getDashboardStats = async (req, res) => {
             totalEmployees: stats.totalEmployees || 0,
             totalMaterials: stats.totalMaterials || 0,
             activeCustomers: stats.totalCustomers || 0,
-            openOrders: (await Order.countDocuments({ status: { $ne: 'Delivered' } })) || 0,
+            openOrders: (await Order.countDocuments({ status: { $nin: ['Delivered', 'Completed', 'Cancelled'] } })) || 0,
             lowStockItems: lowStockMaterials.length,
             totalStockQuantity: totalStockQuantity,
             totalRevenue: revenue,

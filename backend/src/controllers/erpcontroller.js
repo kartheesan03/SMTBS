@@ -10,6 +10,7 @@ const getERPStats = async (req, res) => {
         let pendingInvoices = 0;
         let totalExpensesNum = 0;
         let statusCounts = {};
+        let purchaseStatusCounts = {};
         
         orders.forEach(o => {
             if (o.type === 'Purchase') {
@@ -20,8 +21,9 @@ const getERPStats = async (req, res) => {
                 if (['Approved', 'Delivered', 'Completed', 'Received'].includes(o.status)) {
                     totalExpensesNum += (o.totalAmount || 0);
                 }
+                purchaseStatusCounts[o.status] = (purchaseStatusCounts[o.status] || 0) + 1;
             }
-            if (o.status !== 'Completed' && o.status !== 'Cancelled') {
+            if (!['Delivered', 'Completed', 'Cancelled'].includes(o.status)) {
                 openOrders++;
             }
             if (o.status === 'Approved') {
@@ -39,10 +41,10 @@ const getERPStats = async (req, res) => {
 
         // Map summary exactly to chart expected format
         const orderSummary = [
-            { name: 'Draft/Pending', value: (statusCounts['Pending'] || 0) + (statusCounts['Awaiting Approval'] || 0), color: '#2563eb' },
-            { name: 'Approved', value: statusCounts['Approved'] || 0, color: '#10b981' },
-            { name: 'Received/Delivered', value: (statusCounts['Received'] || 0) + (statusCounts['Delivered'] || 0), color: '#f59e0b' },
-            { name: 'Cancelled', value: statusCounts['Cancelled'] || 0, color: '#ef4444' }
+            { name: 'Draft/Pending', value: (purchaseStatusCounts['Pending'] || 0) + (purchaseStatusCounts['Awaiting Approval'] || 0), color: '#2563eb' },
+            { name: 'Approved', value: purchaseStatusCounts['Approved'] || 0, color: '#10b981' },
+            { name: 'Received/Delivered', value: (purchaseStatusCounts['Received'] || 0) + (purchaseStatusCounts['Delivered'] || 0), color: '#f59e0b' },
+            { name: 'Cancelled', value: purchaseStatusCounts['Cancelled'] || 0, color: '#ef4444' }
         ];
 
         // Format to percentage

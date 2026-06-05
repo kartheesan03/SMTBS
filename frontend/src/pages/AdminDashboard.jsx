@@ -240,7 +240,7 @@ const AdminDashboard = () => {
                             <ShoppingCart size={22} />
                         </div>
                         <div className="stat-info">
-                            <span className="stat-label">Open Orders</span>
+                            <span className="stat-label" title="Includes both Sales & Purchase orders">Open Orders (All)</span>
                             <span className="stat-value">{openOrders}</span>
                             <span className="stat-trend trend-up">
                                 <span className="arrow">▲</span> +3.1% from last month

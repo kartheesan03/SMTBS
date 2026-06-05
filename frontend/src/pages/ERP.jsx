@@ -157,7 +157,7 @@ const ERP = () => {
             {/* 4 Stats Cards */}
             <section className="erp-metrics-grid">
                 <div className="erp-metric-card">
-                    <span className="label">Open Orders</span>
+                    <span className="label" title="Includes both Sales & Purchase orders">Open Orders (All)</span>
                     <span className="value">{erpStats.openOrders}</span>
                 </div>
                 <div className="erp-metric-card">
