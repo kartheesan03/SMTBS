@@ -41,9 +41,10 @@ const getERPStats = async (req, res) => {
 
         // Map summary exactly to chart expected format
         const orderSummary = [
-            { name: 'Draft/Pending', value: (purchaseStatusCounts['Pending'] || 0) + (purchaseStatusCounts['Awaiting Approval'] || 0), color: '#2563eb' },
+            { name: 'Pending', value: purchaseStatusCounts['Pending'] || 0, color: '#2563eb' },
+            { name: 'Confirmed', value: purchaseStatusCounts['Confirmed'] || 0, color: '#8b5cf6' },
             { name: 'Approved', value: purchaseStatusCounts['Approved'] || 0, color: '#10b981' },
-            { name: 'Received/Delivered', value: (purchaseStatusCounts['Received'] || 0) + (purchaseStatusCounts['Delivered'] || 0), color: '#f59e0b' },
+            { name: 'Delivered', value: purchaseStatusCounts['Delivered'] || 0, color: '#f59e0b' },
             { name: 'Cancelled', value: purchaseStatusCounts['Cancelled'] || 0, color: '#ef4444' }
         ];
 
