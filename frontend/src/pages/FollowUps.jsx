@@ -12,6 +12,8 @@ const FollowUps = () => {
     const [editingId, setEditingId] = useState(null);
     const [customers, setCustomers] = useState([]);
     const [leads, setLeads] = useState([]);
+    const [toast, setToast] = useState(null);
+    const [isLinked, setIsLinked] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
         type: 'Call',
@@ -21,6 +23,11 @@ const FollowUps = () => {
         notes: '',
         status: 'Pending'
     });
+
+    const showToast = (msg, isSuccess = true) => {
+        setToast({ msg, isSuccess });
+        setTimeout(() => setToast(null), 3000);
+    };
 
     const fetchFollowUps = async () => {
         try {
@@ -57,21 +64,22 @@ const FollowUps = () => {
         try {
             if (editingId) {
                 await API.put(`/follow-ups/${editingId}`, formData);
-                alert('Follow-up updated successfully!');
+                showToast('Follow-up updated successfully!');
             } else {
                 await API.post('/follow-ups', formData);
-                alert('Follow-up created successfully!');
+                showToast('Follow-up created successfully!');
             }
             closeModal();
             fetchFollowUps();
         } catch (err) {
-            alert(err.response?.data?.message || 'Error saving follow-up');
+            showToast(err.response?.data?.message || 'Error saving follow-up', false);
         }
     };
 
     const closeModal = () => {
         setShowModal(false);
         setEditingId(null);
+        setIsLinked(false);
         setFormData({
             name: '',
             type: 'Call',
@@ -97,10 +105,15 @@ const FollowUps = () => {
                 notes: data.notes || '',
                 status: data.status || 'Pending'
             });
+            
+            // Check if it's linked to an existing customer/lead
+            const linked = leads.find(l => l.name === data.name) || customers.find(c => c.name === data.name);
+            setIsLinked(!!linked);
+            
             setEditingId(id);
             setShowModal(true);
         } catch (err) {
-            alert('Failed to load follow-up data from database.');
+            showToast('Failed to load follow-up data from database.', false);
         } finally {
             setLoading(false);
         }
@@ -110,8 +123,9 @@ const FollowUps = () => {
         try {
             await API.put(`/follow-ups/${id}/status`, { status: 'Completed' });
             fetchFollowUps();
+            showToast('Follow-up marked as completed!');
         } catch (err) {
-            alert(err.response?.data?.message || 'Error updating status');
+            showToast(err.response?.data?.message || 'Error updating status', false);
         }
     };
 
@@ -131,6 +145,7 @@ const FollowUps = () => {
         const val = e.target.value;
         if (!val) {
             setFormData(prev => ({...prev, name: ''}));
+            setIsLinked(false);
             return;
         }
         
@@ -142,13 +157,22 @@ const FollowUps = () => {
                 phone: person.phone || person.contactNumber || prev.phone, 
                 email: person.email || prev.email
             }));
+            setIsLinked(true);
         } else {
             setFormData(prev => ({...prev, name: val}));
+            setIsLinked(false);
         }
     };
 
     return (
         <div className="module-container">
+            {toast && (
+                <div className={`toast-notification ${toast.isSuccess ? 'success' : 'error'}`}>
+                    {toast.isSuccess ? <CheckCircle size={18} /> : <AlertCircle size={18} />}
+                    {toast.msg}
+                </div>
+            )}
+
             {/* Breadcrumbs */}
             <div className="breadcrumb-nav">
                 <span className="crumb" onClick={() => navigate('/')}>Dashboard</span>
@@ -270,19 +294,36 @@ const FollowUps = () => {
                     <div className="modal-content animate-pop">
                         <div className="modal-header">
                             <h2>{editingId ? 'Edit Follow-up Action' : 'Draft Follow-up Action'}</h2>
-                            <button className="close-btn" onClick={closeModal}>✕</button>
+                            <button type="button" className="close-btn" onClick={closeModal}><X size={20}/></button>
                         </div>
                         <form onSubmit={handleSaveFollowUp} className="modal-form">
                             <div className="form-group">
                                 <label>Client Name / Lead</label>
-                                <input 
-                                    type="text" 
-                                    list="crm-contacts"
-                                    required 
-                                    placeholder="e.g. John Doe"
-                                    value={formData.name} 
-                                    onChange={handlePersonSelect} 
-                                />
+                                <div className="input-with-button">
+                                    <input 
+                                        type="text" 
+                                        list="crm-contacts"
+                                        required 
+                                        placeholder="e.g. John Doe"
+                                        value={formData.name} 
+                                        onChange={handlePersonSelect} 
+                                        readOnly={isLinked}
+                                        className={isLinked ? 'read-only-input' : ''}
+                                    />
+                                    {isLinked && (
+                                        <button 
+                                            type="button" 
+                                            className="btn-clear-link"
+                                            onClick={() => {
+                                                setIsLinked(false);
+                                                setFormData(prev => ({...prev, name: ''}));
+                                            }}
+                                            title="Clear linked record"
+                                        >
+                                            <X size={16} />
+                                        </button>
+                                    )}
+                                </div>
                                 <datalist id="crm-contacts">
                                     <optgroup label="Leads">
                                         {leads.map(l => <option key={`lead-${l._id}`} value={l.name} />)}
@@ -305,9 +346,8 @@ const FollowUps = () => {
                                 <div className="form-group">
                                     <label>Scheduled Date & Time</label>
                                     <input 
-                                        type="text" 
+                                        type="datetime-local" 
                                         required 
-                                        placeholder="e.g. Tomorrow 10:00 AM"
                                         value={formData.time} 
                                         onChange={e => setFormData({...formData, time: e.target.value})} 
                                     />
@@ -363,7 +403,7 @@ const FollowUps = () => {
             )}
 
             <style jsx="true">{`
-                .module-container { padding: 30px; }
+                .module-container { padding: 30px; position: relative; }
                 .breadcrumb-nav { display: flex; gap: 8px; font-size: 12px; font-weight: 600; color: var(--text-muted); }
                 .breadcrumb-nav .crumb { cursor: pointer; transition: color 0.2s; }
                 .breadcrumb-nav .crumb:hover { color: #2563eb; }
@@ -372,6 +412,40 @@ const FollowUps = () => {
                 
                 .module-header { display: flex; justify-content: space-between; align-items: center; }
                 .header-actions { display: flex; gap: 10px; }
+                
+                /* Toast */
+                .toast-notification { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; align-items: center; gap: 10px; padding: 16px 24px; border-radius: 8px; font-weight: 600; font-size: 14px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); animation: slideIn 0.3s ease-out; }
+                .toast-notification.success { background: #10b981; color: white; }
+                .toast-notification.error { background: #ef4444; color: white; }
+                @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+                /* Modal Specific */
+                .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+                .modal-content { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+                .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid var(--border); position: relative; }
+                .modal-header h2 { margin: 0; font-size: 18px; color: var(--text-primary); font-weight: 700; }
+                .close-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.2s; position: absolute; right: 20px; top: 20px; }
+                .close-btn:hover { background: rgba(255, 255, 255, 0.1); color: var(--text-main); }
+                
+                .modal-form { padding: 24px; display: flex; flex-direction: column; gap: 20px; }
+                .form-group { display: flex; flex-direction: column; gap: 8px; }
+                .form-group label { font-size: 13px; font-weight: 600; color: var(--text-muted); }
+                .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px 16px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border); border-radius: 8px; color: var(--text-main); font-size: 14px; outline: none; transition: all 0.2s; }
+                .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #3b82f6; background: rgba(255, 255, 255, 0.05); }
+                
+                .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+                @media (max-width: 600px) { .form-row-2 { grid-template-columns: 1fr; } }
+                
+                .input-with-button { display: flex; align-items: center; gap: 10px; }
+                .read-only-input { background: rgba(0, 0, 0, 0.2) !important; color: var(--text-muted) !important; cursor: not-allowed; }
+                .btn-clear-link { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: #ef4444; border-radius: 8px; padding: 0 12px; height: 44px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; }
+                .btn-clear-link:hover { background: #ef4444; color: #fff; }
+
+                .modal-actions { display: flex; justify-content: flex-end; gap: 15px; margin-top: 10px; padding-top: 20px; border-top: 1px solid var(--border); }
+                .btn-cancel { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: var(--text-main); padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+                .btn-cancel:hover { background: rgba(255, 255, 255, 0.1); }
+                .btn-save { background: #2563eb; border: none; color: white; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+                .btn-save:hover { background: #1d4ed8; }
                 
                 .btn-primary-blue { background: #2563eb; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-weight: 700; font-size: 13px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
                 .btn-primary-blue:hover { background: #1d4ed8; transform: translateY(-1px); }
