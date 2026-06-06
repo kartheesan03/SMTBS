@@ -647,7 +647,7 @@ const Payroll = () => {
                         </div>
                         <div className="modal-footer">
                             {selectedSalary.status === 'Paid' ? (
-                                <button className="btn-secondary flex-center gap-10" onClick={() => handleDownload(selectedSalary)} disabled={downloading}>
+                                <button className="btn-download-payslip" onClick={() => handleDownload(selectedSalary)} disabled={downloading}>
                                     <Download size={18} /> {downloading ? 'Generating...' : 'Download Payslip'}
                                 </button>
                             ) : (
@@ -717,6 +717,33 @@ const Payroll = () => {
                 .btn-pay-confirm { display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, var(--primary) 0%, #4f46e5 100%); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); }
                 .btn-pay-confirm:hover { box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5); transform: translateY(-1px); }
                 .btn-pay-confirm:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+                .btn-download-payslip {
+                    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+                    color: white;
+                    border: none;
+                    padding: 12px 24px;
+                    border-radius: 10px;
+                    font-weight: 600;
+                    font-size: 14px;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 8px;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+                }
+                .btn-download-payslip:hover {
+                    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+                    transform: translateY(-2px);
+                    box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
+                }
+                .btn-download-payslip:disabled {
+                    opacity: 0.7;
+                    cursor: not-allowed;
+                    transform: none;
+                }
 
                 .mt-20 { margin-top: 20px; }
                 .mt-30 { margin-top: 30px; }

@@ -158,8 +158,8 @@ const MySalaryPage = () => {
 
                         <div className="modal-actions">
                             {selectedPayslip.status === 'Paid' ? (
-                                <button className="btn-primary flex-center gap-10" onClick={() => handleDownload(selectedPayslip)} disabled={downloading}>
-                                    <Download size={18} /> {downloading ? 'Generating PDF...' : 'Download Payslip (PDF)'}
+                                <button className="btn-download-payslip" onClick={() => handleDownload(selectedPayslip)} disabled={downloading}>
+                                    <Download size={18} /> {downloading ? 'Generating...' : 'Download Payslip'}
                                 </button>
                             ) : (
                                 <div className="no-payslip-msg">
@@ -214,6 +214,33 @@ const MySalaryPage = () => {
                 .mt-30 { margin-top: 30px; }
                 .flex-center { display: flex; align-items: center; justify-content: center; }
                 .gap-10 { gap: 10px; }
+
+                .btn-download-payslip {
+                    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+                    color: white;
+                    border: none;
+                    padding: 12px 24px;
+                    border-radius: 10px;
+                    font-weight: 600;
+                    font-size: 14px;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 8px;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+                }
+                .btn-download-payslip:hover {
+                    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+                    transform: translateY(-2px);
+                    box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
+                }
+                .btn-download-payslip:disabled {
+                    opacity: 0.7;
+                    cursor: not-allowed;
+                    transform: none;
+                }
 
                 @media (max-width: 768px) {
                     .module-container { padding: 15px; }
