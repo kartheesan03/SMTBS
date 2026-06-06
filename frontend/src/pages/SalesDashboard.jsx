@@ -125,15 +125,15 @@ const SalesDashboard = () => {
                     headers={['Lead Name', 'Email', 'Source', 'Status']}
                     data={data?.tables?.leadList || []}
                     renderRow={(l) => (
-                        <>
+                        <tr key={l.id || l._id}>
                             <td>
                                 <strong>{l.name}</strong>
                                 <span className="view-more"><ArrowUpRight size={10}/></span>
                             </td>
                             <td>{l.email}</td>
                             <td>{l.source}</td>
-                            <td><span className={`status-pill ${l.status ? l.status.toLowerCase() : ''}`}>{l.status || 'New'}</span></td>
-                        </>
+                            <td><span className={`status-pill ${l.status ? l.status.toLowerCase().replace(/ /g, '-') : ''}`}>{l.status || 'New'}</span></td>
+                        </tr>
                     )}
                 />
             </section>
