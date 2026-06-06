@@ -2,6 +2,7 @@ const Order = require('../models/Order');
 const Material = require('../models/Material');
 const User = require('../models/User');
 const Notification = require('../models/Notification');
+const Customer = require('../models/Customer');
 
 // @desc    Get all orders
 // @route   GET /api/orders
