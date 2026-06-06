@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import API from '../api/axios';
 import DataTable from '../components/Dashboard/DataTable';
 import { DollarSign, FileText, Download, TrendingUp, X, CheckCircle, Clock, Loader, User, AlertCircle, Check, CreditCard, Banknote, Send, Wallet, ArrowRight, BadgeCheck, Receipt } from 'lucide-react';
+import { generatePayslipPDF } from '../utils/pdfGenerator';
 
 const Payroll = () => {
     const [salaries, setSalaries] = useState([]);
@@ -174,39 +175,11 @@ const Payroll = () => {
     const handleDownload = async (record) => {
         try {
             setDownloading(true);
-            // Simple text receipt fallback
-            const lines = [
-                '═══════════════════════════════════════',
-                '         SMTBMS SALARY PAYSLIP         ',
-                '═══════════════════════════════════════',
-                '',
-                `Employee:     ${record.employee?.userId?.name || 'N/A'}`,
-                `Department:   ${record.employee?.department || 'N/A'}`,
-                `Month:        ${record.month}`,
-                '',
-                `Basic Salary: ₹${record.basicSalary?.toLocaleString() || 0}`,
-                `Allowances:   +₹${record.allowances?.toLocaleString() || 0}`,
-                `Deductions:   -₹${record.deductions?.toLocaleString() || 0}`,
-                '───────────────────────────────────────',
-                `NET PAYABLE:  ₹${record.netSalary?.toLocaleString() || 0}`,
-                '───────────────────────────────────────',
-                '',
-                `Status:       ${record.status}`,
-                record.transactionId ? `Transaction:  ${record.transactionId}` : '',
-                record.paymentDate ? `Paid On:      ${new Date(record.paymentDate).toLocaleDateString()}` : '',
-                '',
-                '═══════════════════════════════════════'
-            ].join('\n');
-            const blob = new Blob([lines], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `payslip_${record.employee?.userId?.name || 'employee'}_${record.month?.replace(/\s+/g, '_')}.txt`;
-            a.click();
-            URL.revokeObjectURL(url);
+            const employeeName = record.employee?.userId?.name || record.employee?.firstName || 'Employee';
+            await generatePayslipPDF(record, employeeName);
             showToast('Payslip downloaded.');
         } catch (error) {
-            console.error('Error generating payslip:', error);
+            console.error('Error downloading payslip:', error);
             showToast('Failed to generate payslip', false);
         } finally {
             setDownloading(false);

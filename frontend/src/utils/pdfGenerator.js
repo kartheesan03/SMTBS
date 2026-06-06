@@ -29,6 +29,7 @@ export const generatePayslipPDF = async (record, employeeName) => {
                 <h3 style="font-size: 12px; color: #64748b; margin-bottom: 10px; text-transform: uppercase;">Employee Details</h3>
                 <p style="margin: 3px 0;"><strong>Name:</strong> ${employeeName}</p>
                 <p style="margin: 3px 0;"><strong>Role:</strong> ${record.employee?.designation || 'Staff'}</p>
+                <p style="margin: 3px 0;"><strong>Department:</strong> ${record.employee?.department || 'N/A'}</p>
                 <p style="margin: 3px 0;"><strong>Employee ID:</strong> ${record.employee?.employeeId || 'N/A'}</p>
             </div>
             <div style="text-align: right;">

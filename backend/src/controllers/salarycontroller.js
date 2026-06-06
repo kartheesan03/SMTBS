@@ -245,17 +245,40 @@ const createSalaryRecord = async (req, res) => {
             const employee = await Employee.findById(employeeId);
             if (employee && employee.userId) {
                 const empUserId = employee.userIdField || employee.userId;
+                const empName = `${employee.firstName || ''} ${employee.lastName || ''}`.trim();
+                
+                // 1. Employee notification
                 await broadcast({
                     targetUserId: empUserId,
                     targetOnly: true,
-                    title: `Salary Processed: ${month}`,
-                    message: `Your salary record for ${month} has been generated and is awaiting approval.`,
+                    title: `Payslip Available`,
+                    message: `Your payslip for ${month} is available for download.`,
+                    type: 'info',
+                    category: 'hr'
+                });
+
+                // 2. HR notification
+                await broadcast({
+                    targetRoles: ['HR'],
+                    exactRoles: true,
+                    title: `Salary Processed`,
+                    message: `Salary processed for Employee: ${empName} (₹${netSalary.toLocaleString()}).`,
+                    type: 'info',
+                    category: 'hr'
+                });
+
+                // 3. Admin notification
+                await broadcast({
+                    targetRoles: ['Admin'],
+                    exactRoles: true,
+                    title: `Payroll Completed`,
+                    message: `Payroll completed for ${empName} (${month}).`,
                     type: 'info',
                     category: 'hr'
                 });
             }
         } catch (notifErr) {
-            console.error('Error creating salary process notification:', notifErr.message);
+            console.error('Error creating salary process notifications:', notifErr.message);
         }
 
         res.status(201).json(salary);

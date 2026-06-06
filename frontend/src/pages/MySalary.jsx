@@ -64,7 +64,7 @@ const MySalaryPage = () => {
         <div className="module-container">
             <header className="module-header">
                 <div>
-                    <h1 className="title-gradient">My Salary & Payslips</h1>
+                    <h1 className="title-gradient">My Payslips</h1>
                     <p className="text-muted">Review your payment history and download official payslips.</p>
                 </div>
             </header>

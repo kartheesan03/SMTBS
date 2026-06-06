@@ -50,7 +50,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
         { path: '/', name: 'Dashboard', icon: <LayoutDashboard size={20} /> },
         { path: '/my-tasks', name: 'My Tasks', icon: <Box size={20} /> },
         { path: '/my-attendance', name: 'My Attendance', icon: <CheckCircle size={20} /> },
-        { path: '/my-salary', name: 'My Salary', icon: <DollarSign size={20} /> },
+        { path: '/my-salary', name: 'My Payslips', icon: <DollarSign size={20} /> },
         { path: '/leave-management', name: 'Leave Management', icon: <Calendar size={20} /> },
         { path: '/erp', name: 'Orders (ERP)', icon: <ShoppingCart size={20} /> },
         { path: '/support', name: 'Support Tickets', icon: <LifeBuoy size={20} /> },

@@ -13,19 +13,25 @@ const User = require('../models/User');
  * @param {Boolean} [params.isCritical] - If true, notifies all Admins and Managers
  * @param {String} [params.link] - Optional link
  * @param {Boolean} [params.targetOnly] - If true, ONLY sends to targetUserId
+ * @param {Boolean} [params.exactRoles] - If true, ONLY sends to the exact roles provided (doesn't automatically add Admin)
  */
-const broadcast = async ({ title, message, type = 'info', category = 'general', targetRoles = [], targetUserId = null, isCritical = false, link = null, targetOnly = false }) => {
+const broadcast = async ({ title, message, type = 'info', category = 'general', targetRoles = [], targetUserId = null, isCritical = false, link = null, targetOnly = false, exactRoles = false }) => {
     try {
         const notificationsToCreate = [];
         const notifiedUserIds = new Set();
 
         if (!targetOnly) {
             let rolesToNotify = new Set(Array.isArray(targetRoles) ? targetRoles : [targetRoles]);
-            rolesToNotify.add('Admin'); // Admin gets everything
+            
+            if (!exactRoles) {
+                rolesToNotify.add('Admin'); // Admin gets everything
+            }
 
             if (isCritical) {
                 rolesToNotify.add('Manager');
-                rolesToNotify.add('Admin');
+                if (!exactRoles) {
+                    rolesToNotify.add('Admin');
+                }
             }
 
             const rolesArray = Array.from(rolesToNotify);
