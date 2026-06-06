@@ -9,6 +9,8 @@ const FollowUps = () => {
     const [followups, setFollowups] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
+    const [customers, setCustomers] = useState([]);
+    const [leads, setLeads] = useState([]);
     const [formData, setFormData] = useState({
         name: '',
         type: 'Call',
@@ -24,6 +26,14 @@ const FollowUps = () => {
             setLoading(true);
             const res = await API.get('/follow-ups');
             setFollowups(res.data);
+            
+            // Also fetch leads and customers for the Add modal
+            const [leadsRes, custRes] = await Promise.all([
+                API.get('/leads').catch(() => ({ data: [] })),
+                API.get('/customers').catch(() => ({ data: [] }))
+            ]);
+            setLeads(leadsRes.data);
+            setCustomers(custRes.data);
         } catch (err) {
             console.error('Error fetching follow-ups:', err);
         } finally {
@@ -66,7 +76,35 @@ const FollowUps = () => {
 
     const overdueCount = followups.filter(f => f.status === 'Overdue').length;
     const pendingCount = followups.filter(f => f.status === 'Pending').length;
-    const completedCount = followups.filter(f => f.status === 'Completed').length;
+    
+    // Completed Today
+    const todayStr = new Date().toDateString();
+    const completedCount = followups.filter(f => {
+        if (f.status !== 'Completed') return false;
+        const updatedDate = new Date(f.updatedAt || f.createdAt || Date.now()).toDateString();
+        return updatedDate === todayStr;
+    }).length;
+
+    // Handle selecting a lead/customer to auto-fill phone/email
+    const handlePersonSelect = (e) => {
+        const val = e.target.value;
+        if (!val) {
+            setFormData(prev => ({...prev, name: ''}));
+            return;
+        }
+        
+        let person = leads.find(l => l.name === val) || customers.find(c => c.name === val);
+        if (person) {
+            setFormData(prev => ({
+                ...prev, 
+                name: person.name, 
+                phone: person.phone || person.contactNumber || prev.phone, 
+                email: person.email || prev.email
+            }));
+        } else {
+            setFormData(prev => ({...prev, name: val}));
+        }
+    };
 
     return (
         <div className="module-container">
@@ -130,7 +168,7 @@ const FollowUps = () => {
                         headers={['Customer/Lead', 'Contact Type', 'Scheduled Time', 'Details & Notes', 'Status', 'Actions']}
                         data={followups}
                         renderRow={(a) => (
-                            <>
+                            <tr key={a._id || a.id}>
                                 <td>
                                     <div className="client-info">
                                         <strong>{a.name}</strong>
@@ -159,17 +197,27 @@ const FollowUps = () => {
                                     <span className={`status-pill ${a.status.toLowerCase()}`}>{a.status}</span>
                                 </td>
                                 <td>
-                                    {a.status !== 'Completed' ? (
-                                        <button className="btn-done" onClick={() => handleMarkComplete(a._id)}>
-                                            <CheckCircle size={14}/> Mark Done
+                                    <div className="flex-center gap-8" style={{justifyContent: 'flex-start'}}>
+                                        {a.status !== 'Completed' ? (
+                                            <button className="btn-done" onClick={() => handleMarkComplete(a._id || a.id)}>
+                                                <CheckCircle size={14}/> Mark Handled
+                                            </button>
+                                        ) : (
+                                            <span className="text-success flex-center gap-5" style={{fontSize: '12px', fontWeight: 600}}>
+                                                <CheckCircle size={14}/> Handled
+                                            </span>
+                                        )}
+                                        {a.phone && (
+                                            <a href={`tel:${a.phone}`} className="btn-call" title="Call">
+                                                <PhoneCall size={14} /> Call
+                                            </a>
+                                        )}
+                                        <button className="btn-edit" title="Edit/View" onClick={() => alert('Edit functionality to be implemented in API')}>
+                                            View
                                         </button>
-                                    ) : (
-                                        <span className="text-success flex-center gap-5" style={{justifyContent: 'flex-start', fontSize: '12px', fontWeight: 600}}>
-                                            <CheckCircle size={14}/> Handled
-                                        </span>
-                                    )}
+                                    </div>
                                 </td>
-                            </>
+                            </tr>
                         )}
                     />
                 )}
@@ -188,11 +236,20 @@ const FollowUps = () => {
                                 <label>Client Name / Lead</label>
                                 <input 
                                     type="text" 
+                                    list="crm-contacts"
                                     required 
                                     placeholder="e.g. John Doe"
                                     value={formData.name} 
-                                    onChange={e => setFormData({...formData, name: e.target.value})} 
+                                    onChange={handlePersonSelect} 
                                 />
+                                <datalist id="crm-contacts">
+                                    <optgroup label="Leads">
+                                        {leads.map(l => <option key={`lead-${l._id}`} value={l.name} />)}
+                                    </optgroup>
+                                    <optgroup label="Customers">
+                                        {customers.map(c => <option key={`cust-${c._id}`} value={c.name} />)}
+                                    </optgroup>
+                                </datalist>
                             </div>
 
                             <div className="form-row-2">
@@ -308,6 +365,12 @@ const FollowUps = () => {
                 
                 .btn-done { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); color: #10b981; font-size: 12px; font-weight: 600; padding: 6px 14px; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; transition: all 0.2s; }
                 .btn-done:hover { background: #10b981; color: #ffffff; }
+
+                .btn-call { background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.2); color: #3b82f6; font-size: 12px; font-weight: 600; padding: 6px 14px; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; text-decoration: none; transition: all 0.2s; }
+                .btn-call:hover { background: #3b82f6; color: #ffffff; }
+
+                .btn-edit { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: var(--text-muted); font-size: 12px; font-weight: 600; padding: 6px 14px; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; transition: all 0.2s; }
+                .btn-edit:hover { background: rgba(255, 255, 255, 0.1); color: var(--text-main); }
                 
                 .animate-spin { animation: spin 1s linear infinite; }
                 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
