@@ -76,7 +76,7 @@ const ERP = () => {
         e.preventDefault();
         try {
             if (formData.type === 'Sales') {
-                const custExists = customers.find(c => String(c._id || c.id) === String(formData.customer));
+                const custExists = customers.find(c => String(c.id || c._id) === String(formData.customer));
                 if (!custExists) {
                     alert("Selected customer/material does not exist.");
                     return;
@@ -84,7 +84,7 @@ const ERP = () => {
             }
 
             for (const item of formData.items) {
-                const matExists = materials.find(m => String(m._id || m.id) === String(item.material));
+                const matExists = materials.find(m => String(m.id || m._id) === String(item.material));
                 if (!matExists) {
                     alert("Selected customer/material does not exist.");
                     return;
@@ -96,13 +96,16 @@ const ERP = () => {
             }
 
             const totalAmount = calculateTotal();
-            const selectedCust = customers.find(c => String(c._id || c.id) === String(formData.customer));
+            const selectedCust = customers.find(c => String(c.id || c._id) === String(formData.customer));
             
-            await API.post('/orders', { 
+            const payload = { 
                 ...formData, 
                 customerModel: selectedCust?.customerModel || 'Customer',
                 totalAmount 
-            });
+            };
+            console.log("ORDER PAYLOAD:", payload);
+
+            await API.post('/orders', payload);
             setShowModal(false);
             setFormData({ customer: '', vendor: '', status: 'Pending', type: 'Sales', items: [{ material: '', quantity: 1, price: 0 }] });
             fetchData();
@@ -391,7 +394,7 @@ const ERP = () => {
                                     <label>Select Customer</label>
                                     <select required value={formData.customer} onChange={e => setFormData({...formData, customer: e.target.value})}>
                                         <option value="">Select Customer...</option>
-                                        {customers.map(c => <option key={c._id || c.id} value={c._id || c.id}>{c.name} ({c.customerModel})</option>)}
+                                        {customers.map(c => <option key={c.id || c._id} value={c.id || c._id}>{c.name} ({c.customerModel})</option>)}
                                     </select>
                                 </div>
                             ) : (
@@ -414,7 +417,7 @@ const ERP = () => {
                                             required 
                                             value={item.material} 
                                             onChange={e => {
-                                                const mat = materials.find(m => String(m._id || m.id) === e.target.value);
+                                                const mat = materials.find(m => String(m.id || m._id) === e.target.value);
                                                 const newItems = [...formData.items];
                                                 newItems[index] = { ...newItems[index], material: e.target.value, price: mat?.price || 0 };
                                                 setFormData({...formData, items: newItems});
@@ -422,8 +425,8 @@ const ERP = () => {
                                         >
                                             <option value="">Select Material...</option>
                                             {materials
-                                                .filter(m => formData.type === 'Sales' || !formData.vendor || String(m.vendor?._id || m.vendor?.id || m.vendor) === String(formData.vendor))
-                                                .map(m => <option key={m._id || m.id} value={m._id || m.id}>{m.name} (${m.price})</option>)}
+                                                .filter(m => formData.type === 'Sales' || !formData.vendor || String(m.vendor?.id || m.vendor?._id || m.vendor) === String(formData.vendor))
+                                                .map(m => <option key={m.id || m._id} value={m.id || m._id}>{m.name} (${m.price})</option>)}
                                         </select>
                                         <input 
                                             type="number" 

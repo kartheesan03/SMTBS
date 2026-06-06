@@ -35,7 +35,10 @@ const createOrder = async (req, res) => {
         const isSales = type === 'Sales' || !!customer;
 
         // Verify customer exists if it's a Sales order
-        if (isSales && customer) {
+        if (isSales) {
+            if (!customer) {
+                return res.status(400).json({ message: 'Invalid customer or material selected.' });
+            }
             let customerExists = null;
             if (customerModel === 'Lead') {
                 const Lead = require('../models/Lead');
@@ -44,18 +47,18 @@ const createOrder = async (req, res) => {
                 customerExists = await Customer.findById(customer);
             }
             if (!customerExists) {
-                return res.status(400).json({ message: 'Selected customer/material does not exist.' });
+                return res.status(400).json({ message: 'Invalid customer or material selected.' });
             }
         }
 
         // Verify materials exist
         for (const item of items) {
             if (!item.material) {
-                return res.status(400).json({ message: 'Selected customer/material does not exist.' });
+                return res.status(400).json({ message: 'Invalid customer or material selected.' });
             }
             const materialExists = await Material.findById(item.material);
             if (!materialExists) {
-                return res.status(400).json({ message: 'Selected customer/material does not exist.' });
+                return res.status(400).json({ message: 'Invalid customer or material selected.' });
             }
             if (item.quantity == null || item.quantity <= 0) {
                 return res.status(400).json({ message: 'Invalid quantity.' });
@@ -64,14 +67,14 @@ const createOrder = async (req, res) => {
 
         const createdOrder = await Order.create({
             orderNumber: orderNumber || `ORD-${Date.now().toString().slice(-6)}`,
-            customer,
+            customer: customer || null,
             customerModel: customerModel || 'Customer',
-            vendor,
+            vendor: vendor || null,
             items,
             totalAmount,
             status: initialStatus,
             type: type || (isSales ? 'Sales' : 'Purchase'),
-            createdById: req.user._id
+            createdById: req.user._id || null
         });
 
         // If it's already approved, update stock
