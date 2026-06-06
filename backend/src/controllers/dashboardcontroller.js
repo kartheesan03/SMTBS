@@ -24,12 +24,24 @@ const getDashboardStats = async (req, res) => {
         } catch (e) { console.error('Count Stats Error:', e); }
 
         let revenue = 0;
+        let purchaseCost = 0;
         try {
             const revenueResult = await Order.aggregate([
-                { $match: { status: { $ne: 'Cancelled' }, totalAmount: { $exists: true } } },
+                { $match: { status: { $ne: 'Cancelled' }, orderType: 'sales', totalAmount: { $exists: true } } },
                 { $group: { _id: null, total: { $sum: "$totalAmount" } } }
             ]);
             revenue = (revenueResult && revenueResult.length > 0) ? revenueResult[0].total : 0;
+
+            const purchaseResult = await Order.aggregate([
+                { $match: { status: { $ne: 'Cancelled' }, orderType: 'purchase', totalAmount: { $exists: true } } },
+                { $group: { _id: null, total: { $sum: "$totalAmount" } } }
+            ]);
+            purchaseCost = (purchaseResult && purchaseResult.length > 0) ? purchaseResult[0].total : 0;
+            
+            const salesCount = await Order.countDocuments({ orderType: 'sales' });
+            const purchaseCount = await Order.countDocuments({ orderType: 'purchase' });
+            stats.totalSalesOrders = salesCount;
+            stats.totalPurchaseOrders = purchaseCount;
         } catch (e) { console.error('Revenue Aggregation Error:', e); }
 
         let lowStockMaterials = [];
@@ -133,6 +145,7 @@ const getDashboardStats = async (req, res) => {
             stats: { 
                 ...stats,
                 revenue,
+                purchaseCost,
                 pendingOrders: await Order.countDocuments({ status: 'Awaiting Approval' }),
                 pendingSalaries: await Salary.countDocuments({ status: 'Awaiting Approval' }),
                 pendingCustomers: await Customer.countDocuments({ status: 'Pending Review' })

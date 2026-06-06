@@ -245,12 +245,12 @@ const Reports = () => {
     const chartData = stats?.charts?.monthlyStats || [];
     const categoryData = stats?.charts?.categoryData || [];
 
-    // KPI Cards from live data
     const kpis = [
-        { label: 'Total Materials', value: stats?.stats?.totalMaterials ?? '—', icon: <Package size={18} />, color: '#6366f1' },
-        { label: 'Total Employees', value: stats?.stats?.totalEmployees ?? '—', icon: <Users size={18} />, color: '#14b8a6' },
         { label: 'Total Orders', value: stats?.stats?.totalOrders ?? '—', icon: <ShoppingCart size={18} />, color: '#f59e0b' },
+        { label: 'Sales Orders', value: stats?.stats?.totalSalesOrders ?? '—', icon: <ShoppingCart size={18} />, color: '#10b981' },
+        { label: 'Purchase Orders', value: stats?.stats?.totalPurchaseOrders ?? '—', icon: <ShoppingCart size={18} />, color: '#3b82f6' },
         { label: 'Total Revenue', value: `$${(stats?.stats?.revenue || 0).toLocaleString()}`, icon: <TrendingUp size={18} />, color: '#10b981' },
+        { label: 'Purchase Cost', value: `$${(stats?.stats?.purchaseCost || 0).toLocaleString()}`, icon: <TrendingUp size={18} />, color: '#ef4444' },
     ];
 
     return (

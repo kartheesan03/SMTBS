@@ -4,33 +4,31 @@ const getERPStats = async (req, res) => {
     try {
         const orders = await Order.find({});
 
-        let openOrders = 0;
-        let approvedOrders = 0;
+        let totalOrders = 0;
+        let totalSalesOrders = 0;
         let totalPurchaseOrders = 0;
         let pendingInvoices = 0;
-        let totalExpensesNum = 0;
-        let statusCounts = {};
+        let totalRevenueNum = 0;
+        let totalPurchaseCostNum = 0;
         let purchaseStatusCounts = {};
         
         orders.forEach(o => {
-            if (o.orderType === 'purchase') {
+            totalOrders++;
+            if (o.orderType === 'sales') {
+                totalSalesOrders++;
+                if (['Approved', 'Delivered', 'Completed', 'Received'].includes(o.status)) {
+                    totalRevenueNum += (o.totalAmount || 0);
+                }
+            } else if (o.orderType === 'purchase') {
                 totalPurchaseOrders++;
                 if (['Pending', 'Awaiting Approval'].includes(o.status)) {
                     pendingInvoices++;
                 }
                 if (['Approved', 'Delivered', 'Completed', 'Received'].includes(o.status)) {
-                    totalExpensesNum += (o.totalAmount || 0);
+                    totalPurchaseCostNum += (o.totalAmount || 0);
                 }
                 purchaseStatusCounts[o.status] = (purchaseStatusCounts[o.status] || 0) + 1;
             }
-            if (!['Delivered', 'Completed', 'Cancelled'].includes(o.status)) {
-                openOrders++;
-            }
-            if (o.status === 'Approved') {
-                approvedOrders++;
-            }
-            
-            statusCounts[o.status] = (statusCounts[o.status] || 0) + 1;
         });
 
         const formatCurrency = (num) => {
@@ -61,11 +59,12 @@ const getERPStats = async (req, res) => {
         }
 
         res.json({
-            openOrders,
-            approvedOrders,
-            pendingInvoices,
-            totalExpenses: formatCurrency(totalExpensesNum),
+            totalOrders,
+            totalSalesOrders,
             totalPurchaseOrders,
+            pendingInvoices,
+            totalRevenue: formatCurrency(totalRevenueNum),
+            totalPurchaseCost: formatCurrency(totalPurchaseCostNum),
             orderSummary
         });
     } catch (error) {

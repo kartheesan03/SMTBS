@@ -180,23 +180,31 @@ const ERP = () => {
                 </div>
             </header>
 
-            {/* 4 Stats Cards */}
+            {/* 6 Stats Cards */}
             <section className="erp-metrics-grid">
                 <div className="erp-metric-card">
-                    <span className="label" title="Includes both Sales & Purchase orders">Open Orders (All)</span>
-                    <span className="value">{erpStats.openOrders}</span>
+                    <span className="label">Total Orders</span>
+                    <span className="value">{erpStats.totalOrders || 0}</span>
                 </div>
-                <div className="erp-metric-card">
-                    <span className="label">Total Purchase Orders</span>
-                    <span className="value">{erpStats.totalPurchaseOrders}</span>
+                <div className="erp-metric-card border-green">
+                    <span className="label text-green">Sales Orders</span>
+                    <span className="value text-green">{erpStats.totalSalesOrders || 0}</span>
+                </div>
+                <div className="erp-metric-card border-blue">
+                    <span className="label text-blue">Purchase Orders</span>
+                    <span className="value text-blue">{erpStats.totalPurchaseOrders || 0}</span>
                 </div>
                 <div className="erp-metric-card border-orange">
                     <span className="label text-orange">Pending Invoices</span>
-                    <span className="value text-orange">{erpStats.pendingInvoices}</span>
+                    <span className="value text-orange">{erpStats.pendingInvoices || 0}</span>
                 </div>
-                <div className="erp-metric-card border-teal">
-                    <span className="label text-teal">Total Expenses</span>
-                    <span className="value text-teal">{erpStats.totalExpenses}</span>
+                <div className="erp-metric-card border-green">
+                    <span className="label text-green">Total Revenue</span>
+                    <span className="value text-green">{erpStats.totalRevenue || '₹0'}</span>
+                </div>
+                <div className="erp-metric-card border-blue">
+                    <span className="label text-blue">Total Purchase Cost</span>
+                    <span className="value text-blue">{erpStats.totalPurchaseCost || '₹0'}</span>
                 </div>
             </section>
 
@@ -576,7 +584,7 @@ const ERP = () => {
                 /* Stats Cards styling */
                 .erp-metrics-grid {
                     display: grid;
-                    grid-template-columns: repeat(4, 1fr);
+                    grid-template-columns: repeat(3, 1fr);
                     gap: 20px;
                 }
                 
