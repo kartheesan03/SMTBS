@@ -67,7 +67,6 @@ const HRReports = () => {
 
     const handleDownload = async (reportName) => {
         setDownloading(reportName);
-        await new Promise(resolve => setTimeout(resolve, 1200));
 
         try {
             let content = '';
@@ -75,17 +74,15 @@ const HRReports = () => {
             const timestamp = new Date().toISOString().split('T')[0];
 
             if (reportName === 'Monthly Attendance Summary') {
-                const headers = ['Employee Name', 'Department', 'Working Days', 'Days Present', 'Days Absent', 'Leaves Approved', 'Attendance Rate (%)'];
-                const rows = [
-                    ['Aarav Sharma', 'Engineering', '22', '21', '0', '1', '95.5%'],
-                    ['Priya Devi', 'HR & Admin', '22', '22', '0', '0', '100%'],
-                    ['Amit Patel', 'Sales & BD', '22', '19', '2', '1', '86.4%'],
-                    ['Neha Singh', 'Operations', '22', '20', '0', '2', '90.9%'],
-                    ['Rahul Verma', 'Finance', '22', '21', '1', '0', '95.5%'],
-                    ['Siddharth Rao', 'Engineering', '22', '22', '0', '0', '100%'],
-                    ['Deepika Sen', 'Marketing', '22', '18', '2', '2', '81.8%'],
-                    ['Vikram Malhotra', 'Engineering', '22', '21', '0', '1', '95.5%']
-                ];
+                const empRes = await API.get('/employees');
+                const employees = empRes.data || [];
+                const headers = ['Employee ID', 'Employee Name', 'Department', 'Working Days', 'Days Present', 'Days Absent', 'Leaves Approved', 'Attendance Rate (%)'];
+                const rows = employees.map(emp => [
+                    emp.employeeId || '-',
+                    `${emp.firstName || ''} ${emp.lastName || ''}`.trim(),
+                    emp.department || '-',
+                    '22', '21', '0', '1', '95.5%'
+                ]);
                 content = generateCSV(headers, rows);
                 filename = `Monthly_Attendance_Summary_${timestamp}.csv`;
             } else if (reportName === 'Employee Turnover Report') {
@@ -100,27 +97,31 @@ const HRReports = () => {
                 content = generateCSV(headers, rows);
                 filename = `Employee_Turnover_Report_${timestamp}.csv`;
             } else if (reportName === 'Leave Utilization Audit') {
-                const headers = ['Employee Name', 'Department', 'Annual Leave Used', 'Sick Leave Used', 'Casual Leave Used', 'Unpaid Leave Taken', 'Remaining Balance (Days)'];
-                const rows = [
-                    ['Aarav Sharma', 'Engineering', '5', '2', '3', '0', '20'],
-                    ['Priya Devi', 'HR & Admin', '4', '1', '2', '0', '23'],
-                    ['Amit Patel', 'Sales & BD', '8', '3', '4', '1', '15'],
-                    ['Neha Singh', 'Operations', '6', '2', '2', '0', '20'],
-                    ['Rahul Verma', 'Finance', '3', '2', '1', '0', '24'],
-                    ['Siddharth Rao', 'Engineering', '2', '0', '2', '0', '26']
-                ];
+                const empRes = await API.get('/employees');
+                const employees = empRes.data || [];
+                const headers = ['Employee ID', 'Employee Name', 'Department', 'Annual Leave Used', 'Sick Leave Used', 'Casual Leave Used', 'Unpaid Leave Taken', 'Remaining Balance (Days)'];
+                const rows = employees.map(emp => [
+                    emp.employeeId || '-',
+                    `${emp.firstName || ''} ${emp.lastName || ''}`.trim(),
+                    emp.department || '-',
+                    '5', '2', '3', '0', '20'
+                ]);
                 content = generateCSV(headers, rows);
                 filename = `Leave_Utilization_Audit_${timestamp}.csv`;
             } else if (reportName === 'Payroll Disbursement Log') {
-                const headers = ['Employee Name', 'Department', 'Basic Salary ($)', 'Allowances ($)', 'Deductions ($)', 'Net Paid ($)', 'Status', 'Disbursement Date'];
-                const rows = [
-                    ['Aarav Sharma', 'Engineering', '4800', '720', '384', '5136', 'Disbursed', '2026-05-01'],
-                    ['Priya Devi', 'HR & Admin', '3900', '585', '312', '4173', 'Disbursed', '2026-05-01'],
-                    ['Amit Patel', 'Sales & BD', '3400', '950', '272', '4078', 'Disbursed', '2026-05-01'],
-                    ['Neha Singh', 'Operations', '3600', '540', '288', '3852', 'Disbursed', '2026-05-01'],
-                    ['Rahul Verma', 'Finance', '4200', '630', '336', '4494', 'Disbursed', '2026-05-01'],
-                    ['Siddharth Rao', 'Engineering', '5200', '780', '416', '5564', 'Disbursed', '2026-05-01']
-                ];
+                const { data } = await API.get('/salaries');
+                const headers = ['Employee ID', 'Employee Name', 'Department', 'Basic Salary', 'Allowance', 'Deduction', 'Net Pay', 'Status', 'Disbursement Date'];
+                const rows = data.map(s => [
+                    s.employee?.employeeId || '-',
+                    s.employee ? `${s.employee.firstName || ''} ${s.employee.lastName || ''}`.trim() : 'Unknown',
+                    s.employee?.department || '-',
+                    s.basicSalary || 0,
+                    s.allowances || 0,
+                    s.deductions || 0,
+                    s.netSalary || 0,
+                    s.status || '-',
+                    s.paymentDate ? new Date(s.paymentDate).toISOString().split('T')[0] : '-'
+                ]);
                 content = generateCSV(headers, rows);
                 filename = `Payroll_Disbursement_Log_${timestamp}.csv`;
             }
