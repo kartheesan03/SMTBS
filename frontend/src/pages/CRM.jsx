@@ -205,14 +205,12 @@ const CRM = () => {
                             <th>Lead Name</th>
                             <th>Email</th>
                             <th>Source</th>
-                            <th>Value</th>
                             <th>Status</th>
-                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {leads.filter(l => ['Initial Contact', 'Qualified Lead', 'Proposal Sent', 'Negotiation', 'Closing Deal'].includes(l.status)).map((lead) => (
-                            <tr key={lead._id}>
+                        {leads.map((lead) => (
+                            <tr key={lead._id || lead.id}>
                                 <td className="lead-name-cell">{lead.name}</td>
                                 <td>
                                     <div className="contact-cell">
@@ -220,18 +218,10 @@ const CRM = () => {
                                     </div>
                                 </td>
                                 <td>{lead.source}</td>
-                                <td><strong>${(lead.estimatedValue || 0).toLocaleString()}</strong></td>
                                 <td>
                                     <span className={`status-badge-inline ${lead.status?.toLowerCase().replace(/ /g, '-') || 'initial-contact'}`}>
                                         {lead.status || 'Initial Contact'}
                                     </span>
-                                </td>
-                                <td>
-                                    <div className="flex-center gap-6">
-                                        <button className="action-btn" onClick={() => handleViewLead(lead)} title="View/Edit Lead">
-                                            <ExternalLink size={14}/>
-                                        </button>
-                                    </div>
                                 </td>
                             </tr>
                         ))}
