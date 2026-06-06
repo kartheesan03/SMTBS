@@ -98,6 +98,7 @@ const getDashboardStats = async (req, res) => {
         try {
             recentOrders = await Order.find()
                 .populate('customer', 'name')
+                .populate('vendor', 'name')
                 .sort({ createdAt: -1 })
                 .limit(5);
         } catch (e) { console.error('Recent Orders Find Error:', e); }

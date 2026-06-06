@@ -12,6 +12,7 @@ const getOrders = async (req, res) => {
     try {
         const orders = await Order.find({})
             .populate('customer', 'name email')
+            .populate('vendor', 'name email category contactPerson')
             .populate('createdBy', 'name role')
             .populate('updatedBy', 'name role');
         res.json(orders);
