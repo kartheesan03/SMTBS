@@ -181,15 +181,6 @@ const Reports = () => {
                 data = allData;
                 head = [['Name', 'SKU', 'Category', 'Quantity', 'Price']];
                 rows = data.map(m => [m.name, m.sku, m.category, m.quantity, `$${m.price}`]);
-            } else if (customReport.type === 'Employee Report') {
-                const res = await API.get('/employees');
-                const allData = getArrayData(res);
-                data = allData.filter(d => {
-                    const dDate = new Date(d.createdAt || d.joinDate || '1970-01-01');
-                    return dDate <= toDateEnd;
-                });
-                head = [['Name', 'Role', 'Department', 'Email', 'Status']];
-                rows = data.map(e => [e.name, e.role, e.department || 'N/A', e.email, e.status || 'Active']);
             } else if (customReport.type === 'Customer Report') {
                 const res = await API.get('/customers');
                 const allData = getArrayData(res);
@@ -468,7 +459,6 @@ const Reports = () => {
                                 <option value="">Select report type...</option>
                                 <option value="Revenue Summary">Revenue Summary</option>
                                 <option value="Inventory Report">Inventory Report</option>
-                                <option value="Employee Report">Employee Report</option>
                                 <option value="Order History">Order History</option>
                                 <option value="Customer Report">Customer Report</option>
                                 <option value="Vendor Report">Vendor Report</option>
