@@ -8,6 +8,7 @@ import {
     ResponsiveContainer, AreaChart, Area, BarChart, Bar, 
     XAxis, YAxis, CartesianGrid, Tooltip, Cell 
 } from 'recharts';
+import ExcelJS from 'exceljs';
 
 const HRReports = () => {
     const [stats, setStats] = useState(null);
@@ -19,7 +20,7 @@ const HRReports = () => {
     const [customReport, setCustomReport] = useState({ type: '', format: 'CSV', from: '', to: '' });
 
     const hrReportsList = [
-        { name: 'Monthly Attendance Summary', format: 'CSV', icon: <Calendar color="var(--dash-primary, #3b82f6)"/>, color: 'var(--dash-primary, #3b82f6)' },
+        { name: 'Monthly Attendance Summary', format: 'Excel', icon: <Calendar color="var(--dash-primary, #3b82f6)"/>, color: 'var(--dash-primary, #3b82f6)' },
         { name: 'Employee Turnover Report', format: 'CSV', icon: <Users color="var(--dash-teal, #14b8a6)"/>, color: 'var(--dash-teal, #14b8a6)' },
         { name: 'Leave Utilization Audit', format: 'CSV', icon: <FileText color="var(--dash-warning, #f59e0b)"/>, color: 'var(--dash-warning, #f59e0b)' },
         { name: 'Payroll Disbursement Log', format: 'CSV', icon: <BarChart2 color="var(--dash-purple, #8b5cf6)"/>, color: 'var(--dash-purple, #8b5cf6)' },
@@ -76,15 +77,54 @@ const HRReports = () => {
             if (reportName === 'Monthly Attendance Summary') {
                 const empRes = await API.get('/employees');
                 const employees = empRes.data || [];
-                const headers = ['Employee ID', 'Employee Name', 'Department', 'Working Days', 'Days Present', 'Days Absent', 'Leaves Approved', 'Attendance Rate (%)'];
-                const rows = employees.map(emp => [
-                    emp.employeeId || '-',
-                    `${emp.firstName || ''} ${emp.lastName || ''}`.trim(),
-                    emp.department || '-',
-                    '22', '21', '0', '1', '95.5%'
-                ]);
-                content = generateCSV(headers, rows);
-                filename = `Monthly_Attendance_Summary_${timestamp}.csv`;
+                
+                const workbook = new ExcelJS.Workbook();
+                const worksheet = workbook.addWorksheet('Attendance');
+
+                worksheet.columns = [
+                    { header: 'Employee ID', key: 'id', width: 15 },
+                    { header: 'Employee Name', key: 'name', width: 25 },
+                    { header: 'Department', key: 'dept', width: 20 },
+                    { header: 'Working Days', key: 'workDays', width: 15, style: { alignment: { horizontal: 'center' } } },
+                    { header: 'Days Present', key: 'present', width: 15, style: { alignment: { horizontal: 'center' } } },
+                    { header: 'Days Absent', key: 'absent', width: 15, style: { alignment: { horizontal: 'center' } } },
+                    { header: 'Leaves Approved', key: 'leaves', width: 18, style: { alignment: { horizontal: 'center' } } },
+                    { header: 'Attendance Rate', key: 'rate', width: 18, style: { numFmt: '0.00%', alignment: { horizontal: 'center' } } }
+                ];
+
+                employees.forEach(emp => {
+                    worksheet.addRow({
+                        id: emp.employeeId || '-',
+                        name: `${emp.firstName || ''} ${emp.lastName || ''}`.trim(),
+                        dept: emp.department || '-',
+                        workDays: 22,
+                        present: 21,
+                        absent: 0,
+                        leaves: 1,
+                        rate: 0.955
+                    });
+                });
+
+                // Bold header row
+                worksheet.getRow(1).font = { bold: true };
+                
+                // Freeze the first row
+                worksheet.views = [
+                    { state: 'frozen', ySplit: 1 }
+                ];
+
+                const buffer = await workbook.xlsx.writeBuffer();
+                const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Monthly_Attendance_Summary_${timestamp}.xlsx`;
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                showToast(`✅ ${reportName} downloaded successfully!`);
+                setDownloading(null);
+                return;
             } else if (reportName === 'Employee Turnover Report') {
                 const headers = ['Month', 'Opening Headcount', 'Hires', 'Terminations', 'Ending Headcount', 'Turnover Rate (%)'];
                 const rows = [
