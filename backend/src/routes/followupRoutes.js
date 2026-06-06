@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getFollowUps, createFollowUp, updateFollowUpStatus } = require('../controllers/followupcontroller');
+const { getFollowUps, createFollowUp, updateFollowUpStatus, getFollowUpById, updateFollowUp } = require('../controllers/followupcontroller');
 const { protect } = require('../middleware/authMiddleware');
 
 router.route('/')
@@ -9,5 +9,9 @@ router.route('/')
 
 router.route('/:id/status')
     .put(protect, updateFollowUpStatus);
+
+router.route('/:id')
+    .get(protect, getFollowUpById)
+    .put(protect, updateFollowUp);
 
 module.exports = router;

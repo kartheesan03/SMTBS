@@ -9,6 +9,7 @@ const FollowUps = () => {
     const [followups, setFollowups] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
+    const [editingId, setEditingId] = useState(null);
     const [customers, setCustomers] = useState([]);
     const [leads, setLeads] = useState([]);
     const [formData, setFormData] = useState({
@@ -45,23 +46,63 @@ const FollowUps = () => {
         fetchFollowUps();
     }, []);
 
-    const handleCreateFollowUp = async (e) => {
+    const handleSaveFollowUp = async (e) => {
         e.preventDefault();
+        
+        // Basic Validation
+        if (!formData.name) return alert('Customer/Lead name is required.');
+        if (!formData.type) return alert('Interaction Type is required.');
+        if (!formData.time) return alert('Scheduled Date & Time is required.');
+
         try {
-            await API.post('/follow-ups', formData);
-            setShowModal(false);
-            setFormData({
-                name: '',
-                type: 'Call',
-                time: '',
-                phone: '',
-                email: '',
-                notes: '',
-                status: 'Pending'
-            });
+            if (editingId) {
+                await API.put(`/follow-ups/${editingId}`, formData);
+                alert('Follow-up updated successfully!');
+            } else {
+                await API.post('/follow-ups', formData);
+                alert('Follow-up created successfully!');
+            }
+            closeModal();
             fetchFollowUps();
         } catch (err) {
-            alert(err.response?.data?.message || 'Error creating follow-up');
+            alert(err.response?.data?.message || 'Error saving follow-up');
+        }
+    };
+
+    const closeModal = () => {
+        setShowModal(false);
+        setEditingId(null);
+        setFormData({
+            name: '',
+            type: 'Call',
+            time: '',
+            phone: '',
+            email: '',
+            notes: '',
+            status: 'Pending'
+        });
+    };
+
+    const handleEditClick = async (id) => {
+        try {
+            setLoading(true);
+            const res = await API.get(`/follow-ups/${id}`);
+            const data = res.data;
+            setFormData({
+                name: data.name || '',
+                type: data.type || 'Call',
+                time: data.time || '',
+                phone: data.phone || '',
+                email: data.email || '',
+                notes: data.notes || '',
+                status: data.status || 'Pending'
+            });
+            setEditingId(id);
+            setShowModal(true);
+        } catch (err) {
+            alert('Failed to load follow-up data from database.');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -126,7 +167,7 @@ const FollowUps = () => {
                     <button className="btn-secondary flex-center gap-8" onClick={fetchFollowUps}>
                         <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Refresh
                     </button>
-                    <button className="btn-primary-blue flex-center gap-8" onClick={() => setShowModal(true)}>
+                    <button className="btn-primary-blue flex-center gap-8" onClick={() => { setEditingId(null); setShowModal(true); }}>
                         <Plus size={16} /> Add Follow-up
                     </button>
                 </div>
@@ -212,8 +253,8 @@ const FollowUps = () => {
                                                 <PhoneCall size={14} /> Call
                                             </a>
                                         )}
-                                        <button className="btn-edit" title="Edit/View" onClick={() => alert('Edit functionality to be implemented in API')}>
-                                            View
+                                        <button className="btn-edit" title="Edit/View" onClick={() => handleEditClick(a._id || a.id)}>
+                                            View / Edit
                                         </button>
                                     </div>
                                 </td>
@@ -228,10 +269,10 @@ const FollowUps = () => {
                 <div className="modal-overlay">
                     <div className="modal-content animate-pop">
                         <div className="modal-header">
-                            <h2>Draft Follow-up Action</h2>
-                            <button className="close-btn" onClick={() => setShowModal(false)}>✕</button>
+                            <h2>{editingId ? 'Edit Follow-up Action' : 'Draft Follow-up Action'}</h2>
+                            <button className="close-btn" onClick={closeModal}>✕</button>
                         </div>
-                        <form onSubmit={handleCreateFollowUp} className="modal-form">
+                        <form onSubmit={handleSaveFollowUp} className="modal-form">
                             <div className="form-group">
                                 <label>Client Name / Lead</label>
                                 <input 
@@ -313,8 +354,8 @@ const FollowUps = () => {
                             </div>
 
                             <div className="modal-actions">
-                                <button type="button" className="btn-cancel" onClick={() => setShowModal(false)}>Cancel</button>
-                                <button type="submit" className="btn-save">Save Schedule</button>
+                                <button type="button" className="btn-cancel" onClick={closeModal}>Cancel</button>
+                                <button type="submit" className="btn-save">{editingId ? 'Save Changes' : 'Save Schedule'}</button>
                             </div>
                         </form>
                     </div>
