@@ -1,6 +1,7 @@
 const Attendance = require('../models/Attendance');
 const Employee = require('../models/Employee');
 const Leave = require('../models/Leave');
+const { notifyHR } = require('../services/notificationService');
 
 // @desc    Get Current Attendance Status for logged in employee
 // @route   GET /api/attendance/status
@@ -111,6 +112,12 @@ const checkIn = async (req, res) => {
             });
         }
 
+        await notifyHR({
+            title: 'Employee Check-In',
+            message: `${employee.firstName} ${employee.lastName || ''} checked in at ${new Date(checkInTime).toLocaleTimeString()}. Status: ${status}`,
+            type: status === 'Late' ? 'warning' : 'info'
+        });
+
         res.status(201).json(attendance);
     } catch (error) {
         console.error('checkIn error:', error);
@@ -146,6 +153,12 @@ const checkOut = async (req, res) => {
 
         attendance.checkOut = new Date().toISOString();
         await attendance.save();
+
+        await notifyHR({
+            title: 'Employee Check-Out',
+            message: `${employee.firstName} ${employee.lastName || ''} checked out at ${new Date(attendance.checkOut).toLocaleTimeString()}.`,
+            type: 'info'
+        });
 
         res.json(attendance);
     } catch (error) {

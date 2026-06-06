@@ -1,6 +1,6 @@
 const Salary = require('../models/Salary');
 const Employee = require('../models/Employee');
-const Notification = require('../models/Notification');
+const { broadcast, notifyHR } = require('../services/notificationService');
 
 // @desc    Get personal salary history
 // @route   GET /api/salaries/my
@@ -111,10 +111,10 @@ const paySalaryRecord = async (req, res) => {
         try {
             const employee = await Employee.findById(salary.employeeId);
             if (employee && employee.userId) {
-                // Get the user field - handle both bridged proxy and raw value
                 const empUserId = employee.userIdField || employee.userId;
-                await Notification.create({
-                    userId: empUserId,
+                await broadcast({
+                    targetUserId: empUserId,
+                    targetRoles: [],
                     title: `Salary Paid: ${salary.month}`,
                     message: `Your salary of ₹${salary.netSalary.toLocaleString()} for ${salary.month} has been disbursed. Transaction ID: ${txnId}${paymentMethod ? '. Payment via ' + paymentMethod : ''}.`,
                     type: 'success',
@@ -177,8 +177,9 @@ const payAllApproved = async (req, res) => {
                 const employee = await Employee.findById(salary.employeeId);
                 if (employee && employee.userId) {
                     const empUserId = employee.userIdField || employee.userId;
-                    await Notification.create({
-                        userId: empUserId,
+                    await broadcast({
+                        targetUserId: empUserId,
+                        targetRoles: [],
                         title: `Salary Paid: ${salary.month}`,
                         message: `Your salary of ₹${salary.netSalary.toLocaleString()} for ${salary.month} has been disbursed. Transaction ID: ${txnId}.`,
                         type: 'success',
@@ -221,6 +222,12 @@ const createSalaryRecord = async (req, res) => {
             status: 'Awaiting Approval'
         });
         
+        await notifyHR({
+            title: 'Salary Record Created',
+            message: `A new salary record for ${month} is awaiting approval.`,
+            type: 'info'
+        });
+
         res.status(201).json(salary);
     } catch (error) {
         res.status(500).json({ message: error.message });

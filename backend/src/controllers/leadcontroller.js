@@ -1,5 +1,6 @@
 const Lead = require('../models/Lead');
 const Customer = require('../models/Customer');
+const { notifySales } = require('../services/notificationService');
 
 // @desc    Get all leads
 // @route   GET /api/leads
@@ -23,6 +24,14 @@ const createLead = async (req, res) => {
         leadData.assignedTo = _id;
         const lead = new Lead(leadData);
         const createdLead = await lead.save();
+
+        await notifySales({
+            title: 'New Lead Created',
+            message: `${leadData.name} has been added as a lead.`,
+            type: 'info',
+            category: 'general'
+        });
+
         res.status(201).json(createdLead);
     } catch (error) {
         res.status(400).json({ message: error.message });
@@ -53,6 +62,13 @@ const convertToCustomer = async (req, res) => {
         // Update Lead
         lead.status = 'Converted to Customer';
         await lead.save();
+
+        await notifySales({
+            title: 'Lead Converted to Customer',
+            message: `${lead.name} has been successfully converted to a customer!`,
+            type: 'success',
+            category: 'general'
+        });
 
         res.json({ message: 'Lead successfully converted to Customer', customer });
     } catch (error) {
@@ -90,6 +106,16 @@ const updateLead = async (req, res) => {
             }
 
             const updatedLead = await lead.save();
+
+            if (updatedLead.status !== oldStatus) {
+                await notifySales({
+                    title: 'Lead Status Updated',
+                    message: `${updatedLead.name} status changed to ${updatedLead.status}.`,
+                    type: updatedLead.status === 'Won' ? 'success' : 'info',
+                    category: 'general'
+                });
+            }
+
             res.json(updatedLead);
         } else {
             res.status(404).json({ message: 'Lead not found' });

@@ -1,4 +1,5 @@
 const Material = require('../models/Material');
+const { notifyManager, notifyCritical } = require('../services/notificationService');
 
 // @desc    Get all materials
 // @route   GET /api/materials
@@ -25,6 +26,14 @@ const createMaterial = async (req, res) => {
             status = 'Low Stock';
         }
         const createdMaterial = await Material.create({ name, sku, category, quantity, lowStockThreshold, unit, price, status, vendorId });
+
+        await notifyManager({
+            title: 'New Material Added',
+            message: `${name} (SKU: ${sku}) has been added to inventory with ${quantity} ${unit}.`,
+            type: 'info',
+            category: 'stock'
+        });
+
         res.status(201).json(createdMaterial);
     } catch (error) {
         res.status(400).json({ message: error.message });
@@ -57,6 +66,22 @@ const updateMaterial = async (req, res) => {
         }    
 
             const updatedMaterial = await material.save();
+
+            if (updatedMaterial.status === 'Low Stock' || updatedMaterial.status === 'Out of Stock') {
+                await notifyCritical({
+                    title: `Stock Alert: ${updatedMaterial.name}`,
+                    message: `${updatedMaterial.name} is currently ${updatedMaterial.status} (${updatedMaterial.quantity} ${updatedMaterial.unit} left).`,
+                    category: 'stock'
+                });
+            } else {
+                await notifyManager({
+                    title: 'Material Updated',
+                    message: `${updatedMaterial.name} inventory details have been updated.`,
+                    type: 'info',
+                    category: 'stock'
+                });
+            }
+
             res.json(updatedMaterial);
         } else {
             res.status(404).json({ message: 'Material not found' });

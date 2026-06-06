@@ -1,5 +1,6 @@
 const Leave    = require('../models/Leave');
 const Employee = require('../models/Employee');
+const { notifyHR, broadcast } = require('../services/notificationService');
 
 // Helper: get or auto-create employee profile for logged-in user
 const getEmployee = async (user) => {
@@ -44,6 +45,13 @@ const applyLeave = async (req, res) => {
             return res.status(400).json({ message: 'You already have a leave request covering these dates.' });
 
         const leave = await Leave.create({ employee: employee._id, type, startDate: start, endDate: end, reason });
+
+        await notifyHR({
+            title: 'New Leave Request',
+            message: `${employee.firstName} ${employee.lastName || ''} applied for ${type} leave from ${startDate} to ${endDate}.`,
+            type: 'info'
+        });
+
         res.status(201).json(leave);
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -114,6 +122,19 @@ const reviewLeave = async (req, res) => {
         leave.reviewedBy = req.user._id;
         leave.reviewNote = reviewNote || '';
         await leave.save();
+
+        const employee = await Employee.findById(leave.employee);
+        if (employee && employee.userId) {
+            await broadcast({
+                title: `Leave Request ${status}`,
+                message: `Your ${leave.type} leave request from ${new Date(leave.startDate).toISOString().split('T')[0]} to ${new Date(leave.endDate).toISOString().split('T')[0]} was ${status.toLowerCase()}.`,
+                type: status === 'Approved' ? 'success' : 'error',
+                category: 'hr',
+                targetUserId: employee.userId,
+                targetRoles: [] // Only target this specific user
+            });
+        }
+
         res.json(leave);
     } catch (err) {
         res.status(500).json({ message: err.message });

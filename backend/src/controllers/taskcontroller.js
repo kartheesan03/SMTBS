@@ -1,6 +1,6 @@
 const Task = require('../models/Task');
 const User = require('../models/User');
-const Notification = require('../models/Notification');
+const { broadcast } = require('../services/notificationService');
 
 // @desc    Create a new task
 // @route   POST /api/tasks
@@ -38,15 +38,17 @@ const createTask = async (req, res) => {
         // Send notifications to all assigned users
         if (finalAssignedTo.length > 0) {
             try {
-                const notifications = finalAssignedTo.map(uid => ({
-                    userId: uid,
-                    title: `📋 New Task Assigned: ${title}`,
-                    message: `${req.user.role} ${req.user.name} has assigned you a new task: "${title}". Priority: ${priority || 'Medium'}. ${dueDate ? 'Due: ' + new Date(dueDate).toLocaleDateString() : ''}`,
-                    type: priority === 'High' ? 'warning' : 'info',
-                    category: req.user.role === 'HR' ? 'hr' : 'general',
-                    link: '/my-tasks'
-                }));
-                await Notification.bulkCreate(notifications);
+                for (const uid of finalAssignedTo) {
+                    await broadcast({
+                        targetUserId: uid,
+                        targetRoles: [],
+                        title: `📋 New Task Assigned: ${title}`,
+                        message: `${req.user.role} ${req.user.name} has assigned you a new task: "${title}". Priority: ${priority || 'Medium'}. ${dueDate ? 'Due: ' + new Date(dueDate).toLocaleDateString() : ''}`,
+                        type: priority === 'High' ? 'warning' : 'info',
+                        category: req.user.role === 'HR' ? 'hr' : 'general',
+                        link: '/my-tasks'
+                    });
+                }
             } catch (err) {
                 console.error('Error generating task notifications:', err.message);
             }
@@ -113,10 +115,11 @@ const updateTaskStatus = async (req, res) => {
         await task.save();
 
         // Notify the assigner when task is completed
-        if (status === 'Completed' && task.assignedById) {
+        if (status === 'Completed' && task.assignedBy) {
             try {
-                await Notification.create({
-                    userId: task.assignedById,
+                await broadcast({
+                    targetUserId: task.assignedBy,
+                    targetRoles: [],
                     title: `✅ Task Completed: ${task.title}`,
                     message: `${req.user.name} has completed the task "${task.title}".`,
                     type: 'success',

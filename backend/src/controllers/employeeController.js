@@ -43,6 +43,14 @@ const createEmployee = async (req, res) => {
             address,
             joinDate
         });
+
+        const { notifyHR } = require('../services/notificationService');
+        await notifyHR({
+            title: 'New Employee Added',
+            message: `${firstName} ${lastName || ''} has been added to the system as ${designation || 'Employee'}.`,
+            type: 'info'
+        });
+
         res.status(201).json(createdEmployee);
     } catch (error) {
         res.status(400).json({ message: error.message });
@@ -90,6 +98,14 @@ const updateEmployee = async (req, res) => {
         if (address !== undefined) employee.address = address;
 
         const updatedEmployee = await employee.save();
+
+        const { notifyHR } = require('../services/notificationService');
+        await notifyHR({
+            title: 'Employee Profile Updated',
+            message: `Profile details for ${updatedEmployee.firstName} ${updatedEmployee.lastName || ''} have been updated.`,
+            type: 'info'
+        });
+
         res.json(updatedEmployee);
     } catch (error) {
         console.error('Update Employee Error:', error);

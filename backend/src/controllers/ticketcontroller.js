@@ -1,4 +1,5 @@
 const Ticket = require('../models/Ticket');
+const { broadcast } = require('../services/notificationService');
 
 // @desc    Get all support tickets
 // @route   GET /api/tickets
@@ -53,6 +54,15 @@ const createTicket = async (req, res) => {
             .populate('customer', 'name email company')
             .populate('assignedTo', 'name role');
 
+        await broadcast({
+            targetUserId: ticket.assignedTo,
+            targetRoles: ['Manager'],
+            title: `New Ticket Created: ${ticket.ticketNumber}`,
+            message: `A new support ticket "${ticket.subject}" has been created and assigned.`,
+            type: ticket.priority === 'High' ? 'warning' : 'info',
+            category: 'system'
+        });
+
         res.status(201).json(populatedTicket);
     } catch (error) {
         res.status(400).json({ message: error.message });
@@ -75,6 +85,15 @@ const updateTicketStatus = async (req, res) => {
                 .populate('customer', 'name email company')
                 .populate('assignedTo', 'name role');
                 
+            await broadcast({
+                targetUserId: ticket.assignedTo?._id || ticket.assignedTo,
+                targetRoles: ['Manager'],
+                title: `Ticket Status Updated: ${ticket.ticketNumber}`,
+                message: `Ticket "${ticket.subject}" status changed to ${ticket.status}.`,
+                type: ticket.status === 'Resolved' || ticket.status === 'Closed' ? 'success' : 'info',
+                category: 'system'
+            });
+
             res.json(populatedTicket);
         } else {
             res.status(404).json({ message: 'Ticket not found' });

@@ -1,4 +1,5 @@
 const Customer = require('../models/Customer');
+const { notifySales } = require('../services/notificationService');
 
 // @desc    Get all customers
 // @route   GET /api/customers
@@ -30,6 +31,14 @@ const createCustomer = async (req, res) => {
 
         const customer = new Customer(customerData);
         const createdCustomer = await customer.save();
+
+        await notifySales({
+            title: 'New Customer Added',
+            message: `${customerData.name} has been added as a customer.`,
+            type: 'info',
+            category: 'general'
+        });
+
         res.status(201).json(createdCustomer);
     } catch (error) {
         res.status(400).json({ message: error.message });
@@ -45,6 +54,14 @@ const approveCustomer = async (req, res) => {
         if (customer) {
             customer.status = 'Active';
             const updatedCustomer = await customer.save();
+
+            await notifySales({
+                title: 'Customer Approved',
+                message: `${updatedCustomer.name} has been approved.`,
+                type: 'success',
+                category: 'general'
+            });
+
             res.json(updatedCustomer);
         } else {
             res.status(404).json({ message: 'Customer not found' });
@@ -67,6 +84,14 @@ const updateCustomer = async (req, res) => {
             }
             Object.assign(customer, updateData);
             const updatedCustomer = await customer.save();
+
+            await notifySales({
+                title: 'Customer Updated',
+                message: `Details for customer ${updatedCustomer.name} have been updated.`,
+                type: 'info',
+                category: 'general'
+            });
+
             res.json(updatedCustomer);
         } else {
             res.status(404).json({ message: 'Customer not found' });

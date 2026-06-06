@@ -1,4 +1,5 @@
 const Vendor = require('../models/Vendor');
+const { notifyManager } = require('../services/notificationService');
 
 exports.getVendors = async (req, res) => {
     try {
@@ -15,6 +16,14 @@ exports.createVendor = async (req, res) => {
         if (!vendorData.status) vendorData.status = 'Vendor Created';
         const vendor = new Vendor(vendorData);
         await vendor.save();
+
+        await notifyManager({
+            title: 'New Vendor Added',
+            message: `${vendorData.name} has been added to the system.`,
+            type: 'info',
+            category: 'system'
+        });
+
         res.status(201).json(vendor);
     } catch (error) {
         res.status(400).json({ message: error.message });

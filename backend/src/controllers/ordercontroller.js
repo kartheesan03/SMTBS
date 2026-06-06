@@ -3,6 +3,7 @@ const Material = require('../models/Material');
 const User = require('../models/User');
 const Notification = require('../models/Notification');
 const Customer = require('../models/Customer');
+const { broadcast, notifyCritical, notifySales, notifyManager } = require('../services/notificationService');
 
 // @desc    Get all orders
 // @route   GET /api/orders
@@ -82,41 +83,24 @@ const createOrder = async (req, res) => {
             await updateStock(items);
         }
 
-        // Notify Employees (Warehouse) if status is 'Awaiting Stock Check'
         if (initialStatus === 'Awaiting Stock Check') {
-            try {
-                const employees = await User.find({ role: 'Employee' });
-                const notifications = employees.map(emp => ({
-                    userId: emp._id,
-                    title: `New Order Stock Check: ${createdOrder.orderNumber}`,
-                    message: `New order ${createdOrder.orderNumber} created by ${req.user.role} ${req.user.name}. Please check stock availability.`,
-                    type: 'info',
-                    category: 'order',
-                    link: '/erp'
-                }));
-                if (notifications.length > 0) {
-                    await Notification.insertMany(notifications);
-                }
-            } catch (err) {
-                console.error('Error creating notifications on order creation:', err);
-            }
-        } else if (req.user.role === 'HR' || req.user.role === 'Manager' || req.user.role === 'Admin') {
-            try {
-                const employees = await User.find({ role: 'Employee' });
-                const notifications = employees.map(emp => ({
-                    userId: emp._id,
-                    title: `New Order: ${createdOrder.orderNumber}`,
-                    message: `${req.user.role} ${req.user.name} created order ${createdOrder.orderNumber}.`,
-                    type: 'info',
-                    category: 'order',
-                    link: '/erp'
-                }));
-                if (notifications.length > 0) {
-                    await Notification.insertMany(notifications);
-                }
-            } catch (err) {
-                console.error('Error creating fallback notifications:', err);
-            }
+            await broadcast({
+                title: `New Order Stock Check: ${createdOrder.orderNumber}`,
+                message: `New order ${createdOrder.orderNumber} created. Please check stock availability.`,
+                type: 'info',
+                category: 'order',
+                link: '/erp',
+                targetRoles: ['Employee', 'Manager']
+            });
+        } else {
+            await broadcast({
+                title: `New Order: ${createdOrder.orderNumber}`,
+                message: `Order ${createdOrder.orderNumber} was created successfully.`,
+                type: 'info',
+                category: 'order',
+                link: '/erp',
+                targetRoles: isSales ? ['Sales', 'Manager'] : ['Manager']
+            });
         }
 
         res.status(201).json(createdOrder);
@@ -201,81 +185,45 @@ const updateOrderStatus = async (req, res) => {
         try {
             // A. Employee confirms stock -> Notify Sales
             if (status === 'Ready for Delivery') {
-                const salesUsers = await User.find({ role: 'Sales' });
-                const notifications = salesUsers.map(sales => ({
-                    userId: sales._id,
+                await broadcast({
                     title: `Ready for Delivery: ${order.orderNumber}`,
                     message: `Order ${order.orderNumber} has sufficient stock and is Ready for Delivery. Please coordinate shipping to customer.`,
                     type: 'info',
                     category: 'order',
-                    link: '/erp'
-                }));
-                if (notifications.length > 0) {
-                    await Notification.insertMany(notifications);
-                }
+                    link: '/erp',
+                    targetRoles: ['Sales', 'Manager']
+                });
             }
-            
-            // B. Employee alerts low stock -> Notify Admin & HR
+            // B. Employee alerts low stock -> Notify Admin & Manager
             else if (status === 'Low Stock Alert') {
-                const adminsAndHr = await User.find({ role: { $in: ['Admin', 'HR'] } });
-                const notifications = adminsAndHr.map(u => ({
-                    userId: u._id,
+                await notifyCritical({
                     title: `Low Stock Alert: ${order.orderNumber}`,
                     message: `Low stock alert generated for order ${order.orderNumber}. Please purchase new material supply.`,
-                    type: 'warning',
                     category: 'stock',
                     link: '/erp'
-                }));
-                if (notifications.length > 0) {
-                    await Notification.insertMany(notifications);
-                }
+                });
             }
-            
-            // C. Sales delivers order -> Notify ALL users
+            // C. Sales delivers order -> Notify ALL relevant users
             else if (status === 'Delivered') {
-                const allUsers = await User.find({});
-                const notifications = allUsers.map(u => ({
-                    userId: u._id,
+                await broadcast({
                     title: `Order Delivered: ${order.orderNumber}`,
-                    message: `Order ${order.orderNumber} has been successfully delivered to customer "${order.customer?.name || 'Walk-in'}" by Sales Representative ${req.user.name}!`,
+                    message: `Order ${order.orderNumber} has been successfully delivered.`,
                     type: 'success',
                     category: 'order',
-                    link: '/erp'
-                }));
-                if (notifications.length > 0) {
-                    await Notification.insertMany(notifications);
-                }
+                    link: '/erp',
+                    targetRoles: ['Sales', 'Manager', 'HR'] // Admin implicitly added
+                });
             }
-            
             // D. Other updates
             else {
-                if (req.user.role === 'Employee') {
-                    const salesUsers = await User.find({ role: 'Sales' });
-                    const notifications = salesUsers.map(sales => ({
-                        userId: sales._id,
-                        title: `Order Status Updated: ${order.orderNumber}`,
-                        message: `Employee ${req.user.name} updated the status of order ${order.orderNumber} to "${status}".`,
-                        type: 'info',
-                        category: 'order',
-                        link: '/erp'
-                    }));
-                    if (notifications.length > 0) {
-                        await Notification.insertMany(notifications);
-                    }
-                } else if (req.user.role === 'Sales') {
-                    const adminsAndHr = await User.find({ role: { $in: ['Admin', 'HR'] } });
-                    const notifications = adminsAndHr.map(u => ({
-                        userId: u._id,
-                        title: `Order Updated by Sales: ${order.orderNumber}`,
-                        message: `Sales Representative ${req.user.name} updated order ${order.orderNumber} to "${status}".`,
-                        type: 'info',
-                        category: 'order',
-                        link: '/erp'
-                    }));
-                    if (notifications.length > 0) {
-                        await Notification.insertMany(notifications);
-                    }
-                }
+                await broadcast({
+                    title: `Order Status Updated: ${order.orderNumber}`,
+                    message: `Order ${order.orderNumber} status changed to "${status}".`,
+                    type: 'info',
+                    category: 'order',
+                    link: '/erp',
+                    targetRoles: ['Sales', 'Manager']
+                });
             }
         } catch (err) {
             console.error('Error dispatching update notifications:', err);
