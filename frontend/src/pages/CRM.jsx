@@ -202,8 +202,8 @@ const CRM = () => {
                 <table className="modern-table">
                     <thead>
                         <tr>
-                            <th>Customer Name</th>
-                            <th>Contact Info</th>
+                            <th>Lead Name</th>
+                            <th>Email</th>
                             <th>Source</th>
                             <th>Value</th>
                             <th>Status</th>
@@ -613,6 +613,7 @@ const CRM = () => {
                 .modern-table {
                     width: 100%;
                     border-collapse: collapse;
+                    table-layout: fixed;
                 }
                 
                 .modern-table th {
@@ -632,6 +633,8 @@ const CRM = () => {
                     font-size: 14px;
                     color: var(--text-primary);
                     font-weight: 500;
+                    word-wrap: break-word;
+                    overflow-wrap: break-word;
                 }
                 
                 .modern-table tbody tr:hover td {
