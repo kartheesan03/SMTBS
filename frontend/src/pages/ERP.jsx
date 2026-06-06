@@ -75,8 +75,28 @@ const ERP = () => {
     const handleCreateOrder = async (e) => {
         e.preventDefault();
         try {
+            if (formData.type === 'Sales') {
+                const custExists = customers.find(c => String(c._id || c.id) === String(formData.customer));
+                if (!custExists) {
+                    alert("Selected customer/material does not exist.");
+                    return;
+                }
+            }
+
+            for (const item of formData.items) {
+                const matExists = materials.find(m => String(m._id || m.id) === String(item.material));
+                if (!matExists) {
+                    alert("Selected customer/material does not exist.");
+                    return;
+                }
+                if (!item.quantity || item.quantity <= 0) {
+                    alert("Invalid quantity.");
+                    return;
+                }
+            }
+
             const totalAmount = calculateTotal();
-            const selectedCust = customers.find(c => String(c._id) === String(formData.customer));
+            const selectedCust = customers.find(c => String(c._id || c.id) === String(formData.customer));
             
             await API.post('/orders', { 
                 ...formData, 
@@ -371,7 +391,7 @@ const ERP = () => {
                                     <label>Select Customer</label>
                                     <select required value={formData.customer} onChange={e => setFormData({...formData, customer: e.target.value})}>
                                         <option value="">Select Customer...</option>
-                                        {customers.map(c => <option key={c._id} value={c._id}>{c.name} ({c.customerModel})</option>)}
+                                        {customers.map(c => <option key={c._id || c.id} value={c._id || c.id}>{c.name} ({c.customerModel})</option>)}
                                     </select>
                                 </div>
                             ) : (
@@ -394,7 +414,7 @@ const ERP = () => {
                                             required 
                                             value={item.material} 
                                             onChange={e => {
-                                                const mat = materials.find(m => String(m._id) === e.target.value);
+                                                const mat = materials.find(m => String(m._id || m.id) === e.target.value);
                                                 const newItems = [...formData.items];
                                                 newItems[index] = { ...newItems[index], material: e.target.value, price: mat?.price || 0 };
                                                 setFormData({...formData, items: newItems});
@@ -403,7 +423,7 @@ const ERP = () => {
                                             <option value="">Select Material...</option>
                                             {materials
                                                 .filter(m => formData.type === 'Sales' || !formData.vendor || String(m.vendor?._id || m.vendor?.id || m.vendor) === String(formData.vendor))
-                                                .map(m => <option key={m._id} value={m._id}>{m.name} (${m.price})</option>)}
+                                                .map(m => <option key={m._id || m.id} value={m._id || m.id}>{m.name} (${m.price})</option>)}
                                         </select>
                                         <input 
                                             type="number" 

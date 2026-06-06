@@ -33,6 +33,34 @@ const createOrder = async (req, res) => {
         let initialStatus = 'Pending';
         const isSales = type === 'Sales' || !!customer;
 
+        // Verify customer exists if it's a Sales order
+        if (isSales && customer) {
+            let customerExists = null;
+            if (customerModel === 'Lead') {
+                const Lead = require('../models/Lead');
+                customerExists = await Lead.findById(customer);
+            } else {
+                customerExists = await Customer.findById(customer);
+            }
+            if (!customerExists) {
+                return res.status(400).json({ message: 'Selected customer/material does not exist.' });
+            }
+        }
+
+        // Verify materials exist
+        for (const item of items) {
+            if (!item.material) {
+                return res.status(400).json({ message: 'Selected customer/material does not exist.' });
+            }
+            const materialExists = await Material.findById(item.material);
+            if (!materialExists) {
+                return res.status(400).json({ message: 'Selected customer/material does not exist.' });
+            }
+            if (item.quantity == null || item.quantity <= 0) {
+                return res.status(400).json({ message: 'Invalid quantity.' });
+            }
+        }
+
         const createdOrder = await Order.create({
             orderNumber: orderNumber || `ORD-${Date.now().toString().slice(-6)}`,
             customer,
