@@ -116,40 +116,42 @@ const SalesPipeline = () => {
                                     </div>
                                     
                                     <div className="lead-card-actions">
-                                        {i > 0 && (
+                                        {i > 0 ? (
                                             <button 
                                                 className="status-nav-btn"
+                                                title="Move Back"
                                                 onClick={() => updateStatus(lead._id, stages[i-1].name)}
                                             >
                                                 <ChevronLeft size={16}/>
                                             </button>
-                                        )}
+                                        ) : ( <div style={{width: '24px'}}></div> )}
                                         
                                         <div className="terminal-actions">
                                             <button 
                                                 className="term-btn win" 
-                                                title="Won"
+                                                title="Mark Won"
                                                 onClick={() => updateStatus(lead._id, 'Won')}
                                             >
-                                                <CheckCircle size={14}/>
+                                                <CheckCircle size={16}/>
                                             </button>
                                             <button 
                                                 className="term-btn lose" 
-                                                title="Lost"
+                                                title="Mark Lost"
                                                 onClick={() => updateStatus(lead._id, 'Lost')}
                                             >
-                                                <XCircle size={14}/>
+                                                <XCircle size={16}/>
                                             </button>
                                         </div>
 
-                                        {i < stages.length - 1 && (
+                                        {i < stages.length - 1 ? (
                                             <button 
                                                 className="status-nav-btn"
+                                                title="Move Forward"
                                                 onClick={() => updateStatus(lead._id, stages[i+1].name)}
                                             >
                                                 <ChevronRight size={16}/>
                                             </button>
-                                        )}
+                                        ) : ( <div style={{width: '24px'}}></div> )}
                                     </div>
                                 </div>
                             ))}
@@ -179,66 +181,148 @@ const SalesPipeline = () => {
             </div>
 
             <style jsx="true">{`
-                .module-container { padding: 30px; }
-                .module-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px; }
+                .module-container { padding: 30px; display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+                .module-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; flex-shrink: 0; }
                 
-                .pipeline-summary { padding: 15px 25px; display: flex; flex-direction: column; gap: 5px; border-radius: 12px; }
-                .pipeline-summary strong { font-size: 24px; color: var(--primary); }
+                .pipeline-summary { padding: 12px 20px; display: flex; flex-direction: column; gap: 4px; border-radius: 12px; border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
+                .pipeline-summary span { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+                .pipeline-summary strong { font-size: 22px; color: var(--primary); font-weight: 800; line-height: 1; }
 
-                .pipeline-container { display: grid; grid-template-columns: repeat(6, 1fr); gap: 20px; align-items: start; }
-                .pipeline-stage { padding: 20px; display: flex; flex-direction: column; gap: 15px; min-height: 400px; }
-                .stage-head { display: flex; justify-content: space-between; align-items: center; }
-                .stage-head h3 { font-size: 14px; opacity: 0.9; }
-                .stage-count { background: rgba(255,255,255,0.05); padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 700; }
-                .stage-value { display: flex; align-items: center; gap: 8px; font-size: 18px; color: var(--text-main); }
-                
-                .lead-preview-stack { display: flex; flex-direction: column; gap: 12px; }
-                .lead-card { 
-                    background: rgba(255,255,255,0.03); 
-                    border-radius: 12px; 
-                    padding: 12px;
+                /* HORIZONTAL SCROLL FOR COLUMNS */
+                .pipeline-container { 
+                    display: flex; 
+                    gap: 24px; 
+                    overflow-x: auto; 
+                    overflow-y: hidden;
+                    padding-bottom: 15px; 
+                    flex: 1; 
+                    align-items: stretch;
+                    scrollbar-width: thin;
+                    scrollbar-color: var(--primary) transparent;
+                }
+                .pipeline-container::-webkit-scrollbar { height: 8px; }
+                .pipeline-container::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 4px; }
+                .pipeline-container::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
+
+                /* STANDARDIZED COLUMNS */
+                .pipeline-stage { 
+                    min-width: 320px; 
+                    width: 320px; 
+                    flex-shrink: 0; 
+                    display: flex; 
+                    flex-direction: column; 
+                    padding: 0;
+                    border-radius: 14px;
                     border: 1px solid var(--border);
-                    transition: 0.2s;
+                    background: var(--bg-card);
+                    box-shadow: var(--shadow-sm);
+                    overflow: hidden;
+                    height: calc(100vh - 280px);
+                    min-height: 450px;
                 }
-                .lead-card:hover { transform: translateY(-3px); background: rgba(255,255,255,0.05); }
                 
-                .lead-card-main { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-                .avatar-sm { 
-                    width: 32px; height: 32px; border-radius: 50%; 
-                    background: var(--primary-gradient); 
-                    display: flex; align-items: center; justify-content: center;
-                    font-weight: 700; font-size: 12px; color: white;
+                /* STICKY HEADER INSIDE COLUMNS */
+                .stage-head, .stage-value { 
+                    flex-shrink: 0; 
+                    padding: 16px 20px;
+                    background: rgba(255,255,255,0.02);
                 }
-                .lead-info h4 { font-size: 14px; margin-bottom: 2px; }
-                .lead-val { font-size: 12px; color: var(--primary); font-weight: 600; }
-
+                .stage-head { 
+                    display: flex; justify-content: space-between; align-items: center; 
+                    border-bottom: 1px dashed rgba(255,255,255,0.05);
+                }
+                .stage-head h3 { font-size: 15px; font-weight: 700; margin: 0; letter-spacing: 0.5px; text-transform: uppercase; }
+                .stage-count { background: var(--primary-50); color: var(--primary); padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; }
+                
+                .stage-value { 
+                    display: flex; align-items: center; gap: 8px; font-size: 20px; color: var(--text-main); 
+                    border-bottom: 1px solid var(--border);
+                    padding-top: 10px; padding-bottom: 15px;
+                }
+                
+                /* VERTICAL SCROLL WITHIN COLUMNS */
+                .lead-preview-stack { 
+                    flex: 1; 
+                    overflow-y: auto; 
+                    padding: 16px; 
+                    display: flex; 
+                    flex-direction: column; 
+                    gap: 16px; 
+                    scrollbar-width: thin;
+                }
+                .lead-preview-stack::-webkit-scrollbar { width: 4px; }
+                .lead-preview-stack::-webkit-scrollbar-track { background: transparent; }
+                .lead-preview-stack::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.3); border-radius: 4px; }
+                
+                /* IMPROVED LEAD CARD */
+                .lead-card { 
+                    background: var(--bg-body); 
+                    border-radius: 12px; 
+                    padding: 16px;
+                    border: 1px solid var(--border);
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                    position: relative;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+                }
+                .lead-card:hover { 
+                    transform: translateY(-4px); 
+                    box-shadow: 0 12px 24px rgba(99, 102, 241, 0.15); 
+                    border-color: var(--primary-100);
+                }
+                
+                .lead-card-main { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 16px; }
+                .avatar-sm { 
+                    width: 40px; height: 40px; border-radius: 10px; 
+                    background: linear-gradient(135deg, var(--primary), #8b5cf6); 
+                    display: flex; align-items: center; justify-content: center;
+                    font-weight: 800; font-size: 16px; color: white;
+                    box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+                    flex-shrink: 0;
+                }
+                .lead-info { flex: 1; min-width: 0; }
+                .lead-info h4 { font-size: 15px; margin: 0 0 4px 0; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+                .lead-val { font-size: 14px; color: var(--primary); font-weight: 700; margin: 0; }
+                
                 .lead-card-actions { 
                     display: flex; justify-content: space-between; align-items: center; 
-                    padding-top: 10px; border-top: 1px solid var(--border);
+                    padding-top: 14px; border-top: 1px dashed var(--border);
                 }
-                .status-nav-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px; border-radius: 4px; transition: 0.2s; }
-                .status-nav-btn:hover { background: rgba(255,255,255,0.1); color: white; }
+                .status-nav-btn { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-muted); cursor: pointer; width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+                .status-nav-btn:hover { background: var(--primary); color: white; border-color: var(--primary); transform: scale(1.1); }
 
-                .terminal-actions { display: flex; gap: 8px; }
-                .term-btn { background: none; border: none; cursor: pointer; padding: 4px; border-radius: 4px; transition: 0.2s; }
+                .terminal-actions { display: flex; gap: 12px; }
+                .term-btn { background: var(--bg-card); border: 1px solid var(--border); cursor: pointer; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
                 .term-btn.win { color: #10b981; }
                 .term-btn.lose { color: #ef4444; }
-                .term-btn:hover { background: rgba(255,255,255,0.1); }
+                .term-btn.win:hover { background: #10b981; color: white; border-color: #10b981; transform: scale(1.1) rotate(5deg); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
+                .term-btn.lose:hover { background: #ef4444; color: white; border-color: #ef4444; transform: scale(1.1) rotate(-5deg); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
 
                 .empty-stage-hint { 
-                    text-align: center; padding: 30px 10px; color: var(--text-muted); 
-                    font-size: 12px; border: 2px dashed var(--border); border-radius: 12px;
+                    text-align: center; padding: 40px 20px; color: var(--text-muted); 
+                    font-size: 13px; border: 2px dashed var(--border); border-radius: 12px;
+                    margin: auto 0; font-weight: 500;
                 }
                 
-                .pipeline-analytics-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-                .ana-box { display: flex; align-items: center; gap: 20px; padding: 25px; }
-                .ana-box h4 { font-size: 13px; color: var(--text-muted); margin-bottom: 5px; }
-                .ana-box p { font-size: 18px; font-weight: 700; color: var(--text-main); }
+                .pipeline-analytics-row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; flex-shrink: 0; }
+                .ana-box { display: flex; align-items: center; gap: 20px; padding: 24px; border-radius: 14px; box-shadow: var(--shadow-sm); }
+                .ana-box h4 { font-size: 14px; color: var(--text-muted); margin: 0 0 6px 0; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; }
+                .ana-box p { font-size: 22px; font-weight: 800; color: var(--text-main); margin: 0; line-height: 1; }
                 
                 .mt-30 { margin-top: 30px; }
                 
-                .animate-pop { animation: pop 0.3s ease-out; }
-                @keyframes pop { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+                .animate-pop { animation: pop 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+                @keyframes pop { from { opacity: 0; transform: translateY(10px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+                
+                @media (max-width: 1024px) {
+                    .pipeline-analytics-row { grid-template-columns: 1fr; }
+                    .module-container { padding: 20px; overflow: auto; }
+                    .pipeline-stage { height: 500px; }
+                }
+                @media (max-width: 768px) {
+                    .module-header { flex-direction: column; align-items: flex-start; }
+                    .pipeline-summary { width: 100%; }
+                    .pipeline-stage { min-width: 280px; width: 280px; }
+                }
             `}</style>
         </div>
     );
