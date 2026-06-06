@@ -281,7 +281,7 @@ const Payroll = () => {
                                     <div className="emp-cell">
                                         <div className="emp-avatar"><User size={14}/></div>
                                         <div>
-                                            <strong>{s.employee?.userId?.name || s.employee?.firstName || 'Unknown'}</strong>
+                                            <strong>{s.employee ? `${s.employee.firstName || ''} ${s.employee.lastName || ''}`.trim() : 'Unknown'}</strong>
                                             <p className="text-muted small">{s.employee?.department || 'N/A'}</p>
                                         </div>
                                     </div>
@@ -337,12 +337,12 @@ const Payroll = () => {
                             <div className="form-group">
                                 <label>Select Employee</label>
                                 <select required value={formData.employeeId} onChange={e => {
-                                    setFormData({...formData, employeeId: e.target.value, basicSalary: employees.find(emp => String(emp._id) === e.target.value)?.salary || formData.basicSalary});
+                                    setFormData({...formData, employeeId: e.target.value, basicSalary: employees.find(emp => String(emp._id || emp.id) === e.target.value)?.salary || formData.basicSalary});
                                     setCalcStats(null);
                                 }}>
                                     <option value="">Choose...</option>
                                     {employees.map(emp => (
-                                        <option key={emp._id} value={emp._id}>{emp.firstName} {emp.lastName || ''} ({emp.department})</option>
+                                        <option key={emp._id || emp.id} value={emp._id || emp.id}>{emp.firstName} {emp.lastName || ''} ({emp.department})</option>
                                     ))}
                                 </select>
                             </div>
@@ -419,7 +419,7 @@ const Payroll = () => {
                                     <User size={22} />
                                 </div>
                                 <div className="pay-emp-info">
-                                    <h4>{selectedSalary.employee?.userId?.name || selectedSalary.employee?.firstName || 'Employee'}</h4>
+                                    <h4>{selectedSalary.employee ? `${selectedSalary.employee.firstName || ''} ${selectedSalary.employee.lastName || ''}`.trim() || 'Employee' : 'Employee'}</h4>
                                     <span>{selectedSalary.employee?.department || 'N/A'} • {selectedSalary.month}</span>
                                 </div>
                                 <div className="pay-emp-amount">

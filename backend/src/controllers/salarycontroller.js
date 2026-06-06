@@ -251,8 +251,8 @@ const createSalaryRecord = async (req, res) => {
                 await broadcast({
                     targetUserId: empUserId,
                     targetOnly: true,
-                    title: `Payslip Available`,
-                    message: `Your payslip for ${month} is available for download.`,
+                    title: `Salary Processed`,
+                    message: `Your salary for ${month} has been processed successfully.`,
                     type: 'info',
                     category: 'hr'
                 });
