@@ -93,29 +93,33 @@ const checkIn = async (req, res) => {
 
         const checkInTime = new Date().toISOString();
 
+        const checkInDate = new Date(checkInTime);
+        const lateThreshold = new Date();
+        lateThreshold.setHours(9, 0, 0, 0); // 9:00 AM threshold
+        const calculatedStatus = checkInDate > lateThreshold ? 'Late' : 'Present';
+
         if (attendance) {
             attendance.checkIn = checkInTime;
+            if (!attendance.status || attendance.status === 'Pending' || attendance.status === 'Absent') {
+                attendance.status = calculatedStatus;
+            }
             await attendance.save();
         } else {
-            // Determine status based on check-in time (late after 9:00 AM)
-            const checkInDate = new Date(checkInTime);
-            const lateThreshold = new Date();
-            lateThreshold.setHours(9, 0, 0, 0); // 9:00 AM threshold
-            const status = checkInDate > lateThreshold ? 'Late' : 'Present';
             attendance = await Attendance.create({
                 employeeId: empId,
                 date: today,
                 checkIn: checkInTime,
-                status: status,
-                // Determine shift: Day (06:00-18:00) or Night
+                status: calculatedStatus,
                 shift: (new Date(checkInTime).getHours() >= 6 && new Date(checkInTime).getHours() < 18) ? 'Day' : 'Night'
             });
         }
 
+        const finalStatus = attendance.status || calculatedStatus;
+
         await notifyHR({
             title: 'Employee Check-In',
-            message: `${employee.firstName} ${employee.lastName || ''} checked in at ${new Date(checkInTime).toLocaleTimeString()}. Status: ${status}`,
-            type: status === 'Late' ? 'warning' : 'info'
+            message: `${employee.firstName} ${employee.lastName || ''} checked in at ${new Date(checkInTime).toLocaleTimeString()}. Status: ${finalStatus}`,
+            type: finalStatus === 'Late' ? 'warning' : 'info'
         });
 
         res.status(201).json(attendance);
