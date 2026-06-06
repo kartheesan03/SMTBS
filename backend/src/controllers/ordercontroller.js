@@ -25,7 +25,7 @@ const getOrders = async (req, res) => {
 // @access  Private
 const createOrder = async (req, res) => {
     try {
-        const { customer, customerModel, vendor, items, totalAmount, status, orderNumber, type } = req.body;
+        const { customer, customerModel, vendor, items, totalAmount, status, orderNumber, orderType } = req.body;
         
         if ((!customer && !vendor) || !items || items.length === 0) {
             return res.status(400).json({ message: 'Please provide customer/vendor and items' });
@@ -33,7 +33,7 @@ const createOrder = async (req, res) => {
 
         // Determine initial status based on role and type
         let initialStatus = 'Pending';
-        const isSales = type === 'Sales' || !!customer;
+        const isSales = orderType === 'sales' || !!customer;
 
         // Verify customer exists if it's a Sales order
         if (isSales) {
@@ -74,7 +74,7 @@ const createOrder = async (req, res) => {
             items,
             totalAmount,
             status: initialStatus,
-            type: type || (isSales ? 'Sales' : 'Purchase'),
+            orderType: orderType || (isSales ? 'sales' : 'purchase'),
             createdById: req.user._id || null
         });
 
@@ -94,7 +94,7 @@ const createOrder = async (req, res) => {
             });
         } else {
             await broadcast({
-                title: `New Order: ${createdOrder.orderNumber}`,
+                title: isSales ? 'New Sales Order Created' : 'New Purchase Order Created',
                 message: `Order ${createdOrder.orderNumber} was created successfully.`,
                 type: 'info',
                 category: 'order',
@@ -110,14 +110,14 @@ const createOrder = async (req, res) => {
 };
 
 // Helper to update stock
-const updateStock = async (items, type = 'Sales') => {
+const updateStock = async (items, updateOrderType = 'sales') => {
     for (const item of items) {
         const material = await Material.findById(item.material);
         if (material) {
-            if (type === 'Sales') {
+            if (updateOrderType === 'sales') {
                 material.quantity -= item.quantity;
                 if (material.quantity < 0) material.quantity = 0;
-            } else if (type === 'Purchase') {
+            } else if (updateOrderType === 'purchase') {
                 material.quantity += item.quantity;
             }
             await material.save();
@@ -148,18 +148,18 @@ const updateOrderStatus = async (req, res) => {
         const inactiveStates = ['Awaiting Stock Check', 'Awaiting Approval', 'Pending', 'Low Stock Alert'];
         
         // For Sales: Deduct stock when moving from inactive to active
-        if (order.type === 'Sales' && activeStates.includes(status) && inactiveStates.includes(prevStatus)) {
-            await updateStock(order.items, 'Sales');
+        if (order.orderType === 'sales' && activeStates.includes(status) && inactiveStates.includes(prevStatus)) {
+            await updateStock(order.items, 'sales');
         }
         
         // For Purchase: Add stock when moving to Delivered or Received
         const purchaseFinalStates = ['Delivered', 'Received', 'Completed'];
-        if (order.type === 'Purchase' && purchaseFinalStates.includes(status) && !purchaseFinalStates.includes(prevStatus)) {
-            await updateStock(order.items, 'Purchase');
+        if (order.orderType === 'purchase' && purchaseFinalStates.includes(status) && !purchaseFinalStates.includes(prevStatus)) {
+            await updateStock(order.items, 'purchase');
         }
 
         // 1.5 Update Vendor Status if applicable
-        if (order.type === 'Purchase' && order.vendor) {
+        if (order.orderType === 'purchase' && order.vendor) {
             try {
                 const Vendor = require('../models/Vendor');
                 const vendorObj = await Vendor.findById(order.vendor);

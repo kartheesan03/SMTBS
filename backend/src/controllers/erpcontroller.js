@@ -13,7 +13,7 @@ const getERPStats = async (req, res) => {
         let purchaseStatusCounts = {};
         
         orders.forEach(o => {
-            if (o.type === 'Purchase') {
+            if (o.orderType === 'purchase') {
                 totalPurchaseOrders++;
                 if (['Pending', 'Awaiting Approval'].includes(o.status)) {
                     pendingInvoices++;

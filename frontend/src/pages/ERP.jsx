@@ -16,12 +16,11 @@ const ERP = () => {
     const [showModal, setShowModal] = useState(false);
     const [customers, setCustomers] = useState([]);
     const [materials, setMaterials] = useState([]);
-    const [vendors, setVendors] = useState([]);
     const [formData, setFormData] = useState({
         customer: '',
         vendor: '',
         status: 'Pending',
-        type: 'Sales',
+        orderType: 'sales',
         items: [{ material: '', quantity: 1, price: 0 }]
     });
 
@@ -75,7 +74,7 @@ const ERP = () => {
     const handleCreateOrder = async (e) => {
         e.preventDefault();
         try {
-            if (formData.type === 'Sales') {
+            if (formData.orderType === 'sales') {
                 const custExists = customers.find(c => String(c.id || c._id) === String(formData.customer));
                 if (!custExists) {
                     alert("Selected customer/material does not exist.");
@@ -107,7 +106,7 @@ const ERP = () => {
 
             await API.post('/orders', payload);
             setShowModal(false);
-            setFormData({ customer: '', vendor: '', status: 'Pending', type: 'Sales', items: [{ material: '', quantity: 1, price: 0 }] });
+            setFormData({ customer: '', vendor: '', status: 'Pending', orderType: 'sales', items: [{ material: '', quantity: 1, price: 0 }] });
             fetchData();
         } catch (err) {
             alert(err.response?.data?.message || 'Error creating order');
@@ -147,7 +146,7 @@ const ERP = () => {
     ];
 
     const recentPurchaseOrders = orders
-        .filter(o => o.type === 'Purchase' || o.vendor)
+        .filter(o => o.orderType === 'purchase' || o.vendor)
         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
         .slice(0, 4);
 
@@ -291,6 +290,7 @@ const ERP = () => {
                     <thead>
                         <tr>
                             <th>Order ID</th>
+                            <th>Order Type</th>
                             <th>Customer</th>
                             <th>Amount</th>
                             <th>Date</th>
@@ -318,6 +318,13 @@ const ERP = () => {
                             return (
                                 <tr key={ord._id}>
                                     <td><code className="po-code">{ord.orderNumber}</code></td>
+                                    <td>
+                                        {ord.orderType === 'purchase' ? (
+                                            <span className="order-type-badge purchase">Purchase Order</span>
+                                        ) : (
+                                            <span className="order-type-badge sales">Sales Order</span>
+                                        )}
+                                    </td>
                                     <td className="vendor-name-cell">{ord.customer?.name || ord.vendor?.name || 'Walk-in'}</td>
                                     <td><strong>${ord.totalAmount?.toLocaleString()}</strong></td>
                                     <td>{new Date(ord.createdAt).toLocaleDateString()}</td>
@@ -381,15 +388,15 @@ const ERP = () => {
                         <form onSubmit={handleCreateOrder} className="modal-form">
                             <div className="form-group">
                                 <label>Order Type</label>
-                                <select required value={formData.type} onChange={e => {
-                                    setFormData({...formData, type: e.target.value, customer: '', vendor: '', items: [{ material: '', quantity: 1, price: 0 }]});
+                                <select required value={formData.orderType} onChange={e => {
+                                    setFormData({...formData, orderType: e.target.value, customer: '', vendor: '', items: [{ material: '', quantity: 1, price: 0 }]});
                                 }}>
-                                    <option value="Sales">Sales Order</option>
-                                    <option value="Purchase">Purchase Order</option>
+                                    <option value="sales">Sales Order</option>
+                                    <option value="purchase">Purchase Order</option>
                                 </select>
                             </div>
 
-                            {formData.type === 'Sales' ? (
+                            {formData.orderType === 'sales' ? (
                                 <div className="form-group">
                                     <label>Select Customer</label>
                                     <select required value={formData.customer} onChange={e => setFormData({...formData, customer: e.target.value})}>
@@ -425,7 +432,7 @@ const ERP = () => {
                                         >
                                             <option value="">Select Material...</option>
                                             {materials
-                                                .filter(m => formData.type === 'Sales' || !formData.vendor || String(m.vendor?.id || m.vendor?._id || m.vendor) === String(formData.vendor))
+                                                .filter(m => formData.orderType === 'sales' || !formData.vendor || String(m.vendor?.id || m.vendor?._id || m.vendor) === String(formData.vendor))
                                                 .map(m => <option key={m.id || m._id} value={m.id || m._id}>{m.name} (${m.price})</option>)}
                                         </select>
                                         <input 
@@ -795,6 +802,17 @@ const ERP = () => {
                     background-color: var(--bg-hover);
                 }
                 
+                .order-type-badge {
+                    font-size: 11px;
+                    font-weight: 700;
+                    padding: 4px 10px;
+                    border-radius: 20px;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                }
+                .order-type-badge.purchase { background-color: rgba(59, 130, 246, 0.1); color: #3b82f6; } /* Blue/orange style */
+                .order-type-badge.sales { background-color: rgba(16, 185, 129, 0.1); color: #10b981; } /* Green/purple style */
+
                 .status-select-premium {
                     background: var(--bg-body);
                     border: 1px solid var(--border);

@@ -41,8 +41,8 @@ const OrderSequelize = sequelize.define('Order', {
         type: DataTypes.ENUM('Awaiting Approval', 'Approved', 'Pending', 'Confirmed', 'Shipped', 'Delivered', 'Cancelled', 'Awaiting Stock Check', 'Ready for Delivery', 'Low Stock Alert'),
         defaultValue: 'Pending'
     },
-    type: {
-        type: DataTypes.ENUM('Purchase', 'Sales'),
+    orderType: {
+        type: DataTypes.ENUM('purchase', 'sales'),
         allowNull: false
     },
     createdById: {

@@ -101,12 +101,12 @@ const Reports = () => {
                 });
             } else if (reportName === 'Vendor Procurement Log') {
                 const rows = (stats?.tables?.recentOrders || []).map(o => [
-                    o.orderNumber || 'N/A', o.customer?.name || 'Walk-in',
+                    o.orderNumber || 'N/A', o.orderType || 'N/A', o.customer?.name || 'Walk-in',
                     o.totalAmount || 0, o.status || 'Pending'
                 ]);
                 autoTable(doc, {
                     startY: 40,
-                    head: [['Order#', 'Customer', 'Amount', 'Status']],
+                    head: [['Order#', 'Order Type', 'Customer', 'Amount', 'Status']],
                     body: rows,
                 });
             }
@@ -168,12 +168,12 @@ const Reports = () => {
                 data = allData.filter(d => new Date(d.createdAt) >= fromDate && new Date(d.createdAt) <= toDateEnd);
                 
                 if (customReport.type === 'Revenue Summary') {
-                    const salesOrders = data.filter(o => o.type === 'Sales' && o.status !== 'Cancelled');
+                    const salesOrders = data.filter(o => o.orderType === 'sales' && o.status !== 'Cancelled');
                     head = [['Order#', 'Date', 'Customer', 'Amount', 'Status']];
                     rows = salesOrders.map(o => [o.orderNumber, new Date(o.createdAt).toLocaleDateString(), o.customer?.name || 'Walk-in', `$${o.totalAmount}`, o.status]);
                 } else {
                     head = [['Order#', 'Type', 'Date', 'Amount', 'Status']];
-                    rows = data.map(o => [o.orderNumber, o.type || 'Sales', new Date(o.createdAt).toLocaleDateString(), `$${o.totalAmount}`, o.status]);
+                    rows = data.map(o => [o.orderNumber, o.orderType || 'sales', new Date(o.createdAt).toLocaleDateString(), `$${o.totalAmount}`, o.status]);
                 }
             } else if (customReport.type === 'Inventory Report') {
                 const res = await API.get('/materials');
