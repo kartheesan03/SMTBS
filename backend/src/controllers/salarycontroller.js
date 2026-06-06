@@ -69,6 +69,25 @@ const approveSalaryRecord = async (req, res) => {
         if (salary) {
             salary.status = 'Approved';
             const updatedSalary = await salary.save();
+
+            // Create notification for the employee
+            try {
+                const employee = await Employee.findById(salary.employeeId);
+                if (employee && employee.userId) {
+                    const empUserId = employee.userIdField || employee.userId;
+                    await broadcast({
+                        targetUserId: empUserId,
+                        targetOnly: true,
+                        title: `Salary Approved: ${salary.month}`,
+                        message: `Your salary record for ${salary.month} has been approved.`,
+                        type: 'info',
+                        category: 'hr'
+                    });
+                }
+            } catch (notifErr) {
+                console.error('Error creating approve salary notification:', notifErr.message);
+            }
+
             res.json(updatedSalary);
         } else {
             res.status(404).json({ message: 'Salary record not found' });
@@ -114,7 +133,7 @@ const paySalaryRecord = async (req, res) => {
                 const empUserId = employee.userIdField || employee.userId;
                 await broadcast({
                     targetUserId: empUserId,
-                    targetRoles: [],
+                    targetOnly: true,
                     title: `Salary Paid: ${salary.month}`,
                     message: `Your salary of ₹${salary.netSalary.toLocaleString()} for ${salary.month} has been disbursed. Transaction ID: ${txnId}${paymentMethod ? '. Payment via ' + paymentMethod : ''}.`,
                     type: 'success',
@@ -179,7 +198,7 @@ const payAllApproved = async (req, res) => {
                     const empUserId = employee.userIdField || employee.userId;
                     await broadcast({
                         targetUserId: empUserId,
-                        targetRoles: [],
+                        targetOnly: true,
                         title: `Salary Paid: ${salary.month}`,
                         message: `Your salary of ₹${salary.netSalary.toLocaleString()} for ${salary.month} has been disbursed. Transaction ID: ${txnId}.`,
                         type: 'success',
@@ -222,11 +241,22 @@ const createSalaryRecord = async (req, res) => {
             status: 'Awaiting Approval'
         });
         
-        await notifyHR({
-            title: 'Salary Record Created',
-            message: `A new salary record for ${month} is awaiting approval.`,
-            type: 'info'
-        });
+        try {
+            const employee = await Employee.findById(employeeId);
+            if (employee && employee.userId) {
+                const empUserId = employee.userIdField || employee.userId;
+                await broadcast({
+                    targetUserId: empUserId,
+                    targetOnly: true,
+                    title: `Salary Processed: ${month}`,
+                    message: `Your salary record for ${month} has been generated and is awaiting approval.`,
+                    type: 'info',
+                    category: 'hr'
+                });
+            }
+        } catch (notifErr) {
+            console.error('Error creating salary process notification:', notifErr.message);
+        }
 
         res.status(201).json(salary);
     } catch (error) {

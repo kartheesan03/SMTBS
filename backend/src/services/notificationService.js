@@ -12,39 +12,42 @@ const User = require('../models/User');
  * @param {String} [params.targetUserId] - Specific user ID to notify (e.g. the employee whose leave was approved)
  * @param {Boolean} [params.isCritical] - If true, notifies all Admins and Managers
  * @param {String} [params.link] - Optional link
+ * @param {Boolean} [params.targetOnly] - If true, ONLY sends to targetUserId
  */
-const broadcast = async ({ title, message, type = 'info', category = 'general', targetRoles = [], targetUserId = null, isCritical = false, link = null }) => {
+const broadcast = async ({ title, message, type = 'info', category = 'general', targetRoles = [], targetUserId = null, isCritical = false, link = null, targetOnly = false }) => {
     try {
-        let rolesToNotify = new Set(Array.isArray(targetRoles) ? targetRoles : [targetRoles]);
-        rolesToNotify.add('Admin'); // Admin gets everything
-
-        if (isCritical) {
-            rolesToNotify.add('Manager');
-            rolesToNotify.add('Admin');
-        }
-
-        const rolesArray = Array.from(rolesToNotify);
-
-        // Find users matching roles
-        const users = await User.find({ role: { $in: rolesArray }, active: true });
-        
         const notificationsToCreate = [];
         const notifiedUserIds = new Set();
 
-        // Create for target roles
-        for (const user of users) {
-            const uId = String(user._id || user.id);
-            if (!notifiedUserIds.has(uId)) {
-                notificationsToCreate.push({
-                    title,
-                    message,
-                    type,
-                    category,
-                    userId: user._id || user.id, // Keep original numeric type
-                    isRead: false,
-                    link
-                });
-                notifiedUserIds.add(uId);
+        if (!targetOnly) {
+            let rolesToNotify = new Set(Array.isArray(targetRoles) ? targetRoles : [targetRoles]);
+            rolesToNotify.add('Admin'); // Admin gets everything
+
+            if (isCritical) {
+                rolesToNotify.add('Manager');
+                rolesToNotify.add('Admin');
+            }
+
+            const rolesArray = Array.from(rolesToNotify);
+
+            // Find users matching roles
+            const users = await User.find({ role: { $in: rolesArray }, active: true });
+            
+            // Create for target roles
+            for (const user of users) {
+                const uId = String(user._id || user.id);
+                if (!notifiedUserIds.has(uId)) {
+                    notificationsToCreate.push({
+                        title,
+                        message,
+                        type,
+                        category,
+                        userId: user._id || user.id, // Keep original numeric type
+                        isRead: false,
+                        link
+                    });
+                    notifiedUserIds.add(uId);
+                }
             }
         }
 
