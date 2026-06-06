@@ -137,6 +137,10 @@ const ERP = () => {
         ? orders 
         : orders.filter(o => o.status === statusFilter);
 
+    const hasSales = filteredOrders.some(o => o.orderType === 'sales');
+    const hasPurchase = filteredOrders.some(o => o.orderType === 'purchase');
+    const customerVendorHeader = (hasSales && hasPurchase) ? 'Customer / Vendor' : (hasPurchase ? 'Vendor' : 'Customer');
+
     // Purchase Order summary donut data from API
     const poSummaryData = erpStats.orderSummary && erpStats.orderSummary.length > 0 ? erpStats.orderSummary : [
         { name: 'Draft', value: 0, percentage: '0%', color: '#2563eb' },
@@ -291,7 +295,7 @@ const ERP = () => {
                         <tr>
                             <th>Order ID</th>
                             <th>Order Type</th>
-                            <th>Customer</th>
+                            <th>{customerVendorHeader}</th>
                             <th>Amount</th>
                             <th>Date</th>
                             <th>Last Updated By</th>
@@ -325,7 +329,9 @@ const ERP = () => {
                                             <span className="order-type-badge sales">Sales Order</span>
                                         )}
                                     </td>
-                                    <td className="vendor-name-cell">{ord.customer?.name || ord.vendor?.name || 'Walk-in'}</td>
+                                    <td className="vendor-name-cell">
+                                        {ord.orderType === 'purchase' ? (ord.vendor?.name || 'Walk-in Vendor') : (ord.customer?.name || 'Walk-in Customer')}
+                                    </td>
                                     <td><strong>${ord.totalAmount?.toLocaleString()}</strong></td>
                                     <td>{new Date(ord.createdAt).toLocaleDateString()}</td>
                                     <td>

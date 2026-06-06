@@ -106,13 +106,13 @@ const ManagerDashboard = () => {
             <section className="orders-overview-m mt-30">
                 <DataTable 
                     title="Active Projects & Orders"
-                    headers={['Order ID', 'Customer', 'Progress', 'Deadline', 'Status']}
+                    headers={['Order ID', 'Customer / Vendor', 'Progress', 'Deadline', 'Status']}
                     data={data?.tables?.recentOrders || []}
                     renderRow={(o) => (
                         <>
                         <>
                             <td><span className="id-font">{o.orderNumber}</span></td>
-                            <td>{o.customer?.name || 'Walk-in'}</td>
+                            <td>{o.orderType === 'purchase' ? (o.vendor?.name || 'Walk-in Vendor') : (o.customer?.name || 'Walk-in Customer')}</td>
                             <td>
                                 <div className="progress-cell">
                                     <div className="p-bar"><div className="p-fill" style={{width: `100%`}}></div></div>

@@ -101,12 +101,12 @@ const Reports = () => {
                 });
             } else if (reportName === 'Vendor Procurement Log') {
                 const rows = (stats?.tables?.recentOrders || []).map(o => [
-                    o.orderNumber || 'N/A', o.orderType || 'N/A', o.customer?.name || 'Walk-in',
+                    o.orderNumber || 'N/A', o.orderType || 'N/A', o.vendor?.name || 'Walk-in Vendor',
                     o.totalAmount || 0, o.status || 'Pending'
                 ]);
                 autoTable(doc, {
                     startY: 40,
-                    head: [['Order#', 'Order Type', 'Customer', 'Amount', 'Status']],
+                    head: [['Order#', 'Order Type', 'Vendor', 'Amount', 'Status']],
                     body: rows,
                 });
             }
@@ -170,10 +170,14 @@ const Reports = () => {
                 if (customReport.type === 'Revenue Summary') {
                     const salesOrders = data.filter(o => o.orderType === 'sales' && o.status !== 'Cancelled');
                     head = [['Order#', 'Date', 'Customer', 'Amount', 'Status']];
-                    rows = salesOrders.map(o => [o.orderNumber, new Date(o.createdAt).toLocaleDateString(), o.customer?.name || 'Walk-in', `$${o.totalAmount}`, o.status]);
+                    rows = salesOrders.map(o => [o.orderNumber, new Date(o.createdAt).toLocaleDateString(), o.customer?.name || 'Walk-in Customer', `$${o.totalAmount}`, o.status]);
                 } else {
-                    head = [['Order#', 'Type', 'Date', 'Amount', 'Status']];
-                    rows = data.map(o => [o.orderNumber, o.orderType || 'sales', new Date(o.createdAt).toLocaleDateString(), `$${o.totalAmount}`, o.status]);
+                    const hasSales = data.some(o => o.orderType === 'sales');
+                    const hasPurchase = data.some(o => o.orderType === 'purchase');
+                    const customerVendorHeader = (hasSales && hasPurchase) ? 'Customer / Vendor' : (hasPurchase ? 'Vendor' : 'Customer');
+
+                    head = [['Order#', 'Type', 'Date', customerVendorHeader, 'Amount', 'Status']];
+                    rows = data.map(o => [o.orderNumber, o.orderType || 'sales', new Date(o.createdAt).toLocaleDateString(), o.orderType === 'purchase' ? (o.vendor?.name || 'Walk-in Vendor') : (o.customer?.name || 'Walk-in Customer'), `$${o.totalAmount}`, o.status]);
                 }
             } else if (customReport.type === 'Inventory Report') {
                 const res = await API.get('/materials');
