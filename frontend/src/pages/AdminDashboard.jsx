@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useContext, useCallback } from 'react';
 import API from '../api/axios';
 import { AuthContext } from '../context/AuthContext';
+import { NotificationContext } from '../context/NotificationContext';
 import { useNavigate } from 'react-router-dom';
 import { 
     ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, 
@@ -17,6 +18,7 @@ import {
 
 const AdminDashboard = () => {
     const { user } = useContext(AuthContext);
+    const { unreadCount, notifications } = useContext(NotificationContext);
     const navigate = useNavigate();
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -135,7 +137,7 @@ const AdminDashboard = () => {
                         </div>
                         <div className="notification-bell" onClick={() => navigate('/notifications')} style={{ cursor: 'pointer' }} title="View Notifications">
                             <Bell size={20} />
-                            <span className="bell-badge">5</span>
+                            {unreadCount > 0 && <span className="bell-badge">{unreadCount}</span>}
                         </div>
                         <div className="user-profile-menu" onClick={() => navigate('/settings')} style={{ cursor: 'pointer' }} title="Account Settings">
                             <img src={`https://ui-avatars.com/api/?name=${user?.name || 'Admin'}&background=eff6ff&color=2563eb`} alt="Profile" />
@@ -342,9 +344,9 @@ const AdminDashboard = () => {
                             <span className="view-all-link" onClick={() => navigate('/notifications')} style={{ cursor: 'pointer' }}>View All</span>
                         </div>
                         <div className="activity-list">
-                            {(data?.tables?.recentActivity || []).length > 0 ? (
-                                (data?.tables?.recentActivity || []).map((activity) => (
-                                    <div key={activity.id} className="activity-item">
+                            {(notifications || []).length > 0 ? (
+                                (notifications || []).slice(0, 5).map((activity) => (
+                                    <div key={activity._id || activity.id} className="activity-item">
                                         <div className={`activity-icon ${activity.type === 'success' ? 'green-act' : activity.type === 'warning' ? 'orange-act' : 'blue-act'}`}>
                                             {activity.category === 'hr' ? <UserPlus size={14} /> :
                                              activity.category === 'order' ? <Package size={14} /> :
@@ -352,8 +354,8 @@ const AdminDashboard = () => {
                                              <Activity size={14} />}
                                         </div>
                                         <div className="activity-details">
-                                            <p className="activity-text">{activity.text}</p>
-                                            <span className="activity-time">{new Date(activity.time).toLocaleString()}</span>
+                                            <p className="activity-text">{activity.title || activity.message}</p>
+                                            <span className="activity-time">{new Date(activity.createdAt).toLocaleString()}</span>
                                         </div>
                                     </div>
                                 ))

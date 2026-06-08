@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useContext } from 'react';
+import { NotificationContext } from '../context/NotificationContext';
 import API from '../api/axios';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -24,9 +25,8 @@ const TYPE_COLOR = {
 };
 
 const NotificationsPage = () => {
-    const [notifications, setNotifications] = useState([]);
-    const [unreadCount, setUnreadCount]     = useState(0);
-    const [loading, setLoading]             = useState(true);
+    const { notifications, unreadCount, fetchNotifications, markAsRead, markAllAsRead, deleteNotification } = useContext(NotificationContext);
+    
     const [seeding, setSeeding]             = useState(false);
     const [filter, setFilter]               = useState('all'); // 'all' | 'unread' | 'read'
     const [toast, setToast]                 = useState(null); // { msg, ok }
@@ -38,59 +38,31 @@ const NotificationsPage = () => {
         setTimeout(() => setToast(null), 3000);
     };
 
-    const fetchNotifications = useCallback(async () => {
-        try {
-            setLoading(true);
-            const { data } = await API.get('/notifications');
-            setNotifications(data.notifications);
-            setUnreadCount(data.unreadCount);
-        } catch (err) {
-            showToast(err.response?.data?.message || 'Failed to load notifications.', false);
-        } finally {
-            setLoading(false);
-        }
-    }, []);
-
-    useEffect(() => {
-        fetchNotifications();
-    }, [fetchNotifications]);
-
     // ─── actions ─────────────────────────────────────────────────────────────
     const handleMarkOne = async (id) => {
         try {
-            await API.put(`/notifications/${id}/read`);
-            setNotifications(prev =>
-                prev.map(n => n._id === id ? { ...n, isRead: true } : n)
-            );
-            setUnreadCount(prev => Math.max(0, prev - 1));
+            await markAsRead(id);
             showToast('Notification marked as read.');
         } catch (err) {
-            showToast(err.response?.data?.message || 'Failed to mark as read.', false);
+            showToast('Failed to mark as read.', false);
         }
     };
 
     const handleMarkAll = async () => {
         try {
-            await API.put('/notifications/mark-all-read');
-            setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
-            setUnreadCount(0);
+            await markAllAsRead();
             showToast('All notifications marked as read.');
         } catch (err) {
-            showToast(err.response?.data?.message || 'Failed to mark all as read.', false);
+            showToast('Failed to mark all as read.', false);
         }
     };
 
     const handleDelete = async (id) => {
         try {
-            await API.delete(`/notifications/${id}`);
-            const removed = notifications.find(n => n._id === id);
-            setNotifications(prev => prev.filter(n => n._id !== id));
-            if (removed && !removed.isRead) {
-                setUnreadCount(prev => Math.max(0, prev - 1));
-            }
+            await deleteNotification(id);
             showToast('Notification deleted.');
         } catch (err) {
-            showToast(err.response?.data?.message || 'Failed to delete.', false);
+            showToast('Failed to delete.', false);
         }
     };
 
@@ -203,12 +175,7 @@ const NotificationsPage = () => {
             </div>
 
             {/* ── List ── */}
-            {loading ? (
-                <div className="n-loading">
-                    <Loader size={32} className="spin" />
-                    <p>Loading notifications…</p>
-                </div>
-            ) : displayed.length === 0 ? (
+            {displayed.length === 0 ? (
                 <div className="n-empty glass-card">
                     <BellOff size={40} />
                     <p>

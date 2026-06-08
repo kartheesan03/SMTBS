@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback, useContext } from 'react';
 import API from '../api/axios';
 import { AuthContext } from '../context/AuthContext';
+import { NotificationContext } from '../context/NotificationContext';
 import { ResponsiveContainer, BarChart, Bar, XAxis, Tooltip } from 'recharts';
 import {
     CheckCircle, Clock, Calendar, FileText,
@@ -11,12 +12,12 @@ import { useNavigate } from 'react-router-dom';
 
 function EmployeeDashboard() {
     const { user } = useContext(AuthContext);
+    const { unreadCount: unread } = useContext(NotificationContext);
     const navigate = useNavigate();
 
     const [status, setStatus] = useState(null); // today's attendance record
     const [history, setHistory] = useState([]); // last 7 attendance records
     const [balance, setBalance] = useState(null); // leave balance
-    const [unread, setUnread] = useState(0); // notification count
     const [myLeaves, setMyLeaves] = useState([]); // recent leave requests
     const [salary, setSalary] = useState(null); // latest salary
     const [loading, setLoading] = useState(true);
@@ -76,18 +77,16 @@ function EmployeeDashboard() {
     // ── fetch all data ───────────────────────────────────────────────────────
     const fetchAll = useCallback(async () => {
         try {
-            const [statusRes, histRes, balRes, notifRes, leavesRes, salRes] = await Promise.all([
+            const [statusRes, histRes, balRes, leavesRes, salRes] = await Promise.all([
                 API.get('/attendance/status'),
                 API.get('/attendance/my-history'),
                 API.get('/leaves/balance'),
-                API.get('/notifications'),
                 API.get('/leaves/my'),
                 API.get('/salaries/summary')
             ]);
             setStatus(statusRes.data);
             setHistory(Array.isArray(histRes.data) ? histRes.data : []);
             setBalance(balRes.data?.balance || null);
-            setUnread(notifRes.data?.unreadCount || 0);
             setMyLeaves(Array.isArray(leavesRes.data) ? leavesRes.data.slice(0, 5) : []);
             setSalary(salRes.data);
         } catch (err) {

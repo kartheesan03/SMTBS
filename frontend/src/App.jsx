@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthContext, AuthProvider } from './context/AuthContext';
+import { NotificationProvider } from './context/NotificationContext';
 import Sidebar from './components/Sidebar';
 import ProtectedRoute from './components/ProtectedRoute';
 import { Menu, X } from 'lucide-react';
@@ -203,9 +204,11 @@ const AppContent = () => {
 const App = () => {
     return (
         <AuthProvider>
-            <Router>
-                <AppContent />
-            </Router>
+            <NotificationProvider>
+                <Router>
+                    <AppContent />
+                </Router>
+            </NotificationProvider>
         </AuthProvider>
     );
 };

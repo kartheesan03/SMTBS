@@ -1,6 +1,7 @@
 import React, { useContext, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { NotificationContext } from '../context/NotificationContext';
 import { 
     LayoutDashboard, 
     Box, 
@@ -21,6 +22,7 @@ import {
 
 const Sidebar = ({ logout, isOpen, onClose }) => {
     const { user } = useContext(AuthContext);
+    const { unreadCount } = useContext(NotificationContext);
     const location = useLocation();
 
     // Close sidebar on route change on mobile
@@ -144,6 +146,9 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                     >
                         <span className="item-icon-wrapper">{item.icon}</span>
                         <span className="item-name">{item.name}</span>
+                        {item.name === 'Notifications' && unreadCount > 0 && (
+                            <span className="sidebar-badge">{unreadCount}</span>
+                        )}
                         {/* Nested style chevrons for items like Dashboard, ERP, CRM to match reference image */}
                         {(item.name === 'Dashboard' || item.name === 'Orders (ERP)' || item.name === 'Customers (CRM)' || item.name === 'Reports & Analytics') && (
                             <span className="chevron-indicator">▾</span>
@@ -295,6 +300,15 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                 .chevron-indicator {
                     font-size: 12px;
                     color: var(--text-muted);
+                    margin-left: auto;
+                }
+                .sidebar-badge {
+                    background: var(--danger, #ef4444);
+                    color: white;
+                    font-size: 10px;
+                    font-weight: 800;
+                    padding: 2px 6px;
+                    border-radius: 10px;
                     margin-left: auto;
                 }
                 

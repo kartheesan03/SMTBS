@@ -1,7 +1,7 @@
-import React, { useContext, useEffect, useState, useCallback } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
+import { NotificationContext } from '../context/NotificationContext';
 import { useNavigate } from 'react-router-dom';
-import API from '../api/axios';
 import {
     User, Calendar, Bell, Clock, CheckCircle, AlertTriangle,
     Package, ShoppingCart, Users, DollarSign, FileText, Plus,
@@ -11,27 +11,10 @@ import {
 
 const RightPanel = ({ isOpen, onClose }) => {
     const { user } = useContext(AuthContext);
+    const { notifications } = useContext(NotificationContext);
     const navigate = useNavigate();
-    const [notifications, setNotifications] = useState([]);
     const [currentDate] = useState(new Date());
     const [calendarMonth, setCalendarMonth] = useState(new Date());
-
-    // Fetch recent notifications for activity feed
-    const fetchNotifications = useCallback(async () => {
-        try {
-            const { data } = await API.get('/notifications');
-            const notifList = data?.notifications || data || [];
-            setNotifications(Array.isArray(notifList) ? notifList.slice(0, 5) : []);
-        } catch (err) {
-            // Silently fail — panel still renders
-        }
-    }, []);
-
-    useEffect(() => {
-        fetchNotifications();
-        const interval = setInterval(fetchNotifications, 60000); // refresh every minute
-        return () => clearInterval(interval);
-    }, [fetchNotifications]);
 
     // Calendar helpers
     const getDaysInMonth = (date) => new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
@@ -201,13 +184,13 @@ const RightPanel = ({ isOpen, onClose }) => {
                         </button>
                     </div>
                     <div className="rp-activity-list">
-                        {notifications.length === 0 ? (
+                        {(!notifications || notifications.length === 0) ? (
                             <div className="rp-empty-state">
                                 <Bell size={24} className="rp-empty-icon" />
                                 <span>No recent activity</span>
                             </div>
                         ) : (
-                            notifications.map((n, idx) => {
+                            notifications.slice(0, 5).map((n, idx) => {
                                 const meta = getActivityMeta(n.type);
                                 return (
                                     <div key={n._id || idx} className="rp-activity-item">
