@@ -95,7 +95,7 @@ const checkIn = async (req, res) => {
 
         const checkInDate = new Date(checkInTime);
         const lateThreshold = new Date();
-        lateThreshold.setHours(9, 0, 0, 0); // 9:00 AM threshold
+        lateThreshold.setHours(9, 0, 59, 999); // 09:00 AM = Present, 09:01 AM and later = Late
         const calculatedStatus = checkInDate > lateThreshold ? 'Late' : 'Present';
 
         if (attendance) {
