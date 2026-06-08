@@ -14,8 +14,9 @@ const User = require('../models/User');
  * @param {String} [params.link] - Optional link
  * @param {Boolean} [params.targetOnly] - If true, ONLY sends to targetUserId
  * @param {Boolean} [params.exactRoles] - If true, ONLY sends to the exact roles provided (doesn't automatically add Admin)
+ * @param {Object} [params.payload] - Optional JSON payload for extra metadata
  */
-const broadcast = async ({ title, message, type = 'info', category = 'general', targetRoles = [], targetUserId = null, isCritical = false, link = null, targetOnly = false, exactRoles = false }) => {
+const broadcast = async ({ title, message, type = 'info', category = 'general', targetRoles = [], targetUserId = null, isCritical = false, link = null, targetOnly = false, exactRoles = false, payload = null }) => {
     try {
         const notificationsToCreate = [];
         const notifiedUserIds = new Set();
@@ -50,7 +51,8 @@ const broadcast = async ({ title, message, type = 'info', category = 'general', 
                         category,
                         userId: user._id || user.id, // Keep original numeric type
                         isRead: false,
-                        link
+                        link,
+                        payload
                     });
                     notifiedUserIds.add(uId);
                 }
@@ -68,7 +70,8 @@ const broadcast = async ({ title, message, type = 'info', category = 'general', 
                     category,
                     userId: targetUserId, // Keep original type
                     isRead: false,
-                    link
+                    link,
+                    payload
                 });
                 notifiedUserIds.add(tId);
             }

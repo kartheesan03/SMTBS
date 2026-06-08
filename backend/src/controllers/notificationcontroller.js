@@ -141,7 +141,16 @@ const seedNotifications = async (req, res) => {
                         message: `Order ${order.orderNumber} from ${order.customer?.name || 'a customer'} has been confirmed.`,
                         type: 'success',
                         category: 'order',
-                        userId: null
+                        userId: null,
+                        payload: {
+                            order_id: order._id || order.id,
+                            order_number: order.orderNumber,
+                            order_type: order.orderType,
+                            customer_or_vendor_name: order.customer?.name || 'a customer',
+                            status: order.status,
+                            created_by: 'System',
+                            created_at: new Date()
+                        }
                     });
                 }
             }
@@ -181,36 +190,10 @@ const seedNotifications = async (req, res) => {
     }
 };
 
-// @desc    Create a notification for order events (reusable helper)
-// @access  Internal - called from other controllers
-const createOrderNotification = async ({ orderNumber, customerName, status, userId }) => {
-    try {
-        const typeMap = {
-            'Created': 'info',
-            'Confirmed': 'success',
-            'Processing': 'info',
-            'Shipped': 'info',
-            'Delivered': 'success',
-            'Cancelled': 'error'
-        };
-        const notification = await Notification.create({
-            title: `Order ${status}: ${orderNumber}`,
-            message: `Order ${orderNumber} for ${customerName || 'a customer'} has been ${status.toLowerCase()}.`,
-            type: typeMap[status] || 'info',
-            category: 'order',
-            userId: userId || null  // null = global/visible to all
-        });
-        return notification;
-    } catch (err) {
-        console.error('Failed to create order notification:', err.message);
-    }
-};
-
 module.exports = {
     getNotifications,
     markAsRead,
     markAllAsRead,
     deleteNotification,
-    seedNotifications,
-    createOrderNotification
+    seedNotifications
 };

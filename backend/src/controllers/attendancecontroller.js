@@ -347,11 +347,85 @@ const autoMarkAbsent = async () => {
     }
 };
 
+// @desc    Get monthly attendance summary for HR reports
+// @route   GET /api/attendance/monthly-summary
+// @access  Private (Admin/HR)
+const getMonthlySummary = async (req, res) => {
+    try {
+        const { year, month } = req.query;
+        const now = new Date();
+        const targetYear = year ? parseInt(year) : now.getFullYear();
+        const targetMonth = month ? parseInt(month) - 1 : now.getMonth();
+
+        const startDate = new Date(targetYear, targetMonth, 1);
+        const endDate = new Date(targetYear, targetMonth + 1, 0, 23, 59, 59, 999);
+        const totalDaysInMonth = endDate.getDate();
+
+        const employees = await Employee.find({});
+        const attendances = await Attendance.find({
+            date: { $gte: startDate, $lte: endDate }
+        });
+        
+        const leaves = await Leave.find({
+            status: 'Approved',
+            $or: [
+                { startDate: { $lte: endDate }, endDate: { $gte: startDate } }
+            ]
+        });
+
+        const summary = employees.map(emp => {
+            const empIdStr = emp._id?.toString() || emp.id?.toString();
+            
+            const empAttendances = attendances.filter(a => a.employeeId?.toString() === empIdStr);
+            const presentDays = empAttendances.filter(a => a.status === 'Present' || a.status === 'Late').length;
+            const absentDays = empAttendances.filter(a => a.status === 'Absent').length;
+            
+            const empLeaves = leaves.filter(l => l.employeeId?.toString() === empIdStr);
+            let leaveDays = 0;
+            empLeaves.forEach(l => {
+                const ls = new Date(l.startDate) < startDate ? startDate : new Date(l.startDate);
+                const le = new Date(l.endDate) > endDate ? endDate : new Date(l.endDate);
+                const diffTime = Math.abs(le - ls);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+                leaveDays += diffDays;
+            });
+
+            // Assuming standard working days = total days in month for simplicity, or 22
+            // We use a fixed 22 if not specified, or just total minus weekends
+            let workDays = 0;
+            for(let d=1; d<=totalDaysInMonth; d++) {
+                const dt = new Date(targetYear, targetMonth, d);
+                if(dt.getDay() !== 0 && dt.getDay() !== 6) workDays++;
+            }
+
+            const totalAccounted = presentDays + leaveDays;
+            const rate = workDays > 0 ? (totalAccounted / workDays) : 0;
+
+            return {
+                id: emp.employeeId,
+                name: `${emp.firstName || ''} ${emp.lastName || ''}`.trim(),
+                dept: emp.department || 'N/A',
+                workDays: workDays,
+                present: presentDays,
+                absent: absentDays,
+                leaves: leaveDays,
+                rate: rate > 1 ? 1 : rate
+            };
+        });
+
+        res.json(summary);
+    } catch (error) {
+        console.error('getMonthlySummary error:', error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
 module.exports = {
     getAttendanceStatus,
     checkIn,
     checkOut,
     getMyAttendanceHistory,
     getAllAttendance,
-    autoMarkAbsent
+    autoMarkAbsent,
+    getMonthlySummary
 };

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import API from '../api/axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { 
     ResponsiveContainer, PieChart, Pie, Cell
 } from 'recharts';
@@ -11,7 +11,9 @@ import {
 
 const ERP = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const [orders, setOrders] = useState([]);
+    const [activeTab, setActiveTab] = useState('active');
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [customers, setCustomers] = useState([]);
@@ -66,6 +68,32 @@ const ERP = () => {
     useEffect(() => {
         fetchData();
     }, []);
+
+    useEffect(() => {
+        if (orders.length > 0) {
+            const params = new URLSearchParams(location.search);
+            const highlightId = params.get('highlightOrder');
+            if (highlightId) {
+                const order = orders.find(o => String(o._id || o.id) === String(highlightId));
+                if (order) {
+                    const historyStatuses = ['Delivered', 'Cancelled', 'Completed'];
+                    if (historyStatuses.includes(order.status)) {
+                        setActiveTab('history');
+                    } else {
+                        setActiveTab('active');
+                    }
+                    setTimeout(() => {
+                        const el = document.getElementById(`order-row-${order._id || order.id}`);
+                        if (el) {
+                            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            el.classList.add('highlight-row-animation');
+                            setTimeout(() => el.classList.remove('highlight-row-animation'), 3000);
+                        }
+                    }, 300);
+                }
+            }
+        }
+    }, [location.search, orders]);
 
     const calculateTotal = () => {
         return formData.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -133,9 +161,17 @@ const ERP = () => {
     const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
     const isAdmin = userInfo.role === 'Admin';
 
+    const historyStatuses = ['Delivered', 'Cancelled', 'Completed'];
+    const tabFilteredOrders = orders.filter(o => {
+        if (activeTab === 'history') {
+            return historyStatuses.includes(o.status);
+        }
+        return !historyStatuses.includes(o.status);
+    });
+
     const filteredOrders = statusFilter === 'All' 
-        ? orders 
-        : orders.filter(o => o.status === statusFilter);
+        ? tabFilteredOrders 
+        : tabFilteredOrders.filter(o => o.status === statusFilter);
 
     const hasSales = filteredOrders.some(o => o.orderType === 'sales');
     const hasPurchase = filteredOrders.some(o => o.orderType === 'purchase');
@@ -297,7 +333,20 @@ const ERP = () => {
             )}
 
             <div className="table-card">
-                <h3 className="card-title p-16">All Active Orders</h3>
+                <div className="erp-tabs p-16">
+                    <button 
+                        className={`erp-tab ${activeTab === 'active' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('active')}
+                    >
+                        Active Orders
+                    </button>
+                    <button 
+                        className={`erp-tab ${activeTab === 'history' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('history')}
+                    >
+                        Order History
+                    </button>
+                </div>
                 <table className="modern-table">
                     <thead>
                         <tr>
@@ -328,7 +377,7 @@ const ERP = () => {
                             const statusClass = currentStatusText.toLowerCase().replace(/ /g, '-');
                             
                             return (
-                                <tr key={ord._id}>
+                                <tr key={ord._id} id={`order-row-${ord._id}`}>
                                     <td><code className="po-code">{ord.orderNumber}</code></td>
                                     <td>
                                         {ord.orderType === 'purchase' ? (
@@ -788,6 +837,48 @@ const ERP = () => {
                     overflow-x: auto;
                 }
                 
+                /* Tabs styling */
+                .erp-tabs {
+                    display: flex;
+                    gap: 16px;
+                    border-bottom: 1px solid var(--border);
+                }
+                .erp-tab {
+                    background: transparent;
+                    border: none;
+                    font-size: 15px;
+                    font-weight: 700;
+                    color: var(--text-muted);
+                    padding: 8px 4px;
+                    cursor: pointer;
+                    position: relative;
+                    transition: color 0.2s;
+                }
+                .erp-tab:hover {
+                    color: var(--text-secondary);
+                }
+                .erp-tab.active {
+                    color: var(--primary);
+                }
+                .erp-tab.active::after {
+                    content: '';
+                    position: absolute;
+                    bottom: -1px;
+                    left: 0;
+                    right: 0;
+                    height: 3px;
+                    background-color: var(--primary);
+                    border-radius: 3px 3px 0 0;
+                }
+
+                @keyframes highlightRow {
+                    0% { background-color: var(--primary-100); }
+                    100% { background-color: transparent; }
+                }
+                .highlight-row-animation {
+                    animation: highlightRow 3s ease-out;
+                }
+
                 .modern-table {
                     width: 100%;
                     border-collapse: collapse;

@@ -8,6 +8,25 @@ const { broadcast, notifyCritical, notifySales, notifyManager } = require('../se
 // @desc    Get all orders
 // @route   GET /api/orders
 // @access  Private
+
+const getOrderPayload = (order, reqUser) => {
+    let name = 'Walk-in';
+    if (order.orderType === 'purchase' && order.vendor) {
+        name = order.vendor.name || order.vendor;
+    } else if (order.customer) {
+        name = order.customer.name || order.customer;
+    }
+    return {
+        order_id: order._id || order.id,
+        order_number: order.orderNumber,
+        order_type: order.orderType,
+        customer_or_vendor_name: name,
+        status: order.status,
+        created_by: reqUser?._id || 'System',
+        created_at: new Date()
+    };
+};
+
 const getOrders = async (req, res) => {
     try {
         const orders = await Order.find({})
@@ -84,6 +103,12 @@ const createOrder = async (req, res) => {
             await updateStock(items);
         }
 
+        const populatedOrder = await Order.findById(createdOrder._id)
+            .populate('customer', 'name')
+            .populate('vendor', 'name');
+
+        const payload = getOrderPayload(populatedOrder, req.user);
+
         if (initialStatus === 'Awaiting Stock Check') {
             await broadcast({
                 title: `New Order Stock Check: ${createdOrder.orderNumber}`,
@@ -91,7 +116,8 @@ const createOrder = async (req, res) => {
                 type: 'info',
                 category: 'order',
                 link: '/erp',
-                targetRoles: ['Employee', 'Manager']
+                targetRoles: ['Employee', 'Manager'],
+                payload
             });
         } else {
             await broadcast({
@@ -100,7 +126,8 @@ const createOrder = async (req, res) => {
                 type: 'info',
                 category: 'order',
                 link: '/erp',
-                targetRoles: isSales ? ['Sales', 'Manager'] : ['Manager']
+                targetRoles: isSales ? ['Sales', 'Manager'] : ['Manager'],
+                payload
             });
         }
 
@@ -133,7 +160,8 @@ const updateOrderStatus = async (req, res) => {
     try {
         const { status } = req.body;
         const order = await Order.findById(req.params.id)
-            .populate('customer', 'name email');
+            .populate('customer', 'name email')
+            .populate('vendor', 'name email');
 
         if (!order) {
             return res.status(404).json({ message: 'Order not found' });
@@ -184,6 +212,8 @@ const updateOrderStatus = async (req, res) => {
 
         // 2. Notification dispatching
         try {
+            const payload = getOrderPayload(updatedOrder, req.user);
+
             // A. Employee confirms stock -> Notify Sales
             if (status === 'Ready for Delivery') {
                 await broadcast({
@@ -192,7 +222,8 @@ const updateOrderStatus = async (req, res) => {
                     type: 'info',
                     category: 'order',
                     link: '/erp',
-                    targetRoles: ['Sales', 'Manager']
+                    targetRoles: ['Sales', 'Manager'],
+                    payload
                 });
             }
             // B. Employee alerts low stock -> Notify Admin & Manager
@@ -201,7 +232,8 @@ const updateOrderStatus = async (req, res) => {
                     title: `Low Stock Alert: ${order.orderNumber}`,
                     message: `Low stock alert generated for order ${order.orderNumber}. Please purchase new material supply.`,
                     category: 'stock',
-                    link: '/erp'
+                    link: '/erp',
+                    payload
                 });
             }
             // C. Sales delivers order -> Notify ALL relevant users
@@ -212,7 +244,8 @@ const updateOrderStatus = async (req, res) => {
                     type: 'success',
                     category: 'order',
                     link: '/erp',
-                    targetRoles: ['Sales', 'Manager', 'HR'] // Admin implicitly added
+                    targetRoles: ['Sales', 'Manager', 'HR'], // Admin implicitly added
+                    payload
                 });
             }
             // D. Other updates
@@ -223,7 +256,8 @@ const updateOrderStatus = async (req, res) => {
                     type: 'info',
                     category: 'order',
                     link: '/erp',
-                    targetRoles: ['Sales', 'Manager']
+                    targetRoles: ['Sales', 'Manager'],
+                    payload
                 });
             }
         } catch (err) {

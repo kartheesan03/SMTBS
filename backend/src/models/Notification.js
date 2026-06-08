@@ -35,6 +35,10 @@ const NotificationSequelize = sequelize.define('Notification', {
     link: {
         type: DataTypes.STRING,
         allowNull: true
+    },
+    payload: {
+        type: DataTypes.JSON,
+        allowNull: true
     }
 });
 

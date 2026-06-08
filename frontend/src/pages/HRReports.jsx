@@ -75,8 +75,8 @@ const HRReports = () => {
             const timestamp = new Date().toISOString().split('T')[0];
 
             if (reportName === 'Monthly Attendance Summary') {
-                const empRes = await API.get('/employees');
-                const employees = empRes.data || [];
+                const { data } = await API.get('/attendance/monthly-summary');
+                const summaries = data || [];
                 
                 const workbook = new ExcelJS.Workbook();
                 const worksheet = workbook.addWorksheet('Attendance');
@@ -92,16 +92,16 @@ const HRReports = () => {
                     { header: 'Attendance Rate', key: 'rate', width: 18, style: { numFmt: '0.00%', alignment: { horizontal: 'center' } } }
                 ];
 
-                employees.forEach(emp => {
+                summaries.forEach(s => {
                     worksheet.addRow({
-                        id: emp.employeeId || '-',
-                        name: `${emp.firstName || ''} ${emp.lastName || ''}`.trim(),
-                        dept: emp.department || '-',
-                        workDays: 22,
-                        present: 21,
-                        absent: 0,
-                        leaves: 1,
-                        rate: 0.955
+                        id: s.id || '-',
+                        name: s.name || '-',
+                        dept: s.dept || '-',
+                        workDays: s.workDays || 0,
+                        present: s.present || 0,
+                        absent: s.absent || 0,
+                        leaves: s.leaves || 0,
+                        rate: s.rate || 0
                     });
                 });
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import API from '../api/axios';
+import { useNavigate } from 'react-router-dom';
 import {
     Bell, BellOff, CheckCircle, AlertTriangle, Info, Package,
     Users, ShoppingCart, Settings, Trash2, Check, RefreshCw, Loader
@@ -29,6 +30,7 @@ const NotificationsPage = () => {
     const [seeding, setSeeding]             = useState(false);
     const [filter, setFilter]               = useState('all'); // 'all' | 'unread' | 'read'
     const [toast, setToast]                 = useState(null); // { msg, ok }
+    const navigate                          = useNavigate();
 
     // ─── helpers ────────────────────────────────────────────────────────────
     const showToast = (msg, ok = true) => {
@@ -102,6 +104,17 @@ const NotificationsPage = () => {
             showToast(err.response?.data?.message || 'Seed failed (Admin only).', false);
         } finally {
             setSeeding(false);
+        }
+    };
+
+    const handleNotificationClick = (n) => {
+        if (!n.isRead) {
+            handleMarkOne(n._id);
+        }
+        if (n.category === 'order' && n.payload?.order_id) {
+            navigate('/erp?highlightOrder=' + n.payload.order_id);
+        } else if (n.link) {
+            navigate(n.link);
         }
     };
 
@@ -225,7 +238,7 @@ const NotificationsPage = () => {
                                 {CATEGORY_ICONS[n.category] || <Bell size={20} />}
                             </div>
 
-                            <div className="n-content">
+                            <div className="n-content" onClick={() => handleNotificationClick(n)} style={{ cursor: (n.category === 'order' || n.link) ? 'pointer' : 'default' }}>
                                 <div className="n-meta">
                                     <h3>{n.title}</h3>
                                     <span className="time">{timeAgo(n.createdAt)}</span>

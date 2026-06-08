@@ -5,12 +5,14 @@ const {
     checkIn, 
     checkOut, 
     getMyAttendanceHistory,
-    getAllAttendance
+    getAllAttendance,
+    getMonthlySummary
 } = require('../controllers/attendancecontroller');
 const { protect } = require('../middleware/authMiddleware');
 const { authorize } = require('../middleware/roleMiddleware');
 
 router.get('/', protect, authorize('Admin', 'HR', 'Manager'), getAllAttendance);
+router.get('/monthly-summary', protect, authorize('Admin', 'HR', 'Manager'), getMonthlySummary);
 router.get('/status', protect, getAttendanceStatus);
 router.post('/check-in', protect, checkIn);
 router.post('/check-out', protect, checkOut);
