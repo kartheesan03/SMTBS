@@ -18,8 +18,8 @@ const getNotifications = async (req, res) => {
         const orderNotifications = notifications.filter(n => n.category === 'order' && n.payload?.order_id);
         if (orderNotifications.length > 0) {
             const orderIds = orderNotifications.map(n => n.payload.order_id);
-            const validOrders = await Order.find({ _id: { $in: orderIds } }).select('_id');
-            const validOrderIds = new Set(validOrders.map(o => (o._id || o.id).toString()));
+            const validOrders = await Order.find({ id: { $in: orderIds } }).select('id');
+            const validOrderIds = new Set(validOrders.map(o => (o.id || o._id).toString()));
 
             const invalidNotifs = orderNotifications.filter(n => !validOrderIds.has(n.payload.order_id.toString()));
             

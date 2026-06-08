@@ -13,7 +13,7 @@ const connectDB = async () => {
         setupAssociations();
 
         // Synchronize Sequelize schemas with database
-        await sequelize.sync();
+        await sequelize.sync({ alter: true });
         console.log('SQLite Database tables synchronized and updated.');
         return true;
     } catch (error) {

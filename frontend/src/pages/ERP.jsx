@@ -19,6 +19,7 @@ const ERP = () => {
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [customers, setCustomers] = useState([]);
+    const [vendors, setVendors] = useState([]);
     const [materials, setMaterials] = useState([]);
     const [formData, setFormData] = useState({
         customer: '',
@@ -58,10 +59,13 @@ const ERP = () => {
             const mappedCustomers = (Array.isArray(customersRes.data) ? customersRes.data : [])
                 .map(c => ({ ...c, customerModel: 'Customer' }));
             
+            console.log('Fetched Customers:', mappedCustomers);
+            console.log('Fetched Vendors:', vendorsRes.data);
+            
             setCustomers(mappedCustomers);
             setMaterials(materialsRes.data);
         } catch (err) {
-            console.error(err);
+            console.error('Error fetching ERP data:', err);
         } finally {
             setLoading(false);
         }
@@ -543,7 +547,11 @@ const ERP = () => {
                                     <label>Select Customer</label>
                                     <select required value={formData.customer} onChange={e => setFormData({...formData, customer: e.target.value})}>
                                         <option value="">Select Customer...</option>
-                                        {customers.map(c => <option key={c.id || c._id} value={c.id || c._id}>{c.name} ({c.customerModel})</option>)}
+                                        {(!customers || customers.length === 0) ? (
+                                            <option value="" disabled>No customers available</option>
+                                        ) : (
+                                            customers.map(c => <option key={c.id || c._id} value={c.id || c._id}>{c.name} ({c.customerModel})</option>)
+                                        )}
                                     </select>
                                 </div>
                             ) : (
@@ -553,7 +561,11 @@ const ERP = () => {
                                         setFormData({...formData, vendor: e.target.value, items: [{ material: '', quantity: 1, price: 0 }]});
                                     }}>
                                         <option value="">Select Vendor...</option>
-                                        {vendors.map(v => <option key={v._id || v.id} value={v._id || v.id}>{v.name}</option>)}
+                                        {(!vendors || vendors.length === 0) ? (
+                                            <option value="" disabled>No vendors available</option>
+                                        ) : (
+                                            vendors.map(v => <option key={v._id || v.id} value={v._id || v.id}>{v.name}</option>)
+                                        )}
                                     </select>
                                 </div>
                             )}
@@ -601,7 +613,18 @@ const ERP = () => {
 
                             <div className="modal-actions">
                                 <button type="button" className="btn-cancel" onClick={() => setShowModal(false)}>Cancel</button>
-                                <button type="submit" className="btn-save">Confirm Order</button>
+                                <button 
+                                    type="submit" 
+                                    className="btn-save"
+                                    disabled={
+                                        (formData.orderType === 'sales' && !formData.customer) ||
+                                        (formData.orderType === 'purchase' && !formData.vendor) ||
+                                        formData.items.length === 0 ||
+                                        formData.items.some(i => !i.material || i.quantity <= 0)
+                                    }
+                                >
+                                    Confirm Order
+                                </button>
                             </div>
                         </form>
                     </div>
