@@ -14,13 +14,11 @@ const dashboardRoutes = require('./src/routes/dashboardRoutes');
 const attendanceRoutes = require('./src/routes/attendanceRoutes');
 const orderRoutes = require('./src/routes/orderRoutes');
 const customerRoutes = require('./src/routes/customerRoutes');
-const leadRoutes = require('./src/routes/leadRoutes');
 const vendorRoutes = require('./src/routes/vendorRoutes');
 const notificationRoutes = require('./src/routes/notificationRoutes');
 const leaveRoutes = require('./src/routes/leaveRoutes');
 const salaryRoutes = require('./src/routes/salaryRoutes');
 const taskRoutes = require('./src/routes/taskRoutes');
-const followupRoutes = require('./src/routes/followupRoutes');
 const ticketRoutes = require('./src/routes/ticketRoutes');
 const erpRoutes = require('./src/routes/erpRoutes');
 
@@ -42,13 +40,11 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/attendance', attendanceRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/customers', customerRoutes);
-app.use('/api/leads', leadRoutes);
 app.use('/api/vendors', vendorRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/leaves', leaveRoutes);
 app.use('/api/salaries', salaryRoutes);
 app.use('/api/tasks', taskRoutes);
-app.use('/api/follow-ups', followupRoutes);
 app.use('/api/tickets', ticketRoutes);
 app.use('/api/erp', erpRoutes);
 

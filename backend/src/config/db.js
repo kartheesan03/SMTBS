@@ -13,13 +13,17 @@ const connectDB = async () => {
         setupAssociations();
 
         // Synchronize Sequelize schemas with database
-        await sequelize.sync({ alter: true });
+        await sequelize.sync();
         console.log('SQLite Database tables synchronized and updated.');
         return true;
     } catch (error) {
         console.error('\n******************************************************************************');
         console.error('  DATABASE CONNECTION / MIGRATION ERROR:');
         console.error(`  Message: ${error.message}`);
+        if (error.errors) {
+            console.error('  Validation Details:', JSON.stringify(error.errors, null, 2));
+        }
+        console.error(`  Stack: ${error.stack}`);
         console.error('******************************************************************************\n');
         return false;
     }

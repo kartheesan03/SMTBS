@@ -2,7 +2,6 @@ const Material = require('../models/Material');
 const Employee = require('../models/Employee');
 const Order = require('../models/Order');
 const Customer = require('../models/Customer');
-const Lead = require('../models/Lead');
 const Salary = require('../models/Salary');
 const Attendance = require('../models/Attendance');
 const Leave = require('../models/Leave');
@@ -13,14 +12,13 @@ const getDashboardStats = async (req, res) => {
         
         let stats = {};
         try {
-            const [totalMaterials, totalEmployees, totalOrders, totalCustomers, totalLeads] = await Promise.all([
+            const [totalMaterials, totalEmployees, totalOrders, totalCustomers] = await Promise.all([
                 Material.countDocuments(),
                 Employee.countDocuments(),
                 Order.countDocuments(),
-                Customer.countDocuments(),
-                Lead.countDocuments({ status: { $in: ['Initial Contact', 'Qualified Lead', 'Proposal Sent', 'Negotiation', 'Closing Deal', 'Won', 'Converted To Customer'] } })
+                Customer.countDocuments()
             ]);
-            stats = { totalMaterials, totalEmployees, totalOrders, totalCustomers, totalLeads };
+            stats = { totalMaterials, totalEmployees, totalOrders, totalCustomers };
         } catch (e) { console.error('Count Stats Error:', e); }
 
         let revenue = 0;
@@ -237,15 +235,9 @@ const getDashboardStats = async (req, res) => {
             }
         } else if (role === 'Sales') {
             try {
-                const pipelineData = await Lead.aggregate([
-                    { $match: { status: { $in: ['Initial Contact', 'Qualified Lead', 'Proposal Sent', 'Negotiation', 'Closing Deal', 'Won', 'Converted To Customer'] } } },
-                    { $group: { _id: "$status", value: { $sum: 1 } } },
-                    { $project: { name: "$_id", value: 1 } }
-                ]);
+                const firstDayOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
                 data.salesStats = {
-                    totalLeads: stats.totalLeads,
-                    convertedLeads: await Lead.countDocuments({ status: { $in: ['Won', 'Converted To Customer'] } }),
-                    pipelineData: pipelineData || []
+                    recentCustomers: await Customer.countDocuments({ createdAt: { $gte: firstDayOfMonth } })
                 };
             } catch (e) { console.error('Sales Pipeline Aggregation Error:', e); }
         }

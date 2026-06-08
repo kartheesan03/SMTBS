@@ -24,7 +24,6 @@ import Settings from './pages/Settings';
 import Profile from './pages/Profile';
 import Reports from './pages/Reports';
 import ERP from './pages/ERP';
-import CRM from './pages/CRM';
 import Vendors from './pages/Vendors';
 import NotificationsPage from './pages/Notifications';
 import MyTasks from './pages/MyTasks';
@@ -32,8 +31,6 @@ import MyAttendance from './pages/MyAttendance';
 import LeaveManagement from './pages/LeaveManagement';
 import MySalaryPage from './pages/MySalary';
 import Customers from './pages/Customers';
-import SalesPipeline from './pages/SalesPipeline';
-import FollowUps from './pages/FollowUps';
 import Support from './pages/Support';
 
 const AppContent = () => {
@@ -97,17 +94,14 @@ const AppContent = () => {
                     <Route path="/hr-reports" element={<ProtectedRoute allowedRoles={['Admin', 'HR']}><HRReports /></ProtectedRoute>} />
                     <Route path="/team-performance" element={<ProtectedRoute allowedRoles={['Admin', 'Manager']}><TeamPerformance /></ProtectedRoute>} />
                     <Route path="/erp" element={<ProtectedRoute allowedRoles={['Admin', 'Manager', 'Sales', 'HR', 'Employee']}><ERP /></ProtectedRoute>} />
-                    <Route path="/crm" element={<ProtectedRoute allowedRoles={['Admin', 'Sales', 'Manager']}><CRM /></ProtectedRoute>} />
+                    <Route path="/crm" element={<ProtectedRoute allowedRoles={['Admin', 'Sales', 'Manager']}><Customers /></ProtectedRoute>} />
                     <Route path="/vendors" element={<ProtectedRoute allowedRoles={['Admin', 'Manager', 'Sales']}><Vendors /></ProtectedRoute>} />
                     <Route path="/analytics" element={<ProtectedRoute allowedRoles={['Admin', 'Manager', 'Sales', 'HR']}><Reports /></ProtectedRoute>} />
                     <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
                     <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                     <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
 
-                    {/* Sales Routes */}
-                    <Route path="/customers" element={<ProtectedRoute allowedRoles={['Admin', 'Sales', 'Manager']}><Customers /></ProtectedRoute>} />
-                    <Route path="/sales-pipeline" element={<ProtectedRoute allowedRoles={['Admin', 'Sales', 'Manager']}><SalesPipeline /></ProtectedRoute>} />
-                    <Route path="/follow-ups" element={<ProtectedRoute allowedRoles={['Admin', 'Sales', 'Manager']}><FollowUps /></ProtectedRoute>} />
+
                     <Route path="/support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
                     <Route path="/my-tasks" element={<ProtectedRoute><MyTasks /></ProtectedRoute>} />
                     <Route path="/my-attendance" element={<ProtectedRoute><MyAttendance /></ProtectedRoute>} />
