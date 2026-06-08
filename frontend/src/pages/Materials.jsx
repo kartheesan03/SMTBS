@@ -23,6 +23,7 @@ const MaterialTracking = () => {
     const [catFilter, setCatFilter] = useState('All');
     const [showFilters, setShowFilters] = useState(false);
     const [editId, setEditId] = useState(null);
+    const [showNewCategoryInput, setShowNewCategoryInput] = useState(false);
 
     // QR & Barcode Simulator States
     const [showScanner, setShowScanner] = useState(false);
@@ -59,6 +60,7 @@ const MaterialTracking = () => {
 
     const handleEditClick = (item) => {
         setEditId(item._id);
+        setShowNewCategoryInput(false);
         setFormData({
             name: item.name,
             sku: item.sku,
@@ -88,6 +90,7 @@ const MaterialTracking = () => {
             }
             setShowModal(false);
             setEditId(null);
+            setShowNewCategoryInput(false);
             setFormData({ name: '', sku: '', category: '', quantity: 0, lowStockThreshold: 10, unit: 'pcs', price: 0, vendorId: '' });
             fetchMaterialsAndStats();
         } catch (error) {
@@ -136,6 +139,17 @@ const MaterialTracking = () => {
         return matchesSearch && matchesCat;
     });
 
+    const defaultCategories = [
+        'Chemicals', 'Consumables', 'Construction', 'Electrical', 
+        'Electronics', 'Metals', 'Plastics', 'Plumbing', 
+        'Raw Material', 'Sheet Metal', 'Structural Steel'
+    ];
+
+    const availableCategories = Array.from(new Set([
+        ...defaultCategories,
+        ...materials.map(m => m.category).filter(Boolean)
+    ])).sort();
+
     return (
         <div className="materials-workspace">
             {/* Breadcrumb Header */}
@@ -157,7 +171,7 @@ const MaterialTracking = () => {
                     <button className="btn-secondary-light flex-center gap-8 text-indigo" onClick={() => { if (materials.length > 0) setScanSKU(materials[0].sku); setShowScanner(true); }}>
                         <Camera size={16} /> Scan Item
                     </button>
-                    <button className="btn-primary-blue flex-center gap-8" onClick={() => { setEditId(null); setFormData({ name: '', sku: '', category: '', quantity: 0, lowStockThreshold: 10, unit: 'pcs', price: 0, vendorId: '' }); setShowModal(true); }}>
+                    <button className="btn-primary-blue flex-center gap-8" onClick={() => { setEditId(null); setShowNewCategoryInput(false); setFormData({ name: '', sku: '', category: '', quantity: 0, lowStockThreshold: 10, unit: 'pcs', price: 0, vendorId: '' }); setShowModal(true); }}>
                         <Plus size={16} /> Add Material
                     </button>
                 </div>
@@ -190,11 +204,9 @@ const MaterialTracking = () => {
                         <label>Category:</label>
                         <select value={catFilter} onChange={e => setCatFilter(e.target.value)}>
                             <option value="All">All Categories</option>
-                            <option value="Metals">Metals</option>
-                            <option value="Plastics">Plastics</option>
-                            <option value="Electronics">Electronics</option>
-                            <option value="Chemicals">Chemicals</option>
-                            <option value="Raw Material">Raw Material</option>
+                            {availableCategories.map(cat => (
+                                <option key={cat} value={cat}>{cat}</option>
+                            ))}
                         </select>
                     </div>
                 </div>
@@ -291,14 +303,48 @@ const MaterialTracking = () => {
                                 </div>
                                 <div className="form-group">
                                     <label>Category</label>
-                                    <select value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} required>
-                                        <option value="">Select Category</option>
-                                        <option value="Metals">Metals</option>
-                                        <option value="Plastics">Plastics</option>
-                                        <option value="Electronics">Electronics</option>
-                                        <option value="Chemicals">Chemicals</option>
-                                        <option value="Raw Material">Raw Material</option>
-                                    </select>
+                                    {!showNewCategoryInput ? (
+                                        <select 
+                                            value={formData.category} 
+                                            onChange={e => {
+                                                if (e.target.value === '__add_new__') {
+                                                    setShowNewCategoryInput(true);
+                                                    setFormData({...formData, category: ''});
+                                                } else {
+                                                    setFormData({...formData, category: e.target.value});
+                                                }
+                                            }} 
+                                            required
+                                        >
+                                            <option value="">Select Category</option>
+                                            {availableCategories.map(cat => (
+                                                <option key={cat} value={cat}>{cat}</option>
+                                            ))}
+                                            <option value="__add_new__" style={{ fontWeight: 'bold', color: 'var(--primary)' }}>+ Add New Category...</option>
+                                        </select>
+                                    ) : (
+                                        <div style={{display: 'flex', gap: '8px'}}>
+                                            <input 
+                                                type="text" 
+                                                required 
+                                                value={formData.category} 
+                                                onChange={e => setFormData({...formData, category: e.target.value})} 
+                                                placeholder="Enter new category name" 
+                                                autoFocus
+                                            />
+                                            <button 
+                                                type="button" 
+                                                onClick={() => {
+                                                    setShowNewCategoryInput(false);
+                                                    setFormData({...formData, category: ''});
+                                                }} 
+                                                className="btn-cancel" 
+                                                style={{padding: '0 12px'}}
+                                            >
+                                                ✕
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                                 <div className="form-group">
                                     <label>Quantity</label>

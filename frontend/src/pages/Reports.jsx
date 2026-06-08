@@ -357,7 +357,7 @@ const Reports = () => {
                             {showFilters && (
                                 <div className="filter-dropdown glass-card">
                                     <p className="filter-label">Category</p>
-                                    {['All', 'Metals', 'Plastics', 'Electronics', 'Raw Material'].map(cat => (
+                                    {['All', 'Chemicals', 'Consumables', 'Construction', 'Electrical', 'Electronics', 'Metals', 'Plastics', 'Plumbing', 'Raw Material', 'Sheet Metal', 'Structural Steel'].map(cat => (
                                         <div
                                             key={cat}
                                             className={`filter-option ${filterCategory === cat ? 'active' : ''}`}
