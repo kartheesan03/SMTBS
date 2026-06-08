@@ -7,12 +7,28 @@ const Order = require('../models/Order');
 // @access  Private
 const getNotifications = async (req, res) => {
     try {
-        const notifications = await Notification.find({
+        let notifications = await Notification.find({
             $or: [
                 { userId: null },             // global notifications visible to all
                 { userId: req.user._id }      // user-specific notifications
             ]
         }).sort({ createdAt: -1 });
+
+        // Filter out order notifications where the order no longer exists
+        const orderNotifications = notifications.filter(n => n.category === 'order' && n.payload?.order_id);
+        if (orderNotifications.length > 0) {
+            const orderIds = orderNotifications.map(n => n.payload.order_id);
+            const validOrders = await Order.find({ _id: { $in: orderIds } }).select('_id');
+            const validOrderIds = new Set(validOrders.map(o => (o._id || o.id).toString()));
+
+            const invalidNotifs = orderNotifications.filter(n => !validOrderIds.has(n.payload.order_id.toString()));
+            
+            if (invalidNotifs.length > 0) {
+                const invalidIds = invalidNotifs.map(n => n._id || n.id);
+                await Notification.deleteMany({ _id: { $in: invalidIds } });
+                notifications = notifications.filter(n => !invalidIds.includes(n._id || n.id));
+            }
+        }
 
         const unreadCount = notifications.filter(n => !n.isRead).length;
 
@@ -127,6 +143,7 @@ const seedNotifications = async (req, res) => {
         try {
             const confirmedOrders = await Order.find({ status: 'Confirmed' })
                 .populate('customer', 'name')
+                .populate('vendor', 'name')
                 .sort({ createdAt: -1 })
                 .limit(3);
 
@@ -136,9 +153,14 @@ const seedNotifications = async (req, res) => {
                     title: `Order Confirmed: ${order.orderNumber}`
                 });
                 if (!exists) {
+                    const isPurchase = order.orderType === 'purchase';
+                    const entityName = isPurchase 
+                        ? (order.vendor?.name || 'a vendor') 
+                        : (order.customer?.name || 'a customer');
+
                     seedData.push({
                         title: `Order Confirmed: ${order.orderNumber}`,
-                        message: `Order ${order.orderNumber} from ${order.customer?.name || 'a customer'} has been confirmed.`,
+                        message: `Order ${order.orderNumber} from ${entityName} has been confirmed.`,
                         type: 'success',
                         category: 'order',
                         userId: null,
@@ -146,7 +168,7 @@ const seedNotifications = async (req, res) => {
                             order_id: order._id || order.id,
                             order_number: order.orderNumber,
                             order_type: order.orderType,
-                            customer_or_vendor_name: order.customer?.name || 'a customer',
+                            customer_or_vendor_name: entityName,
                             status: order.status,
                             created_by: 'System',
                             created_at: new Date()
