@@ -25,6 +25,10 @@ const MaterialSequelize = sequelize.define('Material', {
         type: DataTypes.INTEGER,
         defaultValue: 0
     },
+    reservedQuantity: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0
+    },
     lowStockThreshold: {
         type: DataTypes.INTEGER,
         defaultValue: 10
