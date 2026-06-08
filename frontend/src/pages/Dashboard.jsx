@@ -149,14 +149,14 @@ const Dashboard = () => {
                 return {
                     title: "Sales & CRM Pipeline",
                     stats: [
-                        { title: 'Active Leads', value: data?.stats?.totalLeads ?? 0, icon: <TrendingUp />, color: '#6366f1' },
-                        { title: 'Converted', value: data?.stats?.convertedLeads ?? 0, icon: <CheckCircle2 />, color: '#10b981' },
-                        { title: 'Follow-ups', value: data?.stats?.pendingFollowUps ?? 0, icon: <Calendar />, color: '#f59e0b' },
-                        { title: 'Target Progress', value: `${data?.stats?.salesTarget ?? 0}%`, icon: <DollarSign />, color: '#14b8a6' },
+                        { title: 'Total Sales Orders', value: data?.stats?.totalSalesOrders ?? 0, icon: <TrendingUp />, color: '#6366f1' },
+                        { title: 'Active Customers', value: data?.activeCustomers ?? 0, icon: <CheckCircle2 />, color: '#10b981' },
+                        { title: 'Recent Customers', value: data?.salesStats?.recentCustomers ?? 0, icon: <Users />, color: '#f59e0b' },
+                        { title: 'Total Revenue', value: `$${(data?.totalRevenue || 0).toLocaleString()}`, icon: <DollarSign />, color: '#14b8a6' },
                     ],
                     actions: [
-                        { label: 'Add Lead', icon: <PlusCircle size={20}/>, onClick: () => navigate('/crm') },
-                        { label: 'Update Pipeline', icon: <TrendingUp size={20}/>, onClick: () => navigate('/crm') },
+                        { label: 'Add Customer', icon: <PlusCircle size={20}/>, onClick: () => navigate('/crm') },
+                        { label: 'Create Order', icon: <TrendingUp size={20}/>, onClick: () => navigate('/erp') },
                     ],
                     charts: (
                         <div className="glass-card chart-container flex-col-center">
@@ -176,14 +176,14 @@ const Dashboard = () => {
                     ),
                     tables: (
                         <DataTable 
-                            title="Recent Leads" 
-                            headers={['Name', 'Email', 'Source', 'Status']} 
-                            data={data?.tables?.leadList || []}
+                            title="Recent Orders" 
+                            headers={['Order #', 'Customer', 'Amount', 'Status']} 
+                            data={data?.tables?.recentOrders || []}
                             renderRow={(item) => (
                                 <>
-                                    <td>{item.name}</td>
-                                    <td>{item.email}</td>
-                                    <td>{item.source}</td>
+                                    <td>{item.orderNumber}</td>
+                                    <td>{item.customer?.name || 'Walk-in'}</td>
+                                    <td>${(item.totalAmount || 0).toLocaleString()}</td>
                                     <td><span className={`status-badge ${item.status.toLowerCase()}`}>{item.status}</span></td>
                                 </>
                             )}

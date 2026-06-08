@@ -159,7 +159,6 @@ const getDashboardStats = async (req, res) => {
                 lowStock: lowStockMaterials, 
                 recentOrders: recentOrders || [],
                 pendingSalaries: pendingSalaries || [],
-                leadList: role === 'Sales' ? await Lead.find({ status: { $in: ['Initial Contact', 'Qualified Lead', 'Proposal Sent', 'Negotiation', 'Closing Deal'] } }).sort({ createdAt: -1 }).limit(5) : [],
                 recentActivity: recentActivity || []
             }
         };
@@ -187,7 +186,7 @@ const getDashboardStats = async (req, res) => {
                 const employeeDistribution = deptStats.map((d, index) => ({
                     name: d._id || 'Other',
                     value: d.value,
-                    percentage: `${((d.value / totalEmps) * 100).toFixed(1)}%`,
+                    percentage: `${((d.value / activeEmployeesCount) * 100).toFixed(1)}%`,
                     color: COLORS[index % COLORS.length]
                 }));
 
