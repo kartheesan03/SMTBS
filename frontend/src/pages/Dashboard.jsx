@@ -58,9 +58,10 @@ const Dashboard = () => {
                     title: "Admin Control Center",
                     stats: [
                         { title: 'Total Material Types', value: data?.totalMaterials ?? 0, icon: <Package />, color: '#6366f1', trend: 0 },
+                        { title: 'Low Stock Items', value: data?.lowStockItems ?? 0, icon: <AlertTriangle />, color: '#ef4444', trend: 0 },
                         { title: 'Total Employees', value: data?.totalEmployees ?? 0, icon: <Users />, color: '#14b8a6', trend: 0 },
-                        { title: 'System Revenue', value: `$${(data?.totalRevenue || 0).toLocaleString()}`, icon: <DollarSign />, color: '#10b981', trend: 0 },
-                        { title: 'Total Orders', value: data?.stats?.totalOrders ?? 0, icon: <TrendingUp />, color: '#f59e0b', trend: 0 },
+                        { title: 'Open Orders', value: data?.openOrders ?? 0, icon: <TrendingUp />, color: '#f59e0b', trend: 0 },
+                        { title: 'Active Customers', value: data?.activeCustomers ?? 0, icon: <Briefcase />, color: '#10b981', trend: 0 }
                     ],
                     actions: [
                         { label: 'Add Material', icon: <Package size={20}/>, onClick: () => {} },
