@@ -14,6 +14,7 @@ const Customers = () => {
     const [formData, setFormData] = useState({
         name: '', email: '', phone: '', address: '', industry: '', website: '', notes: '', status: 'Active'
     });
+    const [formErrors, setFormErrors] = useState({});
 
     // Detail view state
     const [selectedCustomer, setSelectedCustomer] = useState(null);
@@ -75,8 +76,23 @@ const Customers = () => {
         setCustomerComms([]);
     };
 
+    const validateForm = () => {
+        const errors = {};
+        if (!formData.name || formData.name.trim().length < 2) errors.name = 'Organization name must be at least 2 characters.';
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!formData.email || !emailRegex.test(formData.email)) errors.email = 'Please enter a valid email address.';
+        const phoneRegex = /^\+?[\d\s-]{10,}$/;
+        if (!formData.phone || !phoneRegex.test(formData.phone)) errors.phone = 'Please enter a valid phone number (at least 10 digits).';
+        if (!formData.industry || formData.industry.trim().length === 0) errors.industry = 'Industry is required.';
+        if (!formData.address || formData.address.trim().length === 0) errors.address = 'Primary address is required.';
+        
+        setFormErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!validateForm()) return;
         try {
             if (editingId) {
                 await API.put(`/customers/${editingId}`, formData);
@@ -102,6 +118,7 @@ const Customers = () => {
             notes: customer.notes || '',
             status: customer.status || 'Active'
         });
+        setFormErrors({});
         setShowModal(true);
     };
 
@@ -128,6 +145,7 @@ const Customers = () => {
         setShowModal(false);
         setEditingId(null);
         setFormData({ name: '', email: '', phone: '', address: '', industry: '', website: '', notes: '', status: 'Active' });
+        setFormErrors({});
     };
 
     // Communication handlers
@@ -428,19 +446,23 @@ const Customers = () => {
                     </div>
                 )}
 
-                {/* Edit Customer Modal (reused) */}
+                {/* Edit Customer Modal (reused in Detail View) */}
                 {showModal && (
                     <div className="modal-overlay">
                         <div className="glass-card modal-content-lg animate-pop">
                             <div className="modal-header">
-                                <h2>{editingId ? 'Update Client Profile' : 'Register New Client'}</h2>
+                                <h2>{editingId ? 'Edit Customer' : 'Add New Customer'}</h2>
                                 <button className="close-btn" onClick={handleCloseModal}>✕</button>
                             </div>
                             <form onSubmit={handleSubmit} className="modal-form">
                                 <div className="form-grid">
                                     <div className="form-group">
-                                        <label>Organization Name</label>
-                                        <div className="input-with-icon"><Building2 size={16} /><input type="text" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Nexus Industries" /></div>
+                                        <label>Organization Name <span className="req">*</span></label>
+                                        <div className={`input-with-icon ${formErrors.name ? 'error-border' : ''}`}>
+                                            <Building2 size={16} />
+                                            <input type="text" value={formData.name} onChange={e => { setFormData({...formData, name: e.target.value}); if(formErrors.name) setFormErrors({...formErrors, name: null}); }} placeholder="e.g. Acme Corporation" />
+                                        </div>
+                                        {formErrors.name && <span className="error-text">{formErrors.name}</span>}
                                     </div>
                                     <div className="form-group">
                                         <label>Lifecycle Status</label>
@@ -450,18 +472,46 @@ const Customers = () => {
                                     </div>
                                 </div>
                                 <div className="form-grid">
-                                    <div className="form-group"><label>Email Address</label><div className="input-with-icon"><Mail size={16} /><input type="email" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} /></div></div>
-                                    <div className="form-group"><label>Phone Number</label><div className="input-with-icon"><Phone size={16} /><input type="text" required value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} /></div></div>
+                                    <div className="form-group">
+                                        <label>Email Address <span className="req">*</span></label>
+                                        <div className={`input-with-icon ${formErrors.email ? 'error-border' : ''}`}>
+                                            <Mail size={16} />
+                                            <input type="email" value={formData.email} onChange={e => { setFormData({...formData, email: e.target.value}); if(formErrors.email) setFormErrors({...formErrors, email: null}); }} placeholder="contact@acmecorp.com" />
+                                        </div>
+                                        {formErrors.email && <span className="error-text">{formErrors.email}</span>}
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Phone Number <span className="req">*</span></label>
+                                        <div className={`input-with-icon ${formErrors.phone ? 'error-border' : ''}`}>
+                                            <Phone size={16} />
+                                            <input type="text" value={formData.phone} onChange={e => { setFormData({...formData, phone: e.target.value}); if(formErrors.phone) setFormErrors({...formErrors, phone: null}); }} placeholder="+1 (555) 123-4567" />
+                                        </div>
+                                        {formErrors.phone && <span className="error-text">{formErrors.phone}</span>}
+                                    </div>
                                 </div>
                                 <div className="form-grid">
-                                    <div className="form-group"><label>Industry</label><input type="text" value={formData.industry} onChange={e => setFormData({...formData, industry: e.target.value})} placeholder="e.g. Manufacturing" /></div>
-                                    <div className="form-group"><label>Website</label><div className="input-with-icon"><Globe size={16} /><input type="url" value={formData.website} onChange={e => setFormData({...formData, website: e.target.value})} placeholder="https://..." /></div></div>
+                                    <div className="form-group">
+                                        <label>Industry <span className="req">*</span></label>
+                                        <input type="text" className={formErrors.industry ? 'error-border' : ''} value={formData.industry} onChange={e => { setFormData({...formData, industry: e.target.value}); if(formErrors.industry) setFormErrors({...formErrors, industry: null}); }} placeholder="e.g. Manufacturing, Software, Retail" />
+                                        {formErrors.industry && <span className="error-text">{formErrors.industry}</span>}
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Website</label>
+                                        <div className="input-with-icon">
+                                            <Globe size={16} />
+                                            <input type="url" value={formData.website} onChange={e => setFormData({...formData, website: e.target.value})} placeholder="https://www.acmecorp.com" />
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="form-group"><label>Primary Address</label><input type="text" required value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} /></div>
+                                <div className="form-group">
+                                    <label>Primary Address <span className="req">*</span></label>
+                                    <input type="text" className={formErrors.address ? 'error-border' : ''} value={formData.address} onChange={e => { setFormData({...formData, address: e.target.value}); if(formErrors.address) setFormErrors({...formErrors, address: null}); }} placeholder="123 Business Rd, Tech Park, City, ZIP" />
+                                    {formErrors.address && <span className="error-text">{formErrors.address}</span>}
+                                </div>
                                 <div className="form-group"><label>Internal Notes</label><textarea rows="3" value={formData.notes} onChange={e => setFormData({...formData, notes: e.target.value})} placeholder="Key partnership details..."></textarea></div>
                                 <div className="modal-actions">
                                     <button type="button" className="btn-cancel" onClick={handleCloseModal}>Cancel</button>
-                                    <button type="submit" className="btn-primary">{editingId ? 'Update Portfolio' : 'Register Customer'}</button>
+                                    <button type="submit" className="btn-primary">{editingId ? 'Update Customer' : 'Save Customer'}</button>
                                 </div>
                             </form>
                         </div>
@@ -528,19 +578,25 @@ const Customers = () => {
                     .btn-icon-del-sm:hover { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
 
                     /* Modal Styles */
-                    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; z-index: 2000; }
-                    .modal-content-lg { width: 90%; max-width: 700px; padding: 35px; position: relative; }
+                    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); display: flex; align-items: flex-start; justify-content: center; z-index: 2000; padding: 40px 20px; overflow-y: auto; }
+                    .modal-content-lg { width: 100%; max-width: 700px; padding: 35px; position: relative; background: var(--bg-card); border-radius: 12px; margin: auto; }
                     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
-                    .close-btn { background: none; color: var(--text-muted); cursor: pointer; }
+                    .close-btn { background: none; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; padding: 4px; border-radius: 6px; transition: background 0.2s; }
+                    .close-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
                     .modal-form { display: flex; flex-direction: column; gap: 20px; }
                     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-                    .form-group { display: flex; flex-direction: column; gap: 8px; }
-                    .form-group label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-                    .input-with-icon { display: flex; align-items: center; gap: 10px; background: #ffffff; border: 1px solid var(--border); border-radius: 8px; padding: 0 12px; }
-                    .input-with-icon input { background: none; border: none; padding: 12px 0; color: #0f172a; width: 100%; font-size: 14px; }
-                    .form-group input:not([type]), .form-group input[type="text"], .form-group input[type="email"], .form-group input[type="url"], .form-group input[type="date"], .form-group select, .form-group textarea { padding: 12px; background: #ffffff; border: 1px solid var(--border); border-radius: 8px; color: #0f172a; font-size: 14px; }
+                    .form-group { display: flex; flex-direction: column; gap: 6px; }
+                    .form-group label { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+                    .req { color: #ef4444; margin-left: 2px; }
+                    .error-text { color: #ef4444; font-size: 11px; margin-top: 4px; font-weight: 500; }
+                    .error-border { border-color: #ef4444 !important; }
+                    .input-with-icon { display: flex; align-items: center; gap: 10px; background: var(--bg-body); border: 1px solid var(--border); border-radius: 8px; padding: 0 12px; transition: border-color 0.2s; }
+                    .input-with-icon:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-50); background: var(--bg-card); }
+                    .input-with-icon input { background: none; border: none; padding: 12px 0; color: var(--text-primary); width: 100%; font-size: 14px; outline: none; }
+                    .form-group input:not([type]), .form-group input[type="text"], .form-group input[type="email"], .form-group input[type="url"], .form-group input[type="date"], .form-group select, .form-group textarea { padding: 12px; background: var(--bg-body); border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary); font-size: 14px; outline: none; transition: border-color 0.2s; }
+                    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-50); background: var(--bg-card); }
                     .form-group input::placeholder, .form-group textarea::placeholder { color: var(--text-muted); }
-                    .form-group select { appearance: none; padding-right: 40px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%230f172a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
+                    .form-group select { appearance: none; padding-right: 40px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='gray' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
                     .form-group select option { background: #ffffff; color: #0f172a; }
                     .modal-actions { display: flex; justify-content: flex-end; gap: 15px; margin-top: 20px; }
                     .btn-cancel { background: transparent; color: #0f172a; border: 1px solid var(--border); padding: 12px 25px; border-radius: 8px; font-weight: 600; cursor: pointer; }
@@ -587,7 +643,12 @@ const Customers = () => {
                 <div className="header-actions">
                     <button className="btn-export" onClick={exportToPDF} title="Export PDF"><Download size={16} /> PDF</button>
                     <button className="btn-export" onClick={exportToExcel} title="Export Excel"><Download size={16} /> Excel</button>
-                    <button className="btn-primary flex-center gap-10" onClick={() => setShowModal(true)}>
+                    <button className="btn-primary flex-center gap-10" onClick={() => {
+                        setEditingId(null);
+                        setFormData({ name: '', email: '', phone: '', address: '', industry: '', website: '', notes: '', status: 'Active' });
+                        setFormErrors({});
+                        setShowModal(true);
+                    }}>
                         <Plus size={18} /> Add New Customer
                     </button>
                 </div>
@@ -597,17 +658,18 @@ const Customers = () => {
                 <div className="modal-overlay">
                     <div className="glass-card modal-content-lg animate-pop">
                         <div className="modal-header">
-                            <h2>{editingId ? 'Update Client Profile' : 'Register New Client'}</h2>
+                            <h2>{editingId ? 'Edit Customer' : 'Add New Customer'}</h2>
                             <button className="close-btn" onClick={handleCloseModal}>✕</button>
                         </div>
                         <form onSubmit={handleSubmit} className="modal-form">
                             <div className="form-grid">
                                 <div className="form-group">
-                                    <label>Organization Name</label>
-                                    <div className="input-with-icon">
+                                    <label>Organization Name <span className="req">*</span></label>
+                                    <div className={`input-with-icon ${formErrors.name ? 'error-border' : ''}`}>
                                         <Building2 size={16} />
-                                        <input type="text" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Nexus Industries" />
+                                        <input type="text" value={formData.name} onChange={e => { setFormData({...formData, name: e.target.value}); if(formErrors.name) setFormErrors({...formErrors, name: null}); }} placeholder="e.g. Acme Corporation" />
                                     </div>
+                                    {formErrors.name && <span className="error-text">{formErrors.name}</span>}
                                 </div>
                                 <div className="form-group">
                                     <label>Lifecycle Status</label>
@@ -622,38 +684,42 @@ const Customers = () => {
 
                             <div className="form-grid">
                                 <div className="form-group">
-                                    <label>Email Address</label>
-                                    <div className="input-with-icon">
+                                    <label>Email Address <span className="req">*</span></label>
+                                    <div className={`input-with-icon ${formErrors.email ? 'error-border' : ''}`}>
                                         <Mail size={16} />
-                                        <input type="email" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
+                                        <input type="email" value={formData.email} onChange={e => { setFormData({...formData, email: e.target.value}); if(formErrors.email) setFormErrors({...formErrors, email: null}); }} placeholder="contact@acmecorp.com" />
                                     </div>
+                                    {formErrors.email && <span className="error-text">{formErrors.email}</span>}
                                 </div>
                                 <div className="form-group">
-                                    <label>Phone Number</label>
-                                    <div className="input-with-icon">
+                                    <label>Phone Number <span className="req">*</span></label>
+                                    <div className={`input-with-icon ${formErrors.phone ? 'error-border' : ''}`}>
                                         <Phone size={16} />
-                                        <input type="text" required value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} />
+                                        <input type="text" value={formData.phone} onChange={e => { setFormData({...formData, phone: e.target.value}); if(formErrors.phone) setFormErrors({...formErrors, phone: null}); }} placeholder="+1 (555) 123-4567" />
                                     </div>
+                                    {formErrors.phone && <span className="error-text">{formErrors.phone}</span>}
                                 </div>
                             </div>
 
                             <div className="form-grid">
                                 <div className="form-group">
-                                    <label>Industry</label>
-                                    <input type="text" value={formData.industry} onChange={e => setFormData({...formData, industry: e.target.value})} placeholder="e.g. Manufacturing" />
+                                    <label>Industry <span className="req">*</span></label>
+                                    <input type="text" className={formErrors.industry ? 'error-border' : ''} value={formData.industry} onChange={e => { setFormData({...formData, industry: e.target.value}); if(formErrors.industry) setFormErrors({...formErrors, industry: null}); }} placeholder="e.g. Manufacturing, Software, Retail" />
+                                    {formErrors.industry && <span className="error-text">{formErrors.industry}</span>}
                                 </div>
                                 <div className="form-group">
                                     <label>Website</label>
                                     <div className="input-with-icon">
                                         <Globe size={16} />
-                                        <input type="url" value={formData.website} onChange={e => setFormData({...formData, website: e.target.value})} placeholder="https://..." />
+                                        <input type="url" value={formData.website} onChange={e => setFormData({...formData, website: e.target.value})} placeholder="https://www.acmecorp.com" />
                                     </div>
                                 </div>
                             </div>
 
                             <div className="form-group">
-                                <label>Primary Address</label>
-                                <input type="text" required value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} />
+                                <label>Primary Address <span className="req">*</span></label>
+                                <input type="text" className={formErrors.address ? 'error-border' : ''} value={formData.address} onChange={e => { setFormData({...formData, address: e.target.value}); if(formErrors.address) setFormErrors({...formErrors, address: null}); }} placeholder="123 Business Rd, Tech Park, City, ZIP" />
+                                {formErrors.address && <span className="error-text">{formErrors.address}</span>}
                             </div>
 
                             <div className="form-group">
@@ -663,7 +729,7 @@ const Customers = () => {
 
                             <div className="modal-actions">
                                 <button type="button" className="btn-cancel" onClick={handleCloseModal}>Cancel</button>
-                                <button type="submit" className="btn-primary">{editingId ? 'Update Portfolio' : 'Register Customer'}</button>
+                                <button type="submit" className="btn-primary">{editingId ? 'Update Customer' : 'Save Customer'}</button>
                             </div>
                         </form>
                     </div>
