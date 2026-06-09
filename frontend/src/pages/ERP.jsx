@@ -42,9 +42,8 @@ const ERP = () => {
 
     const fetchData = async () => {
         try {
-            const [ordersRes, leadsRes, customersRes, materialsRes, statsRes, vendorsRes] = await Promise.all([
+            const [ordersRes, customersRes, materialsRes, statsRes, vendorsRes] = await Promise.all([
                 API.get('/orders'),
-                API.get('/leads'),
                 API.get('/customers'),
                 API.get('/materials'),
                 API.get('/erp/stats'),
@@ -59,6 +58,8 @@ const ERP = () => {
             const mappedCustomers = (Array.isArray(customersRes.data) ? customersRes.data : [])
                 .map(c => ({ ...c, customerModel: 'Customer' }));
             
+            console.log('ERP Stats Data:', statsRes.data);
+            console.log('Orders Data:', ordersRes.data);
             console.log('Fetched Customers:', mappedCustomers);
             console.log('Fetched Vendors:', vendorsRes.data);
             
@@ -343,17 +344,23 @@ const ERP = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {recentPurchaseOrders.map((po, idx) => (
-                                    <tr key={idx}>
-                                        <td><code className="po-code">{po.orderNumber}</code></td>
-                                        <td className="vendor-name-cell">{po.vendor?.name || 'Walk-in Vendor'}</td>
-                                        <td>
-                                            <span className={`po-status-badge ${po.status.toLowerCase().replace(/ /g, '-')}`}>
-                                                {po.status}
-                                            </span>
-                                        </td>
+                                {recentPurchaseOrders.length > 0 ? (
+                                    recentPurchaseOrders.map((po, idx) => (
+                                        <tr key={idx}>
+                                            <td><code className="po-code">{po.orderNumber}</code></td>
+                                            <td className="vendor-name-cell">{po.vendor?.name || 'Walk-in Vendor'}</td>
+                                            <td>
+                                                <span className={`po-status-badge ${po.status.toLowerCase().replace(/ /g, '-')}`}>
+                                                    {po.status}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan="3" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-muted)' }}>No Orders Available</td>
                                     </tr>
-                                ))}
+                                )}
                             </tbody>
                         </table>
                     </div>
@@ -409,7 +416,11 @@ const ERP = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {filteredOrders.map((ord) => {
+                        {filteredOrders.length === 0 ? (
+                            <tr>
+                                <td colSpan="9" style={{ textAlign: 'center', padding: '30px', color: 'var(--text-muted)' }}>No Orders Available</td>
+                            </tr>
+                        ) : filteredOrders.map((ord) => {
                             const isEmp = userInfo.role === 'Employee';
                             const isSalesRole = userInfo.role === 'Sales';
                             
