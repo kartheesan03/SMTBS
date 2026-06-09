@@ -39,11 +39,16 @@ const loginUser = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (user && (await user.matchPassword(password))) {
+        let role = user.role;
+        if (user.email === 'admin@smtbms.com') {
+            role = 'Super Admin';
+        }
+
         res.json({
             _id: user._id,
             name: user.name,
             email: user.email,
-            role: user.role,
+            role: role,
             token: generateToken(user._id),
         });
     } else {
@@ -67,11 +72,16 @@ const updateUserProfile = async (req, res) => {
 
             const updatedUser = await user.save();
 
+            let role = updatedUser.role;
+            if (updatedUser.email === 'admin@smtbms.com') {
+                role = 'Super Admin';
+            }
+
             res.json({
                 _id: updatedUser._id,
                 name: updatedUser.name,
                 email: updatedUser.email,
-                role: updatedUser.role,
+                role: role,
                 token: generateToken(updatedUser._id),
             });
         } else {
