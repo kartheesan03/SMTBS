@@ -7,12 +7,18 @@ const Order = require('../models/Order');
 // @access  Private
 const getNotifications = async (req, res) => {
     try {
-        let notifications = await Notification.find({
+        let query = {
             $or: [
                 { userId: null },             // global notifications visible to all
                 { userId: req.user._id }      // user-specific notifications
             ]
-        }).sort({ createdAt: -1 });
+        };
+
+        if (req.user.role === 'HR') {
+            query.category = { $in: ['hr', 'payroll', 'attendance', 'employee', 'system'] };
+        }
+
+        let notifications = await Notification.find(query).sort({ createdAt: -1 });
 
         // Filter out order notifications where the order no longer exists
         const orderNotifications = notifications.filter(n => n.category === 'order' && n.payload?.order_id);

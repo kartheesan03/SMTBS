@@ -17,6 +17,6 @@ router.get('/', getNotifications);
 router.put('/mark-all-read', markAllAsRead);          // must be BEFORE /:id routes
 router.put('/:id/read', markAsRead);
 router.delete('/:id', deleteNotification);
-router.post('/seed', authorize('Admin'), seedNotifications);
+router.post('/seed', authorize('Admin', 'HR'), seedNotifications);
 
 module.exports = router;

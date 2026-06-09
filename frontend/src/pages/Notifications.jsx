@@ -2,6 +2,7 @@ import React, { useState, useContext } from 'react';
 import { NotificationContext } from '../context/NotificationContext';
 import API from '../api/axios';
 import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 import {
     Bell, BellOff, CheckCircle, AlertTriangle, Info, Package,
     Users, ShoppingCart, Settings, Trash2, Check, RefreshCw, Loader
@@ -25,6 +26,7 @@ const TYPE_COLOR = {
 };
 
 const NotificationsPage = () => {
+    const { user } = useContext(AuthContext);
     const { notifications, unreadCount, fetchNotifications, markAsRead, markAllAsRead, deleteNotification } = useContext(NotificationContext);
     
     const [seeding, setSeeding]             = useState(false);
@@ -132,19 +134,21 @@ const NotificationsPage = () => {
                     </p>
                 </div>
                 <div className="header-actions">
-                    <button
-                        id="btn-refresh-notifications"
-                        className="n-action-btn"
-                        onClick={handleSeed}
-                        disabled={seeding}
-                        title="Sync live notifications (Admin)"
-                    >
-                        {seeding
-                            ? <Loader size={15} className="spin" />
-                            : <RefreshCw size={15} />
-                        }
-                        Sync
-                    </button>
+                    {(user?.role === 'Admin' || user?.role === 'Super Admin' || user?.role === 'HR') && (
+                        <button
+                            id="btn-refresh-notifications"
+                            className="n-action-btn"
+                            onClick={handleSeed}
+                            disabled={seeding}
+                            title="Sync live notifications (Admin/HR)"
+                        >
+                            {seeding
+                                ? <Loader size={15} className="spin" />
+                                : <RefreshCw size={15} />
+                            }
+                            Sync
+                        </button>
+                    )}
                     {unreadCount > 0 && (
                         <button
                             id="btn-mark-all-read"
@@ -183,7 +187,7 @@ const NotificationsPage = () => {
                             ? 'No unread notifications — you\'re all caught up!'
                             : 'No notifications yet.'}
                     </p>
-                    {notifications.length === 0 && (
+                    {(notifications.length === 0 && (user?.role === 'Admin' || user?.role === 'Super Admin' || user?.role === 'HR')) && (
                         <button className="n-action-btn primary" onClick={handleSeed}>
                             <RefreshCw size={15} /> Load notifications
                         </button>
