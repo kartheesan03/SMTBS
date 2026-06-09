@@ -409,9 +409,10 @@ const ERP = () => {
                             <th>{customerVendorHeader}</th>
                             <th>Amount</th>
                             <th>Date</th>
-                            <th>Approval Status</th>
+                            <th>Manager Approval</th>
+                            <th>Employee Approval</th>
                             <th>Delivery Status</th>
-                            <th>Status</th>
+                            <th>Final Status</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -451,72 +452,55 @@ const ERP = () => {
                                     <td><strong>${ord.totalAmount?.toLocaleString()}</strong></td>
                                     <td>{new Date(ord.createdAt).toLocaleDateString()}</td>
                                     <td>
-                                        <span className={`status-badge-inline ${ord.approvalStatus?.toLowerCase() || 'pending'}`}>{ord.approvalStatus || 'Pending'}</span>
+                                        <span className={`status-badge-inline ${(ord.approvalStatus === 'Manager Approved' || ord.approvalStatus === 'Employee Approved') ? 'approved' : ord.approvalStatus === 'Pending Manager Approval' ? 'pending' : 'pending'}`}>
+                                            {(ord.approvalStatus === 'Manager Approved' || ord.approvalStatus === 'Employee Approved') ? 'Approved' : 'Pending'}
+                                        </span>
                                     </td>
                                     <td>
-                                        <span className={`status-badge-inline ${ord.deliveryStatus?.toLowerCase() || 'pending'}`}>{ord.deliveryStatus || 'Pending'}</span>
-                                    </td>
-                                    <td>
-                                        {isAdmin ? (
-                                            <select 
-                                                value={displayStatus(ord.status)} 
-                                                onChange={(e) => handleStatusChange(ord._id, e.target.value)}
-                                                className={`status-select-premium ${statusClass}`}
-                                            >
-                                                <option value="Pending Approval">Pending Approval</option>
-                                                <option value="Pending">Pending</option>
-                                                <option value="Ready for Delivery">Ready for Delivery</option>
-                                                <option value="Low Stock Alert">Low Stock Alert</option>
-                                                <option value="Approved">Approved</option>
-                                                <option value="Confirmed">Confirmed</option>
-                                                <option value="Processing">Processing</option>
-                                                <option value="Shipped">Shipped</option>
-                                                <option value="Delivered">Delivered</option>
-                                                <option value="Rejected">Rejected</option>
-                                                <option value="Cancelled">Cancelled</option>
-                                            </select>
+                                        {ord.orderType === 'sales' ? (
+                                            <span className={`status-badge-inline ${ord.approvalStatus === 'Employee Approved' ? 'approved' : (ord.approvalStatus === 'Manager Approved' ? 'pending' : 'not-started')}`}>
+                                                {ord.approvalStatus === 'Employee Approved' ? 'Approved' : (ord.approvalStatus === 'Manager Approved' ? 'Pending' : 'Not Started')}
+                                            </span>
                                         ) : (
-                                            <span className={`status-badge-inline ${statusClass}`}>{displayStatus(ord.status)}</span>
+                                            <span className="text-muted small">N/A</span>
                                         )}
                                     </td>
                                     <td>
+                                        <span className={`status-badge-inline ${ord.deliveryStatus?.toLowerCase().replace(/ /g, '-') || 'not-started'}`}>
+                                            {ord.deliveryStatus || 'Not Started'}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span className={`status-badge-inline ${statusClass}`}>{displayStatus(ord.status)}</span>
+                                    </td>
+                                    <td>
                                         <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', maxWidth: '200px' }}>
-                                            {/* Legacy Employee Workflow Stock Check Controls */}
-                                            {(isEmp || isAdmin) && ord.status === 'Awaiting Stock Check' && (
-                                                <>
-                                                    <button className="btn-workflow-confirm" onClick={() => handleStatusChange(ord._id, 'Ready for Delivery')}>Confirm Stock</button>
-                                                    <button className="btn-workflow-alert" onClick={() => handleStatusChange(ord._id, 'Low Stock Alert')}>Alert Low Stock</button>
-                                                </>
+                                            {/* Manager Action */}
+                                            {(isAdmin || userInfo.role === 'Manager' || userInfo.role === 'Super Admin') && ord.orderType === 'sales' && (ord.approvalStatus === 'Pending Manager Approval' || ord.status === 'Created' || ord.status === 'Pending Approval') && (
+                                                <button className="btn-approve" onClick={() => handleStatusChange(ord._id, 'Manager Approved')}>Approve (Manager)</button>
                                             )}
 
-                                            {/* Sales Deliver Control Legacy */}
-                                            {(isSalesRole || isAdmin) && ord.status === 'Ready for Delivery' && (
-                                                <button className="btn-workflow-deliver" onClick={() => handleStatusChange(ord._id, 'Delivered')}>Deliver to Customer</button>
+                                            {/* Employee Action */}
+                                            {(isAdmin || userInfo.role === 'Employee' || userInfo.role === 'Super Admin') && ord.orderType === 'sales' && ord.approvalStatus === 'Manager Approved' && (
+                                                <button className="btn-workflow-confirm" style={{ background: '#3b82f6', color: 'white', padding: '6px 12px', borderRadius: '6px', fontSize: '11px', fontWeight: '700', border: 'none', cursor: 'pointer' }} onClick={() => handleStatusChange(ord._id, 'Employee Approved')}>Approve Stock (Employee)</button>
                                             )}
 
-                                            {/* New Sales Order Approval Workflow Controls */}
-                                            {(isAdmin || isSalesRole) && ord.status === 'Pending Approval' && (
-                                                <>
-                                                    <button className="btn-approve" onClick={() => handleApprove(ord._id)}>Approve</button>
-                                                    <button className="btn-reject" style={{ background: '#ef4444', color: 'white', padding: '6px 12px', borderRadius: '6px', fontSize: '11px', fontWeight: '700', border: 'none', cursor: 'pointer' }} onClick={() => handleReject(ord._id)}>Reject</button>
-                                                </>
+                                            {/* Sales Actions */}
+                                            {(isAdmin || isSalesRole || userInfo.role === 'Super Admin') && ord.orderType === 'sales' && ord.approvalStatus === 'Employee Approved' && ord.deliveryStatus === 'Not Started' && (
+                                                <button className="btn-workflow-confirm" style={{ background: '#8b5cf6', color: 'white', padding: '6px 12px', borderRadius: '6px', fontSize: '11px', fontWeight: '700', border: 'none', cursor: 'pointer' }} onClick={() => handleStatusChange(ord._id, 'Processing')}>Start Processing</button>
                                             )}
 
-                                            {(isAdmin || isSalesRole) && ord.status === 'Confirmed' && (
-                                                <button className="btn-workflow-confirm" style={{ background: '#3b82f6', color: 'white', padding: '6px 12px', borderRadius: '6px', fontSize: '11px', fontWeight: '700', border: 'none', cursor: 'pointer' }} onClick={() => handleStatusChange(ord._id, 'Processing')}>Start Processing</button>
+                                            {(isAdmin || isSalesRole || userInfo.role === 'Super Admin') && ord.orderType === 'sales' && ord.deliveryStatus === 'Processing' && (
+                                                <button className="btn-workflow-deliver" style={{ background: '#f59e0b', color: 'white', padding: '6px 12px', borderRadius: '6px', fontSize: '11px', fontWeight: '700', border: 'none', cursor: 'pointer' }} onClick={() => handleStatusChange(ord._id, 'Shipped')}>Mark Shipped</button>
                                             )}
 
-                                            {(isAdmin || isSalesRole) && ord.status === 'Processing' && (
-                                                <button className="btn-workflow-deliver" style={{ background: '#8b5cf6', color: 'white', padding: '6px 12px', borderRadius: '6px', fontSize: '11px', fontWeight: '700', border: 'none', cursor: 'pointer' }} onClick={() => handleStatusChange(ord._id, 'Shipped')}>Mark Shipped</button>
-                                            )}
-
-                                            {(isAdmin || isSalesRole) && ord.status === 'Shipped' && (
+                                            {(isAdmin || isSalesRole || userInfo.role === 'Super Admin') && ord.orderType === 'sales' && ord.deliveryStatus === 'Shipped' && (
                                                 <button className="btn-workflow-deliver" style={{ background: '#10b981', color: 'white', padding: '6px 12px', borderRadius: '6px', fontSize: '11px', fontWeight: '700', border: 'none', cursor: 'pointer' }} onClick={() => handleStatusChange(ord._id, 'Delivered')}>Mark Delivered</button>
                                             )}
 
-                                            {/* Legacy Approve Button */}
-                                            {(ord.status === 'Pending' || ord.status === 'Awaiting Approval') && (
-                                                <button className="btn-approve" onClick={() => handleApprove(ord._id)}>Approve</button>
+                                            {/* Legacy non-sales logic */}
+                                            {ord.orderType === 'purchase' && (ord.status === 'Pending' || ord.status === 'Awaiting Approval') && (isAdmin || userInfo.role === 'Super Admin' || userInfo.role === 'Manager') && (
+                                                <button className="btn-approve" onClick={() => handleStatusChange(ord._id, 'Approved')}>Approve</button>
                                             )}
 
                                             {/* Download Invoice Button */}

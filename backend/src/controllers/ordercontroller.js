@@ -55,7 +55,9 @@ const createOrder = async (req, res) => {
 
         // Determine initial status based on role and type
         const isSales = orderType === 'sales' || !!customer;
-        let initialStatus = isSales ? 'Pending Approval' : 'Pending';
+        let initialStatus = isSales ? 'Created' : 'Pending';
+        let initialApprovalStatus = isSales ? 'Pending Manager Approval' : 'Pending';
+        let initialDeliveryStatus = isSales ? 'Not Started' : 'Pending';
 
         // Verify customer exists if it's a Sales order
         if (isSales) {
@@ -96,6 +98,8 @@ const createOrder = async (req, res) => {
             items,
             totalAmount,
             status: initialStatus,
+            approvalStatus: initialApprovalStatus,
+            deliveryStatus: initialDeliveryStatus,
             orderType: orderType || (isSales ? 'sales' : 'purchase'),
             createdById: req.user._id || null
         });
@@ -196,7 +200,25 @@ const updateOrderStatus = async (req, res) => {
         
         // --- Sales Order Approval Workflow Logic ---
         if (order.orderType === 'sales') {
-            if (status === 'Confirmed' && prevStatus === 'Pending Approval') {
+            const customerName = order.customer ? (order.customer.name || 'Walk-in') : 'Walk-in';
+            const payload = getOrderPayload(order, req.user);
+
+            if (status === 'Manager Approved') {
+                order.approvalStatus = 'Manager Approved';
+                order.approvedById = req.user._id;
+                order.approvedDate = new Date();
+                
+                await broadcast({
+                    title: `Sales Order Approved by Manager`,
+                    message: `Order ${order.orderNumber} for ${customerName} has been approved by ${req.user.name || 'Manager'}. Stock check required.`,
+                    type: 'info',
+                    category: 'order',
+                    link: '/erp',
+                    targetRoles: ['Employee'],
+                    payload
+                });
+            } 
+            else if (status === 'Employee Approved') {
                 // Stock Validation
                 for (const item of order.items) {
                     const material = await Material.findById(item.material);
@@ -214,12 +236,21 @@ const updateOrderStatus = async (req, res) => {
                     await material.save();
                 }
 
-                order.approvalStatus = 'Approved';
-                order.approvedById = req.user._id;
-                order.approvedDate = new Date();
+                order.approvalStatus = 'Employee Approved';
+                order.employeeId = req.user._id;
                 order.invoiceGenerated = true; // Auto-generated invoice flag
-            } 
-            else if (status === 'Rejected' && prevStatus === 'Pending Approval') {
+
+                await broadcast({
+                    title: `Sales Order Stock Verified`,
+                    message: `Stock for Order ${order.orderNumber} (${customerName}) verified by ${req.user.name || 'Employee'}. Ready for processing.`,
+                    type: 'success',
+                    category: 'order',
+                    link: '/erp',
+                    targetRoles: ['Sales', 'Admin', 'Manager'],
+                    payload
+                });
+            }
+            else if (status === 'Rejected') {
                 order.approvalStatus = 'Rejected';
             } 
             else if (status === 'Processing') {
@@ -242,6 +273,21 @@ const updateOrderStatus = async (req, res) => {
                 }
                 order.deliveryStatus = 'Delivered';
                 order.deliveryDate = new Date();
+
+                // Final comprehensive notification
+                const targetUserIds = [];
+                if (order.employeeId) targetUserIds.push(order.employeeId);
+                
+                await broadcast({
+                    title: `Sales Order Delivered`,
+                    message: `Order ${order.orderNumber} for ${customerName} has been delivered by ${req.user.name || 'Sales'}. Workflow completed.`,
+                    type: 'success',
+                    category: 'order',
+                    link: '/erp',
+                    targetRoles: ['Admin', 'Manager', 'HR', 'Sales'],
+                    targetUserIds: targetUserIds,
+                    payload
+                });
             }
         }
 
