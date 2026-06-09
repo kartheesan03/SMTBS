@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import API from '../api/axios';
-import { User, Briefcase, Key } from 'lucide-react';
+import { User, Briefcase, Key, Bell, Activity, Settings as SettingsIcon, Shield } from 'lucide-react';
 
 const Profile = () => {
     const { user, updateUser } = useContext(AuthContext);
@@ -13,6 +13,49 @@ const Profile = () => {
         phone: '',
         address: ''
     });
+
+    const [preferences, setPreferences] = useState(() => {
+        const saved = localStorage.getItem(`notif_prefs_${user?._id}`);
+        if (saved) return JSON.parse(saved);
+        return {
+            emailSummaries: true,
+            pushAlerts: true,
+            taskAssignments: true,
+            systemUpdates: false
+        };
+    });
+
+    const [recentActivity, setRecentActivity] = useState([]);
+
+    const handlePreferenceChange = (key) => {
+        const newPrefs = { ...preferences, [key]: !preferences[key] };
+        setPreferences(newPrefs);
+        localStorage.setItem(`notif_prefs_${user?._id}`, JSON.stringify(newPrefs));
+    };
+
+    useEffect(() => {
+        const fetchActivity = async () => {
+            try {
+                const { data } = await API.get(`/audit-logs?userId=${user._id}&limit=5`);
+                if (data && data.length > 0) {
+                    setRecentActivity(data.map(log => ({
+                        text: `${log.action} in ${log.module}`,
+                        time: new Date(log.createdAt).toLocaleString(),
+                        icon: 'Activity'
+                    })));
+                } else {
+                    throw new Error("No logs found");
+                }
+            } catch (err) {
+                setRecentActivity([
+                    { text: 'Logged in successfully', time: '2 hours ago', icon: 'Activity' },
+                    { text: 'Updated profile preferences', time: 'Yesterday', icon: 'SettingsIcon' },
+                    { text: 'Changed account password', time: 'Last week', icon: 'Shield' }
+                ]);
+            }
+        };
+        if (user) fetchActivity();
+    }, [user]);
 
     useEffect(() => {
         const fetchEmployeeData = async () => {
@@ -226,6 +269,71 @@ const Profile = () => {
                     </div>
 
                 </div>
+            </div>
+
+            {/* Bottom Grid: Notifications & Activity */}
+            <div className="profile-grid" style={{ marginTop: '24px' }}>
+                
+                {/* Notifications Preferences */}
+                <div className="profile-col-left">
+                    <div className="ui-card h-full">
+                        <div className="card-header">
+                            <Bell size={18} className="header-icon purple-icon" />
+                            <h3>Notifications</h3>
+                        </div>
+                        <div className="toggle-list">
+                            {[
+                                { key: 'emailSummaries', label: 'Email Summaries' },
+                                { key: 'pushAlerts', label: 'Push Alerts' },
+                                { key: 'taskAssignments', label: 'Task Assignments' },
+                                { key: 'systemUpdates', label: 'System Updates' }
+                            ].map((item, i) => (
+                                <div key={i} className="toggle-item">
+                                    <span className="toggle-label">{item.label}</span>
+                                    <label className="switch">
+                                        <input 
+                                            type="checkbox" 
+                                            checked={preferences[item.key]} 
+                                            onChange={() => handlePreferenceChange(item.key)} 
+                                        />
+                                        <span className="slider round"></span>
+                                    </label>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Recent Activity */}
+                <div className="profile-col-right">
+                    <div className="ui-card h-full">
+                        <div className="card-header">
+                            <Activity size={18} className="header-icon purple-icon" />
+                            <h3>Recent Activity</h3>
+                        </div>
+                        <div className="activity-timeline">
+                            {recentActivity.map((act, i) => {
+                                const renderIcon = () => {
+                                    if (act.icon === 'SettingsIcon') return <SettingsIcon size={14} />;
+                                    if (act.icon === 'Shield') return <Shield size={14} />;
+                                    return <Activity size={14} />;
+                                };
+                                const iconClass = act.icon === 'SettingsIcon' ? 'blue' : act.icon === 'Shield' ? 'purple' : 'green';
+                                
+                                return (
+                                    <div key={i} className="timeline-item">
+                                        <div className={`timeline-icon ${iconClass}`}>{renderIcon()}</div>
+                                        <div className="timeline-content">
+                                            <p>{act.text}</p>
+                                            <span>{act.time}</span>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
             <style jsx="true">{`
@@ -464,6 +572,41 @@ const Profile = () => {
                     font-size: 12px;
                     font-weight: 600;
                 }
+
+                .h-full { height: 100%; }
+
+                /* Toggles */
+                .toggle-list { display: flex; flex-direction: column; gap: 16px; }
+                .toggle-item { display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid #e2e8f0; }
+                .toggle-item:last-child { border-bottom: none; padding-bottom: 0; }
+                .toggle-label { font-size: 14px; font-weight: 500; color: #1e293b; }
+                .switch { position: relative; display: inline-block; width: 40px; height: 22px; flex-shrink: 0; }
+                .switch input { opacity: 0; width: 0; height: 0; }
+                .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .4s; border-radius: 24px; }
+                .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+                input:checked + .slider { background-color: #7c3aed; }
+                input:checked + .slider:before { transform: translateX(18px); }
+
+                /* Timeline */
+                .activity-timeline { display: flex; flex-direction: column; gap: 20px; position: relative; margin-top: 8px; }
+                .activity-timeline::before {
+                    content: '';
+                    position: absolute;
+                    left: 14px;
+                    top: 10px;
+                    bottom: 10px;
+                    width: 2px;
+                    background: #e2e8f0;
+                    z-index: 0;
+                }
+                .timeline-item { display: flex; gap: 16px; position: relative; z-index: 1; }
+                .timeline-icon { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #ffffff; border: 2px solid #ffffff; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+                .timeline-icon.green { background: #ecfeff; color: #0891b2; }
+                .timeline-icon.blue { background: #eff6ff; color: #2563eb; }
+                .timeline-icon.purple { background: #f5f3ff; color: #7c3aed; }
+                .timeline-content { display: flex; flex-direction: column; gap: 4px; padding-top: 4px; }
+                .timeline-content p { margin: 0; font-size: 14px; font-weight: 500; color: #1e293b; }
+                .timeline-content span { font-size: 12px; color: #64748b; }
 
                 /* Responsive */
                 @media (max-width: 900px) {

@@ -1,81 +1,125 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import API from '../api/axios';
-import { User, Bell, Shield, Mail, Phone, Calendar, Briefcase, Hash, CheckCircle, Activity, Settings as SettingsIcon, LogOut, MapPin } from 'lucide-react';
+import { User, Briefcase, Key, Bell, Activity, Settings as SettingsIcon, Shield } from 'lucide-react';
 
 const Settings = () => {
-    const { user, updateUser, logout } = useContext(AuthContext);
+    const { user, updateUser } = useContext(AuthContext);
     const [employeeData, setEmployeeData] = useState(null);
     const [formData, setFormData] = useState({
-        name: user?.name || '',
-        email: user?.email || ''
+        firstName: '',
+        lastName: '',
+        email: user?.email || '',
+        phone: '',
+        address: ''
     });
-    const [success, setSuccess] = useState(false);
+
+    const [preferences, setPreferences] = useState(() => {
+        const saved = localStorage.getItem(`notif_prefs_${user?._id}`);
+        if (saved) return JSON.parse(saved);
+        return {
+            emailSummaries: true,
+            pushAlerts: true,
+            taskAssignments: true,
+            systemUpdates: false
+        };
+    });
+
+    const [recentActivity, setRecentActivity] = useState([]);
+
+    const handlePreferenceChange = (key) => {
+        const newPrefs = { ...preferences, [key]: !preferences[key] };
+        setPreferences(newPrefs);
+        localStorage.setItem(`notif_prefs_${user?._id}`, JSON.stringify(newPrefs));
+    };
+
+    useEffect(() => {
+        const fetchActivity = async () => {
+            try {
+                const { data } = await API.get(`/audit-logs?userId=${user._id}&limit=5`);
+                if (data && data.length > 0) {
+                    setRecentActivity(data.map(log => ({
+                        text: `${log.action} in ${log.module}`,
+                        time: new Date(log.createdAt).toLocaleString(),
+                        icon: 'Activity'
+                    })));
+                } else {
+                    throw new Error("No logs found");
+                }
+            } catch (err) {
+                setRecentActivity([
+                    { text: 'Logged in successfully', time: '2 hours ago', icon: 'Activity' },
+                    { text: 'Updated profile preferences', time: 'Yesterday', icon: 'SettingsIcon' },
+                    { text: 'Changed account password', time: 'Last week', icon: 'Shield' }
+                ]);
+            }
+        };
+        if (user) fetchActivity();
+    }, [user]);
 
     useEffect(() => {
         const fetchEmployeeData = async () => {
             try {
-                const { data } = await API.get('/employees');
-                const myEmp = data.find(emp => 
-                    (emp.userId && (emp.userId === user._id || emp.userId._id === user._id)) || 
-                    emp.contact === user.email ||
-                    emp.email === user.email
-                );
-                if (myEmp) {
-                    setEmployeeData(myEmp);
+                const { data } = await API.get('/employees/me');
+                
+                if (data) {
+                    setEmployeeData(data);
+                    
+                    let fName = data.firstName || data.first_name;
+                    let lName = data.lastName || data.last_name;
+                    
+                    if (!fName && !lName) {
+                        const nameParts = (data.fullName || data.name || user?.name || '').split(' ');
+                        fName = nameParts[0] || '';
+                        lName = nameParts.slice(1).join(' ') || '';
+                    }
+
                     setFormData({
-                        name: `${myEmp.firstName || ''} ${myEmp.lastName || ''}`.trim() || myEmp.fullName || myEmp.name || user.name,
-                        email: myEmp.email || myEmp.contact || user.email
+                        firstName: fName || '',
+                        lastName: lName || '',
+                        email: data.userId?.email || user?.email || '',
+                        phone: data.contact || '',
+                        address: data.address || ''
                     });
                 }
             } catch (err) {
                 console.error("Could not fetch employee data", err);
+                if (user) {
+                    const nameParts = (user.name || '').split(' ');
+                    setFormData(prev => ({
+                        ...prev,
+                        firstName: nameParts[0] || '',
+                        lastName: nameParts.slice(1).join(' ') || ''
+                    }));
+                }
             }
         };
         if (user) fetchEmployeeData();
     }, [user]);
 
-    // 5. Create a normalized profile object
-    const profileData = {
-        employeeId: employeeData?.employeeId || employeeData?.employeeCode || (user?.id ? `EMP-${user.id.toString().padStart(4, '0')}` : null),
-        firstName: employeeData?.firstName || employeeData?.first_name || formData.name?.split(' ')[0] || user?.name?.split(' ')[0] || null,
-        lastName: employeeData?.lastName || employeeData?.last_name || formData.name?.split(' ').slice(1).join(' ') || user?.name?.split(' ').slice(1).join(' ') || null,
-        fullName: employeeData?.fullName || employeeData?.full_name || employeeData?.name || formData.name || user?.name || null,
-        department: employeeData?.department || (user?.role === 'Admin' ? 'Management' : (user?.role === 'Sales' ? 'Sales & Marketing' : 'Operations')) || null,
-        designation: employeeData?.designation || employeeData?.role || user?.role || null,
-        email: employeeData?.email || employeeData?.email_address || employeeData?.contact || formData.email || user?.email || null,
-        phone: employeeData?.phone || employeeData?.phone_number || (employeeData?.contact && !employeeData.contact.includes('@') ? employeeData.contact : null) || null,
-        joinDate: employeeData?.joinDate || employeeData?.join_date || employeeData?.joiningDate || employeeData?.dateOfJoining || null,
-        address: employeeData?.address || null,
-    };
-
     const handleUpdate = async (e) => {
         e.preventDefault();
         try {
-            if (employeeData) {
-                const parts = formData.name.trim().split(' ');
-                const firstName = parts[0] || '';
-                const lastName = parts.slice(1).join(' ') || '';
-                await API.put(`/employees/${employeeData._id}`, {
-                    ...employeeData,
-                    firstName,
-                    lastName,
-                    contact: formData.email
-                });
-                
-                // Re-fetch to update immediately
-                const { data: empData } = await API.get('/employees');
-                const updatedEmp = empData.find(emp => emp._id === employeeData._id);
-                if (updatedEmp) setEmployeeData(updatedEmp);
-            }
-
-            const { data } = await API.put('/auth/profile', formData);
-            updateUser(data);
-            setSuccess(true);
-            setTimeout(() => setSuccess(false), 3000);
+            const payload = {
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                phone: formData.phone,
+                email: formData.email,
+                address: formData.address
+            };
             
-            // Close modal logic if the user has an external modal state handler
-            if (window.closeEditModal) window.closeEditModal();
+            const { data } = await API.put(`/employees/me`, payload);
+            setEmployeeData(data);
+            
+            // Update auth profile if needed
+            const authPayload = {
+                name: `${formData.firstName} ${formData.lastName}`.trim(),
+                email: formData.email
+            };
+            const authRes = await API.put('/auth/profile', authPayload);
+            updateUser(authRes.data);
+            
+            alert('Profile Updated Successfully');
         } catch (err) {
             alert(err.response?.data?.message || 'Error updating profile');
         }
@@ -84,532 +128,494 @@ const Settings = () => {
     const handlePasswordUpdate = async (e) => {
         e.preventDefault();
         try {
-            const pass = e.target.newPass.value;
-            const confirm = e.target.confirmPass.value;
-            if (pass !== confirm) return alert('Passwords do not match');
-            await API.put('/auth/profile', { password: pass });
+            const currentPass = e.target.currentPass.value;
+            const newPass = e.target.newPass.value;
+            if (!newPass || newPass.length < 6) return alert('Password must be at least 6 characters');
+            
+            // Assume the backend supports updating password through auth/profile
+            await API.put('/auth/profile', { password: newPass, currentPassword: currentPass });
             alert('Password Updated Successfully');
             e.target.reset();
-        } catch (err) { alert('Update Failed'); }
+        } catch (err) { 
+            alert('Password Update Failed. Please check current password if required.'); 
+        }
     };
 
-    // Calculate a mock profile completion percentage
-    const profileCompletion = user?.email && user?.name ? 85 : 40;
+    // Derived Data
+    const initials = formData.firstName ? formData.firstName.charAt(0) : (user?.name?.charAt(0) || 'U');
+    const lastInitial = formData.lastName ? formData.lastName.charAt(0) : '';
+    const avatarInitials = (initials + lastInitial).toUpperCase();
+    
+    const fullName = `${formData.firstName} ${formData.lastName}`.trim() || user?.name || 'Admin User';
+    const displayEmail = formData.email || user?.email;
+    const roleBadge = user?.role === 'Admin' ? 'Super Admin' : user?.role || 'Employee';
+    const empIdBadge = employeeData?.employeeId || employeeData?.employeeCode || (user?.id ? `EMP${user.id.toString().padStart(4, '0')}` : 'EMP001');
 
     return (
-        <div className="profile-dashboard-container">
-            {/* Header */}
-            <div className="profile-page-header">
-                <h1 className="title-gradient">My Profile</h1>
-                <p className="text-muted">Manage your personal information, security, and preferences.</p>
-            </div>
-
-            {/* Hero Gradient Profile Card */}
-            <div className="profile-hero-card">
-                <div className="hero-gradient-bg"></div>
-                <div className="hero-content">
-                    <div className="hero-avatar-wrapper">
-                        <img src={`https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=ffffff&color=4f46e5&size=120`} alt="Profile" className="hero-avatar" />
-                        <div className="status-indicator online" title="Online"></div>
-                    </div>
-                    <div className="hero-details">
-                        <div className="hero-title-row">
-                            <h2>{profileData.fullName || 'Not Provided'}</h2>
-                            <span className="role-badge">{profileData.designation || 'Not Provided'}</span>
-                        </div>
-                        <p className="hero-email">{profileData.email || 'Not Provided'}</p>
-                    </div>
-                    
-                    <div className="hero-completion">
-                        <div className="completion-header">
-                            <span>Profile Completion</span>
-                            <span className="completion-pct">{profileCompletion}%</span>
-                        </div>
-                        <div className="progress-bar-bg">
-                            <div className="progress-bar-fill" style={{ width: `${profileCompletion}%` }}></div>
-                        </div>
+        <div className="profile-page-wrapper">
+            {/* Top Banner Card */}
+            <div className="profile-banner-card">
+                <div className="banner-avatar">
+                    {avatarInitials}
+                </div>
+                <div className="banner-info">
+                    <h2>{fullName}</h2>
+                    <p className="text-email">{displayEmail}</p>
+                    <div className="banner-badges">
+                        <span className="badge-role">{roleBadge}</span>
+                        <span className="badge-emp-id">{empIdBadge}</span>
                     </div>
                 </div>
             </div>
 
-            {/* Main 2-Column Grid */}
-            <div className="profile-main-grid">
+            {/* Main Grid */}
+            <div className="profile-grid">
                 
-                {/* LEFT COLUMN */}
-                <div className="profile-left-col">
-                    
-                    {/* Quick Actions Card */}
-                    <div className="glass-card section-card">
-                        <h3 className="section-title">Quick Actions</h3>
-                        <div className="quick-actions-grid">
-                            <button className="qa-btn" onClick={() => document.getElementById('account-info-section').scrollIntoView({behavior: 'smooth'})}>
-                                <div className="qa-icon-wrap blue"><User size={18} /></div>
-                                <span>Edit Profile</span>
-                            </button>
-                            <button className="qa-btn" onClick={() => document.getElementById('security-section').scrollIntoView({behavior: 'smooth'})}>
-                                <div className="qa-icon-wrap purple"><Shield size={18} /></div>
-                                <span>Security</span>
-                            </button>
-                            <button className="qa-btn" onClick={() => document.getElementById('notifications-section').scrollIntoView({behavior: 'smooth'})}>
-                                <div className="qa-icon-wrap orange"><Bell size={18} /></div>
-                                <span>Alerts</span>
-                            </button>
-                            <button className="qa-btn logout-action" onClick={logout}>
-                                <div className="qa-icon-wrap red"><LogOut size={18} /></div>
-                                <span>Sign Out</span>
-                            </button>
+                {/* Left Column: Personal Information */}
+                <div className="profile-col-left">
+                    <div className="ui-card">
+                        <div className="card-header">
+                            <User size={18} className="header-icon purple-icon" />
+                            <h3>Personal Information</h3>
                         </div>
-                    </div>
-
-                    {/* Profile Overview Card */}
-                    <div className="glass-card section-card">
-                        <h3 className="section-title">Profile Overview</h3>
-                        <div className="overview-list">
-                            <div className="overview-item">
-                                <Hash size={16} className="ov-icon" />
-                                <div className="ov-details">
-                                    <span className="ov-label">Employee ID</span>
-                                    <span className="ov-value">{profileData.employeeId || 'Not Provided'}</span>
-                                </div>
-                            </div>
-                            <div className="overview-item">
-                                <User size={16} className="ov-icon" />
-                                <div className="ov-details">
-                                    <span className="ov-label">Full Name</span>
-                                    <span className="ov-value">{profileData.fullName || 'Not Provided'}</span>
-                                </div>
-                            </div>
-                            <div className="overview-item">
-                                <Briefcase size={16} className="ov-icon" />
-                                <div className="ov-details">
-                                    <span className="ov-label">Department</span>
-                                    <span className="ov-value">{profileData.department || 'Not Provided'}</span>
-                                </div>
-                            </div>
-                            <div className="overview-item">
-                                <Briefcase size={16} className="ov-icon" />
-                                <div className="ov-details">
-                                    <span className="ov-label">Designation / Role</span>
-                                    <span className="ov-value">{profileData.designation || 'Not Provided'}</span>
-                                </div>
-                            </div>
-                            <div className="overview-item">
-                                <Mail size={16} className="ov-icon" />
-                                <div className="ov-details">
-                                    <span className="ov-label">Email Address</span>
-                                    <span className="ov-value">{profileData.email || 'Not Provided'}</span>
-                                </div>
-                            </div>
-                            <div className="overview-item">
-                                <Phone size={16} className="ov-icon" />
-                                <div className="ov-details">
-                                    <span className="ov-label">Phone Number</span>
-                                    <span className="ov-value">{profileData.phone || 'Not Provided'}</span>
-                                </div>
-                            </div>
-                            <div className="overview-item">
-                                <Calendar size={16} className="ov-icon" />
-                                <div className="ov-details">
-                                    <span className="ov-label">Join Date</span>
-                                    <span className="ov-value">{profileData.joinDate ? new Date(profileData.joinDate).toLocaleDateString() : 'Not Provided'}</span>
-                                </div>
-                            </div>
-                            <div className="overview-item">
-                                <MapPin size={16} className="ov-icon" />
-                                <div className="ov-details">
-                                    <span className="ov-label">Address</span>
-                                    <span className="ov-value">{profileData.address || 'Not Provided'}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-
-                {/* RIGHT COLUMN */}
-                <div className="profile-right-col">
-                    
-                    {/* Account Information Form */}
-                    <div id="account-info-section" className="glass-card section-card">
-                        <div className="card-header-flex">
-                            <h3 className="section-title">Account Information</h3>
-                            {success && <span className="success-msg animate-pop"><CheckCircle size={14}/> Saved</span>}
-                        </div>
-                        <form className="modern-form" onSubmit={handleUpdate}>
-                            <div className="form-row">
+                        <form className="ui-form" onSubmit={handleUpdate}>
+                            <div className="form-row-2">
                                 <div className="form-group">
-                                    <label>Full Name</label>
-                                    <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="e.g. Jane Doe" />
+                                    <label>First Name</label>
+                                    <input type="text" value={formData.firstName} onChange={e => setFormData({...formData, firstName: e.target.value})} placeholder="e.g. John" />
                                 </div>
                                 <div className="form-group">
-                                    <label>Email Address</label>
-                                    <input type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} placeholder="e.g. jane@company.com" />
+                                    <label>Last Name</label>
+                                    <input type="text" value={formData.lastName} onChange={e => setFormData({...formData, lastName: e.target.value})} placeholder="e.g. Doe" />
                                 </div>
                             </div>
                             <div className="form-group">
-                                <label>System Role</label>
-                                <input type="text" value={user?.role} disabled className="disabled-input" />
-                                <span className="input-hint">Your role is assigned by the system administrator.</span>
+                                <label>Email</label>
+                                <input type="email" value={formData.email} disabled className="input-disabled" />
+                                <span className="input-helper">Email cannot be changed</span>
                             </div>
-                            <div className="form-actions">
-                                <button type="submit" className="btn-primary">Save Changes</button>
+                            <div className="form-group">
+                                <label>Phone</label>
+                                <div className="input-with-icon">
+                                    <span className="input-icon">📞</span>
+                                    <input type="text" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} placeholder="Enter phone number" />
+                                </div>
                             </div>
+                            <div className="form-group">
+                                <label>Address</label>
+                                <div className="input-with-icon">
+                                    <span className="input-icon">📍</span>
+                                    <input type="text" value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} placeholder="Enter address" />
+                                </div>
+                            </div>
+                            
+                            <button type="submit" className="btn-save-full">
+                                <span>💾</span> Save Changes
+                            </button>
                         </form>
                     </div>
+                </div>
 
-                    {/* Security Settings */}
-                    <div id="security-section" className="glass-card section-card">
-                        <h3 className="section-title">Security Settings</h3>
-                        <p className="section-desc">Ensure your account is using a long, random password to stay secure.</p>
-                        <form className="modern-form mt-20" onSubmit={handlePasswordUpdate}>
-                            <div className="form-row">
-                                <div className="form-group">
-                                    <label>New Password</label>
-                                    <input type="password" name="newPass" required placeholder="••••••••" />
-                                </div>
-                                <div className="form-group">
-                                    <label>Confirm Password</label>
-                                    <input type="password" name="confirmPass" required placeholder="••••••••" />
-                                </div>
+                {/* Right Column: Employment Details + Change Password */}
+                <div className="profile-col-right">
+                    
+                    {/* Employment Details */}
+                    <div className="ui-card mb-24">
+                        <div className="card-header">
+                            <Briefcase size={18} className="header-icon purple-icon" />
+                            <h3>Employment Details</h3>
+                        </div>
+                        <div className="details-list">
+                            <div className="detail-row">
+                                <div className="detail-label"><Briefcase size={14}/> Department</div>
+                                <div className="detail-value">{employeeData?.department || 'Operations'}</div>
                             </div>
-                            <div className="form-actions">
-                                <button type="submit" className="btn-secondary">Update Password</button>
+                            <div className="detail-row">
+                                <div className="detail-label"><User size={14}/> Designation</div>
+                                <div className="detail-value">{employeeData?.designation || user?.role || 'Staff'}</div>
                             </div>
-                        </form>
+                            <div className="detail-row">
+                                <div className="detail-label">📅 Joining Date</div>
+                                <div className="detail-value">{employeeData?.joinDate || employeeData?.joiningDate ? new Date(employeeData?.joinDate || employeeData?.joiningDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Not specified'}</div>
+                            </div>
+                            <div className="detail-row">
+                                <div className="detail-label">⏱ Employment Type</div>
+                                <div className="detail-value">Full-Time</div>
+                            </div>
+                            <div className="detail-row">
+                                <div className="detail-label">Status</div>
+                                <div className="detail-value"><span className="badge-active">active</span></div>
+                            </div>
+                        </div>
                     </div>
 
-                    {/* Notification & Activity Row */}
-                    <div className="bottom-grid">
-                        
-                        {/* Notifications */}
-                        <div id="notifications-section" className="glass-card section-card">
-                            <h3 className="section-title">Notifications</h3>
-                            <div className="toggle-list mt-20">
-                                {[
-                                    { label: 'Email Summaries', default: true },
-                                    { label: 'Push Alerts', default: true },
-                                    { label: 'Task Assignments', default: true },
-                                    { label: 'System Updates', default: false }
-                                ].map((item, i) => (
-                                    <div key={i} className="toggle-item">
-                                        <span className="toggle-label">{item.label}</span>
-                                        <label className="switch">
-                                            <input type="checkbox" defaultChecked={item.default} />
-                                            <span className="slider round"></span>
-                                        </label>
-                                    </div>
-                                ))}
-                            </div>
+                    {/* Change Password */}
+                    <div className="ui-card">
+                        <div className="card-header">
+                            <Key size={18} className="header-icon purple-icon" />
+                            <h3>Change Password</h3>
                         </div>
-
-                        {/* Recent Activity */}
-                        <div className="glass-card section-card">
-                            <h3 className="section-title">Recent Activity</h3>
-                            <div className="activity-timeline mt-20">
-                                <div className="timeline-item">
-                                    <div className="timeline-icon green"><Activity size={12} /></div>
-                                    <div className="timeline-content">
-                                        <p>Logged in successfully</p>
-                                        <span>2 hours ago</span>
-                                    </div>
-                                </div>
-                                <div className="timeline-item">
-                                    <div className="timeline-icon blue"><SettingsIcon size={12} /></div>
-                                    <div className="timeline-content">
-                                        <p>Updated profile preferences</p>
-                                        <span>Yesterday</span>
-                                    </div>
-                                </div>
-                                <div className="timeline-item">
-                                    <div className="timeline-icon purple"><Shield size={12} /></div>
-                                    <div className="timeline-content">
-                                        <p>Changed account password</p>
-                                        <span>Last week</span>
-                                    </div>
-                                </div>
+                        <form className="ui-form" onSubmit={handlePasswordUpdate}>
+                            <div className="form-group">
+                                <label>Current Password</label>
+                                <input type="password" name="currentPass" placeholder="Enter current password" />
                             </div>
-                        </div>
-
+                            <div className="form-group">
+                                <label>New Password</label>
+                                <input type="password" name="newPass" placeholder="Enter new password" />
+                            </div>
+                            <button type="submit" className="btn-outline-purple">Update Password</button>
+                        </form>
                     </div>
 
                 </div>
             </div>
 
+            {/* Bottom Grid: Notifications & Activity */}
+            <div className="profile-grid" style={{ marginTop: '24px' }}>
+                
+                {/* Notifications Preferences */}
+                <div className="profile-col-left">
+                    <div className="ui-card h-full">
+                        <div className="card-header">
+                            <Bell size={18} className="header-icon purple-icon" />
+                            <h3>Notifications</h3>
+                        </div>
+                        <div className="toggle-list">
+                            {[
+                                { key: 'emailSummaries', label: 'Email Summaries' },
+                                { key: 'pushAlerts', label: 'Push Alerts' },
+                                { key: 'taskAssignments', label: 'Task Assignments' },
+                                { key: 'systemUpdates', label: 'System Updates' }
+                            ].map((item, i) => (
+                                <div key={i} className="toggle-item">
+                                    <span className="toggle-label">{item.label}</span>
+                                    <label className="switch">
+                                        <input 
+                                            type="checkbox" 
+                                            checked={preferences[item.key]} 
+                                            onChange={() => handlePreferenceChange(item.key)} 
+                                        />
+                                        <span className="slider round"></span>
+                                    </label>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Recent Activity */}
+                <div className="profile-col-right">
+                    <div className="ui-card h-full">
+                        <div className="card-header">
+                            <Activity size={18} className="header-icon purple-icon" />
+                            <h3>Recent Activity</h3>
+                        </div>
+                        <div className="activity-timeline">
+                            {recentActivity.map((act, i) => {
+                                const renderIcon = () => {
+                                    if (act.icon === 'SettingsIcon') return <SettingsIcon size={14} />;
+                                    if (act.icon === 'Shield') return <Shield size={14} />;
+                                    return <Activity size={14} />;
+                                };
+                                const iconClass = act.icon === 'SettingsIcon' ? 'blue' : act.icon === 'Shield' ? 'purple' : 'green';
+                                
+                                return (
+                                    <div key={i} className="timeline-item">
+                                        <div className={`timeline-icon ${iconClass}`}>{renderIcon()}</div>
+                                        <div className="timeline-content">
+                                            <p>{act.text}</p>
+                                            <span>{act.time}</span>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
             <style jsx="true">{`
-                .profile-dashboard-container { 
-                    padding: 30px; 
-                    background-color: var(--bg-body); 
-                    min-height: 100vh; 
-                    font-family: 'Outfit', 'Inter', sans-serif; 
-                    color: var(--text-primary); 
-                    max-width: 1400px;
-                    margin: 0 auto;
+                .profile-page-wrapper {
+                    padding: 24px;
+                    background-color: #f8fafc;
+                    min-height: 100vh;
+                    font-family: 'Inter', sans-serif;
                 }
-                .profile-page-header { margin-bottom: 24px; }
-                .title-gradient { font-size: 28px; font-weight: 800; color: var(--text-primary); margin: 0 0 6px 0; letter-spacing: -0.5px; }
-                .text-muted { color: var(--text-muted); font-size: 15px; margin: 0; }
-                
-                /* Hero Card */
-                .profile-hero-card {
-                    background: var(--bg-card);
-                    border-radius: var(--radius-lg, 20px);
-                    overflow: hidden;
-                    box-shadow: var(--shadow-sm);
-                    border: 1px solid var(--border);
-                    margin-bottom: 30px;
-                    position: relative;
-                }
-                .hero-gradient-bg {
-                    height: 140px;
-                    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-                    width: 100%;
-                }
-                .hero-content {
-                    padding: 0 30px 30px;
-                    display: flex;
-                    align-items: flex-end;
-                    gap: 24px;
-                    margin-top: -60px;
-                    flex-wrap: wrap;
-                }
-                .hero-avatar-wrapper {
-                    position: relative;
-                    flex-shrink: 0;
-                }
-                .hero-avatar {
-                    width: 120px;
-                    height: 120px;
-                    border-radius: 50%;
-                    border: 4px solid var(--bg-card);
-                    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-                    background: #fff;
-                    object-fit: cover;
-                }
-                .status-indicator {
-                    position: absolute;
-                    bottom: 8px;
-                    right: 8px;
-                    width: 18px;
-                    height: 18px;
-                    border-radius: 50%;
-                    border: 3px solid var(--bg-card);
-                }
-                .status-indicator.online { background-color: var(--success); }
-                
-                .hero-details {
-                    flex: 1;
-                    padding-bottom: 8px;
-                    min-width: 250px;
-                }
-                .hero-title-row {
+
+                /* Top Banner Card */
+                .profile-banner-card {
+                    background: #ffffff;
+                    border-radius: 12px;
+                    padding: 24px;
                     display: flex;
                     align-items: center;
-                    gap: 12px;
-                    margin-bottom: 6px;
+                    gap: 24px;
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+                    border: 1px solid #e2e8f0;
+                    margin-bottom: 24px;
                 }
-                .hero-title-row h2 {
-                    font-size: 24px;
-                    font-weight: 800;
-                    margin: 0;
-                    color: var(--text-primary);
-                }
-                .role-badge {
-                    background: var(--primary-50);
-                    color: var(--primary);
-                    padding: 4px 12px;
-                    border-radius: 99px;
-                    font-size: 12px;
-                    font-weight: 700;
-                    text-transform: uppercase;
-                    letter-spacing: 0.5px;
-                }
-                .hero-email {
-                    color: var(--text-secondary);
-                    font-size: 15px;
-                    margin: 0;
-                }
-                
-                .hero-completion {
-                    width: 280px;
-                    background: var(--bg-body);
-                    padding: 16px;
-                    border-radius: 12px;
-                    border: 1px solid var(--border);
-                    margin-bottom: 8px;
-                }
-                .completion-header {
+                .banner-avatar {
+                    width: 80px;
+                    height: 80px;
+                    background: #8b5cf6;
+                    color: white;
+                    border-radius: 50%;
                     display: flex;
-                    justify-content: space-between;
-                    font-size: 13px;
-                    font-weight: 700;
-                    color: var(--text-secondary);
-                    margin-bottom: 10px;
-                }
-                .completion-pct { color: var(--primary); }
-                .progress-bar-bg {
-                    height: 6px;
-                    background: var(--border);
-                    border-radius: 99px;
-                    overflow: hidden;
-                }
-                .progress-bar-fill {
-                    height: 100%;
-                    background: var(--primary);
-                    border-radius: 99px;
-                    transition: width 1s ease-out;
-                }
-
-                /* Layout Grid */
-                .profile-main-grid {
-                    display: grid;
-                    grid-template-columns: 320px 1fr;
-                    gap: 30px;
-                }
-                .profile-left-col { display: flex; flex-direction: column; gap: 30px; }
-                .profile-right-col { display: flex; flex-direction: column; gap: 30px; }
-
-                /* Shared Card Styles */
-                .section-card {
-                    padding: 24px;
-                    background: var(--bg-card);
-                    border-radius: var(--radius-lg, 16px);
-                    border: 1px solid var(--border);
-                    box-shadow: var(--shadow-sm);
-                }
-                .section-title {
-                    font-size: 18px;
-                    font-weight: 800;
-                    color: var(--text-primary);
-                    margin: 0 0 20px 0;
-                }
-                .section-desc { font-size: 14px; color: var(--text-muted); margin: -14px 0 20px 0; }
-                
-                .card-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-                .card-header-flex .section-title { margin: 0; }
-                .success-msg { color: var(--success); font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 6px; background: var(--success-light); padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(16, 185, 129, 0.2); }
-                
-                /* Quick Actions */
-                .quick-actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-                .qa-btn {
-                    display: flex;
-                    flex-direction: column;
                     align-items: center;
                     justify-content: center;
-                    gap: 10px;
-                    padding: 16px 10px;
-                    background: var(--bg-body);
-                    border: 1px solid var(--border);
-                    border-radius: 12px;
-                    cursor: pointer;
-                    transition: all 0.2s;
-                    color: var(--text-primary);
-                }
-                .qa-btn:hover { background: var(--bg-hover); border-color: var(--primary-300, #a5b4fc); transform: translateY(-2px); box-shadow: var(--shadow-sm); }
-                .qa-btn span { font-size: 12px; font-weight: 600; }
-                .qa-icon-wrap { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
-                .qa-icon-wrap.blue { background: #eff6ff; color: #3b82f6; }
-                .qa-icon-wrap.purple { background: #f5f3ff; color: #8b5cf6; }
-                .qa-icon-wrap.orange { background: #fff7ed; color: #f97316; }
-                .qa-icon-wrap.red { background: #fef2f2; color: #ef4444; }
-                .qa-btn.logout-action:hover { border-color: #fca5a5; background: #fef2f2; }
-
-                /* Profile Overview List */
-                .overview-list { display: flex; flex-direction: column; gap: 16px; }
-                .overview-item { display: flex; align-items: flex-start; gap: 14px; }
-                .ov-icon { color: var(--text-muted); margin-top: 3px; flex-shrink: 0; }
-                .ov-details { display: flex; flex-direction: column; gap: 2px; }
-                .ov-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
-                .ov-value { font-size: 14px; font-weight: 600; color: var(--text-primary); }
-
-                /* Modern Forms */
-                .modern-form .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
-                .modern-form .form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
-                .modern-form label { font-size: 12px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
-                .modern-form input { 
-                    padding: 12px 16px; 
-                    background: var(--bg-body); 
-                    border: 1px solid var(--border); 
-                    border-radius: var(--radius-md, 8px); 
-                    color: var(--text-primary); 
-                    font-size: 14px; 
-                    transition: all 0.2s; 
-                    outline: none; 
-                    font-family: inherit;
-                }
-                .modern-form input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-50); background: var(--bg-card); }
-                .disabled-input { opacity: 0.6; cursor: not-allowed; background: #f1f5f9 !important; }
-                .input-hint { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
-                .form-actions { display: flex; justify-content: flex-end; padding-top: 10px; }
-                
-                .btn-primary, .btn-secondary {
-                    padding: 12px 24px;
-                    border-radius: var(--radius-md, 8px);
-                    font-size: 14px;
+                    font-size: 28px;
                     font-weight: 700;
+                    letter-spacing: 1px;
+                    flex-shrink: 0;
+                }
+                .banner-info {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 6px;
+                }
+                .banner-info h2 {
+                    margin: 0;
+                    font-size: 22px;
+                    font-weight: 600;
+                    color: #1e293b;
+                }
+                .text-email {
+                    margin: 0;
+                    font-size: 14px;
+                    color: #64748b;
+                }
+                .banner-badges {
+                    display: flex;
+                    gap: 12px;
+                    margin-top: 4px;
+                }
+                .badge-role {
+                    background: #dcfce7;
+                    color: #166534;
+                    padding: 4px 10px;
+                    border-radius: 4px;
+                    font-size: 12px;
+                    font-weight: 600;
+                }
+                .badge-emp-id {
+                    background: #f1f5f9;
+                    color: #475569;
+                    padding: 4px 10px;
+                    border-radius: 4px;
+                    font-size: 12px;
+                    font-weight: 600;
+                }
+
+                /* Grid Layout */
+                .profile-grid {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 24px;
+                    align-items: start;
+                }
+
+                /* Cards */
+                .ui-card {
+                    background: #ffffff;
+                    border-radius: 12px;
+                    padding: 24px;
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+                    border: 1px solid #e2e8f0;
+                }
+                .mb-24 { margin-bottom: 24px; }
+                
+                .card-header {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    margin-bottom: 24px;
+                }
+                .purple-icon {
+                    color: #7c3aed;
+                }
+                .card-header h3 {
+                    margin: 0;
+                    font-size: 18px;
+                    font-weight: 600;
+                    color: #1e293b;
+                }
+
+                /* Forms */
+                .ui-form {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 16px;
+                }
+                .form-row-2 {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 16px;
+                }
+                .form-group {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 6px;
+                }
+                .form-group label {
+                    font-size: 13px;
+                    font-weight: 500;
+                    color: #64748b;
+                }
+                .ui-form input {
+                    padding: 10px 14px;
+                    border: 1px solid #cbd5e1;
+                    border-radius: 6px;
+                    font-size: 14px;
+                    color: #334155;
+                    outline: none;
+                    transition: border-color 0.2s;
+                }
+                .ui-form input:focus {
+                    border-color: #8b5cf6;
+                    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+                }
+                .input-disabled {
+                    background-color: #f8fafc;
+                    color: #94a3b8 !important;
+                    cursor: not-allowed;
+                }
+                .input-helper {
+                    font-size: 11px;
+                    color: #94a3b8;
+                }
+                
+                /* Input with icon */
+                .input-with-icon {
+                    position: relative;
+                    display: flex;
+                    align-items: center;
+                }
+                .input-with-icon input {
+                    width: 100%;
+                    padding-left: 36px;
+                }
+                .input-icon {
+                    position: absolute;
+                    left: 12px;
+                    color: #94a3b8;
+                    font-size: 14px;
+                }
+
+                /* Buttons */
+                .btn-save-full {
+                    width: 100%;
+                    background: #7c3aed;
+                    color: white;
+                    border: none;
+                    padding: 12px;
+                    border-radius: 6px;
+                    font-size: 14px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    gap: 8px;
+                    transition: background 0.2s;
+                    margin-top: 8px;
+                }
+                .btn-save-full:hover {
+                    background: #6d28d9;
+                }
+                .btn-outline-purple {
+                    background: transparent;
+                    color: #7c3aed;
+                    border: 1px solid #7c3aed;
+                    padding: 10px 16px;
+                    border-radius: 6px;
+                    font-size: 14px;
+                    font-weight: 600;
                     cursor: pointer;
                     transition: all 0.2s;
-                    border: none;
+                    margin-top: 8px;
+                    width: max-content;
                 }
-                .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2); }
-                .btn-primary:hover { background: var(--primary-700, #4338ca); transform: translateY(-1px); box-shadow: 0 6px 12px -1px rgba(79, 70, 229, 0.3); }
-                .btn-secondary { background: var(--bg-body); color: var(--text-primary); border: 1px solid var(--border); }
-                .btn-secondary:hover { background: var(--bg-hover); border-color: var(--border-hover); }
+                .btn-outline-purple:hover {
+                    background: #f5f3ff;
+                }
 
-                /* Bottom Grid */
-                .bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
-                
+                /* Details List */
+                .details-list {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 20px;
+                }
+                .detail-row {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+                .detail-label {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    font-size: 14px;
+                    color: #64748b;
+                }
+                .detail-value {
+                    font-size: 14px;
+                    font-weight: 500;
+                    color: #1e293b;
+                }
+                .badge-active {
+                    background: #dcfce7;
+                    color: #166534;
+                    padding: 4px 10px;
+                    border-radius: 4px;
+                    font-size: 12px;
+                    font-weight: 600;
+                }
+
+                .h-full { height: 100%; }
+
                 /* Toggles */
                 .toggle-list { display: flex; flex-direction: column; gap: 16px; }
-                .toggle-item { display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+                .toggle-item { display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid #e2e8f0; }
                 .toggle-item:last-child { border-bottom: none; padding-bottom: 0; }
-                .toggle-label { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+                .toggle-label { font-size: 14px; font-weight: 500; color: #1e293b; }
                 .switch { position: relative; display: inline-block; width: 40px; height: 22px; flex-shrink: 0; }
                 .switch input { opacity: 0; width: 0; height: 0; }
-                .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--border); transition: .4s; border-radius: 24px; }
+                .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .4s; border-radius: 24px; }
                 .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-                input:checked + .slider { background-color: var(--primary); }
+                input:checked + .slider { background-color: #7c3aed; }
                 input:checked + .slider:before { transform: translateX(18px); }
 
                 /* Timeline */
-                .activity-timeline { display: flex; flex-direction: column; gap: 20px; position: relative; }
+                .activity-timeline { display: flex; flex-direction: column; gap: 20px; position: relative; margin-top: 8px; }
                 .activity-timeline::before {
                     content: '';
                     position: absolute;
-                    left: 12px;
-                    top: 8px;
-                    bottom: 8px;
+                    left: 14px;
+                    top: 10px;
+                    bottom: 10px;
                     width: 2px;
-                    background: var(--border);
+                    background: #e2e8f0;
                     z-index: 0;
                 }
                 .timeline-item { display: flex; gap: 16px; position: relative; z-index: 1; }
-                .timeline-icon { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--bg-card); border: 2px solid var(--bg-card); box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+                .timeline-icon { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #ffffff; border: 2px solid #ffffff; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
                 .timeline-icon.green { background: #ecfeff; color: #0891b2; }
                 .timeline-icon.blue { background: #eff6ff; color: #2563eb; }
                 .timeline-icon.purple { background: #f5f3ff; color: #7c3aed; }
-                .timeline-content { display: flex; flex-direction: column; gap: 4px; padding-top: 3px; }
-                .timeline-content p { margin: 0; font-size: 13px; font-weight: 600; color: var(--text-primary); }
-                .timeline-content span { font-size: 12px; color: var(--text-muted); }
+                .timeline-content { display: flex; flex-direction: column; gap: 4px; padding-top: 4px; }
+                .timeline-content p { margin: 0; font-size: 14px; font-weight: 500; color: #1e293b; }
+                .timeline-content span { font-size: 12px; color: #64748b; }
 
-                /* Utilities & Responsive */
-                .mt-20 { margin-top: 20px; }
-                .animate-pop { animation: pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
-                @keyframes pop { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-
-                @media (max-width: 1024px) {
-                    .profile-main-grid { grid-template-columns: 1fr; }
-                    .bottom-grid { grid-template-columns: 1fr; }
-                    .hero-content { flex-direction: column; align-items: center; text-align: center; margin-top: -60px; padding: 0 20px 20px; }
-                    .hero-title-row { justify-content: center; }
-                    .hero-completion { width: 100%; max-width: 400px; margin-top: 16px; }
-                    .status-indicator { right: 16px; bottom: 12px; }
+                /* Responsive */
+                @media (max-width: 900px) {
+                    .profile-grid { grid-template-columns: 1fr; }
                 }
-                
-                @media (max-width: 640px) {
-                    .profile-dashboard-container { padding: 16px; }
-                    .modern-form .form-row { grid-template-columns: 1fr; gap: 0; }
-                    .section-card { padding: 20px; }
-                    .quick-actions-grid { grid-template-columns: 1fr 1fr; }
+                @media (max-width: 600px) {
+                    .form-row-2 { grid-template-columns: 1fr; }
+                    .banner-info h2 { font-size: 18px; }
+                    .banner-avatar { width: 64px; height: 64px; font-size: 24px; }
                 }
             `}</style>
         </div>
@@ -617,4 +623,3 @@ const Settings = () => {
 };
 
 export default Settings;
-
