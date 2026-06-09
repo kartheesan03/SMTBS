@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import API from '../api/axios';
 import DataTable from '../components/Dashboard/DataTable';
-import { Truck, Plus, Star, MapPin, Mail, Phone, ExternalLink } from 'lucide-react';
+import { Truck, Plus, Star, MapPin, Mail, Phone, ExternalLink, Download } from 'lucide-react';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+import ExcelJS from 'exceljs';
 
 const Vendors = () => {
     const [vendors, setVendors] = useState([]);
@@ -61,6 +64,57 @@ const Vendors = () => {
         }
     };
 
+    const exportToPDF = () => {
+        const doc = new jsPDF();
+        doc.setFontSize(18);
+        doc.text('Vendor Network', 14, 22);
+        doc.setFontSize(10);
+        doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 30);
+        const tableData = vendors.map(v => [
+            v.name, v.category, v.status || 'Vendor Created', v.contactPerson || 'N/A', v.phone || 'N/A', v.email || 'N/A'
+        ]);
+        doc.autoTable({
+            head: [['Vendor Name', 'Category', 'Status', 'Contact Person', 'Phone', 'Email']],
+            body: tableData,
+            startY: 36,
+            styles: { fontSize: 9 },
+            headStyles: { fillColor: [37, 99, 235] }
+        });
+        doc.save('vendors_report.pdf');
+    };
+
+    const exportToExcel = async () => {
+        const workbook = new ExcelJS.Workbook();
+        const sheet = workbook.addWorksheet('Vendors');
+        sheet.columns = [
+            { header: 'Vendor Name', key: 'name', width: 25 },
+            { header: 'Category', key: 'category', width: 20 },
+            { header: 'Status', key: 'status', width: 15 },
+            { header: 'Contact Person', key: 'contactPerson', width: 20 },
+            { header: 'Phone', key: 'phone', width: 15 },
+            { header: 'Email', key: 'email', width: 25 },
+            { header: 'Address', key: 'address', width: 35 }
+        ];
+        vendors.forEach(v => {
+            sheet.addRow({
+                name: v.name,
+                category: v.category,
+                status: v.status || 'Vendor Created',
+                contactPerson: v.contactPerson || '',
+                phone: v.phone || '',
+                email: v.email || '',
+                address: v.address || ''
+            });
+        });
+        sheet.getRow(1).font = { bold: true };
+        const buffer = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = 'vendors_report.xlsx'; a.click();
+        URL.revokeObjectURL(url);
+    };
+
     return (
         <div className="module-container">
             <header className="module-header glass-card">
@@ -68,7 +122,13 @@ const Vendors = () => {
                     <h1 className="title-gradient">Vendor Network</h1>
                     <p className="text-muted">Direct procurement channels and strategic supplier relationships.</p>
                 </div>
-                <div className="header-actions">
+                <div className="header-actions" style={{ display: 'flex', gap: '10px' }}>
+                    <button className="btn-secondary flex-center gap-10" onClick={exportToPDF} style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--bg-body)', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>
+                        <Download size={16} /> PDF
+                    </button>
+                    <button className="btn-secondary flex-center gap-10" onClick={exportToExcel} style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--bg-body)', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>
+                        <Download size={16} /> Excel
+                    </button>
                     <button className="btn-primary flex-center gap-10" onClick={() => setShowModal(true)}>
                         <Plus size={18} /> Add New Vendor
                     </button>

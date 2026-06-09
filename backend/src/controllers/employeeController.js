@@ -1,5 +1,6 @@
 const Employee = require('../models/Employee');
 const User = require('../models/User');
+const { logAudit } = require('../services/auditService');
 
 const getEmployees = async (req, res) => {
     try {
@@ -49,6 +50,16 @@ const createEmployee = async (req, res) => {
             title: 'New Employee Added',
             message: `${firstName} ${lastName || ''} has been added to the system as ${designation || 'Employee'}.`,
             type: 'info'
+        });
+
+        // Audit log
+        await logAudit({
+            user: req.user,
+            action: 'CREATE',
+            module: 'Employee',
+            targetId: createdEmployee._id,
+            description: `Employee created: ${firstName} ${lastName || ''} (${employeeId})`,
+            ipAddress: req.ip
         });
 
         res.status(201).json(createdEmployee);
@@ -106,6 +117,16 @@ const updateEmployee = async (req, res) => {
             type: 'info'
         });
 
+        // Audit log
+        await logAudit({
+            user: req.user,
+            action: 'UPDATE',
+            module: 'Employee',
+            targetId: updatedEmployee._id,
+            description: `Employee profile updated: ${updatedEmployee.firstName} ${updatedEmployee.lastName || ''}`,
+            ipAddress: req.ip
+        });
+
         res.json(updatedEmployee);
     } catch (error) {
         console.error('Update Employee Error:', error);
@@ -117,6 +138,7 @@ const deleteEmployee = async (req, res) => {
     try {
         const employee = await Employee.findById(req.params.id);
         if (employee) {
+            const employeeName = `${employee.firstName} ${employee.lastName || ''}`.trim();
             // Delete associated user if exists
             if (employee.userId) {
                 const user = await User.findById(employee.userId);
@@ -124,6 +146,17 @@ const deleteEmployee = async (req, res) => {
             }
             // Optionally, we could delete associated Salaries and Leaves here, but for now just deleting the employee and user is fine
             await employee.deleteOne();
+
+            // Audit log
+            await logAudit({
+                user: req.user,
+                action: 'DELETE',
+                module: 'Employee',
+                targetId: req.params.id,
+                description: `Employee deleted: ${employeeName}`,
+                ipAddress: req.ip
+            });
+
             res.json({ message: 'Employee removed successfully' });
         } else {
             res.status(404).json({ message: 'Employee not found' });

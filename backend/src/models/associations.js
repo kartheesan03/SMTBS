@@ -10,6 +10,9 @@ const Order = require('./Order');
 const Task = require('./Task');
 const Ticket = require('./Ticket');
 const Notification = require('./Notification');
+const MaterialMovement = require('./MaterialMovement');
+const CommunicationLog = require('./CommunicationLog');
+const AuditLog = require('./AuditLog');
 
 function setupAssociations() {
     // 1. Employee -> User
@@ -50,6 +53,20 @@ function setupAssociations() {
     // 12. Material -> Vendor
     Material.sequelizeModel.belongsTo(Vendor.sequelizeModel, { foreignKey: 'vendorId', as: 'vendor' });
     Vendor.sequelizeModel.hasMany(Material.sequelizeModel, { foreignKey: 'vendorId', as: 'materials' });
+
+    // 13. MaterialMovement -> Material, User, Order
+    MaterialMovement.sequelizeModel.belongsTo(Material.sequelizeModel, { foreignKey: 'materialId', as: 'material' });
+    MaterialMovement.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'performedById', as: 'performedBy' });
+    MaterialMovement.sequelizeModel.belongsTo(Order.sequelizeModel, { foreignKey: 'referenceOrderId', as: 'referenceOrder' });
+    Material.sequelizeModel.hasMany(MaterialMovement.sequelizeModel, { foreignKey: 'materialId', as: 'movements' });
+
+    // 14. CommunicationLog -> Customer, User
+    CommunicationLog.sequelizeModel.belongsTo(Customer.sequelizeModel, { foreignKey: 'customerId', as: 'customer' });
+    CommunicationLog.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'createdById', as: 'createdBy' });
+    Customer.sequelizeModel.hasMany(CommunicationLog.sequelizeModel, { foreignKey: 'customerId', as: 'communications' });
+
+    // 15. AuditLog -> User
+    AuditLog.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'userId', as: 'user' });
 }
 
 module.exports = setupAssociations;

@@ -16,6 +16,9 @@ const Task = require('./src/models/Task');
 const Notification = require('./src/models/Notification');
 const FollowUp = require('./src/models/FollowUp');
 const Ticket = require('./src/models/Ticket');
+const CommunicationLog = require('./src/models/CommunicationLog');
+const MaterialMovement = require('./src/models/MaterialMovement');
+const AuditLog = require('./src/models/AuditLog');
 
 dotenv.config();
 
@@ -649,6 +652,35 @@ const seedData = async () => {
         ];
         const seededTickets = await Ticket.insertMany(ticketDocs);
         console.log(`Seeded ${seededTickets.length} Customer Support Tickets.`);
+
+        // ===================================================================
+        // 16. COMMUNICATION LOGS
+        // ===================================================================
+        const commDocs = [
+            { customerId: createdCustomers[0]._id, userId: salesUser._id, type: 'Call', direction: 'Outbound', status: 'Completed', subject: 'Requirement Gathering', notes: 'Discussed monthly requirement of TMT bars.', date: new Date() },
+            { customerId: createdCustomers[1]._id, userId: hrUser._id, type: 'Email', direction: 'Outbound', status: 'Completed', subject: 'Invoice Followup', notes: 'Sent invoice for the recent order.', date: new Date() }
+        ];
+        const seededComms = await CommunicationLog.insertMany(commDocs);
+        console.log(`Seeded ${seededComms.length} Communication Logs.`);
+
+        // ===================================================================
+        // 17. MATERIAL MOVEMENTS
+        // ===================================================================
+        const movementDocs = [
+            { materialId: createdMaterials[0]._id, type: 'In', quantity: 50, previousQuantity: 200, newQuantity: 250, reason: 'Initial Stock Audit', performedBy: adminUser._id },
+            { materialId: createdMaterials[1]._id, type: 'Out', quantity: 10, previousQuantity: 100, newQuantity: 90, reason: 'Sales Order SO-2026-001', performedBy: salesUser._id }
+        ];
+        const seededMovements = await MaterialMovement.insertMany(movementDocs);
+        console.log(`Seeded ${seededMovements.length} Material Movements.`);
+
+        // ===================================================================
+        // 18. AUDIT LOGS
+        // ===================================================================
+        const auditDocs = [
+            { user: adminUser._id, action: 'CREATE', module: 'System', targetId: adminUser._id, description: 'System initialized and seeded data.', ipAddress: '127.0.0.1' }
+        ];
+        const seededAudits = await AuditLog.insertMany(auditDocs);
+        console.log(`Seeded ${seededAudits.length} Audit Logs.`);
 
         console.log('\n========================================');
         console.log('  DATABASE SEEDING COMPLETED SUCCESSFULLY');

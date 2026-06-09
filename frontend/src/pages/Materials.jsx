@@ -3,8 +3,11 @@ import API from '../api/axios';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { 
     Plus, Search, Filter, Edit2, Trash2, Box, Package, 
-    TrendingUp, AlertTriangle, ChevronRight, QrCode, Camera
+    TrendingUp, AlertTriangle, ChevronRight, QrCode, Camera, History, Download, X
 } from 'lucide-react';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+import ExcelJS from 'exceljs';
 
 const MaterialTracking = () => {
     const navigate = useNavigate();
@@ -30,6 +33,12 @@ const MaterialTracking = () => {
     const [showGenerator, setShowGenerator] = useState(false);
     const [selectedMaterialForCode, setSelectedMaterialForCode] = useState(null);
     const [scanSKU, setScanSKU] = useState('');
+
+    // Movement History States
+    const [showMovementModal, setShowMovementModal] = useState(false);
+    const [movementHistory, setMovementHistory] = useState([]);
+    const [movementMaterial, setMovementMaterial] = useState(null);
+    const [loadingMovements, setLoadingMovements] = useState(false);
 
     const fetchMaterialsAndStats = async () => {
         try {
@@ -132,6 +141,67 @@ const MaterialTracking = () => {
         }
     };
 
+    // Movement History
+    const openMovementHistory = async (material) => {
+        setMovementMaterial(material);
+        setShowMovementModal(true);
+        setLoadingMovements(true);
+        try {
+            const { data } = await API.get(`/materials/${material._id}/movements`);
+            setMovementHistory(Array.isArray(data) ? data : []);
+        } catch (err) {
+            console.error(err);
+            setMovementHistory([]);
+        } finally {
+            setLoadingMovements(false);
+        }
+    };
+
+    // Export functions
+    const exportToPDF = () => {
+        const doc = new jsPDF();
+        doc.setFontSize(18);
+        doc.text('Material Inventory Report', 14, 22);
+        doc.setFontSize(10);
+        doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 30);
+        const tableData = filteredMaterials.map(m => [
+            m.sku, m.name, m.category, m.quantity + ' ' + (m.unit || ''), m.status || 'In Stock', '₹' + m.price
+        ]);
+        doc.autoTable({
+            head: [['SKU', 'Name', 'Category', 'Stock', 'Status', 'Price']],
+            body: tableData,
+            startY: 36,
+            styles: { fontSize: 9 },
+            headStyles: { fillColor: [37, 99, 235] }
+        });
+        doc.save('materials_report.pdf');
+    };
+
+    const exportToExcel = async () => {
+        const workbook = new ExcelJS.Workbook();
+        const sheet = workbook.addWorksheet('Materials');
+        sheet.columns = [
+            { header: 'SKU', key: 'sku', width: 15 },
+            { header: 'Name', key: 'name', width: 30 },
+            { header: 'Category', key: 'category', width: 18 },
+            { header: 'Quantity', key: 'quantity', width: 12 },
+            { header: 'Unit', key: 'unit', width: 10 },
+            { header: 'Price', key: 'price', width: 12 },
+            { header: 'Status', key: 'status', width: 15 },
+            { header: 'Vendor', key: 'vendor', width: 25 },
+        ];
+        filteredMaterials.forEach(m => {
+            sheet.addRow({ sku: m.sku, name: m.name, category: m.category, quantity: m.quantity, unit: m.unit, price: m.price, status: m.status || 'In Stock', vendor: m.vendor?.name || '' });
+        });
+        sheet.getRow(1).font = { bold: true };
+        const buffer = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = 'materials_report.xlsx'; a.click();
+        URL.revokeObjectURL(url);
+    };
+
     const filteredMaterials = materials.filter(m => {
         const matchesSearch = (m.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) || 
                              (m.sku?.toLowerCase() || '').includes(searchTerm.toLowerCase());
@@ -165,6 +235,8 @@ const MaterialTracking = () => {
                     <p className="header-subtitle">Monitor stock, in-transit items, low stock alerts, and barcode/QR movements.</p>
                 </div>
                 <div className="header-actions">
+                    <button className="btn-secondary-light flex-center gap-8" onClick={exportToPDF}><Download size={16} /> PDF</button>
+                    <button className="btn-secondary-light flex-center gap-8" onClick={exportToExcel}><Download size={16} /> Excel</button>
                     <button className="btn-secondary-light flex-center gap-8" onClick={() => setShowFilters(!showFilters)}>
                         <Filter size={16} /> Filters
                     </button>
@@ -268,6 +340,7 @@ const MaterialTracking = () => {
                                 <td>
                                     <div className="actions-flex">
                                         <button className="action-btn code" title="Barcode & QR Code" onClick={() => { setSelectedMaterialForCode(item); setShowGenerator(true); }}><QrCode size={14} /></button>
+                                        <button className="action-btn" title="Movement History" onClick={() => openMovementHistory(item)}><History size={14} /></button>
                                         <button className="action-btn edit" title="Edit Item" onClick={() => handleEditClick(item)}><Edit2 size={14} /></button>
                                         <button className="action-btn delete" title="Delete Item" onClick={() => handleDelete(item._id)}><Trash2 size={14} /></button>
                                     </div>
@@ -475,6 +548,43 @@ const MaterialTracking = () => {
                                 </button>
                             </div>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Movement History Modal */}
+            {showMovementModal && movementMaterial && (
+                <div className="modal-overlay">
+                    <div className="modal-content animate-pop" style={{ maxWidth: '700px' }}>
+                        <div className="modal-header">
+                            <h2>Movement History — {movementMaterial.name}</h2>
+                            <button className="close-btn" onClick={() => setShowMovementModal(false)}>✕</button>
+                        </div>
+                        <div style={{ marginBottom: 12, fontSize: 13, color: 'var(--text-muted)' }}>SKU: <code className="sku-code">{movementMaterial.sku}</code> · Current Stock: <strong>{movementMaterial.quantity} {movementMaterial.unit}</strong></div>
+                        {loadingMovements ? (
+                            <div style={{ padding: 30, textAlign: 'center', color: 'var(--text-muted)' }}>Loading history...</div>
+                        ) : movementHistory.length === 0 ? (
+                            <div style={{ padding: 30, textAlign: 'center', color: 'var(--text-muted)' }}>No movement history recorded for this material yet.</div>
+                        ) : (
+                            <div style={{ overflowX: 'auto', maxHeight: '400px', overflowY: 'auto' }}>
+                                <table className="modern-table" style={{ fontSize: 13 }}>
+                                    <thead><tr><th>Type</th><th>Qty</th><th>Before</th><th>After</th><th>Reason</th><th>By</th><th>Date</th></tr></thead>
+                                    <tbody>
+                                        {movementHistory.map(mv => (
+                                            <tr key={mv._id || mv.id}>
+                                                <td><span className={`status-badge-premium ${mv.type === 'In' ? 'ok' : mv.type === 'Out' ? 'out' : 'low'}`}>{mv.type}</span></td>
+                                                <td><strong>{mv.type === 'In' ? '+' : '-'}{mv.quantity}</strong></td>
+                                                <td>{mv.previousQuantity ?? '—'}</td>
+                                                <td>{mv.newQuantity ?? '—'}</td>
+                                                <td style={{ maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{mv.reason || '—'}</td>
+                                                <td>{mv.performedBy?.name || 'System'}</td>
+                                                <td style={{ whiteSpace: 'nowrap', color: 'var(--text-muted)' }}>{mv.createdAt ? new Date(mv.createdAt).toLocaleDateString() : '—'}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
                     </div>
                 </div>
             )}

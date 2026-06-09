@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import API from '../api/axios';
-import { Plus, Search, UserPlus, Mail, Phone, Calendar, Trash2 } from 'lucide-react';
+import { Plus, Search, UserPlus, Mail, Phone, Calendar, Trash2, Download } from 'lucide-react';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+import ExcelJS from 'exceljs';
 
 const HRMS = () => {
     const [employees, setEmployees] = useState([]);
@@ -72,22 +75,83 @@ const HRMS = () => {
         }
     };
 
+    const exportToPDF = () => {
+        const doc = new jsPDF();
+        doc.setFontSize(18);
+        doc.text('Employee Directory', 14, 22);
+        doc.setFontSize(10);
+        doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 30);
+        const tableData = employees.map(e => [
+            e.employeeId, `${e.firstName} ${e.lastName || ''}`, e.department, e.designation, e.contact || 'N/A', new Date(e.joinDate).toLocaleDateString()
+        ]);
+        doc.autoTable({
+            head: [['Emp ID', 'Name', 'Department', 'Designation', 'Contact', 'Join Date']],
+            body: tableData,
+            startY: 36,
+            styles: { fontSize: 9 },
+            headStyles: { fillColor: [37, 99, 235] }
+        });
+        doc.save('employees_report.pdf');
+    };
+
+    const exportToExcel = async () => {
+        const workbook = new ExcelJS.Workbook();
+        const sheet = workbook.addWorksheet('Employees');
+        sheet.columns = [
+            { header: 'Emp ID', key: 'employeeId', width: 15 },
+            { header: 'First Name', key: 'firstName', width: 20 },
+            { header: 'Last Name', key: 'lastName', width: 20 },
+            { header: 'Department', key: 'department', width: 15 },
+            { header: 'Designation', key: 'designation', width: 25 },
+            { header: 'Contact', key: 'contact', width: 25 },
+            { header: 'Join Date', key: 'joinDate', width: 15 },
+            { header: 'Address', key: 'address', width: 30 }
+        ];
+        employees.forEach(e => {
+            sheet.addRow({
+                employeeId: e.employeeId,
+                firstName: e.firstName,
+                lastName: e.lastName || '',
+                department: e.department,
+                designation: e.designation,
+                contact: e.contact || '',
+                joinDate: new Date(e.joinDate).toLocaleDateString(),
+                address: e.address || ''
+            });
+        });
+        sheet.getRow(1).font = { bold: true };
+        const buffer = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = 'employees_report.xlsx'; a.click();
+        URL.revokeObjectURL(url);
+    };
+
     return (
         <div className="module-container">
             <header className="module-header glass-card">
                 <div className="header-top">
                     <h1>Employee Management</h1>
-                    <button className="btn-primary flex-center gap-10" onClick={() => {
-                        setIsEditing(false);
-                        setFormData({
-                            employeeId: '', firstName: '', lastName: '', 
-                            department: 'Employee', designation: '', contact: '',
-                            address: '', password: '', joinDate: new Date().toISOString().split('T')[0]
-                        });
-                        setShowModal(true);
-                    }}>
-                        <UserPlus size={18} /> Add Employee
-                    </button>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                        <button className="btn-secondary flex-center gap-10" onClick={exportToPDF} style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--bg-body)', cursor: 'pointer' }}>
+                            <Download size={16} /> PDF
+                        </button>
+                        <button className="btn-secondary flex-center gap-10" onClick={exportToExcel} style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--bg-body)', cursor: 'pointer' }}>
+                            <Download size={16} /> Excel
+                        </button>
+                        <button className="btn-primary flex-center gap-10" onClick={() => {
+                            setIsEditing(false);
+                            setFormData({
+                                employeeId: '', firstName: '', lastName: '', 
+                                department: 'Employee', designation: '', contact: '',
+                                address: '', password: '', joinDate: new Date().toISOString().split('T')[0]
+                            });
+                            setShowModal(true);
+                        }}>
+                            <UserPlus size={18} /> Add Employee
+                        </button>
+                    </div>
                 </div>
             </header>
 

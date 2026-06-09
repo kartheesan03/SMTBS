@@ -1,9 +1,11 @@
 const Order = require('../models/Order');
 const Material = require('../models/Material');
+const MaterialMovement = require('../models/MaterialMovement');
 const User = require('../models/User');
 const Notification = require('../models/Notification');
 const Customer = require('../models/Customer');
 const { broadcast, notifyCritical, notifySales, notifyManager } = require('../services/notificationService');
+const { logAudit } = require('../services/auditService');
 
 // @desc    Get all orders
 // @route   GET /api/orders
@@ -131,6 +133,16 @@ const createOrder = async (req, res) => {
             });
         }
 
+        // Audit log
+        await logAudit({
+            user: req.user,
+            action: 'CREATE',
+            module: 'Order',
+            targetId: createdOrder._id,
+            description: `Order created: ${createdOrder.orderNumber} (${orderType || 'sales'})`,
+            ipAddress: req.ip
+        });
+
         res.status(201).json(createdOrder);
     } catch (error) {
         res.status(400).json({ message: error.message });
@@ -138,10 +150,11 @@ const createOrder = async (req, res) => {
 };
 
 // Helper to update stock (Purchase flow and legacy)
-const updateStock = async (items, updateOrderType = 'sales') => {
+const updateStock = async (items, updateOrderType = 'sales', orderId = null, userId = null) => {
     for (const item of items) {
         const material = await Material.findById(item.material);
         if (material) {
+            const previousQuantity = material.quantity;
             if (updateOrderType === 'sales') {
                 material.quantity -= item.quantity;
                 if (material.quantity < 0) material.quantity = 0;
@@ -149,6 +162,18 @@ const updateStock = async (items, updateOrderType = 'sales') => {
                 material.quantity += item.quantity;
             }
             await material.save();
+
+            // Log material movement
+            await MaterialMovement.create({
+                materialId: material._id,
+                type: updateOrderType === 'purchase' ? 'In' : 'Out',
+                quantity: item.quantity,
+                previousQuantity: previousQuantity,
+                newQuantity: material.quantity,
+                reason: `${updateOrderType === 'purchase' ? 'Purchase' : 'Sales'} order stock ${updateOrderType === 'purchase' ? 'addition' : 'deduction'}`,
+                referenceOrderId: orderId || null,
+                performedById: userId || null
+            });
         }
     }
 };
@@ -227,7 +252,7 @@ const updateOrderStatus = async (req, res) => {
         // 1. Stock deduction/addition trigger for Purchase
         const purchaseFinalStates = ['Delivered', 'Received', 'Completed'];
         if (order.orderType === 'purchase' && purchaseFinalStates.includes(status) && !purchaseFinalStates.includes(prevStatus)) {
-            await updateStock(order.items, 'purchase');
+            await updateStock(order.items, 'purchase', order._id, req.user?._id);
         }
 
         // 1.5 Update Vendor Status if applicable
@@ -335,6 +360,17 @@ const updateOrderStatus = async (req, res) => {
         } catch (err) {
             console.error('Error dispatching update notifications:', err);
         }
+
+        // Audit log
+        await logAudit({
+            user: req.user,
+            action: 'UPDATE',
+            module: 'Order',
+            targetId: order._id,
+            description: `Order ${order.orderNumber} status changed: ${prevStatus} → ${status}`,
+            changes: { status: { from: prevStatus, to: status } },
+            ipAddress: req.ip
+        });
 
         res.json(updatedOrder);
     } catch (error) {

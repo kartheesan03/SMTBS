@@ -21,6 +21,8 @@ const salaryRoutes = require('./src/routes/salaryRoutes');
 const taskRoutes = require('./src/routes/taskRoutes');
 const ticketRoutes = require('./src/routes/ticketRoutes');
 const erpRoutes = require('./src/routes/erpRoutes');
+const communicationRoutes = require('./src/routes/communicationRoutes');
+const auditRoutes = require('./src/routes/auditRoutes');
 
 const app = express();
 
@@ -47,6 +49,8 @@ app.use('/api/salaries', salaryRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/tickets', ticketRoutes);
 app.use('/api/erp', erpRoutes);
+app.use('/api/communications', communicationRoutes);
+app.use('/api/audit-logs', auditRoutes);
 
 // 404 Handler
 app.use((req, res, next) => {

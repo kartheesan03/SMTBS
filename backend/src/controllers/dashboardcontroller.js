@@ -2,6 +2,7 @@ const Material = require('../models/Material');
 const Employee = require('../models/Employee');
 const Order = require('../models/Order');
 const Customer = require('../models/Customer');
+const Vendor = require('../models/Vendor');
 const Salary = require('../models/Salary');
 const Attendance = require('../models/Attendance');
 const Leave = require('../models/Leave');
@@ -12,13 +13,14 @@ const getDashboardStats = async (req, res) => {
         
         let stats = {};
         try {
-            const [totalMaterials, totalEmployees, totalOrders, totalCustomers] = await Promise.all([
+            const [totalMaterials, totalEmployees, totalOrders, totalCustomers, totalVendors] = await Promise.all([
                 Material.countDocuments(),
                 Employee.countDocuments(),
                 Order.countDocuments(),
-                Customer.countDocuments()
+                Customer.countDocuments(),
+                Vendor.countDocuments()
             ]);
-            stats = { totalMaterials, totalEmployees, totalOrders, totalCustomers };
+            stats = { totalMaterials, totalEmployees, totalOrders, totalCustomers, totalVendors };
         } catch (e) { console.error('Count Stats Error:', e); }
 
         let revenue = 0;
@@ -162,6 +164,20 @@ const getDashboardStats = async (req, res) => {
                 recentActivity: recentActivity || []
             }
         };
+
+        // Vendor statistics
+        try {
+            const allVendors = await Vendor.find({});
+            const vendorsByCategory = {};
+            allVendors.forEach(v => {
+                const cat = v.category || 'Other';
+                vendorsByCategory[cat] = (vendorsByCategory[cat] || 0) + 1;
+            });
+            data.vendorStats = {
+                totalVendors: stats.totalVendors || allVendors.length,
+                vendorsByCategory: Object.entries(vendorsByCategory).map(([name, value]) => ({ name, value }))
+            };
+        } catch (e) { console.error('Vendor Stats Error:', e); }
 
         if (role === 'HR' || role === 'Admin') {
             try {
