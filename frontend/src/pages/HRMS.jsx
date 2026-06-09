@@ -154,7 +154,7 @@ const HRMS = () => {
                             setIsEditing(false);
                             setFormData({
                                 employeeId: '', firstName: '', lastName: '', 
-                                department: 'Employee', designation: '', email: '', phone: '',
+                                department: 'Employee', designation: '', contact: '', phone: '',
                                 address: '', password: '', joinDate: new Date().toISOString().split('T')[0]
                             });
                             setShowModal(true);
@@ -204,7 +204,7 @@ const HRMS = () => {
                                 </div>
                                 <div className="form-group">
                                     <label>Email Address</label>
-                                    <input type="email" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} placeholder="email@company.com" />
+                                    <input type="email" required value={formData.contact} onChange={e => setFormData({...formData, contact: e.target.value})} placeholder="email@company.com" />
                                 </div>
                                 <div className="form-group">
                                     <label>Join Date</label>
@@ -271,11 +271,11 @@ const HRMS = () => {
                                 </div>
                                 <div className="profile-item">
                                     <label>Email Address</label>
-                                    <p className="flex-center gap-10" style={{justifyContent: 'flex-start'}}><Mail size={16} /> {selectedEmployee.userId?.email || 'N/A'}</p>
+                                    <p className="flex-center gap-10" style={{justifyContent: 'flex-start'}}><Mail size={16} /> {selectedEmployee.contact || 'N/A'}</p>
                                 </div>
                                 <div className="profile-item">
                                     <label>Contact Number</label>
-                                    <p className="flex-center gap-10" style={{justifyContent: 'flex-start'}}><Phone size={16} /> {selectedEmployee.phone || selectedEmployee.contact || 'N/A'}</p>
+                                    <p className="flex-center gap-10" style={{justifyContent: 'flex-start'}}><Phone size={16} /> {selectedEmployee.phone || 'N/A'}</p>
                                 </div>
                                 <div className="profile-item full-width">
                                     <label>Address</label>
@@ -297,8 +297,8 @@ const HRMS = () => {
                                     lastName: selectedEmployee.lastName,
                                     department: selectedEmployee.department,
                                     designation: selectedEmployee.designation,
-                                    email: selectedEmployee.userId?.email || '',
-                                    phone: selectedEmployee.phone || selectedEmployee.contact || '',
+                                    contact: selectedEmployee.contact,
+                                    phone: selectedEmployee.phone || '',
                                     address: selectedEmployee.address,
                                     password: '',
                                     joinDate: new Date(selectedEmployee.joinDate).toISOString().split('T')[0]
@@ -343,10 +343,10 @@ const HRMS = () => {
                         <p className="designation">{emp.designation}</p>
                         <div className="emp-details">
                             <div className="detail-item">
-                                <Mail size={14} /> <span>{emp.userId?.email || 'No email'}</span>
+                                <Mail size={14} /> <span>{emp.contact || 'No email'}</span>
                             </div>
                             <div className="detail-item">
-                                <Phone size={14} /> <span>{emp.phone || emp.contact || 'No phone'}</span>
+                                <Phone size={14} /> <span>{emp.phone || 'No phone'}</span>
                             </div>
                             <div className="detail-item">
                                 <Calendar size={14} /> <span>Joined {new Date(emp.joinDate).toLocaleDateString()}</span>

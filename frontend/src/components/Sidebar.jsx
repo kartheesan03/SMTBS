@@ -41,7 +41,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
         { path: '/payroll', name: 'Payroll', icon: <DollarSign size={20} /> },
         { path: '/erp', name: 'Orders (ERP)', icon: <ShoppingCart size={20} /> },
         { path: '/crm', name: 'Customers (CRM)', icon: <Briefcase size={20} /> },
-        { path: '/vendors', name: 'Vendors', icon: <Users size={20} /> },
+        { path: '/vendors', name: 'Suppliers/Vendors', icon: <Users size={20} /> },
         { path: '/analytics', name: 'Reports & Analytics', icon: <BarChart3 size={20} /> },
         { path: '/support', name: 'Support Tickets', icon: <LifeBuoy size={20} /> },
         { path: '/notifications', name: 'Notifications', icon: <Bell size={20} /> },
@@ -99,7 +99,8 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
         { path: '/profile', name: 'My Profile', icon: <Settings size={20} /> },
     ];
 
-    const menuItems = user?.role === 'Admin' ? adminMenu : 
+    const isAdmin = user?.role === 'Admin' || user?.role === 'Super Admin';
+    const menuItems = isAdmin ? adminMenu : 
                       user?.role === 'HR' ? hrMenu : 
                       user?.role === 'Manager' ? managerMenu : 
                       user?.role === 'Sales' ? salesMenu : employeeMenu;
@@ -124,7 +125,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                     </div>
                     <div className="user-details">
                         <h4 className="user-name">{user?.name || 'Admin User'}</h4>
-                        <span className="user-role">{user?.role === 'Admin' ? 'Super Admin' : user?.role}</span>
+                        <span className="user-role">{isAdmin ? 'Super Admin' : user?.role}</span>
                         <div className="user-status">
                             <span className="status-dot"></span>
                             <span className="status-text">Online</span>
