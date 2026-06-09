@@ -12,7 +12,7 @@ const HRMS = () => {
     const [showModal, setShowModal] = useState(false);
     const [formData, setFormData] = useState({
         employeeId: '', firstName: '', lastName: '', 
-        department: 'Employee', designation: '', contact: '',
+        department: 'Employee', designation: '', contact: '', phone: '',
         address: '', password: '', joinDate: new Date().toISOString().split('T')[0]
     });
 
@@ -55,7 +55,7 @@ const HRMS = () => {
             setEditingId(null);
             setFormData({
                 employeeId: '', firstName: '', lastName: '', 
-                department: 'Employee', designation: '', contact: '',
+                department: 'Employee', designation: '', contact: '', phone: '',
                 address: '', password: '', joinDate: new Date().toISOString().split('T')[0]
             });
             fetchEmployees();
@@ -144,7 +144,7 @@ const HRMS = () => {
                             setIsEditing(false);
                             setFormData({
                                 employeeId: '', firstName: '', lastName: '', 
-                                department: 'Employee', designation: '', contact: '',
+                                department: 'Employee', designation: '', contact: '', phone: '',
                                 address: '', password: '', joinDate: new Date().toISOString().split('T')[0]
                             });
                             setShowModal(true);
@@ -197,6 +197,14 @@ const HRMS = () => {
                                     <input type="email" required value={formData.contact} onChange={e => setFormData({...formData, contact: e.target.value})} placeholder="email@company.com" />
                                 </div>
                                 <div className="form-group">
+                                    <label>Join Date</label>
+                                    <input type="date" required value={formData.joinDate} onChange={e => setFormData({...formData, joinDate: e.target.value})} />
+                                </div>
+                                <div className="form-group">
+                                    <label>Contact Number</label>
+                                    <input type="tel" pattern="[0-9\-\+\s\(\)]+" maxLength="15" title="Valid mobile number" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} placeholder="+91 9876543210" required />
+                                </div>
+                                <div className="form-group full-width">
                                     <label>{isEditing ? 'New Password (Min 8 chars, Optional)' : 'Set Password (Min 8 chars)'}</label>
                                     <input 
                                         type="password" 
@@ -206,10 +214,6 @@ const HRMS = () => {
                                         onChange={e => setFormData({...formData, password: e.target.value})} 
                                         placeholder="Enter password"
                                     />
-                                </div>
-                                <div className="form-group">
-                                    <label>Join Date</label>
-                                    <input type="date" required value={formData.joinDate} onChange={e => setFormData({...formData, joinDate: e.target.value})} />
                                 </div>
                                 <div className="form-group full-width">
                                     <label>Address</label>
@@ -255,9 +259,13 @@ const HRMS = () => {
                                     <label>Join Date</label>
                                     <p>{new Date(selectedEmployee.joinDate).toLocaleDateString()}</p>
                                 </div>
-                                <div className="profile-item full-width">
-                                    <label>Contact Info</label>
+                                <div className="profile-item">
+                                    <label>Email Address</label>
                                     <p>{selectedEmployee.contact || 'Not provided'}</p>
+                                </div>
+                                <div className="profile-item">
+                                    <label>Contact Number</label>
+                                    <p>{selectedEmployee.phone || 'Not provided'}</p>
                                 </div>
                                 <div className="profile-item full-width">
                                     <label>Address</label>
@@ -280,6 +288,7 @@ const HRMS = () => {
                                     department: selectedEmployee.department,
                                     designation: selectedEmployee.designation,
                                     contact: selectedEmployee.contact,
+                                    phone: selectedEmployee.phone || '',
                                     address: selectedEmployee.address,
                                     password: '',
                                     joinDate: new Date(selectedEmployee.joinDate).toISOString().split('T')[0]
@@ -325,6 +334,9 @@ const HRMS = () => {
                         <div className="emp-details">
                             <div className="detail-item">
                                 <Mail size={14} /> <span>{emp.contact || 'No email'}</span>
+                            </div>
+                            <div className="detail-item">
+                                <Phone size={14} /> <span>{emp.phone || 'No phone'}</span>
                             </div>
                             <div className="detail-item">
                                 <Calendar size={14} /> <span>Joined {new Date(emp.joinDate).toLocaleDateString()}</span>

@@ -41,6 +41,10 @@ const EmployeeSequelize = sequelize.define('Employee', {
         type: DataTypes.STRING,
         allowNull: true
     },
+    phone: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
     address: {
         type: DataTypes.TEXT,
         allowNull: true

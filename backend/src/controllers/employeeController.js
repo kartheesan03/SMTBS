@@ -13,7 +13,7 @@ const getEmployees = async (req, res) => {
 
 const createEmployee = async (req, res) => {
     try {
-        const { employeeId, firstName, lastName, department, designation, contact, address, joinDate, password } = req.body;
+        const { employeeId, firstName, lastName, department, designation, contact, phone, address, joinDate, password } = req.body;
 
         // Check if user already exists; if so, reuse it
         const [user, userCreated] = await User.findOrCreate({
@@ -41,6 +41,7 @@ const createEmployee = async (req, res) => {
             department,
             designation,
             contact,
+            phone,
             address,
             joinDate
         });
@@ -73,7 +74,7 @@ const updateEmployee = async (req, res) => {
         const employee = await Employee.findById(req.params.id);
         if (!employee) return res.status(404).json({ message: 'Employee not found' });
 
-        const { firstName, lastName, contact, department, designation, employeeId, salary, joinDate, address, password } = req.body;
+        const { firstName, lastName, contact, phone, department, designation, employeeId, salary, joinDate, address, password } = req.body;
 
         // Sync with User model
         if (employee.userId) {
@@ -101,6 +102,7 @@ const updateEmployee = async (req, res) => {
         if (firstName) employee.firstName = firstName;
         if (lastName !== undefined) employee.lastName = lastName;
         if (contact) employee.contact = contact;
+        if (phone !== undefined) employee.phone = phone;
         if (department) employee.department = department;
         if (designation) employee.designation = designation;
         if (employeeId) employee.employeeId = employeeId;
@@ -203,7 +205,8 @@ const updateMe = async (req, res) => {
 
         if (firstName) employee.firstName = firstName;
         if (lastName !== undefined) employee.lastName = lastName;
-        if (phone !== undefined) employee.contact = phone;
+        if (email !== undefined) employee.contact = email;
+        if (phone !== undefined) employee.phone = phone;
         if (address !== undefined) employee.address = address;
 
         await employee.save();
