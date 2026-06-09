@@ -89,8 +89,8 @@ const Customers = () => {
         <div className="module-container">
             <header className="module-header glass-card">
                 <div>
-                    <h1 className="title-gradient">Customer Portfolio</h1>
-                    <p className="text-muted">Manage established accounts and view partnership history.</p>
+                    <h1 className="title-gradient">Customers (CRM)</h1>
+                    <p className="text-muted">Track customer details, communications, and order history.</p>
                 </div>
                 <div className="header-actions">
                     <button className="btn-primary flex-center gap-10" onClick={() => setShowModal(true)}>
@@ -179,7 +179,7 @@ const Customers = () => {
             <div className="module-content">
                 <div className="glass-card table-wrapper">
                     <DataTable 
-                        title="Customer Portfolio Ledger"
+                        title="Customers (CRM) Ledger"
                         headers={['Organization', 'Contact Details', 'Industry', 'Status', 'Action']}
                         data={customers}
                         renderRow={(c) => (

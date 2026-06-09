@@ -40,7 +40,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
         { path: '/attendance', name: 'Master Attendance', icon: <Users size={20} /> },
         { path: '/payroll', name: 'Payroll', icon: <DollarSign size={20} /> },
         { path: '/erp', name: 'Orders (ERP)', icon: <ShoppingCart size={20} /> },
-        { path: '/crm', name: 'Customer Portfolio', icon: <Briefcase size={20} /> },
+        { path: '/crm', name: 'Customers (CRM)', icon: <Briefcase size={20} /> },
         { path: '/vendors', name: 'Vendors', icon: <Users size={20} /> },
         { path: '/analytics', name: 'Reports & Analytics', icon: <BarChart3 size={20} /> },
         { path: '/support', name: 'Support Tickets', icon: <LifeBuoy size={20} /> },
@@ -92,7 +92,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
         { path: '/', name: 'Dashboard', icon: <LayoutDashboard size={20} /> },
         { path: '/my-tasks', name: 'My Tasks', icon: <Box size={20} /> },
         { path: '/my-attendance', name: 'My Attendance', icon: <CheckCircle size={20} /> },
-        { path: '/crm', name: 'Customer Portfolio', icon: <Briefcase size={20} /> },
+        { path: '/crm', name: 'Customers (CRM)', icon: <Briefcase size={20} /> },
         { path: '/notifications', name: 'Notifications', icon: <Bell size={20} /> },
         { path: '/analytics', name: 'Reports', icon: <BarChart3 size={20} /> },
         { path: '/support', name: 'Support Tickets', icon: <LifeBuoy size={20} /> },
@@ -147,7 +147,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                             <span className="sidebar-badge">{unreadCount}</span>
                         )}
                         {/* Nested style chevrons for items like Dashboard, ERP, CRM to match reference image */}
-                        {(item.name === 'Dashboard' || item.name === 'Orders (ERP)' || item.name === 'Customer Portfolio' || item.name === 'Reports & Analytics') && (
+                        {(item.name === 'Dashboard' || item.name === 'Orders (ERP)' || item.name === 'Customers (CRM)' || item.name === 'Reports & Analytics') && (
                             <span className="chevron-indicator">▾</span>
                         )}
                     </NavLink>
