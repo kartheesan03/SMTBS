@@ -307,7 +307,7 @@ const Payroll = () => {
                                         {isAdmin && s.status === 'Awaiting Approval' && (
                                             <button className="btn-table-action approve-btn" onClick={() => handleApprove(s._id)}>Approve</button>
                                         )}
-                                        {canPay && s.status === 'Approved' && (
+                                        {canPay && (s.status === 'Approved' || s.status === 'Awaiting Approval') && (
                                             <button className="btn-table-action pay-btn" onClick={() => handleOpenPayModal(s)}>
                                                 <CreditCard size={13} /> Pay
                                             </button>
@@ -660,7 +660,7 @@ const Payroll = () => {
                                     Approve Now
                                 </button>
                             )}
-                            {canPay && selectedSalary.status === 'Approved' && (
+                            {canPay && (selectedSalary.status === 'Approved' || selectedSalary.status === 'Awaiting Approval') && (
                                 <button className="btn-pay-confirm" onClick={() => { setShowViewModal(false); handleOpenPayModal(selectedSalary); }}>
                                     <CreditCard size={16} /> Pay Now
                                 </button>

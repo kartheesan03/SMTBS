@@ -111,8 +111,8 @@ const paySalaryRecord = async (req, res) => {
             return res.status(400).json({ message: 'This salary has already been paid' });
         }
 
-        if (salary.status !== 'Approved') {
-            return res.status(400).json({ message: 'Salary must be approved before payment. Current status: ' + salary.status });
+        if (salary.status !== 'Approved' && salary.status !== 'Awaiting Approval') {
+            return res.status(400).json({ message: 'Salary must be approved or awaiting payment before payment. Current status: ' + salary.status });
         }
 
         const { paymentMethod, bankRef, notes } = req.body;
@@ -123,6 +123,7 @@ const paySalaryRecord = async (req, res) => {
         salary.status = 'Paid';
         salary.paymentDate = new Date();
         salary.transactionId = txnId;
+        salary.paidBy = req.user._id;
         
         const updatedSalary = await salary.save();
 
@@ -135,7 +136,7 @@ const paySalaryRecord = async (req, res) => {
                     targetUserId: empUserId,
                     targetOnly: true,
                     title: `Salary Paid: ${salary.month}`,
-                    message: `Your salary of ₹${salary.netSalary.toLocaleString()} for ${salary.month} has been disbursed. Transaction ID: ${txnId}${paymentMethod ? '. Payment via ' + paymentMethod : ''}.`,
+                    message: `Your salary for ${salary.month} has been paid. You can download your payslip.`,
                     type: 'success',
                     category: 'hr'
                 });
