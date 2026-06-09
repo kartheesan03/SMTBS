@@ -13,11 +13,11 @@ const getEmployees = async (req, res) => {
 
 const createEmployee = async (req, res) => {
     try {
-        const { employeeId, firstName, lastName, department, designation, contact, phone, address, joinDate, password } = req.body;
+        const { employeeId, firstName, lastName, department, designation, email, phone, address, joinDate, password } = req.body;
 
         // Check if user already exists; if so, reuse it
         const [user, userCreated] = await User.findOrCreate({
-            where: { email: contact },
+            where: { email: email },
             defaults: {
                 name: `${firstName} ${lastName || ''}`.trim(),
                 password: password || 'password123',
@@ -40,7 +40,7 @@ const createEmployee = async (req, res) => {
             lastName,
             department,
             designation,
-            contact,
+            contact: phone,
             phone,
             address,
             joinDate
@@ -74,17 +74,17 @@ const updateEmployee = async (req, res) => {
         const employee = await Employee.findById(req.params.id);
         if (!employee) return res.status(404).json({ message: 'Employee not found' });
 
-        const { firstName, lastName, contact, phone, department, designation, employeeId, salary, joinDate, address, password } = req.body;
+        const { firstName, lastName, email, phone, department, designation, employeeId, salary, joinDate, address, password } = req.body;
 
         // Sync with User model
         if (employee.userId) {
             const user = await User.findById(employee.userId);
             if (user) {
                 // If email is changing, check for uniqueness
-                if (contact && contact !== employee.contact) {
-                    const emailExists = await User.findOne({ email: contact });
+                if (email && email !== user.email) {
+                    const emailExists = await User.findOne({ email: email });
                     if (emailExists) return res.status(400).json({ message: 'Email is already in use by another user' });
-                    user.email = contact;
+                    user.email = email;
                 }
 
                 if (firstName || lastName) {
@@ -101,8 +101,10 @@ const updateEmployee = async (req, res) => {
         // Update Employee fields explicitly
         if (firstName) employee.firstName = firstName;
         if (lastName !== undefined) employee.lastName = lastName;
-        if (contact) employee.contact = contact;
-        if (phone !== undefined) employee.phone = phone;
+        if (phone !== undefined) {
+            employee.phone = phone;
+            employee.contact = phone; // Keep in sync for backward compatibility
+        }
         if (department) employee.department = department;
         if (designation) employee.designation = designation;
         if (employeeId) employee.employeeId = employeeId;
