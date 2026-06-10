@@ -1,5 +1,6 @@
 const Material = require('../models/Material');
 const MaterialMovement = require('../models/MaterialMovement');
+const Order = require('../models/Order');
 const { notifyManager, notifyCritical } = require('../services/notificationService');
 const { logAudit, buildChanges } = require('../services/auditService');
 
@@ -9,7 +10,7 @@ const { logAudit, buildChanges } = require('../services/auditService');
 const getMaterials = async (req, res) => {
     try {
         const materials = await Material.find({}).populate('vendor', 'name email contactPerson phone');
-        res.json(materials);
+        res.json(materials.filter(m => m.isActive !== false));
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -155,7 +156,18 @@ const deleteMaterial = async (req, res) => {
         const material = await Material.findById(req.params.id);
         if (material) {
             const materialName = material.name;
-            await material.deleteOne();
+            
+            // Check for references
+            const hasMovements = await MaterialMovement.findOne({ materialId: req.params.id });
+            const orders = await Order.find({});
+            const hasOrders = orders.some(o => o.items && o.items.some(i => String(i.material) === String(req.params.id)));
+
+            if (hasMovements || hasOrders) {
+                return res.status(400).json({ message: "This material is currently linked to existing orders or inventory records and cannot be deleted." });
+            }
+
+            material.isActive = false;
+            await material.save();
 
             // Audit log
             await logAudit({
@@ -163,7 +175,7 @@ const deleteMaterial = async (req, res) => {
                 action: 'DELETE',
                 module: 'Material',
                 targetId: req.params.id,
-                description: `Material deleted: ${materialName}`,
+                description: `Material marked inactive: ${materialName}`,
                 ipAddress: req.ip
             });
 
@@ -193,9 +205,9 @@ const getLowStockMaterials = async (req, res) => {
             }
             await material.save();
         }
-        // Return only materials with status 'Low Stock'
+        // Return only active materials with status 'Low Stock'
         const lowStockMaterials = await Material.find({ status: 'Low Stock' });
-        res.json(lowStockMaterials);
+        res.json(lowStockMaterials.filter(m => m.isActive !== false));
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -207,7 +219,7 @@ const getLowStockMaterials = async (req, res) => {
     const getLowStockCount = async (req, res) => {
         try {
             const lowStockMaterials = await Material.find({ status: 'Low Stock' });
-            res.json({ count: lowStockMaterials.length });
+            res.json({ count: lowStockMaterials.filter(m => m.isActive !== false).length });
         } catch (error) {
             res.status(500).json({ message: error.message });
         }
@@ -255,7 +267,8 @@ const getMaterialMovements = async (req, res) => {
 // @access  Private
 const getMaterialAnalytics = async (req, res) => {
     try {
-        const materials = await Material.find({});
+        const materialsRaw = await Material.find({});
+        const materials = materialsRaw.filter(m => m.isActive !== false);
         
         // Category distribution
         const categoryMap = {};

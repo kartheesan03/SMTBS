@@ -48,6 +48,10 @@ const MaterialSequelize = sequelize.define('Material', {
     vendorId: {
         type: DataTypes.INTEGER,
         allowNull: true
+    },
+    isActive: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true
     }
 });
 

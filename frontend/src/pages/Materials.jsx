@@ -40,6 +40,16 @@ const MaterialTracking = () => {
     const [movementMaterial, setMovementMaterial] = useState(null);
     const [loadingMovements, setLoadingMovements] = useState(false);
 
+    // Toast States
+    const [toastMessage, setToastMessage] = useState('');
+    const [toastType, setToastType] = useState('success');
+
+    const showToast = (message, type = 'error') => {
+        setToastMessage(message);
+        setToastType(type);
+        setTimeout(() => setToastMessage(''), 5000);
+    };
+
     const fetchMaterialsAndStats = async () => {
         try {
             const [materialsRes, statsRes, vendorsRes] = await Promise.all([
@@ -112,8 +122,9 @@ const MaterialTracking = () => {
         try {
             await API.delete(`/materials/${id}`);
             fetchMaterialsAndStats();
+            showToast('Material marked as inactive.', 'success');
         } catch (error) {
-            alert(error.response?.data?.message || 'Error deleting material');
+            showToast(error.response?.data?.message || 'Error deleting material', 'error');
         }
     };
 
@@ -589,6 +600,14 @@ const MaterialTracking = () => {
                 </div>
             )}
 
+            {toastMessage && (
+                <div className={`toast-notification ${toastType}`}>
+                    {toastType === 'error' ? <AlertTriangle size={18} /> : null}
+                    <span>{toastMessage}</span>
+                    <button className="toast-close" onClick={() => setToastMessage('')}><X size={14} /></button>
+                </div>
+            )}
+
             <style jsx="true">{`
                 .materials-workspace {
                     padding: 24px;
@@ -699,6 +718,13 @@ const MaterialTracking = () => {
                 @keyframes pop { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
                 .animate-slide-down { animation: slideDown 0.2s ease-out; }
                 @keyframes slideDown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+                
+                .toast-notification { position: fixed; bottom: 24px; right: 24px; padding: 16px 20px; border-radius: 8px; display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 600; color: white; z-index: 9999; animation: slideUp 0.3s ease-out; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+                .toast-notification.error { background: var(--danger); }
+                .toast-notification.success { background: var(--success); }
+                .toast-close { background: none; border: none; color: white; cursor: pointer; opacity: 0.8; padding: 0; display: flex; }
+                .toast-close:hover { opacity: 1; }
+                @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
                 @media (max-width: 768px) {
                     .mat-metrics-grid { grid-template-columns: repeat(2, 1fr); }
