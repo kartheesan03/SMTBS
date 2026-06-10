@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import API from '../api/axios';
 import DataTable from '../components/Dashboard/DataTable';
-import { Truck, Plus, Star, MapPin, Mail, Phone, ExternalLink, Download, Edit, X } from 'lucide-react';
+import { Truck, Plus, Star, MapPin, Mail, Phone, ExternalLink, Download, Edit, X, PackagePlus } from 'lucide-react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import ExcelJS from 'exceljs';
@@ -24,8 +24,12 @@ const Vendors = () => {
     const [formData, setFormData] = useState({
         name: '', category: 'Raw Materials', contactPerson: '', email: '', phone: '', address: ''
     });
-    const [selectedMaterials, setSelectedMaterials] = useState([]);
-    const [materialInput, setMaterialInput] = useState('');
+    
+    // New Materials Logic
+    const [newMaterialsList, setNewMaterialsList] = useState([]);
+    const [newMaterial, setNewMaterial] = useState({
+        name: '', sku: '', category: 'Raw Materials', quantity: 0, unit: 'pcs', price: 0
+    });
 
     const fetchVendors = async () => {
         try {
@@ -62,9 +66,9 @@ const Vendors = () => {
                 API.get('/orders'),
                 API.get('/materials')
             ]);
-            const filteredOrders = orders.filter(o => o.vendorId === vendor.id || o.vendor === vendor.id || (o.vendor && o.vendor.id === vendor.id));
+            const filteredOrders = orders.filter(o => String(o.vendorId) === String(vendor.id || vendor._id) || String(o.vendor?.id || o.vendor?._id || o.vendor) === String(vendor.id || vendor._id));
             setVendorOrders(filteredOrders);
-            const filteredMaterials = materials.filter(m => String(m.vendor?._id || m.vendor?.id || m.vendor) === String(vendor._id || vendor.id));
+            const filteredMaterials = materials.filter(m => String(m.vendorId) === String(vendor.id || vendor._id) || String(m.vendor?.id || m.vendor?._id || m.vendor) === String(vendor.id || vendor._id));
             setVendorMaterials(filteredMaterials);
         } catch (err) {
             console.error("Error fetching vendor data", err);
@@ -74,8 +78,9 @@ const Vendors = () => {
     const openAddModal = () => {
         setIsEditMode(false);
         setFormData({ name: '', category: 'Raw Materials', contactPerson: '', email: '', phone: '', address: '' });
-        setSelectedMaterials([]);
-        setMaterialInput('');
+        setNewMaterialsList([]);
+        setNewMaterial({ name: '', sku: '', category: 'Raw Materials', quantity: 0, unit: 'pcs', price: 0 });
+        setVendorMaterials([]);
         setShowModal(true);
     };
 
@@ -90,47 +95,66 @@ const Vendors = () => {
             phone: vendor.phone || '',
             address: vendor.address || ''
         });
-        setSelectedMaterials(vendor.materialsSupplied || []);
-        setMaterialInput('');
+        
+        // Find existing physical stock linked to this vendor
+        const existingMaterials = allMaterials.filter(m => 
+            String(m.vendorId) === String(vendor.id || vendor._id) || 
+            String(m.vendor?.id || m.vendor?._id || m.vendor) === String(vendor.id || vendor._id)
+        );
+        setVendorMaterials(existingMaterials);
+        
+        setNewMaterialsList([]);
+        setNewMaterial({ name: '', sku: '', category: 'Raw Materials', quantity: 0, unit: 'pcs', price: 0 });
         setShowModal(true);
     };
 
-    const handleAddMaterialChip = (e) => {
-        e.preventDefault();
-        const value = materialInput.trim();
-        if (value && !selectedMaterials.includes(value)) {
-            setSelectedMaterials([...selectedMaterials, value]);
+    const handleAddNewMaterialToList = () => {
+        if (!newMaterial.name || !newMaterial.sku) {
+            alert("Material Name and SKU are required!");
+            return;
         }
-        setMaterialInput('');
+        // Check if SKU exists locally before sending to API
+        if (allMaterials.some(m => m.sku === newMaterial.sku) || newMaterialsList.some(m => m.sku === newMaterial.sku)) {
+            alert("SKU already exists! Please use a unique SKU.");
+            return;
+        }
+        
+        setNewMaterialsList([...newMaterialsList, { ...newMaterial }]);
+        setNewMaterial({ name: '', sku: '', category: 'Raw Materials', quantity: 0, unit: 'pcs', price: 0 });
     };
 
-    const handleSelectMaterial = (e) => {
-        const value = e.target.value;
-        if (value && !selectedMaterials.includes(value)) {
-            setSelectedMaterials([...selectedMaterials, value]);
-        }
-        e.target.value = ""; // reset dropdown
-    };
-
-    const removeMaterialChip = (materialToRemove) => {
-        setSelectedMaterials(selectedMaterials.filter(m => m !== materialToRemove));
+    const removeNewMaterialFromList = (index) => {
+        const list = [...newMaterialsList];
+        list.splice(index, 1);
+        setNewMaterialsList(list);
     };
 
     const handleSaveVendor = async (e) => {
         e.preventDefault();
-        const payload = { ...formData, materialsSupplied: selectedMaterials };
-        
         try {
+            let finalVendorId = null;
+            
             if (isEditMode && selectedVendor) {
-                const id = selectedVendor._id || selectedVendor.id;
-                await API.put(`/vendors/${id}`, payload);
+                finalVendorId = selectedVendor._id || selectedVendor.id;
+                await API.put(`/vendors/${finalVendorId}`, formData);
             } else {
-                await API.post('/vendors', payload);
+                const { data: createdVendor } = await API.post('/vendors', formData);
+                finalVendorId = createdVendor._id || createdVendor.id;
             }
+
+            // If there are new materials to add, loop and create them
+            if (newMaterialsList.length > 0 && finalVendorId) {
+                const materialPromises = newMaterialsList.map(mat => 
+                    API.post('/materials', { ...mat, vendorId: finalVendorId })
+                );
+                await Promise.all(materialPromises);
+            }
+
             setShowModal(false);
             fetchVendors();
+            fetchMaterials(); // refresh globally to update main datatable counts
         } catch (err) {
-            alert(err.response?.data?.message || 'Error saving vendor');
+            alert(err.response?.data?.message || 'Error saving vendor or materials');
         }
     };
 
@@ -207,96 +231,172 @@ const Vendors = () => {
 
             {showModal && (
                 <div className="modal-overlay">
-                    <div className="glass-card modal-content animate-pop" style={{ maxWidth: '650px' }}>
+                    <div className="glass-card modal-content animate-pop" style={{ maxWidth: '800px', maxHeight: '95vh', display: 'flex', flexDirection: 'column' }}>
                         <div className="modal-header">
                             <h2>{isEditMode ? 'Edit Supplier' : 'Onboard New Supplier'}</h2>
                             <button className="close-btn" onClick={() => setShowModal(false)}>✕</button>
                         </div>
-                        <form onSubmit={handleSaveVendor} className="modal-form">
-                            <div className="form-grid">
-                                <div className="form-group">
-                                    <label>Vendor Name</label>
-                                    <input type="text" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="e.g. Steel Supply Co" />
-                                </div>
-                                <div className="form-group">
-                                    <label>Category</label>
-                                    <select value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})}>
-                                        <option value="Raw Materials">Raw Materials</option>
-                                        <option value="Electronics">Electronics</option>
-                                        <option value="Polymers">Polymers</option>
-                                        <option value="Logistics">Logistics</option>
-                                        <option value="Packaging">Packaging</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div className="form-grid">
-                                <div className="form-group">
-                                    <label>Contact Person</label>
-                                    <input type="text" required value={formData.contactPerson} onChange={e => setFormData({...formData, contactPerson: e.target.value})} />
-                                </div>
-                                <div className="form-group">
-                                    <label>Phone Number</label>
-                                    <input type="text" required value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} />
-                                </div>
-                            </div>
-                            <div className="form-grid">
-                                <div className="form-group">
-                                    <label>Email Address</label>
-                                    <input type="email" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
-                                </div>
-                                <div className="form-group">
-                                    <label>Business Address</label>
-                                    <input type="text" required value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} />
-                                </div>
-                            </div>
-
-                            {/* Materials Supplied Section */}
-                            <div className="form-group material-section">
-                                <label>Materials Supplied</label>
-                                <div className="material-input-container">
-                                    <div className="material-dropdown">
-                                        <select onChange={handleSelectMaterial} defaultValue="">
-                                            <option value="" disabled>Select from existing materials...</option>
-                                            {allMaterials.map(m => (
-                                                <option key={m._id || m.id} value={m.name}>{m.name} ({m.sku})</option>
-                                            ))}
+                        
+                        <div style={{ overflowY: 'auto', paddingRight: '10px', flex: 1 }}>
+                            <form id="vendorForm" onSubmit={handleSaveVendor} className="modal-form">
+                                <h3 className="section-title">Supplier Information</h3>
+                                <div className="form-grid">
+                                    <div className="form-group">
+                                        <label>Vendor Name</label>
+                                        <input type="text" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="e.g. Steel Supply Co" />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Category</label>
+                                        <select value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})}>
+                                            <option value="Raw Materials">Raw Materials</option>
+                                            <option value="Electronics">Electronics</option>
+                                            <option value="Polymers">Polymers</option>
+                                            <option value="Logistics">Logistics</option>
+                                            <option value="Packaging">Packaging</option>
                                         </select>
                                     </div>
-                                    <span className="or-divider">OR</span>
-                                    <div className="material-custom">
-                                        <input 
-                                            type="text" 
-                                            placeholder="Type custom material & press Enter..." 
-                                            value={materialInput}
-                                            onChange={e => setMaterialInput(e.target.value)}
-                                            onKeyDown={(e) => {
-                                                if (e.key === 'Enter') {
-                                                    e.preventDefault();
-                                                    handleAddMaterialChip(e);
-                                                }
-                                            }}
-                                        />
-                                        <button type="button" onClick={handleAddMaterialChip} className="add-chip-btn">Add</button>
+                                </div>
+                                <div className="form-grid">
+                                    <div className="form-group">
+                                        <label>Contact Person</label>
+                                        <input type="text" required value={formData.contactPerson} onChange={e => setFormData({...formData, contactPerson: e.target.value})} />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Phone Number</label>
+                                        <input type="text" required value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} />
                                     </div>
                                 </div>
+                                <div className="form-grid">
+                                    <div className="form-group">
+                                        <label>Email Address</label>
+                                        <input type="email" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Business Address</label>
+                                        <input type="text" required value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} />
+                                    </div>
+                                </div>
+                            </form>
+
+                            {/* Existing Stock Display (Read Only) during Edit Mode */}
+                            {isEditMode && (
+                                <div className="material-creation-section" style={{ marginTop: '25px', borderColor: '#e2e8f0', background: '#ffffff' }}>
+                                    <h3 className="section-title" style={{ marginTop: 0 }}>Existing Materials Supplied</h3>
+                                    {vendorMaterials.length === 0 ? (
+                                        <p className="text-muted" style={{ fontSize: '13px' }}>No physical stock records linked yet.</p>
+                                    ) : (
+                                        <div className="table-responsive" style={{ maxHeight: '150px', overflowY: 'auto', border: '1px solid var(--border)', borderRadius: '8px' }}>
+                                            <table className="dt-table" style={{ width: '100%', fontSize: '12px', borderCollapse: 'collapse' }}>
+                                                <thead>
+                                                    <tr style={{ textAlign: 'left', background: '#f8fafc', borderBottom: '1px solid var(--border)' }}>
+                                                        <th style={{ padding: '8px' }}>SKU</th>
+                                                        <th style={{ padding: '8px' }}>Name</th>
+                                                        <th style={{ padding: '8px' }}>Category</th>
+                                                        <th style={{ padding: '8px' }}>Stock</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {vendorMaterials.map(m => (
+                                                        <tr key={m._id || m.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                                                            <td style={{ padding: '8px', fontWeight: 600 }}>{m.sku}</td>
+                                                            <td style={{ padding: '8px' }}>{m.name}</td>
+                                                            <td style={{ padding: '8px' }}>{m.category}</td>
+                                                            <td style={{ padding: '8px' }}>{m.quantity} {m.unit}</td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* New Stock Creation Section */}
+                            <div className="material-creation-section" style={{ marginTop: '25px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                                    <h3 className="section-title" style={{ margin: 0 }}>
+                                        <PackagePlus size={16} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'text-bottom' }}/> 
+                                        Add New Stock/Material
+                                    </h3>
+                                    <p className="text-muted" style={{ fontSize: '12px', margin: 0 }}>These items will be permanently linked to this vendor in the Inventory.</p>
+                                </div>
                                 
-                                {selectedMaterials.length > 0 && (
-                                    <div className="chips-container">
-                                        {selectedMaterials.map((mat, idx) => (
-                                            <div key={idx} className="material-chip">
-                                                <span>{mat}</span>
-                                                <button type="button" onClick={() => removeMaterialChip(mat)}><X size={14} /></button>
-                                            </div>
-                                        ))}
+                                <div className="sub-form-row">
+                                    <div className="form-group" style={{ flex: 2 }}>
+                                        <label>Material Name</label>
+                                        <input type="text" placeholder="e.g. Copper Wire" value={newMaterial.name} onChange={e => setNewMaterial({...newMaterial, name: e.target.value})} />
+                                    </div>
+                                    <div className="form-group" style={{ flex: 1 }}>
+                                        <label>SKU</label>
+                                        <input type="text" placeholder="SKU-100" value={newMaterial.sku} onChange={e => setNewMaterial({...newMaterial, sku: e.target.value})} />
+                                    </div>
+                                    <div className="form-group" style={{ flex: 1.5 }}>
+                                        <label>Category</label>
+                                        <select value={newMaterial.category} onChange={e => setNewMaterial({...newMaterial, category: e.target.value})}>
+                                            <option value="Raw Materials">Raw Materials</option>
+                                            <option value="Electronics">Electronics</option>
+                                            <option value="Polymers">Polymers</option>
+                                            <option value="Packaging">Packaging</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div className="sub-form-row">
+                                    <div className="form-group" style={{ flex: 1 }}>
+                                        <label>Stock Qty</label>
+                                        <input type="number" min="0" value={newMaterial.quantity} onChange={e => setNewMaterial({...newMaterial, quantity: parseInt(e.target.value) || 0})} />
+                                    </div>
+                                    <div className="form-group" style={{ flex: 1 }}>
+                                        <label>Unit</label>
+                                        <input type="text" placeholder="pcs, kg, m" value={newMaterial.unit} onChange={e => setNewMaterial({...newMaterial, unit: e.target.value})} />
+                                    </div>
+                                    <div className="form-group" style={{ flex: 1 }}>
+                                        <label>Price</label>
+                                        <input type="number" min="0" step="0.01" value={newMaterial.price} onChange={e => setNewMaterial({...newMaterial, price: parseFloat(e.target.value) || 0})} />
+                                    </div>
+                                    <div className="form-group" style={{ flex: '0 0 auto', justifyContent: 'flex-end' }}>
+                                        <button type="button" onClick={handleAddNewMaterialToList} className="btn-secondary" style={{ padding: '11px 20px', borderRadius: '8px', border: '1px solid var(--primary)', color: 'var(--primary)', fontWeight: 600 }}>Add Item</button>
+                                    </div>
+                                </div>
+
+                                {/* Pending New Materials Table */}
+                                {newMaterialsList.length > 0 && (
+                                    <div className="table-responsive" style={{ marginTop: '15px', border: '1px solid #c7d2fe', borderRadius: '8px', overflow: 'hidden' }}>
+                                        <table className="dt-table" style={{ width: '100%', fontSize: '12px', borderCollapse: 'collapse', background: '#eef2ff' }}>
+                                            <thead>
+                                                <tr style={{ textAlign: 'left', borderBottom: '1px solid #c7d2fe' }}>
+                                                    <th style={{ padding: '8px' }}>SKU</th>
+                                                    <th style={{ padding: '8px' }}>Name</th>
+                                                    <th style={{ padding: '8px' }}>Category</th>
+                                                    <th style={{ padding: '8px' }}>Stock</th>
+                                                    <th style={{ padding: '8px' }}>Price</th>
+                                                    <th style={{ padding: '8px', textAlign: 'center' }}>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {newMaterialsList.map((m, idx) => (
+                                                    <tr key={idx} style={{ borderBottom: '1px solid #c7d2fe' }}>
+                                                        <td style={{ padding: '8px', fontWeight: 600 }}>{m.sku}</td>
+                                                        <td style={{ padding: '8px' }}>{m.name}</td>
+                                                        <td style={{ padding: '8px' }}>{m.category}</td>
+                                                        <td style={{ padding: '8px' }}>{m.quantity} {m.unit}</td>
+                                                        <td style={{ padding: '8px' }}>${m.price}</td>
+                                                        <td style={{ padding: '8px', textAlign: 'center' }}>
+                                                            <button type="button" onClick={() => removeNewMaterialFromList(idx)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer' }}><X size={14}/></button>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
                                     </div>
                                 )}
                             </div>
+                        </div>
 
-                            <div className="modal-actions">
-                                <button type="button" className="btn-cancel" onClick={() => setShowModal(false)}>Cancel</button>
-                                <button type="submit" className="btn-primary">{isEditMode ? 'Update Vendor' : 'Register Vendor'}</button>
-                            </div>
-                        </form>
+                        <div className="modal-actions" style={{ marginTop: '20px', paddingTop: '15px', borderTop: '1px solid var(--border)' }}>
+                            <button type="button" className="btn-cancel" onClick={() => setShowModal(false)}>Cancel</button>
+                            {/* Uses the external form submit */}
+                            <button type="submit" form="vendorForm" className="btn-primary">{isEditMode ? 'Update Vendor & Items' : 'Register Vendor & Items'}</button>
+                        </div>
                     </div>
                 </div>
             )}
@@ -327,14 +427,33 @@ const Vendors = () => {
                         </div>
 
                         <div className="vendor-orders-section" style={{ marginTop: '25px' }}>
-                            <h3 style={{ fontSize: '15px', marginBottom: '15px', color: 'var(--text-primary)' }}>Materials Supplied</h3>
-                            {(!selectedVendor.materialsSupplied || selectedVendor.materialsSupplied.length === 0) ? (
-                                <p className="text-muted" style={{ fontSize: '13px' }}>No materials are explicitly listed for this vendor.</p>
+                            <h3 style={{ fontSize: '15px', marginBottom: '15px', color: 'var(--text-primary)' }}>Stock Linked Materials ({vendorMaterials.length})</h3>
+                            {vendorMaterials.length === 0 ? (
+                                <p className="text-muted" style={{ fontSize: '13px' }}>No physical inventory is currently supplied by this vendor.</p>
                             ) : (
-                                <div className="chips-container-readonly">
-                                    {selectedVendor.materialsSupplied.map((mat, idx) => (
-                                        <div key={idx} className="material-chip-readonly">{mat}</div>
-                                    ))}
+                                <div className="table-responsive" style={{ maxHeight: '180px', overflowY: 'auto' }}>
+                                    <table className="dt-table" style={{ width: '100%', fontSize: '13px', borderCollapse: 'collapse' }}>
+                                        <thead>
+                                            <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)' }}>
+                                                <th style={{ padding: '8px' }}>SKU</th>
+                                                <th style={{ padding: '8px' }}>Material</th>
+                                                <th style={{ padding: '8px' }}>Category</th>
+                                                <th style={{ padding: '8px' }}>Stock</th>
+                                                <th style={{ padding: '8px' }}>Price</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {vendorMaterials.map(m => (
+                                                <tr key={m._id || m.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                                                    <td style={{ padding: '8px' }}>{m.sku}</td>
+                                                    <td style={{ padding: '8px', fontWeight: 600 }}>{m.name}</td>
+                                                    <td style={{ padding: '8px' }}>{m.category}</td>
+                                                    <td style={{ padding: '8px' }}>{m.quantity} {m.unit}</td>
+                                                    <td style={{ padding: '8px' }}>${m.price}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
                                 </div>
                             )}
                         </div>
@@ -368,36 +487,6 @@ const Vendors = () => {
                                 </div>
                             )}
                         </div>
-
-                        <div className="vendor-orders-section" style={{ marginTop: '25px' }}>
-                            <h3 style={{ fontSize: '15px', marginBottom: '15px', color: 'var(--text-primary)' }}>Stock Linked Materials ({vendorMaterials.length})</h3>
-                            {vendorMaterials.length === 0 ? (
-                                <p className="text-muted" style={{ fontSize: '13px' }}>No linked physical inventory stock.</p>
-                            ) : (
-                                <div className="table-responsive" style={{ maxHeight: '150px', overflowY: 'auto' }}>
-                                    <table className="dt-table" style={{ width: '100%', fontSize: '13px', borderCollapse: 'collapse' }}>
-                                        <thead>
-                                            <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)' }}>
-                                                <th style={{ padding: '8px' }}>SKU</th>
-                                                <th style={{ padding: '8px' }}>Material</th>
-                                                <th style={{ padding: '8px' }}>Category</th>
-                                                <th style={{ padding: '8px' }}>Stock</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {vendorMaterials.map(m => (
-                                                <tr key={m._id} style={{ borderBottom: '1px solid var(--border)' }}>
-                                                    <td style={{ padding: '8px' }}>{m.sku}</td>
-                                                    <td style={{ padding: '8px', fontWeight: 600 }}>{m.name}</td>
-                                                    <td style={{ padding: '8px' }}>{m.category}</td>
-                                                    <td style={{ padding: '8px' }}>{m.quantity} {m.unit}</td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            )}
-                        </div>
                         
                         <div className="modal-actions" style={{ marginTop: '25px' }}>
                             <button type="button" className="btn-cancel" onClick={() => setShowViewModal(false)}>Close</button>
@@ -410,48 +499,54 @@ const Vendors = () => {
                 <div className="glass-card table-wrapper">
                     <DataTable 
                         title="Supplier Directory"
-                        headers={['Vendor Name', 'Category', 'Supplied Materials', 'Status', 'Contact', 'Action']}
+                        headers={['Vendor Name', 'Category', 'Materials Supplied', 'Status', 'Contact', 'Action']}
                         data={vendors}
                         onViewAll={fetchVendors}
-                        renderRow={(v, index) => (
-                            <tr key={v._id || v.id || index}>
-                                <td>
-                                    <strong>{v.name}</strong>
-                                    <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}><MapPin size={12}/> {v.address}</div>
-                                </td>
-                                <td><span className="cat-tag">{v.category}</span></td>
-                                <td style={{ maxWidth: '250px' }}>
-                                    {v.materialsSupplied && v.materialsSupplied.length > 0 ? (
-                                        <div className="chips-container-readonly" style={{ flexWrap: 'wrap' }}>
-                                            {v.materialsSupplied.slice(0, 3).map((mat, i) => (
-                                                <span key={i} className="material-chip-readonly small">{mat}</span>
-                                            ))}
-                                            {v.materialsSupplied.length > 3 && (
-                                                <span className="material-chip-readonly small empty">+{v.materialsSupplied.length - 3}</span>
-                                            )}
+                        renderRow={(v, index) => {
+                            const vId = String(v._id || v.id);
+                            // Filter globally matched materials for this row
+                            const vMaterials = allMaterials.filter(m => String(m.vendorId) === vId || String(m.vendor?.id || m.vendor?._id || m.vendor) === vId);
+                            
+                            return (
+                                <tr key={v._id || v.id || index}>
+                                    <td>
+                                        <strong>{v.name}</strong>
+                                        <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}><MapPin size={12}/> {v.address}</div>
+                                    </td>
+                                    <td><span className="cat-tag">{v.category}</span></td>
+                                    <td style={{ maxWidth: '250px' }}>
+                                        {vMaterials.length > 0 ? (
+                                            <div className="chips-container-readonly" style={{ flexWrap: 'wrap' }}>
+                                                {vMaterials.slice(0, 2).map((mat, i) => (
+                                                    <span key={i} className="material-chip-readonly small">{mat.name} ({mat.sku})</span>
+                                                ))}
+                                                {vMaterials.length > 2 && (
+                                                    <span className="material-chip-readonly small empty">+{vMaterials.length - 2} items</span>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <span className="text-muted" style={{ fontSize: '12px' }}>No stock linked</span>
+                                        )}
+                                    </td>
+                                    <td>
+                                        <span className={`status-badge-inline ${v.status?.toLowerCase().replace(/ /g, '-') || 'vendor-created'}`}>
+                                            {v.status || 'Vendor Created'}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div className="info-cell">{v.contactPerson || '-'}</div>
+                                        <div className="info-cell" style={{ fontSize: '11px' }}><Mail size={12}/> {v.email}</div>
+                                        <div className="info-cell" style={{ fontSize: '11px' }}><Phone size={12}/> {v.phone}</div>
+                                    </td>
+                                    <td style={{ textAlign: 'center' }}>
+                                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                                            <button className="btn-icon view-btn" title="View Vendor" onClick={() => handleViewVendor(v)}><ExternalLink size={16}/></button>
+                                            <button className="btn-icon view-btn" title="Edit Vendor" onClick={() => openEditModal(v)}><Edit size={16}/></button>
                                         </div>
-                                    ) : (
-                                        <span className="text-muted" style={{ fontSize: '12px' }}>Not specified</span>
-                                    )}
-                                </td>
-                                <td>
-                                    <span className={`status-badge-inline ${v.status?.toLowerCase().replace(/ /g, '-') || 'vendor-created'}`}>
-                                        {v.status || 'Vendor Created'}
-                                    </span>
-                                </td>
-                                <td>
-                                    <div className="info-cell">{v.contactPerson || '-'}</div>
-                                    <div className="info-cell" style={{ fontSize: '11px' }}><Mail size={12}/> {v.email}</div>
-                                    <div className="info-cell" style={{ fontSize: '11px' }}><Phone size={12}/> {v.phone}</div>
-                                </td>
-                                <td style={{ textAlign: 'center' }}>
-                                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                                        <button className="btn-icon view-btn" title="View Vendor" onClick={() => handleViewVendor(v)}><ExternalLink size={16}/></button>
-                                        <button className="btn-icon view-btn" title="Edit Vendor" onClick={() => openEditModal(v)}><Edit size={16}/></button>
-                                    </div>
-                                </td>
-                            </tr>
-                        )}
+                                    </td>
+                                </tr>
+                            );
+                        }}
                     />
                 </div>
             </div>
@@ -479,20 +574,10 @@ const Vendors = () => {
                 .view-btn { padding: 6px; border-radius: 6px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; }
                 .view-btn:hover { background: var(--primary-light); color: var(--primary); }
 
-                /* Materials Chips */
-                .material-section { background: #f8fafc; padding: 16px; border-radius: 12px; border: 1px dashed var(--border); }
-                .material-input-container { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-                .material-dropdown { flex: 1; }
-                .or-divider { font-size: 12px; font-weight: 700; color: var(--text-muted); }
-                .material-custom { flex: 1; display: flex; align-items: center; gap: 8px; }
-                .material-custom input { margin-bottom: 0; }
-                .add-chip-btn { padding: 10px 16px; background: #ffffff; border: 1px solid var(--border); border-radius: 8px; font-weight: 600; font-size: 13px; color: var(--primary); cursor: pointer; transition: all 0.2s; }
-                .add-chip-btn:hover { background: var(--primary-light); border-color: var(--primary); }
-                
-                .chips-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
-                .material-chip { display: inline-flex; align-items: center; gap: 6px; background: #ffffff; border: 1px solid var(--primary-100); padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; color: var(--primary); box-shadow: var(--shadow-xs); }
-                .material-chip button { background: transparent; border: none; color: var(--text-muted); display: flex; align-items: center; justify-content: center; padding: 0; cursor: pointer; transition: color 0.2s; }
-                .material-chip button:hover { color: var(--danger); }
+                /* Physical Materials Sub-form Styles */
+                .section-title { font-size: 14px; font-weight: 700; color: var(--dash-text-main, #0f172a); margin: 0 0 15px 0; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+                .material-creation-section { background: #f8fafc; padding: 18px; border-radius: 12px; border: 1px dashed #cbd5e1; }
+                .sub-form-row { display: flex; gap: 12px; margin-bottom: 12px; align-items: flex-end; }
                 
                 .chips-container-readonly { display: flex; flex-wrap: wrap; gap: 6px; }
                 .material-chip-readonly { display: inline-flex; align-items: center; background: var(--primary-50); color: var(--primary-700); padding: 4px 10px; border-radius: 16px; font-size: 12px; font-weight: 600; border: 1px solid var(--primary-100); }
@@ -501,20 +586,20 @@ const Vendors = () => {
 
                 /* Modal Styles */
                 .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 1100; padding: 20px; }
-                .modal-content { width: 100%; max-width: 600px; padding: 30px; position: relative; max-height: 90vh; overflow-y: auto; }
-                .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
+                .modal-content { width: 100%; max-width: 600px; padding: 30px; position: relative; max-height: 90vh; }
+                .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
                 .close-btn { background: none; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; }
                 .vendor-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; background: var(--bg-body); padding: 20px; border-radius: 12px; }
                 .detail-section h3 { font-size: 14px; font-weight: 700; color: var(--primary); margin: 0 0 15px 0; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
                 .detail-section p { font-size: 13px; color: var(--text-secondary); margin: 8px 0; display: flex; flex-direction: column; gap: 4px; }
                 .detail-section p strong { color: var(--text-primary); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
                 .modal-form { display: flex; flex-direction: column; gap: 20px; }
-                .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-                .form-group { display: flex; flex-direction: column; gap: 8px; }
-                .form-group label { font-size: 13px; font-weight: 600; color: var(--text-muted); }
-                .form-group input, .form-group select { padding: 12px; background: var(--bg-card, #ffffff); border: 1px solid var(--border); border-radius: 8px; color: var(--dash-text-main, #0f172a); width: 100%; }
+                .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+                .form-group { display: flex; flex-direction: column; gap: 6px; }
+                .form-group label { font-size: 12px; font-weight: 600; color: var(--text-muted); }
+                .form-group input, .form-group select { padding: 10px 12px; background: var(--bg-card, #ffffff); border: 1px solid var(--border); border-radius: 8px; color: var(--dash-text-main, #0f172a); width: 100%; font-size: 13px; }
                 .form-group select option { background: #ffffff; color: var(--dash-text-main, #0f172a); }
-                .modal-actions { display: flex; justify-content: flex-end; gap: 15px; margin-top: 10px; }
+                .modal-actions { display: flex; justify-content: flex-end; gap: 15px; }
                 .btn-cancel { background: transparent; color: var(--dash-text-main, #0f172a); border: 1px solid var(--border); padding: 12px 25px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
                 .btn-cancel:hover { background: #f1f5f9; }
                 
@@ -530,8 +615,7 @@ const Vendors = () => {
                     .header-actions { width: 100%; flex-wrap: wrap; }
                     .header-actions button { flex: 1; }
                     .form-grid { grid-template-columns: 1fr; }
-                    .material-input-container { flex-direction: column; align-items: stretch; }
-                    .or-divider { text-align: center; margin: 4px 0; }
+                    .sub-form-row { flex-direction: column; align-items: stretch; gap: 8px; }
                     .modal-actions { flex-direction: column; }
                     .modal-actions button { width: 100%; }
                 }
