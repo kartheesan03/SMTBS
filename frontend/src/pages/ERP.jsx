@@ -18,6 +18,8 @@ const ERP = () => {
     const [activeTab, setActiveTab] = useState('active');
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
+    const [showOrderDetailsModal, setShowOrderDetailsModal] = useState(false);
+    const [selectedOrderDetails, setSelectedOrderDetails] = useState(null);
     const [customers, setCustomers] = useState([]);
     const [vendors, setVendors] = useState([]);
     const [materials, setMaterials] = useState([]);
@@ -102,6 +104,11 @@ const ERP = () => {
             }
         }
     }, [location.search, orders]);
+
+    const handleOrderClick = (ord) => {
+        setSelectedOrderDetails(ord);
+        setShowOrderDetailsModal(true);
+    };
 
     const calculateTotal = () => {
         return formData.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -410,6 +417,7 @@ const ERP = () => {
                             <th>Order ID</th>
                             <th>Order Type</th>
                             <th>{customerVendorHeader}</th>
+                            <th>Quantity</th>
                             <th>Amount</th>
                             <th>Date</th>
                             <th>Manager Approval</th>
@@ -439,9 +447,25 @@ const ERP = () => {
                             const currentStatusText = displayStatus(ord.status);
                             const statusClass = currentStatusText.toLowerCase().replace(/ /g, '-');
                             
+                            const renderQuantity = (order) => {
+                                if (!order.items || order.items.length === 0) return '-';
+                                if (order.items.length === 1) {
+                                    const item = order.items[0];
+                                    const mat = materials.find(m => String(m.id || m._id) === String(item.material));
+                                    return `${item.quantity} ${mat?.unit || 'pcs'}`;
+                                }
+                                const totalQty = order.items.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
+                                return (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                        <span style={{ cursor: 'pointer', color: 'var(--primary)', fontWeight: '600' }} onClick={() => handleOrderClick(order)}>{order.items.length} Items</span>
+                                        <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Total: {totalQty}</span>
+                                    </div>
+                                );
+                            };
+
                             return (
                                 <tr key={ord._id} id={`order-row-${ord._id}`}>
-                                    <td><code className="po-code">{ord.orderNumber}</code></td>
+                                    <td><code className="po-code" style={{ cursor: 'pointer', color: 'var(--primary)' }} onClick={() => handleOrderClick(ord)}>{ord.orderNumber}</code></td>
                                     <td>
                                         {ord.orderType === 'purchase' ? (
                                             <span className="order-type-badge purchase">Purchase Order</span>
@@ -452,6 +476,7 @@ const ERP = () => {
                                     <td className="vendor-name-cell">
                                         {ord.orderType === 'purchase' ? (ord.vendor?.name || 'Walk-in Vendor') : (ord.customer?.name || 'Walk-in Customer')}
                                     </td>
+                                    <td>{renderQuantity(ord)}</td>
                                     <td><strong>${ord.totalAmount?.toLocaleString()}</strong></td>
                                     <td>{new Date(ord.createdAt).toLocaleDateString()}</td>
                                     <td>
@@ -619,6 +644,74 @@ const ERP = () => {
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Order Details Modal */}
+            {showOrderDetailsModal && selectedOrderDetails && (
+                <div className="modal-overlay">
+                    <div className="modal-content animate-pop" style={{ maxWidth: '600px' }}>
+                        <div className="modal-header">
+                            <h2>Order Details: {selectedOrderDetails.orderNumber}</h2>
+                            <button className="close-btn" onClick={() => setShowOrderDetailsModal(false)}>✕</button>
+                        </div>
+                        <div style={{ padding: '20px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', fontSize: '14px' }}>
+                                <div>
+                                    <p style={{ margin: '0 0 8px 0', color: 'var(--text-muted)' }}>{selectedOrderDetails.orderType === 'purchase' ? 'Vendor' : 'Customer'}</p>
+                                    <h3 style={{ margin: 0 }}>{selectedOrderDetails.orderType === 'purchase' ? (selectedOrderDetails.vendor?.name || 'Walk-in') : (selectedOrderDetails.customer?.name || 'Walk-in')}</h3>
+                                </div>
+                                <div style={{ textAlign: 'right' }}>
+                                    <p style={{ margin: '0 0 8px 0', color: 'var(--text-muted)' }}>Status</p>
+                                    <span className={`status-badge-inline ${selectedOrderDetails.status.toLowerCase().replace(/ /g, '-')}`}>{selectedOrderDetails.status}</span>
+                                </div>
+                            </div>
+                            
+                            <h4 style={{ margin: '0 0 12px 0', paddingBottom: '8px', borderBottom: '1px solid var(--border)' }}>Items Ordered</h4>
+                            <table className="modern-table" style={{ fontSize: '13px' }}>
+                                <thead>
+                                    <tr>
+                                        <th>Material</th>
+                                        <th>SKU</th>
+                                        <th style={{ textAlign: 'right' }}>Qty</th>
+                                        <th style={{ textAlign: 'right' }}>Unit Price</th>
+                                        <th style={{ textAlign: 'right' }}>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {selectedOrderDetails.items && selectedOrderDetails.items.map((item, idx) => {
+                                        const mat = materials.find(m => String(m.id || m._id) === String(item.material));
+                                        return (
+                                            <tr key={idx}>
+                                                <td>{mat?.name || 'Unknown Item'}</td>
+                                                <td><code style={{ fontSize: '11px', background: 'var(--bg-hover)', padding: '2px 4px', borderRadius: '4px' }}>{mat?.sku || '-'}</code></td>
+                                                <td style={{ textAlign: 'right' }}><strong>{item.quantity}</strong> {mat?.unit || 'pcs'}</td>
+                                                <td style={{ textAlign: 'right' }}>${item.price}</td>
+                                                <td style={{ textAlign: 'right' }}><strong>${(item.quantity * item.price).toLocaleString()}</strong></td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colSpan="4" style={{ textAlign: 'right', fontWeight: 'bold', paddingTop: '16px' }}>Grand Total</td>
+                                        <td style={{ textAlign: 'right', fontWeight: 'bold', paddingTop: '16px', fontSize: '15px' }}>${selectedOrderDetails.totalAmount?.toLocaleString()}</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+
+                            <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
+                                <div style={{ flex: 1, background: 'var(--bg-hover)', padding: '12px', borderRadius: '8px' }}>
+                                    <p style={{ margin: '0 0 4px 0', fontSize: '12px', color: 'var(--text-muted)' }}>Delivery Status</p>
+                                    <strong style={{ fontSize: '14px' }}>{selectedOrderDetails.deliveryStatus || 'Not Started'}</strong>
+                                </div>
+                                <div style={{ flex: 1, background: 'var(--bg-hover)', padding: '12px', borderRadius: '8px' }}>
+                                    <p style={{ margin: '0 0 4px 0', fontSize: '12px', color: 'var(--text-muted)' }}>Expected Delivery</p>
+                                    <strong style={{ fontSize: '14px' }}>{selectedOrderDetails.deliveryDate ? new Date(selectedOrderDetails.deliveryDate).toLocaleDateString() : 'N/A'}</strong>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             )}
