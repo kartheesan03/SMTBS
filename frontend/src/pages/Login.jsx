@@ -19,7 +19,9 @@ const Login = () => {
             setError('');
             navigate('/');
         } catch (err) {
-            setError(err.response?.data?.message || 'Login failed');
+            const errorMsg = err.response?.data?.error || err.response?.data?.message || 'Login failed';
+            setError(errorMsg);
+            console.error('Login error:', err.response?.data);
         }
     };
 

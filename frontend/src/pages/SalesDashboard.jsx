@@ -5,7 +5,7 @@ import {
 } from 'lucide-react';
 import { 
     AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, 
-    ResponsiveContainer, PieChart, Pie, Cell, ComposedChart, Bar, Line
+    ResponsiveContainer, PieChart, Pie, Cell, ComposedChart, Bar, Line, BarChart
 } from 'recharts';
 
 const SalesDashboard = () => {

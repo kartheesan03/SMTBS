@@ -97,6 +97,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
         { path: '/my-tasks', name: 'My Tasks', icon: <Box size={20} /> },
         { path: '/my-attendance', name: 'My Attendance', icon: <CheckCircle size={20} /> },
         { path: '/crm', name: 'Customers (CRM)', icon: <Briefcase size={20} /> },
+        { path: '/erp', name: 'Orders (ERP)', icon: <ShoppingCart size={20} /> },
         { path: '/stock-requests', name: 'Stock Deliveries', icon: <Box size={20} /> },
         { path: '/notifications', name: 'Notifications', icon: <Bell size={20} /> },
         { path: '/analytics', name: 'Reports', icon: <BarChart3 size={20} /> },
