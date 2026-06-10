@@ -1,22 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import API from '../api/axios';
 import DataTable from '../components/Dashboard/DataTable';
-import { Truck, Plus, Star, MapPin, Mail, Phone, ExternalLink, Download } from 'lucide-react';
+import { Truck, Plus, Star, MapPin, Mail, Phone, ExternalLink, Download, Edit, X } from 'lucide-react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import ExcelJS from 'exceljs';
 
 const Vendors = () => {
     const [vendors, setVendors] = useState([]);
+    const [allMaterials, setAllMaterials] = useState([]);
     const [loading, setLoading] = useState(true);
+    
+    // Modal States
     const [showModal, setShowModal] = useState(false);
+    const [isEditMode, setIsEditMode] = useState(false);
     const [showViewModal, setShowViewModal] = useState(false);
+    
     const [selectedVendor, setSelectedVendor] = useState(null);
     const [vendorOrders, setVendorOrders] = useState([]);
     const [vendorMaterials, setVendorMaterials] = useState([]);
+    
+    // Form States
     const [formData, setFormData] = useState({
         name: '', category: 'Raw Materials', contactPerson: '', email: '', phone: '', address: ''
     });
+    const [selectedMaterials, setSelectedMaterials] = useState([]);
+    const [materialInput, setMaterialInput] = useState('');
 
     const fetchVendors = async () => {
         try {
@@ -29,8 +38,18 @@ const Vendors = () => {
         }
     };
 
+    const fetchMaterials = async () => {
+        try {
+            const { data } = await API.get('/materials');
+            setAllMaterials(data || []);
+        } catch (err) {
+            console.error("Error fetching materials", err);
+        }
+    };
+
     useEffect(() => {
         fetchVendors();
+        fetchMaterials();
     }, []);
 
     const handleViewVendor = async (vendor) => {
@@ -52,15 +71,66 @@ const Vendors = () => {
         }
     };
 
-    const handleAddVendor = async (e) => {
+    const openAddModal = () => {
+        setIsEditMode(false);
+        setFormData({ name: '', category: 'Raw Materials', contactPerson: '', email: '', phone: '', address: '' });
+        setSelectedMaterials([]);
+        setMaterialInput('');
+        setShowModal(true);
+    };
+
+    const openEditModal = (vendor) => {
+        setIsEditMode(true);
+        setSelectedVendor(vendor);
+        setFormData({
+            name: vendor.name || '',
+            category: vendor.category || 'Raw Materials',
+            contactPerson: vendor.contactPerson || '',
+            email: vendor.email || '',
+            phone: vendor.phone || '',
+            address: vendor.address || ''
+        });
+        setSelectedMaterials(vendor.materialsSupplied || []);
+        setMaterialInput('');
+        setShowModal(true);
+    };
+
+    const handleAddMaterialChip = (e) => {
         e.preventDefault();
+        const value = materialInput.trim();
+        if (value && !selectedMaterials.includes(value)) {
+            setSelectedMaterials([...selectedMaterials, value]);
+        }
+        setMaterialInput('');
+    };
+
+    const handleSelectMaterial = (e) => {
+        const value = e.target.value;
+        if (value && !selectedMaterials.includes(value)) {
+            setSelectedMaterials([...selectedMaterials, value]);
+        }
+        e.target.value = ""; // reset dropdown
+    };
+
+    const removeMaterialChip = (materialToRemove) => {
+        setSelectedMaterials(selectedMaterials.filter(m => m !== materialToRemove));
+    };
+
+    const handleSaveVendor = async (e) => {
+        e.preventDefault();
+        const payload = { ...formData, materialsSupplied: selectedMaterials };
+        
         try {
-            await API.post('/vendors', formData);
+            if (isEditMode && selectedVendor) {
+                const id = selectedVendor._id || selectedVendor.id;
+                await API.put(`/vendors/${id}`, payload);
+            } else {
+                await API.post('/vendors', payload);
+            }
             setShowModal(false);
-            setFormData({ name: '', category: 'Raw Materials', contactPerson: '', email: '', phone: '', address: '' });
             fetchVendors();
         } catch (err) {
-            alert(err.response?.data?.message || 'Error adding vendor');
+            alert(err.response?.data?.message || 'Error saving vendor');
         }
     };
 
@@ -129,7 +199,7 @@ const Vendors = () => {
                     <button className="btn-secondary flex-center gap-10" onClick={exportToExcel} style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--bg-body)', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>
                         <Download size={16} /> Excel
                     </button>
-                    <button className="btn-primary flex-center gap-10" onClick={() => setShowModal(true)}>
+                    <button className="btn-primary flex-center gap-10" onClick={openAddModal}>
                         <Plus size={18} /> Add New Vendor
                     </button>
                 </div>
@@ -137,12 +207,12 @@ const Vendors = () => {
 
             {showModal && (
                 <div className="modal-overlay">
-                    <div className="glass-card modal-content animate-pop">
+                    <div className="glass-card modal-content animate-pop" style={{ maxWidth: '650px' }}>
                         <div className="modal-header">
-                            <h2>Onboard New Supplier</h2>
+                            <h2>{isEditMode ? 'Edit Supplier' : 'Onboard New Supplier'}</h2>
                             <button className="close-btn" onClick={() => setShowModal(false)}>✕</button>
                         </div>
-                        <form onSubmit={handleAddVendor} className="modal-form">
+                        <form onSubmit={handleSaveVendor} className="modal-form">
                             <div className="form-grid">
                                 <div className="form-group">
                                     <label>Vendor Name</label>
@@ -169,17 +239,62 @@ const Vendors = () => {
                                     <input type="text" required value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} />
                                 </div>
                             </div>
-                            <div className="form-group">
-                                <label>Email Address</label>
-                                <input type="email" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
+                            <div className="form-grid">
+                                <div className="form-group">
+                                    <label>Email Address</label>
+                                    <input type="email" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
+                                </div>
+                                <div className="form-group">
+                                    <label>Business Address</label>
+                                    <input type="text" required value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} />
+                                </div>
                             </div>
-                            <div className="form-group">
-                                <label>Business Address</label>
-                                <input type="text" required value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} />
+
+                            {/* Materials Supplied Section */}
+                            <div className="form-group material-section">
+                                <label>Materials Supplied</label>
+                                <div className="material-input-container">
+                                    <div className="material-dropdown">
+                                        <select onChange={handleSelectMaterial} defaultValue="">
+                                            <option value="" disabled>Select from existing materials...</option>
+                                            {allMaterials.map(m => (
+                                                <option key={m._id || m.id} value={m.name}>{m.name} ({m.sku})</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <span className="or-divider">OR</span>
+                                    <div className="material-custom">
+                                        <input 
+                                            type="text" 
+                                            placeholder="Type custom material & press Enter..." 
+                                            value={materialInput}
+                                            onChange={e => setMaterialInput(e.target.value)}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter') {
+                                                    e.preventDefault();
+                                                    handleAddMaterialChip(e);
+                                                }
+                                            }}
+                                        />
+                                        <button type="button" onClick={handleAddMaterialChip} className="add-chip-btn">Add</button>
+                                    </div>
+                                </div>
+                                
+                                {selectedMaterials.length > 0 && (
+                                    <div className="chips-container">
+                                        {selectedMaterials.map((mat, idx) => (
+                                            <div key={idx} className="material-chip">
+                                                <span>{mat}</span>
+                                                <button type="button" onClick={() => removeMaterialChip(mat)}><X size={14} /></button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
+
                             <div className="modal-actions">
                                 <button type="button" className="btn-cancel" onClick={() => setShowModal(false)}>Cancel</button>
-                                <button type="submit" className="btn-primary">Register Vendor</button>
+                                <button type="submit" className="btn-primary">{isEditMode ? 'Update Vendor' : 'Register Vendor'}</button>
                             </div>
                         </form>
                     </div>
@@ -212,6 +327,19 @@ const Vendors = () => {
                         </div>
 
                         <div className="vendor-orders-section" style={{ marginTop: '25px' }}>
+                            <h3 style={{ fontSize: '15px', marginBottom: '15px', color: 'var(--text-primary)' }}>Materials Supplied</h3>
+                            {(!selectedVendor.materialsSupplied || selectedVendor.materialsSupplied.length === 0) ? (
+                                <p className="text-muted" style={{ fontSize: '13px' }}>No materials are explicitly listed for this vendor.</p>
+                            ) : (
+                                <div className="chips-container-readonly">
+                                    {selectedVendor.materialsSupplied.map((mat, idx) => (
+                                        <div key={idx} className="material-chip-readonly">{mat}</div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="vendor-orders-section" style={{ marginTop: '25px' }}>
                             <h3 style={{ fontSize: '15px', marginBottom: '15px', color: 'var(--text-primary)' }}>Linked Purchase Orders ({vendorOrders.length})</h3>
                             {vendorOrders.length === 0 ? (
                                 <p className="text-muted" style={{ fontSize: '13px' }}>No purchase orders found for this vendor.</p>
@@ -230,7 +358,7 @@ const Vendors = () => {
                                             {vendorOrders.map(order => (
                                                 <tr key={order.id || order._id} style={{ borderBottom: '1px solid var(--border)' }}>
                                                     <td style={{ padding: '8px', fontWeight: 600 }}>{order.orderNumber}</td>
-                                                    <td style={{ padding: '8px' }}>₹{(order.totalAmount || 0).toLocaleString()}</td>
+                                                    <td style={{ padding: '8px' }}>${(order.totalAmount || 0).toLocaleString()}</td>
                                                     <td style={{ padding: '8px' }}><span className="status-badge-inline">{order.status}</span></td>
                                                     <td style={{ padding: '8px' }}>{new Date(order.createdAt).toLocaleDateString()}</td>
                                                 </tr>
@@ -242,9 +370,9 @@ const Vendors = () => {
                         </div>
 
                         <div className="vendor-orders-section" style={{ marginTop: '25px' }}>
-                            <h3 style={{ fontSize: '15px', marginBottom: '15px', color: 'var(--text-primary)' }}>Supplied Materials ({vendorMaterials.length})</h3>
+                            <h3 style={{ fontSize: '15px', marginBottom: '15px', color: 'var(--text-primary)' }}>Stock Linked Materials ({vendorMaterials.length})</h3>
                             {vendorMaterials.length === 0 ? (
-                                <p className="text-muted" style={{ fontSize: '13px' }}>No materials supplied by this vendor.</p>
+                                <p className="text-muted" style={{ fontSize: '13px' }}>No linked physical inventory stock.</p>
                             ) : (
                                 <div className="table-responsive" style={{ maxHeight: '150px', overflowY: 'auto' }}>
                                     <table className="dt-table" style={{ width: '100%', fontSize: '13px', borderCollapse: 'collapse' }}>
@@ -282,30 +410,53 @@ const Vendors = () => {
                 <div className="glass-card table-wrapper">
                     <DataTable 
                         title="Supplier Directory"
-                        headers={['Vendor Name', 'Category', 'Status', 'Address', 'Contact', 'Email', 'Phone', 'Action']}
+                        headers={['Vendor Name', 'Category', 'Supplied Materials', 'Status', 'Contact', 'Action']}
                         data={vendors}
                         onViewAll={fetchVendors}
                         renderRow={(v, index) => (
-                            <tr key={v._id || index}>
-                                <td><strong>{v.name}</strong></td>
+                            <tr key={v._id || v.id || index}>
+                                <td>
+                                    <strong>{v.name}</strong>
+                                    <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}><MapPin size={12}/> {v.address}</div>
+                                </td>
                                 <td><span className="cat-tag">{v.category}</span></td>
+                                <td style={{ maxWidth: '250px' }}>
+                                    {v.materialsSupplied && v.materialsSupplied.length > 0 ? (
+                                        <div className="chips-container-readonly" style={{ flexWrap: 'wrap' }}>
+                                            {v.materialsSupplied.slice(0, 3).map((mat, i) => (
+                                                <span key={i} className="material-chip-readonly small">{mat}</span>
+                                            ))}
+                                            {v.materialsSupplied.length > 3 && (
+                                                <span className="material-chip-readonly small empty">+{v.materialsSupplied.length - 3}</span>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <span className="text-muted" style={{ fontSize: '12px' }}>Not specified</span>
+                                    )}
+                                </td>
                                 <td>
                                     <span className={`status-badge-inline ${v.status?.toLowerCase().replace(/ /g, '-') || 'vendor-created'}`}>
                                         {v.status || 'Vendor Created'}
                                     </span>
                                 </td>
-                                <td><div className="info-cell address-wrap"><MapPin size={14}/> <span>{v.address}</span></div></td>
-                                <td>{v.contactPerson || '-'}</td>
-                                <td><div className="info-cell"><Mail size={14}/> {v.email}</div></td>
-                                <td><div className="info-cell"><Phone size={14}/> {v.phone}</div></td>
+                                <td>
+                                    <div className="info-cell">{v.contactPerson || '-'}</div>
+                                    <div className="info-cell" style={{ fontSize: '11px' }}><Mail size={12}/> {v.email}</div>
+                                    <div className="info-cell" style={{ fontSize: '11px' }}><Phone size={12}/> {v.phone}</div>
+                                </td>
                                 <td style={{ textAlign: 'center' }}>
-                                    <button className="btn-icon view-btn" title="View Vendor" onClick={() => handleViewVendor(v)}><ExternalLink size={16}/></button>
+                                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                                        <button className="btn-icon view-btn" title="View Vendor" onClick={() => handleViewVendor(v)}><ExternalLink size={16}/></button>
+                                        <button className="btn-icon view-btn" title="Edit Vendor" onClick={() => openEditModal(v)}><Edit size={16}/></button>
+                                    </div>
                                 </td>
                             </tr>
                         )}
                     />
                 </div>
-            </div>            <style jsx="true">{`
+            </div>
+
+            <style jsx="true">{`
                 .module-container { padding: 30px; }
                 .module-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px; padding: 25px; gap: 20px; }
                 .table-wrapper { padding: 10px; }
@@ -319,12 +470,34 @@ const Vendors = () => {
                 .status-badge-inline.in-transit { background-color: #ffedd5; color: #ea580c; }
                 .status-badge-inline.delivered { background-color: var(--success-light, #dcfce7); color: var(--success, #16a34a); }
                 .status-badge-inline.completed { background-color: #d1fae5; color: #059669; }
-                .info-cell { display: flex; align-items: flex-start; gap: 6px; font-size: 13px; color: var(--text-muted); white-space: nowrap; }
+                
+                .info-cell { display: flex; align-items: flex-start; gap: 6px; font-size: 13px; color: var(--text-muted); white-space: nowrap; margin-bottom: 4px; }
                 .address-wrap { max-width: 250px; white-space: normal; line-height: 1.5; word-wrap: break-word; }
                 .address-wrap svg { flex-shrink: 0; margin-top: 2px; }
+                
                 .btn-icon { background: none; color: var(--primary); border: none; }
                 .view-btn { padding: 6px; border-radius: 6px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; }
                 .view-btn:hover { background: var(--primary-light); color: var(--primary); }
+
+                /* Materials Chips */
+                .material-section { background: #f8fafc; padding: 16px; border-radius: 12px; border: 1px dashed var(--border); }
+                .material-input-container { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+                .material-dropdown { flex: 1; }
+                .or-divider { font-size: 12px; font-weight: 700; color: var(--text-muted); }
+                .material-custom { flex: 1; display: flex; align-items: center; gap: 8px; }
+                .material-custom input { margin-bottom: 0; }
+                .add-chip-btn { padding: 10px 16px; background: #ffffff; border: 1px solid var(--border); border-radius: 8px; font-weight: 600; font-size: 13px; color: var(--primary); cursor: pointer; transition: all 0.2s; }
+                .add-chip-btn:hover { background: var(--primary-light); border-color: var(--primary); }
+                
+                .chips-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+                .material-chip { display: inline-flex; align-items: center; gap: 6px; background: #ffffff; border: 1px solid var(--primary-100); padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; color: var(--primary); box-shadow: var(--shadow-xs); }
+                .material-chip button { background: transparent; border: none; color: var(--text-muted); display: flex; align-items: center; justify-content: center; padding: 0; cursor: pointer; transition: color 0.2s; }
+                .material-chip button:hover { color: var(--danger); }
+                
+                .chips-container-readonly { display: flex; flex-wrap: wrap; gap: 6px; }
+                .material-chip-readonly { display: inline-flex; align-items: center; background: var(--primary-50); color: var(--primary-700); padding: 4px 10px; border-radius: 16px; font-size: 12px; font-weight: 600; border: 1px solid var(--primary-100); }
+                .material-chip-readonly.small { padding: 3px 8px; font-size: 11px; }
+                .material-chip-readonly.empty { background: #f1f5f9; color: #475569; border-color: #e2e8f0; }
 
                 /* Modal Styles */
                 .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 1100; padding: 20px; }
@@ -342,27 +515,27 @@ const Vendors = () => {
                 .form-group input, .form-group select { padding: 12px; background: var(--bg-card, #ffffff); border: 1px solid var(--border); border-radius: 8px; color: var(--dash-text-main, #0f172a); width: 100%; }
                 .form-group select option { background: #ffffff; color: var(--dash-text-main, #0f172a); }
                 .modal-actions { display: flex; justify-content: flex-end; gap: 15px; margin-top: 10px; }
-                .btn-cancel { background: transparent; color: var(--dash-text-main, #0f172a); border: 1px solid var(--border); padding: 12px 25px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+                .btn-cancel { background: transparent; color: var(--dash-text-main, #0f172a); border: 1px solid var(--border); padding: 12px 25px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+                .btn-cancel:hover { background: #f1f5f9; }
                 
                 .animate-pop { animation: pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
                 @keyframes pop { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
                 
                 .flex-center { display: flex; align-items: center; justify-content: center; }
                 .gap-10 { gap: 10px; }
-                .gap-5 { gap: 5px; }
 
                 @media (max-width: 768px) {
                     .module-container { padding: 15px; }
                     .module-header { flex-direction: column; align-items: flex-start; padding: 20px; }
-                    .header-actions { width: 100%; }
-                    .header-actions button { width: 100%; }
+                    .header-actions { width: 100%; flex-wrap: wrap; }
+                    .header-actions button { flex: 1; }
                     .form-grid { grid-template-columns: 1fr; }
+                    .material-input-container { flex-direction: column; align-items: stretch; }
+                    .or-divider { text-align: center; margin: 4px 0; }
                     .modal-actions { flex-direction: column; }
                     .modal-actions button { width: 100%; }
-                    .contact-cell { min-width: 150px; }
                 }
             `}</style>
-{'>'}
         </div>
     );
 };

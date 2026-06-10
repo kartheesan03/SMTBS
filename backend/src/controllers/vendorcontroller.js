@@ -29,3 +29,21 @@ exports.createVendor = async (req, res) => {
         res.status(400).json({ message: error.message });
     }
 };
+
+exports.updateVendor = async (req, res) => {
+    try {
+        const vendorId = req.params.id;
+        const vendor = await Vendor.findById(vendorId);
+        if (!vendor) {
+            return res.status(404).json({ message: 'Vendor not found' });
+        }
+        
+        // Update fields
+        Object.assign(vendor, req.body);
+        await vendor.save();
+        
+        res.status(200).json(vendor);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+};

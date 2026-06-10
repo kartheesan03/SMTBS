@@ -35,6 +35,17 @@ const VendorSequelize = sequelize.define('Vendor', {
     status: {
         type: DataTypes.ENUM('Vendor Created', 'Approved Vendor', 'Receives Purchase Orders', 'Supplies Materials', 'In Transit', 'Delivered', 'Completed'),
         defaultValue: 'Vendor Created'
+    },
+    materialsSupplied: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+        get() {
+            const rawValue = this.getDataValue('materialsSupplied');
+            return rawValue ? JSON.parse(rawValue) : [];
+        },
+        set(val) {
+            this.setDataValue('materialsSupplied', JSON.stringify(val || []));
+        }
     }
 });
 
