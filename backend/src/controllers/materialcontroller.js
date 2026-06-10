@@ -156,30 +156,44 @@ const deleteMaterial = async (req, res) => {
         const material = await Material.findById(req.params.id);
         if (material) {
             const materialName = material.name;
+            const materialIdStr = String(req.params.id);
             
             // Check for references
             const hasMovements = await MaterialMovement.findOne({ materialId: req.params.id });
-            const orders = await Order.find({});
-            const hasOrders = orders.some(o => o.items && o.items.some(i => String(i.material) === String(req.params.id)));
-
-            if (hasMovements || hasOrders) {
+            if (hasMovements) {
+                console.log(`[Material Delete Restriction] Material '${materialName}' is linked to MaterialMovement table.`);
                 return res.status(400).json({ message: "This material is currently linked to existing orders or inventory records and cannot be deleted." });
             }
 
-            material.isActive = false;
-            await material.save();
+            const orders = await Order.find({});
+            const hasOrders = orders.some(o => o.items && o.items.some(i => String(i.material) === materialIdStr));
 
-            // Audit log
-            await logAudit({
-                user: req.user,
-                action: 'DELETE',
-                module: 'Material',
-                targetId: req.params.id,
-                description: `Material marked inactive: ${materialName}`,
-                ipAddress: req.ip
-            });
+            if (hasOrders) {
+                console.log(`[Material Delete Restriction] Material '${materialName}' is linked to Order table.`);
+                return res.status(400).json({ message: "This material is currently linked to existing orders or inventory records and cannot be deleted." });
+            }
 
-            res.json({ message: 'Material removed' });
+            try {
+                await material.deleteOne();
+                
+                // Audit log
+                await logAudit({
+                    user: req.user,
+                    action: 'DELETE',
+                    module: 'Material',
+                    targetId: req.params.id,
+                    description: `Material deleted: ${materialName}`,
+                    ipAddress: req.ip
+                });
+
+                res.json({ message: 'Material removed' });
+            } catch (dbError) {
+                if (dbError.name === 'SequelizeForeignKeyConstraintError' || (dbError.message && dbError.message.includes('FOREIGN KEY constraint failed'))) {
+                    console.log(`[Material Delete Restriction] SQLite FOREIGN KEY constraint failed for Material '${materialName}'. Table: ${dbError.table || 'Unknown'}`);
+                    return res.status(400).json({ message: "This material is currently linked to existing orders or inventory records and cannot be deleted." });
+                }
+                throw dbError;
+            }
         } else {
             res.status(404).json({ message: 'Material not found' });
         }

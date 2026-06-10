@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import API from '../api/axios';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { 
-    Plus, Search, Filter, Edit2, Trash2, Box, Package, 
+import {
+    Plus, Search, Filter, Edit2, Trash2, Box, Package,
     TrendingUp, AlertTriangle, ChevronRight, QrCode, Camera, History, Download, X
 } from 'lucide-react';
 import jsPDF from 'jspdf';
@@ -19,7 +19,7 @@ const MaterialTracking = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [formData, setFormData] = useState({
-        name: '', sku: '', category: '', quantity: 0, 
+        name: '', sku: '', category: '', quantity: 0,
         lowStockThreshold: 10, unit: 'pcs', price: 0, vendorId: ''
     });
 
@@ -134,7 +134,7 @@ const MaterialTracking = () => {
             alert('Please select a material SKU to simulate scanning.');
             return;
         }
-        
+
         const mat = materials.find(m => m.sku === scanSKU);
         if (!mat) return;
 
@@ -214,15 +214,15 @@ const MaterialTracking = () => {
     };
 
     const filteredMaterials = materials.filter(m => {
-        const matchesSearch = (m.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) || 
-                             (m.sku?.toLowerCase() || '').includes(searchTerm.toLowerCase());
+        const matchesSearch = (m.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+            (m.sku?.toLowerCase() || '').includes(searchTerm.toLowerCase());
         const matchesCat = catFilter === 'All' || m.category === catFilter;
         return matchesSearch && matchesCat;
     });
 
     const defaultCategories = [
-        'Chemicals', 'Consumables', 'Construction', 'Electrical', 
-        'Electronics', 'Metals', 'Plastics', 'Plumbing', 
+        'Chemicals', 'Consumables', 'Construction', 'Electrical',
+        'Electronics', 'Metals', 'Plastics', 'Plumbing',
         'Raw Material', 'Sheet Metal', 'Structural Steel'
     ];
 
@@ -299,9 +299,9 @@ const MaterialTracking = () => {
             <div className="search-group-row">
                 <div className="search-bar">
                     <Search size={18} className="search-icon" />
-                    <input 
-                        type="text" 
-                        placeholder="Search by name or SKU..." 
+                    <input
+                        type="text"
+                        placeholder="Search by name or SKU..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -332,18 +332,17 @@ const MaterialTracking = () => {
                                 <td>{item.vendor?.name || '-'}</td>
                                 <td><strong>{item.quantity}</strong> {item.unit}</td>
                                 <td>
-                                    <span className={`status-badge-premium ${
-                                        item.quantity === 0 
-                                        ? 'out' 
-                                        : item.quantity <= item.lowStockThreshold 
-                                        ? 'low' 
-                                        : 'ok'
-                                    }`}>
-                                        {item.quantity === 0 
-                                            ? 'Out of Stock' 
-                                            : item.quantity <= item.lowStockThreshold 
-                                            ? 'Low Stock' 
-                                            : 'In Stock'
+                                    <span className={`status-badge-premium ${item.quantity === 0
+                                            ? 'out'
+                                            : item.quantity <= item.lowStockThreshold
+                                                ? 'low'
+                                                : 'ok'
+                                        }`}>
+                                        {item.quantity === 0
+                                            ? 'Out of Stock'
+                                            : item.quantity <= item.lowStockThreshold
+                                                ? 'Low Stock'
+                                                : 'In Stock'
                                         }
                                     </span>
                                 </td>
@@ -379,25 +378,25 @@ const MaterialTracking = () => {
                             <div className="form-grid">
                                 <div className="form-group">
                                     <label>Material Name</label>
-                                    <input type="text" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="e.g. Aluminum 7075" />
+                                    <input type="text" required value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} placeholder="e.g. Aluminum 7075" />
                                 </div>
                                 <div className="form-group">
                                     <label>SKU (Stock Keeping Unit)</label>
-                                    <input type="text" required value={formData.sku} onChange={e => setFormData({...formData, sku: e.target.value})} placeholder="e.g. AL-7075-B" />
+                                    <input type="text" required value={formData.sku} onChange={e => setFormData({ ...formData, sku: e.target.value })} placeholder="e.g. AL-7075-B" />
                                 </div>
                                 <div className="form-group">
                                     <label>Category</label>
                                     {!showNewCategoryInput ? (
-                                        <select 
-                                            value={formData.category} 
+                                        <select
+                                            value={formData.category}
                                             onChange={e => {
                                                 if (e.target.value === '__add_new__') {
                                                     setShowNewCategoryInput(true);
-                                                    setFormData({...formData, category: ''});
+                                                    setFormData({ ...formData, category: '' });
                                                 } else {
-                                                    setFormData({...formData, category: e.target.value});
+                                                    setFormData({ ...formData, category: e.target.value });
                                                 }
-                                            }} 
+                                            }}
                                             required
                                         >
                                             <option value="">Select Category</option>
@@ -407,23 +406,23 @@ const MaterialTracking = () => {
                                             <option value="__add_new__" style={{ fontWeight: 'bold', color: 'var(--primary)' }}>+ Add New Category...</option>
                                         </select>
                                     ) : (
-                                        <div style={{display: 'flex', gap: '8px'}}>
-                                            <input 
-                                                type="text" 
-                                                required 
-                                                value={formData.category} 
-                                                onChange={e => setFormData({...formData, category: e.target.value})} 
-                                                placeholder="Enter new category name" 
+                                        <div style={{ display: 'flex', gap: '8px' }}>
+                                            <input
+                                                type="text"
+                                                required
+                                                value={formData.category}
+                                                onChange={e => setFormData({ ...formData, category: e.target.value })}
+                                                placeholder="Enter new category name"
                                                 autoFocus
                                             />
-                                            <button 
-                                                type="button" 
+                                            <button
+                                                type="button"
                                                 onClick={() => {
                                                     setShowNewCategoryInput(false);
-                                                    setFormData({...formData, category: ''});
-                                                }} 
-                                                className="btn-cancel" 
-                                                style={{padding: '0 12px'}}
+                                                    setFormData({ ...formData, category: '' });
+                                                }}
+                                                className="btn-cancel"
+                                                style={{ padding: '0 12px' }}
                                             >
                                                 ✕
                                             </button>
@@ -432,19 +431,19 @@ const MaterialTracking = () => {
                                 </div>
                                 <div className="form-group">
                                     <label>Quantity</label>
-                                    <input type="number" required value={formData.quantity} onChange={e => setFormData({...formData, quantity: e.target.value})} />
+                                    <input type="number" required value={formData.quantity} onChange={e => setFormData({ ...formData, quantity: e.target.value })} />
                                 </div>
                                 <div className="form-group">
                                     <label>Unit (kg, pcs, liters)</label>
-                                    <input type="text" required value={formData.unit} onChange={e => setFormData({...formData, unit: e.target.value})} />
+                                    <input type="text" required value={formData.unit} onChange={e => setFormData({ ...formData, unit: e.target.value })} />
                                 </div>
                                 <div className="form-group">
                                     <label>Unit Price ($)</label>
-                                    <input type="number" step="0.01" required value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} />
+                                    <input type="number" step="0.01" required value={formData.price} onChange={e => setFormData({ ...formData, price: e.target.value })} />
                                 </div>
                                 <div className="form-group full-width">
                                     <label>Vendor/Supplier</label>
-                                    <select value={formData.vendorId} onChange={e => setFormData({...formData, vendorId: e.target.value})}>
+                                    <select value={formData.vendorId} onChange={e => setFormData({ ...formData, vendorId: e.target.value })}>
                                         <option value="">No Supplier Assigned</option>
                                         {vendors.map(v => (
                                             <option key={v.id || v._id} value={v.id || v._id}>{v.name}</option>
@@ -453,7 +452,7 @@ const MaterialTracking = () => {
                                 </div>
                                 <div className="form-group full-width">
                                     <label>Low Stock Alert Threshold</label>
-                                    <input type="number" required value={formData.lowStockThreshold} onChange={e => setFormData({...formData, lowStockThreshold: e.target.value})} />
+                                    <input type="number" required value={formData.lowStockThreshold} onChange={e => setFormData({ ...formData, lowStockThreshold: e.target.value })} />
                                 </div>
                             </div>
                             <div className="modal-actions">
@@ -476,7 +475,7 @@ const MaterialTracking = () => {
                         <div className="code-generator-body" style={{ padding: '15px 0' }}>
                             <h3 style={{ margin: '0 0 4px 0', fontSize: '16px', color: '#0f172a' }}>{selectedMaterialForCode.name}</h3>
                             <span className="sku-code" style={{ display: 'inline-block', marginBottom: '20px' }}>{selectedMaterialForCode.sku}</span>
-                            
+
                             {/* Simulated 1D Barcode */}
                             <div className="barcode-simulation" style={{ background: '#f8fafc', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', marginBottom: '20px' }}>
                                 <div style={{ display: 'flex', height: '60px', width: '180px', background: '#000000', padding: '2px', gap: '3px' }}>
@@ -495,7 +494,7 @@ const MaterialTracking = () => {
                                 </div>
                                 <span style={{ fontFamily: 'monospace', fontSize: '12px', marginTop: '8px', color: '#64748b', fontWeight: 'bold', letterSpacing: '2px' }}>*{selectedMaterialForCode.sku}*</span>
                             </div>
-                            
+
                             {/* Simulated 2D QR Code */}
                             <div className="qr-simulation" style={{ background: '#f8fafc', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', marginBottom: '20px' }}>
                                 <div style={{ position: 'relative', width: '130px', height: '130px', background: '#ffffff', border: '1px solid #cbd5e1', padding: '8px', display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px' }}>
@@ -534,7 +533,7 @@ const MaterialTracking = () => {
                                     <Camera size={44} className="text-indigo" style={{ marginBottom: '8px', opacity: 0.8 }} />
                                     <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#cbd5e1' }}>ALIGN BARCODE / QR IN CENTER</span>
                                 </div>
-                                
+
                                 {/* Animated scanline */}
                                 <div className="scanline" style={{ position: 'absolute', left: 0, width: '100%', height: '4px', background: 'linear-gradient(to right, transparent, #ef4444, transparent)', boxShadow: '0 0 12px #ef4444' }}></div>
                             </div>
