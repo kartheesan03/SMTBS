@@ -99,11 +99,12 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
         { path: '/profile', name: 'My Profile', icon: <Settings size={20} /> },
     ];
 
-    const isAdmin = user?.role === 'Admin' || user?.role === 'Super Admin';
+    const userRole = user?.role ? user.role.toLowerCase() : '';
+    const isAdmin = user?.email === 'admin@smtbms.com' || userRole === 'admin' || userRole === 'super admin';
     const menuItems = isAdmin ? adminMenu : 
-                      user?.role === 'HR' ? hrMenu : 
-                      user?.role === 'Manager' ? managerMenu : 
-                      user?.role === 'Sales' ? salesMenu : employeeMenu;
+                      userRole === 'hr' ? hrMenu : 
+                      userRole === 'manager' ? managerMenu : 
+                      userRole === 'sales' ? salesMenu : employeeMenu;
 
     return (
         <aside className={`sidebar ${isOpen ? 'open' : ''}`}>

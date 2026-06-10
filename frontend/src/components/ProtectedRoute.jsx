@@ -11,8 +11,15 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
         return <Navigate to="/login" replace />;
     }
 
-    if (allowedRoles && !allowedRoles.includes(user.role) && user.role !== 'Super Admin') {
-        return <Navigate to="/" replace />;
+    if (allowedRoles && allowedRoles.length > 0) {
+        const userRole = user.role ? user.role.toLowerCase() : '';
+        const isSuperAdmin = user.email === 'admin@smtbms.com' || userRole === 'super admin' || userRole === 'admin';
+        
+        const normalizedAllowed = allowedRoles.map(r => r.toLowerCase());
+        
+        if (!isSuperAdmin && !normalizedAllowed.includes(userRole)) {
+            return <Navigate to="/" replace />;
+        }
     }
 
     return children;

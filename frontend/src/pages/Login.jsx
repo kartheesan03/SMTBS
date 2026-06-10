@@ -14,6 +14,7 @@ const Login = () => {
         e.preventDefault();
         try {
             const { data } = await API.post('/auth/login', { email, password });
+            console.log('Login successful. Received user role from API:', data.role);
             login(data);
             setError('');
             navigate('/');

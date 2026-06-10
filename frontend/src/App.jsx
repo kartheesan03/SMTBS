@@ -78,11 +78,16 @@ const AppContent = () => {
                     {/* Protected Root Route - Dispatches to correct dashboard */}
                     <Route path="/" element={
                         <ProtectedRoute>
-                            {(user?.role === 'Admin' || user?.role === 'Super Admin') ? <AdminDashboard /> : 
-                             user?.role === 'HR' ? <HRDashboard /> :
-                             user?.role === 'Manager' ? <ManagerDashboard /> : 
-                             user?.role === 'Sales' ? <SalesDashboard /> : 
-                             user?.role === 'Employee' ? <EmployeeDashboard /> : <Dashboard />}
+                            {(() => {
+                                const r = user?.role ? user.role.toLowerCase() : '';
+                                const isSuperAdmin = user?.email === 'admin@smtbms.com' || r === 'super admin';
+                                if (isSuperAdmin || r === 'admin') return <AdminDashboard />;
+                                if (r === 'hr') return <HRDashboard />;
+                                if (r === 'manager') return <ManagerDashboard />;
+                                if (r === 'sales') return <SalesDashboard />;
+                                if (r === 'employee') return <EmployeeDashboard />;
+                                return <Dashboard />;
+                            })()}
                         </ProtectedRoute>
                     } />
                     
