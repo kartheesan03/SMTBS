@@ -10,10 +10,10 @@ router.put('/recalculate-status', protect, authorize('Admin', 'Manager', 'Sales'
 
 router.route('/')
     .get(protect, getMaterials)
-    .post(protect, authorize('Admin', 'Manager', 'Sales'), createMaterial);
+    .post(protect, authorize('Admin', 'Manager', 'Sales', 'Employee'), createMaterial);
 
 router.route('/:id')
-    .put(protect, authorize('Admin', 'Manager', 'Sales'), updateMaterial)
+    .put(protect, authorize('Admin', 'Manager', 'Sales', 'Employee'), updateMaterial)
     .delete(protect, authorize('Admin'), deleteMaterial);
 
 router.put('/:id/archive', protect, authorize('Admin'), archiveMaterial);

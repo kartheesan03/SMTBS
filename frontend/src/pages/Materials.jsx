@@ -288,25 +288,17 @@ const MaterialTracking = () => {
                     <p className="header-subtitle">Monitor stock, in-transit items, low stock alerts, and barcode/QR movements.</p>
                 </div>
                 <div className="header-actions">
-                    {!isEmployee && (
-                        <>
-                            <button className="btn-secondary-light flex-center gap-8" onClick={exportToPDF}><Download size={16} /> PDF</button>
-                            <button className="btn-secondary-light flex-center gap-8" onClick={exportToExcel}><Download size={16} /> Excel</button>
-                        </>
-                    )}
+                    <button className="btn-secondary-light flex-center gap-8" onClick={exportToPDF}><Download size={16} /> PDF</button>
+                    <button className="btn-secondary-light flex-center gap-8" onClick={exportToExcel}><Download size={16} /> Excel</button>
                     <button className="btn-secondary-light flex-center gap-8" onClick={() => setShowFilters(!showFilters)}>
                         <Filter size={16} /> Filters
                     </button>
-                    {!isEmployee && (
-                        <>
-                            <button className="btn-secondary-light flex-center gap-8 text-indigo" onClick={() => { if (materials.length > 0) setScanSKU(materials[0].sku); setShowScanner(true); }}>
-                                <Camera size={16} /> Scan Item
-                            </button>
-                            <button className="btn-primary-blue flex-center gap-8" onClick={() => { setEditId(null); setShowNewCategoryInput(false); setFormData({ name: '', sku: '', category: '', quantity: 0, lowStockThreshold: 10, unit: 'pcs', price: 0, vendorId: '' }); setShowModal(true); }}>
-                                <Plus size={16} /> Add Material
-                            </button>
-                        </>
-                    )}
+                    <button className="btn-secondary-light flex-center gap-8 text-indigo" onClick={() => { if (materials.length > 0) setScanSKU(materials[0].sku); setShowScanner(true); }}>
+                        <Camera size={16} /> Scan Item
+                    </button>
+                    <button className="btn-primary-blue flex-center gap-8" onClick={() => { setEditId(null); setShowNewCategoryInput(false); setFormData({ name: '', sku: '', category: '', quantity: 0, lowStockThreshold: 10, unit: 'pcs', price: 0, vendorId: '' }); setShowModal(true); }}>
+                        <Plus size={16} /> Add Material
+                    </button>
                 </div>
             </header>
 
@@ -399,15 +391,11 @@ const MaterialTracking = () => {
                                 <td>${item.price}</td>
                                 <td>
                                     <div className="actions-flex">
-                                        {!isEmployee && (
-                                            <button className="action-btn code" title="Barcode & QR Code" onClick={() => { setSelectedMaterialForCode(item); setShowGenerator(true); }}><QrCode size={14} /></button>
-                                        )}
+                                        <button className="action-btn code" title="Barcode & QR Code" onClick={() => { setSelectedMaterialForCode(item); setShowGenerator(true); }}><QrCode size={14} /></button>
                                         <button className="action-btn" title="Movement History" onClick={() => openMovementHistory(item)}><History size={14} /></button>
+                                        <button className="action-btn edit" title="Edit Item" onClick={() => handleEditClick(item)}><Edit2 size={14} /></button>
                                         {!isEmployee && (
-                                            <>
-                                                <button className="action-btn edit" title="Edit Item" onClick={() => handleEditClick(item)}><Edit2 size={14} /></button>
-                                                <button className="action-btn delete" title="Delete Item" onClick={() => handleDeleteClick(item)}><Trash2 size={14} /></button>
-                                            </>
+                                            <button className="action-btn delete" title="Delete Item" onClick={() => handleDeleteClick(item)}><Trash2 size={14} /></button>
                                         )}
                                     </div>
                                 </td>
