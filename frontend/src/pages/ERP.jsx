@@ -23,10 +23,11 @@ const ERP = () => {
     const [materials, setMaterials] = useState([]);
     const [formData, setFormData] = useState({
         customer: '',
-        vendor: '',
-        status: 'Pending',
+        status: 'Created',
         orderType: 'sales',
-        items: [{ material: '', quantity: 1, price: 0 }]
+        items: [{ material: '', quantity: 1, price: 0 }],
+        expectedDeliveryDate: '',
+        notes: ''
     });
 
     const [statusFilter, setStatusFilter] = useState('All');
@@ -109,18 +110,16 @@ const ERP = () => {
     const handleCreateOrder = async (e) => {
         e.preventDefault();
         try {
-            if (formData.orderType === 'sales') {
-                const custExists = customers.find(c => String(c.id || c._id) === String(formData.customer));
-                if (!custExists) {
-                    alert("Selected customer/material does not exist.");
-                    return;
-                }
+            const custExists = customers.find(c => String(c.id || c._id) === String(formData.customer));
+            if (!custExists) {
+                alert("Selected customer does not exist.");
+                return;
             }
 
             for (const item of formData.items) {
                 const matExists = materials.find(m => String(m.id || m._id) === String(item.material));
                 if (!matExists) {
-                    alert("Selected customer/material does not exist.");
+                    alert("Selected material does not exist.");
                     return;
                 }
                 if (!item.quantity || item.quantity <= 0) {
@@ -134,6 +133,10 @@ const ERP = () => {
             
             const payload = { 
                 ...formData, 
+                orderType: 'sales',
+                status: 'Created',
+                approvalStatus: 'Pending Manager Approval',
+                deliveryStatus: 'Not Started',
                 customerModel: selectedCust?.customerModel || 'Customer',
                 totalAmount 
             };
@@ -141,7 +144,7 @@ const ERP = () => {
 
             await API.post('/orders', payload);
             setShowModal(false);
-            setFormData({ customer: '', vendor: '', status: 'Pending', orderType: 'sales', items: [{ material: '', quantity: 1, price: 0 }] });
+            setFormData({ customer: '', status: 'Created', orderType: 'sales', items: [{ material: '', quantity: 1, price: 0 }], expectedDeliveryDate: '', notes: '' });
             fetchData();
         } catch (err) {
             alert(err.response?.data?.message || 'Error creating order');
@@ -523,47 +526,21 @@ const ERP = () => {
                 <div className="modal-overlay">
                     <div className="modal-content animate-pop">
                         <div className="modal-header">
-                            <h2>Draft New Order</h2>
+                            <h2>Create Customer Sales Order</h2>
                             <button className="close-btn" onClick={() => setShowModal(false)}>✕</button>
                         </div>
                         <form onSubmit={handleCreateOrder} className="modal-form">
                             <div className="form-group">
-                                <label>Order Type</label>
-                                <select required value={formData.orderType} onChange={e => {
-                                    setFormData({...formData, orderType: e.target.value, customer: '', vendor: '', items: [{ material: '', quantity: 1, price: 0 }]});
-                                }}>
-                                    <option value="sales">Sales Order</option>
-                                    <option value="purchase">Purchase Order</option>
+                                <label>Select Customer</label>
+                                <select required value={formData.customer} onChange={e => setFormData({...formData, customer: e.target.value})}>
+                                    <option value="">Select Customer...</option>
+                                    {(!customers || customers.length === 0) ? (
+                                        <option value="" disabled>No customers available</option>
+                                    ) : (
+                                        customers.map(c => <option key={c.id || c._id} value={c.id || c._id}>{c.name} ({c.customerModel})</option>)
+                                    )}
                                 </select>
                             </div>
-
-                            {formData.orderType === 'sales' ? (
-                                <div className="form-group">
-                                    <label>Select Customer</label>
-                                    <select required value={formData.customer} onChange={e => setFormData({...formData, customer: e.target.value})}>
-                                        <option value="">Select Customer...</option>
-                                        {(!customers || customers.length === 0) ? (
-                                            <option value="" disabled>No customers available</option>
-                                        ) : (
-                                            customers.map(c => <option key={c.id || c._id} value={c.id || c._id}>{c.name} ({c.customerModel})</option>)
-                                        )}
-                                    </select>
-                                </div>
-                            ) : (
-                                <div className="form-group">
-                                    <label>Select Vendor</label>
-                                    <select required value={formData.vendor} onChange={e => {
-                                        setFormData({...formData, vendor: e.target.value, items: [{ material: '', quantity: 1, price: 0 }]});
-                                    }}>
-                                        <option value="">Select Vendor...</option>
-                                        {(!vendors || vendors.length === 0) ? (
-                                            <option value="" disabled>No vendors available</option>
-                                        ) : (
-                                            vendors.map(v => <option key={v._id || v.id} value={v._id || v.id}>{v.name}</option>)
-                                        )}
-                                    </select>
-                                </div>
-                            )}
                             
                             <div className="items-section">
                                 <label>Order Items</label>
@@ -580,9 +557,7 @@ const ERP = () => {
                                             }}
                                         >
                                             <option value="">Select Material...</option>
-                                            {materials
-                                                .filter(m => formData.orderType === 'sales' || !formData.vendor || String(m.vendor?.id || m.vendor?._id || m.vendor) === String(formData.vendor))
-                                                .map(m => <option key={m.id || m._id} value={m.id || m._id}>{m.name} (${m.price})</option>)}
+                                            {materials.map(m => <option key={m.id || m._id} value={m.id || m._id}>{m.name} (${m.price})</option>)}
                                         </select>
                                         <input 
                                             type="number" 
@@ -601,6 +576,28 @@ const ERP = () => {
                                 <button type="button" className="text-btn" onClick={addItem}>+ Add Another Item</button>
                             </div>
 
+                            <div className="form-group" style={{ marginBottom: '16px' }}>
+                                <label>Expected Delivery Date</label>
+                                <input 
+                                    type="date" 
+                                    required 
+                                    value={formData.expectedDeliveryDate || ''} 
+                                    onChange={e => setFormData({...formData, expectedDeliveryDate: e.target.value})}
+                                    style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border)' }}
+                                />
+                            </div>
+
+                            <div className="form-group" style={{ marginBottom: '16px' }}>
+                                <label>Notes / Remarks</label>
+                                <textarea 
+                                    rows="3" 
+                                    value={formData.notes || ''} 
+                                    onChange={e => setFormData({...formData, notes: e.target.value})}
+                                    placeholder="Enter any additional notes..."
+                                    style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border)', resize: 'vertical' }}
+                                />
+                            </div>
+
                             <div className="order-summary-box">
                                 <span>Grand Total:</span>
                                 <strong>${calculateTotal().toLocaleString()}</strong>
@@ -612,10 +609,10 @@ const ERP = () => {
                                     type="submit" 
                                     className="btn-save"
                                     disabled={
-                                        (formData.orderType === 'sales' && !formData.customer) ||
-                                        (formData.orderType === 'purchase' && !formData.vendor) ||
+                                        !formData.customer ||
                                         formData.items.length === 0 ||
-                                        formData.items.some(i => !i.material || i.quantity <= 0)
+                                        formData.items.some(i => !i.material || i.quantity <= 0) ||
+                                        !formData.expectedDeliveryDate
                                     }
                                 >
                                     Confirm Order
