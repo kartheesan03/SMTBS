@@ -101,8 +101,8 @@ const HRDashboard = () => {
                 </div>
             </header>
 
-            {/* 5 Stats Cards */}
-            <section className="hr-metrics-grid">
+            {/* 6 Stats Cards */}
+            <section className="hr-metrics-grid" style={{ gridTemplateColumns: 'repeat(6, 1fr)' }}>
                 <div className="hr-metric-card">
                     <div className="card-top">
                         <span className="label">Total Employees</span>
@@ -126,17 +126,24 @@ const HRDashboard = () => {
                 </div>
                 <div className="hr-metric-card border-blue">
                     <div className="card-top">
-                        <span className="label text-blue">Pending</span>
+                        <span className="label text-blue">New Joiners</span>
+                        <span className="icon">🆕</span>
+                    </div>
+                    <span className="value text-blue">{hrStats.newJoiners || 0}</span>
+                </div>
+                <div className="hr-metric-card border-purple">
+                    <div className="card-top">
+                        <span className="label text-purple">Pending Approvals</span>
                         <span className="icon">⏳</span>
                     </div>
-                    <span className="value text-blue">{pending}</span>
+                    <span className="value text-purple">{data?.stats?.pendingSalaries || pending}</span>
                 </div>
-                <div className="hr-metric-card border-red">
+                <div className="hr-metric-card border-teal" style={{ borderColor: '#0d9488' }}>
                     <div className="card-top">
-                        <span className="label text-red">Absent Today</span>
-                        <span className="icon">❌</span>
+                        <span className="label" style={{ color: '#0d9488' }}>Payroll Processed</span>
+                        <span className="icon">💵</span>
                     </div>
-                    <span className="value text-red">{absentToday}</span>
+                    <span className="value" style={{ color: '#0d9488' }}>{Math.floor(totalEmployees * 0.95)}</span> {/* Mocking 95% processed */}
                 </div>
             </section>
 
@@ -179,25 +186,54 @@ const HRDashboard = () => {
                     </div>
                 </div>
 
-                {/* Recent Employees */}
+                {/* Attendance Overview (Mocked Bar) */}
                 <div className="chart-card">
+                    <h3 className="card-title">Attendance Overview</h3>
+                    <div className="distribution-container" style={{ display: 'block' }}>
+                        <div style={{ height: '200px', display: 'flex', alignItems: 'flex-end', gap: '15px', padding: '10px 0', borderBottom: '1px solid var(--border)' }}>
+                            {['Mon', 'Tue', 'Wed', 'Thu', 'Fri'].map((day, idx) => {
+                                const height = 60 + Math.random() * 30; // Mock heights
+                                return (
+                                    <div key={idx} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                                        <div style={{ width: '100%', backgroundColor: 'var(--primary)', height: `${height}%`, borderRadius: '4px 4px 0 0', opacity: 0.8 }}></div>
+                                        <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{day}</span>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Leave Management Table */}
+                <div className="chart-card" style={{ gridColumn: 'span 2' }}>
                     <div className="card-header-flex">
-                        <h3 className="card-title">Recent Employees</h3>
-                        <span className="view-all" onClick={() => navigate('/hrms')}>View All</span>
+                        <h3 className="card-title">Leave Management (Pending)</h3>
+                        <span className="view-all" onClick={() => navigate('/hrms')}>View All Requests</span>
                     </div>
-                    <div className="employees-list">
-                        {recentEmployees.map((emp, idx) => (
-                            <div key={idx} className="employee-row">
-                                <div className="avatar-circle">
-                                    {emp.avatar}
-                                </div>
-                                <div className="info">
-                                    <span className="name">{emp.name}</span>
-                                    <span className="role">{emp.role}</span>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
+                        <thead>
+                            <tr style={{ borderBottom: '2px solid var(--border)', textAlign: 'left', color: 'var(--text-muted)' }}>
+                                <th style={{ padding: '12px 8px' }}>Employee</th>
+                                <th style={{ padding: '12px 8px' }}>Type</th>
+                                <th style={{ padding: '12px 8px' }}>Duration</th>
+                                <th style={{ padding: '12px 8px' }}>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                                <td style={{ padding: '12px 8px' }}>John Doe</td>
+                                <td style={{ padding: '12px 8px' }}>Sick Leave</td>
+                                <td style={{ padding: '12px 8px' }}>2 Days</td>
+                                <td style={{ padding: '12px 8px' }}><button style={{ background: '#10b981', color: 'white', border: 'none', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer' }}>Approve</button></td>
+                            </tr>
+                            <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                                <td style={{ padding: '12px 8px' }}>Sarah Smith</td>
+                                <td style={{ padding: '12px 8px' }}>Annual Leave</td>
+                                <td style={{ padding: '12px 8px' }}>5 Days</td>
+                                <td style={{ padding: '12px 8px' }}><button style={{ background: '#10b981', color: 'white', border: 'none', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer' }}>Approve</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 

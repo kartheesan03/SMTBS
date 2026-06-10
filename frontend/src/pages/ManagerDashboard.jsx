@@ -37,10 +37,10 @@ const ManagerDashboard = () => {
     if (loading) return <div className="loading-container"><div className="loader"></div><p>Aggregating operational data...</p></div>;
 
     const stats = [
-        { title: 'Total Orders', value: data?.stats?.totalOrders ?? 0, icon: <ShoppingCart />, color: '#6366f1' },
-        { title: 'Active Tasks', value: 0, icon: <CheckSquare />, color: '#10b981' },
-        { title: 'Pending Approval', value: 0, icon: <Clock />, color: '#f59e0b' },
-        { title: 'Material Usage', value: '0%', icon: <Package />, color: '#8b5cf6' },
+        { title: 'Team Members', value: data?.stats?.totalEmployees || 0, icon: <UserPlus />, color: '#6366f1' },
+        { title: 'Active Projects', value: data?.stats?.totalOrders || 0, icon: <Package />, color: '#10b981' },
+        { title: 'Pending Approvals', value: data?.stats?.pendingOrders || 0, icon: <Clock />, color: '#f59e0b' },
+        { title: 'Completed Tasks', value: 45, icon: <CheckSquare />, color: '#8b5cf6' },
     ];
 
     const quickActions = [
@@ -71,7 +71,7 @@ const ManagerDashboard = () => {
             <div className="manager-main-grid">
                 <div className="glass-card main-chart-box">
                     <div className="card-header-flex">
-                        <h3>Order Trends vs Fulfillment</h3>
+                        <h3>Team Productivity</h3>
                         <div className="flex-center gap-10">
                             <span className="badge-pill success">+12.5% vs Last Month</span>
                         </div>
@@ -88,44 +88,62 @@ const ManagerDashboard = () => {
                                 <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} />
                                 <YAxis hide />
                                 <Tooltip contentStyle={{ background: '#0f172a', border: '1px solid #334155' }} />
-                                <Area type="monotone" dataKey="revenue" stroke="#6366f1" fill="url(#colorV)" strokeWidth={3} />
+                                <Area type="monotone" dataKey="sales" stroke="#6366f1" fill="url(#colorV)" strokeWidth={3} />
                             </AreaChart>
                         </ResponsiveContainer>
                     </div>
                 </div>
 
-                <div className="glass-card approval-queue">
-                    <h3>Pending Approvals</h3>
-                    <div className="req-list">
-                         <p className="text-muted text-center" style={{padding: '20px'}}>No pending approvals in the queue.</p>
+                <div className="glass-card main-chart-box">
+                    <h3>Team Attendance</h3>
+                    <div className="chart-container-m">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={data?.hrStats?.attendanceHistory || []}>
+                                <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} />
+                                <YAxis hide />
+                                <Tooltip contentStyle={{ background: '#0f172a', border: '1px solid #334155' }} />
+                                <Bar dataKey="employees" fill="#10b981" radius={[4, 4, 0, 0]} />
+                            </BarChart>
+                        </ResponsiveContainer>
                     </div>
-                    <button className="view-all-link">View all 0 requests <ArrowUpRight size={14}/></button>
                 </div>
             </div>
 
-            <section className="orders-overview-m mt-30">
-                <DataTable 
-                    title="Active Projects & Orders"
-                    headers={['Order ID', 'Customer / Vendor', 'Progress', 'Deadline', 'Status']}
-                    data={data?.tables?.recentOrders || []}
-                    renderRow={(o) => (
-                        <>
-                        <>
-                            <td><span className="id-font">{o.orderNumber}</span></td>
-                            <td>{o.orderType === 'purchase' ? (o.vendor?.name || 'Walk-in Vendor') : (o.customer?.name || 'Walk-in Customer')}</td>
-                            <td>
-                                <div className="progress-cell">
-                                    <div className="p-bar"><div className="p-fill" style={{width: `100%`}}></div></div>
-                                    <span>100%</span>
-                                </div>
-                            </td>
-                            <td>{new Date(o.createdAt).toLocaleDateString()}</td>
-                            <td><span className={`status-tag ${o.status.toLowerCase().replace(' ', '-')}`}>{o.status}</span></td>
-                        </>
-                        </>
-                    )}
-                />
-            </section>
+            <div className="manager-main-grid mt-30">
+                <section className="orders-overview-m">
+                    <DataTable 
+                        title="Project Tracking"
+                        headers={['Project / Order ID', 'Customer / Vendor', 'Progress', 'Deadline', 'Status']}
+                        data={data?.tables?.recentOrders || []}
+                        renderRow={(o) => (
+                            <>
+                                <td><span className="id-font">{o.orderNumber}</span></td>
+                                <td>{o.orderType === 'purchase' ? (o.vendor?.name || 'Walk-in Vendor') : (o.customer?.name || 'Walk-in Customer')}</td>
+                                <td>
+                                    <div className="progress-cell">
+                                        <div className="p-bar"><div className="p-fill" style={{width: `100%`}}></div></div>
+                                        <span>100%</span>
+                                    </div>
+                                </td>
+                                <td>{new Date(o.createdAt).toLocaleDateString()}</td>
+                                <td><span className={`status-tag ${o.status.toLowerCase().replace(' ', '-')}`}>{o.status}</span></td>
+                            </>
+                        )}
+                    />
+                </section>
+                <div className="glass-card">
+                    <h3>Task Assignments</h3>
+                    <div className="req-list">
+                         <div className="req-item">
+                             <div className="req-meta">
+                                 <strong>Inventory Audit</strong>
+                                 <p>Assigned to: John Doe</p>
+                             </div>
+                             <span className="badge-pill success">In Progress</span>
+                         </div>
+                    </div>
+                </div>
+            </div>
 
             <style jsx="true">{`
                 .manager-wrapper { 
@@ -146,7 +164,7 @@ const ManagerDashboard = () => {
                 .search-box-glass svg { color: var(--text-muted); }
                 
                 .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
-                .manager-main-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 25px; }
+                .manager-main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
 
                 .glass-card { 
                     background: var(--bg-card); 

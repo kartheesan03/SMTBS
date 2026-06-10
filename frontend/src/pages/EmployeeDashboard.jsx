@@ -211,13 +211,21 @@ function EmployeeDashboard() {
             onClick: () => navigate('/leave-management')
         },
         {
-            title: 'Notifications',
-            value: unread,
-            icon: <Bell size={22} />,
-            color: unread > 0 ? '#f59e0b' : '#64748b',
-            bgColor: unread > 0 ? '#fffbeb' : '#f1f5f9',
-            onClick: () => navigate('/notifications')
+            title: 'My Tasks',
+            value: '5',
+            icon: <FileText size={22} />,
+            color: '#0ea5e9',
+            bgColor: '#f0f9ff',
+            onClick: () => navigate('/my-tasks')
         },
+        {
+            title: 'Assigned Projects',
+            value: '2',
+            icon: <TrendingUp size={22} />,
+            color: '#f59e0b',
+            bgColor: '#fffbeb',
+            onClick: () => {}
+        }
     ];
 
     return (
@@ -431,7 +439,29 @@ function EmployeeDashboard() {
                             ))}
                         </div>
                     </div>
-
+                    {/* ── Notifications Feed ── */}
+                    <div className="white-card notifications-feed-card">
+                        <div className="attend-card-header">
+                            <h3>Notifications Feed</h3>
+                            <button className="view-details-btn" onClick={() => navigate('/notifications')}>
+                                All <ArrowRight size={14} />
+                            </button>
+                        </div>
+                        <div className="leave-mini-list">
+                            <div className="leave-mini-row">
+                                <div>
+                                    <span className="lm-type" style={{fontSize: '13px'}}>HR published holiday list</span>
+                                    <span className="lm-dates text-muted">2 hours ago</span>
+                                </div>
+                            </div>
+                            <div className="leave-mini-row">
+                                <div>
+                                    <span className="lm-type" style={{fontSize: '13px'}}>Your leave was approved</span>
+                                    <span className="lm-dates text-muted">Yesterday</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     {/* ── Quick Actions ── */}
                     <div className="white-card quick-card">
                         <h3 style={{ marginBottom: 16 }}>Quick Actions</h3>
@@ -503,7 +533,7 @@ function EmployeeDashboard() {
                 /* ── Stat Cards Overhaul ── */
                 .emp-stats { 
                     display: grid; 
-                    grid-template-columns: repeat(4, 1fr); 
+                    grid-template-columns: repeat(5, 1fr); 
                     gap: 20px; 
                 }
                 .emp-stat-card {

@@ -39,10 +39,12 @@ const SalesDashboard = () => {
     if (loading) return <div className="loading-container"><div className="loader"></div><p>Synchronizing lead pipeline...</p></div>;
 
     const stats = [
-        { title: 'Total Leads', value: data?.stats?.totalLeads ?? 0, icon: <Users />, color: '#6366f1' },
-        { title: 'Converted', value: data?.salesStats?.convertedLeads ?? 0, icon: <Target />, color: '#10b981' },
-        { title: 'Follow-ups', value: 0, icon: <PhoneCall />, color: '#f59e0b' },
-        { title: 'Sales Revenue', value: `$${(data?.stats?.revenue ?? 0).toLocaleString()}`, icon: <TrendingUp />, color: '#8b5cf6' },
+        { title: 'Total Customers', value: data?.stats?.totalCustomers || 0, icon: <Users />, color: '#6366f1' },
+        { title: 'Sales Orders', value: data?.stats?.totalSalesOrders || 0, icon: <Target />, color: '#10b981' },
+        { title: 'Open Opportunities', value: 34, icon: <PhoneCall />, color: '#f59e0b' },
+        { title: 'Closed Deals', value: 12, icon: <TrendingUp />, color: '#8b5cf6' },
+        { title: 'Monthly Revenue', value: `₹${(data?.totalRevenue || 0).toLocaleString()}`, icon: <TrendingUp />, color: '#ec4899' },
+        { title: 'Target Achievement', value: '85%', icon: <Target />, color: '#0ea5e9' },
     ];
 
     const quickActions = [
@@ -66,14 +68,14 @@ const SalesDashboard = () => {
                 </div>
             </header>
 
-            <section className="sales-stats grid-4">
+            <section className="sales-stats grid-6">
                 {stats.map((s, i) => <StatCard key={i} {...s} />)}
             </section>
 
             <div className="sales-main-grid">
                 <div className="glass-card performance-chart-box">
                     <div className="card-header-flex">
-                        <h3>Conversion Trends</h3>
+                        <h3>Revenue Trend Chart</h3>
                     </div>
                     <div className="chart-container-s">
                         <ResponsiveContainer width="100%" height="100%">
@@ -121,18 +123,18 @@ const SalesDashboard = () => {
 
             <section className="recent-leads mt-30">
                 <DataTable 
-                    title="Active Lead Tracking"
-                    headers={['Lead Name', 'Email', 'Source', 'Status']}
-                    data={data?.tables?.leadList || []}
+                    title="Recent Customer Activities"
+                    headers={['Customer', 'Activity', 'Date', 'Status']}
+                    data={data?.tables?.recentOrders || []}
                     renderRow={(l) => (
-                        <tr key={l.id || l._id}>
+                        <tr key={l._id}>
                             <td>
-                                <strong>{l.name}</strong>
+                                <strong>{l.customer?.name || 'Unknown'}</strong>
                                 <span className="view-more"><ArrowUpRight size={10}/></span>
                             </td>
-                            <td>{l.email}</td>
-                            <td>{l.source}</td>
-                            <td><span className={`status-pill ${l.status ? l.status.toLowerCase().replace(/ /g, '-') : ''}`}>{l.status || 'New'}</span></td>
+                            <td>Placed Order {l.orderNumber}</td>
+                            <td>{new Date(l.createdAt).toLocaleDateString()}</td>
+                            <td><span className={`status-pill contacted`}>{l.status || 'New'}</span></td>
                         </tr>
                     )}
                 />
@@ -142,7 +144,12 @@ const SalesDashboard = () => {
                 <div className="glass-card follow-up-card">
                     <h3>Urgent Follow-ups</h3>
                     <div className="f-list">
-                         {[]} {/* Real follow-up data placeholder */}
+                        <div className="f-item overdue">
+                            <div className="f-info">
+                                <strong>Acme Corp Meeting</strong>
+                                <span>Follow up on proposal. Due: Today</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <QuickActions actions={quickActions} />
@@ -166,7 +173,7 @@ const SalesDashboard = () => {
                 .search-bar-glass input::placeholder { color: var(--text-muted); }
                 .search-bar-glass svg { color: var(--text-muted); }
                 
-                .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+                .grid-6 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
                 .sales-main-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 25px; }
                 
                 .glass-card { 
@@ -226,12 +233,12 @@ const SalesDashboard = () => {
                     .sales-header { flex-direction: column; align-items: flex-start; gap: 15px; }
                     .search-bar-glass { width: 100%; }
                     .search-bar-glass input { width: 100%; }
-                    .grid-4 { grid-template-columns: repeat(2, 1fr); }
+                    .grid-6 { grid-template-columns: repeat(2, 1fr); }
                     .pipeline-viz { flex-direction: column; height: auto; gap: 24px; }
                 }
 
                 @media (max-width: 480px) {
-                    .grid-4 { grid-template-columns: 1fr; }
+                    .grid-6 { grid-template-columns: 1fr; }
                 }
             `}</style>
         </div>

@@ -125,8 +125,8 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                         </div>
                     </div>
                     <div className="user-details">
-                        <h4 className="user-name">{user?.name || 'Admin User'}</h4>
-                        <span className="user-role">{isAdmin ? 'Super Admin' : user?.role}</span>
+                        <h4 className="user-name" style={{color: '#ffffff'}}>{user?.name || 'Admin User'}</h4>
+                        <span className="user-role" style={{color: '#94a3b8'}}>{isAdmin ? 'Super Admin' : user?.role}</span>
                         <div className="user-status">
                             <span className="status-dot"></span>
                             <span className="status-text">Online</span>
@@ -166,8 +166,8 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                 .sidebar {
                     width: var(--sidebar-width, 260px);
                     height: 100vh;
-                    background: var(--bg-card);
-                    border-right: 1px solid var(--border);
+                    background: var(--bg-sidebar);
+                    border-right: 1px solid rgba(255, 255, 255, 0.05);
                     display: flex;
                     flex-direction: column;
                     position: fixed;
@@ -187,7 +187,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                     font-size: 22px;
                     font-weight: 900;
                     font-family: 'Inter', sans-serif;
-                    color: var(--primary-700, #4338ca);
+                    color: #ffffff;
                     letter-spacing: -0.5px;
                 }
                 .close-sidebar {
@@ -206,9 +206,9 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                     gap: 12px;
                     padding: 16px 20px;
                     margin: 0 16px 24px;
-                    background: var(--bg-body, #f8fafc);
+                    background: rgba(255, 255, 255, 0.03);
                     border-radius: var(--radius-md, 12px);
-                    border: 1px solid var(--border);
+                    border: 1px solid rgba(255, 255, 255, 0.05);
                 }
                 .user-avatar-wrapper {
                     position: relative;
@@ -277,7 +277,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                     display: flex;
                     align-items: center;
                     padding: 12px 16px;
-                    color: var(--text-secondary);
+                    color: var(--text-sidebar);
                     border-radius: var(--radius-md, 12px);
                     transition: all 0.2s ease;
                     cursor: pointer;
@@ -290,7 +290,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                     display: flex;
                     align-items: center;
                     margin-right: 14px;
-                    color: var(--text-muted);
+                    color: var(--text-sidebar);
                     transition: color 0.2s ease;
                 }
                 .item-name {
@@ -298,7 +298,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                 }
                 .chevron-indicator {
                     font-size: 12px;
-                    color: var(--text-muted);
+                    color: var(--text-sidebar);
                     margin-left: auto;
                 }
                 .sidebar-badge {
@@ -312,33 +312,26 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                 }
                 
                 .nav-item:hover {
-                    background: var(--bg-hover, #f1f5f9);
-                    color: var(--text-primary);
+                    background: var(--bg-sidebar-hover);
+                    color: var(--text-sidebar-hover);
                 }
                 .nav-item:hover .item-icon-wrapper {
-                    color: var(--primary);
+                    color: var(--text-sidebar-hover);
                 }
                 
                 .nav-item.active {
-                    background: var(--primary-50, #eef2ff);
-                    color: var(--primary-700, #4338ca) !important;
+                    background: var(--bg-sidebar-active);
+                    color: var(--text-sidebar-active) !important;
                     font-weight: 600;
                 }
                 .nav-item.active::before {
-                    content: '';
-                    position: absolute;
-                    left: -16px;
-                    top: 15%;
-                    height: 70%;
-                    width: 4px;
-                    background: var(--primary);
-                    border-radius: 0 4px 4px 0;
+                    display: none;
                 }
                 .nav-item.active .item-icon-wrapper {
-                    color: var(--primary) !important;
+                    color: var(--text-sidebar-active) !important;
                 }
                 .nav-item.active .chevron-indicator {
-                    color: var(--primary);
+                    color: var(--text-sidebar-active);
                 }
                 
                 .sidebar-footer {
@@ -350,7 +343,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                     background: transparent;
                     border: none;
                     text-align: left;
-                    color: var(--text-secondary);
+                    color: var(--text-sidebar);
                     display: flex;
                     align-items: center;
                     gap: 14px;

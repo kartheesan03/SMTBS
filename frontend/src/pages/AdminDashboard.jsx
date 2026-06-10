@@ -208,16 +208,16 @@ const AdminDashboard = () => {
                         </div>
                     </div>
 
-                    {/* Stat Card 2 */}
-                    <div className="stat-card" onClick={() => navigate('/materials')} style={{ cursor: 'pointer' }} title="Open Material Low Stock Logs">
+                    {/* Stat Card 2 (Replaced Low Stock with Suppliers) */}
+                    <div className="stat-card" onClick={() => navigate('/vendors')} style={{ cursor: 'pointer' }} title="Open Suppliers Directory">
                         <div className="stat-icon-wrapper orange-icon">
-                            <AlertTriangle size={22} />
+                            <Briefcase size={22} />
                         </div>
                         <div className="stat-info">
-                            <span className="stat-label">Low Stock Items</span>
-                            <span className="stat-value">{lowStock}</span>
-                            <span className="stat-trend trend-down">
-                                <span className="arrow">▼</span> -12.3% from last month
+                            <span className="stat-label">Total Suppliers</span>
+                            <span className="stat-value">{data?.stats?.totalVendors || 0}</span>
+                            <span className="stat-trend trend-up">
+                                <span className="arrow">▲</span> +2.3% from last month
                             </span>
                         </div>
                     </div>
@@ -242,8 +242,8 @@ const AdminDashboard = () => {
                             <ShoppingCart size={22} />
                         </div>
                         <div className="stat-info">
-                            <span className="stat-label" title="Includes both Sales & Purchase orders">Open Orders (All)</span>
-                            <span className="stat-value">{openOrders}</span>
+                            <span className="stat-label">Total Orders</span>
+                            <span className="stat-value">{data?.stats?.totalOrders || 0}</span>
                             <span className="stat-trend trend-up">
                                 <span className="arrow">▲</span> +3.1% from last month
                             </span>
@@ -256,8 +256,8 @@ const AdminDashboard = () => {
                             <Globe size={22} />
                         </div>
                         <div className="stat-info">
-                            <span className="stat-label">Active Customers</span>
-                            <span className="stat-value">{activeCustomers}</span>
+                            <span className="stat-label">Total Customers</span>
+                            <span className="stat-value">{data?.stats?.totalCustomers || activeCustomers}</span>
                             <span className="stat-trend trend-up">
                                 <span className="arrow">▲</span> +7.4% from last month
                             </span>
@@ -368,70 +368,33 @@ const AdminDashboard = () => {
 
                 {/* Grid Section: Row 2 Charts & Overview */}
                 <section className="charts-row-2">
-                    {/* HR Overview */}
-                    <div className="chart-card card-hr-overview">
-                        <h3 className="card-title">HR Overview</h3>
-                        <div className="hr-overview-stats">
-                            <div className="hr-stat-pill bg-blue">
-                                <span className="hr-stat-icon">👥</span>
-                                <div className="hr-stat-info">
-                                    <span className="hr-stat-label">Total Employees</span>
-                                    <span className="hr-stat-num">{hrTotalEmployees}</span>
-                                </div>
-                            </div>
-                            <div className="hr-stat-pill bg-green">
-                                <span className="hr-stat-icon">✅</span>
-                                <div className="hr-stat-info">
-                                    <span className="hr-stat-label">Present Today</span>
-                                    <span className="hr-stat-num">{hrPresentToday}</span>
-                                </div>
-                            </div>
-                            <div className="hr-stat-pill bg-orange">
-                                <span className="hr-stat-icon">🌴</span>
-                                <div className="hr-stat-info">
-                                    <span className="hr-stat-label">On Leave</span>
-                                    <span className="hr-stat-num">{hrOnLeave}</span>
-                                </div>
-                            </div>
-                            <div className="hr-stat-pill bg-purple">
-                                <span className="hr-stat-icon">🆕</span>
-                                <div className="hr-stat-info">
-                                    <span className="hr-stat-label">New Joiners</span>
-                                    <span className="hr-stat-num">{hrNewJoiners}</span>
-                                </div>
-                            </div>
+                    {/* System Notifications */}
+                    <div className="chart-card card-system-notifications" style={{ gridColumn: 'span 2' }}>
+                        <div className="card-header-flex">
+                            <h3 className="card-title">System Notifications</h3>
+                            <span className="view-all-link" onClick={() => navigate('/notifications')} style={{ cursor: 'pointer' }}>Manage</span>
                         </div>
-                        <button className="view-details-btn" onClick={() => navigate('/hrms')}>View Details</button>
-                    </div>
-
-                    {/* Sales Pipeline Funnel */}
-                    <div className="chart-card card-sales-pipeline">
-                        <h3 className="card-title">Sales Pipeline</h3>
-                        <div className="funnel-container">
-                            <div className="funnel-stage stage-leads">
-                                <span className="funnel-bg"></span>
-                                <span className="stage-name">Leads</span>
-                                <span className="stage-value">620</span>
+                        <div className="activity-list" style={{ marginTop: '16px' }}>
+                            <div className="activity-item warning-bg">
+                                <AlertTriangle size={16} className="text-orange" />
+                                <div className="activity-details">
+                                    <p className="activity-text">Database backup completed with warnings.</p>
+                                    <span className="activity-time">10 mins ago</span>
+                                </div>
                             </div>
-                            <div className="funnel-stage stage-qualified">
-                                <span className="funnel-bg"></span>
-                                <span className="stage-name">Qualified</span>
-                                <span className="stage-value">320</span>
+                            <div className="activity-item info-bg">
+                                <ShieldAlert size={16} className="text-blue" />
+                                <div className="activity-details">
+                                    <p className="activity-text">New login detected from unusual IP address.</p>
+                                    <span className="activity-time">1 hour ago</span>
+                                </div>
                             </div>
-                            <div className="funnel-stage stage-proposal">
-                                <span className="funnel-bg"></span>
-                                <span className="stage-name">Proposal</span>
-                                <span className="stage-value">180</span>
-                            </div>
-                            <div className="funnel-stage stage-negotiation">
-                                <span className="funnel-bg"></span>
-                                <span className="stage-name">Negotiation</span>
-                                <span className="stage-value">89</span>
-                            </div>
-                            <div className="funnel-stage stage-won">
-                                <span className="funnel-bg"></span>
-                                <span className="stage-name">Won</span>
-                                <span className="stage-value">45</span>
+                            <div className="activity-item success-bg">
+                                <FolderSync size={16} className="text-green" />
+                                <div className="activity-details">
+                                    <p className="activity-text">System update v2.1 successfully applied.</p>
+                                    <span className="activity-time">3 hours ago</span>
+                                </div>
                             </div>
                         </div>
                     </div>

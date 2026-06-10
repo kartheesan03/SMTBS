@@ -62,6 +62,14 @@
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-xl: 20px;
+  
+  /* ─── Sidebar Theme (Dark Navy) ─── */
+  --bg-sidebar: #0f172a;
+  --text-sidebar: #94a3b8;
+  --text-sidebar-hover: #ffffff;
+  --bg-sidebar-hover: rgba(255, 255, 255, 0.05);
+  --bg-sidebar-active: var(--primary);
+  --text-sidebar-active: #ffffff;
 
   /* ─── Dashboard Backward-Compat Aliases ─── */
   --dash-bg: #f8fafc;
