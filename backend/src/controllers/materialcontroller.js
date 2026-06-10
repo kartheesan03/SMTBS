@@ -159,18 +159,22 @@ const deleteMaterial = async (req, res) => {
             const materialIdStr = String(req.params.id);
             
             // Check for references
-            const hasMovements = await MaterialMovement.findOne({ materialId: req.params.id });
-            if (hasMovements) {
-                console.log(`[Material Delete Restriction] Material '${materialName}' is linked to MaterialMovement table.`);
-                return res.status(400).json({ message: "This material is currently linked to existing orders or inventory records and cannot be deleted." });
-            }
+            const movements = await MaterialMovement.find({ materialId: req.params.id });
+            const hasMovements = movements.length > 0;
 
             const orders = await Order.find({});
-            const hasOrders = orders.some(o => o.items && o.items.some(i => String(i.material) === materialIdStr));
+            const linkedOrders = orders.filter(o => o.items && o.items.some(i => String(i.material) === materialIdStr));
+            const hasOrders = linkedOrders.length > 0;
 
-            if (hasOrders) {
-                console.log(`[Material Delete Restriction] Material '${materialName}' is linked to Order table.`);
-                return res.status(400).json({ message: "This material is currently linked to existing orders or inventory records and cannot be deleted." });
+            if (hasMovements || hasOrders) {
+                console.log(`[Material Delete Restriction] Material '${materialName}' is linked to dependencies.`);
+                return res.status(409).json({ 
+                    message: "This material is currently linked to existing orders or inventory records and cannot be deleted.",
+                    dependencies: {
+                        movementsCount: movements.length,
+                        orderNumbers: linkedOrders.map(o => o.orderNumber || o.id)
+                    }
+                });
             }
 
             try {
@@ -340,4 +344,33 @@ const getMaterialAnalytics = async (req, res) => {
     }
 };
 
-module.exports = { getMaterials, createMaterial, updateMaterial, deleteMaterial, getLowStockMaterials, recalculateStockStatus, getLowStockCount, getMaterialMovements, getMaterialAnalytics };
+// @desc    Archive a material (Soft Delete)
+// @route   PUT /api/materials/:id/archive
+// @access  Private/Admin
+const archiveMaterial = async (req, res) => {
+    try {
+        const material = await Material.findById(req.params.id);
+        if (material) {
+            material.isActive = false;
+            await material.save();
+
+            // Audit log
+            await logAudit({
+                user: req.user,
+                action: 'ARCHIVE',
+                module: 'Material',
+                targetId: req.params.id,
+                description: `Material archived: ${material.name}`,
+                ipAddress: req.ip
+            });
+
+            res.json({ message: 'Material archived successfully' });
+        } else {
+            res.status(404).json({ message: 'Material not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+module.exports = { getMaterials, createMaterial, updateMaterial, deleteMaterial, getLowStockMaterials, recalculateStockStatus, getLowStockCount, getMaterialMovements, getMaterialAnalytics, archiveMaterial };

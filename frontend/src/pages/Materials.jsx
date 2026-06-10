@@ -44,6 +44,12 @@ const MaterialTracking = () => {
     const [toastMessage, setToastMessage] = useState('');
     const [toastType, setToastType] = useState('success');
 
+    // Deletion / Archiving States
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [deleteCandidate, setDeleteCandidate] = useState(null);
+    const [deleteDependencies, setDeleteDependencies] = useState(null);
+    const [isDeleting, setIsDeleting] = useState(false);
+
     const showToast = (message, type = 'error') => {
         setToastMessage(message);
         setToastType(type);
@@ -117,14 +123,45 @@ const MaterialTracking = () => {
         }
     };
 
-    const handleDelete = async (id) => {
-        if (!window.confirm('Are you sure you want to delete this material?')) return;
+    const handleDeleteClick = (material) => {
+        setDeleteCandidate(material);
+        setDeleteDependencies(null);
+        setShowDeleteModal(true);
+    };
+
+    const confirmDelete = async () => {
+        setIsDeleting(true);
         try {
-            await API.delete(`/materials/${id}`);
+            await API.delete(`/materials/${deleteCandidate._id}`);
             fetchMaterialsAndStats();
-            showToast('Material marked as inactive.', 'success');
+            showToast('Material permanently deleted.', 'success');
+            setShowDeleteModal(false);
+            setDeleteCandidate(null);
         } catch (error) {
-            showToast(error.response?.data?.message || 'Error deleting material', 'error');
+            if (error.response?.status === 409 && error.response.data?.dependencies) {
+                setDeleteDependencies(error.response.data.dependencies);
+            } else {
+                showToast(error.response?.data?.message || 'Error deleting material', 'error');
+                setShowDeleteModal(false);
+            }
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+
+    const handleArchive = async () => {
+        setIsDeleting(true);
+        try {
+            await API.put(`/materials/${deleteCandidate._id}/archive`);
+            fetchMaterialsAndStats();
+            showToast('Material archived safely.', 'success');
+            setShowDeleteModal(false);
+            setDeleteCandidate(null);
+            setDeleteDependencies(null);
+        } catch (error) {
+            showToast(error.response?.data?.message || 'Error archiving material', 'error');
+        } finally {
+            setIsDeleting(false);
         }
     };
 
@@ -352,7 +389,7 @@ const MaterialTracking = () => {
                                         <button className="action-btn code" title="Barcode & QR Code" onClick={() => { setSelectedMaterialForCode(item); setShowGenerator(true); }}><QrCode size={14} /></button>
                                         <button className="action-btn" title="Movement History" onClick={() => openMovementHistory(item)}><History size={14} /></button>
                                         <button className="action-btn edit" title="Edit Item" onClick={() => handleEditClick(item)}><Edit2 size={14} /></button>
-                                        <button className="action-btn delete" title="Delete Item" onClick={() => handleDelete(item._id)}><Trash2 size={14} /></button>
+                                        <button className="action-btn delete" title="Delete Item" onClick={() => handleDeleteClick(item)}><Trash2 size={14} /></button>
                                     </div>
                                 </td>
                             </tr>
@@ -557,6 +594,66 @@ const MaterialTracking = () => {
                                     <Camera size={14} /> Simulate Scan
                                 </button>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Delete/Archive Confirmation Modal */}
+            {showDeleteModal && deleteCandidate && (
+                <div className="modal-overlay">
+                    <div className="modal-content animate-pop" style={{ maxWidth: '450px' }}>
+                        <div className="modal-header" style={{ borderBottom: 'none', paddingBottom: 0 }}>
+                            <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px', color: deleteDependencies ? 'var(--warning)' : 'var(--danger)' }}>
+                                <AlertTriangle size={24} />
+                                {deleteDependencies ? 'Cannot Delete Material' : 'Confirm Deletion'}
+                            </h2>
+                            <button className="close-btn" onClick={() => { setShowDeleteModal(false); setDeleteDependencies(null); }}>✕</button>
+                        </div>
+                        <div style={{ padding: '20px 0' }}>
+                            <p style={{ margin: '0 0 16px 0', fontSize: '15px', color: 'var(--text-secondary)' }}>
+                                {deleteDependencies ? (
+                                    <>
+                                        This material <strong>({deleteCandidate.name})</strong> is linked to existing records and cannot be permanently deleted.
+                                    </>
+                                ) : (
+                                    <>
+                                        Are you sure you want to permanently delete <strong>{deleteCandidate.name}</strong>? This action cannot be undone.
+                                    </>
+                                )}
+                            </p>
+
+                            {deleteDependencies && (
+                                <div style={{ background: '#fef3c7', border: '1px solid #fde68a', borderRadius: '8px', padding: '16px', marginBottom: '20px' }}>
+                                    <h4 style={{ margin: '0 0 8px 0', color: '#b45309', fontSize: '14px' }}>Dependencies found:</h4>
+                                    <ul style={{ margin: 0, paddingLeft: '20px', color: '#92400e', fontSize: '13px' }}>
+                                        {deleteDependencies.movementsCount > 0 && (
+                                            <li><strong>{deleteDependencies.movementsCount}</strong> stock movement(s)</li>
+                                        )}
+                                        {deleteDependencies.orderNumbers && deleteDependencies.orderNumbers.length > 0 && (
+                                            <li>Linked to Orders: <strong>{deleteDependencies.orderNumbers.join(', ')}</strong></li>
+                                        )}
+                                    </ul>
+                                </div>
+                            )}
+
+                            {deleteDependencies && (
+                                <p style={{ margin: '0', fontSize: '14px', color: 'var(--text-primary)' }}>
+                                    You can <strong>Archive</strong> this material instead. It will be hidden from the active list but historical data will remain intact.
+                                </p>
+                            )}
+                        </div>
+                        <div className="modal-actions" style={{ marginTop: '0' }}>
+                            <button type="button" className="btn-cancel" onClick={() => { setShowDeleteModal(false); setDeleteDependencies(null); }} disabled={isDeleting}>Cancel</button>
+                            {deleteDependencies ? (
+                                <button type="button" className="btn-save" style={{ background: 'var(--warning)', color: '#000', border: 'none' }} onClick={handleArchive} disabled={isDeleting}>
+                                    {isDeleting ? 'Archiving...' : 'Archive Instead'}
+                                </button>
+                            ) : (
+                                <button type="button" className="btn-save" style={{ background: 'var(--danger)', border: 'none' }} onClick={confirmDelete} disabled={isDeleting}>
+                                    {isDeleting ? 'Deleting...' : 'Confirm Delete'}
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>
