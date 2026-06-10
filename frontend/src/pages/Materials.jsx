@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import API from '../api/axios';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 import {
     Plus, Search, Filter, Edit2, Trash2, Box, Package,
     TrendingUp, AlertTriangle, ChevronRight, QrCode, Camera, History, Download, X
@@ -10,6 +11,10 @@ import 'jspdf-autotable';
 import ExcelJS from 'exceljs';
 
 const MaterialTracking = () => {
+    const { user } = useContext(AuthContext);
+    const userRole = user?.role ? user.role.toLowerCase() : '';
+    const isEmployee = userRole === 'employee';
+
     const navigate = useNavigate();
     const location = useLocation();
     const [materials, setMaterials] = useState([]);
@@ -283,17 +288,25 @@ const MaterialTracking = () => {
                     <p className="header-subtitle">Monitor stock, in-transit items, low stock alerts, and barcode/QR movements.</p>
                 </div>
                 <div className="header-actions">
-                    <button className="btn-secondary-light flex-center gap-8" onClick={exportToPDF}><Download size={16} /> PDF</button>
-                    <button className="btn-secondary-light flex-center gap-8" onClick={exportToExcel}><Download size={16} /> Excel</button>
+                    {!isEmployee && (
+                        <>
+                            <button className="btn-secondary-light flex-center gap-8" onClick={exportToPDF}><Download size={16} /> PDF</button>
+                            <button className="btn-secondary-light flex-center gap-8" onClick={exportToExcel}><Download size={16} /> Excel</button>
+                        </>
+                    )}
                     <button className="btn-secondary-light flex-center gap-8" onClick={() => setShowFilters(!showFilters)}>
                         <Filter size={16} /> Filters
                     </button>
-                    <button className="btn-secondary-light flex-center gap-8 text-indigo" onClick={() => { if (materials.length > 0) setScanSKU(materials[0].sku); setShowScanner(true); }}>
-                        <Camera size={16} /> Scan Item
-                    </button>
-                    <button className="btn-primary-blue flex-center gap-8" onClick={() => { setEditId(null); setShowNewCategoryInput(false); setFormData({ name: '', sku: '', category: '', quantity: 0, lowStockThreshold: 10, unit: 'pcs', price: 0, vendorId: '' }); setShowModal(true); }}>
-                        <Plus size={16} /> Add Material
-                    </button>
+                    {!isEmployee && (
+                        <>
+                            <button className="btn-secondary-light flex-center gap-8 text-indigo" onClick={() => { if (materials.length > 0) setScanSKU(materials[0].sku); setShowScanner(true); }}>
+                                <Camera size={16} /> Scan Item
+                            </button>
+                            <button className="btn-primary-blue flex-center gap-8" onClick={() => { setEditId(null); setShowNewCategoryInput(false); setFormData({ name: '', sku: '', category: '', quantity: 0, lowStockThreshold: 10, unit: 'pcs', price: 0, vendorId: '' }); setShowModal(true); }}>
+                                <Plus size={16} /> Add Material
+                            </button>
+                        </>
+                    )}
                 </div>
             </header>
 
@@ -386,10 +399,16 @@ const MaterialTracking = () => {
                                 <td>${item.price}</td>
                                 <td>
                                     <div className="actions-flex">
-                                        <button className="action-btn code" title="Barcode & QR Code" onClick={() => { setSelectedMaterialForCode(item); setShowGenerator(true); }}><QrCode size={14} /></button>
+                                        {!isEmployee && (
+                                            <button className="action-btn code" title="Barcode & QR Code" onClick={() => { setSelectedMaterialForCode(item); setShowGenerator(true); }}><QrCode size={14} /></button>
+                                        )}
                                         <button className="action-btn" title="Movement History" onClick={() => openMovementHistory(item)}><History size={14} /></button>
-                                        <button className="action-btn edit" title="Edit Item" onClick={() => handleEditClick(item)}><Edit2 size={14} /></button>
-                                        <button className="action-btn delete" title="Delete Item" onClick={() => handleDeleteClick(item)}><Trash2 size={14} /></button>
+                                        {!isEmployee && (
+                                            <>
+                                                <button className="action-btn edit" title="Edit Item" onClick={() => handleEditClick(item)}><Edit2 size={14} /></button>
+                                                <button className="action-btn delete" title="Delete Item" onClick={() => handleDeleteClick(item)}><Trash2 size={14} /></button>
+                                            </>
+                                        )}
                                     </div>
                                 </td>
                             </tr>

@@ -51,6 +51,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
     const employeeMenu = [
         { path: '/', name: 'Dashboard', icon: <LayoutDashboard size={20} /> },
         { path: '/my-tasks', name: 'My Tasks', icon: <Box size={20} /> },
+        { path: '/materials', name: 'Material Tracking', icon: <Briefcase size={20} /> },
         { path: '/my-attendance', name: 'My Attendance', icon: <CheckCircle size={20} /> },
         { path: '/my-salary', name: 'My Payslips', icon: <DollarSign size={20} /> },
         { path: '/leave-management', name: 'Leave Management', icon: <Calendar size={20} /> },

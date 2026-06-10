@@ -94,7 +94,7 @@ const AppContent = () => {
                     } />
                     
                     {/* Role Specific Protected Routes */}
-                    <Route path="/materials" element={<ProtectedRoute allowedRoles={['Admin', 'Manager', 'Sales']}><Materials /></ProtectedRoute>} />
+                    <Route path="/materials" element={<ProtectedRoute allowedRoles={['Admin', 'Manager', 'Sales', 'Employee']}><Materials /></ProtectedRoute>} />
                     <Route path="/hrms" element={<ProtectedRoute allowedRoles={['Admin', 'HR']}><HRMS /></ProtectedRoute>} />
                     <Route path="/payroll" element={<ProtectedRoute allowedRoles={['Admin', 'HR']}><Payroll /></ProtectedRoute>} />
                     <Route path="/attendance" element={<ProtectedRoute allowedRoles={['Admin', 'HR', 'Manager']}><Attendance /></ProtectedRoute>} />
