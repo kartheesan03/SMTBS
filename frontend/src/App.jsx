@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthContext, AuthProvider } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
 import Sidebar from './components/Sidebar';
+import Topbar from './components/Topbar';
 import ProtectedRoute from './components/ProtectedRoute';
 import { Menu, X } from 'lucide-react';
 
@@ -71,6 +72,7 @@ const AppContent = () => {
                 </>
             )}
             <main className={`main-content ${user ? 'with-sidebar' : ''}`}>
+                {user && <Topbar />}
                 <Routes>
                     {/* Public Route */}
                     <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />

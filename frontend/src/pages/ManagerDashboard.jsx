@@ -1,239 +1,258 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import API from '../api/axios';
-import { AuthContext } from '../context/AuthContext';
 import { 
-    ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, 
-    BarChart, Bar, Cell 
-} from 'recharts';
-import { 
-    ShoppingCart, CheckSquare, Clock, Package, 
-    TrendingUp, Filter, Search, UserPlus, CheckCircle, XCircle, ArrowUpRight
+    Users, Briefcase, CheckSquare, TrendingUp, AlertCircle
 } from 'lucide-react';
-
-// Components
-import StatCard from '../components/Dashboard/StatCard';
-import QuickActions from '../components/Dashboard/QuickActions';
-import DataTable from '../components/Dashboard/DataTable';
+import { 
+    PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, 
+    Tooltip as RechartsTooltip, ResponsiveContainer, RadarChart, PolarGrid, 
+    PolarAngleAxis, PolarRadiusAxis, Radar 
+} from 'recharts';
 
 const ManagerDashboard = () => {
-    const { user } = useContext(AuthContext);
-    const [data, setData] = useState(null);
+    const [stats, setStats] = useState({
+        teamMembers: 0,
+        activeProjects: 0,
+        pendingApprovals: 0,
+        teamProductivity: 0
+    });
     const [loading, setLoading] = useState(true);
+
+    // Mock data for Recharts
+    const projectStatusData = [
+        { name: 'On Track', value: 12, color: '#10b981' },
+        { name: 'At Risk', value: 3, color: '#f59e0b' },
+        { name: 'Delayed', value: 1, color: '#ef4444' },
+    ];
+
+    const teamAttendanceData = [
+        { name: 'Mon', present: 22, absent: 2 },
+        { name: 'Tue', present: 24, absent: 0 },
+        { name: 'Wed', present: 23, absent: 1 },
+        { name: 'Thu', present: 21, absent: 3 },
+        { name: 'Fri', present: 20, absent: 4 },
+    ];
+
+    const workloadData = [
+        { subject: 'Development', A: 85, fullMark: 100 },
+        { subject: 'Code Review', A: 60, fullMark: 100 },
+        { subject: 'Meetings', A: 90, fullMark: 100 },
+        { subject: 'Planning', A: 45, fullMark: 100 },
+        { subject: 'Support', A: 30, fullMark: 100 },
+    ];
+
+    const recentActivities = [
+        { id: 1, text: 'Sarah completed task: API Integration', time: '1 hour ago' },
+        { id: 2, text: 'Project Alpha milestone reached', time: '3 hours ago' },
+        { id: 3, text: '2 vacation requests require approval', time: '5 hours ago' },
+    ];
 
     useEffect(() => {
         const fetchManagerData = async () => {
             try {
-                const { data } = await API.get('/dashboard/stats');
-                setData(data);
+                // Simulate fetch
+                setStats({
+                    teamMembers: 24,
+                    activeProjects: 8,
+                    pendingApprovals: 5,
+                    teamProductivity: 87
+                });
             } catch (error) {
-                console.error(error);
+                console.error("Failed to load Manager stats", error);
             } finally {
                 setLoading(false);
             }
         };
+
         fetchManagerData();
     }, []);
 
-    if (loading) return <div className="loading-container"><div className="loader"></div><p>Aggregating operational data...</p></div>;
-
-    const stats = [
-        { title: 'Team Members', value: data?.stats?.totalEmployees || 0, icon: <UserPlus />, color: '#6366f1' },
-        { title: 'Active Projects', value: data?.stats?.totalOrders || 0, icon: <Package />, color: '#10b981' },
-        { title: 'Pending Approvals', value: data?.stats?.pendingOrders || 0, icon: <Clock />, color: '#f59e0b' },
-        { title: 'Completed Tasks', value: 45, icon: <CheckSquare />, color: '#8b5cf6' },
-    ];
-
-    const quickActions = [
-        { label: 'Assign Task', icon: <UserPlus size={20}/>, onClick: () => {} },
-        { label: 'Approve Request', icon: <CheckCircle size={20}/>, onClick: () => {} },
-        { label: 'View Reports', icon: <TrendingUp size={20}/>, onClick: () => {} },
-    ];
+    if (loading) {
+        return (
+            <div className="flex-center" style={{ height: '80vh' }}>
+                <div className="loader"></div>
+            </div>
+        );
+    }
 
     return (
-        <div className="manager-wrapper">
-            <header className="manager-header">
-                <div>
-                    <h1 className="title-gradient">Business Operations Manager</h1>
-                    <p className="text-muted">High-level oversight of orders, projects, and team output.</p>
-                </div>
-                <div className="header-meta">
-                    <div className="search-box-glass">
-                        <Search size={18}/>
-                        <input type="text" placeholder="Track order or task..." />
-                    </div>
-                </div>
-            </header>
+        <div className="p-30">
+            <div style={{ marginBottom: '24px' }}>
+                <h1 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>Manager Dashboard</h1>
+                <p style={{ color: 'var(--text-muted)', fontSize: '14px', margin: '4px 0 0 0' }}>Overview of team performance and project statuses.</p>
+            </div>
 
-            <section className="manager-stats grid-4">
-                {stats.map((s, i) => <StatCard key={i} {...s} />)}
-            </section>
-
-            <div className="manager-main-grid">
-                <div className="glass-card main-chart-box">
-                    <div className="card-header-flex">
-                        <h3>Team Productivity</h3>
-                        <div className="flex-center gap-10">
-                            <span className="badge-pill success">+12.5% vs Last Month</span>
+            {/* Metrics Row */}
+            <div className="bento-grid" style={{ marginBottom: '24px' }}>
+                <div className="bento-card bento-col-3">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <div>
+                            <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', margin: 0 }}>Team Members</p>
+                            <h2 style={{ fontSize: '28px', fontWeight: 800, margin: '8px 0 0 0', color: 'var(--text-primary)' }}>
+                                {stats.teamMembers}
+                            </h2>
+                        </div>
+                        <div style={{ background: 'var(--primary-light)', padding: '10px', borderRadius: '12px', color: 'var(--primary)' }}>
+                            <Users size={20} />
                         </div>
                     </div>
-                    <div className="chart-container-m">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={data?.charts?.monthlyStats || []}>
-                                <defs>
-                                    <linearGradient id="colorV" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
-                                        <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
-                                    </linearGradient>
-                                </defs>
-                                <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} />
-                                <YAxis hide />
-                                <Tooltip contentStyle={{ background: '#0f172a', border: '1px solid #334155' }} />
-                                <Area type="monotone" dataKey="sales" stroke="#6366f1" fill="url(#colorV)" strokeWidth={3} />
-                            </AreaChart>
-                        </ResponsiveContainer>
+                </div>
+
+                <div className="bento-card bento-col-3">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <div>
+                            <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', margin: 0 }}>Active Projects</p>
+                            <h2 style={{ fontSize: '28px', fontWeight: 800, margin: '8px 0 0 0', color: 'var(--text-primary)' }}>
+                                {stats.activeProjects}
+                            </h2>
+                        </div>
+                        <div style={{ background: '#f5f3ff', padding: '10px', borderRadius: '12px', color: '#8b5cf6' }}>
+                            <Briefcase size={20} />
+                        </div>
                     </div>
                 </div>
 
-                <div className="glass-card main-chart-box">
-                    <h3>Team Attendance</h3>
-                    <div className="chart-container-m">
+                <div className="bento-card bento-col-3">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <div>
+                            <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', margin: 0 }}>Pending Approvals</p>
+                            <h2 style={{ fontSize: '28px', fontWeight: 800, margin: '8px 0 0 0', color: 'var(--text-primary)' }}>
+                                {stats.pendingApprovals}
+                            </h2>
+                        </div>
+                        <div style={{ background: 'var(--warning-light)', padding: '10px', borderRadius: '12px', color: 'var(--warning)' }}>
+                            <CheckSquare size={20} />
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bento-card bento-col-3">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <div>
+                            <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', margin: 0 }}>Team Productivity</p>
+                            <h2 style={{ fontSize: '28px', fontWeight: 800, margin: '8px 0 0 0', color: 'var(--text-primary)' }}>
+                                {stats.teamProductivity}%
+                            </h2>
+                        </div>
+                        <div style={{ background: 'var(--success-light)', padding: '10px', borderRadius: '12px', color: 'var(--success)' }}>
+                            <TrendingUp size={20} />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Charts Row */}
+            <div className="bento-grid" style={{ marginBottom: '24px' }}>
+                <div className="bento-card bento-col-4">
+                    <div className="bento-card-header">
+                        <div className="bento-card-title">
+                            <Briefcase size={18} className="text-primary" />
+                            Project Status
+                        </div>
+                    </div>
+                    <div className="bento-card-body" style={{ height: '260px', display: 'flex', flexDirection: 'column' }}>
                         <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={data?.hrStats?.attendanceHistory || []}>
-                                <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} />
-                                <YAxis hide />
-                                <Tooltip contentStyle={{ background: '#0f172a', border: '1px solid #334155' }} />
-                                <Bar dataKey="employees" fill="#10b981" radius={[4, 4, 0, 0]} />
+                            <PieChart>
+                                <Pie
+                                    data={projectStatusData}
+                                    cx="50%"
+                                    cy="50%"
+                                    innerRadius={50}
+                                    outerRadius={80}
+                                    paddingAngle={5}
+                                    dataKey="value"
+                                    stroke="none"
+                                >
+                                    {projectStatusData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={entry.color} />
+                                    ))}
+                                </Pie>
+                                <RechartsTooltip 
+                                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: 'var(--shadow-md)' }}
+                                />
+                            </PieChart>
+                        </ResponsiveContainer>
+                        <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', marginTop: 'auto' }}>
+                            {projectStatusData.map((item) => (
+                                <div key={item.name} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                    <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: item.color }}></span>
+                                    <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{item.name}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bento-card bento-col-4">
+                    <div className="bento-card-header">
+                        <div className="bento-card-title">
+                            <Users size={18} className="text-primary" />
+                            Team Attendance (Weekly)
+                        </div>
+                    </div>
+                    <div className="bento-card-body" style={{ height: '260px' }}>
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={teamAttendanceData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }} barSize={16}>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} dy={10} />
+                                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} />
+                                <RechartsTooltip 
+                                    cursor={{ fill: '#f1f5f9' }}
+                                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: 'var(--shadow-md)' }}
+                                />
+                                <Bar dataKey="present" stackId="a" fill="var(--primary)" radius={[0, 0, 4, 4]} />
+                                <Bar dataKey="absent" stackId="a" fill="#ef4444" radius={[4, 4, 0, 0]} />
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
                 </div>
-            </div>
 
-            <div className="manager-main-grid mt-30">
-                <section className="orders-overview-m">
-                    <DataTable 
-                        title="Project Tracking"
-                        headers={['Project / Order ID', 'Customer / Vendor', 'Progress', 'Deadline', 'Status']}
-                        data={data?.tables?.recentOrders || []}
-                        renderRow={(o) => (
-                            <>
-                                <td><span className="id-font">{o.orderNumber}</span></td>
-                                <td>{o.orderType === 'purchase' ? (o.vendor?.name || 'Walk-in Vendor') : (o.customer?.name || 'Walk-in Customer')}</td>
-                                <td>
-                                    <div className="progress-cell">
-                                        <div className="p-bar"><div className="p-fill" style={{width: `100%`}}></div></div>
-                                        <span>100%</span>
-                                    </div>
-                                </td>
-                                <td>{new Date(o.createdAt).toLocaleDateString()}</td>
-                                <td><span className={`status-tag ${o.status.toLowerCase().replace(' ', '-')}`}>{o.status}</span></td>
-                            </>
-                        )}
-                    />
-                </section>
-                <div className="glass-card">
-                    <h3>Task Assignments</h3>
-                    <div className="req-list">
-                         <div className="req-item">
-                             <div className="req-meta">
-                                 <strong>Inventory Audit</strong>
-                                 <p>Assigned to: John Doe</p>
-                             </div>
-                             <span className="badge-pill success">In Progress</span>
-                         </div>
+                <div className="bento-card bento-col-4">
+                    <div className="bento-card-header">
+                        <div className="bento-card-title">
+                            <TrendingUp size={18} className="text-primary" />
+                            Team Workload
+                        </div>
+                    </div>
+                    <div className="bento-card-body" style={{ height: '260px' }}>
+                        <ResponsiveContainer width="100%" height="100%">
+                            <RadarChart cx="50%" cy="50%" outerRadius="70%" data={workloadData}>
+                                <PolarGrid stroke="#e2e8f0" />
+                                <PolarAngleAxis dataKey="subject" tick={{ fill: '#64748b', fontSize: 11 }} />
+                                <Radar name="Workload" dataKey="A" stroke="var(--primary)" fill="var(--primary)" fillOpacity={0.5} />
+                                <RechartsTooltip 
+                                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: 'var(--shadow-md)' }}
+                                />
+                            </RadarChart>
+                        </ResponsiveContainer>
                     </div>
                 </div>
             </div>
 
-            <style jsx="true">{`
-                .manager-wrapper { 
-                    padding: 30px; 
-                    display: flex; 
-                    flex-direction: column; 
-                    gap: 30px; 
-                    background-color: var(--bg-body); 
-                    min-height: 100vh; 
-                    color: var(--text-primary); 
-                }
-                .manager-header { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; }
-                .title-gradient { font-size: 26px; font-weight: 800; color: var(--text-primary); margin: 0 0 6px 0; letter-spacing: -0.5px; }
-                .search-box-glass { display: flex; align-items: center; gap: 10px; padding: 12px 20px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md, 12px); box-shadow: var(--shadow-sm); transition: all 0.2s ease; }
-                .search-box-glass:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-50); }
-                .search-box-glass input { background: none; border: none; color: var(--text-primary); width: 250px; outline: none; font-size: 14px; }
-                .search-box-glass input::placeholder { color: var(--text-muted); }
-                .search-box-glass svg { color: var(--text-muted); }
-                
-                .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
-                .manager-main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
-
-                .glass-card { 
-                    background: var(--bg-card); 
-                    border: 1px solid var(--border); 
-                    border-radius: var(--radius-lg, 16px); 
-                    padding: 24px; 
-                    box-shadow: var(--shadow-sm); 
-                }
-                .main-chart-box, .approval-queue { padding: 24px; }
-                .chart-container-m { height: 250px; margin-top: 24px; }
-                
-                .glass-card h3 { font-size: 16px; font-weight: 800; color: var(--text-primary); margin: 0; }
-                .card-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-                .flex-center { display: flex; align-items: center; justify-content: center; }
-                .gap-10 { gap: 10px; }
-
-                .req-list { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
-                .req-item { display: flex; justify-content: space-between; align-items: center; padding: 14px; background: var(--bg-hover); border: 1px solid var(--border); border-radius: var(--radius-md, 12px); transition: all 0.2s ease; }
-                .req-item:hover { border-color: var(--border-hover); background: var(--bg-card); }
-                .r-type { font-size: 11px; text-transform: uppercase; color: var(--primary); font-weight: 700; display: block; margin-bottom: 4px; }
-                .req-meta strong { font-size: 14px; color: var(--text-primary); }
-                .req-meta p { font-size: 12px; color: var(--text-muted); margin: 4px 0 0 0; }
-                
-                .req-actions { display: flex; gap: 12px; }
-                .btn-approve { background: var(--success-light); border: 1px solid transparent; color: var(--success); padding: 8px; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; }
-                .btn-approve:hover { background: var(--success); color: white; transform: translateY(-1px); }
-                .btn-reject { background: var(--danger-light); border: 1px solid transparent; color: var(--danger); padding: 8px; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; }
-                .btn-reject:hover { background: var(--danger); color: white; transform: translateY(-1px); }
-                .view-all-link { background: none; border: none; color: var(--primary); font-size: 13px; font-weight: 700; margin-top: 20px; display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 0; transition: color 0.2s ease; }
-                .view-all-link:hover { color: #1d4ed8; }
-
-                .badge-pill { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; }
-                .badge-pill.success { background: var(--success-light); color: var(--success); }
-                
-                .progress-cell { display: flex; align-items: center; gap: 12px; min-width: 150px; }
-                .p-bar { flex: 1; height: 8px; background: var(--bg-body); border-radius: 10px; overflow: hidden; }
-                .p-fill { height: 100%; background: var(--primary); transition: 0.5s ease; box-shadow: 0 0 10px rgba(37, 99, 235, 0.4); border-radius: 10px; }
-                .progress-cell span { font-size: 13px; font-weight: 700; color: var(--text-primary); min-width: 40px; }
-                
-                .status-tag { padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; display: inline-block; }
-                .status-tag.completed { background: var(--success-light); color: var(--success); }
-                .status-tag.processing { background: var(--warning-light); color: var(--warning); }
-                .status-tag.in-transit { background: var(--primary-50); color: var(--primary); }
-
-                .mt-30 { margin-top: 30px; }
-                .id-font { font-family: monospace; color: var(--primary); font-weight: 700; font-size: 14px; background: var(--primary-50); padding: 4px 8px; border-radius: 6px; }
-                .text-muted { color: var(--text-muted); }
-
-                /* Loading */
-                .loading-container { height: 80vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; color: var(--text-muted); font-size: 14px; font-weight: 500; }
-                .loader { width: 48px; height: 48px; border: 3px solid var(--primary-100); border-top: 3px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
-                @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-                @media (max-width: 1024px) {
-                    .manager-main-grid { grid-template-columns: 1fr; }
-                }
-
-                @media (max-width: 768px) {
-                    .manager-wrapper { padding: 20px; gap: 20px; }
-                    .manager-header { flex-direction: column; align-items: flex-start; gap: 15px; }
-                    .search-box-glass { width: 100%; }
-                    .search-box-glass input { width: 100%; }
-                    .grid-4 { grid-template-columns: repeat(2, 1fr); }
-                }
-
-                @media (max-width: 480px) {
-                    .grid-4 { grid-template-columns: 1fr; }
-                }
-            `}</style>
+            {/* Bottom Row */}
+            <div className="bento-grid">
+                <div className="bento-card bento-col-12">
+                    <div className="bento-card-header">
+                        <div className="bento-card-title">
+                            <AlertCircle size={18} className="text-primary" />
+                            Recent Activities
+                        </div>
+                    </div>
+                    <div className="bento-card-body">
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            {recentActivities.map((act) => (
+                                <div key={act.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px', background: 'var(--bg-body)', borderRadius: '8px', border: '1px solid var(--border)' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--primary)' }}></div>
+                                        <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)' }}>{act.text}</span>
+                                    </div>
+                                    <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{act.time}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 };

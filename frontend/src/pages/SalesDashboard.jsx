@@ -1,246 +1,279 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import API from '../api/axios';
-import { AuthContext } from '../context/AuthContext';
 import { 
-    ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, 
-    PieChart, Pie, Cell 
-} from 'recharts';
-import { 
-    Users, Target, PhoneCall, TrendingUp, 
-    Search, Plus, Calendar, Clock, ArrowUpRight
+    Users, Target, DollarSign, Award, ArrowUpRight, BarChart2
 } from 'lucide-react';
-
-// Components
-import StatCard from '../components/Dashboard/StatCard';
-import QuickActions from '../components/Dashboard/QuickActions';
-import DataTable from '../components/Dashboard/DataTable';
+import { 
+    AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, 
+    ResponsiveContainer, PieChart, Pie, Cell, ComposedChart, Bar, Line
+} from 'recharts';
 
 const SalesDashboard = () => {
-    const { user } = useContext(AuthContext);
-    const [data, setData] = useState(null);
+    const [stats, setStats] = useState({
+        totalLeads: 0,
+        opportunities: 0,
+        closedDeals: 0,
+        revenue: 0
+    });
     const [loading, setLoading] = useState(true);
 
-    const COLORS = ['#6366f1', '#14b8a6', '#f59e0b', '#ef4444'];
+    // Mock data for Recharts
+    const salesFunnelData = [
+        { name: 'Leads', value: 1200, fill: '#cbd5e1' },
+        { name: 'Qualified', value: 800, fill: '#94a3b8' },
+        { name: 'Proposals', value: 450, fill: '#64748b' },
+        { name: 'Negotiation', value: 200, fill: '#475569' },
+        { name: 'Closed Won', value: 85, fill: 'var(--primary)' },
+    ];
+
+    const leadSourceData = [
+        { name: 'Organic Search', value: 45, color: '#3b82f6' },
+        { name: 'Referral', value: 25, color: '#10b981' },
+        { name: 'Social Media', value: 20, color: '#8b5cf6' },
+        { name: 'Direct', value: 10, color: '#f59e0b' },
+    ];
+
+    const salesPerformanceData = [
+        { name: 'Jan', target: 40000, actual: 42000 },
+        { name: 'Feb', target: 45000, actual: 44000 },
+        { name: 'Mar', target: 50000, actual: 54000 },
+        { name: 'Apr', target: 55000, actual: 52000 },
+        { name: 'May', target: 60000, actual: 68000 },
+        { name: 'Jun', target: 65000, actual: 72000 },
+    ];
+
+    const recentActivities = [
+        { id: 1, text: 'Deal closed with TechCorp ($45k)', time: '1 hour ago' },
+        { id: 2, text: 'Proposal sent to Global Logistics', time: '3 hours ago' },
+        { id: 3, text: 'New lead assigned: Sarah Jenkins', time: '4 hours ago' },
+        { id: 4, text: 'Meeting scheduled with Acme Corp', time: '1 day ago' },
+    ];
 
     useEffect(() => {
         const fetchSalesData = async () => {
             try {
-                const { data } = await API.get('/dashboard/stats');
-                setData(data);
+                // Simulate fetch
+                setStats({
+                    totalLeads: 1240,
+                    opportunities: 184,
+                    closedDeals: 85,
+                    revenue: 425000
+                });
             } catch (error) {
-                console.error(error);
+                console.error("Failed to load Sales stats", error);
             } finally {
                 setLoading(false);
             }
         };
+
         fetchSalesData();
     }, []);
 
-    if (loading) return <div className="loading-container"><div className="loader"></div><p>Synchronizing lead pipeline...</p></div>;
-
-    const stats = [
-        { title: 'Total Customers', value: data?.stats?.totalCustomers || 0, icon: <Users />, color: '#6366f1' },
-        { title: 'Sales Orders', value: data?.stats?.totalSalesOrders || 0, icon: <Target />, color: '#10b981' },
-        { title: 'Open Opportunities', value: 34, icon: <PhoneCall />, color: '#f59e0b' },
-        { title: 'Closed Deals', value: 12, icon: <TrendingUp />, color: '#8b5cf6' },
-        { title: 'Monthly Revenue', value: `₹${(data?.totalRevenue || 0).toLocaleString()}`, icon: <TrendingUp />, color: '#ec4899' },
-        { title: 'Target Achievement', value: '85%', icon: <Target />, color: '#0ea5e9' },
-    ];
-
-    const quickActions = [
-        { label: 'Add Lead', icon: <Plus size={20}/>, onClick: () => {} },
-        { label: 'Add Customer', icon: <Users size={20}/>, onClick: () => {} },
-        { label: 'Schedule Call', icon: <Calendar size={20}/>, onClick: () => {} },
-    ];
+    if (loading) {
+        return (
+            <div className="flex-center" style={{ height: '80vh' }}>
+                <div className="loader"></div>
+            </div>
+        );
+    }
 
     return (
-        <div className="sales-wrapper">
-            <header className="sales-header">
-                <div>
-                    <h1 className="title-gradient">Sales & CRM Dashboard</h1>
-                    <p className="text-muted">Track conversions, manage customer relationships, and hit targets.</p>
-                </div>
-                <div className="header-meta">
-                    <div className="search-bar-glass">
-                        <Search size={18}/>
-                        <input type="text" placeholder="Search leads or customers..." />
+        <div className="p-30">
+            <div style={{ marginBottom: '24px' }}>
+                <h1 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>Sales Dashboard</h1>
+                <p style={{ color: 'var(--text-muted)', fontSize: '14px', margin: '4px 0 0 0' }}>Track leads, pipeline, and revenue performance.</p>
+            </div>
+
+            {/* Metrics Row */}
+            <div className="bento-grid" style={{ marginBottom: '24px' }}>
+                <div className="bento-card bento-col-3">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <div>
+                            <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', margin: 0 }}>Total Leads</p>
+                            <h2 style={{ fontSize: '28px', fontWeight: 800, margin: '8px 0 0 0', color: 'var(--text-primary)' }}>
+                                {stats.totalLeads.toLocaleString()}
+                            </h2>
+                        </div>
+                        <div style={{ background: '#f1f5f9', padding: '10px', borderRadius: '12px', color: '#64748b' }}>
+                            <Users size={20} />
+                        </div>
+                    </div>
+                    <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: 'var(--success)' }}>
+                        <ArrowUpRight size={14} /> <span>+24% this month</span>
                     </div>
                 </div>
-            </header>
 
-            <section className="sales-stats grid-6">
-                {stats.map((s, i) => <StatCard key={i} {...s} />)}
-            </section>
-
-            <div className="sales-main-grid">
-                <div className="glass-card performance-chart-box">
-                    <div className="card-header-flex">
-                        <h3>Revenue Trend Chart</h3>
+                <div className="bento-card bento-col-3">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <div>
+                            <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', margin: 0 }}>Opportunities</p>
+                            <h2 style={{ fontSize: '28px', fontWeight: 800, margin: '8px 0 0 0', color: 'var(--text-primary)' }}>
+                                {stats.opportunities.toLocaleString()}
+                            </h2>
+                        </div>
+                        <div style={{ background: '#f5f3ff', padding: '10px', borderRadius: '12px', color: '#8b5cf6' }}>
+                            <Target size={20} />
+                        </div>
                     </div>
-                    <div className="chart-container-s">
+                    <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: 'var(--success)' }}>
+                        <ArrowUpRight size={14} /> <span>+12% this month</span>
+                    </div>
+                </div>
+
+                <div className="bento-card bento-col-3">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <div>
+                            <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', margin: 0 }}>Closed Deals</p>
+                            <h2 style={{ fontSize: '28px', fontWeight: 800, margin: '8px 0 0 0', color: 'var(--text-primary)' }}>
+                                {stats.closedDeals.toLocaleString()}
+                            </h2>
+                        </div>
+                        <div style={{ background: 'var(--primary-light)', padding: '10px', borderRadius: '12px', color: 'var(--primary)' }}>
+                            <Award size={20} />
+                        </div>
+                    </div>
+                    <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: 'var(--success)' }}>
+                        <ArrowUpRight size={14} /> <span>+8% this month</span>
+                    </div>
+                </div>
+
+                <div className="bento-card bento-col-3">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <div>
+                            <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', margin: 0 }}>Revenue (YTD)</p>
+                            <h2 style={{ fontSize: '28px', fontWeight: 800, margin: '8px 0 0 0', color: 'var(--text-primary)' }}>
+                                ${stats.revenue.toLocaleString()}
+                            </h2>
+                        </div>
+                        <div style={{ background: 'var(--success-light)', padding: '10px', borderRadius: '12px', color: 'var(--success)' }}>
+                            <DollarSign size={20} />
+                        </div>
+                    </div>
+                    <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: 'var(--success)' }}>
+                        <ArrowUpRight size={14} /> <span>+18% against target</span>
+                    </div>
+                </div>
+            </div>
+
+            {/* Charts Row */}
+            <div className="bento-grid" style={{ marginBottom: '24px' }}>
+                <div className="bento-card bento-col-8">
+                    <div className="bento-card-header">
+                        <div className="bento-card-title">
+                            <BarChart2 size={18} className="text-primary" />
+                            Sales Performance (Target vs Actual)
+                        </div>
+                    </div>
+                    <div className="bento-card-body" style={{ height: '300px' }}>
                         <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={data?.charts?.monthlyStats || []}>
-                                <defs>
-                                    <linearGradient id="colorS" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
-                                        <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
-                                    </linearGradient>
-                                </defs>
-                                <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} />
-                                <YAxis hide />
-                                <Tooltip contentStyle={{ background: '#0f172a', border: '1px solid #334155' }} />
-                                <Area type="monotone" dataKey="sales" stroke="#10b981" fill="url(#colorS)" strokeWidth={3} />
-                            </AreaChart>
+                            <ComposedChart data={salesPerformanceData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dy={10} />
+                                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} tickFormatter={(val) => `$${val/1000}k`} />
+                                <RechartsTooltip 
+                                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
+                                    formatter={(value) => [`$${value.toLocaleString()}`, '']}
+                                />
+                                <Bar dataKey="actual" fill="var(--primary)" radius={[4, 4, 0, 0]} barSize={32} />
+                                <Line type="monotone" dataKey="target" stroke="#f59e0b" strokeWidth={3} dot={{ r: 4, fill: '#f59e0b' }} />
+                            </ComposedChart>
                         </ResponsiveContainer>
                     </div>
                 </div>
 
-                <div className="glass-card pipeline-box">
-                    <h3>Sales Pipeline</h3>
-                    <div className="pipeline-viz">
+                <div className="bento-card bento-col-4">
+                    <div className="bento-card-header">
+                        <div className="bento-card-title">
+                            <Target size={18} className="text-primary" />
+                            Lead Sources
+                        </div>
+                    </div>
+                    <div className="bento-card-body" style={{ height: '300px', display: 'flex', flexDirection: 'column' }}>
                         <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
-                                <Pie 
-                                    data={data?.salesStats?.pipelineData || []}
-                                    innerRadius={50} outerRadius={70} dataKey="value"
+                                <Pie
+                                    data={leadSourceData}
+                                    cx="50%"
+                                    cy="50%"
+                                    innerRadius={60}
+                                    outerRadius={90}
+                                    paddingAngle={5}
+                                    dataKey="value"
+                                    stroke="none"
                                 >
-                                    {COLORS.map((c, i) => <Cell key={i} fill={c} />)}
+                                    {leadSourceData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={entry.color} />
+                                    ))}
                                 </Pie>
-                                <Tooltip />
+                                <RechartsTooltip 
+                                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: 'var(--shadow-md)' }}
+                                    itemStyle={{ color: '#0f172a', fontWeight: 600 }}
+                                />
                             </PieChart>
                         </ResponsiveContainer>
-                        <div className="pipeline-stats">
-                             {(data?.salesStats?.pipelineData || []).map((p, i) => (
-                                 <div key={i} className="p-stat-item">
-                                     <div className="dot" style={{ background: COLORS[i % COLORS.length] }}></div>
-                                     <span>{p.name}: <strong>{p.value}</strong></span>
-                                 </div>
-                             ))}
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginTop: 'auto' }}>
+                            {leadSourceData.map((item) => (
+                                <div key={item.name} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                    <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: item.color }}></span>
+                                    <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>{item.name}</span>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>
             </div>
 
-            <section className="recent-leads mt-30">
-                <DataTable 
-                    title="Recent Customer Activities"
-                    headers={['Customer', 'Activity', 'Date', 'Status']}
-                    data={data?.tables?.recentOrders || []}
-                    renderRow={(l) => (
-                        <tr key={l._id}>
-                            <td>
-                                <strong>{l.customer?.name || 'Unknown'}</strong>
-                                <span className="view-more"><ArrowUpRight size={10}/></span>
-                            </td>
-                            <td>Placed Order {l.orderNumber}</td>
-                            <td>{new Date(l.createdAt).toLocaleDateString()}</td>
-                            <td><span className={`status-pill contacted`}>{l.status || 'New'}</span></td>
-                        </tr>
-                    )}
-                />
-            </section>
+            {/* Bottom Row */}
+            <div className="bento-grid">
+                <div className="bento-card bento-col-6">
+                    <div className="bento-card-header">
+                        <div className="bento-card-title">
+                            <Target size={18} className="text-primary" />
+                            Sales Funnel
+                        </div>
+                    </div>
+                    <div className="bento-card-body" style={{ height: '260px' }}>
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={salesFunnelData} layout="vertical" margin={{ top: 0, right: 30, left: 20, bottom: 0 }}>
+                                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
+                                <XAxis type="number" hide />
+                                <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#475569', fontWeight: 500 }} width={90} />
+                                <RechartsTooltip 
+                                    cursor={{ fill: '#f8fafc' }}
+                                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: 'var(--shadow-md)' }}
+                                />
+                                <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={24}>
+                                    {salesFunnelData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={entry.fill} />
+                                    ))}
+                                </Bar>
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
 
-            <div className="sales-bottom-grid mt-30">
-                <div className="glass-card follow-up-card">
-                    <h3>Urgent Follow-ups</h3>
-                    <div className="f-list">
-                        <div className="f-item overdue">
-                            <div className="f-info">
-                                <strong>Acme Corp Meeting</strong>
-                                <span>Follow up on proposal. Due: Today</span>
-                            </div>
+                <div className="bento-card bento-col-6">
+                    <div className="bento-card-header">
+                        <div className="bento-card-title">
+                            <Award size={18} className="text-primary" />
+                            Recent Activities
+                        </div>
+                    </div>
+                    <div className="bento-card-body">
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '10px' }}>
+                            {recentActivities.map((act) => (
+                                <div key={act.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: '16px', borderBottom: '1px solid var(--border)' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--primary)' }}></div>
+                                        <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)' }}>{act.text}</span>
+                                    </div>
+                                    <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{act.time}</span>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>
-                <QuickActions actions={quickActions} />
             </div>
-
-            <style jsx="true">{`
-                .sales-wrapper { 
-                    padding: 30px; 
-                    display: flex; 
-                    flex-direction: column; 
-                    gap: 30px; 
-                    background-color: var(--bg-body); 
-                    min-height: 100vh; 
-                    color: var(--text-primary); 
-                }
-                .sales-header { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; }
-                .title-gradient { font-size: 26px; font-weight: 800; color: var(--text-primary); margin: 0 0 6px 0; letter-spacing: -0.5px; }
-                .search-bar-glass { display: flex; align-items: center; gap: 10px; padding: 12px 20px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md, 12px); box-shadow: var(--shadow-sm); transition: all 0.2s ease; }
-                .search-bar-glass:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-50); }
-                .search-bar-glass input { background: none; border: none; color: var(--text-primary); width: 250px; outline: none; font-size: 14px; }
-                .search-bar-glass input::placeholder { color: var(--text-muted); }
-                .search-bar-glass svg { color: var(--text-muted); }
-                
-                .grid-6 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-                .sales-main-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 25px; }
-                
-                .glass-card { 
-                    background: var(--bg-card); 
-                    border: 1px solid var(--border); 
-                    border-radius: var(--radius-lg, 16px); 
-                    padding: 24px; 
-                    box-shadow: var(--shadow-sm); 
-                }
-                .performance-chart-box, .pipeline-box { padding: 24px; }
-                .chart-container-s { height: 250px; margin-top: 24px; }
-                
-                .glass-card h3 { font-size: 16px; font-weight: 800; color: var(--text-primary); margin: 0; }
-                .card-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-                
-                .pipeline-viz { display: flex; align-items: center; justify-content: space-around; height: 180px; margin-top: 24px; }
-                .pipeline-stats { display: flex; flex-direction: column; gap: 12px; font-size: 13px; }
-                .p-stat-item { display: flex; align-items: center; gap: 10px; color: var(--text-secondary); }
-                .p-stat-item strong { color: var(--text-primary); }
-                .dot { width: 10px; height: 10px; border-radius: 50%; }
-                
-                .status-pill { padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; display: inline-block; }
-                .status-pill.negotiation { background: var(--warning-light); color: var(--warning); }
-                .status-pill.qualified { background: var(--success-light); color: var(--success); }
-                .status-pill.contacted { background: var(--primary-50); color: var(--primary); }
-                
-                .val-text { color: var(--primary); }
-                .view-more { margin-left: 8px; color: var(--primary); cursor: pointer; transition: color 0.2s; }
-                .view-more:hover { color: #1d4ed8; }
-                
-                .follow-up-card { padding: 24px; }
-                .f-list { display: flex; flex-direction: column; gap: 14px; margin-top: 20px; }
-                .f-item { display: flex; align-items: center; gap: 15px; padding: 14px; background: var(--bg-hover); border: 1px solid var(--border); border-radius: var(--radius-md, 12px); transition: all 0.2s ease; }
-                .f-item:hover { border-color: var(--border-hover); background: var(--bg-card); }
-                .f-item.overdue { border-left: 4px solid var(--danger); }
-                .f-info { display: flex; flex-direction: column; gap: 4px; }
-                .f-info span { font-size: 12px; color: var(--text-muted); }
-                
-                .sales-bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-                
-                .mt-30 { margin-top: 30px; }
-                .text-muted { color: var(--text-muted); }
-                .badge-pill { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; }
-                .badge-pill.info { background: var(--primary-50); color: var(--primary); }
-
-                /* Loading */
-                .loading-container { height: 80vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; color: var(--text-muted); font-size: 14px; font-weight: 500; }
-                .loader { width: 48px; height: 48px; border: 3px solid var(--primary-100); border-top: 3px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
-                @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-                @media (max-width: 1024px) {
-                    .sales-main-grid, .sales-bottom-grid { grid-template-columns: 1fr; }
-                }
-
-                @media (max-width: 768px) {
-                    .sales-wrapper { padding: 20px; gap: 20px; }
-                    .sales-header { flex-direction: column; align-items: flex-start; gap: 15px; }
-                    .search-bar-glass { width: 100%; }
-                    .search-bar-glass input { width: 100%; }
-                    .grid-6 { grid-template-columns: repeat(2, 1fr); }
-                    .pipeline-viz { flex-direction: column; height: auto; gap: 24px; }
-                }
-
-                @media (max-width: 480px) {
-                    .grid-6 { grid-template-columns: 1fr; }
-                }
-            `}</style>
         </div>
     );
 };
