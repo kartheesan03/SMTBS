@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import API from '../api/axios';
 import DataTable from '../components/Dashboard/DataTable';
-import { Truck, Plus, Star, MapPin, Mail, Phone, ExternalLink, Download, Edit, X, PackagePlus } from 'lucide-react';
+import { Truck, Plus, Star, MapPin, Mail, Phone, ExternalLink, Download, Edit, X, PackagePlus, AlertTriangle, Trash2, History } from 'lucide-react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import ExcelJS from 'exceljs';
@@ -11,7 +11,7 @@ const Vendors = () => {
     const [allMaterials, setAllMaterials] = useState([]);
     const [loading, setLoading] = useState(true);
     
-    // Modal States
+    // Vendor Form Modals
     const [showModal, setShowModal] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
     const [showViewModal, setShowViewModal] = useState(false);
@@ -20,16 +20,27 @@ const Vendors = () => {
     const [vendorOrders, setVendorOrders] = useState([]);
     const [vendorMaterials, setVendorMaterials] = useState([]);
     
-    // Form States
+    // Vendor Form Data
     const [formData, setFormData] = useState({
         name: '', category: 'Raw Materials', contactPerson: '', email: '', phone: '', address: ''
     });
     
-    // New Materials Logic
+    // New Materials Logic (Used for Vendor Form)
     const [newMaterialsList, setNewMaterialsList] = useState([]);
     const [newMaterial, setNewMaterial] = useState({
         name: '', sku: '', category: 'Raw Materials', quantity: 0, unit: 'pcs', price: 0
     });
+
+    // Nested Material Modals for View Vendor Profile
+    const [showNestedMaterialForm, setShowNestedMaterialForm] = useState(false);
+    const [isNestedMaterialEdit, setIsNestedMaterialEdit] = useState(false);
+    const [nestedMaterialFormData, setNestedMaterialFormData] = useState({
+        id: null, name: '', sku: '', category: 'Raw Materials', quantity: 0, unit: 'pcs', price: 0
+    });
+    const [showNestedMaterialView, setShowNestedMaterialView] = useState(false);
+    const [nestedSelectedMaterial, setNestedSelectedMaterial] = useState(null);
+    const [nestedMovementHistory, setNestedMovementHistory] = useState([]);
+    const [loadingNestedMovements, setLoadingNestedMovements] = useState(false);
 
     const fetchVendors = async () => {
         try {
@@ -46,6 +57,15 @@ const Vendors = () => {
         try {
             const { data } = await API.get('/materials');
             setAllMaterials(data || []);
+            
+            // If view modal is open, refresh vendor materials
+            if (showViewModal && selectedVendor) {
+                const filteredMaterials = data.filter(m => 
+                    String(m.vendorId) === String(selectedVendor.id || selectedVendor._id) || 
+                    String(m.vendor?.id || m.vendor?._id || m.vendor) === String(selectedVendor.id || selectedVendor._id)
+                );
+                setVendorMaterials(filteredMaterials);
+            }
         } catch (err) {
             console.error("Error fetching materials", err);
         }
@@ -66,15 +86,18 @@ const Vendors = () => {
                 API.get('/orders'),
                 API.get('/materials')
             ]);
-            const filteredOrders = orders.filter(o => String(o.vendorId) === String(vendor.id || vendor._id) || String(o.vendor?.id || o.vendor?._id || o.vendor) === String(vendor.id || vendor._id));
+            const vId = String(vendor.id || vendor._id);
+            const filteredOrders = orders.filter(o => String(o.vendorId) === vId || String(o.vendor?.id || o.vendor?._id || o.vendor) === vId);
             setVendorOrders(filteredOrders);
-            const filteredMaterials = materials.filter(m => String(m.vendorId) === String(vendor.id || vendor._id) || String(m.vendor?.id || m.vendor?._id || m.vendor) === String(vendor.id || vendor._id));
+            const filteredMaterials = materials.filter(m => String(m.vendorId) === vId || String(m.vendor?.id || m.vendor?._id || m.vendor) === vId);
             setVendorMaterials(filteredMaterials);
+            setAllMaterials(materials); // ensure global sync
         } catch (err) {
             console.error("Error fetching vendor data", err);
         }
     };
 
+    // VENDOR CRUD
     const openAddModal = () => {
         setIsEditMode(false);
         setFormData({ name: '', category: 'Raw Materials', contactPerson: '', email: '', phone: '', address: '' });
@@ -96,7 +119,6 @@ const Vendors = () => {
             address: vendor.address || ''
         });
         
-        // Find existing physical stock linked to this vendor
         const existingMaterials = allMaterials.filter(m => 
             String(m.vendorId) === String(vendor.id || vendor._id) || 
             String(m.vendor?.id || m.vendor?._id || m.vendor) === String(vendor.id || vendor._id)
@@ -113,12 +135,10 @@ const Vendors = () => {
             alert("Material Name and SKU are required!");
             return;
         }
-        // Check if SKU exists locally before sending to API
         if (allMaterials.some(m => m.sku === newMaterial.sku) || newMaterialsList.some(m => m.sku === newMaterial.sku)) {
             alert("SKU already exists! Please use a unique SKU.");
             return;
         }
-        
         setNewMaterialsList([...newMaterialsList, { ...newMaterial }]);
         setNewMaterial({ name: '', sku: '', category: 'Raw Materials', quantity: 0, unit: 'pcs', price: 0 });
     };
@@ -133,7 +153,6 @@ const Vendors = () => {
         e.preventDefault();
         try {
             let finalVendorId = null;
-            
             if (isEditMode && selectedVendor) {
                 finalVendorId = selectedVendor._id || selectedVendor.id;
                 await API.put(`/vendors/${finalVendorId}`, formData);
@@ -142,7 +161,6 @@ const Vendors = () => {
                 finalVendorId = createdVendor._id || createdVendor.id;
             }
 
-            // If there are new materials to add, loop and create them
             if (newMaterialsList.length > 0 && finalVendorId) {
                 const materialPromises = newMaterialsList.map(mat => 
                     API.post('/materials', { ...mat, vendorId: finalVendorId })
@@ -152,12 +170,79 @@ const Vendors = () => {
 
             setShowModal(false);
             fetchVendors();
-            fetchMaterials(); // refresh globally to update main datatable counts
+            fetchMaterials();
         } catch (err) {
             alert(err.response?.data?.message || 'Error saving vendor or materials');
         }
     };
 
+    // NESTED MATERIAL CRUD (Inside View Modal)
+    const openNestedMaterialAdd = () => {
+        setIsNestedMaterialEdit(false);
+        setNestedMaterialFormData({
+            id: null, name: '', sku: '', category: 'Raw Materials', quantity: 0, unit: 'pcs', price: 0
+        });
+        setShowNestedMaterialForm(true);
+    };
+
+    const openNestedMaterialEdit = (mat) => {
+        setIsNestedMaterialEdit(true);
+        setNestedMaterialFormData({
+            id: mat._id || mat.id,
+            name: mat.name,
+            sku: mat.sku,
+            category: mat.category || 'Raw Materials',
+            quantity: mat.quantity,
+            unit: mat.unit || 'pcs',
+            price: mat.price || 0
+        });
+        setShowNestedMaterialForm(true);
+    };
+
+    const handleNestedMaterialSave = async (e) => {
+        e.preventDefault();
+        try {
+            const vId = selectedVendor._id || selectedVendor.id;
+            const payload = { ...nestedMaterialFormData, vendorId: vId };
+            
+            if (isNestedMaterialEdit) {
+                await API.put(`/materials/${nestedMaterialFormData.id}`, payload);
+            } else {
+                await API.post('/materials', payload);
+            }
+            setShowNestedMaterialForm(false);
+            fetchMaterials(); // Global fetch will also update the view modal's materials automatically via useEffect/view logic.
+        } catch (err) {
+            alert(err.response?.data?.message || 'Error saving material');
+        }
+    };
+
+    const handleNestedMaterialArchive = async (mat) => {
+        if (!window.confirm(`Are you sure you want to archive ${mat.name}? It will be hidden from the active list but historical data will remain intact.`)) return;
+        try {
+            await API.put(`/materials/${mat._id || mat.id}/archive`);
+            fetchMaterials();
+        } catch (error) {
+            alert(error.response?.data?.message || 'Error archiving material');
+        }
+    };
+
+    const openNestedMaterialView = async (mat) => {
+        setNestedSelectedMaterial(mat);
+        setShowNestedMaterialView(true);
+        setLoadingNestedMovements(true);
+        try {
+            const { data } = await API.get(`/materials/${mat._id || mat.id}/movements`);
+            setNestedMovementHistory(Array.isArray(data) ? data : []);
+        } catch (err) {
+            console.error(err);
+            setNestedMovementHistory([]);
+        } finally {
+            setLoadingNestedMovements(false);
+        }
+    };
+
+    // Exports
     const exportToPDF = () => {
         const doc = new jsPDF();
         doc.setFontSize(18);
@@ -209,6 +294,11 @@ const Vendors = () => {
         URL.revokeObjectURL(url);
     };
 
+    // Calculate Vendor Mini-Dashboard Stats
+    const totalVendorMaterials = vendorMaterials.length;
+    const totalVendorStock = vendorMaterials.reduce((sum, m) => sum + (m.quantity || 0), 0);
+    const totalVendorValue = vendorMaterials.reduce((sum, m) => sum + ((m.quantity || 0) * (m.price || 0)), 0);
+
     return (
         <div className="module-container">
             <header className="module-header glass-card">
@@ -229,6 +319,7 @@ const Vendors = () => {
                 </div>
             </header>
 
+            {/* VENDOR CREATION & EDIT MODAL */}
             {showModal && (
                 <div className="modal-overlay">
                     <div className="glass-card modal-content animate-pop" style={{ maxWidth: '800px', maxHeight: '95vh', display: 'flex', flexDirection: 'column' }}>
@@ -394,92 +485,253 @@ const Vendors = () => {
 
                         <div className="modal-actions" style={{ marginTop: '20px', paddingTop: '15px', borderTop: '1px solid var(--border)' }}>
                             <button type="button" className="btn-cancel" onClick={() => setShowModal(false)}>Cancel</button>
-                            {/* Uses the external form submit */}
                             <button type="submit" form="vendorForm" className="btn-primary">{isEditMode ? 'Update Vendor & Items' : 'Register Vendor & Items'}</button>
                         </div>
                     </div>
                 </div>
             )}
 
+            {/* VENDOR PROFILE DASHBOARD MODAL */}
             {showViewModal && selectedVendor && (
                 <div className="modal-overlay">
-                    <div className="glass-card modal-content animate-pop" style={{ maxWidth: '700px' }}>
-                        <div className="modal-header">
-                            <h2>Vendor Profile: {selectedVendor.name}</h2>
+                    <div className="glass-card modal-content animate-pop" style={{ maxWidth: '850px', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}>
+                        <div className="modal-header" style={{ paddingBottom: '10px' }}>
+                            <div>
+                                <h2 style={{ marginBottom: '4px' }}>Vendor Profile: {selectedVendor.name}</h2>
+                                <span className={`status-badge-inline ${selectedVendor.status?.toLowerCase().replace(/ /g, '-') || 'vendor-created'}`}>{selectedVendor.status || 'Vendor Created'}</span>
+                            </div>
                             <button className="close-btn" onClick={() => setShowViewModal(false)}>✕</button>
                         </div>
                         
-                        <div className="vendor-detail-grid">
-                            <div className="detail-section">
-                                <h3>Company Information</h3>
-                                <p><strong>Category:</strong> <span className="cat-tag">{selectedVendor.category}</span></p>
-                                <p><strong>Status:</strong> <span className={`status-badge-inline ${selectedVendor.status?.toLowerCase().replace(/ /g, '-') || 'vendor-created'}`}>{selectedVendor.status || 'Vendor Created'}</span></p>
-                                <p><strong>Registered On:</strong> {new Date(selectedVendor.createdAt).toLocaleDateString()}</p>
-                            </div>
+                        <div style={{ overflowY: 'auto', paddingRight: '10px', flex: 1, paddingBottom: '20px' }}>
                             
+                            {/* Summary Cards */}
+                            <div className="vendor-summary-cards" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '15px', marginBottom: '20px', marginTop: '10px' }}>
+                                <div className="v-card" style={{ background: '#f8fafc', padding: '15px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                                    <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Total Materials</div>
+                                    <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--primary)', marginTop: '4px' }}>{totalVendorMaterials}</div>
+                                </div>
+                                <div className="v-card" style={{ background: '#f8fafc', padding: '15px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                                    <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Total Stock Qty</div>
+                                    <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary)', marginTop: '4px' }}>{totalVendorStock.toLocaleString()}</div>
+                                </div>
+                                <div className="v-card" style={{ background: '#f8fafc', padding: '15px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                                    <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Total Inventory Value</div>
+                                    <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--success)', marginTop: '4px' }}>${totalVendorValue.toLocaleString()}</div>
+                                </div>
+                            </div>
+
+                            <div className="vendor-detail-grid">
+                                <div className="detail-section">
+                                    <h3>Company Information</h3>
+                                    <p><strong>Category:</strong> <span className="cat-tag">{selectedVendor.category}</span></p>
+                                    <p><strong>Registered On:</strong> {new Date(selectedVendor.createdAt).toLocaleDateString()}</p>
+                                </div>
+                                
+                                <div className="detail-section">
+                                    <h3>Contact Details</h3>
+                                    <p><strong>Contact Person:</strong> {selectedVendor.contactPerson || 'N/A'}</p>
+                                    <p><strong>Email:</strong> {selectedVendor.email || 'N/A'}</p>
+                                    <p><strong>Phone:</strong> {selectedVendor.phone || 'N/A'}</p>
+                                </div>
+                            </div>
+
+                            {/* Linked Materials Table with Actions */}
+                            <div className="vendor-orders-section" style={{ marginTop: '25px', background: '#ffffff', border: '1px solid var(--border)', borderRadius: '12px', padding: '20px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                                    <h3 style={{ fontSize: '16px', margin: 0, color: 'var(--text-primary)' }}>Stock Linked Materials</h3>
+                                    <button className="btn-primary flex-center gap-10" style={{ padding: '6px 14px', fontSize: '12px' }} onClick={openNestedMaterialAdd}>
+                                        <Plus size={14} /> Add New Stock
+                                    </button>
+                                </div>
+                                
+                                {vendorMaterials.length === 0 ? (
+                                    <div style={{ textAlign: 'center', padding: '30px', background: '#f8fafc', borderRadius: '8px', border: '1px dashed #cbd5e1' }}>
+                                        <p className="text-muted" style={{ fontSize: '13px', margin: 0 }}>No physical inventory is currently supplied by this vendor.</p>
+                                    </div>
+                                ) : (
+                                    <div className="table-responsive" style={{ maxHeight: '250px', overflowY: 'auto' }}>
+                                        <table className="dt-table row-hover" style={{ width: '100%', fontSize: '13px', borderCollapse: 'collapse' }}>
+                                            <thead style={{ position: 'sticky', top: 0, background: '#f8fafc', zIndex: 1 }}>
+                                                <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)' }}>
+                                                    <th style={{ padding: '10px' }}>SKU</th>
+                                                    <th style={{ padding: '10px' }}>Material</th>
+                                                    <th style={{ padding: '10px' }}>Category</th>
+                                                    <th style={{ padding: '10px' }}>Stock</th>
+                                                    <th style={{ padding: '10px' }}>Price</th>
+                                                    <th style={{ padding: '10px', textAlign: 'center' }}>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {vendorMaterials.map(m => (
+                                                    <tr key={m._id || m.id} style={{ borderBottom: '1px solid var(--border)', cursor: 'pointer' }}>
+                                                        <td style={{ padding: '10px' }} onClick={() => openNestedMaterialView(m)}>{m.sku}</td>
+                                                        <td style={{ padding: '10px', fontWeight: 600 }} onClick={() => openNestedMaterialView(m)}>{m.name}</td>
+                                                        <td style={{ padding: '10px' }} onClick={() => openNestedMaterialView(m)}>{m.category}</td>
+                                                        <td style={{ padding: '10px' }} onClick={() => openNestedMaterialView(m)}>
+                                                            <span className={m.quantity === 0 ? 'text-danger' : m.quantity <= 10 ? 'text-warning' : ''}>
+                                                                {m.quantity} {m.unit}
+                                                            </span>
+                                                        </td>
+                                                        <td style={{ padding: '10px' }} onClick={() => openNestedMaterialView(m)}>${m.price}</td>
+                                                        <td style={{ padding: '10px', textAlign: 'center' }}>
+                                                            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }} onClick={e => e.stopPropagation()}>
+                                                                <button className="btn-icon view-btn" title="View Details" onClick={() => openNestedMaterialView(m)}><History size={15}/></button>
+                                                                <button className="btn-icon view-btn" title="Edit Material" onClick={() => openNestedMaterialEdit(m)}><Edit size={15}/></button>
+                                                                <button className="btn-icon delete-btn" title="Archive Material" onClick={() => handleNestedMaterialArchive(m)} style={{ padding: '6px', borderRadius: '6px', color: '#ef4444', border: 'none', background: 'none', cursor: 'pointer' }}><Trash2 size={15}/></button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Linked Purchase Orders */}
+                            <div className="vendor-orders-section" style={{ marginTop: '25px', background: '#ffffff', border: '1px solid var(--border)', borderRadius: '12px', padding: '20px' }}>
+                                <h3 style={{ fontSize: '16px', marginBottom: '15px', color: 'var(--text-primary)' }}>Linked Purchase Orders ({vendorOrders.length})</h3>
+                                {vendorOrders.length === 0 ? (
+                                    <p className="text-muted" style={{ fontSize: '13px' }}>No purchase orders found for this vendor.</p>
+                                ) : (
+                                    <div className="table-responsive" style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                                        <table className="dt-table" style={{ width: '100%', fontSize: '13px', borderCollapse: 'collapse' }}>
+                                            <thead>
+                                                <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)', background: '#f8fafc' }}>
+                                                    <th style={{ padding: '10px' }}>Order No</th>
+                                                    <th style={{ padding: '10px' }}>Amount</th>
+                                                    <th style={{ padding: '10px' }}>Status</th>
+                                                    <th style={{ padding: '10px' }}>Date</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {vendorOrders.map(order => (
+                                                    <tr key={order.id || order._id} style={{ borderBottom: '1px solid var(--border)' }}>
+                                                        <td style={{ padding: '10px', fontWeight: 600 }}>{order.orderNumber}</td>
+                                                        <td style={{ padding: '10px' }}>${(order.totalAmount || 0).toLocaleString()}</td>
+                                                        <td style={{ padding: '10px' }}><span className="status-badge-inline">{order.status}</span></td>
+                                                        <td style={{ padding: '10px' }}>{new Date(order.createdAt).toLocaleDateString()}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                        
+                        <div className="modal-actions" style={{ marginTop: '10px', paddingTop: '15px', borderTop: '1px solid var(--border)' }}>
+                            <button type="button" className="btn-cancel" onClick={() => setShowViewModal(false)}>Close Profile</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* NESTED MODAL: Add/Edit Single Material */}
+            {showNestedMaterialForm && (
+                <div className="modal-overlay nested-modal" style={{ zIndex: 1200 }}>
+                    <div className="glass-card modal-content animate-pop" style={{ maxWidth: '600px' }}>
+                        <div className="modal-header">
+                            <h2>{isNestedMaterialEdit ? 'Edit Stock Details' : 'Add New Stock'}</h2>
+                            <button className="close-btn" onClick={() => setShowNestedMaterialForm(false)}>✕</button>
+                        </div>
+                        <form onSubmit={handleNestedMaterialSave} className="modal-form">
+                            <div className="form-grid">
+                                <div className="form-group">
+                                    <label>Material Name</label>
+                                    <input type="text" required value={nestedMaterialFormData.name} onChange={e => setNestedMaterialFormData({...nestedMaterialFormData, name: e.target.value})} placeholder="e.g. Copper Wire" />
+                                </div>
+                                <div className="form-group">
+                                    <label>SKU</label>
+                                    <input type="text" required value={nestedMaterialFormData.sku} onChange={e => setNestedMaterialFormData({...nestedMaterialFormData, sku: e.target.value})} placeholder="SKU-100" />
+                                </div>
+                                <div className="form-group">
+                                    <label>Category</label>
+                                    <select value={nestedMaterialFormData.category} onChange={e => setNestedMaterialFormData({...nestedMaterialFormData, category: e.target.value})}>
+                                        <option value="Raw Materials">Raw Materials</option>
+                                        <option value="Electronics">Electronics</option>
+                                        <option value="Polymers">Polymers</option>
+                                        <option value="Packaging">Packaging</option>
+                                    </select>
+                                </div>
+                                <div className="form-group">
+                                    <label>Vendor</label>
+                                    <input type="text" disabled value={selectedVendor?.name || ''} style={{ background: '#f1f5f9', cursor: 'not-allowed' }} />
+                                    <small style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Locked to current profile.</small>
+                                </div>
+                            </div>
+                            <div className="form-grid">
+                                <div className="form-group">
+                                    <label>Quantity</label>
+                                    <input type="number" required min="0" value={nestedMaterialFormData.quantity} onChange={e => setNestedMaterialFormData({...nestedMaterialFormData, quantity: parseInt(e.target.value) || 0})} />
+                                </div>
+                                <div className="form-group">
+                                    <label>Unit</label>
+                                    <input type="text" required placeholder="pcs, kg, m" value={nestedMaterialFormData.unit} onChange={e => setNestedMaterialFormData({...nestedMaterialFormData, unit: e.target.value})} />
+                                </div>
+                                <div className="form-group">
+                                    <label>Price</label>
+                                    <input type="number" required min="0" step="0.01" value={nestedMaterialFormData.price} onChange={e => setNestedMaterialFormData({...nestedMaterialFormData, price: parseFloat(e.target.value) || 0})} />
+                                </div>
+                            </div>
+                            <div className="modal-actions" style={{ marginTop: '20px' }}>
+                                <button type="button" className="btn-cancel" onClick={() => setShowNestedMaterialForm(false)}>Cancel</button>
+                                <button type="submit" className="btn-primary">Save Material</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* NESTED MODAL: View Material Details & History */}
+            {showNestedMaterialView && nestedSelectedMaterial && (
+                <div className="modal-overlay nested-modal" style={{ zIndex: 1200 }}>
+                    <div className="glass-card modal-content animate-pop" style={{ maxWidth: '700px' }}>
+                        <div className="modal-header">
+                            <h2>Material Details: {nestedSelectedMaterial.name}</h2>
+                            <button className="close-btn" onClick={() => setShowNestedMaterialView(false)}>✕</button>
+                        </div>
+                        <div className="vendor-detail-grid" style={{ marginBottom: '20px' }}>
                             <div className="detail-section">
-                                <h3>Contact Details</h3>
-                                <p><strong>Contact Person:</strong> {selectedVendor.contactPerson || 'N/A'}</p>
-                                <p><strong>Email:</strong> {selectedVendor.email || 'N/A'}</p>
-                                <p><strong>Phone:</strong> {selectedVendor.phone || 'N/A'}</p>
-                                <p><strong>Address:</strong> {selectedVendor.address || 'N/A'}</p>
+                                <h3>Stock Info</h3>
+                                <p><strong>SKU:</strong> <code className="sku-code">{nestedSelectedMaterial.sku}</code></p>
+                                <p><strong>Category:</strong> {nestedSelectedMaterial.category}</p>
+                                <p><strong>Price:</strong> ${nestedSelectedMaterial.price}</p>
+                            </div>
+                            <div className="detail-section">
+                                <h3>Inventory Status</h3>
+                                <p><strong>Stock Level:</strong> {nestedSelectedMaterial.quantity} {nestedSelectedMaterial.unit}</p>
+                                <p><strong>Status:</strong> {nestedSelectedMaterial.quantity === 0 ? 'Out of Stock' : nestedSelectedMaterial.quantity <= 10 ? 'Low Stock' : 'In Stock'}</p>
                             </div>
                         </div>
 
-                        <div className="vendor-orders-section" style={{ marginTop: '25px' }}>
-                            <h3 style={{ fontSize: '15px', marginBottom: '15px', color: 'var(--text-primary)' }}>Stock Linked Materials ({vendorMaterials.length})</h3>
-                            {vendorMaterials.length === 0 ? (
-                                <p className="text-muted" style={{ fontSize: '13px' }}>No physical inventory is currently supplied by this vendor.</p>
+                        <div className="vendor-orders-section">
+                            <h3 style={{ fontSize: '15px', marginBottom: '15px', color: 'var(--text-primary)' }}>Movement History</h3>
+                            {loadingNestedMovements ? (
+                                <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-muted)' }}>Loading history...</div>
+                            ) : nestedMovementHistory.length === 0 ? (
+                                <div style={{ padding: '20px', textAlign: 'center', background: '#f8fafc', borderRadius: '8px', color: 'var(--text-muted)' }}>No movement history recorded yet.</div>
                             ) : (
-                                <div className="table-responsive" style={{ maxHeight: '180px', overflowY: 'auto' }}>
-                                    <table className="dt-table" style={{ width: '100%', fontSize: '13px', borderCollapse: 'collapse' }}>
+                                <div className="table-responsive" style={{ maxHeight: '250px', overflowY: 'auto' }}>
+                                    <table className="dt-table" style={{ width: '100%', fontSize: '12px', borderCollapse: 'collapse' }}>
                                         <thead>
-                                            <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)' }}>
-                                                <th style={{ padding: '8px' }}>SKU</th>
-                                                <th style={{ padding: '8px' }}>Material</th>
-                                                <th style={{ padding: '8px' }}>Category</th>
-                                                <th style={{ padding: '8px' }}>Stock</th>
-                                                <th style={{ padding: '8px' }}>Price</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {vendorMaterials.map(m => (
-                                                <tr key={m._id || m.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                                                    <td style={{ padding: '8px' }}>{m.sku}</td>
-                                                    <td style={{ padding: '8px', fontWeight: 600 }}>{m.name}</td>
-                                                    <td style={{ padding: '8px' }}>{m.category}</td>
-                                                    <td style={{ padding: '8px' }}>{m.quantity} {m.unit}</td>
-                                                    <td style={{ padding: '8px' }}>${m.price}</td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            )}
-                        </div>
-
-                        <div className="vendor-orders-section" style={{ marginTop: '25px' }}>
-                            <h3 style={{ fontSize: '15px', marginBottom: '15px', color: 'var(--text-primary)' }}>Linked Purchase Orders ({vendorOrders.length})</h3>
-                            {vendorOrders.length === 0 ? (
-                                <p className="text-muted" style={{ fontSize: '13px' }}>No purchase orders found for this vendor.</p>
-                            ) : (
-                                <div className="table-responsive" style={{ maxHeight: '200px', overflowY: 'auto' }}>
-                                    <table className="dt-table" style={{ width: '100%', fontSize: '13px', borderCollapse: 'collapse' }}>
-                                        <thead>
-                                            <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)' }}>
-                                                <th style={{ padding: '8px' }}>Order No</th>
-                                                <th style={{ padding: '8px' }}>Amount</th>
-                                                <th style={{ padding: '8px' }}>Status</th>
+                                            <tr style={{ background: '#f8fafc', borderBottom: '1px solid var(--border)', textAlign: 'left' }}>
+                                                <th style={{ padding: '8px' }}>Type</th>
+                                                <th style={{ padding: '8px' }}>Qty</th>
+                                                <th style={{ padding: '8px' }}>Reason</th>
                                                 <th style={{ padding: '8px' }}>Date</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {vendorOrders.map(order => (
-                                                <tr key={order.id || order._id} style={{ borderBottom: '1px solid var(--border)' }}>
-                                                    <td style={{ padding: '8px', fontWeight: 600 }}>{order.orderNumber}</td>
-                                                    <td style={{ padding: '8px' }}>${(order.totalAmount || 0).toLocaleString()}</td>
-                                                    <td style={{ padding: '8px' }}><span className="status-badge-inline">{order.status}</span></td>
-                                                    <td style={{ padding: '8px' }}>{new Date(order.createdAt).toLocaleDateString()}</td>
+                                            {nestedMovementHistory.map(mv => (
+                                                <tr key={mv._id || mv.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                                                    <td style={{ padding: '8px' }}>
+                                                        <span style={{ fontWeight: 600, color: mv.type === 'In' ? 'var(--success)' : 'var(--danger)' }}>{mv.type}</span>
+                                                    </td>
+                                                    <td style={{ padding: '8px', fontWeight: 600 }}>{mv.type === 'In' ? '+' : '-'}{mv.quantity}</td>
+                                                    <td style={{ padding: '8px' }}>{mv.reason || '—'}</td>
+                                                    <td style={{ padding: '8px' }}>{new Date(mv.createdAt).toLocaleDateString()}</td>
                                                 </tr>
                                             ))}
                                         </tbody>
@@ -487,9 +739,9 @@ const Vendors = () => {
                                 </div>
                             )}
                         </div>
-                        
-                        <div className="modal-actions" style={{ marginTop: '25px' }}>
-                            <button type="button" className="btn-cancel" onClick={() => setShowViewModal(false)}>Close</button>
+
+                        <div className="modal-actions" style={{ marginTop: '20px', paddingTop: '15px', borderTop: '1px solid var(--border)' }}>
+                            <button type="button" className="btn-cancel" onClick={() => setShowNestedMaterialView(false)}>Close</button>
                         </div>
                     </div>
                 </div>
@@ -504,7 +756,6 @@ const Vendors = () => {
                         onViewAll={fetchVendors}
                         renderRow={(v, index) => {
                             const vId = String(v._id || v.id);
-                            // Filter globally matched materials for this row
                             const vMaterials = allMaterials.filter(m => String(m.vendorId) === vId || String(m.vendor?.id || m.vendor?._id || m.vendor) === vId);
                             
                             return (
@@ -540,7 +791,7 @@ const Vendors = () => {
                                     </td>
                                     <td style={{ textAlign: 'center' }}>
                                         <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                                            <button className="btn-icon view-btn" title="View Vendor" onClick={() => handleViewVendor(v)}><ExternalLink size={16}/></button>
+                                            <button className="btn-icon view-btn" title="View Profile Dashboard" onClick={() => handleViewVendor(v)}><ExternalLink size={16}/></button>
                                             <button className="btn-icon view-btn" title="Edit Vendor" onClick={() => openEditModal(v)}><Edit size={16}/></button>
                                         </div>
                                     </td>
@@ -566,6 +817,9 @@ const Vendors = () => {
                 .status-badge-inline.delivered { background-color: var(--success-light, #dcfce7); color: var(--success, #16a34a); }
                 .status-badge-inline.completed { background-color: #d1fae5; color: #059669; }
                 
+                .text-danger { color: #ef4444; font-weight: 600; }
+                .text-warning { color: #f59e0b; font-weight: 600; }
+
                 .info-cell { display: flex; align-items: flex-start; gap: 6px; font-size: 13px; color: var(--text-muted); white-space: nowrap; margin-bottom: 4px; }
                 .address-wrap { max-width: 250px; white-space: normal; line-height: 1.5; word-wrap: break-word; }
                 .address-wrap svg { flex-shrink: 0; margin-top: 2px; }
@@ -573,6 +827,11 @@ const Vendors = () => {
                 .btn-icon { background: none; color: var(--primary); border: none; }
                 .view-btn { padding: 6px; border-radius: 6px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; }
                 .view-btn:hover { background: var(--primary-light); color: var(--primary); }
+                .delete-btn:hover { background: #fee2e2 !important; color: #dc2626 !important; }
+
+                .row-hover tbody tr:hover { background: #f8fafc; }
+
+                .sku-code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; border: 1px solid #cbd5e1; font-family: monospace; font-size: 12px; }
 
                 /* Physical Materials Sub-form Styles */
                 .section-title { font-size: 14px; font-weight: 700; color: var(--dash-text-main, #0f172a); margin: 0 0 15px 0; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
@@ -586,12 +845,13 @@ const Vendors = () => {
 
                 /* Modal Styles */
                 .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 1100; padding: 20px; }
+                .nested-modal { background: rgba(0,0,0,0.4); } /* slightly lighter for nested */
                 .modal-content { width: 100%; max-width: 600px; padding: 30px; position: relative; max-height: 90vh; }
                 .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
                 .close-btn { background: none; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; }
                 .vendor-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; background: var(--bg-body); padding: 20px; border-radius: 12px; }
                 .detail-section h3 { font-size: 14px; font-weight: 700; color: var(--primary); margin: 0 0 15px 0; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
-                .detail-section p { font-size: 13px; color: var(--text-secondary); margin: 8px 0; display: flex; flex-direction: column; gap: 4px; }
+                .detail-section p { font-size: 13px; color: var(--text-secondary); margin: 8px 0; display: flex; align-items: center; gap: 8px; justify-content: space-between; }
                 .detail-section p strong { color: var(--text-primary); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
                 .modal-form { display: flex; flex-direction: column; gap: 20px; }
                 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
@@ -615,6 +875,8 @@ const Vendors = () => {
                     .header-actions { width: 100%; flex-wrap: wrap; }
                     .header-actions button { flex: 1; }
                     .form-grid { grid-template-columns: 1fr; }
+                    .vendor-summary-cards { grid-template-columns: 1fr !important; }
+                    .vendor-detail-grid { grid-template-columns: 1fr; }
                     .sub-form-row { flex-direction: column; align-items: stretch; gap: 8px; }
                     .modal-actions { flex-direction: column; }
                     .modal-actions button { width: 100%; }
