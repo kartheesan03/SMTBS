@@ -33,6 +33,7 @@ import LeaveManagement from './pages/LeaveManagement';
 import MySalaryPage from './pages/MySalary';
 import Customers from './pages/Customers';
 import Support from './pages/Support';
+import StockRequests from './pages/StockRequests';
 
 const AppContent = () => {
     const { user, loading, logout } = useContext(AuthContext);
@@ -114,6 +115,7 @@ const AppContent = () => {
                     <Route path="/my-attendance" element={<ProtectedRoute><MyAttendance /></ProtectedRoute>} />
                     <Route path="/my-salary" element={<ProtectedRoute><MySalaryPage /></ProtectedRoute>} />
                     <Route path="/leave-management" element={<ProtectedRoute><LeaveManagement /></ProtectedRoute>} />
+                    <Route path="/stock-requests" element={<ProtectedRoute><StockRequests /></ProtectedRoute>} />
 
                     {/* Fallback */}
                     <Route path="*" element={<Navigate to="/" />} />

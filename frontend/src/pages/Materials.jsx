@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import {
     Plus, Search, Filter, Edit2, Trash2, Box, Package,
-    TrendingUp, AlertTriangle, ChevronRight, QrCode, Camera, History, Download, X
+    TrendingUp, AlertTriangle, ChevronRight, QrCode, Camera, History, Download, X, Send
 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
@@ -27,6 +27,9 @@ const MaterialTracking = () => {
         name: '', sku: '', category: '', quantity: 0,
         lowStockThreshold: 10, unit: 'pcs', price: 0, vendorId: ''
     });
+
+    const [showRequestModal, setShowRequestModal] = useState(false);
+    const [requestFormData, setRequestFormData] = useState({ materialId: '', materialName: '', currentStock: 0, requiredQuantity: 1, reason: '' });
 
     const [catFilter, setCatFilter] = useState('All');
     const [showFilters, setShowFilters] = useState(false);
@@ -125,6 +128,32 @@ const MaterialTracking = () => {
             fetchMaterialsAndStats();
         } catch (error) {
             alert(error.response?.data?.message || 'Error processing material');
+        }
+    };
+
+    const handleRequestStockClick = (item) => {
+        setRequestFormData({
+            materialId: item._id,
+            materialName: item.name,
+            currentStock: item.quantity,
+            requiredQuantity: 1,
+            reason: ''
+        });
+        setShowRequestModal(true);
+    };
+
+    const handleRequestSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            await API.post('/stock-requests', {
+                materialId: requestFormData.materialId,
+                requiredQuantity: Number(requestFormData.requiredQuantity),
+                reason: requestFormData.reason
+            });
+            setShowRequestModal(false);
+            showToast('Stock request sent to Manager successfully!', 'success');
+        } catch (error) {
+            showToast(error.response?.data?.message || 'Error sending stock request', 'error');
         }
     };
 
@@ -393,6 +422,9 @@ const MaterialTracking = () => {
                                     <div className="actions-flex">
                                         <button className="action-btn code" title="Barcode & QR Code" onClick={() => { setSelectedMaterialForCode(item); setShowGenerator(true); }}><QrCode size={14} /></button>
                                         <button className="action-btn" title="Movement History" onClick={() => openMovementHistory(item)}><History size={14} /></button>
+                                        {(item.quantity <= item.lowStockThreshold) && (
+                                            <button className="action-btn text-indigo" style={{ borderColor: 'var(--primary)', color: 'var(--primary)' }} title="Request Stock" onClick={() => handleRequestStockClick(item)}><Send size={14} /></button>
+                                        )}
                                         <button className="action-btn edit" title="Edit Item" onClick={() => handleEditClick(item)}><Edit2 size={14} /></button>
                                         {!isEmployee && (
                                             <button className="action-btn delete" title="Delete Item" onClick={() => handleDeleteClick(item)}><Trash2 size={14} /></button>
@@ -502,6 +534,38 @@ const MaterialTracking = () => {
                             <div className="modal-actions">
                                 <button type="button" className="btn-cancel" onClick={() => setShowModal(false)}>Cancel</button>
                                 <button type="submit" className="btn-save">Save Record</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Request Stock Modal */}
+            {showRequestModal && (
+                <div className="modal-overlay">
+                    <div className="modal-content animate-pop" style={{ maxWidth: '400px' }}>
+                        <div className="modal-header">
+                            <h2>Request Stock Replenishment</h2>
+                            <button className="close-btn" onClick={() => setShowRequestModal(false)}>✕</button>
+                        </div>
+                        <form onSubmit={handleRequestSubmit} className="modal-form">
+                            <div className="form-grid" style={{ gridTemplateColumns: '1fr' }}>
+                                <div className="form-group">
+                                    <label>Material</label>
+                                    <input type="text" disabled value={`${requestFormData.materialName} (Current Stock: ${requestFormData.currentStock})`} />
+                                </div>
+                                <div className="form-group">
+                                    <label>Required Quantity</label>
+                                    <input type="number" min="1" required value={requestFormData.requiredQuantity} onChange={e => setRequestFormData({ ...requestFormData, requiredQuantity: e.target.value })} />
+                                </div>
+                                <div className="form-group">
+                                    <label>Reason / Message</label>
+                                    <textarea required rows="3" placeholder="e.g., Required for upcoming order..." value={requestFormData.reason} onChange={e => setRequestFormData({ ...requestFormData, reason: e.target.value })}></textarea>
+                                </div>
+                            </div>
+                            <div className="modal-actions">
+                                <button type="button" className="btn-cancel" onClick={() => setShowRequestModal(false)}>Cancel</button>
+                                <button type="submit" className="btn-primary-blue"><Send size={14} /> Send Request</button>
                             </div>
                         </form>
                     </div>

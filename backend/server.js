@@ -23,6 +23,7 @@ const ticketRoutes = require('./src/routes/ticketRoutes');
 const erpRoutes = require('./src/routes/erpRoutes');
 const communicationRoutes = require('./src/routes/communicationRoutes');
 const auditRoutes = require('./src/routes/auditRoutes');
+const stockRequestRoutes = require('./src/routes/stockRequestRoutes');
 
 const app = express();
 
@@ -51,6 +52,7 @@ app.use('/api/tickets', ticketRoutes);
 app.use('/api/erp', erpRoutes);
 app.use('/api/communications', communicationRoutes);
 app.use('/api/audit-logs', auditRoutes);
+app.use('/api/stock-requests', stockRequestRoutes);
 
 // 404 Handler
 app.use((req, res, next) => {

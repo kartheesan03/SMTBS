@@ -67,6 +67,13 @@ function setupAssociations() {
 
     // 15. AuditLog -> User
     AuditLog.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'userId', as: 'user' });
+
+    // 16. StockRequest associations
+    const StockRequest = require('./StockRequest');
+    StockRequest.sequelizeModel.belongsTo(Material.sequelizeModel, { foreignKey: 'materialId', as: 'material' });
+    StockRequest.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'employeeId', as: 'employee' });
+    StockRequest.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'managerId', as: 'manager' });
+    StockRequest.sequelizeModel.belongsTo(Order.sequelizeModel, { foreignKey: 'orderId', as: 'order' });
 }
 
 module.exports = setupAssociations;
