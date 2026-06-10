@@ -13,14 +13,16 @@ const getDashboardStats = async (req, res) => {
         
         let stats = {};
         try {
-            const [totalMaterials, totalEmployees, totalOrders, totalCustomers, totalVendors] = await Promise.all([
-                Material.countDocuments(),
+            const materials = await Material.find({});
+            const activeMaterialsCount = materials.filter(m => m.isActive !== false).length;
+
+            const [totalEmployees, totalOrders, totalCustomers, totalVendors] = await Promise.all([
                 Employee.countDocuments(),
                 Order.countDocuments(),
                 Customer.countDocuments(),
                 Vendor.countDocuments()
             ]);
-            stats = { totalMaterials, totalEmployees, totalOrders, totalCustomers, totalVendors };
+            stats = { totalMaterials: activeMaterialsCount, totalEmployees, totalOrders, totalCustomers, totalVendors };
         } catch (e) { console.error('Count Stats Error:', e); }
 
         let revenue = 0;
@@ -48,7 +50,8 @@ const getDashboardStats = async (req, res) => {
         let totalStockQuantity = 0;
         let inTransitCount = 0;
         try {
-            const allMaterials = await Material.find();
+            const allMaterialsRaw = await Material.find();
+            const allMaterials = allMaterialsRaw.filter(m => m.isActive !== false);
             allMaterials.forEach(m => {
                 totalStockQuantity += (m.quantity || 0);
                 if (m.quantity <= (m.lowStockThreshold || 0)) {
@@ -72,10 +75,14 @@ const getDashboardStats = async (req, res) => {
 
         let categoryData = [];
         try {
-            categoryData = await Material.aggregate([
-                { $group: { _id: "$category", value: { $sum: 1 } } },
-                { $project: { name: { $ifNull: ["$_id", "Uncategorized"] }, value: 1 } }
-            ]);
+            const materialsList = await Material.find();
+            const activeMats = materialsList.filter(m => m.isActive !== false);
+            const catCounts = {};
+            activeMats.forEach(m => {
+                const cat = m.category || "Uncategorized";
+                catCounts[cat] = (catCounts[cat] || 0) + 1;
+            });
+            categoryData = Object.keys(catCounts).map(cat => ({ name: cat, value: catCounts[cat] }));
         } catch (e) { console.error('Category Aggregation Error:', e); }
 
         let monthlyStats = [];
