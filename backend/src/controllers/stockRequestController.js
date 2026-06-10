@@ -24,10 +24,10 @@ exports.createRequest = async (req, res) => {
         const { materialId, requiredQuantity, reason } = req.body;
         const employeeId = req.user.id || req.user._id;
 
-        const material = await Material.findByPk(materialId);
+        const material = await Material.sequelizeModel.findByPk(materialId);
         if (!material) return res.status(404).json({ message: 'Material not found' });
 
-        const request = await StockRequest.create({
+        const request = await StockRequest.sequelizeModel.create({
             materialId,
             employeeId,
             currentStock: material.quantity,
@@ -37,7 +37,7 @@ exports.createRequest = async (req, res) => {
         });
 
         // Notify Managers and Admins
-        const managers = await User.findAll({ where: { role: ['Manager', 'Admin'] } });
+        const managers = await User.sequelizeModel.findAll({ where: { role: ['Manager', 'Admin'] } });
         for (const manager of managers) {
             await createNotification(
                 manager.id, 
@@ -67,7 +67,7 @@ exports.getRequests = async (req, res) => {
             whereClause.status = ['Employee Approved', 'Processing', 'Dispatched', 'Delivered'];
         }
 
-        const requests = await StockRequest.findAll({
+        const requests = await StockRequest.sequelizeModel.findAll({
             where: whereClause,
             include: [
                 { model: Material.sequelizeModel, as: 'material' },
@@ -91,7 +91,7 @@ exports.managerAction = async (req, res) => {
         const { managerMessage, orderId } = req.body;
         const managerId = req.user.id || req.user._id;
 
-        const request = await StockRequest.findByPk(id, {
+        const request = await StockRequest.sequelizeModel.findByPk(id, {
             include: [
                 { model: Material.sequelizeModel, as: 'material' },
                 { model: User.sequelizeModel, as: 'employee' }
@@ -127,7 +127,7 @@ exports.employeeApproval = async (req, res) => {
         const { id } = req.params;
         const { approved } = req.body;
 
-        const request = await StockRequest.findByPk(id, {
+        const request = await StockRequest.sequelizeModel.findByPk(id, {
             include: [{ model: Material.sequelizeModel, as: 'material' }]
         });
         if (!request) return res.status(404).json({ message: 'Request not found' });
@@ -153,7 +153,7 @@ exports.employeeApproval = async (req, res) => {
 
         // Notify Sales if approved
         if (approved) {
-            const salesTeam = await User.findAll({ where: { role: 'Sales' } });
+            const salesTeam = await User.sequelizeModel.findAll({ where: { role: 'Sales' } });
             for (const sales of salesTeam) {
                 await createNotification(
                     sales.id,
@@ -181,7 +181,7 @@ exports.salesUpdate = async (req, res) => {
             return res.status(400).json({ message: 'Invalid status' });
         }
 
-        const request = await StockRequest.findByPk(id, {
+        const request = await StockRequest.sequelizeModel.findByPk(id, {
             include: [
                 { model: Material.sequelizeModel, as: 'material' },
                 { model: User.sequelizeModel, as: 'employee' },
@@ -196,7 +196,7 @@ exports.salesUpdate = async (req, res) => {
 
         // Automatically update material quantity if delivered (simplified for this workflow, can be extended)
         if (status === 'Delivered') {
-            const material = await Material.findByPk(request.materialId);
+            const material = await Material.sequelizeModel.findByPk(request.materialId);
             if (material) {
                 material.quantity += request.requiredQuantity;
                 await material.save();

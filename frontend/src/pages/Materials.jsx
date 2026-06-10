@@ -153,7 +153,9 @@ const MaterialTracking = () => {
             setShowRequestModal(false);
             showToast('Stock request sent to Manager successfully!', 'success');
         } catch (error) {
-            showToast(error.response?.data?.message || 'Error sending stock request', 'error');
+            const errorMessage = error.response?.data?.error || error.response?.data?.message || 'Error sending stock request';
+            showToast(errorMessage, 'error');
+            console.error('Request submission error:', error.response?.data);
         }
     };
 
