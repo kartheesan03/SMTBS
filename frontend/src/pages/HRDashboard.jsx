@@ -13,16 +13,19 @@ import {
 const HRDashboard = () => {
     const [dashboardData, setDashboardData] = useState(null);
     const [employees, setEmployees] = useState([]);
+    const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
 
     const fetchDashboardData = async () => {
         try {
-            const [statsRes, empRes] = await Promise.all([
+            const [statsRes, empRes, usersRes] = await Promise.all([
                 API.get('/dashboard/stats'),
-                API.get('/employees')
+                API.get('/employees'),
+                API.get('/auth/users')
             ]);
             setDashboardData(statsRes.data);
             setEmployees(empRes.data);
+            setUsers(usersRes.data);
         } catch (error) {
             console.error("Failed to load dashboard stats", error);
         } finally {
@@ -69,9 +72,25 @@ const HRDashboard = () => {
         color: CHART_COLORS[index % CHART_COLORS.length]
     })).sort((a, b) => b.value - a.value);
 
-    const departmentHeadcountData = Object.keys(departmentCounts).map((dept, index) => ({
-        name: dept,
-        count: departmentCounts[dept],
+    // Role-based Department Headcount from Users API
+    const roleLabels = {
+        'admin': 'Admin Department',
+        'hr': 'HR Department / HR Manager',
+        'manager': 'Manager Department',
+        'sales': 'Sales Department / Sales Manager',
+        'employee': 'Employee Department'
+    };
+
+    const roleCounts = {};
+    users.forEach(user => {
+        const roleStr = user.role ? user.role.toLowerCase() : 'employee';
+        const label = roleLabels[roleStr] || `${user.role} Department`;
+        roleCounts[label] = (roleCounts[label] || 0) + 1;
+    });
+
+    const departmentHeadcountData = Object.keys(roleCounts).map((roleLabel, index) => ({
+        name: roleLabel,
+        count: roleCounts[roleLabel],
         fill: CHART_COLORS[index % CHART_COLORS.length]
     })).sort((a, b) => b.count - a.count);
 
