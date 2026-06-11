@@ -49,8 +49,11 @@ const HRDashboard = () => {
 
     const hrStats = dashboardData.hrStats || {};
 
+    // Filter unique active employees
+    const uniqueEmployees = Array.from(new Map(employees.map(e => [e.employeeId || e._id || Math.random(), e])).values());
+
     // KPIs
-    const totalEmployees = users.length || 0;
+    const totalEmployees = uniqueEmployees.length;
     const presentToday = hrStats.presentToday || 0;
     const onLeave = hrStats.onLeave || 0;
     const newJoiners = 4; // Simulated
@@ -59,7 +62,7 @@ const HRDashboard = () => {
 
     // Dynamic Chart Data based on employee records
     const departmentCounts = {};
-    employees.forEach(emp => {
+    uniqueEmployees.forEach(emp => {
         const dept = emp.department || 'Employee';
         departmentCounts[dept] = (departmentCounts[dept] || 0) + 1;
     });
@@ -72,21 +75,19 @@ const HRDashboard = () => {
         color: CHART_COLORS[index % CHART_COLORS.length]
     })).sort((a, b) => b.value - a.value);
 
-    // Role-based Department Headcount from Users API
+    // Role-based Department Headcount from Employees Table
     const roleLabels = {
         'admin': 'Admin Department',
         'super admin': 'Admin Department',
-        'hr': 'HR Department / HR Manager',
-        'hr manager': 'HR Department / HR Manager',
+        'hr': 'HR Department',
         'manager': 'Manager Department',
-        'sales': 'Sales Department / Sales Manager',
-        'sales manager': 'Sales Department / Sales Manager',
+        'sales': 'Sales Department',
         'employee': 'Employee Department'
     };
 
     const roleCounts = {};
-    users.forEach(user => {
-        let roleStr = user.role ? user.role.toLowerCase().trim() : 'employee';
+    uniqueEmployees.forEach(emp => {
+        let roleStr = emp.department ? emp.department.toLowerCase().trim() : 'employee';
         
         // Handle fallback mappings if the database has other variants
         if (roleStr.includes('hr')) roleStr = 'hr';
@@ -94,7 +95,7 @@ const HRDashboard = () => {
         else if (roleStr.includes('admin')) roleStr = 'admin';
         else if (roleStr.includes('manager')) roleStr = 'manager';
 
-        const label = roleLabels[roleStr] || `${user.role} Department`;
+        const label = roleLabels[roleStr] || `${emp.department || 'Employee'} Department`;
         roleCounts[label] = (roleCounts[label] || 0) + 1;
     });
 
