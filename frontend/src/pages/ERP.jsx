@@ -183,53 +183,66 @@ const ERP = () => {
         }
     };
 
-    const handleDownloadInvoice = (orderId) => {
-        const order = orders.find(o => o._id === orderId);
+    const handleDownloadInvoice = (orderOrId) => {
+        let order;
+        if (typeof orderOrId === 'string' || typeof orderOrId === 'number') {
+            order = orders.find(o => String(o._id) === String(orderOrId) || String(o.id) === String(orderOrId));
+        } else {
+            order = orderOrId;
+        }
+
         if (!order) return;
 
         const doc = new jsPDF();
         const invoiceNum = order.invoiceNumber || `INV-${order.orderNumber}`;
-        const customerName = order.customer?.name || order.vendor?.name || 'Walk-in';
+        const customerName = order.orderType === 'purchase' ? (order.vendor?.name || 'Walk-in Vendor') : (order.customer?.name || 'Walk-in Customer');
 
         // Header
         doc.setFontSize(20);
         doc.text('INVOICE', 14, 22);
         doc.setFontSize(10);
         doc.text(`Invoice Number: ${invoiceNum}`, 14, 32);
-        doc.text(`Date: ${order.invoiceDate ? new Date(order.invoiceDate).toLocaleDateString() : new Date(order.createdAt).toLocaleDateString()}`, 14, 38);
-        doc.text(`Due Date: ${order.invoiceDueDate ? new Date(order.invoiceDueDate).toLocaleDateString() : 'N/A'}`, 14, 44);
-        doc.text(`Status: ${order.paymentStatus || 'Pending'}`, 14, 50);
+        doc.text(`Order Number: ${order.orderNumber}`, 14, 38);
+        doc.text(`Date: ${order.invoiceDate ? new Date(order.invoiceDate).toLocaleDateString() : new Date(order.createdAt).toLocaleDateString()}`, 14, 44);
+        doc.text(`Due Date: ${order.invoiceDueDate ? new Date(order.invoiceDueDate).toLocaleDateString() : 'N/A'}`, 14, 50);
+        doc.text(`Status: ${order.paymentStatus || 'Pending'}`, 14, 56);
 
         // Bill To
         doc.setFontSize(12);
-        doc.text('Bill To:', 14, 65);
+        doc.text('Bill To:', 14, 71);
         doc.setFontSize(10);
-        doc.text(customerName, 14, 72);
+        doc.text(customerName, 14, 78);
 
         // Items Table
         const tableColumn = ["Item", "Quantity", "Price", "Total"];
         const tableRows = [];
         let grandTotal = 0;
 
-        order.items.forEach(item => {
-            const itemTotal = item.quantity * item.price;
-            grandTotal += itemTotal;
-            const rowData = [
-                item.materialName || 'Material',
-                item.quantity.toString(),
-                `$${item.price.toLocaleString()}`,
-                `$${itemTotal.toLocaleString()}`
-            ];
-            tableRows.push(rowData);
-        });
+        if (order.items && order.items.length > 0) {
+            order.items.forEach(item => {
+                let materialObj = materials.find(m => String(m._id || m.id) === String(item.material));
+                let materialName = materialObj ? materialObj.name : (item.materialName || 'Material');
+                let price = materialObj ? materialObj.price : (item.price || 0);
+
+                const itemTotal = item.quantity * price;
+                grandTotal += itemTotal;
+                const rowData = [
+                    materialName,
+                    item.quantity.toString(),
+                    `$${price.toLocaleString()}`,
+                    `$${itemTotal.toLocaleString()}`
+                ];
+                tableRows.push(rowData);
+            });
+        }
 
         autoTable(doc, {
             head: [tableColumn],
             body: tableRows,
-            startY: 85,
+            startY: 91,
         });
 
-        const finalY = doc.lastAutoTable.finalY || 85;
+        const finalY = doc.lastAutoTable.finalY || 91;
         doc.setFontSize(12);
         doc.text(`Grand Total: $${grandTotal.toLocaleString()}`, 14, finalY + 10);
 
@@ -248,42 +261,7 @@ const ERP = () => {
         await handleStatusChange(id, 'Rejected');
     };
 
-    const handleDownloadInvoice = (order) => {
-        const doc = new jsPDF();
-        const now = new Date().toISOString().split('T')[0];
-        
-        doc.setFontSize(20);
-        doc.text('INVOICE', 14, 22);
-        
-        doc.setFontSize(12);
-        doc.setTextColor(100);
-        doc.text(`Order Number: ${order.orderNumber}`, 14, 32);
-        doc.text(`Date: ${new Date(order.createdAt).toLocaleDateString()}`, 14, 38);
-        doc.text(`Customer/Vendor: ${order.orderType === 'purchase' ? (order.vendor?.name || 'Walk-in') : (order.customer?.name || 'Walk-in')}`, 14, 44);
-        
-        const rows = [];
-        if (order.items && order.items.length > 0) {
-            order.items.forEach(item => {
-                const materialObj = materials.find(m => String(m._id || m.id) === String(item.material));
-                const materialName = materialObj ? materialObj.name : 'Unknown Material';
-                const price = materialObj ? materialObj.price : item.price || 0;
-                rows.push([materialName, item.quantity, `$${price}`, `$${(price * item.quantity).toLocaleString()}`]);
-            });
-        }
-        
-        autoTable(doc, {
-            startY: 54,
-            head: [['Material', 'Qty', 'Unit Price', 'Total']],
-            body: rows,
-        });
-        
-        const finalY = doc.lastAutoTable.finalY || 54;
-        doc.setFontSize(14);
-        doc.setTextColor(0);
-        doc.text(`Grand Total: $${order.totalAmount?.toLocaleString()}`, 14, finalY + 10);
-        
-        doc.save(`Invoice_${order.orderNumber}_${now}.pdf`);
-    };
+
 
     const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
     const isAdmin = userInfo.role === 'Admin';
