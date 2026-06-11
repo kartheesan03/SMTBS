@@ -12,12 +12,17 @@ import {
 
 const HRDashboard = () => {
     const [dashboardData, setDashboardData] = useState(null);
+    const [employees, setEmployees] = useState([]);
     const [loading, setLoading] = useState(true);
 
     const fetchDashboardData = async () => {
         try {
-            const response = await API.get('/dashboard/stats');
-            setDashboardData(response.data);
+            const [statsRes, empRes] = await Promise.all([
+                API.get('/dashboard/stats'),
+                API.get('/employees')
+            ]);
+            setDashboardData(statsRes.data);
+            setEmployees(empRes.data);
         } catch (error) {
             console.error("Failed to load dashboard stats", error);
         } finally {
@@ -49,14 +54,26 @@ const HRDashboard = () => {
     const pendingApprovals = 12; // Simulated
     const payrollProcessed = 85; // Simulated percentage
 
-    // Charts Data
-    const employeeDistributionData = [
-        { name: 'HR', value: 12, color: '#8b5cf6' },
-        { name: 'Sales', value: 30, color: '#10b981' },
-        { name: 'Operations', value: 15, color: '#f59e0b' },
-        { name: 'Production', value: 25, color: '#3b82f6' },
-        { name: 'Accounts', value: 8, color: '#ec4899' },
-    ];
+    // Dynamic Chart Data based on employee records
+    const departmentCounts = {};
+    employees.forEach(emp => {
+        const dept = emp.department || 'Employee';
+        departmentCounts[dept] = (departmentCounts[dept] || 0) + 1;
+    });
+
+    const CHART_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#f43f5e', '#14b8a6', '#f97316', '#6366f1', '#84cc16', '#64748b'];
+
+    const employeeDistributionData = Object.keys(departmentCounts).map((dept, index) => ({
+        name: dept,
+        value: departmentCounts[dept],
+        color: CHART_COLORS[index % CHART_COLORS.length]
+    })).sort((a, b) => b.value - a.value);
+
+    const departmentHeadcountData = Object.keys(departmentCounts).map((dept, index) => ({
+        name: dept,
+        count: departmentCounts[dept],
+        fill: CHART_COLORS[index % CHART_COLORS.length]
+    })).sort((a, b) => b.count - a.count);
 
     const attendanceOverviewData = totalEmployees > 0 ? [
         { name: 'Present', value: presentToday, color: '#10b981' },
@@ -68,13 +85,7 @@ const HRDashboard = () => {
         { name: 'On Leave', value: 0, color: '#f59e0b' },
     ];
 
-    const departmentHeadcountData = [
-        { name: 'HR', count: 12, fill: '#8b5cf6' },
-        { name: 'Sales', count: 30, fill: '#10b981' },
-        { name: 'Operations', count: 15, fill: '#f59e0b' },
-        { name: 'Production', count: 25, fill: '#3b82f6' },
-        { name: 'Accounts', count: 8, fill: '#ec4899' },
-    ];
+
 
     const leaveRequests = [
         { id: 1, name: 'Alice Smith', type: 'Sick Leave', duration: '2 Days', status: 'Pending' },
@@ -173,18 +184,10 @@ const HRDashboard = () => {
                         <div className="bento-card-body" style={{ display: 'block', padding: '10px' }}>
                             <ResponsiveContainer width="100%" height={250}>
                                 <PieChart>
-                                    <Pie data={[
-                                        { name: 'HR', value: 12, color: '#8b5cf6' },
-                                        { name: 'Sales', value: 30, color: '#10b981' },
-                                        { name: 'Operations', value: 15, color: '#f59e0b' },
-                                        { name: 'Production', value: 25, color: '#3b82f6' },
-                                        { name: 'Accounts', value: 8, color: '#ec4899' },
-                                    ]} cx="50%" cy="50%" innerRadius={55} outerRadius={80} paddingAngle={2} dataKey="value" stroke="none">
-                                        <Cell fill="#8b5cf6" />
-                                        <Cell fill="#10b981" />
-                                        <Cell fill="#f59e0b" />
-                                        <Cell fill="#3b82f6" />
-                                        <Cell fill="#ec4899" />
+                                    <Pie data={employeeDistributionData} cx="50%" cy="50%" innerRadius={55} outerRadius={80} paddingAngle={2} dataKey="value" stroke="none">
+                                        {employeeDistributionData.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={entry.color} />
+                                        ))}
                                     </Pie>
                                     <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
                                     <Legend verticalAlign="bottom" height={20} iconType="circle" wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
@@ -199,23 +202,15 @@ const HRDashboard = () => {
                         </div>
                         <div className="bento-card-body" style={{ display: 'block', padding: '10px' }}>
                             <ResponsiveContainer width="100%" height={250}>
-                                <BarChart data={[
-                                    { name: 'HR', count: 12, fill: '#8b5cf6' },
-                                    { name: 'Sales', count: 30, fill: '#10b981' },
-                                    { name: 'Operations', count: 15, fill: '#f59e0b' },
-                                    { name: 'Production', count: 25, fill: '#3b82f6' },
-                                    { name: 'Accounts', count: 8, fill: '#ec4899' },
-                                ]} layout="vertical" margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+                                <BarChart data={departmentHeadcountData} layout="vertical" margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
                                     <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
                                     <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} />
                                     <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#334155', fontWeight: 600 }} width={75} />
                                     <RechartsTooltip cursor={{fill: 'rgba(0,0,0,0.02)'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
                                     <Bar dataKey="count" radius={[0, 4, 4, 0]} barSize={20}>
-                                        <Cell fill="#8b5cf6" />
-                                        <Cell fill="#10b981" />
-                                        <Cell fill="#f59e0b" />
-                                        <Cell fill="#3b82f6" />
-                                        <Cell fill="#ec4899" />
+                                        {departmentHeadcountData.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={entry.fill} />
+                                        ))}
                                     </Bar>
                                 </BarChart>
                             </ResponsiveContainer>
