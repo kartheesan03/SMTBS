@@ -145,17 +145,23 @@ const HRDashboard = () => {
                         <div className="bento-card-header">
                             <div className="bento-card-title"><Activity size={16} /> Attendance Overview</div>
                         </div>
-                        <div className="bento-card-body" style={{ height: '260px' }}>
+                        <div className="bento-card-body" style={{ height: '300px', padding: '20px 10px 10px' }}>
                             <ResponsiveContainer width="100%" height="100%">
-                                <PieChart>
-                                    <Pie data={attendanceOverviewData} cx="50%" cy="45%" innerRadius={50} outerRadius={80} paddingAngle={2} dataKey="value" stroke="none">
-                                        {attendanceOverviewData.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={entry.color} />
-                                        ))}
-                                    </Pie>
-                                    <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
-                                    <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '12px' }}/>
-                                </PieChart>
+                                <BarChart data={[
+                                    { name: 'Present', count: 6, fill: '#10b981' },
+                                    { name: 'Absent', count: 0, fill: '#ef4444' },
+                                    { name: 'On Leave', count: 0, fill: '#f59e0b' },
+                                ]} margin={{ top: 10, right: 10, left: -25, bottom: 20 }}>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} dy={10} />
+                                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} />
+                                    <RechartsTooltip cursor={{fill: 'transparent'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
+                                    <Bar dataKey="count" radius={[4, 4, 0, 0]} barSize={32}>
+                                        <Cell fill="#10b981" />
+                                        <Cell fill="#ef4444" />
+                                        <Cell fill="#f59e0b" />
+                                    </Bar>
+                                </BarChart>
                             </ResponsiveContainer>
                         </div>
                     </div>
@@ -164,16 +170,24 @@ const HRDashboard = () => {
                         <div className="bento-card-header">
                             <div className="bento-card-title"><Users size={16} /> Employee Distribution</div>
                         </div>
-                        <div className="bento-card-body" style={{ height: '260px', display: 'flex', flexDirection: 'column' }}>
+                        <div className="bento-card-body" style={{ height: '300px', padding: '10px' }}>
                             <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>
-                                    <Pie data={employeeDistributionData} cx="50%" cy="45%" innerRadius={50} outerRadius={80} paddingAngle={2} dataKey="value" stroke="none">
-                                        {employeeDistributionData.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={entry.color} />
-                                        ))}
+                                    <Pie data={[
+                                        { name: 'HR', value: 12, color: '#8b5cf6' },
+                                        { name: 'Sales', value: 30, color: '#10b981' },
+                                        { name: 'Operations', value: 15, color: '#f59e0b' },
+                                        { name: 'Production', value: 25, color: '#3b82f6' },
+                                        { name: 'Accounts', value: 8, color: '#ec4899' },
+                                    ]} cx="50%" cy="45%" innerRadius={60} outerRadius={85} paddingAngle={2} dataKey="value" stroke="none">
+                                        <Cell fill="#8b5cf6" />
+                                        <Cell fill="#10b981" />
+                                        <Cell fill="#f59e0b" />
+                                        <Cell fill="#3b82f6" />
+                                        <Cell fill="#ec4899" />
                                     </Pie>
                                     <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
-                                    <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '12px' }}/>
+                                    <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '12px' }} />
                                 </PieChart>
                             </ResponsiveContainer>
                         </div>
@@ -183,17 +197,25 @@ const HRDashboard = () => {
                         <div className="bento-card-header">
                             <div className="bento-card-title"><Briefcase size={16} /> Department Headcount</div>
                         </div>
-                        <div className="bento-card-body" style={{ height: '260px' }}>
+                        <div className="bento-card-body" style={{ height: '300px', padding: '20px 10px 10px' }}>
                             <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={departmentHeadcountData} layout="vertical" margin={{ top: 10, right: 20, left: 20, bottom: 0 }}>
+                                <BarChart data={[
+                                    { name: 'HR', count: 12, fill: '#8b5cf6' },
+                                    { name: 'Sales', count: 30, fill: '#10b981' },
+                                    { name: 'Operations', count: 15, fill: '#f59e0b' },
+                                    { name: 'Production', count: 25, fill: '#3b82f6' },
+                                    { name: 'Accounts', count: 8, fill: '#ec4899' },
+                                ]} layout="vertical" margin={{ top: 10, right: 20, left: 10, bottom: 0 }}>
                                     <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
-                                    <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} />
-                                    <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#334155', fontWeight: 600 }} width={70} />
+                                    <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} />
+                                    <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#334155', fontWeight: 600 }} width={75} />
                                     <RechartsTooltip cursor={{fill: 'rgba(0,0,0,0.02)'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
                                     <Bar dataKey="count" radius={[0, 4, 4, 0]} barSize={20}>
-                                        {departmentHeadcountData.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={entry.fill} />
-                                        ))}
+                                        <Cell fill="#8b5cf6" />
+                                        <Cell fill="#10b981" />
+                                        <Cell fill="#f59e0b" />
+                                        <Cell fill="#3b82f6" />
+                                        <Cell fill="#ec4899" />
                                     </Bar>
                                 </BarChart>
                             </ResponsiveContainer>
