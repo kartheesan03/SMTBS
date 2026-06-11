@@ -5,74 +5,50 @@ import {
 } from 'lucide-react';
 import { 
     PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, 
-    Tooltip as RechartsTooltip, ResponsiveContainer, Legend 
+    Tooltip as RechartsTooltip, ResponsiveContainer
 } from 'recharts';
 
 const HRDashboard = () => {
-    const [stats, setStats] = useState({
-        totalEmployees: 0,
-        attendanceToday: 0,
-        leaveRequests: 0,
-        payrollStatus: 'Pending',
-        openPositions: 0
-    });
+    const [dashboardData, setDashboardData] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // Mock data for Recharts
-    const employeeDistribution = [
-        { name: 'Engineering', value: 45, color: '#3b82f6' },
-        { name: 'Sales', value: 25, color: '#10b981' },
-        { name: 'HR & Admin', value: 10, color: '#8b5cf6' },
-        { name: 'Operations', value: 20, color: '#f59e0b' },
-    ];
-
-    const departmentHeadcount = [
-        { name: 'Engineering', count: 45 },
-        { name: 'Sales', count: 25 },
-        { name: 'HR & Admin', count: 10 },
-        { name: 'Operations', count: 20 },
-        { name: 'Marketing', count: 15 },
-        { name: 'Finance', count: 8 },
-    ];
-
-    const recentActivities = [
-        { id: 1, text: 'John Doe submitted a sick leave request', time: '2 hours ago', icon: <FileText size={14} /> },
-        { id: 2, text: 'New candidate applied for Senior Dev', time: '4 hours ago', icon: <UserPlus size={14} /> },
-        { id: 3, text: 'Payroll approvals pending for May', time: '1 day ago', icon: <AlertCircle size={14} /> },
-        { id: 4, text: 'Annual performance reviews started', time: '2 days ago', icon: <CalendarCheck size={14} /> },
-    ];
+    const fetchDashboardData = async () => {
+        try {
+            const response = await API.get('/dashboard/stats');
+            setDashboardData(response.data);
+        } catch (error) {
+            console.error("Failed to load HR stats", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchHRData = async () => {
-            try {
-                const [empRes] = await Promise.all([
-                    API.get('/employees').catch(() => ({ data: [] }))
-                ]);
-                
-                setStats({
-                    totalEmployees: empRes.data.length || 142,
-                    attendanceToday: 132,
-                    leaveRequests: 8,
-                    payrollStatus: 'In Progress',
-                    openPositions: 5
-                });
-            } catch (error) {
-                console.error("Failed to load HR stats", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchHRData();
+        fetchDashboardData();
+        const interval = setInterval(fetchDashboardData, 30000);
+        return () => clearInterval(interval);
     }, []);
 
-    if (loading) {
+    if (loading || !dashboardData) {
         return (
             <div className="flex-center" style={{ height: '80vh' }}>
                 <div className="loader"></div>
             </div>
         );
     }
+
+    const hrStats = dashboardData.hrStats || {};
+    const tables = dashboardData.tables || {};
+
+    const employeeDistribution = hrStats.employeeDistribution || [
+        { name: 'No Data', value: 1, color: '#e2e8f0' }
+    ];
+
+    const departmentHeadcount = hrStats.employeeDistribution 
+        ? hrStats.employeeDistribution.map(d => ({ name: d.name, count: d.value }))
+        : [];
+
+    const recentActivities = tables.recentActivity || [];
 
     return (
         <div className="p-30">
@@ -88,7 +64,7 @@ const HRDashboard = () => {
                         <div>
                             <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', margin: 0 }}>Total Employees</p>
                             <h2 style={{ fontSize: '28px', fontWeight: 800, margin: '8px 0 0 0', color: 'var(--text-primary)' }}>
-                                {stats.totalEmployees}
+                                {hrStats.totalEmployees || 0}
                             </h2>
                         </div>
                         <div style={{ background: 'var(--primary-light)', padding: '10px', borderRadius: '12px', color: 'var(--primary)' }}>
@@ -102,7 +78,7 @@ const HRDashboard = () => {
                         <div>
                             <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', margin: 0 }}>Attendance Today</p>
                             <h2 style={{ fontSize: '28px', fontWeight: 800, margin: '8px 0 0 0', color: 'var(--text-primary)' }}>
-                                {stats.attendanceToday}
+                                {hrStats.presentToday || 0}
                             </h2>
                         </div>
                         <div style={{ background: 'var(--success-light)', padding: '10px', borderRadius: '12px', color: 'var(--success)' }}>
@@ -116,7 +92,7 @@ const HRDashboard = () => {
                         <div>
                             <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', margin: 0 }}>Leave Requests</p>
                             <h2 style={{ fontSize: '28px', fontWeight: 800, margin: '8px 0 0 0', color: 'var(--text-primary)' }}>
-                                {stats.leaveRequests}
+                                {hrStats.pending || 0}
                             </h2>
                         </div>
                         <div style={{ background: 'var(--warning-light)', padding: '10px', borderRadius: '12px', color: 'var(--warning)' }}>
@@ -128,13 +104,13 @@ const HRDashboard = () => {
                 <div className="bento-card bento-col-3">
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <div>
-                            <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', margin: 0 }}>Open Positions</p>
+                            <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', margin: 0 }}>On Leave</p>
                             <h2 style={{ fontSize: '28px', fontWeight: 800, margin: '8px 0 0 0', color: 'var(--text-primary)' }}>
-                                {stats.openPositions}
+                                {hrStats.onLeave || 0}
                             </h2>
                         </div>
                         <div style={{ background: '#f5f3ff', padding: '10px', borderRadius: '12px', color: '#8b5cf6' }}>
-                            <UserPlus size={20} />
+                            <FileText size={20} />
                         </div>
                     </div>
                 </div>
@@ -172,7 +148,7 @@ const HRDashboard = () => {
                             </PieChart>
                         </ResponsiveContainer>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginTop: 'auto' }}>
-                            {employeeDistribution.map((item) => (
+                            {employeeDistribution.filter(i => i.name !== 'No Data').map((item) => (
                                 <div key={item.name} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                                     <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: item.color }}></span>
                                     <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>{item.name}</span>
@@ -216,19 +192,25 @@ const HRDashboard = () => {
                         </div>
                     </div>
                     <div className="bento-card-body">
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                            {recentActivities.map((act) => (
-                                <div key={act.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px', background: 'var(--bg-body)', borderRadius: '8px', border: '1px solid var(--border)' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                        <div style={{ background: '#ffffff', padding: '8px', borderRadius: '50%', color: 'var(--primary)', boxShadow: 'var(--shadow-sm)' }}>
-                                            {act.icon}
+                        {recentActivities.length === 0 ? (
+                             <div className="flex-center" style={{ padding: '20px', color: 'var(--text-muted)' }}>
+                                 No recent activities
+                             </div>
+                        ) : (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                {recentActivities.map((act, i) => (
+                                    <div key={act.id || i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px', background: 'var(--bg-body)', borderRadius: '8px', border: '1px solid var(--border)' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                            <div style={{ background: '#ffffff', padding: '8px', borderRadius: '50%', color: 'var(--primary)', boxShadow: 'var(--shadow-sm)' }}>
+                                                <AlertCircle size={14} />
+                                            </div>
+                                            <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)' }}>{act.text}</span>
                                         </div>
-                                        <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)' }}>{act.text}</span>
+                                        <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{new Date(act.time).toLocaleString()}</span>
                                     </div>
-                                    <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{act.time}</span>
-                                </div>
-                            ))}
-                        </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

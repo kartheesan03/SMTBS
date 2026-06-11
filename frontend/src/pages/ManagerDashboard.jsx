@@ -10,28 +10,56 @@ import {
 } from 'recharts';
 
 const ManagerDashboard = () => {
-    const [stats, setStats] = useState({
-        teamMembers: 0,
-        activeProjects: 0,
-        pendingApprovals: 0,
-        teamProductivity: 0
-    });
+    const [dashboardData, setDashboardData] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // Mock data for Recharts
+    const fetchDashboardData = async () => {
+        try {
+            const response = await API.get('/dashboard/stats');
+            setDashboardData(response.data);
+        } catch (error) {
+            console.error("Failed to load Manager stats", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchDashboardData();
+        const interval = setInterval(fetchDashboardData, 30000);
+        return () => clearInterval(interval);
+    }, []);
+
+    if (loading || !dashboardData) {
+        return (
+            <div className="flex-center" style={{ height: '80vh' }}>
+                <div className="loader"></div>
+            </div>
+        );
+    }
+
+    const managerStats = dashboardData.managerStats || {};
+    const hrStats = dashboardData.hrStats || {};
+    const tables = dashboardData.tables || {};
+
     const projectStatusData = [
-        { name: 'On Track', value: 12, color: '#10b981' },
-        { name: 'At Risk', value: 3, color: '#f59e0b' },
-        { name: 'Delayed', value: 1, color: '#ef4444' },
+        { name: 'Active Orders', value: managerStats.activeProjects || 0, color: '#10b981' },
+        { name: 'Pending', value: managerStats.pendingApprovals || 0, color: '#f59e0b' },
+        { name: 'Delayed', value: 0, color: '#ef4444' }, // Placeholder for actual delay tracking
     ];
 
-    const teamAttendanceData = [
-        { name: 'Mon', present: 22, absent: 2 },
-        { name: 'Tue', present: 24, absent: 0 },
-        { name: 'Wed', present: 23, absent: 1 },
-        { name: 'Thu', present: 21, absent: 3 },
-        { name: 'Fri', present: 20, absent: 4 },
-    ];
+    if (projectStatusData.every(d => d.value === 0)) {
+        projectStatusData.push({ name: 'No Data', value: 1, color: '#e2e8f0' });
+    }
+
+    // Attempt to use hrStats.attendanceHistory if available (Manager has access to overall team stats or just his team. We'll use hrStats.attendanceHistory if admin)
+    // If not admin, the backend doesn't send hrStats. We'll mock for now if missing.
+    const teamAttendanceData = hrStats.attendanceHistory && hrStats.attendanceHistory.length > 0
+        ? hrStats.attendanceHistory.map(h => ({ name: h.name, present: h.employees, absent: Math.max(0, (hrStats.totalEmployees || 0) - h.employees) }))
+        : [
+            { name: 'Mon', present: 0, absent: 0 },
+            { name: 'Tue', present: 0, absent: 0 }
+        ];
 
     const workloadData = [
         { subject: 'Development', A: 85, fullMark: 100 },
@@ -41,39 +69,7 @@ const ManagerDashboard = () => {
         { subject: 'Support', A: 30, fullMark: 100 },
     ];
 
-    const recentActivities = [
-        { id: 1, text: 'Sarah completed task: API Integration', time: '1 hour ago' },
-        { id: 2, text: 'Project Alpha milestone reached', time: '3 hours ago' },
-        { id: 3, text: '2 vacation requests require approval', time: '5 hours ago' },
-    ];
-
-    useEffect(() => {
-        const fetchManagerData = async () => {
-            try {
-                // Simulate fetch
-                setStats({
-                    teamMembers: 24,
-                    activeProjects: 8,
-                    pendingApprovals: 5,
-                    teamProductivity: 87
-                });
-            } catch (error) {
-                console.error("Failed to load Manager stats", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchManagerData();
-    }, []);
-
-    if (loading) {
-        return (
-            <div className="flex-center" style={{ height: '80vh' }}>
-                <div className="loader"></div>
-            </div>
-        );
-    }
+    const recentActivities = tables.recentActivity || [];
 
     return (
         <div className="p-30">
@@ -89,7 +85,7 @@ const ManagerDashboard = () => {
                         <div>
                             <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', margin: 0 }}>Team Members</p>
                             <h2 style={{ fontSize: '28px', fontWeight: 800, margin: '8px 0 0 0', color: 'var(--text-primary)' }}>
-                                {stats.teamMembers}
+                                {managerStats.teamMembers || 0}
                             </h2>
                         </div>
                         <div style={{ background: 'var(--primary-light)', padding: '10px', borderRadius: '12px', color: 'var(--primary)' }}>
@@ -103,7 +99,7 @@ const ManagerDashboard = () => {
                         <div>
                             <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', margin: 0 }}>Active Projects</p>
                             <h2 style={{ fontSize: '28px', fontWeight: 800, margin: '8px 0 0 0', color: 'var(--text-primary)' }}>
-                                {stats.activeProjects}
+                                {managerStats.activeProjects || 0}
                             </h2>
                         </div>
                         <div style={{ background: '#f5f3ff', padding: '10px', borderRadius: '12px', color: '#8b5cf6' }}>
@@ -117,7 +113,7 @@ const ManagerDashboard = () => {
                         <div>
                             <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', margin: 0 }}>Pending Approvals</p>
                             <h2 style={{ fontSize: '28px', fontWeight: 800, margin: '8px 0 0 0', color: 'var(--text-primary)' }}>
-                                {stats.pendingApprovals}
+                                {managerStats.pendingApprovals || 0}
                             </h2>
                         </div>
                         <div style={{ background: 'var(--warning-light)', padding: '10px', borderRadius: '12px', color: 'var(--warning)' }}>
@@ -131,7 +127,7 @@ const ManagerDashboard = () => {
                         <div>
                             <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', margin: 0 }}>Team Productivity</p>
                             <h2 style={{ fontSize: '28px', fontWeight: 800, margin: '8px 0 0 0', color: 'var(--text-primary)' }}>
-                                {stats.teamProductivity}%
+                                {managerStats.teamProductivity || 0}%
                             </h2>
                         </div>
                         <div style={{ background: 'var(--success-light)', padding: '10px', borderRadius: '12px', color: 'var(--success)' }}>
@@ -147,7 +143,7 @@ const ManagerDashboard = () => {
                     <div className="bento-card-header">
                         <div className="bento-card-title">
                             <Briefcase size={18} className="text-primary" />
-                            Project Status
+                            Project/Order Status
                         </div>
                     </div>
                     <div className="bento-card-body" style={{ height: '260px', display: 'flex', flexDirection: 'column' }}>
@@ -173,10 +169,10 @@ const ManagerDashboard = () => {
                             </PieChart>
                         </ResponsiveContainer>
                         <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', marginTop: 'auto' }}>
-                            {projectStatusData.map((item) => (
+                            {projectStatusData.filter(i => i.name !== 'No Data').map((item) => (
                                 <div key={item.name} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                                     <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: item.color }}></span>
-                                    <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{item.name}</span>
+                                    <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{item.name} ({item.value})</span>
                                 </div>
                             ))}
                         </div>
@@ -239,17 +235,23 @@ const ManagerDashboard = () => {
                         </div>
                     </div>
                     <div className="bento-card-body">
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                            {recentActivities.map((act) => (
-                                <div key={act.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px', background: 'var(--bg-body)', borderRadius: '8px', border: '1px solid var(--border)' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--primary)' }}></div>
-                                        <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)' }}>{act.text}</span>
+                        {recentActivities.length === 0 ? (
+                            <div className="flex-center" style={{ padding: '20px', color: 'var(--text-muted)' }}>
+                                No recent activities
+                            </div>
+                        ) : (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                {recentActivities.map((act, i) => (
+                                    <div key={act.id || i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px', background: 'var(--bg-body)', borderRadius: '8px', border: '1px solid var(--border)' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--primary)' }}></div>
+                                            <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)' }}>{act.text}</span>
+                                        </div>
+                                        <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{new Date(act.time).toLocaleString()}</span>
                                     </div>
-                                    <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{act.time}</span>
-                                </div>
-                            ))}
-                        </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

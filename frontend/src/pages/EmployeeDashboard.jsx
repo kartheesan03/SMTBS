@@ -9,15 +9,37 @@ import {
 } from 'recharts';
 
 const EmployeeDashboard = () => {
-    const [stats, setStats] = useState({
-        attendanceStatus: 'Present',
-        assignedTasks: 0,
-        leaveBalance: 0,
-        payslipAmount: 0
-    });
+    const [dashboardData, setDashboardData] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // Mock data for Recharts
+    const fetchDashboardData = async () => {
+        try {
+            const response = await API.get('/dashboard/stats');
+            setDashboardData(response.data);
+        } catch (error) {
+            console.error("Failed to load Employee stats", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchDashboardData();
+        const interval = setInterval(fetchDashboardData, 30000);
+        return () => clearInterval(interval);
+    }, []);
+
+    if (loading || !dashboardData) {
+        return (
+            <div className="flex-center" style={{ height: '80vh' }}>
+                <div className="loader"></div>
+            </div>
+        );
+    }
+
+    const employeeStats = dashboardData.employeeStats || {};
+    const tables = dashboardData.tables || {};
+
     const attendanceData = [
         { name: 'Mon', hours: 8, status: 'Present' },
         { name: 'Tue', hours: 8.5, status: 'Present' },
@@ -32,39 +54,7 @@ const EmployeeDashboard = () => {
         { id: 3, text: 'Company Townhall', time: 'Friday, 10:00 AM', type: 'event' },
     ];
 
-    const recentNotifications = [
-        { id: 1, text: 'Your leave request for June 15th was approved.', time: '2 hours ago' },
-        { id: 2, text: 'New task assigned: Update documentation.', time: '4 hours ago' },
-        { id: 3, text: 'Payslip for May 2026 is available.', time: '1 day ago' },
-    ];
-
-    useEffect(() => {
-        const fetchEmployeeData = async () => {
-            try {
-                // Simulate fetch
-                setStats({
-                    attendanceStatus: 'Present',
-                    assignedTasks: 12,
-                    leaveBalance: 14,
-                    payslipAmount: 4200
-                });
-            } catch (error) {
-                console.error("Failed to load Employee stats", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchEmployeeData();
-    }, []);
-
-    if (loading) {
-        return (
-            <div className="flex-center" style={{ height: '80vh' }}>
-                <div className="loader"></div>
-            </div>
-        );
-    }
+    const recentNotifications = tables.recentActivity || [];
 
     return (
         <div className="p-30">
@@ -80,7 +70,7 @@ const EmployeeDashboard = () => {
                         <div>
                             <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', margin: 0 }}>Status Today</p>
                             <h2 style={{ fontSize: '24px', fontWeight: 800, margin: '8px 0 0 0', color: 'var(--success)' }}>
-                                {stats.attendanceStatus}
+                                {employeeStats.attendanceToday || 'Not Marked'}
                             </h2>
                         </div>
                         <div style={{ background: 'var(--success-light)', padding: '10px', borderRadius: '12px', color: 'var(--success)' }}>
@@ -92,9 +82,9 @@ const EmployeeDashboard = () => {
                 <div className="bento-card bento-col-3">
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <div>
-                            <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', margin: 0 }}>Assigned Tasks</p>
+                            <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', margin: 0 }}>Pending Leaves</p>
                             <h2 style={{ fontSize: '28px', fontWeight: 800, margin: '8px 0 0 0', color: 'var(--text-primary)' }}>
-                                {stats.assignedTasks}
+                                {employeeStats.myPendingLeaves || 0}
                             </h2>
                         </div>
                         <div style={{ background: 'var(--primary-light)', padding: '10px', borderRadius: '12px', color: 'var(--primary)' }}>
@@ -108,7 +98,7 @@ const EmployeeDashboard = () => {
                         <div>
                             <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', margin: 0 }}>Leave Balance</p>
                             <h2 style={{ fontSize: '28px', fontWeight: 800, margin: '8px 0 0 0', color: 'var(--text-primary)' }}>
-                                {stats.leaveBalance} <span style={{fontSize: '16px', color: 'var(--text-muted)'}}>days</span>
+                                {14} <span style={{fontSize: '16px', color: 'var(--text-muted)'}}>days</span>
                             </h2>
                         </div>
                         <div style={{ background: '#f5f3ff', padding: '10px', borderRadius: '12px', color: '#8b5cf6' }}>
@@ -122,7 +112,7 @@ const EmployeeDashboard = () => {
                         <div>
                             <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', margin: 0 }}>Last Payslip</p>
                             <h2 style={{ fontSize: '28px', fontWeight: 800, margin: '8px 0 0 0', color: 'var(--text-primary)' }}>
-                                ${stats.payslipAmount.toLocaleString()}
+                                {employeeStats.payslipAmount ? `$${employeeStats.payslipAmount}` : 'N/A'}
                             </h2>
                         </div>
                         <div style={{ background: '#f1f5f9', padding: '10px', borderRadius: '12px', color: '#64748b' }}>
@@ -169,15 +159,21 @@ const EmployeeDashboard = () => {
                             Recent Notifications
                         </div>
                     </div>
-                    <div className="bento-card-body" style={{ overflowY: 'auto' }}>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                            {recentNotifications.map((notif) => (
-                                <div key={notif.id} style={{ display: 'flex', flexDirection: 'column', gap: '4px', paddingBottom: '16px', borderBottom: '1px solid var(--border)' }}>
-                                    <span style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-primary)' }}>{notif.text}</span>
-                                    <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{notif.time}</span>
-                                </div>
-                            ))}
-                        </div>
+                    <div className="bento-card-body" style={{ overflowY: 'auto', height: '280px' }}>
+                        {recentNotifications.length === 0 ? (
+                            <div className="flex-center" style={{ height: '100%', color: 'var(--text-muted)' }}>
+                                No recent notifications
+                            </div>
+                        ) : (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                {recentNotifications.map((notif, i) => (
+                                    <div key={notif.id || i} style={{ display: 'flex', flexDirection: 'column', gap: '4px', paddingBottom: '16px', borderBottom: '1px solid var(--border)' }}>
+                                        <span style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-primary)' }}>{notif.text}</span>
+                                        <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{new Date(notif.time).toLocaleString()}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

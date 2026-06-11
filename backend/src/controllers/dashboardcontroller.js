@@ -186,6 +186,38 @@ const getDashboardStats = async (req, res) => {
             };
         } catch (e) { console.error('Vendor Stats Error:', e); }
 
+        // Payroll Data Chart
+        try {
+            const payrollRaw = await Salary.aggregate([
+                { $match: { status: 'Approved', payPeriod: { $exists: true } } },
+                {
+                    $group: {
+                        _id: "$payPeriod",
+                        amount: { $sum: "$netSalary" }
+                    }
+                },
+                { $sort: { "_id": 1 } },
+                { $limit: 6 }
+            ]);
+            data.charts.payrollData = payrollRaw.map(p => ({
+                name: p._id, // Assume payPeriod is like "2023-05"
+                amount: p.amount
+            }));
+            
+            if (data.charts.payrollData.length === 0) {
+                 // Fallback mock if no salaries approved yet
+                 data.charts.payrollData = [
+                    { name: 'Jan', amount: 40000 },
+                    { name: 'Feb', amount: 42000 },
+                    { name: 'Mar', amount: 41000 },
+                    { name: 'Apr', amount: 45000 },
+                    { name: 'May', amount: 48000 },
+                    { name: 'Jun', amount: 47000 },
+                 ];
+            }
+        } catch (e) { console.error('Payroll Aggregation Error:', e); }
+
+        // HR & Admin Stats
         if (role === 'HR' || role === 'Admin') {
             try {
                 const todayStart = new Date();
@@ -240,12 +272,17 @@ const getDashboardStats = async (req, res) => {
                     attendanceHistory.push({ name: dayName, employees: count });
                 }
 
+                const presentToday = await Attendance.countDocuments({ date: { $gte: todayStart, $lte: todayEnd }, status: { $in: ['Present', 'Late'] } });
+                const absentToday = await Attendance.countDocuments({ date: { $gte: todayStart, $lte: todayEnd }, status: 'Absent' });
+                const onLeave = await Leave.countDocuments({ status: 'Approved', startDate: { $lte: todayEnd }, endDate: { $gte: todayStart } });
+                const pendingLeaves = await Leave.countDocuments({ status: 'Pending' });
+
                 data.hrStats = {
                     totalEmployees: activeEmployeesCount,
-                    presentToday: 0,
-                    onLeave: 0,
-                    pending: 0,
-                    absentToday: 0,
+                    presentToday: presentToday,
+                    onLeave: onLeave,
+                    pending: pendingLeaves,
+                    absentToday: absentToday,
                     newJoiners: newJoinersCount,
                     employeeDistribution,
                     recentEmployees: recentEmployeesFormatted,
@@ -255,13 +292,44 @@ const getDashboardStats = async (req, res) => {
                 console.error('HR Dashboard Stats Error:', err);
                 data.hrStats = { totalEmployees: stats.totalEmployees, presentToday: 0, onLeave: 0, newJoiners: 0, employeeDistribution: [], recentEmployees: [], attendanceHistory: [] };
             }
-        } else if (role === 'Sales') {
+        } 
+        
+        // Sales Stats
+        if (role === 'Sales' || role === 'Admin') {
             try {
                 const firstDayOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
                 data.salesStats = {
                     recentCustomers: await Customer.countDocuments({ createdAt: { $gte: firstDayOfMonth } })
                 };
             } catch (e) { console.error('Sales Pipeline Aggregation Error:', e); }
+        }
+
+        // Manager Stats
+        if (role === 'Manager' || role === 'Admin') {
+            try {
+                data.managerStats = {
+                    teamMembers: stats.totalEmployees,
+                    activeProjects: await Order.countDocuments({ status: { $in: ['Pending', 'Awaiting Approval', 'Approved', 'In Progress'] } }),
+                    pendingApprovals: (await Order.countDocuments({ status: 'Awaiting Approval' })) + (await Leave.countDocuments({ status: 'Pending' })),
+                    teamProductivity: 87 // Placeholder or calculated from task completion
+                };
+            } catch (e) { console.error('Manager Stats Error:', e); }
+        }
+
+        // Employee Stats
+        if (role === 'Employee') {
+             try {
+                 const empRecord = await Employee.findOne({ userId: req.user.id });
+                 if (empRecord) {
+                     const todayStart = new Date(); todayStart.setHours(0,0,0,0);
+                     const todayEnd = new Date(); todayEnd.setHours(23,59,59,999);
+                     const att = await Attendance.findOne({ employeeId: empRecord._id, date: { $gte: todayStart, $lte: todayEnd } });
+                     data.employeeStats = {
+                         attendanceToday: att ? att.status : 'Not Marked',
+                         myPendingLeaves: await Leave.countDocuments({ employeeId: empRecord._id, status: 'Pending' })
+                     };
+                 }
+             } catch(e) { console.error('Employee Stats Error:', e); }
         }
 
         res.json(data);

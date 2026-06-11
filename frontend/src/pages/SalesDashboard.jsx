@@ -9,22 +9,45 @@ import {
 } from 'recharts';
 
 const SalesDashboard = () => {
-    const [stats, setStats] = useState({
-        totalLeads: 0,
-        opportunities: 0,
-        closedDeals: 0,
-        revenue: 0
-    });
+    const [dashboardData, setDashboardData] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // Mock data for Recharts
-    const salesFunnelData = [
-        { name: 'Leads', value: 1200, fill: '#cbd5e1' },
-        { name: 'Qualified', value: 800, fill: '#94a3b8' },
-        { name: 'Proposals', value: 450, fill: '#64748b' },
-        { name: 'Negotiation', value: 200, fill: '#475569' },
-        { name: 'Closed Won', value: 85, fill: 'var(--primary)' },
-    ];
+    const fetchDashboardData = async () => {
+        try {
+            const response = await API.get('/dashboard/stats');
+            setDashboardData(response.data);
+        } catch (error) {
+            console.error("Failed to load Sales stats", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchDashboardData();
+        const interval = setInterval(fetchDashboardData, 30000);
+        return () => clearInterval(interval);
+    }, []);
+
+    if (loading || !dashboardData) {
+        return (
+            <div className="flex-center" style={{ height: '80vh' }}>
+                <div className="loader"></div>
+            </div>
+        );
+    }
+
+    const stats = dashboardData.stats || {};
+    const salesStats = dashboardData.salesStats || {};
+    const charts = dashboardData.charts || {};
+    const tables = dashboardData.tables || {};
+
+    const salesPerformanceData = charts.monthlyStats && charts.monthlyStats.length > 0 
+        ? charts.monthlyStats.map(s => ({ name: s.name, target: (s.revenue * 1.1) || 10000, actual: s.revenue }))
+        : [
+            { name: 'Jan', target: 40000, actual: 42000 },
+            { name: 'Feb', target: 45000, actual: 44000 }
+        ];
 
     const leadSourceData = [
         { name: 'Organic Search', value: 45, color: '#3b82f6' },
@@ -33,49 +56,15 @@ const SalesDashboard = () => {
         { name: 'Direct', value: 10, color: '#f59e0b' },
     ];
 
-    const salesPerformanceData = [
-        { name: 'Jan', target: 40000, actual: 42000 },
-        { name: 'Feb', target: 45000, actual: 44000 },
-        { name: 'Mar', target: 50000, actual: 54000 },
-        { name: 'Apr', target: 55000, actual: 52000 },
-        { name: 'May', target: 60000, actual: 68000 },
-        { name: 'Jun', target: 65000, actual: 72000 },
+    const salesFunnelData = [
+        { name: 'Leads', value: 1200, fill: '#cbd5e1' },
+        { name: 'Qualified', value: 800, fill: '#94a3b8' },
+        { name: 'Proposals', value: 450, fill: '#64748b' },
+        { name: 'Negotiation', value: 200, fill: '#475569' },
+        { name: 'Closed Won', value: stats.totalSalesOrders || 85, fill: 'var(--primary)' },
     ];
 
-    const recentActivities = [
-        { id: 1, text: 'Deal closed with TechCorp ($45k)', time: '1 hour ago' },
-        { id: 2, text: 'Proposal sent to Global Logistics', time: '3 hours ago' },
-        { id: 3, text: 'New lead assigned: Sarah Jenkins', time: '4 hours ago' },
-        { id: 4, text: 'Meeting scheduled with Acme Corp', time: '1 day ago' },
-    ];
-
-    useEffect(() => {
-        const fetchSalesData = async () => {
-            try {
-                // Simulate fetch
-                setStats({
-                    totalLeads: 1240,
-                    opportunities: 184,
-                    closedDeals: 85,
-                    revenue: 425000
-                });
-            } catch (error) {
-                console.error("Failed to load Sales stats", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchSalesData();
-    }, []);
-
-    if (loading) {
-        return (
-            <div className="flex-center" style={{ height: '80vh' }}>
-                <div className="loader"></div>
-            </div>
-        );
-    }
+    const recentActivities = tables.recentActivity || [];
 
     return (
         <div className="p-30">
@@ -89,34 +78,28 @@ const SalesDashboard = () => {
                 <div className="bento-card bento-col-3">
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <div>
-                            <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', margin: 0 }}>Total Leads</p>
+                            <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', margin: 0 }}>Total Customers</p>
                             <h2 style={{ fontSize: '28px', fontWeight: 800, margin: '8px 0 0 0', color: 'var(--text-primary)' }}>
-                                {stats.totalLeads.toLocaleString()}
+                                {dashboardData.activeCustomers?.toLocaleString() || 0}
                             </h2>
                         </div>
                         <div style={{ background: '#f1f5f9', padding: '10px', borderRadius: '12px', color: '#64748b' }}>
                             <Users size={20} />
                         </div>
                     </div>
-                    <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: 'var(--success)' }}>
-                        <ArrowUpRight size={14} /> <span>+24% this month</span>
-                    </div>
                 </div>
 
                 <div className="bento-card bento-col-3">
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <div>
-                            <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', margin: 0 }}>Opportunities</p>
+                            <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', margin: 0 }}>Recent Customers</p>
                             <h2 style={{ fontSize: '28px', fontWeight: 800, margin: '8px 0 0 0', color: 'var(--text-primary)' }}>
-                                {stats.opportunities.toLocaleString()}
+                                {salesStats.recentCustomers?.toLocaleString() || 0}
                             </h2>
                         </div>
                         <div style={{ background: '#f5f3ff', padding: '10px', borderRadius: '12px', color: '#8b5cf6' }}>
                             <Target size={20} />
                         </div>
-                    </div>
-                    <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: 'var(--success)' }}>
-                        <ArrowUpRight size={14} /> <span>+12% this month</span>
                     </div>
                 </div>
 
@@ -125,32 +108,26 @@ const SalesDashboard = () => {
                         <div>
                             <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', margin: 0 }}>Closed Deals</p>
                             <h2 style={{ fontSize: '28px', fontWeight: 800, margin: '8px 0 0 0', color: 'var(--text-primary)' }}>
-                                {stats.closedDeals.toLocaleString()}
+                                {stats.totalSalesOrders?.toLocaleString() || 0}
                             </h2>
                         </div>
                         <div style={{ background: 'var(--primary-light)', padding: '10px', borderRadius: '12px', color: 'var(--primary)' }}>
                             <Award size={20} />
                         </div>
                     </div>
-                    <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: 'var(--success)' }}>
-                        <ArrowUpRight size={14} /> <span>+8% this month</span>
-                    </div>
                 </div>
 
                 <div className="bento-card bento-col-3">
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <div>
-                            <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', margin: 0 }}>Revenue (YTD)</p>
+                            <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', margin: 0 }}>Revenue</p>
                             <h2 style={{ fontSize: '28px', fontWeight: 800, margin: '8px 0 0 0', color: 'var(--text-primary)' }}>
-                                ${stats.revenue.toLocaleString()}
+                                ${(dashboardData.totalRevenue || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}
                             </h2>
                         </div>
                         <div style={{ background: 'var(--success-light)', padding: '10px', borderRadius: '12px', color: 'var(--success)' }}>
                             <DollarSign size={20} />
                         </div>
-                    </div>
-                    <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: 'var(--success)' }}>
-                        <ArrowUpRight size={14} /> <span>+18% against target</span>
                     </div>
                 </div>
             </div>
@@ -169,7 +146,7 @@ const SalesDashboard = () => {
                             <ComposedChart data={salesPerformanceData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dy={10} />
-                                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} tickFormatter={(val) => `$${val/1000}k`} />
+                                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} tickFormatter={(val) => `$${(val/1000).toFixed(0)}k`} />
                                 <RechartsTooltip 
                                     contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
                                     formatter={(value) => [`$${value.toLocaleString()}`, '']}
@@ -259,18 +236,24 @@ const SalesDashboard = () => {
                             Recent Activities
                         </div>
                     </div>
-                    <div className="bento-card-body">
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '10px' }}>
-                            {recentActivities.map((act) => (
-                                <div key={act.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: '16px', borderBottom: '1px solid var(--border)' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--primary)' }}></div>
-                                        <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)' }}>{act.text}</span>
+                    <div className="bento-card-body" style={{ height: '260px', overflowY: 'auto' }}>
+                        {recentActivities.length === 0 ? (
+                            <div className="flex-center" style={{ height: '100%', color: 'var(--text-muted)' }}>
+                                No recent activities
+                            </div>
+                        ) : (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '10px' }}>
+                                {recentActivities.map((act, i) => (
+                                    <div key={act.id || i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: '16px', borderBottom: '1px solid var(--border)' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--primary)' }}></div>
+                                            <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)' }}>{act.text}</span>
+                                        </div>
+                                        <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{new Date(act.time).toLocaleString()}</span>
                                     </div>
-                                    <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{act.time}</span>
-                                </div>
-                            ))}
-                        </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
