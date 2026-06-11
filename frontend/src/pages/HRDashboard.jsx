@@ -69,11 +69,28 @@ const HRDashboard = () => {
 
     const CHART_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#f43f5e', '#14b8a6', '#f97316', '#6366f1', '#84cc16', '#64748b'];
 
-    const employeeDistributionData = Object.keys(departmentCounts).map((dept, index) => ({
+    const rawDistributionData = Object.keys(departmentCounts).map((dept, index) => ({
         name: dept,
         value: departmentCounts[dept],
         color: CHART_COLORS[index % CHART_COLORS.length]
     })).sort((a, b) => b.value - a.value);
+
+    const employeeDistributionData = [];
+    let othersCount = 0;
+    rawDistributionData.forEach((item, index) => {
+        if (index < 4) {
+            employeeDistributionData.push(item);
+        } else {
+            othersCount += item.value;
+        }
+    });
+    if (othersCount > 0) {
+        employeeDistributionData.push({
+            name: 'Others',
+            value: othersCount,
+            color: '#cbd5e1'
+        });
+    }
 
     // Role-based Department Headcount from Employees Table
     const roleLabels = {
@@ -266,16 +283,20 @@ const HRDashboard = () => {
                         <div className="bento-card-header">
                             <div className="bento-card-title"><Users size={16} /> Employee Distribution</div>
                         </div>
-                        <div className="bento-card-body" style={{ display: 'block', padding: '10px' }}>
+                        <div className="bento-card-body" style={{ display: 'block', padding: '10px', position: 'relative' }}>
+                            <div className="chart-center-text" style={{ marginTop: '-20px' }}>
+                                <h3>{totalEmployees}</h3>
+                                <span>Total</span>
+                            </div>
                             <ResponsiveContainer width="100%" height={320}>
                                 <PieChart>
-                                    <Pie data={employeeDistributionData} cx="40%" cy="50%" innerRadius={60} outerRadius={100} paddingAngle={2} dataKey="value" stroke="none" labelLine={false} label={renderCustomizedLabel}>
+                                    <Pie data={employeeDistributionData} cx="50%" cy="45%" innerRadius={65} outerRadius={90} paddingAngle={2} dataKey="value" stroke="none" labelLine={false} label={renderCustomizedLabel}>
                                         {employeeDistributionData.map((entry, index) => (
                                             <Cell key={`cell-${index}`} fill={entry.color} />
                                         ))}
                                     </Pie>
-                                    <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
-                                    <Legend layout="vertical" verticalAlign="middle" align="right" iconType="circle" wrapperStyle={{ fontSize: '12px', lineHeight: '24px' }} />
+                                    <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} formatter={(value, name) => [value, name]} />
+                                    <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '11px', paddingTop: '0px' }} />
                                 </PieChart>
                             </ResponsiveContainer>
                         </div>
