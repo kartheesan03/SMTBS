@@ -3,7 +3,7 @@ import API from '../api/axios';
 import { AuthContext } from '../context/AuthContext';
 import { 
     CalendarCheck, Clock, CheckCircle, FileText, 
-    Download, Bell, Calendar, Briefcase, ExternalLink, Activity
+    Download, Bell, Calendar, Briefcase, ExternalLink, Activity, DollarSign
 } from 'lucide-react';
 import { 
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer
