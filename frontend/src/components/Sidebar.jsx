@@ -44,14 +44,8 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
         { path: '/erp', name: 'ERP', icon: <ShoppingCart size={20} /> },
         { path: '/crm', name: 'CRM', icon: <Briefcase size={20} /> },
         { path: '/analytics', name: 'Reports & Analytics', icon: <BarChart3 size={20} /> },
-        { path: '/user-management', name: 'User Management', icon: <Users size={20} /> },
-        { path: '/roles-permissions', name: 'Roles & Permissions', icon: <Shield size={20} /> },
+        { path: '/vendors', name: 'Supplier/Vendor', icon: <Plug size={20} /> },
         { path: '/notifications', name: 'Notifications', icon: <Bell size={20} /> },
-        { path: '/settings', name: 'System Settings', icon: <Settings size={20} /> },
-        { path: '/audit-logs', name: 'Audit Logs', icon: <FileText size={20} /> },
-        { path: '/integrations', name: 'Integrations', icon: <Plug size={20} /> },
-        { path: '/backup-restore', name: 'Backup & Restore', icon: <Database size={20} /> },
-        { path: '/support', name: 'Help & Support', icon: <HelpCircle size={20} /> },
     ];
 
     const employeeMenu = [
@@ -63,9 +57,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
         { path: '/leave-management', name: 'Leave Management', icon: <Calendar size={20} /> },
         { path: '/erp', name: 'Orders (ERP)', icon: <ShoppingCart size={20} /> },
         { path: '/stock-requests', name: 'Stock Requests', icon: <Box size={20} /> },
-        { path: '/support', name: 'Support Tickets', icon: <LifeBuoy size={20} /> },
         { path: '/notifications', name: 'Notifications', icon: <Bell size={20} /> },
-        { path: '/profile', name: 'My Profile', icon: <Settings size={20} /> },
     ];
 
     const hrMenu = [
@@ -77,10 +69,8 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
         { path: '/leave-management', name: 'Leave Management', icon: <Calendar size={20} /> },
         { path: '/payroll', name: 'Payroll', icon: <DollarSign size={20} /> },
         { path: '/erp', name: 'Orders (ERP)', icon: <ShoppingCart size={20} /> },
-        { path: '/support', name: 'Support Tickets', icon: <LifeBuoy size={20} /> },
         { path: '/notifications', name: 'Notifications', icon: <Bell size={20} /> },
         { path: '/hr-reports', name: 'Reports', icon: <BarChart3 size={20} /> },
-        { path: '/profile', name: 'My Profile', icon: <Settings size={20} /> },
     ];
 
     const managerMenu = [
@@ -93,9 +83,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
         { path: '/materials', name: 'Materials Overview', icon: <Briefcase size={20} /> },
         { path: '/stock-requests', name: 'Stock Requests', icon: <Box size={20} /> },
         { path: '/analytics', name: 'Reports', icon: <BarChart3 size={20} /> },
-        { path: '/support', name: 'Support Tickets', icon: <LifeBuoy size={20} /> },
         { path: '/notifications', name: 'Notifications', icon: <Bell size={20} /> },
-        { path: '/profile', name: 'My Profile', icon: <Settings size={20} /> },
     ];
 
     const salesMenu = [
@@ -107,8 +95,6 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
         { path: '/stock-requests', name: 'Stock Deliveries', icon: <Box size={20} /> },
         { path: '/notifications', name: 'Notifications', icon: <Bell size={20} /> },
         { path: '/analytics', name: 'Reports', icon: <BarChart3 size={20} /> },
-        { path: '/support', name: 'Support Tickets', icon: <LifeBuoy size={20} /> },
-        { path: '/profile', name: 'My Profile', icon: <Settings size={20} /> },
     ];
 
     const userRole = user?.role ? user.role.toLowerCase() : '';
@@ -160,8 +146,8 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                         {item.name === 'Notifications' && unreadCount > 0 && (
                             <span className="sidebar-badge">{unreadCount}</span>
                         )}
-                        {/* Nested style chevrons for items like Dashboard, ERP, CRM to match reference image */}
-                        {(item.name === 'Dashboard' || item.name === 'Material Tracking' || item.name === 'HRMS' || item.name === 'ERP' || item.name === 'CRM' || item.name === 'Reports & Analytics' || item.name === 'User Management') && (
+                        {/* Nested style chevrons for items to match reference image */}
+                        {(item.name === 'Dashboard' || item.name === 'Material Tracking' || item.name === 'HRMS' || item.name === 'ERP' || item.name === 'CRM' || item.name === 'Reports & Analytics' || item.name === 'Supplier/Vendor') && (
                             <span className="chevron-indicator">▾</span>
                         )}
                     </NavLink>
