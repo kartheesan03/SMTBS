@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { 
     PieChart, Pie, Cell, BarChart, Bar, LineChart, Line, 
-    XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer
+    XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend
 } from 'recharts';
 
 const HRDashboard = () => {
@@ -51,24 +51,29 @@ const HRDashboard = () => {
 
     // Charts Data
     const employeeDistributionData = [
-        { name: 'Engineering', value: 45, color: '#3b82f6' },
+        { name: 'HR', value: 12, color: '#8b5cf6' },
         { name: 'Sales', value: 30, color: '#10b981' },
         { name: 'Operations', value: 15, color: '#f59e0b' },
-        { name: 'HR & Admin', value: 10, color: '#8b5cf6' },
+        { name: 'Production', value: 25, color: '#3b82f6' },
+        { name: 'Accounts', value: 8, color: '#ec4899' },
     ];
 
-    const attendanceOverviewData = [
+    const attendanceOverviewData = totalEmployees > 0 ? [
         { name: 'Present', value: presentToday, color: '#10b981' },
-        { name: 'On Leave', value: onLeave, color: '#f59e0b' },
         { name: 'Absent', value: Math.max(0, totalEmployees - presentToday - onLeave), color: '#ef4444' },
+        { name: 'On Leave', value: onLeave, color: '#f59e0b' },
+    ] : [
+        { name: 'Present', value: 6, color: '#10b981' },
+        { name: 'Absent', value: 0, color: '#ef4444' },
+        { name: 'On Leave', value: 0, color: '#f59e0b' },
     ];
 
     const departmentHeadcountData = [
-        { name: 'Engineering', count: 45, fill: '#3b82f6' },
+        { name: 'HR', count: 12, fill: '#8b5cf6' },
         { name: 'Sales', count: 30, fill: '#10b981' },
         { name: 'Operations', count: 15, fill: '#f59e0b' },
-        { name: 'HR', count: 5, fill: '#8b5cf6' },
-        { name: 'Admin', count: 5, fill: '#ec4899' },
+        { name: 'Production', count: 25, fill: '#3b82f6' },
+        { name: 'Accounts', count: 8, fill: '#ec4899' },
     ];
 
     const leaveRequests = [
@@ -140,15 +145,16 @@ const HRDashboard = () => {
                         <div className="bento-card-header">
                             <div className="bento-card-title"><Activity size={16} /> Attendance Overview</div>
                         </div>
-                        <div className="bento-card-body" style={{ height: '220px' }}>
+                        <div className="bento-card-body" style={{ height: '260px' }}>
                             <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>
-                                    <Pie data={attendanceOverviewData} cx="50%" cy="50%" innerRadius={45} outerRadius={75} paddingAngle={5} dataKey="value" stroke="none">
+                                    <Pie data={attendanceOverviewData} cx="50%" cy="45%" innerRadius={50} outerRadius={80} paddingAngle={2} dataKey="value" stroke="none">
                                         {attendanceOverviewData.map((entry, index) => (
                                             <Cell key={`cell-${index}`} fill={entry.color} />
                                         ))}
                                     </Pie>
                                     <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
+                                    <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '12px' }}/>
                                 </PieChart>
                             </ResponsiveContainer>
                         </div>
@@ -158,15 +164,16 @@ const HRDashboard = () => {
                         <div className="bento-card-header">
                             <div className="bento-card-title"><Users size={16} /> Employee Distribution</div>
                         </div>
-                        <div className="bento-card-body" style={{ height: '220px', display: 'flex', flexDirection: 'column' }}>
+                        <div className="bento-card-body" style={{ height: '260px', display: 'flex', flexDirection: 'column' }}>
                             <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>
-                                    <Pie data={employeeDistributionData} cx="50%" cy="50%" innerRadius={45} outerRadius={75} paddingAngle={5} dataKey="value" stroke="none">
+                                    <Pie data={employeeDistributionData} cx="50%" cy="45%" innerRadius={50} outerRadius={80} paddingAngle={2} dataKey="value" stroke="none">
                                         {employeeDistributionData.map((entry, index) => (
                                             <Cell key={`cell-${index}`} fill={entry.color} />
                                         ))}
                                     </Pie>
                                     <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
+                                    <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '12px' }}/>
                                 </PieChart>
                             </ResponsiveContainer>
                         </div>
@@ -176,14 +183,14 @@ const HRDashboard = () => {
                         <div className="bento-card-header">
                             <div className="bento-card-title"><Briefcase size={16} /> Department Headcount</div>
                         </div>
-                        <div className="bento-card-body" style={{ height: '220px' }}>
+                        <div className="bento-card-body" style={{ height: '260px' }}>
                             <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={departmentHeadcountData} layout="vertical" margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+                                <BarChart data={departmentHeadcountData} layout="vertical" margin={{ top: 10, right: 20, left: 20, bottom: 0 }}>
                                     <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
                                     <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} />
-                                    <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#334155' }} />
-                                    <RechartsTooltip cursor={{fill: 'transparent'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
-                                    <Bar dataKey="count" radius={[0, 4, 4, 0]} barSize={16}>
+                                    <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#334155', fontWeight: 600 }} width={70} />
+                                    <RechartsTooltip cursor={{fill: 'rgba(0,0,0,0.02)'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
+                                    <Bar dataKey="count" radius={[0, 4, 4, 0]} barSize={20}>
                                         {departmentHeadcountData.map((entry, index) => (
                                             <Cell key={`cell-${index}`} fill={entry.fill} />
                                         ))}
