@@ -81,6 +81,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
         { path: '/my-tasks', name: 'Task Management', icon: <Box size={20} /> },
         { path: '/team-performance', name: 'Team Performance', icon: <Users size={20} /> },
         { path: '/materials', name: 'Materials Overview', icon: <Briefcase size={20} /> },
+        { path: '/vendors', name: 'Vendors/Suppliers', icon: <Plug size={20} /> },
         { path: '/stock-requests', name: 'Stock Requests', icon: <Box size={20} /> },
         { path: '/analytics', name: 'Reports', icon: <BarChart3 size={20} /> },
         { path: '/notifications', name: 'Notifications', icon: <Bell size={20} /> },
@@ -147,7 +148,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                             <span className="sidebar-badge">{unreadCount}</span>
                         )}
                         {/* Nested style chevrons for items to match reference image */}
-                        {(item.name === 'Dashboard' || item.name === 'Material Tracking' || item.name === 'HRMS' || item.name === 'ERP' || item.name === 'CRM' || item.name === 'Reports & Analytics' || item.name === 'Supplier/Vendor') && (
+                        {(item.name === 'Dashboard' || item.name === 'Material Tracking' || item.name === 'HRMS' || item.name === 'ERP' || item.name === 'CRM' || item.name === 'Reports & Analytics' || item.name === 'Supplier/Vendor' || item.name === 'Vendors/Suppliers') && (
                             <span className="chevron-indicator">▾</span>
                         )}
                     </NavLink>
