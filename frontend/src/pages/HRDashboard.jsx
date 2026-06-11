@@ -3,7 +3,7 @@ import API from '../api/axios';
 import { 
     Users, UserCheck, Calendar, DollarSign, 
     FileText, Activity, AlertCircle, Briefcase,
-    TrendingUp, TrendingDown
+    TrendingUp, TrendingDown, Award
 } from 'lucide-react';
 import { 
     PieChart, Pie, Cell, BarChart, Bar, LineChart, Line, AreaChart, Area,
