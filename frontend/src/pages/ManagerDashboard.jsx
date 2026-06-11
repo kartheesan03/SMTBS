@@ -68,12 +68,6 @@ const ManagerDashboard = () => {
         { id: 4, name: 'Security Audit', progress: 100, status: 'Completed' },
     ];
 
-    const pendingApprovalsList = [
-        { id: 1, type: 'Leave Request', requester: 'Alice Smith', details: '2 days sick leave' },
-        { id: 2, type: 'Expense Claim', requester: 'Bob Johnson', details: 'Travel to client site ($240)' },
-        { id: 3, type: 'Resource Request', requester: 'Charlie Brown', details: '1 additional frontend dev' },
-    ];
-
     return (
         <div className="role-dashboard-layout">
             <div className="main-content">
@@ -216,40 +210,6 @@ const ManagerDashboard = () => {
                                     <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '11px', paddingTop: '0px' }} />
                                 </PieChart>
                             </ResponsiveContainer>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Row 2 */}
-                <div className="charts-grid-3" style={{ gridTemplateColumns: '1fr' }}>
-                    <div className="bento-card">
-                        <div className="bento-card-header">
-                            <div className="bento-card-title"><FileText size={16} /> Pending Approvals</div>
-                        </div>
-                        <div className="bento-card-body" style={{ height: '320px', overflowY: 'auto' }}>
-                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
-                                <thead>
-                                    <tr style={{ borderBottom: '1px solid #e2e8f0', color: '#64748b', textAlign: 'left' }}>
-                                        <th style={{ padding: '16px 20px', fontWeight: 600 }}>Type</th>
-                                        <th style={{ padding: '16px 20px', fontWeight: 600 }}>Requester</th>
-                                        <th style={{ padding: '16px 20px', fontWeight: 600 }}>Details</th>
-                                        <th style={{ padding: '16px 20px', textAlign: 'right', fontWeight: 600 }}>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {pendingApprovalsList.map(item => (
-                                        <tr key={item.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                                            <td style={{ padding: '16px 20px', fontWeight: 600, color: '#0f172a' }}>{item.type}</td>
-                                            <td style={{ padding: '16px 20px', color: '#64748b' }}>{item.requester}</td>
-                                            <td style={{ padding: '16px 20px', color: '#64748b' }}>{item.details}</td>
-                                            <td style={{ padding: '16px 20px', textAlign: 'right' }}>
-                                                <button style={{ background: '#10b981', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 600, marginRight: '8px' }}>Approve</button>
-                                                <button style={{ background: 'transparent', color: '#ef4444', border: '1px solid #fee2e2', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 600 }}>Deny</button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
                         </div>
                     </div>
                 </div>
