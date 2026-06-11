@@ -89,6 +89,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
         { path: '/stock-requests', name: 'Stock Requests', icon: <Box size={20} /> },
         { path: '/analytics', name: 'Reports', icon: <BarChart3 size={20} /> },
         { path: '/support', name: 'Support Tickets', icon: <LifeBuoy size={20} /> },
+        { path: '/notifications', name: 'Notifications', icon: <Bell size={20} /> },
         { path: '/profile', name: 'My Profile', icon: <Settings size={20} /> },
     ];
 
