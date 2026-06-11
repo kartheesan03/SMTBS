@@ -75,15 +75,25 @@ const HRDashboard = () => {
     // Role-based Department Headcount from Users API
     const roleLabels = {
         'admin': 'Admin Department',
+        'super admin': 'Admin Department',
         'hr': 'HR Department / HR Manager',
+        'hr manager': 'HR Department / HR Manager',
         'manager': 'Manager Department',
         'sales': 'Sales Department / Sales Manager',
+        'sales manager': 'Sales Department / Sales Manager',
         'employee': 'Employee Department'
     };
 
     const roleCounts = {};
     users.forEach(user => {
-        const roleStr = user.role ? user.role.toLowerCase() : 'employee';
+        let roleStr = user.role ? user.role.toLowerCase().trim() : 'employee';
+        
+        // Handle fallback mappings if the database has other variants
+        if (roleStr.includes('hr')) roleStr = 'hr';
+        else if (roleStr.includes('sales')) roleStr = 'sales';
+        else if (roleStr.includes('admin')) roleStr = 'admin';
+        else if (roleStr.includes('manager')) roleStr = 'manager';
+
         const label = roleLabels[roleStr] || `${user.role} Department`;
         roleCounts[label] = (roleCounts[label] || 0) + 1;
     });
@@ -224,7 +234,7 @@ const HRDashboard = () => {
                                 <BarChart data={departmentHeadcountData} layout="vertical" margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
                                     <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
                                     <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} />
-                                    <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#334155', fontWeight: 600 }} width={75} />
+                                    <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#334155', fontWeight: 600 }} width={180} />
                                     <RechartsTooltip cursor={{fill: 'rgba(0,0,0,0.02)'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
                                     <Bar dataKey="count" radius={[0, 4, 4, 0]} barSize={20}>
                                         {departmentHeadcountData.map((entry, index) => (
