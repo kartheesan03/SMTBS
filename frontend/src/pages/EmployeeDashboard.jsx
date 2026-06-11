@@ -68,230 +68,320 @@ const EmployeeDashboard = () => {
         { id: 3, text: 'New task assigned by John', time: '2 days ago', icon: <CheckCircle size={16} /> }
     ];
 
-    // Dummy lucide icons for notifications where DollarSign is missing, I'll use Activity
     const getIcon = (id) => {
         if(id === 1) return <FileText size={16} className="text-success" />;
-        if(id === 2) return <Activity size={16} className="text-primary" />;
+        if(id === 2) return <DollarSign size={16} className="text-primary" />;
         return <CheckCircle size={16} className="text-warning" />;
     };
 
     return (
-        <div className="p-30">
-            <div style={{ marginBottom: '24px' }}>
-                <h1 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>Employee Dashboard</h1>
-                <p style={{ color: 'var(--text-muted)', fontSize: '14px', margin: '4px 0 0 0' }}>Welcome back, {user?.name || 'Employee'}. Here is your workspace summary.</p>
-            </div>
+        <div className="role-dashboard-layout">
+            
+            {/* --- Main Content Left --- */}
+            <div className="dashboard-main-content">
+                <div className="header-section">
+                    <h1 className="page-title">Employee Workspace</h1>
+                    <p className="page-subtitle">Welcome back, {user?.name || 'Employee'}. Here is your workspace summary.</p>
+                </div>
 
-            {/* Top KPI Row */}
-            <div className="bento-grid" style={{ marginBottom: '20px' }}>
-                <div className="bento-card bento-col-3">
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                        <div>
-                            <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', margin: 0 }}>Attendance Status</p>
-                            <h2 style={{ fontSize: '28px', fontWeight: 800, margin: '8px 0 0 0', color: 'var(--success)' }}>
-                                {employeeStats.attendanceToday ? 'Present' : 'Not Logged In'}
-                            </h2>
+                {/* Top KPI Cards */}
+                <div className="kpi-grid">
+                    <div className="kpi-card">
+                        <div className="kpi-icon-wrapper" style={{ background: '#ecfdf5', color: '#059669' }}><CalendarCheck size={20} /></div>
+                        <div className="kpi-info">
+                            <span className="kpi-label">Attendance Status</span>
+                            <h3 className="kpi-value">{employeeStats.attendanceToday ? 'Present' : 'Not Logged In'}</h3>
                         </div>
-                        <div style={{ background: 'var(--success-light)', padding: '10px', borderRadius: '12px', color: 'var(--success)' }}>
-                            <CalendarCheck size={20} />
+                    </div>
+                    <div className="kpi-card">
+                        <div className="kpi-icon-wrapper" style={{ background: '#eff6ff', color: '#3b82f6' }}><CheckCircle size={20} /></div>
+                        <div className="kpi-info">
+                            <span className="kpi-label">Assigned Tasks</span>
+                            <h3 className="kpi-value">{myTasks.length}</h3>
+                        </div>
+                    </div>
+                    <div className="kpi-card">
+                        <div className="kpi-icon-wrapper" style={{ background: '#f3e8ff', color: '#9333ea' }}><Briefcase size={20} /></div>
+                        <div className="kpi-info">
+                            <span className="kpi-label">Active Projects</span>
+                            <h3 className="kpi-value">2</h3>
+                        </div>
+                    </div>
+                    <div className="kpi-card">
+                        <div className="kpi-icon-wrapper" style={{ background: '#fef3c7', color: '#d97706' }}><FileText size={20} /></div>
+                        <div className="kpi-info">
+                            <span className="kpi-label">Leave Balance</span>
+                            <h3 className="kpi-value">12 Days</h3>
+                        </div>
+                    </div>
+                    <div className="kpi-card">
+                        <div className="kpi-icon-wrapper" style={{ background: '#ecfeff', color: '#0891b2' }}><Clock size={20} /></div>
+                        <div className="kpi-info">
+                            <span className="kpi-label">Logged Hours</span>
+                            <h3 className="kpi-value">41.3h</h3>
+                        </div>
+                    </div>
+                    <div className="kpi-card">
+                        <div className="kpi-icon-wrapper" style={{ background: '#fef2f2', color: '#dc2626' }}><Activity size={20} /></div>
+                        <div className="kpi-info">
+                            <span className="kpi-label">Pending Leaves</span>
+                            <h3 className="kpi-value">{employeeStats.myPendingLeaves || 0}</h3>
                         </div>
                     </div>
                 </div>
 
-                <div className="bento-card bento-col-3">
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                        <div>
-                            <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', margin: 0 }}>Pending Tasks</p>
-                            <h2 style={{ fontSize: '28px', fontWeight: 800, margin: '8px 0 0 0', color: 'var(--text-primary)' }}>
-                                3
-                            </h2>
+                {/* Charts Grid */}
+                <div className="charts-grid">
+                    
+                    {/* Weekly Attendance Bar Chart */}
+                    <div className="bento-card span-8">
+                        <div className="bento-card-header">
+                            <div className="bento-card-title"><Clock size={18} /> Weekly Hours Logged</div>
                         </div>
-                        <div style={{ background: '#f5f3ff', padding: '10px', borderRadius: '12px', color: '#8b5cf6' }}>
-                            <CheckCircle size={20} />
+                        <div className="bento-card-body" style={{ height: '300px' }}>
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={weeklyAttendance} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dy={10} />
+                                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
+                                    <RechartsTooltip cursor={{fill: 'transparent'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
+                                    <Bar dataKey="hours" fill="#3b82f6" radius={[6, 6, 0, 0]} barSize={40} />
+                                </BarChart>
+                            </ResponsiveContainer>
                         </div>
                     </div>
-                </div>
 
-                <div className="bento-card bento-col-3">
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                        <div>
-                            <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', margin: 0 }}>Assigned Projects</p>
-                            <h2 style={{ fontSize: '28px', fontWeight: 800, margin: '8px 0 0 0', color: 'var(--text-primary)' }}>
-                                2
-                            </h2>
+                    {/* Payslip Summary Card */}
+                    <div className="bento-card span-4">
+                        <div className="bento-card-header">
+                            <div className="bento-card-title"><DollarSign size={18} /> Recent Payslip</div>
                         </div>
-                        <div style={{ background: 'var(--primary-light)', padding: '10px', borderRadius: '12px', color: 'var(--primary)' }}>
-                            <Briefcase size={20} />
-                        </div>
-                    </div>
-                </div>
-
-                <div className="bento-card bento-col-3">
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                        <div>
-                            <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', margin: 0 }}>Leave Balance</p>
-                            <h2 style={{ fontSize: '28px', fontWeight: 800, margin: '8px 0 0 0', color: 'var(--text-primary)' }}>
-                                14 <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-muted)' }}>days</span>
-                            </h2>
-                        </div>
-                        <div style={{ background: 'var(--warning-light)', padding: '10px', borderRadius: '12px', color: 'var(--warning)' }}>
-                            <Clock size={20} />
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Quick Actions Row */}
-            <div className="bento-grid" style={{ marginBottom: '20px' }}>
-                <div className="bento-card bento-col-4" style={{ background: '#f8fafc', alignItems: 'center', justifyContent: 'center', gap: '12px', textAlign: 'center' }}>
-                    <div style={{ background: 'var(--primary)', color: '#fff', padding: '16px', borderRadius: '50%', boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)' }}>
-                        <Download size={24} />
-                    </div>
-                    <div>
-                        <h3 style={{ margin: 0, fontSize: '16px', color: 'var(--text-primary)' }}>Salary Slip</h3>
-                        <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: 'var(--text-muted)' }}>Download May 2026 Payslip</p>
-                    </div>
-                    <button className="btn-secondary" style={{ marginTop: '8px', padding: '6px 16px', fontSize: '12px' }}>Download PDF</button>
-                </div>
-
-                <div className="bento-card bento-col-4">
-                    <div className="bento-card-header" style={{ marginBottom: '12px' }}>
-                        <div className="bento-card-title" style={{ fontSize: '14px' }}>
-                            <Bell size={16} className="text-primary" />
-                            Recent Notifications
-                        </div>
-                    </div>
-                    <div className="bento-card-body" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                        {notifications.map(n => (
-                            <div key={n.id} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
-                                <div style={{ background: '#ffffff', padding: '6px', borderRadius: '8px', boxShadow: 'var(--shadow-sm)' }}>
-                                    {getIcon(n.id)}
-                                </div>
-                                <div>
-                                    <p style={{ margin: 0, fontSize: '13px', fontWeight: 500, color: 'var(--text-primary)' }}>{n.text}</p>
-                                    <p style={{ margin: 0, fontSize: '11px', color: 'var(--text-muted)' }}>{n.time}</p>
-                                </div>
+                        <div className="bento-card-body" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                            <div style={{ background: '#f8fafc', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
+                                <h4 style={{ margin: '0 0 8px 0', color: '#64748b', fontSize: '14px', fontWeight: 600 }}>May 2023</h4>
+                                <h2 style={{ margin: '0', color: '#0f172a', fontSize: '32px', fontWeight: 800 }}>$4,250</h2>
+                                <span style={{ display: 'inline-block', marginTop: '8px', padding: '4px 8px', background: '#ecfdf5', color: '#10b981', fontSize: '12px', fontWeight: 700, borderRadius: '4px' }}>Paid</span>
                             </div>
-                        ))}
-                    </div>
-                </div>
-
-                <div className="bento-card bento-col-4">
-                    <div className="bento-card-header" style={{ marginBottom: '12px' }}>
-                        <div className="bento-card-title" style={{ fontSize: '14px' }}>
-                            <ExternalLink size={16} className="text-primary" />
-                            Quick Links
+                            <button style={{ width: '100%', padding: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 600, cursor: 'pointer' }}>
+                                <Download size={16} /> Download Payslip
+                            </button>
                         </div>
                     </div>
-                    <div className="bento-card-body" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        <div style={{ padding: '10px 12px', background: '#ffffff', border: '1px solid var(--border)', borderRadius: '8px', fontSize: '13px', fontWeight: 500, cursor: 'pointer', transition: '0.2s' }} className="hover-shadow">Apply for Leave</div>
-                        <div style={{ padding: '10px 12px', background: '#ffffff', border: '1px solid var(--border)', borderRadius: '8px', fontSize: '13px', fontWeight: 500, cursor: 'pointer', transition: '0.2s' }} className="hover-shadow">Company Policies</div>
-                        <div style={{ padding: '10px 12px', background: '#ffffff', border: '1px solid var(--border)', borderRadius: '8px', fontSize: '13px', fontWeight: 500, cursor: 'pointer', transition: '0.2s' }} className="hover-shadow">IT Support Ticket</div>
+
+                    {/* Tasks List */}
+                    <div className="bento-card span-12">
+                        <div className="bento-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div className="bento-card-title"><CheckCircle size={18} /> My Active Tasks</div>
+                            <span style={{ fontSize: '13px', color: '#3b82f6', cursor: 'pointer', fontWeight: 600 }}>View All</span>
+                        </div>
+                        <div className="bento-card-body">
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                {myTasks.map(task => (
+                                    <div key={task.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', border: '1px solid #f1f5f9', borderRadius: '12px', background: '#fff' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                                            <input type="checkbox" style={{ width: '18px', height: '18px', cursor: 'pointer' }} />
+                                            <div>
+                                                <h4 style={{ margin: '0 0 4px 0', fontSize: '15px', color: '#0f172a' }}>{task.title}</h4>
+                                                <div style={{ display: 'flex', gap: '12px', fontSize: '13px', color: '#64748b' }}>
+                                                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Briefcase size={14}/> {task.project}</span>
+                                                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Clock size={14}/> {task.due}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <span style={{ padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 600, background: task.priority === 'High' ? '#fef2f2' : '#eff6ff', color: task.priority === 'High' ? '#dc2626' : '#3b82f6' }}>
+                                                {task.priority}
+                                            </span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
                     </div>
+
                 </div>
             </div>
 
-            {/* Charts & Schedule Row */}
-            <div className="bento-grid">
-                <div className="bento-card bento-col-8">
-                    <div className="bento-card-header">
-                        <div className="bento-card-title">
-                            <Activity size={18} className="text-primary" />
-                            My Attendance Log (This Week)
-                        </div>
-                        <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)' }}>Avg 8.2 hrs/day</span>
-                    </div>
-                    <div className="bento-card-body" style={{ height: '240px' }}>
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={weeklyAttendance} margin={{ top: 10, right: 10, left: -20, bottom: 0 }} barSize={32}>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dy={10} />
-                                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
-                                <RechartsTooltip 
-                                    cursor={{ fill: '#f1f5f9' }}
-                                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: 'var(--shadow-md)' }}
-                                    formatter={(val) => [`${val} hours`, 'Logged']}
-                                />
-                                <Bar dataKey="hours" fill="var(--primary)" radius={[6, 6, 0, 0]} />
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </div>
+            {/* --- Right Panel: Employee Features --- */}
+            <div className="role-side-panel">
+                <div className="side-panel-header">
+                    <h3>Employee Panel</h3>
+                    <span className="badge">Staff</span>
                 </div>
-
-                <div className="bento-card bento-col-4">
-                    <div className="bento-card-header" style={{ marginBottom: '16px' }}>
-                        <div className="bento-card-title">
-                            <Calendar size={18} className="text-primary" />
-                            Upcoming Events
+                
+                <div className="side-panel-content">
+                    
+                    {/* Quick Links */}
+                    <div className="feature-block">
+                        <h4 className="block-title">Quick Links</h4>
+                        <div className="action-list">
+                            <button className="action-item"><Calendar size={16} /> Apply for Leave</button>
+                            <button className="action-item"><DollarSign size={16} /> Submit Expense</button>
+                            <button className="action-item"><Briefcase size={16} /> Company Policies</button>
                         </div>
                     </div>
-                    <div className="bento-card-body" style={{ overflowY: 'auto', height: '240px' }}>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                            {upcomingEvents.map((event, i) => (
-                                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', background: '#f8fafc', borderRadius: '8px', border: '1px solid var(--border)' }}>
-                                    <div style={{ width: '4px', height: '36px', background: 'var(--primary)', borderRadius: '2px' }}></div>
+
+                    {/* Upcoming Events */}
+                    <div className="feature-block">
+                        <h4 className="block-title">Upcoming Events <Calendar size={14} className="text-primary ml-1"/></h4>
+                        <div className="event-list" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            {upcomingEvents.map(event => (
+                                <div key={event.id} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', padding: '12px', background: '#f8fafc', borderRadius: '12px', borderLeft: '3px solid #3b82f6' }}>
                                     <div style={{ flex: 1 }}>
-                                        <h4 style={{ fontSize: '13px', fontWeight: 600, margin: '0 0 2px 0', color: 'var(--text-primary)' }}>{event.title}</h4>
-                                        <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{event.time}</span>
+                                        <h5 style={{ margin: '0 0 4px 0', fontSize: '14px', color: '#0f172a' }}>{event.title}</h5>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#64748b' }}>
+                                            <span>{event.time}</span>
+                                            <span>{event.type}</span>
+                                        </div>
                                     </div>
-                                    <span style={{ fontSize: '10px', background: '#e0e7ff', color: 'var(--primary)', padding: '2px 6px', borderRadius: '4px', fontWeight: 600 }}>{event.type}</span>
                                 </div>
                             ))}
                         </div>
                     </div>
-                </div>
-                
-                <div className="bento-col-12" style={{ marginTop: '20px' }}>
-                    <div className="bento-card">
-                        <div className="bento-card-header">
-                            <div className="bento-card-title">
-                                <CheckCircle size={18} className="text-primary" />
-                                My Tasks
-                            </div>
-                        </div>
-                        <div className="bento-card-body">
-                            <div className="table-responsive">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>Task Name</th>
-                                            <th>Project</th>
-                                            <th>Due Date</th>
-                                            <th>Priority</th>
-                                            <th>Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {myTasks.map(task => (
-                                            <tr key={task.id}>
-                                                <td style={{ fontWeight: 500 }}>{task.title}</td>
-                                                <td>{task.project}</td>
-                                                <td>{task.due}</td>
-                                                <td>
-                                                    <span className={`status-badge ${task.priority === 'High' ? 'low' : task.priority === 'Medium' ? 'pending' : 'new'}`}>
-                                                        {task.priority}
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    <span className={`status-badge ${task.status === 'In Progress' ? 'new' : 'low'}`}>
-                                                        {task.status}
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
+
+                    {/* Notifications feed */}
+                    <div className="feature-block">
+                        <h4 className="block-title">Recent Notifications</h4>
+                        <div className="timeline">
+                            {notifications.map((notif) => (
+                                <div className="timeline-item" key={notif.id}>
+                                    <div className="timeline-dot" style={{ borderColor: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'white' }}>
+                                        {/* Using pseudo element for simple dot if we want, or render icon */}
+                                    </div>
+                                    <div className="timeline-content">
+                                        <p>{notif.text}</p>
+                                        <span style={{ display: 'block', marginTop: '2px' }}>{notif.time}</span>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
+
                 </div>
             </div>
-            
+
+            {/* --- Shared Embedded CSS for Role Dashboards --- */}
             <style jsx="true">{`
-                .hover-shadow:hover {
-                    box-shadow: var(--shadow-sm);
-                    border-color: var(--primary-100);
-                    color: var(--primary);
+                .role-dashboard-layout {
+                    display: grid;
+                    grid-template-columns: 1fr 320px;
+                    min-height: 100vh;
+                    background: #f8fafc;
+                }
+
+                .dashboard-main-content {
+                    padding: 30px;
+                    height: 100vh;
+                    overflow-y: auto;
+                }
+
+                .header-section { margin-bottom: 24px; }
+                .page-title { font-size: 26px; font-weight: 800; color: #0f172a; margin: 0 0 4px 0; }
+                .page-subtitle { font-size: 15px; color: #64748b; margin: 0; }
+
+                /* KPI Grid */
+                .kpi-grid {
+                    display: grid;
+                    grid-template-columns: repeat(3, 1fr);
+                    gap: 20px;
+                    margin-bottom: 24px;
+                }
+                .kpi-card {
+                    background: #ffffff;
+                    border-radius: 16px;
+                    padding: 20px;
+                    display: flex;
+                    align-items: center;
+                    gap: 16px;
+                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+                    border: 1px solid #f1f5f9;
+                    transition: transform 0.2s ease, box-shadow 0.2s ease;
+                }
+                .kpi-card:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+                }
+                .kpi-icon-wrapper {
+                    width: 48px;
+                    height: 48px;
+                    border-radius: 12px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+                .kpi-info { flex: 1; }
+                .kpi-label { display: block; font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 4px; }
+                .kpi-value { font-size: 24px; font-weight: 800; color: #0f172a; margin: 0; }
+
+                /* Charts Grid */
+                .charts-grid {
+                    display: grid;
+                    grid-template-columns: repeat(12, 1fr);
+                    gap: 20px;
+                    margin-bottom: 24px;
+                }
+                .bento-card {
+                    background: #ffffff;
+                    border-radius: 16px;
+                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+                    border: 1px solid #f1f5f9;
+                    display: flex;
+                    flex-direction: column;
+                    overflow: hidden;
+                }
+                .span-12 { grid-column: span 12; }
+                .span-8 { grid-column: span 8; }
+                .span-4 { grid-column: span 4; }
+                
+                .bento-card-header { padding: 20px 24px 0; }
+                .bento-card-title { font-size: 16px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 8px; }
+                .bento-card-body { padding: 24px; flex: 1; }
+
+                /* --- Right Panel --- */
+                .role-side-panel {
+                    background: #ffffff;
+                    border-left: 1px solid #e2e8f0;
+                    height: 100vh;
+                    overflow-y: auto;
+                    display: flex;
+                    flex-direction: column;
+                }
+                .side-panel-header {
+                    padding: 24px 24px 20px;
+                    border-bottom: 1px solid #f1f5f9;
+                    display: flex; align-items: center; justify-content: space-between;
+                }
+                .side-panel-header h3 { margin: 0; font-size: 18px; font-weight: 800; color: #0f172a; }
+                .badge { background: #3b82f6; color: #ffffff; font-size: 11px; font-weight: 700; padding: 4px 8px; border-radius: 12px; }
+                .side-panel-content { padding: 24px; display: flex; flex-direction: column; gap: 32px; }
+
+                .block-title { margin: 0 0 16px 0; font-size: 14px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; }
+                .action-list { display: flex; flex-direction: column; gap: 10px; }
+                .action-item {
+                    display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: #f8fafc;
+                    border: 1px solid #f1f5f9; border-radius: 12px; color: #334155; font-weight: 600; font-size: 14px;
+                    cursor: pointer; transition: all 0.2s; text-align: left;
+                }
+                .action-item:hover { background: #f1f5f9; color: #0f172a; }
+                .action-item svg { color: #64748b; }
+
+                .timeline { position: relative; padding-left: 14px; border-left: 2px solid #e2e8f0; display: flex; flex-direction: column; gap: 20px; }
+                .timeline-item { position: relative; }
+                .timeline-dot { position: absolute; left: -21px; top: 2px; width: 12px; height: 12px; border-radius: 50%; background: #ffffff; border: 3px solid #3b82f6; }
+                .timeline-content p { margin: 0 0 4px 0; font-size: 13px; font-weight: 600; color: #334155; line-height: 1.4; }
+                .timeline-content span { font-size: 12px; color: #94a3b8; }
+
+                @media (max-width: 1400px) {
+                    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+                    .charts-grid { display: flex; flex-direction: column; }
+                }
+                @media (max-width: 1024px) {
+                    .role-dashboard-layout { grid-template-columns: 1fr; }
+                    .role-side-panel { display: none; }
+                }
+                @media (max-width: 768px) {
+                    .kpi-grid { grid-template-columns: 1fr; }
+                    .dashboard-main-content { padding: 20px; }
                 }
             `}</style>
         </div>
