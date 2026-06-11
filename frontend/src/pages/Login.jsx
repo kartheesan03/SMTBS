@@ -29,6 +29,8 @@ const Login = () => {
         } finally {
             setIsLoading(false);
         }
+    };
+
     const handleGoogleLoginMock = async () => {
         // TODO: Replace with useGoogleLogin() from @react-oauth/google when Client ID is ready
         // Example:
