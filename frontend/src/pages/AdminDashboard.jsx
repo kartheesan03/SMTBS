@@ -141,7 +141,7 @@ const AdminDashboard = () => {
                         <div className="kpi-icon-wrapper" style={{ background: '#ecfdf5', color: '#059669' }}><DollarSign size={20} /></div>
                         <div className="kpi-info">
                             <span className="kpi-label">Total Revenue</span>
-                            <h3 className="kpi-value">${totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</h3>
+                            <h3 className="kpi-value">${Number(totalRevenue || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</h3>
                         </div>
                     </div>
                 </div>
@@ -338,7 +338,7 @@ const AdminDashboard = () => {
                                     <div className="timeline-dot"></div>
                                     <div className="timeline-content">
                                         <p>{activity.text}</p>
-                                        <span>{new Date(activity.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                                        <span>{activity.time ? new Date(activity.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'Just now'}</span>
                                     </div>
                                 </div>
                             ))}
