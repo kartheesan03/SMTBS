@@ -17,7 +17,12 @@ import {
     DollarSign,
     PhoneCall,
     X,
-    LifeBuoy
+    LifeBuoy,
+    Shield,
+    FileText,
+    Plug,
+    Database,
+    HelpCircle
 } from 'lucide-react';
 
 const Sidebar = ({ logout, isOpen, onClose }) => {
@@ -34,19 +39,19 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
     
     const adminMenu = [
         { path: '/', name: 'Dashboard', icon: <LayoutDashboard size={20} /> },
-        { path: '/materials', name: 'Materials', icon: <Box size={20} /> },
-        { path: '/hrms', name: 'Employees (HRMS)', icon: <Users size={20} /> },
-        { path: '/my-attendance', name: 'My Attendance', icon: <CheckCircle size={20} /> },
-        { path: '/attendance', name: 'Master Attendance', icon: <Users size={20} /> },
-        { path: '/payroll', name: 'Payroll', icon: <DollarSign size={20} /> },
-        { path: '/erp', name: 'Orders (ERP)', icon: <ShoppingCart size={20} /> },
-        { path: '/crm', name: 'Customers (CRM)', icon: <Briefcase size={20} /> },
-        { path: '/vendors', name: 'Suppliers/Vendors', icon: <Users size={20} /> },
-        { path: '/stock-requests', name: 'Stock Requests', icon: <Box size={20} /> },
+        { path: '/materials', name: 'Material Tracking', icon: <Box size={20} /> },
+        { path: '/hrms', name: 'HRMS', icon: <Users size={20} /> },
+        { path: '/erp', name: 'ERP', icon: <ShoppingCart size={20} /> },
+        { path: '/crm', name: 'CRM', icon: <Briefcase size={20} /> },
         { path: '/analytics', name: 'Reports & Analytics', icon: <BarChart3 size={20} /> },
-        { path: '/support', name: 'Support Tickets', icon: <LifeBuoy size={20} /> },
+        { path: '/user-management', name: 'User Management', icon: <Users size={20} /> },
+        { path: '/roles-permissions', name: 'Roles & Permissions', icon: <Shield size={20} /> },
         { path: '/notifications', name: 'Notifications', icon: <Bell size={20} /> },
-        { path: '/profile', name: 'My Profile', icon: <Settings size={20} /> },
+        { path: '/settings', name: 'System Settings', icon: <Settings size={20} /> },
+        { path: '/audit-logs', name: 'Audit Logs', icon: <FileText size={20} /> },
+        { path: '/integrations', name: 'Integrations', icon: <Plug size={20} /> },
+        { path: '/backup-restore', name: 'Backup & Restore', icon: <Database size={20} /> },
+        { path: '/support', name: 'Help & Support', icon: <HelpCircle size={20} /> },
     ];
 
     const employeeMenu = [
@@ -156,7 +161,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                             <span className="sidebar-badge">{unreadCount}</span>
                         )}
                         {/* Nested style chevrons for items like Dashboard, ERP, CRM to match reference image */}
-                        {(item.name === 'Dashboard' || item.name === 'Orders (ERP)' || item.name === 'Customers (CRM)' || item.name === 'Reports & Analytics') && (
+                        {(item.name === 'Dashboard' || item.name === 'Material Tracking' || item.name === 'HRMS' || item.name === 'ERP' || item.name === 'CRM' || item.name === 'Reports & Analytics' || item.name === 'User Management') && (
                             <span className="chevron-indicator">▾</span>
                         )}
                     </NavLink>
@@ -173,7 +178,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                 .sidebar {
                     width: var(--sidebar-width, 260px);
                     height: 100vh;
-                    background: var(--bg-sidebar);
+                    background: #0f172a; /* Dark Blue Sidebar */
                     border-right: 1px solid rgba(255, 255, 255, 0.05);
                     display: flex;
                     flex-direction: column;
