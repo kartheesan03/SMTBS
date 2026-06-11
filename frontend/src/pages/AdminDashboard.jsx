@@ -4,7 +4,7 @@ import {
     Users, Box, ShoppingCart, DollarSign, 
     TrendingUp, Activity, Calendar, Clock, AlertCircle,
     FileText, UserCheck, Inbox, CheckSquare, Bell,
-    Briefcase, ArrowUpRight, ArrowDownRight, Layers, BarChart2, Zap
+    Briefcase, ArrowUpRight, ArrowDownRight, Layers, BarChart2, Zap, Search, ChevronDown
 } from 'lucide-react';
 import { 
     AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
@@ -95,6 +95,33 @@ const AdminDashboard = () => {
     return (
         <div className="admin-dashboard-layout">
             <div className="admin-main-content">
+                {/* --- Top Nav Bar --- */}
+                <div className="top-nav-bar">
+                    <div className="search-bar">
+                        <Search size={18} color="#94a3b8" />
+                        <input type="text" placeholder="Search anything..." />
+                    </div>
+                    <div className="nav-actions">
+                        <div className="date-filter">
+                            <Calendar size={16} />
+                            <span>This Month</span>
+                            <ChevronDown size={14} />
+                        </div>
+                        <button className="icon-btn notification-btn">
+                            <Bell size={20} />
+                            <span className="notif-badge"></span>
+                        </button>
+                        <div className="profile-dropdown">
+                            <div className="avatar">A</div>
+                            <div className="profile-info">
+                                <span className="p-name">Admin User</span>
+                                <span className="p-role">Super Admin</span>
+                            </div>
+                            <ChevronDown size={14} />
+                        </div>
+                    </div>
+                </div>
+
                 <div className="header-section">
                     <h1 className="page-title">Admin Dashboard</h1>
                     <p className="page-subtitle">Enterprise Command Center</p>
