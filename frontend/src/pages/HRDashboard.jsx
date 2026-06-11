@@ -50,7 +50,7 @@ const HRDashboard = () => {
     const hrStats = dashboardData.hrStats || {};
 
     // KPIs
-    const totalEmployees = dashboardData.totalEmployees || 0;
+    const totalEmployees = users.length || 0;
     const presentToday = hrStats.presentToday || 0;
     const onLeave = hrStats.onLeave || 0;
     const newJoiners = 4; // Simulated
@@ -122,6 +122,12 @@ const HRDashboard = () => {
         { id: 3, name: 'Charlie Brown', type: 'Personal', duration: '1 Day', status: 'Pending' },
     ];
 
+    const sumOfChartData = departmentHeadcountData.reduce((acc, curr) => acc + curr.count, 0);
+    console.log("HR Dashboard Debug:", {
+        totalEmployees,
+        chartData: departmentHeadcountData,
+        sumOfChartData
+    });
 
     return (
         <div className="role-dashboard-layout">
