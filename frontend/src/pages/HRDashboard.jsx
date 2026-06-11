@@ -117,12 +117,6 @@ const HRDashboard = () => {
 
 
 
-    const leaveRequests = [
-        { id: 1, name: 'Alice Smith', type: 'Sick Leave', duration: '2 Days', status: 'Pending' },
-        { id: 2, name: 'Bob Johnson', type: 'Vacation', duration: '5 Days', status: 'Approved' },
-        { id: 3, name: 'Charlie Brown', type: 'Personal', duration: '1 Day', status: 'Pending' },
-    ];
-
     const sumOfChartData = departmentHeadcountData.reduce((acc, curr) => acc + curr.count, 0);
     console.log("HR Dashboard Debug:", {
         totalEmployees,
@@ -193,7 +187,7 @@ const HRDashboard = () => {
                             <div className="bento-card-title"><Activity size={16} /> Attendance Overview</div>
                         </div>
                         <div className="bento-card-body" style={{ display: 'block', padding: '10px' }}>
-                            <ResponsiveContainer width="100%" height={250}>
+                            <ResponsiveContainer width="100%" height={340}>
                                 <BarChart data={[
                                     { name: 'Present', count: 6, fill: '#10b981' },
                                     { name: 'Absent', count: 0, fill: '#ef4444' },
@@ -218,7 +212,7 @@ const HRDashboard = () => {
                             <div className="bento-card-title"><Users size={16} /> Employee Distribution</div>
                         </div>
                         <div className="bento-card-body" style={{ display: 'block', padding: '10px' }}>
-                            <ResponsiveContainer width="100%" height={250}>
+                            <ResponsiveContainer width="100%" height={340}>
                                 <PieChart>
                                     <Pie data={employeeDistributionData} cx="50%" cy="50%" innerRadius={55} outerRadius={80} paddingAngle={2} dataKey="value" stroke="none">
                                         {employeeDistributionData.map((entry, index) => (
@@ -237,7 +231,7 @@ const HRDashboard = () => {
                             <div className="bento-card-title"><Briefcase size={16} /> Department Headcount</div>
                         </div>
                         <div className="bento-card-body" style={{ display: 'block', padding: '10px' }}>
-                            <ResponsiveContainer width="100%" height={250}>
+                            <ResponsiveContainer width="100%" height={340}>
                                 <BarChart data={departmentHeadcountData} layout="vertical" margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
                                     <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
                                     <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} />
@@ -250,49 +244,6 @@ const HRDashboard = () => {
                                     </Bar>
                                 </BarChart>
                             </ResponsiveContainer>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Row 2 */}
-                <div className="charts-grid-3" style={{ gridTemplateColumns: '1fr' }}>
-                    <div className="bento-card">
-                        <div className="bento-card-header">
-                            <div className="bento-card-title"><Calendar size={16} /> Leave Management</div>
-                        </div>
-                        <div className="bento-card-body">
-                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
-                                <thead>
-                                    <tr style={{ borderBottom: '1px solid #e2e8f0', color: '#64748b', textAlign: 'left' }}>
-                                        <th style={{ padding: '12px 8px' }}>Employee</th>
-                                        <th style={{ padding: '12px 8px' }}>Leave Type</th>
-                                        <th style={{ padding: '12px 8px' }}>Duration</th>
-                                        <th style={{ padding: '12px 8px' }}>Status</th>
-                                        <th style={{ padding: '12px 8px', textAlign: 'right' }}>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {leaveRequests.map(req => (
-                                        <tr key={req.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                                            <td style={{ padding: '12px 8px', fontWeight: 600, color: '#334155' }}>{req.name}</td>
-                                            <td style={{ padding: '12px 8px', color: '#64748b' }}>{req.type}</td>
-                                            <td style={{ padding: '12px 8px', color: '#64748b' }}>{req.duration}</td>
-                                            <td style={{ padding: '12px 8px' }}>
-                                                <span style={{ 
-                                                    padding: '4px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 600,
-                                                    background: req.status === 'Approved' ? '#ecfdf5' : '#fffbeb',
-                                                    color: req.status === 'Approved' ? '#059669' : '#d97706'
-                                                }}>{req.status}</span>
-                                            </td>
-                                            <td style={{ padding: '12px 8px', textAlign: 'right' }}>
-                                                {req.status === 'Pending' ? (
-                                                    <button style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontWeight: 600 }}>Review</button>
-                                                ) : '-'}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
                         </div>
                     </div>
                 </div>
