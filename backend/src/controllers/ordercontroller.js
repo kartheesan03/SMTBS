@@ -47,7 +47,7 @@ const getOrders = async (req, res) => {
 // @access  Private
 const createOrder = async (req, res) => {
     try {
-        const { customer, customerModel, vendor, items, totalAmount, status, orderNumber, orderType } = req.body;
+        const { customer, customerModel, vendor, items, totalAmount, status, orderNumber, orderType, orderDate, expectedDeliveryDate } = req.body;
         
         if ((!customer && !vendor) || !items || items.length === 0) {
             return res.status(400).json({ message: 'Please provide customer/vendor and items' });
@@ -101,7 +101,9 @@ const createOrder = async (req, res) => {
             approvalStatus: initialApprovalStatus,
             deliveryStatus: initialDeliveryStatus,
             orderType: orderType || (isSales ? 'sales' : 'purchase'),
-            createdById: req.user._id || null
+            createdById: req.user._id || null,
+            orderDate: orderDate ? new Date(orderDate) : new Date(),
+            expectedDeliveryDate: expectedDeliveryDate ? new Date(expectedDeliveryDate) : null
         });
 
         // If it's already approved, update stock

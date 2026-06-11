@@ -28,6 +28,7 @@ const ERP = () => {
         status: 'Created',
         orderType: 'sales',
         items: [{ material: '', quantity: 1, price: 0 }],
+        orderDate: new Date().toISOString().split('T')[0],
         expectedDeliveryDate: '',
         notes: ''
     });
@@ -151,7 +152,7 @@ const ERP = () => {
 
             await API.post('/orders', payload);
             setShowModal(false);
-            setFormData({ customer: '', status: 'Created', orderType: 'sales', items: [{ material: '', quantity: 1, price: 0 }], expectedDeliveryDate: '', notes: '' });
+            setFormData({ customer: '', status: 'Created', orderType: 'sales', items: [{ material: '', quantity: 1, price: 0 }], orderDate: new Date().toISOString().split('T')[0], expectedDeliveryDate: '', notes: '' });
             fetchData();
         } catch (err) {
             alert(err.response?.data?.message || 'Error creating order');
@@ -248,6 +249,26 @@ const ERP = () => {
         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
         .slice(0, 4);
 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const endOfWeek = new Date(today);
+    endOfWeek.setDate(today.getDate() + (7 - today.getDay()));
+
+    const dueTodayCount = orders.filter(o => o.expectedDeliveryDate && new Date(o.expectedDeliveryDate).toDateString() === today.toDateString() && !['Delivered', 'Completed'].includes(o.status)).length;
+    
+    const dueThisWeekCount = orders.filter(o => {
+        if (!o.expectedDeliveryDate || ['Delivered', 'Completed'].includes(o.status)) return false;
+        const edd = new Date(o.expectedDeliveryDate);
+        return edd >= today && edd <= endOfWeek;
+    }).length;
+
+    const overdueCount = orders.filter(o => {
+        if (!o.expectedDeliveryDate || ['Delivered', 'Completed', 'Cancelled', 'Rejected'].includes(o.status)) return false;
+        return new Date(o.expectedDeliveryDate) < today;
+    }).length;
+
+    const completedDeliveriesCount = orders.filter(o => ['Delivered', 'Completed'].includes(o.status)).length;
+
     return (
         <div className="erp-workspace">
             {/* Breadcrumb */}
@@ -299,6 +320,22 @@ const ERP = () => {
                 <div className="erp-metric-card border-blue">
                     <span className="label text-blue">Total Purchase Cost</span>
                     <span className="value text-blue">{erpStats.totalPurchaseCost || '₹0'}</span>
+                </div>
+                <div className="erp-metric-card border-purple">
+                    <span className="label text-purple" style={{ color: '#8b5cf6' }}>Orders Due Today</span>
+                    <span className="value text-purple" style={{ color: '#8b5cf6' }}>{dueTodayCount}</span>
+                </div>
+                <div className="erp-metric-card border-blue">
+                    <span className="label text-blue" style={{ color: '#3b82f6' }}>Orders Due This Week</span>
+                    <span className="value text-blue" style={{ color: '#3b82f6' }}>{dueThisWeekCount}</span>
+                </div>
+                <div className="erp-metric-card border-red">
+                    <span className="label text-red" style={{ color: '#ef4444' }}>Overdue Orders</span>
+                    <span className="value text-red" style={{ color: '#ef4444' }}>{overdueCount}</span>
+                </div>
+                <div className="erp-metric-card border-green">
+                    <span className="label text-green" style={{ color: '#10b981' }}>Completed Deliveries</span>
+                    <span className="value text-green" style={{ color: '#10b981' }}>{completedDeliveriesCount}</span>
                 </div>
             </section>
 
@@ -419,7 +456,8 @@ const ERP = () => {
                             <th>{customerVendorHeader}</th>
                             <th>Quantity</th>
                             <th>Amount</th>
-                            <th>Date</th>
+                            <th>Order Date</th>
+                            <th>Expected Delivery</th>
                             <th>Manager Approval</th>
                             <th>Employee Approval</th>
                             <th>Delivery Status</th>
@@ -463,8 +501,25 @@ const ERP = () => {
                                 );
                             };
 
+                            let rowClass = "";
+                            if (ord.expectedDeliveryDate && !['Delivered', 'Completed', 'Cancelled', 'Rejected'].includes(ord.status)) {
+                                const edd = new Date(ord.expectedDeliveryDate);
+                                const todayDate = new Date();
+                                todayDate.setHours(0,0,0,0);
+                                const diffTime = edd - todayDate;
+                                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                                
+                                if (diffDays < 0) {
+                                    rowClass = "row-overdue";
+                                } else if (diffDays <= 3) {
+                                    rowClass = "row-due-soon";
+                                } else {
+                                    rowClass = "row-on-schedule";
+                                }
+                            }
+
                             return (
-                                <tr key={ord._id} id={`order-row-${ord._id}`}>
+                                <tr key={ord._id} id={`order-row-${ord._id}`} className={rowClass}>
                                     <td><code className="po-code" style={{ cursor: 'pointer', color: 'var(--primary)' }} onClick={() => handleOrderClick(ord)}>{ord.orderNumber}</code></td>
                                     <td>
                                         {ord.orderType === 'purchase' ? (
@@ -478,7 +533,14 @@ const ERP = () => {
                                     </td>
                                     <td>{renderQuantity(ord)}</td>
                                     <td><strong>${ord.totalAmount?.toLocaleString()}</strong></td>
-                                    <td>{new Date(ord.createdAt).toLocaleDateString()}</td>
+                                    <td>{ord.orderDate ? new Date(ord.orderDate).toLocaleDateString() : new Date(ord.createdAt).toLocaleDateString()}</td>
+                                    <td>
+                                        {ord.expectedDeliveryDate ? (
+                                            <span style={{ fontWeight: 600 }}>{new Date(ord.expectedDeliveryDate).toLocaleDateString()}</span>
+                                        ) : (
+                                            <span className="text-muted small">N/A</span>
+                                        )}
+                                    </td>
                                     <td>
                                         <span className={`status-badge-inline ${(ord.approvalStatus === 'Manager Approved' || ord.approvalStatus === 'Employee Approved') ? 'approved' : ord.approvalStatus === 'Pending Manager Approval' ? 'pending' : 'pending'}`}>
                                             {(ord.approvalStatus === 'Manager Approved' || ord.approvalStatus === 'Employee Approved') ? 'Approved' : 'Pending'}
@@ -602,6 +664,17 @@ const ERP = () => {
                             </div>
 
                             <div className="form-group" style={{ marginBottom: '16px' }}>
+                                <label>Order Date</label>
+                                <input 
+                                    type="date" 
+                                    required 
+                                    value={formData.orderDate || ''} 
+                                    onChange={e => setFormData({...formData, orderDate: e.target.value})}
+                                    style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border)' }}
+                                />
+                            </div>
+
+                            <div className="form-group" style={{ marginBottom: '16px' }}>
                                 <label>Expected Delivery Date</label>
                                 <input 
                                     type="date" 
@@ -701,14 +774,18 @@ const ERP = () => {
                                 </tfoot>
                             </table>
 
-                            <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
-                                <div style={{ flex: 1, background: 'var(--bg-hover)', padding: '12px', borderRadius: '8px' }}>
+                            <div style={{ display: 'flex', gap: '12px', marginTop: '24px', flexWrap: 'wrap' }}>
+                                <div style={{ flex: 1, minWidth: '120px', background: 'var(--bg-hover)', padding: '12px', borderRadius: '8px' }}>
+                                    <p style={{ margin: '0 0 4px 0', fontSize: '12px', color: 'var(--text-muted)' }}>Order Date</p>
+                                    <strong style={{ fontSize: '14px' }}>{selectedOrderDetails.orderDate ? new Date(selectedOrderDetails.orderDate).toLocaleDateString() : new Date(selectedOrderDetails.createdAt).toLocaleDateString()}</strong>
+                                </div>
+                                <div style={{ flex: 1, minWidth: '120px', background: 'var(--bg-hover)', padding: '12px', borderRadius: '8px' }}>
+                                    <p style={{ margin: '0 0 4px 0', fontSize: '12px', color: 'var(--text-muted)' }}>Expected Delivery</p>
+                                    <strong style={{ fontSize: '14px' }}>{selectedOrderDetails.expectedDeliveryDate ? new Date(selectedOrderDetails.expectedDeliveryDate).toLocaleDateString() : 'N/A'}</strong>
+                                </div>
+                                <div style={{ flex: 1, minWidth: '120px', background: 'var(--bg-hover)', padding: '12px', borderRadius: '8px' }}>
                                     <p style={{ margin: '0 0 4px 0', fontSize: '12px', color: 'var(--text-muted)' }}>Delivery Status</p>
                                     <strong style={{ fontSize: '14px' }}>{selectedOrderDetails.deliveryStatus || 'Not Started'}</strong>
-                                </div>
-                                <div style={{ flex: 1, background: 'var(--bg-hover)', padding: '12px', borderRadius: '8px' }}>
-                                    <p style={{ margin: '0 0 4px 0', fontSize: '12px', color: 'var(--text-muted)' }}>Expected Delivery</p>
-                                    <strong style={{ fontSize: '14px' }}>{selectedOrderDetails.deliveryDate ? new Date(selectedOrderDetails.deliveryDate).toLocaleDateString() : 'N/A'}</strong>
                                 </div>
                             </div>
                         </div>
@@ -717,6 +794,13 @@ const ERP = () => {
             )}
 
             <style jsx="true">{`
+                .row-overdue { background-color: rgba(239, 68, 68, 0.05); }
+                .row-overdue td { border-bottom-color: rgba(239, 68, 68, 0.1); }
+                .row-due-soon { background-color: rgba(245, 158, 11, 0.05); }
+                .row-due-soon td { border-bottom-color: rgba(245, 158, 11, 0.1); }
+                .row-on-schedule { background-color: rgba(16, 185, 129, 0.05); }
+                .row-on-schedule td { border-bottom-color: rgba(16, 185, 129, 0.1); }
+
                 .erp-workspace {
                     padding: 24px;
                     background-color: var(--bg-body);

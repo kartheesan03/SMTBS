@@ -65,6 +65,14 @@ const OrderSequelize = sequelize.define('Order', {
         type: DataTypes.DATE,
         allowNull: true
     },
+    orderDate: {
+        type: DataTypes.DATE,
+        allowNull: true
+    },
+    expectedDeliveryDate: {
+        type: DataTypes.DATE,
+        allowNull: true
+    },
     invoiceGenerated: {
         type: DataTypes.BOOLEAN,
         defaultValue: false
