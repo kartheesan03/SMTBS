@@ -14,6 +14,11 @@ const getERPStats = async (req, res) => {
         
         orders.forEach(o => {
             totalOrders++;
+
+            if (['Pending', 'Overdue', 'Partially Paid'].includes(o.paymentStatus)) {
+                pendingInvoices++;
+            }
+
             if (o.orderType === 'sales') {
                 totalSalesOrders++;
                 if (['Approved', 'Delivered', 'Completed', 'Received'].includes(o.status)) {
@@ -21,9 +26,6 @@ const getERPStats = async (req, res) => {
                 }
             } else if (o.orderType === 'purchase') {
                 totalPurchaseOrders++;
-                if (['Pending', 'Awaiting Approval'].includes(o.status)) {
-                    pendingInvoices++;
-                }
                 if (['Approved', 'Delivered', 'Completed', 'Received'].includes(o.status)) {
                     totalPurchaseCostNum += (o.totalAmount || 0);
                 }

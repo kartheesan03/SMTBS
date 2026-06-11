@@ -6,7 +6,7 @@ import {
 } from 'recharts';
 import { 
     ShoppingCart, Plus, Filter, Search, Download, ChevronRight, 
-    FileText, UserPlus, DollarSign, Calendar
+    FileText, UserPlus, DollarSign, Calendar, Eye, CheckCircle, Bell
 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -20,6 +20,8 @@ const ERP = () => {
     const [showModal, setShowModal] = useState(false);
     const [showOrderDetailsModal, setShowOrderDetailsModal] = useState(false);
     const [selectedOrderDetails, setSelectedOrderDetails] = useState(null);
+    const [showInvoiceModal, setShowInvoiceModal] = useState(false);
+    const [invoiceTab, setInvoiceTab] = useState('All');
     const [customers, setCustomers] = useState([]);
     const [vendors, setVendors] = useState([]);
     const [materials, setMaterials] = useState([]);
@@ -172,6 +174,72 @@ const ERP = () => {
         }
     };
 
+    const handlePaymentStatusChange = async (id, newStatus) => {
+        try {
+            await API.put(`/orders/${id}/payment-status`, { paymentStatus: newStatus });
+            fetchData();
+        } catch (err) {
+            alert(err.response?.data?.message || 'Error updating payment status');
+        }
+    };
+
+    const handleDownloadInvoice = (orderId) => {
+        const order = orders.find(o => o._id === orderId);
+        if (!order) return;
+
+        const doc = new jsPDF();
+        const invoiceNum = order.invoiceNumber || `INV-${order.orderNumber}`;
+        const customerName = order.customer?.name || order.vendor?.name || 'Walk-in';
+
+        // Header
+        doc.setFontSize(20);
+        doc.text('INVOICE', 14, 22);
+        doc.setFontSize(10);
+        doc.text(`Invoice Number: ${invoiceNum}`, 14, 32);
+        doc.text(`Date: ${order.invoiceDate ? new Date(order.invoiceDate).toLocaleDateString() : new Date(order.createdAt).toLocaleDateString()}`, 14, 38);
+        doc.text(`Due Date: ${order.invoiceDueDate ? new Date(order.invoiceDueDate).toLocaleDateString() : 'N/A'}`, 14, 44);
+        doc.text(`Status: ${order.paymentStatus || 'Pending'}`, 14, 50);
+
+        // Bill To
+        doc.setFontSize(12);
+        doc.text('Bill To:', 14, 65);
+        doc.setFontSize(10);
+        doc.text(customerName, 14, 72);
+
+        // Items Table
+        const tableColumn = ["Item", "Quantity", "Price", "Total"];
+        const tableRows = [];
+        let grandTotal = 0;
+
+        order.items.forEach(item => {
+            const itemTotal = item.quantity * item.price;
+            grandTotal += itemTotal;
+            const rowData = [
+                item.materialName || 'Material',
+                item.quantity.toString(),
+                `$${item.price.toLocaleString()}`,
+                `$${itemTotal.toLocaleString()}`
+            ];
+            tableRows.push(rowData);
+        });
+
+        autoTable(doc, {
+            head: [tableColumn],
+            body: tableRows,
+            startY: 85,
+        });
+
+        const finalY = doc.lastAutoTable.finalY || 85;
+        doc.setFontSize(12);
+        doc.text(`Grand Total: $${grandTotal.toLocaleString()}`, 14, finalY + 10);
+
+        doc.save(`${invoiceNum}.pdf`);
+    };
+
+    const handleSendReminder = (orderId) => {
+        alert(`Payment reminder sent for Order ${orderId}`);
+    };
+
     const handleApprove = async (id) => {
         await handleStatusChange(id, 'Confirmed');
     };
@@ -309,7 +377,7 @@ const ERP = () => {
                     <span className="label text-blue">Purchase Orders</span>
                     <span className="value text-blue">{erpStats.totalPurchaseOrders || 0}</span>
                 </div>
-                <div className="erp-metric-card border-orange">
+                <div className="erp-metric-card border-orange cursor-pointer" onClick={() => { setShowInvoiceModal(true); setInvoiceTab('Pending'); }}>
                     <span className="label text-orange">Pending Invoices</span>
                     <span className="value text-orange">{erpStats.pendingInvoices || 0}</span>
                 </div>
@@ -793,6 +861,94 @@ const ERP = () => {
                 </div>
             )}
 
+            {/* Invoice List Modal */}
+            {showInvoiceModal && (
+                <div className="modal-overlay">
+                    <div className="modal-content animate-pop" style={{ maxWidth: '1000px' }}>
+                        <div className="modal-header">
+                            <h2>Invoices</h2>
+                            <button className="close-btn" onClick={() => setShowInvoiceModal(false)}>✕</button>
+                        </div>
+                        <div className="erp-tabs" style={{ paddingBottom: '16px' }}>
+                            {['All', 'Pending', 'Paid', 'Overdue', 'Partially Paid'].map(tab => (
+                                <button 
+                                    key={tab}
+                                    className={`erp-tab ${invoiceTab === tab ? 'active' : ''}`}
+                                    onClick={() => setInvoiceTab(tab)}
+                                >
+                                    {tab}
+                                </button>
+                            ))}
+                        </div>
+                        <div className="table-card" style={{ boxShadow: 'none', margin: '0', padding: '0', maxHeight: '500px', overflowY: 'auto' }}>
+                            <table className="modern-table" style={{ fontSize: '13px' }}>
+                                <thead>
+                                    <tr>
+                                        <th>Invoice ID</th>
+                                        <th>Order ID</th>
+                                        <th>Customer / Vendor</th>
+                                        <th>Type</th>
+                                        <th>Amount</th>
+                                        <th>Invoice Date</th>
+                                        <th>Due Date</th>
+                                        <th>Payment Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {orders
+                                        .filter(o => invoiceTab === 'All' || o.paymentStatus === invoiceTab || (invoiceTab === 'Pending' && !o.paymentStatus))
+                                        .sort((a, b) => new Date(b.invoiceDate || b.createdAt) - new Date(a.invoiceDate || a.createdAt))
+                                        .map(o => (
+                                        <tr key={o._id}>
+                                            <td><strong>{o.invoiceNumber || `INV-${o.orderNumber}`}</strong></td>
+                                            <td>{o.orderNumber}</td>
+                                            <td>{o.customer?.name || o.vendor?.name || 'Walk-in'}</td>
+                                            <td>{o.orderType === 'sales' ? 'Receivable' : 'Payable'}</td>
+                                            <td>${(o.totalAmount || 0).toLocaleString()}</td>
+                                            <td>{o.invoiceDate ? new Date(o.invoiceDate).toLocaleDateString() : new Date(o.createdAt).toLocaleDateString()}</td>
+                                            <td>
+                                                {o.invoiceDueDate ? new Date(o.invoiceDueDate).toLocaleDateString() : (o.expectedDeliveryDate ? new Date(o.expectedDeliveryDate).toLocaleDateString() : 'N/A')}
+                                            </td>
+                                            <td>
+                                                <span className={`status-badge status-${(o.paymentStatus || 'Pending').replace(/\s+/g, '-').toLowerCase()}`}>
+                                                    {o.paymentStatus || 'Pending'}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div className="action-buttons" style={{ display: 'flex', gap: '8px' }}>
+                                                    <button className="btn-icon" onClick={() => { setShowOrderDetailsModal(true); setSelectedOrderDetails(o); }} title="View Invoice">
+                                                        <Eye size={14} />
+                                                    </button>
+                                                    <button className="btn-icon" onClick={() => handleDownloadInvoice(o._id)} title="Download PDF">
+                                                        <Download size={14} />
+                                                    </button>
+                                                    {o.paymentStatus !== 'Paid' && (
+                                                        <>
+                                                            <button className="btn-icon" style={{ color: 'var(--success)' }} onClick={() => handlePaymentStatusChange(o._id, 'Paid')} title="Mark as Paid">
+                                                                <CheckCircle size={14} />
+                                                            </button>
+                                                            <button className="btn-icon" style={{ color: 'var(--warning)' }} onClick={() => handleSendReminder(o._id)} title="Send Reminder">
+                                                                <Bell size={14} />
+                                                            </button>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                    {orders.filter(o => invoiceTab === 'All' || o.paymentStatus === invoiceTab || (invoiceTab === 'Pending' && !o.paymentStatus)).length === 0 && (
+                                        <tr>
+                                            <td colSpan="9" style={{ textAlign: 'center', padding: '24px' }}>No invoices found.</td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <style jsx="true">{`
                 .row-overdue { background-color: rgba(239, 68, 68, 0.05); }
                 .row-overdue td { border-bottom-color: rgba(239, 68, 68, 0.1); }
@@ -800,6 +956,11 @@ const ERP = () => {
                 .row-due-soon td { border-bottom-color: rgba(245, 158, 11, 0.1); }
                 .row-on-schedule { background-color: rgba(16, 185, 129, 0.05); }
                 .row-on-schedule td { border-bottom-color: rgba(16, 185, 129, 0.1); }
+
+                .status-badge.status-paid { background-color: rgba(16, 185, 129, 0.1); color: var(--success); }
+                .status-badge.status-pending { background-color: rgba(245, 158, 11, 0.1); color: var(--warning); }
+                .status-badge.status-overdue { background-color: rgba(239, 68, 68, 0.1); color: var(--danger); }
+                .status-badge.status-partially-paid { background-color: rgba(59, 130, 246, 0.1); color: var(--primary); }
 
                 .erp-workspace {
                     padding: 24px;

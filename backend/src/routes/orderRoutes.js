@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getOrders, createOrder, updateOrderStatus } = require('../controllers/ordercontroller');
+const { getOrders, createOrder, updateOrderStatus, updatePaymentStatus } = require('../controllers/ordercontroller');
 const { protect } = require('../middleware/authMiddleware');
 
 router.route('/')
@@ -9,5 +9,8 @@ router.route('/')
 
 router.route('/:id/status')
     .put(protect, updateOrderStatus);
+
+router.route('/:id/payment-status')
+    .put(protect, updatePaymentStatus);
 
 module.exports = router;

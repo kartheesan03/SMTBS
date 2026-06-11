@@ -73,6 +73,22 @@ const OrderSequelize = sequelize.define('Order', {
         type: DataTypes.DATE,
         allowNull: true
     },
+    invoiceNumber: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    invoiceDate: {
+        type: DataTypes.DATE,
+        allowNull: true
+    },
+    invoiceDueDate: {
+        type: DataTypes.DATE,
+        allowNull: true
+    },
+    paymentStatus: {
+        type: DataTypes.ENUM('Pending', 'Paid', 'Overdue', 'Partially Paid'),
+        defaultValue: 'Pending'
+    },
     invoiceGenerated: {
         type: DataTypes.BOOLEAN,
         defaultValue: false
