@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Search, Bell, Calendar as CalendarIcon, ChevronDown } from 'lucide-react';
+import { Bell, Calendar as CalendarIcon, ChevronDown } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
 import { NotificationContext } from '../context/NotificationContext';
 import { useNavigate } from 'react-router-dom';
@@ -13,10 +13,6 @@ const Topbar = () => {
 
     return (
         <header className="topbar">
-            <div className="topbar-search">
-                <Search size={18} className="search-icon" />
-                <input type="text" placeholder="Search globally..." />
-            </div>
             
             <div className="topbar-actions">
                 <div className="date-selector desktop-only">
@@ -44,7 +40,7 @@ const Topbar = () => {
                 .topbar {
                     display: flex;
                     align-items: center;
-                    justify-content: space-between;
+                    justify-content: flex-end; /* Align actions to right since search is removed */
                     height: 70px;
                     padding: 0 30px;
                     background: #ffffff;
@@ -52,35 +48,6 @@ const Topbar = () => {
                     position: sticky;
                     top: 0;
                     z-index: 900;
-                }
-
-                .topbar-search {
-                    display: flex;
-                    align-items: center;
-                    background: var(--bg-body);
-                    border-radius: 20px;
-                    padding: 0 16px;
-                    width: 320px;
-                    height: 40px;
-                    border: 1px solid transparent;
-                    transition: border-color 0.2s;
-                }
-                .topbar-search:focus-within {
-                    border-color: var(--primary);
-                    background: #ffffff;
-                }
-                .topbar-search input {
-                    border: none;
-                    background: transparent;
-                    width: 100%;
-                    padding: 0;
-                    margin-left: 10px;
-                    font-size: 14px;
-                    outline: none;
-                    box-shadow: none;
-                }
-                .topbar-search input:focus {
-                    box-shadow: none;
                 }
 
                 .topbar-actions {
@@ -169,11 +136,6 @@ const Topbar = () => {
                 @media (max-width: 768px) {
                     .topbar {
                         padding: 0 16px;
-                    }
-                    .topbar-search {
-                        width: auto;
-                        flex: 1;
-                        margin-right: 16px;
                     }
                 }
             `}</style>
