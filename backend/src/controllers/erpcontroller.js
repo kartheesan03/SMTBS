@@ -2,44 +2,43 @@ const Order = require('../models/Order');
 
 const getERPStats = async (req, res) => {
     try {
-        const orders = await Order.find({});
+        const totalOrders = await Order.countDocuments({});
+        const totalSalesOrders = await Order.countDocuments({ orderType: 'sales' });
+        const totalPurchaseOrders = await Order.countDocuments({ orderType: 'purchase' });
+        const pendingInvoices = await Order.countDocuments({ paymentStatus: { $in: ['Pending', 'Overdue', 'Partially Paid'] } });
 
-        let totalOrders = 0;
-        let totalSalesOrders = 0;
-        let totalPurchaseOrders = 0;
-        let pendingInvoices = 0;
-        let totalRevenueNum = 0;
-        let totalPurchaseCostNum = 0;
-        let purchaseStatusCounts = {};
-        
-        orders.forEach(o => {
-            totalOrders++;
+        const revenueResult = await Order.aggregate([
+            { $match: { status: { $ne: 'Cancelled' }, orderType: 'sales', totalAmount: { $exists: true } } },
+            { $group: { _id: null, total: { $sum: "$totalAmount" } } }
+        ]);
+        const totalRevenueNum = (revenueResult && revenueResult.length > 0) ? revenueResult[0].total : 0;
 
-            if (['Pending', 'Overdue', 'Partially Paid'].includes(o.paymentStatus)) {
-                pendingInvoices++;
-            }
-
-            if (o.orderType === 'sales') {
-                totalSalesOrders++;
-                if (['Approved', 'Delivered', 'Completed', 'Received'].includes(o.status)) {
-                    totalRevenueNum += (o.totalAmount || 0);
-                }
-            } else if (o.orderType === 'purchase') {
-                totalPurchaseOrders++;
-                if (['Approved', 'Delivered', 'Completed', 'Received'].includes(o.status)) {
-                    totalPurchaseCostNum += (o.totalAmount || 0);
-                }
-                purchaseStatusCounts[o.status] = (purchaseStatusCounts[o.status] || 0) + 1;
-            }
-        });
+        const purchaseCostResult = await Order.aggregate([
+            { $match: { status: { $ne: 'Cancelled' }, orderType: 'purchase', totalAmount: { $exists: true } } },
+            { $group: { _id: null, total: { $sum: "$totalAmount" } } }
+        ]);
+        const totalPurchaseCostNum = (purchaseCostResult && purchaseCostResult.length > 0) ? purchaseCostResult[0].total : 0;
 
         const formatCurrency = (num) => {
+            if (!num) return '₹0';
             if (num >= 10000000) return `₹${(num / 10000000).toFixed(2)} Cr`;
             if (num >= 100000) return `₹${(num / 100000).toFixed(2)} L`;
             return `₹${num.toLocaleString()}`;
         };
 
-        // Map summary exactly to chart expected format
+        // Purchase order summary for the chart
+        const poStatuses = await Order.aggregate([
+            { $match: { orderType: 'purchase' } },
+            { $group: { _id: "$status", count: { $sum: 1 } } }
+        ]);
+        
+        const purchaseStatusCounts = {};
+        if (poStatuses && poStatuses.length > 0) {
+            poStatuses.forEach(s => {
+                purchaseStatusCounts[s._id] = s.count;
+            });
+        }
+
         const orderSummary = [
             { name: 'Pending', value: purchaseStatusCounts['Pending'] || 0, color: '#2563eb' },
             { name: 'Confirmed', value: purchaseStatusCounts['Confirmed'] || 0, color: '#8b5cf6' },
@@ -48,7 +47,6 @@ const getERPStats = async (req, res) => {
             { name: 'Cancelled', value: purchaseStatusCounts['Cancelled'] || 0, color: '#ef4444' }
         ];
 
-        // Format to percentage
         const totalSummarized = orderSummary.reduce((acc, curr) => acc + curr.value, 0);
         if (totalSummarized > 0) {
             orderSummary.forEach(item => {
@@ -70,6 +68,7 @@ const getERPStats = async (req, res) => {
             orderSummary
         });
     } catch (error) {
+        console.error("ERP Stats Error:", error);
         res.status(500).json({ message: error.message });
     }
 };
