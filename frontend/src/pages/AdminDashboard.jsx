@@ -4,7 +4,7 @@ import {
     Users, Box, ShoppingCart, DollarSign, 
     TrendingUp, Activity, Calendar, Clock, AlertCircle,
     FileText, UserCheck, Inbox, CheckSquare, Bell,
-    Briefcase, ArrowUpRight, ArrowDownRight, Layers, BarChart2, Zap, Search, ChevronDown
+    Briefcase, ArrowUpRight, ArrowDownRight, Layers, BarChart2, Zap, Search, ChevronDown, CheckCircle, Shield
 } from 'lucide-react';
 import { 
     AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
@@ -57,12 +57,12 @@ const AdminDashboard = () => {
     const revenueData = charts.monthlyStats && charts.monthlyStats.length > 0 
         ? charts.monthlyStats 
         : [
-            { name: 'Jan', revenue: 4000, expenses: 2400 },
-            { name: 'Feb', revenue: 3000, expenses: 1398 },
-            { name: 'Mar', revenue: 2000, expenses: 9800 },
-            { name: 'Apr', revenue: 2780, expenses: 3908 },
-            { name: 'May', revenue: 1890, expenses: 4800 },
-            { name: 'Jun', revenue: 2390, expenses: 3800 },
+            { name: 'Jan', revenue: 4000 },
+            { name: 'Feb', revenue: 3000 },
+            { name: 'Mar', revenue: 2000 },
+            { name: 'Apr', revenue: 2780 },
+            { name: 'May', revenue: 1890 },
+            { name: 'Jun', revenue: 2390 },
         ];
 
     const materialOverviewData = [
@@ -90,6 +90,18 @@ const AdminDashboard = () => {
         { id: 1, text: 'New employee onboarded', time: new Date(Date.now() - 3600000) },
         { id: 2, text: 'Order #1024 delivered', time: new Date(Date.now() - 7200000) },
         { id: 3, text: 'Invoice #INV-22 paid', time: new Date(Date.now() - 86400000) },
+    ];
+
+    const rightPanelFeatures = [
+        { title: 'Centralized Overview', icon: <Layers size={18} /> },
+        { title: 'Material Tracking', icon: <Box size={18} /> },
+        { title: 'HR Management', icon: <Users size={18} /> },
+        { title: 'ERP Operations', icon: <Briefcase size={18} /> },
+        { title: 'CRM Management', icon: <ShoppingCart size={18} /> },
+        { title: 'Reports & Analytics', icon: <BarChart2 size={18} /> },
+        { title: 'User & Role Management', icon: <UserCheck size={18} /> },
+        { title: 'System Management', icon: <Shield size={18} /> },
+        { title: 'Notifications & Alerts', icon: <Bell size={18} /> }
     ];
 
     return (
@@ -127,7 +139,7 @@ const AdminDashboard = () => {
                     <p className="page-subtitle">Enterprise Command Center</p>
                 </div>
 
-                {/* --- Top KPI Cards --- */}
+                {/* --- Top KPI Cards (One Horizontal Row) --- */}
                 <div className="kpi-grid">
                     <div className="kpi-card">
                         <div className="kpi-icon-wrapper" style={{ background: '#eff6ff', color: '#3b82f6' }}><Box size={20} /></div>
@@ -173,45 +185,21 @@ const AdminDashboard = () => {
                     </div>
                 </div>
 
-                {/* --- Charts Grid --- */}
-                <div className="charts-grid">
+                {/* --- Grid Row 1 (3 Columns) --- */}
+                <div className="charts-grid-3">
                     
-                    {/* Revenue Overview Line Chart */}
-                    <div className="bento-card span-8">
-                        <div className="bento-card-header">
-                            <div className="bento-card-title"><Activity size={18} /> Revenue Overview</div>
-                        </div>
-                        <div className="bento-card-body" style={{ height: '300px' }}>
-                            <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={revenueData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                                    <defs>
-                                        <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
-                                            <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
-                                        </linearGradient>
-                                    </defs>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dy={10} />
-                                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
-                                    <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
-                                    <Area type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorRevenue)" />
-                                </AreaChart>
-                            </ResponsiveContainer>
-                        </div>
-                    </div>
-
                     {/* Material Overview Donut Chart */}
-                    <div className="bento-card span-4">
+                    <div className="bento-card">
                         <div className="bento-card-header">
                             <div className="bento-card-title"><Layers size={18} /> Material Overview</div>
                         </div>
-                        <div className="bento-card-body" style={{ height: '300px', display: 'flex', flexDirection: 'column' }}>
+                        <div className="bento-card-body" style={{ height: '260px', display: 'flex', flexDirection: 'column' }}>
                             <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>
                                     <Pie
                                         data={materialOverviewData}
                                         cx="50%" cy="50%"
-                                        innerRadius={65} outerRadius={95}
+                                        innerRadius={50} outerRadius={80}
                                         paddingAngle={5}
                                         dataKey="value" stroke="none"
                                     >
@@ -222,11 +210,11 @@ const AdminDashboard = () => {
                                     <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
                                 </PieChart>
                             </ResponsiveContainer>
-                            <div className="chart-legend">
+                            <div className="chart-legend" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginTop: '12px' }}>
                                 {materialOverviewData.map(item => (
-                                    <div key={item.name} className="legend-item">
-                                        <span className="dot" style={{ background: item.color }}></span>
-                                        <span className="text">{item.name}</span>
+                                    <div key={item.name} className="legend-item" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                        <span className="dot" style={{ width: '8px', height: '8px', borderRadius: '50%', background: item.color }}></span>
+                                        <span className="text" style={{ fontSize: '11px', color: '#64748b' }}>{item.name}</span>
                                     </div>
                                 ))}
                             </div>
@@ -234,18 +222,18 @@ const AdminDashboard = () => {
                     </div>
 
                     {/* Stock Status Bar Chart */}
-                    <div className="bento-card span-4">
+                    <div className="bento-card">
                         <div className="bento-card-header">
                             <div className="bento-card-title"><BarChart2 size={18} /> Stock Status</div>
                         </div>
-                        <div className="bento-card-body" style={{ height: '280px' }}>
+                        <div className="bento-card-body" style={{ height: '260px' }}>
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={stockStatusData} margin={{ top: 20, right: 10, left: -20, bottom: 0 }}>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dy={10} />
-                                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
+                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} dy={10} />
+                                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} />
                                     <RechartsTooltip cursor={{fill: 'transparent'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
-                                    <Bar dataKey="count" radius={[6, 6, 0, 0]} barSize={40}>
+                                    <Bar dataKey="count" radius={[6, 6, 0, 0]} barSize={30}>
                                         {stockStatusData.map((entry, index) => (
                                             <Cell key={`cell-${index}`} fill={entry.fill} />
                                         ))}
@@ -255,34 +243,37 @@ const AdminDashboard = () => {
                         </div>
                     </div>
 
-                    {/* Sales Pipeline Funnel (Bar) */}
-                    <div className="bento-card span-4">
+                    {/* Recent Activity Panel */}
+                    <div className="bento-card">
                         <div className="bento-card-header">
-                            <div className="bento-card-title"><TrendingUp size={18} /> Sales Pipeline</div>
+                            <div className="bento-card-title"><Activity size={18} /> Recent Activity</div>
                         </div>
-                        <div className="bento-card-body" style={{ height: '280px' }}>
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart layout="vertical" data={salesPipelineData} margin={{ top: 10, right: 30, left: 20, bottom: 0 }}>
-                                    <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
-                                    <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
-                                    <YAxis dataKey="stage" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#334155', fontWeight: 500 }} />
-                                    <RechartsTooltip cursor={{fill: 'transparent'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
-                                    <Bar dataKey="value" radius={[0, 6, 6, 0]} barSize={24}>
-                                        {salesPipelineData.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={entry.fill} />
-                                        ))}
-                                    </Bar>
-                                </BarChart>
-                            </ResponsiveContainer>
+                        <div className="bento-card-body" style={{ height: '260px', overflowY: 'auto', padding: '20px' }}>
+                            <div className="timeline">
+                                {recentActivities.map((activity, i) => (
+                                    <div className="timeline-item" key={activity.id || i}>
+                                        <div className="timeline-dot" style={{ borderColor: '#3b82f6' }}></div>
+                                        <div className="timeline-content">
+                                            <p style={{ margin: '0 0 4px 0', fontSize: '13px', fontWeight: 600, color: '#334155' }}>{activity.text}</p>
+                                            <span style={{ fontSize: '11px', color: '#94a3b8' }}>{activity.time ? new Date(activity.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'Just now'}</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     </div>
 
+                </div>
+
+                {/* --- Grid Row 2 (3 Columns) --- */}
+                <div className="charts-grid-3">
+                    
                     {/* HR Overview Summary */}
-                    <div className="bento-card span-4 hr-summary-card">
+                    <div className="bento-card hr-summary-card">
                         <div className="bento-card-header">
                             <div className="bento-card-title"><UserCheck size={18} /> HR Overview</div>
                         </div>
-                        <div className="bento-card-body">
+                        <div className="bento-card-body" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                             <div className="hr-stat-row">
                                 <div>
                                     <span className="stat-label">Present Today</span>
@@ -303,35 +294,50 @@ const AdminDashboard = () => {
                                     <h4 className="stat-value">5</h4>
                                 </div>
                             </div>
-                            <button className="action-btn-outline" style={{width: '100%', marginTop: '16px'}}>View HRMS Dashboard</button>
+                            <button className="action-btn-outline" style={{width: '100%', marginTop: 'auto', padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', background: 'transparent', color: '#3b82f6', fontWeight: 600, cursor: 'pointer'}}>View HRMS</button>
                         </div>
                     </div>
 
-                </div>
+                    {/* Sales Pipeline Funnel Chart */}
+                    <div className="bento-card">
+                        <div className="bento-card-header">
+                            <div className="bento-card-title"><TrendingUp size={18} /> Sales Pipeline</div>
+                        </div>
+                        <div className="bento-card-body" style={{ height: '260px' }}>
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart layout="vertical" data={salesPipelineData} margin={{ top: 10, right: 30, left: 20, bottom: 0 }}>
+                                    <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
+                                    <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} />
+                                    <YAxis dataKey="stage" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#334155', fontWeight: 500 }} />
+                                    <RechartsTooltip cursor={{fill: 'transparent'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
+                                    <Bar dataKey="value" radius={[0, 6, 6, 0]} barSize={20}>
+                                        {salesPipelineData.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={entry.fill} />
+                                        ))}
+                                    </Bar>
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
 
-                {/* --- Bottom Preview Cards --- */}
-                <h3 className="section-title">Module Previews</h3>
-                <div className="preview-cards-grid">
-                    <div className="preview-card">
-                        <div className="preview-icon"><Box size={24} /></div>
-                        <h4>Material Tracking</h4>
-                        <p>Manage raw materials, stock thresholds, and suppliers.</p>
+                    {/* Revenue Overview Line Chart */}
+                    <div className="bento-card">
+                        <div className="bento-card-header">
+                            <div className="bento-card-title"><Activity size={18} /> Revenue Overview</div>
+                        </div>
+                        <div className="bento-card-body" style={{ height: '260px' }}>
+                            <ResponsiveContainer width="100%" height="100%">
+                                <LineChart data={revenueData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} dy={10} />
+                                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} />
+                                    <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
+                                    <Line type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} activeDot={{ r: 6 }} />
+                                </LineChart>
+                            </ResponsiveContainer>
+                        </div>
                     </div>
-                    <div className="preview-card">
-                        <div className="preview-icon"><Users size={24} /></div>
-                        <h4>HRMS Overview</h4>
-                        <p>Track attendance, manage payroll, and employee leaves.</p>
-                    </div>
-                    <div className="preview-card">
-                        <div className="preview-icon"><ShoppingCart size={24} /></div>
-                        <h4>ERP Operations</h4>
-                        <p>Process sales and purchase orders, generate invoices.</p>
-                    </div>
-                    <div className="preview-card">
-                        <div className="preview-icon"><Briefcase size={24} /></div>
-                        <h4>CRM Overview</h4>
-                        <p>Manage customer relationships, leads, and contacts.</p>
-                    </div>
+
                 </div>
 
             </div>
@@ -339,58 +345,28 @@ const AdminDashboard = () => {
             {/* --- Right Panel: Admin Dashboard Features --- */}
             <div className="admin-side-panel">
                 <div className="side-panel-header">
-                    <h3>Admin Features</h3>
-                    <span className="badge">Pro</span>
+                    <h3>ADMIN DASHBOARD FEATURES</h3>
                 </div>
                 
                 <div className="side-panel-content">
-                    
-                    {/* Quick Actions */}
-                    <div className="feature-block">
-                        <h4 className="block-title">Quick Actions</h4>
-                        <div className="action-list">
-                            <button className="action-item"><Users size={16} /> Add Employee</button>
-                            <button className="action-item"><Box size={16} /> Add Material</button>
-                            <button className="action-item"><ShoppingCart size={16} /> Create Order</button>
-                            <button className="action-item"><FileText size={16} /> Generate Report</button>
-                        </div>
+                    <div className="features-list">
+                        {rightPanelFeatures.map((feature, idx) => (
+                            <div className="feature-item" key={idx}>
+                                <div className="feature-icon">{feature.icon}</div>
+                                <span className="feature-text">{feature.title}</span>
+                                <ChevronDown size={14} className="feature-chevron" style={{ transform: 'rotate(-90deg)' }}/>
+                            </div>
+                        ))}
                     </div>
 
-                    {/* Recent Activity Timeline */}
-                    <div className="feature-block">
-                        <h4 className="block-title">Recent Activity</h4>
-                        <div className="timeline">
-                            {recentActivities.map((activity, i) => (
-                                <div className="timeline-item" key={activity.id || i}>
-                                    <div className="timeline-dot"></div>
-                                    <div className="timeline-content">
-                                        <p>{activity.text}</p>
-                                        <span>{activity.time ? new Date(activity.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'Just now'}</span>
-                                    </div>
-                                </div>
-                            ))}
+                    {/* Bottom illustration or extra block if needed to match height */}
+                    <div style={{ marginTop: 'auto', background: '#eff6ff', borderRadius: '12px', padding: '20px', textAlign: 'center' }}>
+                        <div style={{ background: '#3b82f6', color: 'white', width: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
+                            <Shield size={20} />
                         </div>
+                        <h4 style={{ margin: '0 0 4px 0', fontSize: '14px', color: '#1e40af' }}>System Status</h4>
+                        <p style={{ margin: 0, fontSize: '12px', color: '#60a5fa' }}>All systems operational and securely encrypted.</p>
                     </div>
-
-                    {/* System Health */}
-                    <div className="feature-block">
-                        <h4 className="block-title">System Health</h4>
-                        <div className="health-card">
-                            <div className="health-row">
-                                <span>API Status</span>
-                                <span className="status-badge green">Operational</span>
-                            </div>
-                            <div className="health-row">
-                                <span>Database</span>
-                                <span className="status-badge green">Connected</span>
-                            </div>
-                            <div className="health-row">
-                                <span>Last Backup</span>
-                                <span className="status-text">2 hours ago</span>
-                            </div>
-                        </div>
-                    </div>
-
                 </div>
             </div>
 
@@ -398,7 +374,7 @@ const AdminDashboard = () => {
             <style jsx="true">{`
                 .admin-dashboard-layout {
                     display: grid;
-                    grid-template-columns: 1fr 320px;
+                    grid-template-columns: 1fr 340px;
                     min-height: 100vh;
                     background: #f8fafc;
                 }
@@ -409,217 +385,121 @@ const AdminDashboard = () => {
                     overflow-y: auto;
                 }
 
-                .header-section {
+                /* Top Nav Bar */
+                .top-nav-bar {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding-bottom: 24px;
                     margin-bottom: 24px;
+                    border-bottom: 1px solid #f1f5f9;
                 }
-                .page-title {
-                    font-size: 26px;
-                    font-weight: 800;
-                    color: #0f172a;
-                    margin: 0 0 4px 0;
+                .search-bar {
+                    display: flex; align-items: center; gap: 10px;
+                    background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px;
+                    padding: 10px 16px; width: 320px;
                 }
-                .page-subtitle {
-                    font-size: 15px;
-                    color: #64748b;
-                    margin: 0;
+                .search-bar input { border: none; outline: none; width: 100%; font-size: 14px; color: #0f172a; }
+                .search-bar input::placeholder { color: #94a3b8; }
+                .nav-actions { display: flex; align-items: center; gap: 20px; }
+                .date-filter {
+                    display: flex; align-items: center; gap: 8px; cursor: pointer;
+                    background: #ffffff; border: 1px solid #e2e8f0; padding: 8px 14px;
+                    border-radius: 8px; font-size: 13px; font-weight: 600; color: #334155;
                 }
+                .icon-btn {
+                    background: #ffffff; border: 1px solid #e2e8f0; border-radius: 50%;
+                    width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+                    cursor: pointer; color: #64748b; position: relative;
+                }
+                .notification-btn .notif-badge {
+                    position: absolute; top: 8px; right: 8px; width: 8px; height: 8px;
+                    background: #ef4444; border-radius: 50%; border: 2px solid #fff;
+                }
+                .profile-dropdown {
+                    display: flex; align-items: center; gap: 12px; cursor: pointer;
+                }
+                .avatar {
+                    width: 40px; height: 40px; border-radius: 50%; background: #1e293b;
+                    color: white; display: flex; align-items: center; justify-content: center;
+                    font-weight: bold; font-size: 16px;
+                }
+                .profile-info { display: flex; flex-direction: column; }
+                .p-name { font-size: 14px; font-weight: 700; color: #0f172a; }
+                .p-role { font-size: 12px; color: #64748b; }
 
-                /* KPI Grid */
+                .header-section { margin-bottom: 24px; }
+                .page-title { font-size: 26px; font-weight: 800; color: #0f172a; margin: 0 0 4px 0; }
+                .page-subtitle { font-size: 15px; color: #64748b; margin: 0; }
+
+                /* KPI Grid (1 Horizontal Row of 6) */
                 .kpi-grid {
                     display: grid;
-                    grid-template-columns: repeat(3, 1fr);
-                    gap: 20px;
+                    grid-template-columns: repeat(6, 1fr);
+                    gap: 16px;
                     margin-bottom: 24px;
                 }
                 .kpi-card {
                     background: #ffffff;
-                    border-radius: 16px;
-                    padding: 20px;
+                    border-radius: 12px;
+                    padding: 16px;
                     display: flex;
-                    align-items: center;
-                    gap: 16px;
-                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+                    flex-direction: column;
+                    gap: 12px;
+                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
                     border: 1px solid #f1f5f9;
                     transition: transform 0.2s ease, box-shadow 0.2s ease;
                 }
                 .kpi-card:hover {
                     transform: translateY(-2px);
-                    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+                    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
                 }
                 .kpi-icon-wrapper {
-                    width: 48px;
-                    height: 48px;
-                    border-radius: 12px;
+                    width: 36px;
+                    height: 36px;
+                    border-radius: 8px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
                 }
-                .kpi-info {
-                    flex: 1;
-                }
-                .kpi-label {
-                    display: block;
-                    font-size: 13px;
-                    font-weight: 600;
-                    color: #64748b;
-                    margin-bottom: 4px;
-                }
-                .kpi-value {
-                    font-size: 24px;
-                    font-weight: 800;
-                    color: #0f172a;
-                    margin: 0;
+                .kpi-info { flex: 1; }
+                .kpi-label { display: block; font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 4px; }
+                .kpi-value { font-size: 20px; font-weight: 800; color: #0f172a; margin: 0; }
+
+                /* Charts Grid Rows */
+                .charts-grid-3 {
+                    display: grid;
+                    grid-template-columns: repeat(3, 1fr);
+                    gap: 20px;
+                    margin-bottom: 20px;
                 }
 
-                /* Charts Grid */
-                .charts-grid {
-                    display: grid;
-                    grid-template-columns: repeat(12, 1fr);
-                    gap: 20px;
-                    margin-bottom: 24px;
-                }
                 .bento-card {
                     background: #ffffff;
                     border-radius: 16px;
-                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
                     border: 1px solid #f1f5f9;
                     display: flex;
                     flex-direction: column;
                     overflow: hidden;
                 }
-                .span-8 { grid-column: span 8; }
-                .span-4 { grid-column: span 4; }
-                
-                .bento-card-header {
-                    padding: 20px 24px 0;
-                }
-                .bento-card-title {
-                    font-size: 16px;
-                    font-weight: 700;
-                    color: #0f172a;
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                }
-                .bento-card-body {
-                    padding: 24px;
-                    flex: 1;
-                }
+                .bento-card-header { padding: 16px 20px 0; }
+                .bento-card-title { font-size: 15px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 8px; }
+                .bento-card-body { padding: 20px; flex: 1; }
 
-                .chart-legend {
-                    display: grid;
-                    grid-template-columns: 1fr 1fr;
-                    gap: 12px;
-                    margin-top: 16px;
-                }
-                .legend-item {
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                }
-                .legend-item .dot {
-                    width: 10px;
-                    height: 10px;
-                    border-radius: 50%;
-                }
-                .legend-item .text {
-                    font-size: 13px;
-                    color: #475569;
-                    font-weight: 500;
-                }
+                /* Timeline */
+                .timeline { position: relative; padding-left: 14px; border-left: 2px solid #e2e8f0; display: flex; flex-direction: column; gap: 16px; }
+                .timeline-item { position: relative; }
+                .timeline-dot { position: absolute; left: -21px; top: 2px; width: 12px; height: 12px; border-radius: 50%; background: #ffffff; border: 3px solid #3b82f6; }
 
-                .hr-summary-card .bento-card-body {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 20px;
-                }
-                .hr-stat-row {
-                    display: flex;
-                    justify-content: space-between;
-                    background: #f8fafc;
-                    padding: 16px;
-                    border-radius: 12px;
-                    border: 1px solid #f1f5f9;
-                }
-                .stat-label {
-                    font-size: 13px;
-                    font-weight: 600;
-                    color: #64748b;
-                }
-                .stat-value {
-                    font-size: 20px;
-                    font-weight: 800;
-                    margin: 4px 0 0 0;
-                    color: #0f172a;
-                }
+                /* HR Overview */
+                .hr-stat-row { display: flex; justify-content: space-between; margin-bottom: 16px; padding: 12px; background: #f8fafc; border-radius: 12px; border: 1px solid #f1f5f9; }
+                .stat-label { font-size: 12px; color: #64748b; font-weight: 600; display: block; margin-bottom: 4px; }
+                .stat-value { font-size: 18px; font-weight: 800; margin: 0; color: #0f172a; }
                 .text-success { color: #10b981; }
                 .text-warning { color: #f59e0b; }
                 .text-primary { color: #3b82f6; }
-
-                .action-btn-outline {
-                    background: transparent;
-                    border: 1px solid #e2e8f0;
-                    color: #0f172a;
-                    padding: 12px;
-                    border-radius: 10px;
-                    font-weight: 600;
-                    cursor: pointer;
-                    transition: all 0.2s;
-                }
-                .action-btn-outline:hover {
-                    background: #f8fafc;
-                    border-color: #cbd5e1;
-                }
-
-                /* Bottom Preview Cards */
-                .section-title {
-                    font-size: 18px;
-                    font-weight: 700;
-                    color: #0f172a;
-                    margin: 0 0 16px 0;
-                }
-                .preview-cards-grid {
-                    display: grid;
-                    grid-template-columns: repeat(4, 1fr);
-                    gap: 20px;
-                    margin-bottom: 24px;
-                }
-                .preview-card {
-                    background: #ffffff;
-                    border-radius: 16px;
-                    padding: 24px;
-                    border: 1px solid #f1f5f9;
-                    transition: all 0.2s;
-                    cursor: pointer;
-                }
-                .preview-card:hover {
-                    border-color: #cbd5e1;
-                    transform: translateY(-2px);
-                    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
-                }
-                .preview-icon {
-                    width: 48px;
-                    height: 48px;
-                    background: #f8fafc;
-                    color: #3b82f6;
-                    border-radius: 12px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    margin-bottom: 16px;
-                }
-                .preview-card h4 {
-                    margin: 0 0 8px 0;
-                    font-size: 16px;
-                    font-weight: 700;
-                    color: #0f172a;
-                }
-                .preview-card p {
-                    margin: 0;
-                    font-size: 13px;
-                    color: #64748b;
-                    line-height: 1.5;
-                }
+                .action-btn-outline:hover { background: #eff6ff !important; }
 
                 /* --- Right Panel --- */
                 .admin-side-panel {
@@ -633,153 +513,33 @@ const AdminDashboard = () => {
                 .side-panel-header {
                     padding: 24px 24px 20px;
                     border-bottom: 1px solid #f1f5f9;
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
                 }
-                .side-panel-header h3 {
-                    margin: 0;
-                    font-size: 18px;
-                    font-weight: 800;
-                    color: #0f172a;
+                .side-panel-header h3 { margin: 0; font-size: 13px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 1px; }
+                
+                .side-panel-content { padding: 24px; display: flex; flex-direction: column; flex: 1; }
+                .features-list { display: flex; flex-direction: column; gap: 8px; }
+                .feature-item {
+                    display: flex; align-items: center; padding: 14px 16px;
+                    background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px;
+                    cursor: pointer; transition: all 0.2s;
                 }
-                .badge {
-                    background: #3b82f6;
-                    color: #ffffff;
-                    font-size: 11px;
-                    font-weight: 700;
-                    padding: 4px 8px;
-                    border-radius: 12px;
-                }
-
-                .side-panel-content {
-                    padding: 24px;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 32px;
-                }
-
-                .block-title {
-                    margin: 0 0 16px 0;
-                    font-size: 14px;
-                    font-weight: 700;
-                    color: #475569;
-                    text-transform: uppercase;
-                    letter-spacing: 0.5px;
-                }
-
-                .action-list {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 10px;
-                }
-                .action-item {
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                    padding: 12px 16px;
-                    background: #f8fafc;
-                    border: 1px solid #f1f5f9;
-                    border-radius: 12px;
-                    color: #334155;
-                    font-weight: 600;
-                    font-size: 14px;
-                    cursor: pointer;
-                    transition: all 0.2s;
-                    text-align: left;
-                }
-                .action-item:hover {
-                    background: #f1f5f9;
-                    color: #0f172a;
-                }
-                .action-item svg {
-                    color: #64748b;
-                }
-
-                .timeline {
-                    position: relative;
-                    padding-left: 14px;
-                    border-left: 2px solid #e2e8f0;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 20px;
-                }
-                .timeline-item {
-                    position: relative;
-                }
-                .timeline-dot {
-                    position: absolute;
-                    left: -21px;
-                    top: 2px;
-                    width: 12px;
-                    height: 12px;
-                    border-radius: 50%;
-                    background: #ffffff;
-                    border: 3px solid #3b82f6;
-                }
-                .timeline-content p {
-                    margin: 0 0 4px 0;
-                    font-size: 13px;
-                    font-weight: 600;
-                    color: #334155;
-                    line-height: 1.4;
-                }
-                .timeline-content span {
-                    font-size: 12px;
-                    color: #94a3b8;
-                }
-
-                .health-card {
-                    background: #f8fafc;
-                    border: 1px solid #f1f5f9;
-                    border-radius: 12px;
-                    padding: 16px;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 12px;
-                }
-                .health-row {
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    font-size: 13px;
-                    font-weight: 600;
-                    color: #334155;
-                }
-                .status-badge {
-                    padding: 4px 8px;
-                    border-radius: 10px;
-                    font-size: 11px;
-                    font-weight: 700;
-                }
-                .status-badge.green {
-                    background: #dcfce7;
-                    color: #16a34a;
-                }
-                .status-text {
-                    font-size: 12px;
-                    color: #64748b;
-                    font-weight: 500;
-                }
+                .feature-item:hover { background: #f8fafc; border-color: #cbd5e1; transform: translateX(2px); }
+                .feature-icon { color: #3b82f6; margin-right: 12px; display: flex; align-items: center; }
+                .feature-text { font-size: 14px; font-weight: 600; color: #334155; flex: 1; }
+                .feature-chevron { color: #94a3b8; }
 
                 @media (max-width: 1400px) {
-                    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
-                    .charts-grid { display: flex; flex-direction: column; }
-                    .preview-cards-grid { grid-template-columns: repeat(2, 1fr); }
+                    .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+                    .charts-grid-3 { grid-template-columns: repeat(2, 1fr); }
                 }
-
                 @media (max-width: 1024px) {
-                    .admin-dashboard-layout {
-                        grid-template-columns: 1fr;
-                    }
-                    .admin-side-panel {
-                        display: none;
-                    }
+                    .admin-dashboard-layout { grid-template-columns: 1fr; }
+                    .admin-side-panel { display: none; }
                 }
                 @media (max-width: 768px) {
-                    .kpi-grid { grid-template-columns: 1fr; }
-                    .preview-cards-grid { grid-template-columns: 1fr; }
-                    .admin-main-content { padding: 20px; }
+                    .kpi-grid { grid-template-columns: 1fr 1fr; }
+                    .charts-grid-3 { grid-template-columns: 1fr; }
+                    .dashboard-main-content { padding: 20px; }
                 }
             `}</style>
         </div>
