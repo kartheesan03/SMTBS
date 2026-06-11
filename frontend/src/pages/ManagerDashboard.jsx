@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import API from '../api/axios';
 import { 
-    Users, Briefcase, CheckSquare, Target, Clock, AlertCircle, 
-    Calendar, CheckCircle, PieChart as PieChartIcon, Activity
+    Users, Briefcase, FileText, CheckCircle, 
+    Activity, DollarSign, ListTodo, TrendingUp,
+    Search, Bell, ChevronDown, Clock
 } from 'lucide-react';
 import { 
-    BarChart, Bar, XAxis, YAxis, CartesianGrid, 
-    Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell, Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis
+    BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
+    XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer
 } from 'recharts';
 
 const ManagerDashboard = () => {
@@ -18,7 +19,7 @@ const ManagerDashboard = () => {
             const response = await API.get('/dashboard/stats');
             setDashboardData(response.data);
         } catch (error) {
-            console.error("Failed to load Manager stats", error);
+            console.error("Failed to load dashboard stats", error);
         } finally {
             setLoading(false);
         }
@@ -38,371 +39,384 @@ const ManagerDashboard = () => {
         );
     }
 
-    const managerStats = dashboardData.managerStats || {};
+    // KPIs
+    const teamMembers = 14; // Simulated
+    const activeProjects = 5; // Simulated
+    const pendingApprovals = 8; // Simulated
+    const completedTasks = 42; // Simulated
+    const teamProductivity = 94; // Simulated percentage
+    const departmentRevenue = 125000; // Simulated
 
-    // Manager KPIs
-    const teamMembers = managerStats.teamMembers || 12;
-    const activeProjects = managerStats.activeProjects || 4;
-    const pendingApprovals = managerStats.pendingApprovals || 5;
-    const teamProductivity = managerStats.teamProductivity || 87;
-
-    // Additional Simulated KPIs
-    const departmentRevenue = 145000;
-    const openTasks = 34;
-
-    // Team Performance (Radar Chart)
+    // Charts Data
     const teamPerformanceData = [
-        { subject: 'Quality', A: 120, fullMark: 150 },
-        { subject: 'Speed', A: 98, fullMark: 150 },
-        { subject: 'Communication', A: 86, fullMark: 150 },
-        { subject: 'Initiative', A: 99, fullMark: 150 },
-        { subject: 'Teamwork', A: 85, fullMark: 150 },
-        { subject: 'Reliability', A: 65, fullMark: 150 },
+        { name: 'Mon', completed: 12, pending: 4 },
+        { name: 'Tue', completed: 15, pending: 3 },
+        { name: 'Wed', completed: 10, pending: 8 },
+        { name: 'Thu', completed: 18, pending: 2 },
+        { name: 'Fri', completed: 14, pending: 5 },
     ];
 
-    // Project Status (Pie Chart)
+    const teamAttendanceData = [
+        { name: 'Present', value: 12, color: '#10b981' },
+        { name: 'On Leave', value: 2, color: '#f59e0b' }
+    ];
+
     const projectStatusData = [
-        { name: 'On Track', value: 5, color: '#10b981' },
-        { name: 'At Risk', value: 2, color: '#f59e0b' },
-        { name: 'Delayed', value: 1, color: '#ef4444' }
+        { id: 1, name: 'ERP Phase 2', progress: 75, status: 'On Track' },
+        { id: 2, name: 'Q3 Marketing', progress: 40, status: 'At Risk' },
+        { id: 3, name: 'Vendor Portal', progress: 90, status: 'On Track' },
+        { id: 4, name: 'Security Audit', progress: 100, status: 'Completed' },
     ];
 
-    // Team Attendance & Workload (Bar Chart)
-    const teamWorkloadData = [
-        { name: 'Alice', hours: 42, fill: '#3b82f6' },
-        { name: 'Bob', hours: 38, fill: '#10b981' },
-        { name: 'Charlie', hours: 45, fill: '#f59e0b' },
-        { name: 'Diana', hours: 40, fill: '#8b5cf6' },
-        { name: 'Eve', hours: 35, fill: '#ec4899' }
+    const pendingApprovalsList = [
+        { id: 1, type: 'Leave Request', requester: 'Alice Smith', details: '2 days sick leave' },
+        { id: 2, type: 'Expense Claim', requester: 'Bob Johnson', details: 'Travel to client site ($240)' },
+        { id: 3, type: 'Resource Request', requester: 'Charlie Brown', details: '1 additional frontend dev' },
     ];
 
-    // Pending Approvals List
-    const pendingList = [
-        { id: 1, text: 'Annual Leave request from Alice', type: 'Leave', priority: 'Medium' },
-        { id: 2, text: 'Hardware Purchase order $1200', type: 'Expense', priority: 'High' },
-        { id: 3, text: 'Timesheet approval for Week 24', type: 'Timesheet', priority: 'Low' }
-    ];
-
-    // Urgent Alerts
-    const urgentAlerts = [
-        { id: 1, text: 'Project Alpha deadline approaching in 3 days' },
-        { id: 2, text: 'Charlie exceeded 45 hours this week' }
+    const rightPanelFeatures = [
+        { title: 'Project Management', icon: <Briefcase size={16} /> },
+        { title: 'Task Assignments', icon: <ListTodo size={16} /> },
+        { title: 'Approve Timesheets', icon: <Clock size={16} /> },
+        { title: 'Team Directory', icon: <Users size={16} /> },
+        { title: 'Performance Reviews', icon: <Activity size={16} /> }
     ];
 
     return (
         <div className="role-dashboard-layout">
-            
-            {/* --- Main Content Left --- */}
-            <div className="dashboard-main-content">
-                <div className="header-section">
-                    <h1 className="page-title">Manager Dashboard</h1>
-                    <p className="page-subtitle">Team Performance & Project Operations</p>
+            <div className="main-content">
+
+                {/* Top Nav Bar */}
+                <div className="top-nav-bar">
+                    <div className="search-bar">
+                        <Search size={18} color="#94a3b8" />
+                        <input type="text" placeholder="Search projects, members..." />
+                    </div>
+                    <div className="nav-actions">
+                        <div className="date-filter">
+                            <Calendar size={16} />
+                            <span>This Week</span>
+                            <ChevronDown size={14} />
+                        </div>
+                        <button className="icon-btn notification-btn">
+                            <Bell size={20} />
+                            <span className="notif-badge"></span>
+                        </button>
+                        <div className="profile-dropdown">
+                            <div className="avatar" style={{background: '#8b5cf6'}}>M</div>
+                            <div className="profile-info">
+                                <span className="p-name">Manager</span>
+                                <span className="p-role">Department Head</span>
+                            </div>
+                            <ChevronDown size={14} />
+                        </div>
+                    </div>
                 </div>
 
-                {/* Top KPI Cards */}
+                <div className="header-section">
+                    <h1 className="page-title">Manager Dashboard</h1>
+                    <p className="page-subtitle">Team and Project Command Center</p>
+                </div>
+
+                {/* KPIs */}
                 <div className="kpi-grid">
                     <div className="kpi-card">
-                        <div className="kpi-icon-wrapper" style={{ background: '#eff6ff', color: '#3b82f6' }}><Users size={20} /></div>
+                        <div className="kpi-icon-wrapper" style={{ background: '#eff6ff', color: '#3b82f6' }}><Users size={18} /></div>
                         <div className="kpi-info">
                             <span className="kpi-label">Team Members</span>
                             <h3 className="kpi-value">{teamMembers}</h3>
                         </div>
                     </div>
                     <div className="kpi-card">
-                        <div className="kpi-icon-wrapper" style={{ background: '#ecfdf5', color: '#059669' }}><Briefcase size={20} /></div>
+                        <div className="kpi-icon-wrapper" style={{ background: '#f3e8ff', color: '#9333ea' }}><Briefcase size={18} /></div>
                         <div className="kpi-info">
                             <span className="kpi-label">Active Projects</span>
                             <h3 className="kpi-value">{activeProjects}</h3>
                         </div>
                     </div>
                     <div className="kpi-card">
-                        <div className="kpi-icon-wrapper" style={{ background: '#fef2f2', color: '#dc2626' }}><Clock size={20} /></div>
+                        <div className="kpi-icon-wrapper" style={{ background: '#fee2e2', color: '#ef4444' }}><FileText size={18} /></div>
                         <div className="kpi-info">
                             <span className="kpi-label">Pending Approvals</span>
                             <h3 className="kpi-value">{pendingApprovals}</h3>
                         </div>
                     </div>
                     <div className="kpi-card">
-                        <div className="kpi-icon-wrapper" style={{ background: '#f3e8ff', color: '#9333ea' }}><Target size={20} /></div>
+                        <div className="kpi-icon-wrapper" style={{ background: '#f0fdf4', color: '#16a34a' }}><CheckCircle size={18} /></div>
+                        <div className="kpi-info">
+                            <span className="kpi-label">Completed Tasks</span>
+                            <h3 className="kpi-value">{completedTasks}</h3>
+                        </div>
+                    </div>
+                    <div className="kpi-card">
+                        <div className="kpi-icon-wrapper" style={{ background: '#fef3c7', color: '#d97706' }}><TrendingUp size={18} /></div>
                         <div className="kpi-info">
                             <span className="kpi-label">Team Productivity</span>
                             <h3 className="kpi-value">{teamProductivity}%</h3>
                         </div>
                     </div>
                     <div className="kpi-card">
-                        <div className="kpi-icon-wrapper" style={{ background: '#ecfeff', color: '#0891b2' }}><Activity size={20} /></div>
+                        <div className="kpi-icon-wrapper" style={{ background: '#ecfdf5', color: '#059669' }}><DollarSign size={18} /></div>
                         <div className="kpi-info">
-                            <span className="kpi-label">Open Tasks</span>
-                            <h3 className="kpi-value">{openTasks}</h3>
-                        </div>
-                    </div>
-                    <div className="kpi-card">
-                        <div className="kpi-icon-wrapper" style={{ background: '#fef3c7', color: '#d97706' }}><CheckSquare size={20} /></div>
-                        <div className="kpi-info">
-                            <span className="kpi-label">Dept. Revenue</span>
+                            <span className="kpi-label">Dept Revenue</span>
                             <h3 className="kpi-value">${departmentRevenue.toLocaleString()}</h3>
                         </div>
                     </div>
                 </div>
 
-                {/* Charts Grid */}
-                <div className="charts-grid">
-                    
-                    {/* Team Workload Bar Chart */}
-                    <div className="bento-card span-8">
+                {/* Row 1 */}
+                <div className="charts-grid-3">
+                    <div className="bento-card">
                         <div className="bento-card-header">
-                            <div className="bento-card-title"><Clock size={18} /> Team Workload (Weekly Hours)</div>
+                            <div className="bento-card-title"><Activity size={16} /> Team Performance</div>
                         </div>
-                        <div className="bento-card-body" style={{ height: '300px' }}>
+                        <div className="bento-card-body" style={{ height: '220px' }}>
                             <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={teamWorkloadData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                <LineChart data={teamPerformanceData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dy={10} />
-                                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
-                                    <RechartsTooltip cursor={{fill: 'transparent'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
-                                    <Bar dataKey="hours" radius={[6, 6, 0, 0]} barSize={40}>
-                                        {teamWorkloadData.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={entry.fill} />
-                                        ))}
-                                    </Bar>
-                                </BarChart>
+                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} dy={10} />
+                                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} />
+                                    <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
+                                    <Line type="monotone" dataKey="completed" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3, strokeWidth: 2 }} />
+                                    <Line type="monotone" dataKey="pending" stroke="#ef4444" strokeWidth={2} dot={{ r: 3, strokeWidth: 2 }} />
+                                </LineChart>
                             </ResponsiveContainer>
                         </div>
                     </div>
 
-                    {/* Project Status Donut */}
-                    <div className="bento-card span-4">
+                    <div className="bento-card">
                         <div className="bento-card-header">
-                            <div className="bento-card-title"><PieChartIcon size={18} /> Project Status</div>
+                            <div className="bento-card-title"><Briefcase size={16} /> Project Status</div>
                         </div>
-                        <div className="bento-card-body" style={{ height: '300px', display: 'flex', flexDirection: 'column' }}>
-                            <ResponsiveContainer width="100%" height="100%">
-                                <PieChart>
-                                    <Pie
-                                        data={projectStatusData}
-                                        cx="50%" cy="50%"
-                                        innerRadius={60} outerRadius={90}
-                                        paddingAngle={5}
-                                        dataKey="value" stroke="none"
-                                    >
-                                        {projectStatusData.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={entry.color} />
-                                        ))}
-                                    </Pie>
-                                    <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
-                                </PieChart>
-                            </ResponsiveContainer>
-                            <div className="chart-legend">
-                                {projectStatusData.map((item, i) => (
-                                    <div key={i} className="legend-item" style={{ justifyContent: 'center' }}>
-                                        <span className="dot" style={{ background: item.color }}></span>
-                                        <span className="text">{item.name}</span>
+                        <div className="bento-card-body" style={{ height: '220px', overflowY: 'auto' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                {projectStatusData.map(proj => (
+                                    <div key={proj.id} style={{ background: '#f8fafc', padding: '10px', borderRadius: '8px', border: '1px solid #f1f5f9' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                                            <span style={{ fontSize: '12px', fontWeight: 600, color: '#0f172a' }}>{proj.name}</span>
+                                            <span style={{ 
+                                                fontSize: '10px', fontWeight: 600, padding: '2px 6px', borderRadius: '4px',
+                                                background: proj.status === 'Completed' ? '#ecfdf5' : proj.status === 'At Risk' ? '#fee2e2' : '#eff6ff',
+                                                color: proj.status === 'Completed' ? '#059669' : proj.status === 'At Risk' ? '#ef4444' : '#3b82f6'
+                                            }}>{proj.status}</span>
+                                        </div>
+                                        <div style={{ background: '#e2e8f0', height: '6px', borderRadius: '3px', overflow: 'hidden' }}>
+                                            <div style={{ 
+                                                height: '100%', width: `${proj.progress}%`,
+                                                background: proj.status === 'Completed' ? '#10b981' : proj.status === 'At Risk' ? '#ef4444' : '#3b82f6'
+                                            }}></div>
+                                        </div>
                                     </div>
                                 ))}
                             </div>
                         </div>
                     </div>
 
-                    {/* Team Performance Radar */}
-                    <div className="bento-card span-12">
+                    <div className="bento-card">
                         <div className="bento-card-header">
-                            <div className="bento-card-title"><Activity size={18} /> Aggregate Team Performance</div>
+                            <div className="bento-card-title"><Users size={16} /> Team Attendance</div>
                         </div>
-                        <div className="bento-card-body" style={{ height: '340px' }}>
+                        <div className="bento-card-body" style={{ height: '220px', display: 'flex', flexDirection: 'column' }}>
                             <ResponsiveContainer width="100%" height="100%">
-                                <RadarChart cx="50%" cy="50%" outerRadius="80%" data={teamPerformanceData}>
-                                    <PolarGrid stroke="#e2e8f0" />
-                                    <PolarAngleAxis dataKey="subject" tick={{ fill: '#475569', fontSize: 13, fontWeight: 500 }} />
-                                    <PolarRadiusAxis angle={30} domain={[0, 150]} tick={false} axisLine={false} />
-                                    <Radar name="Team Average" dataKey="A" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.4} strokeWidth={2} />
+                                <PieChart>
+                                    <Pie data={teamAttendanceData} cx="50%" cy="50%" innerRadius={45} outerRadius={75} paddingAngle={5} dataKey="value" stroke="none">
+                                        {teamAttendanceData.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={entry.color} />
+                                        ))}
+                                    </Pie>
                                     <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
-                                </RadarChart>
+                                </PieChart>
                             </ResponsiveContainer>
                         </div>
                     </div>
-
                 </div>
+
+                {/* Row 2 */}
+                <div className="charts-grid-3" style={{ gridTemplateColumns: '1fr' }}>
+                    <div className="bento-card">
+                        <div className="bento-card-header">
+                            <div className="bento-card-title"><FileText size={16} /> Pending Approvals</div>
+                        </div>
+                        <div className="bento-card-body" style={{ height: '220px', overflowY: 'auto' }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+                                <thead>
+                                    <tr style={{ borderBottom: '1px solid #e2e8f0', color: '#64748b', textAlign: 'left' }}>
+                                        <th style={{ padding: '12px 8px' }}>Type</th>
+                                        <th style={{ padding: '12px 8px' }}>Requester</th>
+                                        <th style={{ padding: '12px 8px' }}>Details</th>
+                                        <th style={{ padding: '12px 8px', textAlign: 'right' }}>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {pendingApprovalsList.map(item => (
+                                        <tr key={item.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                                            <td style={{ padding: '12px 8px', fontWeight: 600, color: '#334155' }}>{item.type}</td>
+                                            <td style={{ padding: '12px 8px', color: '#64748b' }}>{item.requester}</td>
+                                            <td style={{ padding: '12px 8px', color: '#64748b' }}>{item.details}</td>
+                                            <td style={{ padding: '12px 8px', textAlign: 'right' }}>
+                                                <button style={{ background: '#10b981', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontWeight: 600, marginRight: '6px' }}>Approve</button>
+                                                <button style={{ background: 'transparent', color: '#ef4444', border: '1px solid #fee2e2', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontWeight: 600 }}>Deny</button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
-            {/* --- Right Panel: Manager Features --- */}
-            <div className="role-side-panel">
+            {/* Right Panel */}
+            <div className="side-panel">
                 <div className="side-panel-header">
-                    <h3>Manager Panel</h3>
-                    <span className="badge">Manager</span>
+                    <h3>MANAGER FEATURES</h3>
                 </div>
-                
                 <div className="side-panel-content">
-                    
-                    {/* Quick Actions */}
-                    <div className="feature-block">
-                        <h4 className="block-title">Quick Actions</h4>
-                        <div className="action-list">
-                            <button className="action-item"><CheckSquare size={16} /> Assign Task</button>
-                            <button className="action-item"><Calendar size={16} /> Approve Leaves</button>
-                            <button className="action-item"><Briefcase size={16} /> New Project</button>
-                        </div>
+                    <div className="features-list">
+                        {rightPanelFeatures.map((feature, idx) => (
+                            <div className="feature-item" key={idx}>
+                                <div className="feature-icon">{feature.icon}</div>
+                                <span className="feature-text">{feature.title}</span>
+                                <ChevronDown size={14} className="feature-chevron" style={{ transform: 'rotate(-90deg)' }}/>
+                            </div>
+                        ))}
                     </div>
 
-                    {/* Urgent Alerts */}
-                    <div className="feature-block">
-                        <h4 className="block-title">Urgent Alerts <AlertCircle size={14} className="text-warning ml-1"/></h4>
-                        <div className="alerts-list" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                            {urgentAlerts.map(alert => (
-                                <div key={alert.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', background: '#fef2f2', borderRadius: '12px', border: '1px solid #fecaca' }}>
-                                    <div style={{ color: '#ef4444' }}><AlertCircle size={18} /></div>
-                                    <span style={{ fontSize: '13px', color: '#991b1b', fontWeight: 500, lineHeight: 1.4 }}>{alert.text}</span>
-                                </div>
-                            ))}
+                    <div className="system-status-block" style={{ marginTop: 'auto', background: '#eff6ff', border: '1px solid #bfdbfe' }}>
+                        <h4 style={{ color: '#1e40af', margin: '0 0 8px 0', fontSize: '13px' }}><Activity size={14} style={{display:'inline', marginBottom:'-2px'}}/> Team Workload</h4>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#334155' }}>
+                                <span>Design Team</span><span>85%</span>
+                            </div>
+                            <div style={{ background: '#dbeafe', height: '6px', borderRadius: '3px' }}><div style={{ background: '#3b82f6', height: '100%', width: '85%' }}></div></div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#334155', marginTop: '4px' }}>
+                                <span>Engineering</span><span>110% (Overload)</span>
+                            </div>
+                            <div style={{ background: '#fee2e2', height: '6px', borderRadius: '3px' }}><div style={{ background: '#ef4444', height: '100%', width: '100%' }}></div></div>
                         </div>
                     </div>
-
-                    {/* Pending Approvals */}
-                    <div className="feature-block">
-                        <h4 className="block-title">Pending Approvals</h4>
-                        <div className="timeline">
-                            {pendingList.map((item) => (
-                                <div className="timeline-item" key={item.id}>
-                                    <div className="timeline-dot" style={{ borderColor: item.priority === 'High' ? '#ef4444' : '#3b82f6' }}></div>
-                                    <div className="timeline-content">
-                                        <p>{item.text}</p>
-                                        <span style={{ display: 'block', marginTop: '2px', fontWeight: 600, color: '#64748b' }}>{item.type}</span>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
                 </div>
             </div>
 
-            {/* --- Shared Embedded CSS for Role Dashboards --- */}
             <style jsx="true">{`
                 .role-dashboard-layout {
                     display: grid;
-                    grid-template-columns: 1fr 320px;
+                    grid-template-columns: 1fr 280px;
                     min-height: 100vh;
                     background: #f8fafc;
                 }
 
-                .dashboard-main-content {
-                    padding: 30px;
+                .main-content {
+                    padding: 20px 24px;
                     height: 100vh;
                     overflow-y: auto;
                 }
 
-                .header-section { margin-bottom: 24px; }
-                .page-title { font-size: 26px; font-weight: 800; color: #0f172a; margin: 0 0 4px 0; }
-                .page-subtitle { font-size: 15px; color: #64748b; margin: 0; }
+                /* Top Nav Bar */
+                .top-nav-bar {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding-bottom: 20px;
+                    margin-bottom: 20px;
+                    border-bottom: 1px solid #f1f5f9;
+                }
+                .search-bar {
+                    display: flex; align-items: center; gap: 8px;
+                    background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px;
+                    padding: 8px 12px; width: 300px;
+                }
+                .search-bar input { border: none; outline: none; width: 100%; font-size: 13px; color: #0f172a; }
+                .search-bar input::placeholder { color: #94a3b8; }
+                .nav-actions { display: flex; align-items: center; gap: 16px; }
+                .date-filter {
+                    display: flex; align-items: center; gap: 6px; cursor: pointer;
+                    background: #ffffff; border: 1px solid #e2e8f0; padding: 6px 12px;
+                    border-radius: 6px; font-size: 12px; font-weight: 600; color: #334155;
+                }
+                .icon-btn {
+                    background: #ffffff; border: 1px solid #e2e8f0; border-radius: 50%;
+                    width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+                    cursor: pointer; color: #64748b; position: relative;
+                }
+                .notification-btn .notif-badge {
+                    position: absolute; top: 6px; right: 6px; width: 6px; height: 6px;
+                    background: #ef4444; border-radius: 50%; border: 2px solid #fff;
+                }
+                .profile-dropdown {
+                    display: flex; align-items: center; gap: 8px; cursor: pointer;
+                }
+                .avatar {
+                    width: 32px; height: 32px; border-radius: 50%; background: #1e293b;
+                    color: white; display: flex; align-items: center; justify-content: center;
+                    font-weight: bold; font-size: 13px;
+                }
+                .profile-info { display: flex; flex-direction: column; }
+                .p-name { font-size: 13px; font-weight: 700; color: #0f172a; }
+                .p-role { font-size: 11px; color: #64748b; }
 
-                /* KPI Grid */
+                .header-section { margin-bottom: 16px; }
+                .page-title { font-size: 20px; font-weight: 800; color: #0f172a; margin: 0 0 2px 0; }
+                .page-subtitle { font-size: 13px; color: #64748b; margin: 0; }
+
                 .kpi-grid {
                     display: grid;
-                    grid-template-columns: repeat(3, 1fr);
-                    gap: 20px;
-                    margin-bottom: 24px;
+                    grid-template-columns: repeat(6, 1fr);
+                    gap: 12px;
+                    margin-bottom: 16px;
                 }
                 .kpi-card {
-                    background: #ffffff;
-                    border-radius: 16px;
-                    padding: 20px;
-                    display: flex;
-                    align-items: center;
-                    gap: 16px;
-                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-                    border: 1px solid #f1f5f9;
-                    transition: transform 0.2s ease, box-shadow 0.2s ease;
+                    background: #ffffff; border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 8px;
+                    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); border: 1px solid #f1f5f9;
                 }
-                .kpi-card:hover {
-                    transform: translateY(-2px);
-                    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
-                }
-                .kpi-icon-wrapper {
-                    width: 48px;
-                    height: 48px;
-                    border-radius: 12px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                }
-                .kpi-info { flex: 1; }
-                .kpi-label { display: block; font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 4px; }
-                .kpi-value { font-size: 24px; font-weight: 800; color: #0f172a; margin: 0; }
+                .kpi-icon-wrapper { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+                .kpi-label { display: block; font-size: 11px; font-weight: 600; color: #64748b; margin-bottom: 2px; }
+                .kpi-value { font-size: 16px; font-weight: 800; color: #0f172a; margin: 0; }
 
-                /* Charts Grid */
-                .charts-grid {
+                .charts-grid-3 {
                     display: grid;
-                    grid-template-columns: repeat(12, 1fr);
-                    gap: 20px;
-                    margin-bottom: 24px;
+                    grid-template-columns: repeat(3, 1fr);
+                    gap: 12px;
+                    margin-bottom: 12px;
                 }
+
                 .bento-card {
-                    background: #ffffff;
-                    border-radius: 16px;
-                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-                    border: 1px solid #f1f5f9;
-                    display: flex;
-                    flex-direction: column;
-                    overflow: hidden;
+                    background: #ffffff; border-radius: 10px; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); border: 1px solid #f1f5f9;
+                    display: flex; flex-direction: column; overflow: hidden;
                 }
-                .span-12 { grid-column: span 12; }
-                .span-8 { grid-column: span 8; }
-                .span-6 { grid-column: span 6; }
-                .span-4 { grid-column: span 4; }
+                .bento-card-header { padding: 12px 14px 0; }
+                .bento-card-title { font-size: 13px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 6px; }
+                .bento-card-body { padding: 14px; flex: 1; overflow-y: auto; }
+
+                .side-panel {
+                    background: #ffffff; border-left: 1px solid #e2e8f0; height: 100vh; overflow-y: auto; display: flex; flex-direction: column;
+                }
+                .side-panel-header { padding: 16px; border-bottom: 1px solid #f1f5f9; }
+                .side-panel-header h3 { margin: 0; font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+                .side-panel-content { padding: 16px; display: flex; flex-direction: column; flex: 1; }
                 
-                .bento-card-header { padding: 20px 24px 0; }
-                .bento-card-title { font-size: 16px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 8px; }
-                .bento-card-body { padding: 24px; flex: 1; }
-
-                .chart-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; margin-top: 16px; }
-                .legend-item { display: flex; align-items: center; gap: 8px; }
-                .legend-item .dot { width: 10px; height: 10px; border-radius: 50%; }
-                .legend-item .text { font-size: 13px; color: #475569; font-weight: 500; }
-
-                /* --- Right Panel --- */
-                .role-side-panel {
-                    background: #ffffff;
-                    border-left: 1px solid #e2e8f0;
-                    height: 100vh;
-                    overflow-y: auto;
-                    display: flex;
-                    flex-direction: column;
+                .features-list { display: flex; flex-direction: column; gap: 6px; }
+                .feature-item {
+                    display: flex; align-items: center; padding: 10px 12px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: all 0.2s;
                 }
-                .side-panel-header {
-                    padding: 24px 24px 20px;
-                    border-bottom: 1px solid #f1f5f9;
-                    display: flex; align-items: center; justify-content: space-between;
-                }
-                .side-panel-header h3 { margin: 0; font-size: 18px; font-weight: 800; color: #0f172a; }
-                .badge { background: #3b82f6; color: #ffffff; font-size: 11px; font-weight: 700; padding: 4px 8px; border-radius: 12px; }
-                .side-panel-content { padding: 24px; display: flex; flex-direction: column; gap: 32px; }
+                .feature-item:hover { background: #f8fafc; border-color: #cbd5e1; }
+                .feature-icon { color: #3b82f6; margin-right: 10px; display: flex; align-items: center; }
+                .feature-text { font-size: 12px; font-weight: 600; color: #334155; flex: 1; }
+                .feature-chevron { color: #94a3b8; }
 
-                .block-title { margin: 0 0 16px 0; font-size: 14px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; }
-                .action-list { display: flex; flex-direction: column; gap: 10px; }
-                .action-item {
-                    display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: #f8fafc;
-                    border: 1px solid #f1f5f9; border-radius: 12px; color: #334155; font-weight: 600; font-size: 14px;
-                    cursor: pointer; transition: all 0.2s; text-align: left;
-                }
-                .action-item:hover { background: #f1f5f9; color: #0f172a; }
-                .action-item svg { color: #64748b; }
+                .system-status-block { border-radius: 8px; padding: 16px; }
 
-                .timeline { position: relative; padding-left: 14px; border-left: 2px solid #e2e8f0; display: flex; flex-direction: column; gap: 20px; }
-                .timeline-item { position: relative; }
-                .timeline-dot { position: absolute; left: -21px; top: 2px; width: 12px; height: 12px; border-radius: 50%; background: #ffffff; border: 3px solid #3b82f6; }
-                .timeline-content p { margin: 0 0 4px 0; font-size: 13px; font-weight: 600; color: #334155; line-height: 1.4; }
-                .timeline-content span { font-size: 12px; color: #94a3b8; }
-
-                @media (max-width: 1400px) {
-                    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
-                    .charts-grid { display: flex; flex-direction: column; }
-                }
                 @media (max-width: 1024px) {
                     .role-dashboard-layout { grid-template-columns: 1fr; }
-                    .role-side-panel { display: none; }
+                    .side-panel { display: none; }
                 }
                 @media (max-width: 768px) {
-                    .kpi-grid { grid-template-columns: 1fr; }
-                    .dashboard-main-content { padding: 20px; }
+                    .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+                    .charts-grid-3 { grid-template-columns: 1fr; }
+                    .main-content { padding: 16px; }
+                    .top-nav-bar { flex-direction: column; gap: 12px; align-items: flex-start; }
+                    .search-bar { width: 100%; }
                 }
             `}</style>
         </div>

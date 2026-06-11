@@ -1,25 +1,25 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import API from '../api/axios';
-import { AuthContext } from '../context/AuthContext';
 import { 
-    CalendarCheck, Clock, CheckCircle, FileText, 
-    Download, Bell, Calendar, Briefcase, ExternalLink, Activity, DollarSign
+    Calendar, CheckCircle, Clock, Briefcase, 
+    FileText, Bell, Search, ChevronDown, ListTodo, Star
 } from 'lucide-react';
 import { 
-    BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer
+    BarChart, Bar, XAxis, YAxis, CartesianGrid, 
+    Tooltip as RechartsTooltip, ResponsiveContainer, Cell
 } from 'recharts';
 
 const EmployeeDashboard = () => {
-    const { user } = useContext(AuthContext);
     const [dashboardData, setDashboardData] = useState(null);
     const [loading, setLoading] = useState(true);
 
     const fetchDashboardData = async () => {
         try {
+            // Reusing the same endpoint, but mapping data for Employee context
             const response = await API.get('/dashboard/stats');
             setDashboardData(response.data);
         } catch (error) {
-            console.error("Failed to load employee stats", error);
+            console.error("Failed to load dashboard stats", error);
         } finally {
             setLoading(false);
         }
@@ -39,349 +39,344 @@ const EmployeeDashboard = () => {
         );
     }
 
-    const employeeStats = dashboardData.employeeStats || {};
+    // KPIs
+    const attendanceStatus = "Present"; 
+    const pendingTasks = 5; // Simulated
+    const assignedProjects = 3; // Simulated
+    const leaveBalance = 14; // Simulated days
+    const salarySlip = "Generated"; // Simulated
+    const unreadNotifications = 2; // Simulated
 
-    // Mock data for employee specifically
-    const weeklyAttendance = [
-        { name: 'Mon', hours: 8.5 },
-        { name: 'Tue', hours: 8.0 },
-        { name: 'Wed', hours: 9.2 },
-        { name: 'Thu', hours: 7.5 },
-        { name: 'Fri', hours: 8.1 },
+    // Charts Data
+    const myAttendanceData = [
+        { name: 'Mon', hours: 8.5, fill: '#3b82f6' },
+        { name: 'Tue', hours: 8.0, fill: '#3b82f6' },
+        { name: 'Wed', hours: 9.2, fill: '#3b82f6' },
+        { name: 'Thu', hours: 8.5, fill: '#3b82f6' },
+        { name: 'Fri', hours: 7.8, fill: '#10b981' },
     ];
 
     const myTasks = [
-        { id: 1, title: 'Update homepage banner', project: 'Website Redesign', due: 'Today', priority: 'High', status: 'In Progress' },
-        { id: 2, title: 'Client presentation deck', project: 'Acme Corp Pitch', due: 'Tomorrow', priority: 'Medium', status: 'Pending' },
-        { id: 3, title: 'Submit weekly report', project: 'Internal', due: 'Friday', priority: 'Low', status: 'Pending' }
+        { id: 1, title: 'Update HR documentation', priority: 'High', status: 'In Progress', due: 'Today' },
+        { id: 2, title: 'Review Q3 Sales Deck', priority: 'Medium', status: 'Pending', due: 'Tomorrow' },
+        { id: 3, title: 'Submit Expense Report', priority: 'Low', status: 'Completed', due: 'Next Week' },
+        { id: 4, title: 'Team Sync Preparation', priority: 'Medium', status: 'Pending', due: 'Wednesday' },
+    ];
+
+    const rightPanelFeatures = [
+        { title: 'My Schedule', icon: <Calendar size={16} /> },
+        { title: 'Task Board', icon: <ListTodo size={16} /> },
+        { title: 'Apply Leave', icon: <Briefcase size={16} /> },
+        { title: 'Payslips', icon: <FileText size={16} /> },
+        { title: 'Company Policies', icon: <Star size={16} /> }
     ];
 
     const upcomingEvents = [
-        { id: 1, title: 'Team Standup', time: '10:00 AM', type: 'Meeting' },
-        { id: 2, title: '1-on-1 with Manager', time: '2:30 PM', type: 'Review' },
-        { id: 3, title: 'Townhall', time: 'Tomorrow 3:00 PM', type: 'Company' }
+        { id: 1, title: 'All-Hands Meeting', date: 'Tomorrow, 10:00 AM' },
+        { id: 2, title: 'Project Kickoff', date: 'Thursday, 2:00 PM' }
     ];
-
-    const notifications = [
-        { id: 1, text: 'Leave request approved', time: '2 hours ago', icon: <FileText size={16} /> },
-        { id: 2, text: 'Salary credited for May', time: 'Yesterday', icon: <DollarSign size={16} /> },
-        { id: 3, text: 'New task assigned by John', time: '2 days ago', icon: <CheckCircle size={16} /> }
-    ];
-
-    const getIcon = (id) => {
-        if(id === 1) return <FileText size={16} className="text-success" />;
-        if(id === 2) return <DollarSign size={16} className="text-primary" />;
-        return <CheckCircle size={16} className="text-warning" />;
-    };
 
     return (
         <div className="role-dashboard-layout">
-            
-            {/* --- Main Content Left --- */}
-            <div className="dashboard-main-content">
-                <div className="header-section">
-                    <h1 className="page-title">Employee Workspace</h1>
-                    <p className="page-subtitle">Welcome back, {user?.name || 'Employee'}. Here is your workspace summary.</p>
+            <div className="main-content">
+
+                {/* Top Nav Bar */}
+                <div className="top-nav-bar">
+                    <div className="search-bar">
+                        <Search size={18} color="#94a3b8" />
+                        <input type="text" placeholder="Search tasks, documents..." />
+                    </div>
+                    <div className="nav-actions">
+                        <div className="date-filter">
+                            <Calendar size={16} />
+                            <span>This Week</span>
+                            <ChevronDown size={14} />
+                        </div>
+                        <button className="icon-btn notification-btn">
+                            <Bell size={20} />
+                            <span className="notif-badge"></span>
+                        </button>
+                        <div className="profile-dropdown">
+                            <div className="avatar" style={{background: '#6366f1'}}>JD</div>
+                            <div className="profile-info">
+                                <span className="p-name">Jane Doe</span>
+                                <span className="p-role">Employee</span>
+                            </div>
+                            <ChevronDown size={14} />
+                        </div>
+                    </div>
                 </div>
 
-                {/* Top KPI Cards */}
+                <div className="header-section">
+                    <h1 className="page-title">Employee Dashboard</h1>
+                    <p className="page-subtitle">Welcome back! Here's your overview.</p>
+                </div>
+
+                {/* KPIs */}
                 <div className="kpi-grid">
                     <div className="kpi-card">
-                        <div className="kpi-icon-wrapper" style={{ background: '#ecfdf5', color: '#059669' }}><CalendarCheck size={20} /></div>
+                        <div className="kpi-icon-wrapper" style={{ background: '#ecfdf5', color: '#059669' }}><CheckCircle size={18} /></div>
                         <div className="kpi-info">
                             <span className="kpi-label">Attendance Status</span>
-                            <h3 className="kpi-value">{employeeStats.attendanceToday ? 'Present' : 'Not Logged In'}</h3>
+                            <h3 className="kpi-value" style={{color: '#059669'}}>{attendanceStatus}</h3>
                         </div>
                     </div>
                     <div className="kpi-card">
-                        <div className="kpi-icon-wrapper" style={{ background: '#eff6ff', color: '#3b82f6' }}><CheckCircle size={20} /></div>
+                        <div className="kpi-icon-wrapper" style={{ background: '#fef3c7', color: '#d97706' }}><ListTodo size={18} /></div>
                         <div className="kpi-info">
-                            <span className="kpi-label">Assigned Tasks</span>
-                            <h3 className="kpi-value">{myTasks.length}</h3>
+                            <span className="kpi-label">Pending Tasks</span>
+                            <h3 className="kpi-value">{pendingTasks}</h3>
                         </div>
                     </div>
                     <div className="kpi-card">
-                        <div className="kpi-icon-wrapper" style={{ background: '#f3e8ff', color: '#9333ea' }}><Briefcase size={20} /></div>
+                        <div className="kpi-icon-wrapper" style={{ background: '#eff6ff', color: '#3b82f6' }}><Briefcase size={18} /></div>
                         <div className="kpi-info">
-                            <span className="kpi-label">Active Projects</span>
-                            <h3 className="kpi-value">2</h3>
+                            <span className="kpi-label">Assigned Projects</span>
+                            <h3 className="kpi-value">{assignedProjects}</h3>
                         </div>
                     </div>
                     <div className="kpi-card">
-                        <div className="kpi-icon-wrapper" style={{ background: '#fef3c7', color: '#d97706' }}><FileText size={20} /></div>
+                        <div className="kpi-icon-wrapper" style={{ background: '#f3e8ff', color: '#9333ea' }}><Calendar size={18} /></div>
                         <div className="kpi-info">
                             <span className="kpi-label">Leave Balance</span>
-                            <h3 className="kpi-value">12 Days</h3>
+                            <h3 className="kpi-value">{leaveBalance} Days</h3>
                         </div>
                     </div>
                     <div className="kpi-card">
-                        <div className="kpi-icon-wrapper" style={{ background: '#ecfeff', color: '#0891b2' }}><Clock size={20} /></div>
+                        <div className="kpi-icon-wrapper" style={{ background: '#f0fdf4', color: '#16a34a' }}><FileText size={18} /></div>
                         <div className="kpi-info">
-                            <span className="kpi-label">Logged Hours</span>
-                            <h3 className="kpi-value">41.3h</h3>
+                            <span className="kpi-label">Salary Slip</span>
+                            <h3 className="kpi-value">{salarySlip}</h3>
                         </div>
                     </div>
                     <div className="kpi-card">
-                        <div className="kpi-icon-wrapper" style={{ background: '#fef2f2', color: '#dc2626' }}><Activity size={20} /></div>
+                        <div className="kpi-icon-wrapper" style={{ background: '#fee2e2', color: '#ef4444' }}><Bell size={18} /></div>
                         <div className="kpi-info">
-                            <span className="kpi-label">Pending Leaves</span>
-                            <h3 className="kpi-value">{employeeStats.myPendingLeaves || 0}</h3>
+                            <span className="kpi-label">Notifications</span>
+                            <h3 className="kpi-value">{unreadNotifications} Unread</h3>
                         </div>
                     </div>
                 </div>
 
-                {/* Charts Grid */}
-                <div className="charts-grid">
+                {/* Main Content Row */}
+                <div className="charts-grid-3" style={{ gridTemplateColumns: '1fr 2fr' }}>
                     
-                    {/* Weekly Attendance Bar Chart */}
-                    <div className="bento-card span-8">
+                    {/* My Attendance Chart */}
+                    <div className="bento-card">
                         <div className="bento-card-header">
-                            <div className="bento-card-title"><Clock size={18} /> Weekly Hours Logged</div>
+                            <div className="bento-card-title"><Clock size={16} /> My Attendance (Hours)</div>
                         </div>
-                        <div className="bento-card-body" style={{ height: '300px' }}>
+                        <div className="bento-card-body" style={{ height: '280px' }}>
                             <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={weeklyAttendance} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                <BarChart data={myAttendanceData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dy={10} />
-                                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
+                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} dy={10} />
+                                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} />
                                     <RechartsTooltip cursor={{fill: 'transparent'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
-                                    <Bar dataKey="hours" fill="#3b82f6" radius={[6, 6, 0, 0]} barSize={40} />
+                                    <Bar dataKey="hours" radius={[4, 4, 0, 0]} barSize={24}>
+                                        {myAttendanceData.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={entry.fill} />
+                                        ))}
+                                    </Bar>
                                 </BarChart>
                             </ResponsiveContainer>
                         </div>
                     </div>
 
-                    {/* Payslip Summary Card */}
-                    <div className="bento-card span-4">
+                    {/* My Tasks Table */}
+                    <div className="bento-card">
                         <div className="bento-card-header">
-                            <div className="bento-card-title"><DollarSign size={18} /> Recent Payslip</div>
+                            <div className="bento-card-title"><ListTodo size={16} /> My Tasks</div>
                         </div>
-                        <div className="bento-card-body" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                            <div style={{ background: '#f8fafc', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
-                                <h4 style={{ margin: '0 0 8px 0', color: '#64748b', fontSize: '14px', fontWeight: 600 }}>May 2023</h4>
-                                <h2 style={{ margin: '0', color: '#0f172a', fontSize: '32px', fontWeight: 800 }}>$4,250</h2>
-                                <span style={{ display: 'inline-block', marginTop: '8px', padding: '4px 8px', background: '#ecfdf5', color: '#10b981', fontSize: '12px', fontWeight: 700, borderRadius: '4px' }}>Paid</span>
-                            </div>
-                            <button style={{ width: '100%', padding: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 600, cursor: 'pointer' }}>
-                                <Download size={16} /> Download Payslip
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Tasks List */}
-                    <div className="bento-card span-12">
-                        <div className="bento-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <div className="bento-card-title"><CheckCircle size={18} /> My Active Tasks</div>
-                            <span style={{ fontSize: '13px', color: '#3b82f6', cursor: 'pointer', fontWeight: 600 }}>View All</span>
-                        </div>
-                        <div className="bento-card-body">
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                {myTasks.map(task => (
-                                    <div key={task.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', border: '1px solid #f1f5f9', borderRadius: '12px', background: '#fff' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                                            <input type="checkbox" style={{ width: '18px', height: '18px', cursor: 'pointer' }} />
-                                            <div>
-                                                <h4 style={{ margin: '0 0 4px 0', fontSize: '15px', color: '#0f172a' }}>{task.title}</h4>
-                                                <div style={{ display: 'flex', gap: '12px', fontSize: '13px', color: '#64748b' }}>
-                                                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Briefcase size={14}/> {task.project}</span>
-                                                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Clock size={14}/> {task.due}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <span style={{ padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 600, background: task.priority === 'High' ? '#fef2f2' : '#eff6ff', color: task.priority === 'High' ? '#dc2626' : '#3b82f6' }}>
-                                                {task.priority}
-                                            </span>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
+                        <div className="bento-card-body" style={{ height: '280px', overflowY: 'auto' }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+                                <thead>
+                                    <tr style={{ borderBottom: '1px solid #e2e8f0', color: '#64748b', textAlign: 'left' }}>
+                                        <th style={{ padding: '12px 8px' }}>Task Description</th>
+                                        <th style={{ padding: '12px 8px' }}>Priority</th>
+                                        <th style={{ padding: '12px 8px' }}>Due Date</th>
+                                        <th style={{ padding: '12px 8px' }}>Status</th>
+                                        <th style={{ padding: '12px 8px', textAlign: 'right' }}>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {myTasks.map(task => (
+                                        <tr key={task.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                                            <td style={{ padding: '12px 8px', fontWeight: 600, color: '#334155' }}>{task.title}</td>
+                                            <td style={{ padding: '12px 8px' }}>
+                                                <span style={{ 
+                                                    padding: '4px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 600,
+                                                    background: task.priority === 'High' ? '#fee2e2' : task.priority === 'Medium' ? '#fef3c7' : '#f1f5f9',
+                                                    color: task.priority === 'High' ? '#ef4444' : task.priority === 'Medium' ? '#d97706' : '#64748b'
+                                                }}>{task.priority}</span>
+                                            </td>
+                                            <td style={{ padding: '12px 8px', color: '#64748b' }}>{task.due}</td>
+                                            <td style={{ padding: '12px 8px' }}>
+                                                <span style={{ 
+                                                    padding: '4px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 600,
+                                                    background: task.status === 'Completed' ? '#ecfdf5' : task.status === 'In Progress' ? '#eff6ff' : '#f8fafc',
+                                                    color: task.status === 'Completed' ? '#059669' : task.status === 'In Progress' ? '#3b82f6' : '#64748b'
+                                                }}>{task.status}</span>
+                                            </td>
+                                            <td style={{ padding: '12px 8px', textAlign: 'right' }}>
+                                                <button style={{ background: 'transparent', color: '#3b82f6', border: '1px solid #e2e8f0', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontWeight: 600 }}>Update</button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
-
                 </div>
+
             </div>
 
-            {/* --- Right Panel: Employee Features --- */}
-            <div className="role-side-panel">
+            {/* Right Panel */}
+            <div className="side-panel">
                 <div className="side-panel-header">
-                    <h3>Employee Panel</h3>
-                    <span className="badge">Staff</span>
+                    <h3>QUICK LINKS</h3>
                 </div>
-                
                 <div className="side-panel-content">
-                    
-                    {/* Quick Links */}
-                    <div className="feature-block">
-                        <h4 className="block-title">Quick Links</h4>
-                        <div className="action-list">
-                            <button className="action-item"><Calendar size={16} /> Apply for Leave</button>
-                            <button className="action-item"><DollarSign size={16} /> Submit Expense</button>
-                            <button className="action-item"><Briefcase size={16} /> Company Policies</button>
-                        </div>
+                    <div className="features-list">
+                        {rightPanelFeatures.map((feature, idx) => (
+                            <div className="feature-item" key={idx}>
+                                <div className="feature-icon">{feature.icon}</div>
+                                <span className="feature-text">{feature.title}</span>
+                                <ChevronDown size={14} className="feature-chevron" style={{ transform: 'rotate(-90deg)' }}/>
+                            </div>
+                        ))}
                     </div>
 
-                    {/* Upcoming Events */}
-                    <div className="feature-block">
-                        <h4 className="block-title">Upcoming Events <Calendar size={14} className="text-primary ml-1"/></h4>
-                        <div className="event-list" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                            {upcomingEvents.map(event => (
-                                <div key={event.id} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', padding: '12px', background: '#f8fafc', borderRadius: '12px', borderLeft: '3px solid #3b82f6' }}>
-                                    <div style={{ flex: 1 }}>
-                                        <h5 style={{ margin: '0 0 4px 0', fontSize: '14px', color: '#0f172a' }}>{event.title}</h5>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#64748b' }}>
-                                            <span>{event.time}</span>
-                                            <span>{event.type}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                    <div className="system-status-block" style={{ marginTop: '20px', background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+                        <h4 style={{ color: '#334155', margin: '0 0 8px 0', fontSize: '13px' }}><Calendar size={14} style={{display:'inline', marginBottom:'-2px'}}/> Upcoming Events</h4>
+                        {upcomingEvents.map(event => (
+                            <div key={event.id} style={{ padding: '8px', background: '#ffffff', border: '1px solid #f1f5f9', borderRadius: '6px', marginBottom: '8px' }}>
+                                <div style={{ fontSize: '12px', fontWeight: 600, color: '#0f172a' }}>{event.title}</div>
+                                <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>{event.date}</div>
+                            </div>
+                        ))}
                     </div>
-
-                    {/* Notifications feed */}
-                    <div className="feature-block">
-                        <h4 className="block-title">Recent Notifications</h4>
-                        <div className="timeline">
-                            {notifications.map((notif) => (
-                                <div className="timeline-item" key={notif.id}>
-                                    <div className="timeline-dot" style={{ borderColor: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'white' }}>
-                                        {/* Using pseudo element for simple dot if we want, or render icon */}
-                                    </div>
-                                    <div className="timeline-content">
-                                        <p>{notif.text}</p>
-                                        <span style={{ display: 'block', marginTop: '2px' }}>{notif.time}</span>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
                 </div>
             </div>
 
-            {/* --- Shared Embedded CSS for Role Dashboards --- */}
             <style jsx="true">{`
                 .role-dashboard-layout {
                     display: grid;
-                    grid-template-columns: 1fr 320px;
+                    grid-template-columns: 1fr 280px;
                     min-height: 100vh;
                     background: #f8fafc;
                 }
 
-                .dashboard-main-content {
-                    padding: 30px;
+                .main-content {
+                    padding: 20px 24px;
                     height: 100vh;
                     overflow-y: auto;
                 }
 
-                .header-section { margin-bottom: 24px; }
-                .page-title { font-size: 26px; font-weight: 800; color: #0f172a; margin: 0 0 4px 0; }
-                .page-subtitle { font-size: 15px; color: #64748b; margin: 0; }
+                /* Top Nav Bar */
+                .top-nav-bar {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding-bottom: 20px;
+                    margin-bottom: 20px;
+                    border-bottom: 1px solid #f1f5f9;
+                }
+                .search-bar {
+                    display: flex; align-items: center; gap: 8px;
+                    background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px;
+                    padding: 8px 12px; width: 300px;
+                }
+                .search-bar input { border: none; outline: none; width: 100%; font-size: 13px; color: #0f172a; }
+                .search-bar input::placeholder { color: #94a3b8; }
+                .nav-actions { display: flex; align-items: center; gap: 16px; }
+                .date-filter {
+                    display: flex; align-items: center; gap: 6px; cursor: pointer;
+                    background: #ffffff; border: 1px solid #e2e8f0; padding: 6px 12px;
+                    border-radius: 6px; font-size: 12px; font-weight: 600; color: #334155;
+                }
+                .icon-btn {
+                    background: #ffffff; border: 1px solid #e2e8f0; border-radius: 50%;
+                    width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+                    cursor: pointer; color: #64748b; position: relative;
+                }
+                .notification-btn .notif-badge {
+                    position: absolute; top: 6px; right: 6px; width: 6px; height: 6px;
+                    background: #ef4444; border-radius: 50%; border: 2px solid #fff;
+                }
+                .profile-dropdown {
+                    display: flex; align-items: center; gap: 8px; cursor: pointer;
+                }
+                .avatar {
+                    width: 32px; height: 32px; border-radius: 50%; background: #1e293b;
+                    color: white; display: flex; align-items: center; justify-content: center;
+                    font-weight: bold; font-size: 13px;
+                }
+                .profile-info { display: flex; flex-direction: column; }
+                .p-name { font-size: 13px; font-weight: 700; color: #0f172a; }
+                .p-role { font-size: 11px; color: #64748b; }
 
-                /* KPI Grid */
+                .header-section { margin-bottom: 16px; }
+                .page-title { font-size: 20px; font-weight: 800; color: #0f172a; margin: 0 0 2px 0; }
+                .page-subtitle { font-size: 13px; color: #64748b; margin: 0; }
+
                 .kpi-grid {
                     display: grid;
-                    grid-template-columns: repeat(3, 1fr);
-                    gap: 20px;
-                    margin-bottom: 24px;
+                    grid-template-columns: repeat(6, 1fr);
+                    gap: 12px;
+                    margin-bottom: 16px;
                 }
                 .kpi-card {
-                    background: #ffffff;
-                    border-radius: 16px;
-                    padding: 20px;
-                    display: flex;
-                    align-items: center;
-                    gap: 16px;
-                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-                    border: 1px solid #f1f5f9;
-                    transition: transform 0.2s ease, box-shadow 0.2s ease;
+                    background: #ffffff; border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 8px;
+                    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); border: 1px solid #f1f5f9;
                 }
-                .kpi-card:hover {
-                    transform: translateY(-2px);
-                    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
-                }
-                .kpi-icon-wrapper {
-                    width: 48px;
-                    height: 48px;
-                    border-radius: 12px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                }
-                .kpi-info { flex: 1; }
-                .kpi-label { display: block; font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 4px; }
-                .kpi-value { font-size: 24px; font-weight: 800; color: #0f172a; margin: 0; }
+                .kpi-icon-wrapper { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+                .kpi-label { display: block; font-size: 11px; font-weight: 600; color: #64748b; margin-bottom: 2px; }
+                .kpi-value { font-size: 16px; font-weight: 800; color: #0f172a; margin: 0; }
 
-                /* Charts Grid */
-                .charts-grid {
+                .charts-grid-3 {
                     display: grid;
-                    grid-template-columns: repeat(12, 1fr);
-                    gap: 20px;
-                    margin-bottom: 24px;
+                    grid-template-columns: repeat(3, 1fr);
+                    gap: 12px;
+                    margin-bottom: 12px;
                 }
+
                 .bento-card {
-                    background: #ffffff;
-                    border-radius: 16px;
-                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-                    border: 1px solid #f1f5f9;
-                    display: flex;
-                    flex-direction: column;
-                    overflow: hidden;
+                    background: #ffffff; border-radius: 10px; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); border: 1px solid #f1f5f9;
+                    display: flex; flex-direction: column; overflow: hidden;
                 }
-                .span-12 { grid-column: span 12; }
-                .span-8 { grid-column: span 8; }
-                .span-4 { grid-column: span 4; }
+                .bento-card-header { padding: 12px 14px 0; }
+                .bento-card-title { font-size: 13px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 6px; }
+                .bento-card-body { padding: 14px; flex: 1; overflow-y: auto; }
+
+                .side-panel {
+                    background: #ffffff; border-left: 1px solid #e2e8f0; height: 100vh; overflow-y: auto; display: flex; flex-direction: column;
+                }
+                .side-panel-header { padding: 16px; border-bottom: 1px solid #f1f5f9; }
+                .side-panel-header h3 { margin: 0; font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+                .side-panel-content { padding: 16px; display: flex; flex-direction: column; flex: 1; }
                 
-                .bento-card-header { padding: 20px 24px 0; }
-                .bento-card-title { font-size: 16px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 8px; }
-                .bento-card-body { padding: 24px; flex: 1; }
-
-                /* --- Right Panel --- */
-                .role-side-panel {
-                    background: #ffffff;
-                    border-left: 1px solid #e2e8f0;
-                    height: 100vh;
-                    overflow-y: auto;
-                    display: flex;
-                    flex-direction: column;
+                .features-list { display: flex; flex-direction: column; gap: 6px; }
+                .feature-item {
+                    display: flex; align-items: center; padding: 10px 12px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: all 0.2s;
                 }
-                .side-panel-header {
-                    padding: 24px 24px 20px;
-                    border-bottom: 1px solid #f1f5f9;
-                    display: flex; align-items: center; justify-content: space-between;
-                }
-                .side-panel-header h3 { margin: 0; font-size: 18px; font-weight: 800; color: #0f172a; }
-                .badge { background: #3b82f6; color: #ffffff; font-size: 11px; font-weight: 700; padding: 4px 8px; border-radius: 12px; }
-                .side-panel-content { padding: 24px; display: flex; flex-direction: column; gap: 32px; }
+                .feature-item:hover { background: #f8fafc; border-color: #cbd5e1; }
+                .feature-icon { color: #3b82f6; margin-right: 10px; display: flex; align-items: center; }
+                .feature-text { font-size: 12px; font-weight: 600; color: #334155; flex: 1; }
+                .feature-chevron { color: #94a3b8; }
 
-                .block-title { margin: 0 0 16px 0; font-size: 14px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; }
-                .action-list { display: flex; flex-direction: column; gap: 10px; }
-                .action-item {
-                    display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: #f8fafc;
-                    border: 1px solid #f1f5f9; border-radius: 12px; color: #334155; font-weight: 600; font-size: 14px;
-                    cursor: pointer; transition: all 0.2s; text-align: left;
-                }
-                .action-item:hover { background: #f1f5f9; color: #0f172a; }
-                .action-item svg { color: #64748b; }
+                .system-status-block { border-radius: 8px; padding: 16px; }
 
-                .timeline { position: relative; padding-left: 14px; border-left: 2px solid #e2e8f0; display: flex; flex-direction: column; gap: 20px; }
-                .timeline-item { position: relative; }
-                .timeline-dot { position: absolute; left: -21px; top: 2px; width: 12px; height: 12px; border-radius: 50%; background: #ffffff; border: 3px solid #3b82f6; }
-                .timeline-content p { margin: 0 0 4px 0; font-size: 13px; font-weight: 600; color: #334155; line-height: 1.4; }
-                .timeline-content span { font-size: 12px; color: #94a3b8; }
-
-                @media (max-width: 1400px) {
-                    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
-                    .charts-grid { display: flex; flex-direction: column; }
-                }
                 @media (max-width: 1024px) {
                     .role-dashboard-layout { grid-template-columns: 1fr; }
-                    .role-side-panel { display: none; }
+                    .side-panel { display: none; }
                 }
                 @media (max-width: 768px) {
-                    .kpi-grid { grid-template-columns: 1fr; }
-                    .dashboard-main-content { padding: 20px; }
+                    .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+                    .charts-grid-3 { grid-template-columns: 1fr; }
+                    .main-content { padding: 16px; }
+                    .top-nav-bar { flex-direction: column; gap: 12px; align-items: flex-start; }
+                    .search-bar { width: 100%; }
                 }
             `}</style>
         </div>
