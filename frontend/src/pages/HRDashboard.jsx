@@ -58,11 +58,9 @@ const HRDashboard = () => {
     ];
 
     const attendanceOverviewData = [
-        { name: 'Mon', present: 140, leave: 5 },
-        { name: 'Tue', present: 142, leave: 3 },
-        { name: 'Wed', present: 138, leave: 7 },
-        { name: 'Thu', present: 141, leave: 4 },
-        { name: 'Fri', present: 135, leave: 10 },
+        { name: 'Present', value: presentToday, color: '#10b981' },
+        { name: 'On Leave', value: onLeave, color: '#f59e0b' },
+        { name: 'Absent', value: Math.max(0, totalEmployees - presentToday - onLeave), color: '#ef4444' },
     ];
 
     const departmentHeadcountData = [
@@ -84,32 +82,6 @@ const HRDashboard = () => {
         <div className="role-dashboard-layout">
             <div className="main-content">
 
-                {/* Top Nav Bar */}
-                <div className="top-nav-bar">
-                    <div className="search-bar">
-                        <Search size={18} color="#94a3b8" />
-                        <input type="text" placeholder="Search HR records..." />
-                    </div>
-                    <div className="nav-actions">
-                        <div className="date-filter">
-                            <Calendar size={16} />
-                            <span>This Month</span>
-                            <ChevronDown size={14} />
-                        </div>
-                        <button className="icon-btn notification-btn">
-                            <Bell size={20} />
-                            <span className="notif-badge"></span>
-                        </button>
-                        <div className="profile-dropdown">
-                            <div className="avatar">HR</div>
-                            <div className="profile-info">
-                                <span className="p-name">HR Manager</span>
-                                <span className="p-role">Human Resources</span>
-                            </div>
-                            <ChevronDown size={14} />
-                        </div>
-                    </div>
-                </div>
 
                 <div className="header-section">
                     <h1 className="page-title">HR Manager Dashboard</h1>
@@ -170,14 +142,14 @@ const HRDashboard = () => {
                         </div>
                         <div className="bento-card-body" style={{ height: '220px' }}>
                             <ResponsiveContainer width="100%" height="100%">
-                                <LineChart data={attendanceOverviewData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} dy={10} />
-                                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} />
+                                <PieChart>
+                                    <Pie data={attendanceOverviewData} cx="50%" cy="50%" innerRadius={45} outerRadius={75} paddingAngle={5} dataKey="value" stroke="none">
+                                        {attendanceOverviewData.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={entry.color} />
+                                        ))}
+                                    </Pie>
                                     <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
-                                    <Line type="monotone" dataKey="present" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3, strokeWidth: 2 }} />
-                                    <Line type="monotone" dataKey="leave" stroke="#f59e0b" strokeWidth={2} dot={{ r: 3, strokeWidth: 2 }} />
-                                </LineChart>
+                                </PieChart>
                             </ResponsiveContainer>
                         </div>
                     </div>
@@ -281,48 +253,6 @@ const HRDashboard = () => {
                     overflow-y: auto;
                 }
 
-                /* Top Nav Bar */
-                .top-nav-bar {
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    padding-bottom: 20px;
-                    margin-bottom: 20px;
-                    border-bottom: 1px solid #f1f5f9;
-                }
-                .search-bar {
-                    display: flex; align-items: center; gap: 8px;
-                    background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px;
-                    padding: 8px 12px; width: 300px;
-                }
-                .search-bar input { border: none; outline: none; width: 100%; font-size: 13px; color: #0f172a; }
-                .search-bar input::placeholder { color: #94a3b8; }
-                .nav-actions { display: flex; align-items: center; gap: 16px; }
-                .date-filter {
-                    display: flex; align-items: center; gap: 6px; cursor: pointer;
-                    background: #ffffff; border: 1px solid #e2e8f0; padding: 6px 12px;
-                    border-radius: 6px; font-size: 12px; font-weight: 600; color: #334155;
-                }
-                .icon-btn {
-                    background: #ffffff; border: 1px solid #e2e8f0; border-radius: 50%;
-                    width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
-                    cursor: pointer; color: #64748b; position: relative;
-                }
-                .notification-btn .notif-badge {
-                    position: absolute; top: 6px; right: 6px; width: 6px; height: 6px;
-                    background: #ef4444; border-radius: 50%; border: 2px solid #fff;
-                }
-                .profile-dropdown {
-                    display: flex; align-items: center; gap: 8px; cursor: pointer;
-                }
-                .avatar {
-                    width: 32px; height: 32px; border-radius: 50%; background: #1e293b;
-                    color: white; display: flex; align-items: center; justify-content: center;
-                    font-weight: bold; font-size: 13px;
-                }
-                .profile-info { display: flex; flex-direction: column; }
-                .p-name { font-size: 13px; font-weight: 700; color: #0f172a; }
-                .p-role { font-size: 11px; color: #64748b; }
 
                 .header-section { margin-bottom: 16px; }
                 .page-title { font-size: 20px; font-weight: 800; color: #0f172a; margin: 0 0 2px 0; }
@@ -382,8 +312,6 @@ const HRDashboard = () => {
                     .kpi-grid { grid-template-columns: repeat(3, 1fr); }
                     .charts-grid-3 { grid-template-columns: 1fr; }
                     .main-content { padding: 16px; }
-                    .top-nav-bar { flex-direction: column; gap: 12px; align-items: flex-start; }
-                    .search-bar { width: 100%; }
                 }
             `}</style>
         </div>
