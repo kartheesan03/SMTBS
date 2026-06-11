@@ -79,14 +79,6 @@ const HRDashboard = () => {
         { id: 3, name: 'Charlie Brown', type: 'Personal', duration: '1 Day', status: 'Pending' },
     ];
 
-    const rightPanelFeatures = [
-        { title: 'Employee Directory', icon: <Users size={16} /> },
-        { title: 'Attendance Logs', icon: <Calendar size={16} /> },
-        { title: 'Leave Approvals', icon: <UserCheck size={16} /> },
-        { title: 'Payroll Processing', icon: <DollarSign size={16} /> },
-        { title: 'Performance Reviews', icon: <Award size={16} /> },
-        { title: 'Recruitment', icon: <Briefcase size={16} /> }
-    ];
 
     return (
         <div className="role-dashboard-layout">
@@ -275,40 +267,10 @@ const HRDashboard = () => {
 
             </div>
 
-            {/* Right Panel */}
-            <div className="side-panel">
-                <div className="side-panel-header">
-                    <h3>HR FEATURES</h3>
-                </div>
-                <div className="side-panel-content">
-                    <div className="features-list">
-                        {rightPanelFeatures.map((feature, idx) => (
-                            <div className="feature-item" key={idx}>
-                                <div className="feature-icon">{feature.icon}</div>
-                                <span className="feature-text">{feature.title}</span>
-                                <ChevronDown size={14} className="feature-chevron" style={{ transform: 'rotate(-90deg)' }}/>
-                            </div>
-                        ))}
-                    </div>
-
-                    <div className="system-status-block" style={{ marginTop: '20px', background: '#fffbeb', border: '1px solid #fde68a' }}>
-                        <h4 style={{ color: '#b45309', margin: '0 0 8px 0', fontSize: '13px' }}>🎂 Upcoming Birthdays</h4>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                            <div style={{ width: '24px', height: '24px', background: '#fbbf24', color: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 'bold' }}>J</div>
-                            <div style={{ fontSize: '12px', color: '#92400e' }}><strong>John Doe</strong> - Tomorrow</div>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <div style={{ width: '24px', height: '24px', background: '#fbbf24', color: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 'bold' }}>S</div>
-                            <div style={{ fontSize: '12px', color: '#92400e' }}><strong>Sarah Lin</strong> - Nov 12</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             <style jsx="true">{`
                 .role-dashboard-layout {
-                    display: grid;
-                    grid-template-columns: 1fr 280px;
+                    display: block;
                     min-height: 100vh;
                     background: #f8fafc;
                 }
@@ -414,8 +376,7 @@ const HRDashboard = () => {
                 .system-status-block { border-radius: 8px; padding: 16px; }
 
                 @media (max-width: 1024px) {
-                    .role-dashboard-layout { grid-template-columns: 1fr; }
-                    .side-panel { display: none; }
+                    .role-dashboard-layout { display: block; }
                 }
                 @media (max-width: 768px) {
                     .kpi-grid { grid-template-columns: repeat(3, 1fr); }
