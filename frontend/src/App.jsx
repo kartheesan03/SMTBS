@@ -7,9 +7,12 @@ import Topbar from './components/Topbar';
 import ProtectedRoute from './components/ProtectedRoute';
 import { Menu, X } from 'lucide-react';
 
+import { GoogleOAuthProvider } from '@react-oauth/google';
+
 // Pages
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
+import Register from './pages/Register';
 import Materials from './pages/Materials';
 import HRMS from './pages/HRMS';
 import AdminDashboard from './pages/AdminDashboard';
@@ -77,6 +80,7 @@ const AppContent = () => {
                 <Routes>
                     {/* Public Route */}
                     <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
+                    <Route path="/register" element={!user ? <Register /> : <Navigate to="/" />} />
                     
                     {/* Protected Root Route - Dispatches to correct dashboard */}
                     <Route path="/" element={
@@ -206,13 +210,15 @@ const AppContent = () => {
 
 const App = () => {
     return (
-        <AuthProvider>
-            <NotificationProvider>
-                <Router>
-                    <AppContent />
-                </Router>
-            </NotificationProvider>
-        </AuthProvider>
+        <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || 'simulated_client_id_for_dev'}>
+            <AuthProvider>
+                <NotificationProvider>
+                    <Router>
+                        <AppContent />
+                    </Router>
+                </NotificationProvider>
+            </AuthProvider>
+        </GoogleOAuthProvider>
     );
 };
 

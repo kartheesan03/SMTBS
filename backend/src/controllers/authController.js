@@ -9,14 +9,14 @@ const generateToken = (id) => {
 // @route   POST /api/auth/register
 // @access  Public
 const registerUser = async (req, res) => {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, phone, role } = req.body;
     const userExists = await User.findOne({ email });
 
     if (userExists) {
         return res.status(400).json({ message: 'User already exists' });
     }
 
-    const user = await User.create({ name, email, password, role });
+    const user = await User.create({ name, email, password, phone, role });
 
     if (user) {
         res.status(201).json({
@@ -54,6 +54,67 @@ const loginUser = async (req, res) => {
     } else {
         console.error(`Login failed for email: ${email} - Invalid credentials`);
         res.status(401).json({ message: 'Invalid email or password' });
+    }
+};
+
+// @desc    Google login/register (Simulated for Development)
+// @route   POST /api/auth/google
+// @access  Public
+const googleAuth = async (req, res) => {
+    const { googleToken, email, name } = req.body;
+    
+    // In a real scenario, we would verify the googleToken using google-auth-library here.
+    // Since the user requested a simulated setup for now:
+    if (!email || !name) {
+        return res.status(400).json({ message: 'Invalid simulated Google payload' });
+    }
+
+    try {
+        let user = await User.findOne({ email });
+
+        if (user) {
+            // User exists, just log them in
+            let role = user.role;
+            if (user.email === 'admin@smtbms.com') {
+                role = 'Super Admin';
+            }
+
+            res.json({
+                _id: user._id,
+                name: user.name,
+                email: user.email,
+                role: role,
+                token: generateToken(user._id),
+            });
+        } else {
+            // User does not exist, create them
+            // We generate a secure random password since the DB requires one if not null, 
+            // though we allowed null earlier. We'll set a placeholder to be safe.
+            const randomPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
+            
+            user = await User.create({ 
+                name, 
+                email, 
+                password: randomPassword, 
+                role: 'Employee', 
+                googleId: 'simulated_google_id_' + Date.now() 
+            });
+
+            if (user) {
+                res.status(201).json({
+                    _id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    role: user.role,
+                    token: generateToken(user._id),
+                });
+            } else {
+                res.status(400).json({ message: 'Invalid user data during Google Auth' });
+            }
+        }
+    } catch (error) {
+        console.error('Google Auth Error:', error);
+        res.status(500).json({ message: 'Server error during Google Authentication' });
     }
 };
 
@@ -105,4 +166,4 @@ const getUsers = async (req, res) => {
     }
 };
 
-module.exports = { registerUser, loginUser, updateUserProfile, getUsers };
+module.exports = { registerUser, loginUser, googleAuth, updateUserProfile, getUsers };
