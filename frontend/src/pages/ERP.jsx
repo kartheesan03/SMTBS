@@ -42,8 +42,8 @@ const ERP = () => {
     const [erpStats, setErpStats] = useState({
         openOrders: 0,
         approvedOrders: 0,
-        pendingInvoices: 18,
-        totalExpenses: '₹1.25 Cr',
+        pendingInvoices: 0,
+        totalExpenses: '₹0',
         totalPurchaseOrders: 0,
         orderSummary: []
     });
