@@ -199,11 +199,11 @@ const Login = () => {
                             )}
                         </button>
                         
-                        <div className="divider">
+                        <div className="divider" style={{ display: 'none' }}>
                             <span>or continue with</span>
                         </div>
                         
-                        <div className="google-btn-wrapper">
+                        <div className="google-btn-wrapper" style={{ display: 'none' }}>
                             <GoogleLogin 
                                 onSuccess={handleGoogleSuccess}
                                 onError={() => setError('Google Login Failed')}

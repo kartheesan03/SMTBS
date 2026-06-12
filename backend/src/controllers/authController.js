@@ -14,16 +14,49 @@ const generateToken = (id) => {
 // @route   POST /api/auth/register
 // @access  Public
 const registerUser = async (req, res) => {
-    const { name, email, password, phone, role } = req.body;
-    const userExists = await User.findOne({ email });
+    try {
+        const { 
+            name, email, password, phone, role,
+            customerType, company, address, vendorName, contactPerson, materialsSupplied, gstNumber
+        } = req.body;
+        
+        const userExists = await User.findOne({ email });
 
-    if (userExists) {
-        return res.status(400).json({ message: 'User already exists' });
-    }
+        if (userExists) {
+            return res.status(400).json({ message: 'User already exists' });
+        }
 
-    const user = await User.create({ name, email, password, phone, role });
+        const user = await User.create({ name, email, password, phone, role });
 
-    if (user) {
+        if (!user) {
+            return res.status(400).json({ message: 'Invalid user data' });
+        }
+
+        // Create associated profile if Customer or Vendor
+        if (role === 'Customer') {
+            await Customer.create({
+                name: name,
+                email: email,
+                phone: phone || '',
+                address: address || '',
+                type: customerType || 'Individual',
+                company: company || '',
+                status: 'Active'
+            });
+        } else if (role === 'Vendor') {
+            await Vendor.create({
+                name: vendorName || name,
+                contactPerson: contactPerson || name,
+                email: email,
+                phone: phone || '',
+                address: address || '',
+                materialsSupplied: materialsSupplied || [],
+                rating: 0,
+                status: 'Active',
+                gstNumber: gstNumber || ''
+            });
+        }
+
         res.status(201).json({
             _id: user._id,
             name: user.name,
@@ -31,8 +64,9 @@ const registerUser = async (req, res) => {
             role: user.role,
             token: generateToken(user._id),
         });
-    } else {
-        res.status(400).json({ message: 'Invalid user data' });
+    } catch (error) {
+        console.error('Registration error:', error);
+        res.status(500).json({ message: error.message || 'Server Error' });
     }
 };
 

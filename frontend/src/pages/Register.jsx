@@ -8,10 +8,19 @@ const Register = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [phone, setPhone] = useState('');
-    const [role, setRole] = useState('Employee');
+    const [role, setRole] = useState('Customer');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    
+    // Additional fields for CRM
+    const [address, setAddress] = useState('');
+    const [company, setCompany] = useState('');
+    const [customerType, setCustomerType] = useState('Individual');
+    const [vendorName, setVendorName] = useState('');
+    const [contactPerson, setContactPerson] = useState('');
+    const [materialsSupplied, setMaterialsSupplied] = useState('');
+    const [gstNumber, setGstNumber] = useState('');
     
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -28,7 +37,18 @@ const Register = () => {
 
         setIsLoading(true);
         try {
-            const { data } = await API.post('/auth/register', { name, email, phone, role, password });
+            const payload = { name, email, phone, role, password, address };
+            if (role === 'Customer') {
+                payload.company = company;
+                payload.customerType = customerType;
+            } else if (role === 'Vendor') {
+                payload.vendorName = vendorName;
+                payload.contactPerson = contactPerson;
+                payload.gstNumber = gstNumber;
+                payload.materialsSupplied = materialsSupplied.split(',').map(m => m.trim()).filter(Boolean);
+            }
+            
+            const { data } = await API.post('/auth/register', payload);
             console.log('Registration successful. Received user role from API:', data.role);
             login(data); // Auto-login after registration
             setError('');
@@ -36,26 +56,6 @@ const Register = () => {
         } catch (err) {
             const errorMsg = err.response?.data?.error || err.response?.data?.message || 'Registration failed';
             setError(errorMsg);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const handleGoogleLoginMock = async () => {
-        // TODO: Replace with useGoogleLogin() from @react-oauth/google when Client ID is ready
-        setIsLoading(true);
-        try {
-            const mockGooglePayload = {
-                googleToken: 'mock_token_123',
-                email: 'googleuser@example.com',
-                name: 'Google User'
-            };
-            
-            const { data } = await API.post('/auth/google', mockGooglePayload);
-            login(data);
-            navigate('/');
-        } catch (err) {
-            setError(err.response?.data?.message || 'Google Sign-up failed');
         } finally {
             setIsLoading(false);
         }
@@ -159,7 +159,7 @@ const Register = () => {
                         </div>
 
                         <div className="input-group">
-                            <label>Select Role</label>
+                            <label>Account Type</label>
                             <div className="input-wrapper">
                                 <Shield size={18} className="input-icon" />
                                 <select 
@@ -168,14 +168,71 @@ const Register = () => {
                                     required
                                     style={{ width: '100%', padding: '14px 16px 14px 44px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', fontSize: '15px', color: '#0f172a', appearance: 'none' }}
                                 >
-                                    <option value="Employee">Employee</option>
-                                    <option value="Manager">Manager</option>
-                                    <option value="HR">HR Manager</option>
-                                    <option value="Sales">Sales Executive</option>
-                                    <option value="Admin">Administrator</option>
+                                    <option value="Customer">Customer</option>
+                                    <option value="Vendor">Vendor / Supplier</option>
                                 </select>
                             </div>
                         </div>
+
+                        <div className="input-group">
+                            <label>Address *</label>
+                            <div className="input-wrapper">
+                                <input type="text" placeholder="Full address" value={address} onChange={e => setAddress(e.target.value)} required style={{ width: '100%', padding: '14px 16px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', fontSize: '15px', outline: 'none' }}/>
+                            </div>
+                        </div>
+
+                        {role === 'Customer' && (
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                                <div className="input-group">
+                                    <label>Customer Type *</label>
+                                    <div className="input-wrapper">
+                                        <select value={customerType} onChange={e => setCustomerType(e.target.value)} style={{ width: '100%', padding: '14px 16px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', fontSize: '15px', outline: 'none' }}>
+                                            <option value="Individual">Individual</option>
+                                            <option value="Company">Company</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div className="input-group">
+                                    <label>Company Name</label>
+                                    <div className="input-wrapper">
+                                        <input type="text" placeholder="Optional" value={company} onChange={e => setCompany(e.target.value)} style={{ width: '100%', padding: '14px 16px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', fontSize: '15px', outline: 'none' }}/>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {role === 'Vendor' && (
+                            <>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                                    <div className="input-group">
+                                        <label>Vendor / Company Name *</label>
+                                        <div className="input-wrapper">
+                                            <input type="text" placeholder="Required" value={vendorName} onChange={e => setVendorName(e.target.value)} required style={{ width: '100%', padding: '14px 16px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', fontSize: '15px', outline: 'none' }}/>
+                                        </div>
+                                    </div>
+                                    <div className="input-group">
+                                        <label>Contact Person *</label>
+                                        <div className="input-wrapper">
+                                            <input type="text" placeholder="Required" value={contactPerson} onChange={e => setContactPerson(e.target.value)} required style={{ width: '100%', padding: '14px 16px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', fontSize: '15px', outline: 'none' }}/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                                    <div className="input-group">
+                                        <label>Materials Supplied</label>
+                                        <div className="input-wrapper">
+                                            <input type="text" placeholder="Comma separated" value={materialsSupplied} onChange={e => setMaterialsSupplied(e.target.value)} style={{ width: '100%', padding: '14px 16px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', fontSize: '15px', outline: 'none' }}/>
+                                        </div>
+                                    </div>
+                                    <div className="input-group">
+                                        <label>GST / Tax Number</label>
+                                        <div className="input-wrapper">
+                                            <input type="text" placeholder="Optional" value={gstNumber} onChange={e => setGstNumber(e.target.value)} style={{ width: '100%', padding: '14px 16px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', fontSize: '15px', outline: 'none' }}/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </>
+                        )}
 
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                             <div className="input-group">
@@ -220,19 +277,9 @@ const Register = () => {
                             )}
                         </button>
                         
-                        <div className="divider">
+                        <div className="divider" style={{ display: 'none' }}>
                             <span>or sign up with</span>
                         </div>
-                        
-                        <button type="button" className="google-btn" onClick={handleGoogleLoginMock} disabled={isLoading}>
-                            <svg viewBox="0 0 24 24" width="20" height="20" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-                            </svg>
-                            Google
-                        </button>
                     </form>
                     
                     <div className="form-footer">
