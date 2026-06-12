@@ -1,5 +1,8 @@
 const jwt = require('jsonwebtoken');
+const { OAuth2Client } = require('google-auth-library');
 const User = require('../models/User');
+
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const generateToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
@@ -57,29 +60,42 @@ const loginUser = async (req, res) => {
     }
 };
 
-// @desc    Google login/register (Simulated for Development)
+// @desc    Google login
 // @route   POST /api/auth/google
 // @access  Public
 const googleAuth = async (req, res) => {
-    const { googleToken, email, name } = req.body;
+    const { credential } = req.body;
     
-    // In a real scenario, we would verify the googleToken using google-auth-library here.
-    // Since the user requested a simulated setup for now:
-    if (!email || !name) {
-        return res.status(400).json({ message: 'Invalid simulated Google payload' });
+    if (!credential) {
+        return res.status(400).json({ message: 'Google token missing' });
     }
 
     try {
+        const ticket = await client.verifyIdToken({
+            idToken: credential,
+            audience: process.env.GOOGLE_CLIENT_ID,
+        });
+
+        const payload = ticket.getPayload();
+        const email = payload.email;
+        const name = payload.name;
+        const googleId = payload.sub;
+
         let user = await User.findOne({ email });
 
         if (user) {
-            // User exists, just log them in
+            // User exists, update googleId if not present
+            if (!user.googleId) {
+                user.googleId = googleId;
+                await user.save();
+            }
+
             let role = user.role;
             if (user.email === 'admin@smtbms.com') {
                 role = 'Super Admin';
             }
 
-            res.json({
+            return res.json({
                 _id: user._id,
                 name: user.name,
                 email: user.email,
@@ -87,34 +103,15 @@ const googleAuth = async (req, res) => {
                 token: generateToken(user._id),
             });
         } else {
-            // User does not exist, create them
-            // We generate a secure random password since the DB requires one if not null, 
-            // though we allowed null earlier. We'll set a placeholder to be safe.
-            const randomPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
-            
-            user = await User.create({ 
-                name, 
-                email, 
-                password: randomPassword, 
-                role: 'Employee', 
-                googleId: 'simulated_google_id_' + Date.now() 
+            // User does not exist in our database. 
+            // According to requirements: "Do not allow random Google users to register automatically."
+            return res.status(403).json({ 
+                message: 'Your account is not registered. Please contact admin.' 
             });
-
-            if (user) {
-                res.status(201).json({
-                    _id: user._id,
-                    name: user.name,
-                    email: user.email,
-                    role: user.role,
-                    token: generateToken(user._id),
-                });
-            } else {
-                res.status(400).json({ message: 'Invalid user data during Google Auth' });
-            }
         }
     } catch (error) {
         console.error('Google Auth Error:', error);
-        res.status(500).json({ message: 'Server error during Google Authentication' });
+        return res.status(500).json({ message: 'Server error during Google Authentication' });
     }
 };
 
