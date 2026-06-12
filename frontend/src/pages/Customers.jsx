@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 import DataTable from '../components/Dashboard/DataTable';
 import { Users, Plus, Mail, Phone, ExternalLink, UserCheck, Edit2, Trash2, Globe, Building2, FileText, ArrowLeft, ShoppingCart, MessageSquare, LifeBuoy, Calendar, Clock, PhoneCall, Send, StickyNote, X, Download } from 'lucide-react';
@@ -7,6 +8,7 @@ import 'jspdf-autotable';
 import ExcelJS from 'exceljs';
 
 const Customers = () => {
+    const navigate = useNavigate();
     const [customers, setCustomers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
@@ -654,12 +656,7 @@ const Customers = () => {
                 <div className="header-actions">
                     <button className="btn-export" onClick={exportToPDF} title="Export PDF"><Download size={16} /> PDF</button>
                     <button className="btn-export" onClick={exportToExcel} title="Export Excel"><Download size={16} /> Excel</button>
-                    <button className="btn-primary flex-center gap-10" onClick={() => {
-                        setEditingId(null);
-                        setFormData({ name: '', email: '', phone: '', address: '', industry: '', website: '', notes: '', status: 'Active' });
-                        setFormErrors({});
-                        setShowModal(true);
-                    }}>
+                    <button className="btn-primary flex-center gap-10" onClick={() => navigate('/crm/add-customer')}>
                         <Plus size={18} /> Add New Customer
                     </button>
                 </div>
@@ -669,7 +666,7 @@ const Customers = () => {
                 <div className="modal-overlay">
                     <div className="glass-card modal-content-lg animate-pop">
                         <div className="modal-header">
-                            <h2>{editingId ? 'Edit Customer' : 'Add New Customer'}</h2>
+                            <h2>Edit Customer</h2>
                             <button className="close-btn" onClick={handleCloseModal}>✕</button>
                         </div>
                         <form onSubmit={handleSubmit} className="modal-form">
@@ -740,7 +737,7 @@ const Customers = () => {
 
                             <div className="modal-actions">
                                 <button type="button" className="btn-cancel" onClick={handleCloseModal}>Cancel</button>
-                                <button type="submit" className="btn-primary">{editingId ? 'Update Customer' : 'Save Customer'}</button>
+                                <button type="submit" className="btn-primary">Update Customer</button>
                             </div>
                         </form>
                     </div>
