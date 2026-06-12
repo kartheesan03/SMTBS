@@ -66,7 +66,6 @@ const Dashboard = () => {
                     actions: [
                         { label: 'Add Material', icon: <Package size={20}/>, onClick: () => {} },
                         { label: 'Add Employee', icon: <Users size={20}/>, onClick: () => {} },
-                        { label: 'Create Order', icon: <PlusCircle size={20}/>, onClick: () => {} },
                         { label: 'Add Customer', icon: <Briefcase size={20}/>, onClick: () => {} },
                     ],
                     charts: (

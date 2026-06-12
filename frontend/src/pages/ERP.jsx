@@ -19,7 +19,6 @@ const ERP = () => {
     const [orders, setOrders] = useState([]);
     const [activeTab, setActiveTab] = useState('active');
     const [loading, setLoading] = useState(true);
-    const [showModal, setShowModal] = useState(false);
     const [showOrderDetailsModal, setShowOrderDetailsModal] = useState(false);
     const [selectedOrderDetails, setSelectedOrderDetails] = useState(null);
     const [showInvoiceModal, setShowInvoiceModal] = useState(false);
@@ -27,15 +26,6 @@ const ERP = () => {
     const [customers, setCustomers] = useState([]);
     const [vendors, setVendors] = useState([]);
     const [materials, setMaterials] = useState([]);
-    const [formData, setFormData] = useState({
-        customer: '',
-        status: 'Created',
-        orderType: 'sales',
-        items: [{ material: '', quantity: 1, price: 0 }],
-        orderDate: new Date().toISOString().split('T')[0],
-        expectedDeliveryDate: '',
-        notes: ''
-    });
 
     const [statusFilter, setStatusFilter] = useState('All');
     const [showFilters, setShowFilters] = useState(false);
@@ -122,58 +112,6 @@ const ERP = () => {
     const handleOrderClick = (ord) => {
         setSelectedOrderDetails(ord);
         setShowOrderDetailsModal(true);
-    };
-
-    const calculateTotal = () => {
-        return formData.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    };
-
-    const handleCreateOrder = async (e) => {
-        e.preventDefault();
-        try {
-            const custExists = customers.find(c => String(c.id || c._id) === String(formData.customer));
-            if (!custExists) {
-                alert("Selected customer does not exist.");
-                return;
-            }
-
-            for (const item of formData.items) {
-                const matExists = materials.find(m => String(m.id || m._id) === String(item.material));
-                if (!matExists) {
-                    alert("Selected material does not exist.");
-                    return;
-                }
-                if (!item.quantity || item.quantity <= 0) {
-                    alert("Invalid quantity.");
-                    return;
-                }
-            }
-
-            const totalAmount = calculateTotal();
-            const selectedCust = customers.find(c => String(c.id || c._id) === String(formData.customer));
-            
-            const payload = { 
-                ...formData, 
-                orderType: 'sales',
-                status: 'Created',
-                approvalStatus: 'Pending Manager Approval',
-                deliveryStatus: 'Not Started',
-                customerModel: selectedCust?.customerModel || 'Customer',
-                totalAmount 
-            };
-            console.log("ORDER PAYLOAD:", payload);
-
-            await API.post('/orders', payload);
-            setShowModal(false);
-            setFormData({ customer: '', status: 'Created', orderType: 'sales', items: [{ material: '', quantity: 1, price: 0 }], orderDate: new Date().toISOString().split('T')[0], expectedDeliveryDate: '', notes: '' });
-            fetchData();
-        } catch (err) {
-            alert(err.response?.data?.message || 'Error creating order');
-        }
-    };
-
-    const addItem = () => {
-        setFormData({ ...formData, items: [...formData.items, { material: '', quantity: 1, price: 0 }] });
     };
 
     const handleStatusChange = async (id, newStatus) => {
@@ -385,11 +323,6 @@ const ERP = () => {
                     <button className="btn-secondary-light flex-center gap-8" onClick={() => setShowFilters(!showFilters)}>
                         <Filter size={16} /> Filters
                     </button>
-                    {(userInfo?.role?.toLowerCase() === 'admin' || userInfo?.role?.toLowerCase() === 'super admin') && (
-                        <button className="btn-primary-blue flex-center gap-8" onClick={() => setShowModal(true)}>
-                            <Plus size={16} /> Create Order
-                        </button>
-                    )}
                 </div>
             </header>
 
@@ -705,119 +638,6 @@ const ERP = () => {
                     </tbody>
                 </table>
             </div>
-
-            {/* Modal */}
-            {showModal && (
-                <div className="modal-overlay">
-                    <div className="modal-content animate-pop">
-                        <div className="modal-header">
-                            <h2>Create Customer Sales Order</h2>
-                            <button className="close-btn" onClick={() => setShowModal(false)}>✕</button>
-                        </div>
-                        <form onSubmit={handleCreateOrder} className="modal-form">
-                            <div className="form-group">
-                                <label>Select Customer</label>
-                                <select required value={formData.customer} onChange={e => setFormData({...formData, customer: e.target.value})}>
-                                    <option value="">Select Customer...</option>
-                                    {(!customers || customers.length === 0) ? (
-                                        <option value="" disabled>No customers available</option>
-                                    ) : (
-                                        customers.map(c => <option key={c.id || c._id} value={c.id || c._id}>{c.name} ({c.customerModel})</option>)
-                                    )}
-                                </select>
-                            </div>
-                            
-                            <div className="items-section">
-                                <label>Order Items</label>
-                                {formData.items.map((item, index) => (
-                                    <div key={index} className="item-row">
-                                        <select 
-                                            required 
-                                            value={item.material} 
-                                            onChange={e => {
-                                                const mat = materials.find(m => String(m.id || m._id) === e.target.value);
-                                                const newItems = [...formData.items];
-                                                newItems[index] = { ...newItems[index], material: e.target.value, price: mat?.price || 0 };
-                                                setFormData({...formData, items: newItems});
-                                            }}
-                                        >
-                                            <option value="">Select Material...</option>
-                                            {materials.map(m => <option key={m.id || m._id} value={m.id || m._id}>{m.name} (${m.price})</option>)}
-                                        </select>
-                                        <input 
-                                            type="number" 
-                                            min="1" 
-                                            required 
-                                            value={item.quantity} 
-                                            onChange={e => {
-                                                const newItems = [...formData.items];
-                                                newItems[index].quantity = parseInt(e.target.value);
-                                                setFormData({...formData, items: newItems});
-                                            }}
-                                        />
-                                        <span className="item-subtotal">${(item.price * item.quantity).toLocaleString()}</span>
-                                    </div>
-                                ))}
-                                <button type="button" className="text-btn" onClick={addItem}>+ Add Another Item</button>
-                            </div>
-
-                            <div className="form-group" style={{ marginBottom: '16px' }}>
-                                <label>Order Date</label>
-                                <input 
-                                    type="date" 
-                                    required 
-                                    value={formData.orderDate || ''} 
-                                    onChange={e => setFormData({...formData, orderDate: e.target.value})}
-                                    style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border)' }}
-                                />
-                            </div>
-
-                            <div className="form-group" style={{ marginBottom: '16px' }}>
-                                <label>Expected Delivery Date</label>
-                                <input 
-                                    type="date" 
-                                    required 
-                                    value={formData.expectedDeliveryDate || ''} 
-                                    onChange={e => setFormData({...formData, expectedDeliveryDate: e.target.value})}
-                                    style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border)' }}
-                                />
-                            </div>
-
-                            <div className="form-group" style={{ marginBottom: '16px' }}>
-                                <label>Notes / Remarks</label>
-                                <textarea 
-                                    rows="3" 
-                                    value={formData.notes || ''} 
-                                    onChange={e => setFormData({...formData, notes: e.target.value})}
-                                    placeholder="Enter any additional notes..."
-                                    style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border)', resize: 'vertical' }}
-                                />
-                            </div>
-
-                            <div className="order-summary-box">
-                                <span>Grand Total:</span>
-                                <strong>${calculateTotal().toLocaleString()}</strong>
-                            </div>
-
-                            <div className="modal-actions">
-                                <button type="button" className="btn-cancel" onClick={() => setShowModal(false)}>Cancel</button>
-                                <button 
-                                    type="submit" 
-                                    className="btn-save"
-                                    disabled={
-                                        !formData.customer ||
-                                        formData.items.length === 0 ||
-                                        formData.items.some(i => !i.material || i.quantity <= 0) ||
-                                        !formData.expectedDeliveryDate
-                                    }
-                                >
-                                    Confirm Order
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
 
             {/* Order Details Modal */}
             {showOrderDetailsModal && selectedOrderDetails && (
