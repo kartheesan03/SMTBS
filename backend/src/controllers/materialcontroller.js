@@ -3,6 +3,67 @@ const MaterialMovement = require('../models/MaterialMovement');
 const Order = require('../models/Order');
 const { notifyManager, notifyCritical } = require('../services/notificationService');
 const { logAudit, buildChanges } = require('../services/auditService');
+const Notification = require('../models/Notification');
+
+const handleStockStatusNotifications = async (material, previousStatus, newStatus) => {
+    if (previousStatus === newStatus) return;
+
+    const matId = material._id || material.id;
+
+    if (newStatus === 'In Stock') {
+        await Notification.deleteMany({
+            category: 'stock',
+            'payload.material_id': matId,
+            isRead: false
+        });
+    } else if (newStatus === 'Low Stock') {
+        await Notification.deleteMany({
+            category: 'stock',
+            'payload.material_id': matId,
+            'payload.alert_type': 'out_of_stock',
+            isRead: false
+        });
+
+        const exists = await Notification.findOne({
+            category: 'stock',
+            'payload.material_id': matId,
+            'payload.alert_type': 'low_stock',
+            isRead: false
+        });
+
+        if (!exists) {
+            await notifyCritical({
+                title: `Low Stock Alert: ${material.name}`,
+                message: `${material.name} is currently Low Stock (${material.quantity} ${material.unit} left).`,
+                category: 'stock',
+                payload: { material_id: matId, alert_type: 'low_stock' }
+            });
+        }
+    } else if (newStatus === 'Out of Stock') {
+        await Notification.deleteMany({
+            category: 'stock',
+            'payload.material_id': matId,
+            'payload.alert_type': 'low_stock',
+            isRead: false
+        });
+
+        const exists = await Notification.findOne({
+            category: 'stock',
+            'payload.material_id': matId,
+            'payload.alert_type': 'out_of_stock',
+            isRead: false
+        });
+
+        if (!exists) {
+            await notifyCritical({
+                title: `Out of Stock Alert: ${material.name}`,
+                message: `${material.name} is completely Out of Stock.`,
+                category: 'stock',
+                payload: { material_id: matId, alert_type: 'out_of_stock' }
+            });
+        }
+    }
+};
 
 // @desc    Get all materials
 // @route   GET /api/materials
@@ -60,6 +121,8 @@ const createMaterial = async (req, res) => {
             category: 'stock'
         });
 
+        await handleStockStatusNotifications(createdMaterial, 'In Stock', status);
+
         res.status(201).json(createdMaterial);
     } catch (error) {
         res.status(400).json({ message: error.message });
@@ -85,13 +148,16 @@ const updateMaterial = async (req, res) => {
             material.price = price !== undefined ? price : material.price;
             if (vendorId !== undefined) material.vendorId = vendorId;
             
+            const previousStatus = material.status;
             if (material.quantity === 0) {
-            material.status = 'Out of Stock';
-        } else if (material.quantity < material.lowStockThreshold) {
-            material.status = 'Low Stock';
-        } else {
-            material.status = 'In Stock';
-        }    
+                material.status = 'Out of Stock';
+            } else if (material.quantity <= material.lowStockThreshold) {
+                material.status = 'Low Stock';
+            } else {
+                material.status = 'In Stock';
+            }    
+
+            const newStatus = material.status;
 
             const updatedMaterial = await material.save();
 
@@ -124,13 +190,9 @@ const updateMaterial = async (req, res) => {
                 ipAddress: req.ip
             });
 
-            if (updatedMaterial.status === 'Low Stock' || updatedMaterial.status === 'Out of Stock') {
-                await notifyCritical({
-                    title: `Stock Alert: ${updatedMaterial.name}`,
-                    message: `${updatedMaterial.name} is currently ${updatedMaterial.status} (${updatedMaterial.quantity} ${updatedMaterial.unit} left).`,
-                    category: 'stock'
-                });
-            } else {
+            await handleStockStatusNotifications(updatedMaterial, previousStatus, newStatus);
+
+            if (newStatus === 'In Stock') {
                 await notifyManager({
                     title: 'Material Updated',
                     message: `${updatedMaterial.name} inventory details have been updated.`,
@@ -214,6 +276,7 @@ const getLowStockMaterials = async (req, res) => {
         // Recalculate statuses for all materials
         const materials = await Material.find({});
         for (const material of materials) {
+            const previousStatus = material.status;
             if (material.quantity === 0) {
                 material.status = 'Out of Stock';
             } else if (material.lowStockThreshold && material.quantity <= material.lowStockThreshold) {
@@ -221,7 +284,9 @@ const getLowStockMaterials = async (req, res) => {
             } else {
                 material.status = 'In Stock';
             }
+            const newStatus = material.status;
             await material.save();
+            await handleStockStatusNotifications(material, previousStatus, newStatus);
         }
         // Return only active materials with status 'Low Stock'
         const lowStockMaterials = await Material.find({ status: 'Low Stock' });
@@ -250,15 +315,17 @@ const recalculateStockStatus = async (req, res) => {
     try {
         const materials = await Material.find({});
         for (const material of materials) {
+            const previousStatus = material.status;
             if (material.quantity === 0) {
                 material.status = 'Out of Stock';
-            } else if (material.lowStockThreshold && material.quantity < material.lowStockThreshold) {
+            } else if (material.lowStockThreshold && material.quantity <= material.lowStockThreshold) {
                 material.status = 'Low Stock';
             } else {
-
                 material.status = 'In Stock';
             }
+            const newStatus = material.status;
             await material.save();
+            await handleStockStatusNotifications(material, previousStatus, newStatus);
         }
         res.json({ message: 'Stock status recalculated for all materials' });
     } catch (error) {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import API from '../api/axios';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { NotificationContext } from '../context/NotificationContext';
 import { 
     ResponsiveContainer, PieChart, Pie, Cell
 } from 'recharts';
@@ -14,6 +15,7 @@ import autoTable from 'jspdf-autotable';
 const ERP = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    const { fetchNotifications } = React.useContext(NotificationContext);
     const [orders, setOrders] = useState([]);
     const [activeTab, setActiveTab] = useState('active');
     const [loading, setLoading] = useState(true);
@@ -171,6 +173,7 @@ const ERP = () => {
         try {
             await API.put(`/orders/${id}/status`, { status: newStatus });
             fetchData();
+            if (fetchNotifications) fetchNotifications();
         } catch (err) {
             alert(err.response?.data?.message || 'Error updating order status');
         }

@@ -121,32 +121,84 @@ const seedNotifications = async (req, res) => {
     try {
         const seedData = [];
 
+        // Clean up legacy stock notifications (missing payload)
+        await Notification.deleteMany({
+            category: 'stock',
+            'payload.material_id': { $exists: false }
+        });
+
         // Check for actual low-stock materials and create real notifications
         try {
             const allMaterials = await Material.find({});
-            const lowStock = allMaterials.filter(mat => {
+            
+            for (const mat of allMaterials) {
                 const qty = mat.quantity || 0;
                 const threshold = mat.lowStockThreshold || 0;
-                return qty <= threshold && threshold > 0;
-            });
+                let status = 'In Stock';
+                if (qty === 0) status = 'Out of Stock';
+                else if (qty <= threshold && threshold > 0) status = 'Low Stock';
 
-            for (const mat of lowStock) {
-                const exists = await Notification.findOne({
-                    category: 'stock',
-                    title: `Low Stock Alert: ${mat.name}`
-                });
-                if (!exists) {
-                    seedData.push({
-                        title: `Low Stock Alert: ${mat.name}`,
-                        message: `${mat.name} (SKU: ${mat.sku || 'N/A'}) reached critical level: ${mat.quantity} ${mat.unit || 'units'}.`,
-                        type: 'warning',
+                if (status === 'In Stock') {
+                    // Clear active stock notifications for this material
+                    await Notification.deleteMany({
                         category: 'stock',
-                        userId: null
+                        'payload.material_id': mat._id || mat.id,
+                        isRead: false
                     });
+                } else if (status === 'Low Stock') {
+                    // Clear active out_of_stock
+                    await Notification.deleteMany({
+                        category: 'stock',
+                        'payload.material_id': mat._id || mat.id,
+                        'payload.alert_type': 'out_of_stock',
+                        isRead: false
+                    });
+
+                    const exists = await Notification.findOne({
+                        category: 'stock',
+                        'payload.material_id': mat._id || mat.id,
+                        'payload.alert_type': 'low_stock',
+                        isRead: false
+                    });
+                    if (!exists) {
+                        seedData.push({
+                            title: `Low Stock Alert: ${mat.name}`,
+                            message: `${mat.name} (SKU: ${mat.sku || 'N/A'}) reached critical level: ${qty} ${mat.unit || 'units'}.`,
+                            type: 'warning',
+                            category: 'stock',
+                            userId: null,
+                            payload: { material_id: mat._id || mat.id, alert_type: 'low_stock' }
+                        });
+                    }
+                } else if (status === 'Out of Stock') {
+                    // Clear active low_stock
+                    await Notification.deleteMany({
+                        category: 'stock',
+                        'payload.material_id': mat._id || mat.id,
+                        'payload.alert_type': 'low_stock',
+                        isRead: false
+                    });
+
+                    const exists = await Notification.findOne({
+                        category: 'stock',
+                        'payload.material_id': mat._id || mat.id,
+                        'payload.alert_type': 'out_of_stock',
+                        isRead: false
+                    });
+                    if (!exists) {
+                        seedData.push({
+                            title: `Out of Stock Alert: ${mat.name}`,
+                            message: `${mat.name} (SKU: ${mat.sku || 'N/A'}) is completely out of stock.`,
+                            type: 'error',
+                            category: 'stock',
+                            userId: null,
+                            payload: { material_id: mat._id || mat.id, alert_type: 'out_of_stock' }
+                        });
+                    }
                 }
             }
         } catch (matErr) {
-            console.warn('Could not check materials for low stock:', matErr.message);
+            console.warn('Could not check materials for stock status:', matErr.message);
         }
 
         // Add recent confirmed orders as notifications

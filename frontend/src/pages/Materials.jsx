@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import API from '../api/axios';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { NotificationContext } from '../context/NotificationContext';
 import {
     Plus, Search, Filter, Edit2, Trash2, Box, Package,
     TrendingUp, AlertTriangle, ChevronRight, QrCode, Camera, History, Download, X, Send
@@ -12,6 +13,7 @@ import ExcelJS from 'exceljs';
 
 const MaterialTracking = () => {
     const { user } = useContext(AuthContext);
+    const { fetchNotifications } = useContext(NotificationContext);
     const userRole = user?.role ? user.role.toLowerCase() : '';
     const isEmployee = userRole === 'employee';
 
@@ -126,6 +128,7 @@ const MaterialTracking = () => {
             setShowNewCategoryInput(false);
             setFormData({ name: '', sku: '', category: '', quantity: 0, lowStockThreshold: 10, unit: 'pcs', price: 0, vendorId: '' });
             fetchMaterialsAndStats();
+            if (fetchNotifications) fetchNotifications();
         } catch (error) {
             alert(error.response?.data?.message || 'Error processing material');
         }
@@ -220,6 +223,7 @@ const MaterialTracking = () => {
             alert(`Scan Successful!\nSKU: ${mat.sku} (${mat.name})\nStock replenished (+10 ${mat.unit || 'pcs'}) from supplier: ${mat.vendor?.name || 'Internal/Unknown'}.`);
             setShowScanner(false);
             fetchMaterialsAndStats();
+            if (fetchNotifications) fetchNotifications();
         } catch (err) {
             alert(err.response?.data?.message || 'Error updating stock from scan');
         }
