@@ -28,6 +28,7 @@ import Attendance from './pages/Attendance';
 import HRReports from './pages/HRReports';
 import Settings from './pages/Settings';
 import Profile from './pages/Profile';
+import ExternalProfile from './pages/ExternalProfile';
 import Reports from './pages/Reports';
 import ERP from './pages/ERP';
 import Vendors from './pages/Vendors';
@@ -110,12 +111,22 @@ const AppContent = () => {
                     <Route path="/attendance" element={<ProtectedRoute allowedRoles={['Admin', 'HR', 'Manager']}><Attendance /></ProtectedRoute>} />
                     <Route path="/hr-reports" element={<ProtectedRoute allowedRoles={['Admin', 'HR']}><HRReports /></ProtectedRoute>} />
                     <Route path="/team-performance" element={<ProtectedRoute allowedRoles={['Admin', 'Manager']}><TeamPerformance /></ProtectedRoute>} />
-                    <Route path="/erp" element={<ProtectedRoute allowedRoles={['Admin', 'Manager', 'Sales', 'HR', 'Employee']}><ERP /></ProtectedRoute>} />
+                    <Route path="/erp" element={<ProtectedRoute allowedRoles={['Admin', 'Manager', 'Sales', 'HR', 'Employee', 'Customer', 'Vendor', 'Vendor/Supplier']}><ERP /></ProtectedRoute>} />
                     <Route path="/crm" element={<ProtectedRoute allowedRoles={['Admin', 'Sales', 'Manager']}><Customers /></ProtectedRoute>} />
                     <Route path="/vendors" element={<ProtectedRoute allowedRoles={['Admin', 'Manager', 'Sales']}><Vendors /></ProtectedRoute>} />
                     <Route path="/analytics" element={<ProtectedRoute allowedRoles={['Admin', 'Manager', 'Sales', 'HR']}><Reports /></ProtectedRoute>} />
                     <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
-                    <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                    <Route path="/profile" element={
+                        <ProtectedRoute>
+                            {(() => {
+                                const role = user?.role?.toLowerCase() || '';
+                                if (role === 'customer' || role === 'vendor' || role === 'vendor/supplier') {
+                                    return <ExternalProfile />;
+                                }
+                                return <Profile />;
+                            })()}
+                        </ProtectedRoute>
+                    } />
                     <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
 
 

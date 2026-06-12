@@ -47,3 +47,15 @@ exports.updateVendor = async (req, res) => {
         res.status(400).json({ message: error.message });
     }
 };
+
+exports.getMyVendorProfile = async (req, res) => {
+    try {
+        const vendor = await Vendor.findOne({ email: req.user.email });
+        if (!vendor) {
+            return res.status(404).json({ message: 'Vendor profile not found' });
+        }
+        res.status(200).json(vendor);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};

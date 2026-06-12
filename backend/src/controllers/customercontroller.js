@@ -16,6 +16,21 @@ const getCustomers = async (req, res) => {
     }
 };
 
+// @desc    Get current logged in customer profile
+// @route   GET /api/customers/me
+// @access  Private/Customer
+const getMyCustomerProfile = async (req, res) => {
+    try {
+        const customer = await Customer.findOne({ email: req.user.email });
+        if (!customer) {
+            return res.status(404).json({ message: 'Customer profile not found' });
+        }
+        res.json(customer);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 // @desc    Get a single customer by ID
 // @route   GET /api/customers/:id
 // @access  Private
@@ -203,4 +218,4 @@ const deleteCustomer = async (req, res) => {
     }
 };
 
-module.exports = { getCustomers, getCustomerById, createCustomer, updateCustomer, deleteCustomer, approveCustomer, getCustomerOrders, getCustomerTickets };
+module.exports = { getCustomers, getMyCustomerProfile, getCustomerById, createCustomer, updateCustomer, deleteCustomer, approveCustomer, getCustomerOrders, getCustomerTickets };

@@ -99,12 +99,26 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
         { path: '/analytics', name: 'Reports', icon: <BarChart3 size={20} /> },
     ];
 
+    const customerMenu = [
+        { path: '/', name: 'Dashboard', icon: <LayoutDashboard size={20} /> },
+        { path: '/erp', name: 'Orders', icon: <ShoppingCart size={20} /> },
+        { path: '/profile', name: 'Profile', icon: <Briefcase size={20} /> },
+    ];
+
+    const vendorMenu = [
+        { path: '/', name: 'Dashboard', icon: <LayoutDashboard size={20} /> },
+        { path: '/erp', name: 'Supply/Orders', icon: <ShoppingCart size={20} /> },
+        { path: '/profile', name: 'Profile', icon: <Briefcase size={20} /> },
+    ];
+
     const userRole = user?.role ? user.role.toLowerCase() : '';
     const isAdmin = user?.email === 'admin@smtbms.com' || userRole === 'admin' || userRole === 'super admin';
     const menuItems = isAdmin ? adminMenu : 
                       userRole === 'hr' ? hrMenu : 
                       userRole === 'manager' ? managerMenu : 
-                      userRole === 'sales' ? salesMenu : employeeMenu;
+                      userRole === 'sales' ? salesMenu : 
+                      userRole === 'customer' ? customerMenu :
+                      (userRole === 'vendor' || userRole === 'vendor/supplier') ? vendorMenu : employeeMenu;
 
     return (
         <aside className={`sidebar ${isOpen ? 'open' : ''}`}>

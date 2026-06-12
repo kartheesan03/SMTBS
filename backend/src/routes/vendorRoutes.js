@@ -1,7 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const { getVendors, createVendor, updateVendor } = require('../controllers/vendorcontroller');
+const { getVendors, createVendor, updateVendor, getMyVendorProfile } = require('../controllers/vendorcontroller');
 const { protect, authorize } = require('../middleware/authMiddleware');
+
+router.route('/me')
+    .get(protect, getMyVendorProfile);
 
 router.route('/')
     .get(protect, authorize('Manager', 'Sales'), getVendors)
