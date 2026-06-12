@@ -39,7 +39,7 @@ const registerUser = async (req, res) => {
                 email: email,
                 phone: phone || '',
                 address: address || '',
-                type: customerType || 'Individual',
+                customerType: customerType || 'Individual',
                 company: company || '',
                 status: 'Active'
             });

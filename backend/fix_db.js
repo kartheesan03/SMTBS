@@ -1,15 +1,12 @@
-const { Sequelize } = require('sequelize');
-const sequelize = new Sequelize({ dialect: 'sqlite', storage: 'database.sqlite' });
-async function run() {
+const sequelize = require('./src/config/sequelize');
+
+async function fixDB() {
     try {
-        await sequelize.query('ALTER TABLE "Order" ADD COLUMN approvalStatus VARCHAR(255) DEFAULT \'Pending\'');
-        await sequelize.query('ALTER TABLE "Order" ADD COLUMN deliveryStatus VARCHAR(255) DEFAULT \'Pending\'');
-        await sequelize.query('ALTER TABLE "Order" ADD COLUMN invoiceGenerated TINYINT(1) DEFAULT 0');
-        await sequelize.query('ALTER TABLE "Order" ADD COLUMN invoiceFile VARCHAR(255)');
-        await sequelize.query('ALTER TABLE "Material" ADD COLUMN reservedQuantity INTEGER DEFAULT 0');
-        console.log('Columns added successfully');
-    } catch(e) {
-        console.error(e.message);
+        await sequelize.query("ALTER TABLE Customer ADD COLUMN customerType VARCHAR(255) DEFAULT 'Individual'");
+        console.log('Successfully added customerType to Customer');
+    } catch (err) {
+        console.error('Error altering table Customer:', err.message);
     }
 }
-run();
+
+fixDB();
