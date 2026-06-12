@@ -20,6 +20,8 @@ import EmployeeDashboard from './pages/EmployeeDashboard';
 import HRDashboard from './pages/HRDashboard';
 import ManagerDashboard from './pages/ManagerDashboard';
 import SalesDashboard from './pages/SalesDashboard';
+import CustomerDashboard from './pages/CustomerDashboard';
+import VendorDashboard from './pages/VendorDashboard';
 import TeamPerformance from './pages/TeamPerformance';
 import Payroll from './pages/Payroll';
 import Attendance from './pages/Attendance';
@@ -93,6 +95,8 @@ const AppContent = () => {
                                 if (r === 'hr') return <HRDashboard />;
                                 if (r === 'manager') return <ManagerDashboard />;
                                 if (r === 'sales') return <SalesDashboard />;
+                                if (r === 'customer') return <CustomerDashboard />;
+                                if (r === 'vendor' || r === 'vendor/supplier') return <VendorDashboard />;
                                 if (r === 'employee') return <EmployeeDashboard />;
                                 return <Dashboard />;
                             })()}

@@ -104,14 +104,77 @@ const googleAuth = async (req, res) => {
             });
         } else {
             // User does not exist in our database. 
-            // According to requirements: "Do not allow random Google users to register automatically."
-            return res.status(403).json({ 
-                message: 'Your account is not registered. Please contact admin.' 
+            // We return a 202 Accepted with action 'choose_role' so the frontend
+            // can prompt the user if they are a Customer or Vendor.
+            // Internal staff (Admin, HR, etc.) are NOT allowed to register this way.
+            return res.status(202).json({ 
+                action: 'choose_role',
+                message: 'Please choose your account type to continue registration.',
+                email: email,
+                name: name,
+                credential: credential // pass the token back so frontend can submit it to the register endpoint
             });
         }
     } catch (error) {
         console.error('Google Auth Error:', error);
         return res.status(500).json({ message: 'Server error during Google Authentication' });
+    }
+};
+
+// @desc    Google registration (Customer/Vendor only)
+// @route   POST /api/auth/google/register
+// @access  Public
+const googleRegister = async (req, res) => {
+    const { credential, role } = req.body;
+
+    if (!credential || !role) {
+        return res.status(400).json({ message: 'Missing credential or role' });
+    }
+
+    if (role !== 'Customer' && role !== 'Vendor') {
+        return res.status(403).json({ message: 'Auto-registration is only permitted for Customers and Vendors.' });
+    }
+
+    try {
+        const ticket = await client.verifyIdToken({
+            idToken: credential,
+            audience: process.env.GOOGLE_CLIENT_ID,
+        });
+
+        const payload = ticket.getPayload();
+        const email = payload.email;
+        const name = payload.name;
+        const googleId = payload.sub;
+
+        let user = await User.findOne({ email });
+        
+        if (user) {
+            return res.status(400).json({ message: 'User already exists. Please sign in normally.' });
+        }
+
+        // Generate a random placeholder password since DB might require it, 
+        // though we configured allowNull: true. It's safer to provide one.
+        const randomPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
+
+        user = await User.create({
+            name,
+            email,
+            password: randomPassword,
+            role,
+            googleId
+        });
+
+        return res.status(201).json({
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            token: generateToken(user._id),
+        });
+
+    } catch (error) {
+        console.error('Google Register Error:', error);
+        return res.status(500).json({ message: 'Server error during Google Registration' });
     }
 };
 
@@ -163,4 +226,4 @@ const getUsers = async (req, res) => {
     }
 };
 
-module.exports = { registerUser, loginUser, googleAuth, updateUserProfile, getUsers };
+module.exports = { registerUser, loginUser, googleAuth, googleRegister, updateUserProfile, getUsers };

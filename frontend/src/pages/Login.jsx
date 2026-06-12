@@ -11,6 +11,8 @@ const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [showRoleSelector, setShowRoleSelector] = useState(false);
+    const [pendingGoogleToken, setPendingGoogleToken] = useState(null);
     const { login } = useContext(AuthContext);
     const navigate = useNavigate();
 
@@ -36,15 +38,42 @@ const Login = () => {
         setIsLoading(true);
         setError('');
         try {
-            const { data } = await API.post('/auth/google', { credential: credentialResponse.credential });
-            console.log('Google login successful. Role:', data.role);
-            login(data);
+            const response = await API.post('/auth/google', { credential: credentialResponse.credential });
+            
+            if (response.status === 202 && response.data.action === 'choose_role') {
+                setPendingGoogleToken(credentialResponse.credential);
+                setShowRoleSelector(true);
+                return; // Wait for user to select a role
+            }
+
+            console.log('Google login successful. Role:', response.data.role);
+            login(response.data);
             navigate('/');
         } catch (err) {
             setError(err.response?.data?.message || 'Google Login failed');
             console.error('Google login error:', err.response?.data);
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const handleRoleSelection = async (role) => {
+        setIsLoading(true);
+        setShowRoleSelector(false);
+        try {
+            const { data } = await API.post('/auth/google/register', { 
+                credential: pendingGoogleToken, 
+                role 
+            });
+            console.log('Google registration successful. Role:', data.role);
+            login(data);
+            navigate('/');
+        } catch (err) {
+            setError(err.response?.data?.message || 'Google Registration failed');
+            console.error('Google registration error:', err.response?.data);
+        } finally {
+            setIsLoading(false);
+            setPendingGoogleToken(null);
         }
     };
 
@@ -178,7 +207,89 @@ const Login = () => {
                 </div>
             </div>
 
+            {/* Role Selection Modal */}
+            {showRoleSelector && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <h3>Complete Your Registration</h3>
+                        <p>Please select your account type to continue.</p>
+                        <div className="role-options">
+                            <button onClick={() => handleRoleSelection('Customer')} className="role-btn customer-btn">
+                                I am a Customer
+                            </button>
+                            <button onClick={() => handleRoleSelection('Vendor')} className="role-btn vendor-btn">
+                                I am a Vendor / Supplier
+                            </button>
+                        </div>
+                        <button className="cancel-btn" onClick={() => { setShowRoleSelector(false); setPendingGoogleToken(null); }}>
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            )}
+
             <style jsx="true">{`
+                .modal-overlay {
+                    position: fixed;
+                    top: 0; left: 0; right: 0; bottom: 0;
+                    background: rgba(15, 23, 42, 0.6);
+                    backdrop-filter: blur(4px);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 1000;
+                }
+                .modal-content {
+                    background: #ffffff;
+                    padding: 40px;
+                    border-radius: 20px;
+                    max-width: 400px;
+                    width: 90%;
+                    text-align: center;
+                    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+                }
+                .modal-content h3 {
+                    font-size: 22px;
+                    color: #0f172a;
+                    margin-bottom: 10px;
+                }
+                .modal-content p {
+                    color: #64748b;
+                    margin-bottom: 30px;
+                }
+                .role-options {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 16px;
+                    margin-bottom: 24px;
+                }
+                .role-btn {
+                    padding: 16px;
+                    border-radius: 12px;
+                    border: 2px solid #e2e8f0;
+                    background: #ffffff;
+                    font-size: 16px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                }
+                .role-btn:hover {
+                    border-color: #6366f1;
+                    background: #f8fafc;
+                    color: #6366f1;
+                }
+                .cancel-btn {
+                    background: none;
+                    border: none;
+                    color: #94a3b8;
+                    font-weight: 500;
+                    cursor: pointer;
+                }
+                .cancel-btn:hover {
+                    color: #64748b;
+                    text-decoration: underline;
+                }
+                
                 .login-layout {
                     display: flex;
                     min-height: 100vh;
