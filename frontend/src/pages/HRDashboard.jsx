@@ -16,22 +16,25 @@ const HRDashboard = () => {
     const [users, setUsers] = useState([]);
     const [leavesData, setLeavesData] = useState([]);
     const [salariesData, setSalariesData] = useState([]);
+    const [attendanceSummary, setAttendanceSummary] = useState([]);
     const [loading, setLoading] = useState(true);
 
     const fetchDashboardData = async () => {
         try {
-            const [statsRes, empRes, usersRes, leavesRes, salariesRes] = await Promise.all([
+            const [statsRes, empRes, usersRes, leavesRes, salariesRes, attSummaryRes] = await Promise.all([
                 API.get('/dashboard/stats'),
                 API.get('/employees'),
                 API.get('/auth/users'),
                 API.get('/leaves'),
-                API.get('/salaries')
+                API.get('/salaries'),
+                API.get('/attendance/monthly-summary')
             ]);
             setDashboardData(statsRes.data);
             setEmployees(empRes.data);
             setUsers(usersRes.data);
             setLeavesData(leavesRes.data);
             setSalariesData(salariesRes.data);
+            setAttendanceSummary(attSummaryRes.data);
         } catch (error) {
             console.error("Failed to load dashboard stats", error);
             setDashboardData({});
@@ -150,23 +153,39 @@ const HRDashboard = () => {
         { name: 'On Leave', value: 0, color: '#f59e0b' },
     ];
 
-    // Simulated Trend Analytics Data
-    const monthlyAttendanceTrend = [
-        { month: 'Jan', present: 85, absent: 15 },
-        { month: 'Feb', present: 88, absent: 12 },
-        { month: 'Mar', present: 92, absent: 8 },
-        { month: 'Apr', present: 90, absent: 10 },
-        { month: 'May', present: 95, absent: 5 },
-        { month: 'Jun', present: 96, absent: 4 },
+    // Monthly Attendance Trend from actual records (Current Month)
+    let totalPresentDays = 0;
+    let totalAbsentDays = 0;
+    
+    (attendanceSummary || []).forEach(emp => {
+        totalPresentDays += (emp.present || 0);
+        totalAbsentDays += (emp.absent || 0);
+    });
+
+    const totalDays = totalPresentDays + totalAbsentDays;
+    const monthlyAttendanceTrend = totalDays === 0 ? [] : [
+        { 
+            month: new Date().toLocaleString('default', { month: 'short' }), 
+            present: Math.round((totalPresentDays / totalDays) * 100), 
+            absent: Math.round((totalAbsentDays / totalDays) * 100) 
+        }
     ];
 
-    const departmentPerformance = [
-        { dept: 'Sales', score: 92 },
-        { dept: 'HR', score: 88 },
-        { dept: 'Operations', score: 85 },
-        { dept: 'Production', score: 78 },
-        { dept: 'Accounts', score: 94 },
-    ];
+    const deptStats = {};
+    (attendanceSummary || []).forEach(emp => {
+        const d = emp.dept || 'General';
+        if (!deptStats[d]) deptStats[d] = { totalRate: 0, count: 0 };
+        deptStats[d].totalRate += (emp.rate || 0);
+        deptStats[d].count += 1;
+    });
+
+    const departmentPerformance = Object.keys(deptStats).length === 0 ? [] : Object.keys(deptStats).map(dept => {
+        const avgRate = deptStats[dept].totalRate / deptStats[dept].count;
+        return {
+            dept: dept,
+            score: Math.round(avgRate * 100)
+        };
+    }).sort((a, b) => b.score - a.score).slice(0, 5);
 
     const employeeGrowth = [
         { month: 'Jan', employees: totalEmployees > 20 ? totalEmployees - 15 : 2 },
@@ -348,17 +367,24 @@ const HRDashboard = () => {
                             <div className="bento-card-title"><Calendar size={16} /> Monthly Attendance Trend</div>
                         </div>
                         <div className="bento-card-body" style={{ display: 'block', padding: '20px 10px 10px 10px' }}>
-                            <ResponsiveContainer width="100%" height={300}>
-                                <LineChart data={monthlyAttendanceTrend} margin={{ top: 5, right: 20, left: -20, bottom: 5 }}>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                                    <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} dy={10} />
-                                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} />
-                                    <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
-                                    <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} iconType="circle" />
-                                    <Line type="monotone" dataKey="present" name="Present %" stroke="#10b981" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} activeDot={{ r: 6 }} />
-                                    <Line type="monotone" dataKey="absent" name="Absent %" stroke="#ef4444" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} />
-                                </LineChart>
-                            </ResponsiveContainer>
+                            {monthlyAttendanceTrend.length > 0 ? (
+                                <ResponsiveContainer width="100%" height={300}>
+                                    <LineChart data={monthlyAttendanceTrend} margin={{ top: 5, right: 20, left: -20, bottom: 5 }}>
+                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                        <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} dy={10} />
+                                        <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} domain={[0, 100]} />
+                                        <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
+                                        <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} iconType="circle" />
+                                        <Line type="monotone" dataKey="present" name="Present %" stroke="#10b981" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} activeDot={{ r: 6 }} />
+                                        <Line type="monotone" dataKey="absent" name="Absent %" stroke="#ef4444" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} />
+                                    </LineChart>
+                                </ResponsiveContainer>
+                            ) : (
+                                <div className="flex-center" style={{ height: '300px', flexDirection: 'column', color: '#94a3b8' }}>
+                                    <AlertCircle size={32} style={{ marginBottom: '8px' }} />
+                                    <p style={{ margin: 0, fontSize: '13px', fontWeight: 500 }}>No attendance data available</p>
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -367,15 +393,22 @@ const HRDashboard = () => {
                             <div className="bento-card-title"><Award size={16} /> Department Performance</div>
                         </div>
                         <div className="bento-card-body" style={{ display: 'block', padding: '20px 10px 10px 10px' }}>
-                            <ResponsiveContainer width="100%" height={300}>
-                                <BarChart data={departmentPerformance} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                                    <XAxis dataKey="dept" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} dy={10} />
-                                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} domain={[0, 100]} />
-                                    <RechartsTooltip cursor={{fill: 'rgba(0,0,0,0.02)'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
-                                    <Bar dataKey="score" name="Avg Score" fill="#3b82f6" radius={[4, 4, 0, 0]} barSize={36} />
-                                </BarChart>
-                            </ResponsiveContainer>
+                            {departmentPerformance.length > 0 ? (
+                                <ResponsiveContainer width="100%" height={300}>
+                                    <BarChart data={departmentPerformance} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
+                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                        <XAxis dataKey="dept" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} dy={10} />
+                                        <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} domain={[0, 100]} />
+                                        <RechartsTooltip cursor={{fill: 'rgba(0,0,0,0.02)'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
+                                        <Bar dataKey="score" name="Avg Score %" fill="#3b82f6" radius={[4, 4, 0, 0]} barSize={36} />
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            ) : (
+                                <div className="flex-center" style={{ height: '300px', flexDirection: 'column', color: '#94a3b8' }}>
+                                    <AlertCircle size={32} style={{ marginBottom: '8px' }} />
+                                    <p style={{ margin: 0, fontSize: '13px', fontWeight: 500 }}>No performance data available</p>
+                                </div>
+                            )}
                         </div>
                     </div>
 
