@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import API from '../api/axios';
 import { 
-    Users, TrendingUp, DollarSign, Target, 
+    Users, TrendingUp, TrendingDown, DollarSign, Target, 
     BarChart2, Activity, Filter, Layers, CheckCircle,
     Search, Bell, ChevronDown, Award, FileText, Calendar
 } from 'lucide-react';

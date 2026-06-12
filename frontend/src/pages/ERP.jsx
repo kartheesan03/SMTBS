@@ -112,6 +112,13 @@ const ERP = () => {
         }
     }, [location.search, orders]);
 
+    if (loading) {
+        return (
+            <div className="flex-center" style={{ height: '80vh', width: '100%' }}>
+                <div className="loader"></div>
+            </div>
+        );
+    }
     const handleOrderClick = (ord) => {
         setSelectedOrderDetails(ord);
         setShowOrderDetailsModal(true);
@@ -323,15 +330,23 @@ const ERP = () => {
     // --- LOCAL KPI CALCULATION ---
     const activeTotalOrders = orders.filter(o => !['Delivered', 'Completed', 'Cancelled'].includes(o.status)).length;
     
-    const localSalesOrders = orders.filter(o => String(o.orderType || '').toLowerCase().includes('sales')).length;
-    const localPurchaseOrders = orders.filter(o => String(o.orderType || '').toLowerCase().includes('purchase')).length;
+    const normalizeOrderType = (type) => {
+        if (!type) return '';
+        const t = String(type).toUpperCase();
+        if (t.includes('SALES')) return 'SALES';
+        if (t.includes('PURCHASE')) return 'PURCHASE';
+        return t;
+    };
+
+    const localSalesOrders = orders.filter(o => normalizeOrderType(o.orderType) === 'SALES').length;
+    const localPurchaseOrders = orders.filter(o => normalizeOrderType(o.orderType) === 'PURCHASE').length;
     
     const localRevenue = orders
-        .filter(o => String(o.orderType || '').toLowerCase().includes('sales') && o.status !== 'Cancelled')
+        .filter(o => normalizeOrderType(o.orderType) === 'SALES' && o.status !== 'Cancelled')
         .reduce((sum, o) => sum + (Number(o.totalAmount) || 0), 0);
         
     const localPurchaseCost = orders
-        .filter(o => String(o.orderType || '').toLowerCase().includes('purchase') && o.status !== 'Cancelled')
+        .filter(o => normalizeOrderType(o.orderType) === 'PURCHASE' && o.status !== 'Cancelled')
         .reduce((sum, o) => sum + (Number(o.totalAmount) || 0), 0);
         
     const localPendingInvoices = orders.filter(o => ['Pending', 'Overdue', 'Partially Paid'].includes(o.paymentStatus)).length;
@@ -343,12 +358,13 @@ const ERP = () => {
         return `₹${num.toLocaleString()}`;
     };
 
-    console.log('--- TEMPORARY ERP KPI LOGS ---');
-    console.log('Orders array length:', orders.length);
-    console.log('Calculated Total/Active Orders:', activeTotalOrders);
-    console.log('Sales orders count:', localSalesOrders);
-    console.log('Purchase orders count:', localPurchaseOrders);
-    console.log('Revenue total:', localRevenue);
+    console.log('--- ERP KPI DATA LOGS ---');
+    console.log('ERP API response (stats):', erpStats);
+    console.log('orders array:', orders);
+    console.log('totalOrders:', activeTotalOrders);
+    console.log('salesOrders:', localSalesOrders);
+    console.log('purchaseOrders:', localPurchaseOrders);
+    console.log('revenue:', localRevenue);
 
 
     return (
