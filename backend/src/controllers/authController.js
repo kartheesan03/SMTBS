@@ -1,6 +1,8 @@
 const jwt = require('jsonwebtoken');
 const { OAuth2Client } = require('google-auth-library');
 const User = require('../models/User');
+const Customer = require('../models/Customer');
+const Vendor = require('../models/Vendor');
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -152,8 +154,6 @@ const googleRegister = async (req, res) => {
             return res.status(400).json({ message: 'User already exists. Please sign in normally.' });
         }
 
-        // Generate a random placeholder password since DB might require it, 
-        // though we configured allowNull: true. It's safer to provide one.
         const randomPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
 
         user = await User.create({
@@ -163,6 +163,29 @@ const googleRegister = async (req, res) => {
             role,
             googleId
         });
+
+        // Create the corresponding Customer or Vendor record
+        if (role === 'Customer') {
+            await Customer.create({
+                name,
+                email,
+                phone: req.body.phone || '',
+                address: req.body.address || '',
+                company: req.body.company || '',
+                status: 'Active'
+            });
+        } else if (role === 'Vendor') {
+            await Vendor.create({
+                name: req.body.vendorName || name,
+                email,
+                phone: req.body.phone || '',
+                address: req.body.address || '',
+                contactPerson: req.body.contactPerson || name,
+                category: 'Uncategorized',
+                status: 'Vendor Created',
+                materialsSupplied: req.body.materialsSupplied || []
+            });
+        }
 
         return res.status(201).json({
             _id: user._id,

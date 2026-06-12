@@ -13,6 +13,8 @@ const Login = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [showRoleSelector, setShowRoleSelector] = useState(false);
     const [pendingGoogleToken, setPendingGoogleToken] = useState(null);
+    const [registrationRole, setRegistrationRole] = useState(null);
+    const [regData, setRegData] = useState({ phone: '', address: '', company: '', contactPerson: '', materialsSupplied: '' });
     const { login } = useContext(AuthContext);
     const navigate = useNavigate();
 
@@ -57,14 +59,22 @@ const Login = () => {
         }
     };
 
-    const handleRoleSelection = async (role) => {
+    const handleRegistrationSubmit = async (e) => {
+        e.preventDefault();
+        if (!registrationRole) return;
         setIsLoading(true);
-        setShowRoleSelector(false);
         try {
-            const { data } = await API.post('/auth/google/register', { 
-                credential: pendingGoogleToken, 
-                role 
-            });
+            const payload = {
+                credential: pendingGoogleToken,
+                role: registrationRole,
+                ...regData
+            };
+            // If vendor, split comma separated materials
+            if (registrationRole === 'Vendor' && regData.materialsSupplied) {
+                payload.materialsSupplied = regData.materialsSupplied.split(',').map(m => m.trim()).filter(Boolean);
+            }
+
+            const { data } = await API.post('/auth/google/register', payload);
             console.log('Google registration successful. Role:', data.role);
             login(data);
             navigate('/');
@@ -74,6 +84,9 @@ const Login = () => {
         } finally {
             setIsLoading(false);
             setPendingGoogleToken(null);
+            setShowRoleSelector(false);
+            setRegistrationRole(null);
+            setRegData({ phone: '', address: '', company: '', contactPerson: '', materialsSupplied: '' });
         }
     };
 
@@ -207,23 +220,67 @@ const Login = () => {
                 </div>
             </div>
 
-            {/* Role Selection Modal */}
+            {/* Role Selection & Details Modal */}
             {showRoleSelector && (
                 <div className="modal-overlay">
                     <div className="modal-content">
-                        <h3>Complete Your Registration</h3>
-                        <p>Please select your account type to continue.</p>
-                        <div className="role-options">
-                            <button onClick={() => handleRoleSelection('Customer')} className="role-btn customer-btn">
-                                I am a Customer
-                            </button>
-                            <button onClick={() => handleRoleSelection('Vendor')} className="role-btn vendor-btn">
-                                I am a Vendor / Supplier
-                            </button>
-                        </div>
-                        <button className="cancel-btn" onClick={() => { setShowRoleSelector(false); setPendingGoogleToken(null); }}>
-                            Cancel
-                        </button>
+                        {!registrationRole ? (
+                            <>
+                                <h3>Complete Your Registration</h3>
+                                <p>Please select your account type to continue.</p>
+                                <div className="role-options">
+                                    <button onClick={() => setRegistrationRole('Customer')} className="role-btn customer-btn">
+                                        I am a Customer
+                                    </button>
+                                    <button onClick={() => setRegistrationRole('Vendor')} className="role-btn vendor-btn">
+                                        I am a Vendor / Supplier
+                                    </button>
+                                </div>
+                                <button className="cancel-btn" onClick={() => { setShowRoleSelector(false); setPendingGoogleToken(null); }}>
+                                    Cancel
+                                </button>
+                            </>
+                        ) : (
+                            <form onSubmit={handleRegistrationSubmit} className="extra-details-form">
+                                <h3>{registrationRole === 'Customer' ? 'Customer Details' : 'Vendor Details'}</h3>
+                                <p>We need a few more details to set up your profile.</p>
+
+                                <div className="input-group">
+                                    <label>Phone Number *</label>
+                                    <input type="text" required value={regData.phone} onChange={e => setRegData({...regData, phone: e.target.value})} placeholder="e.g. +1 234 567 8900" />
+                                </div>
+                                
+                                <div className="input-group">
+                                    <label>Address *</label>
+                                    <input type="text" required value={regData.address} onChange={e => setRegData({...regData, address: e.target.value})} placeholder="Full business or billing address" />
+                                </div>
+
+                                {registrationRole === 'Customer' && (
+                                    <div className="input-group">
+                                        <label>Company Name (Optional)</label>
+                                        <input type="text" value={regData.company} onChange={e => setRegData({...regData, company: e.target.value})} placeholder="Your Company Ltd" />
+                                    </div>
+                                )}
+
+                                {registrationRole === 'Vendor' && (
+                                    <>
+                                        <div className="input-group">
+                                            <label>Contact Person *</label>
+                                            <input type="text" required value={regData.contactPerson} onChange={e => setRegData({...regData, contactPerson: e.target.value})} placeholder="Name of primary contact" />
+                                        </div>
+                                        <div className="input-group">
+                                            <label>Materials Supplied (Comma separated)</label>
+                                            <input type="text" value={regData.materialsSupplied} onChange={e => setRegData({...regData, materialsSupplied: e.target.value})} placeholder="e.g. Steel, Aluminum, Plastics" />
+                                        </div>
+                                    </>
+                                )}
+
+                                <div className="modal-actions">
+                                    <button type="button" className="cancel-btn" onClick={() => setRegistrationRole(null)}>Back</button>
+                                    <button type="submit" className="login-btn" disabled={isLoading}>{isLoading ? 'Saving...' : 'Complete Registration'}</button>
+                                </div>
+                            </form>
+                        )}
                     </div>
                 </div>
             )}
@@ -243,10 +300,48 @@ const Login = () => {
                     background: #ffffff;
                     padding: 40px;
                     border-radius: 20px;
-                    max-width: 400px;
+                    max-width: 450px;
                     width: 90%;
                     text-align: center;
                     box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+                    max-height: 90vh;
+                    overflow-y: auto;
+                }
+                .extra-details-form {
+                    text-align: left;
+                    margin-top: 20px;
+                }
+                .extra-details-form h3 {
+                    text-align: center;
+                }
+                .extra-details-form p {
+                    text-align: center;
+                    margin-bottom: 20px;
+                    font-size: 14px;
+                    color: #64748b;
+                }
+                .extra-details-form .input-group {
+                    margin-bottom: 16px;
+                }
+                .extra-details-form input {
+                    width: 100%;
+                    padding: 12px 16px;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 12px;
+                    font-size: 15px;
+                    outline: none;
+                }
+                .extra-details-form input:focus {
+                    border-color: #6366f1;
+                    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+                }
+                .modal-actions {
+                    display: flex;
+                    gap: 15px;
+                    margin-top: 25px;
+                }
+                .modal-actions button {
+                    flex: 1;
                 }
                 .modal-content h3 {
                     font-size: 22px;
