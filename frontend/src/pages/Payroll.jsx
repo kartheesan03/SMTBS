@@ -240,50 +240,37 @@ const Payroll = () => {
             )}
 
             <div className="main-content">
-                {/* Top Nav Bar */}
-                <div className="top-nav-bar">
-                    <div className="search-bar">
-                        <Search size={18} color="#94a3b8" />
-                        <input type="text" placeholder="Search payroll records..." />
-                    </div>
-                    <div className="nav-actions">
-                        <div className="date-filter">
-                            <Calendar size={16} />
-                            <span>This Month</span>
-                            <ChevronDown size={14} />
-                        </div>
-                        <button className="icon-btn notification-btn">
-                            <Bell size={20} />
-                            <span className="notif-badge"></span>
-                        </button>
-                        <div className="profile-dropdown">
-                            <div className="avatar" style={{background: '#4f46e5'}}>{userInfo.name ? userInfo.name.charAt(0) : 'U'}</div>
-                            <div className="profile-info">
-                                <span className="p-name">{userInfo.name || 'User'}</span>
-                                <span className="p-role">{userInfo.role || 'Admin'}</span>
-                            </div>
-                            <ChevronDown size={14} />
-                        </div>
-                    </div>
-                </div>
-
-                <div className="header-section" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '24px' }}>
+                <div className="header-section" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
                     <div>
                         <h1 className="page-title">Payroll Management</h1>
                         <p className="page-subtitle">Process salaries, approvals, and payment tracking</p>
                     </div>
-                    {canPay && (
-                        <div style={{ display: 'flex', gap: '12px' }}>
-                            {stats.approved > 0 && (
-                                <button className="btn-secondary flex-center" onClick={() => setShowPayAllModal(true)} style={{gap: '8px', padding: '8px 16px'}}>
-                                    <Banknote size={16} color="#10b981" /> <span>Pay All Approved ({stats.approved})</span>
-                                </button>
-                            )}
-                            <button className="btn-primary flex-center" onClick={() => setShowGenModal(true)} style={{gap: '8px'}}>
-                                <TrendingUp size={16} /> Generate Payroll
-                            </button>
+                    
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+                        <div className="search-bar" style={{ display: 'flex', alignItems: 'center', background: '#fff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '8px 12px', gap: '8px' }}>
+                            <Search size={18} color="#94a3b8" />
+                            <input type="text" placeholder="Search payroll records..." style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: '13px', width: '200px' }} />
                         </div>
-                    )}
+                        
+                        <div className="date-filter" style={{ display: 'flex', alignItems: 'center', background: '#fff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '8px 12px', gap: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 600, color: '#334155' }}>
+                            <Calendar size={16} color="#64748b" />
+                            <span>This Month</span>
+                            <ChevronDown size={14} color="#64748b" />
+                        </div>
+
+                        {canPay && (
+                            <div style={{ display: 'flex', gap: '12px' }}>
+                                {stats.approved > 0 && (
+                                    <button className="btn-secondary flex-center" onClick={() => setShowPayAllModal(true)} style={{gap: '8px', padding: '8px 16px', height: '100%'}}>
+                                        <Banknote size={16} color="#10b981" /> <span>Pay All Approved ({stats.approved})</span>
+                                    </button>
+                                )}
+                                <button className="btn-primary flex-center" onClick={() => setShowGenModal(true)} style={{gap: '8px', height: '100%'}}>
+                                    <TrendingUp size={16} /> Generate Payroll
+                                </button>
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 {/* KPIs */}
