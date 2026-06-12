@@ -8,6 +8,7 @@ const MyAttendance = () => {
     const [history, setHistory] = useState([]);
     const [status, setStatus] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [actionLoading, setActionLoading] = useState(false);
     const [timer, setTimer] = useState("0h 0m 0s");
     const [stats, setStats] = useState({ avg: '0h', present: 0 });
 
@@ -119,22 +120,30 @@ const MyAttendance = () => {
     };
 
     const handleCheckIn = async () => {
+        if (actionLoading) return;
+        setActionLoading(true);
         try {
             const { data } = await API.post('/attendance/check-in');
             setStatus(data);
             fetchData();
         } catch (error) {
             alert(error.response?.data?.message || 'Check-in failed');
+        } finally {
+            setActionLoading(false);
         }
     };
 
     const handleCheckOut = async () => {
+        if (actionLoading) return;
+        setActionLoading(true);
         try {
             const { data } = await API.post('/attendance/check-out');
             setStatus(data);
             fetchData();
         } catch (error) {
             alert(error.response?.data?.message || 'Check-out failed');
+        } finally {
+            setActionLoading(false);
         }
     };
 
@@ -167,12 +176,20 @@ const MyAttendance = () => {
                 </div>
                 <div className="header-actions">
                     {!status?.checkIn ? (
-                        <button onClick={handleCheckIn} className="btn-primary flex-center gap-10">
-                            <Play size={18} /> Check In Now
+                        <button 
+                            className="btn btn-primary check-btn"
+                            onClick={handleCheckIn}
+                            disabled={actionLoading}
+                        >
+                            <Play size={18} /> {actionLoading ? 'Processing...' : 'Check In Now'}
                         </button>
                     ) : !status?.checkOut ? (
-                        <button onClick={handleCheckOut} className="btn-danger flex-center gap-10">
-                            <Square size={18} /> Check Out
+                        <button 
+                            onClick={handleCheckOut} 
+                            className="btn-danger flex-center gap-10"
+                            disabled={actionLoading}
+                        >
+                            <Square size={18} /> {actionLoading ? 'Processing...' : 'Check Out'}
                         </button>
                     ) : (
                         <div className="status-badge-completed">Shift Completed</div>

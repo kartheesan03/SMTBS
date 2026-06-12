@@ -1,6 +1,7 @@
 const Attendance = require('../models/Attendance');
 const Employee = require('../models/Employee');
 const Leave = require('../models/Leave');
+const Notification = require('../models/Notification');
 const { notifyHR } = require('../services/notificationService');
 
 // @desc    Get Current Attendance Status for logged in employee
@@ -113,12 +114,23 @@ const checkIn = async (req, res) => {
         }
 
         const finalStatus = attendance.status || calculatedStatus;
+        const msg = `${employee.firstName} ${employee.lastName || ''} checked in at ${new Date(checkInTime).toLocaleTimeString()}. Status: ${finalStatus}`;
 
-        await notifyHR({
-            title: 'Employee Check-In',
-            message: `${employee.firstName} ${employee.lastName || ''} checked in at ${new Date(checkInTime).toLocaleTimeString()}. Status: ${finalStatus}`,
-            type: finalStatus === 'Late' ? 'warning' : 'info'
+        // Prevent duplicate Check-In notification by checking recent existing notifications
+        const recentNotif = await Notification.findOne({
+            where: {
+                title: 'Employee Check-In',
+                message: msg
+            }
         });
+
+        if (!recentNotif) {
+            await notifyHR({
+                title: 'Employee Check-In',
+                message: msg,
+                type: finalStatus === 'Late' ? 'warning' : 'info'
+            });
+        }
 
         res.status(201).json(attendance);
     } catch (error) {
@@ -156,11 +168,23 @@ const checkOut = async (req, res) => {
         attendance.checkOut = new Date().toISOString();
         await attendance.save();
 
-        await notifyHR({
-            title: 'Employee Check-Out',
-            message: `${employee.firstName} ${employee.lastName || ''} checked out at ${new Date(attendance.checkOut).toLocaleTimeString()}.`,
-            type: 'info'
+        const msg = `${employee.firstName} ${employee.lastName || ''} checked out at ${new Date(attendance.checkOut).toLocaleTimeString()}.`;
+
+        // Prevent duplicate Check-Out notification
+        const recentNotif = await Notification.findOne({
+            where: {
+                title: 'Employee Check-Out',
+                message: msg
+            }
         });
+
+        if (!recentNotif) {
+            await notifyHR({
+                title: 'Employee Check-Out',
+                message: msg,
+                type: 'info'
+            });
+        }
 
         res.json(attendance);
     } catch (error) {
