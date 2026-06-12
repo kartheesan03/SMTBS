@@ -14,7 +14,7 @@ const Login = () => {
     const [showRoleSelector, setShowRoleSelector] = useState(false);
     const [pendingGoogleToken, setPendingGoogleToken] = useState(null);
     const [registrationRole, setRegistrationRole] = useState(null);
-    const [regData, setRegData] = useState({ phone: '', address: '', company: '', contactPerson: '', materialsSupplied: '' });
+    const [regData, setRegData] = useState({ phone: '', address: '', company: '', contactPerson: '', materialsSupplied: '', customerType: 'Individual', gstNumber: '', vendorName: '' });
     const { login } = useContext(AuthContext);
     const navigate = useNavigate();
 
@@ -86,7 +86,7 @@ const Login = () => {
             setPendingGoogleToken(null);
             setShowRoleSelector(false);
             setRegistrationRole(null);
-            setRegData({ phone: '', address: '', company: '', contactPerson: '', materialsSupplied: '' });
+            setRegData({ phone: '', address: '', company: '', contactPerson: '', materialsSupplied: '', customerType: 'Individual', gstNumber: '', vendorName: '' });
         }
     };
 
@@ -256,14 +256,31 @@ const Login = () => {
                                 </div>
 
                                 {registrationRole === 'Customer' && (
-                                    <div className="input-group">
-                                        <label>Company Name (Optional)</label>
-                                        <input type="text" value={regData.company} onChange={e => setRegData({...regData, company: e.target.value})} placeholder="Your Company Ltd" />
-                                    </div>
+                                    <>
+                                        <div className="input-group">
+                                            <label>Customer Type *</label>
+                                            <select 
+                                                value={regData.customerType} 
+                                                onChange={e => setRegData({...regData, customerType: e.target.value})}
+                                                style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: '1px solid #e2e8f0' }}
+                                            >
+                                                <option value="Individual">Individual</option>
+                                                <option value="Company">Company</option>
+                                            </select>
+                                        </div>
+                                        <div className="input-group">
+                                            <label>Company Name (Optional)</label>
+                                            <input type="text" value={regData.company} onChange={e => setRegData({...regData, company: e.target.value})} placeholder="Your Company Ltd" />
+                                        </div>
+                                    </>
                                 )}
 
                                 {registrationRole === 'Vendor' && (
                                     <>
+                                        <div className="input-group">
+                                            <label>Vendor / Company Name *</label>
+                                            <input type="text" required value={regData.vendorName} onChange={e => setRegData({...regData, vendorName: e.target.value})} placeholder="Your Business Name" />
+                                        </div>
                                         <div className="input-group">
                                             <label>Contact Person *</label>
                                             <input type="text" required value={regData.contactPerson} onChange={e => setRegData({...regData, contactPerson: e.target.value})} placeholder="Name of primary contact" />
@@ -271,6 +288,10 @@ const Login = () => {
                                         <div className="input-group">
                                             <label>Materials Supplied (Comma separated)</label>
                                             <input type="text" value={regData.materialsSupplied} onChange={e => setRegData({...regData, materialsSupplied: e.target.value})} placeholder="e.g. Steel, Aluminum, Plastics" />
+                                        </div>
+                                        <div className="input-group">
+                                            <label>GST / Tax Number (Optional)</label>
+                                            <input type="text" value={regData.gstNumber} onChange={e => setRegData({...regData, gstNumber: e.target.value})} placeholder="e.g. 22AAAAA0000A1Z5" />
                                         </div>
                                     </>
                                 )}

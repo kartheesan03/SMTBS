@@ -12,7 +12,7 @@ const Customers = () => {
     const [showModal, setShowModal] = useState(false);
     const [editingId, setEditingId] = useState(null);
     const [formData, setFormData] = useState({
-        name: '', email: '', phone: '', address: '', industry: '', website: '', notes: '', status: 'Active'
+        name: '', email: '', phone: '', address: '', industry: '', website: '', notes: '', status: 'Active', customerType: 'Individual'
     });
     const [formErrors, setFormErrors] = useState({});
 
@@ -116,7 +116,8 @@ const Customers = () => {
             industry: customer.industry || '',
             website: customer.website || '',
             notes: customer.notes || '',
-            status: customer.status || 'Active'
+            status: customer.status || 'Active',
+            customerType: customer.customerType || 'Individual'
         });
         setFormErrors({});
         setShowModal(true);
@@ -144,7 +145,7 @@ const Customers = () => {
     const handleCloseModal = () => {
         setShowModal(false);
         setEditingId(null);
-        setFormData({ name: '', email: '', phone: '', address: '', industry: '', website: '', notes: '', status: 'Active' });
+        setFormData({ name: '', email: '', phone: '', address: '', industry: '', website: '', notes: '', status: 'Active', customerType: 'Individual' });
         setFormErrors({});
     };
 
@@ -280,6 +281,7 @@ const Customers = () => {
                                     <h3 style={{ marginBottom: 20, fontWeight: 700, fontSize: 16 }}>Contact Information</h3>
                                     <div className="profile-grid">
                                         <div className="profile-item"><Mail size={16} /><div><span className="profile-label">Email</span><span className="profile-value">{selectedCustomer.email || '—'}</span></div></div>
+                                        <div className="profile-item"><UserCheck size={16} /><div><span className="profile-label">Type</span><span className="profile-value">{selectedCustomer.customerType || 'Individual'}</span></div></div>
                                         <div className="profile-item"><Phone size={16} /><div><span className="profile-label">Phone</span><span className="profile-value">{selectedCustomer.phone || '—'}</span></div></div>
                                         <div className="profile-item"><Building2 size={16} /><div><span className="profile-label">Industry</span><span className="profile-value">{selectedCustomer.industry || '—'}</span></div></div>
                                         <div className="profile-item"><Globe size={16} /><div><span className="profile-label">Website</span><span className="profile-value">{selectedCustomer.website ? <a href={selectedCustomer.website} target="_blank" rel="noreferrer">{selectedCustomer.website}</a> : '—'}</span></div></div>
@@ -468,6 +470,12 @@ const Customers = () => {
                                         <label>Lifecycle Status</label>
                                         <select value={formData.status} onChange={e => setFormData({...formData, status: e.target.value})}>
                                             <option value="Active">Active</option><option value="Lead">Lead</option><option value="Inactive">Inactive</option><option value="Pending Review">Pending Review</option>
+                                        </select>
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Customer Type</label>
+                                        <select value={formData.customerType} onChange={e => setFormData({...formData, customerType: e.target.value})}>
+                                            <option value="Individual">Individual</option><option value="Company">Company</option>
                                         </select>
                                     </div>
                                 </div>

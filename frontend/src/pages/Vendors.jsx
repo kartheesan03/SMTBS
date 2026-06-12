@@ -22,7 +22,7 @@ const Vendors = () => {
     
     // Vendor Form Data
     const [formData, setFormData] = useState({
-        name: '', category: 'Raw Materials', contactPerson: '', email: '', phone: '', address: ''
+        name: '', category: 'Raw Materials', contactPerson: '', email: '', phone: '', address: '', gstNumber: ''
     });
     
     // New Materials Logic (Used for Vendor Form)
@@ -100,7 +100,7 @@ const Vendors = () => {
     // VENDOR CRUD
     const openAddModal = () => {
         setIsEditMode(false);
-        setFormData({ name: '', category: 'Raw Materials', contactPerson: '', email: '', phone: '', address: '' });
+        setFormData({ name: '', category: 'Raw Materials', contactPerson: '', email: '', phone: '', address: '', gstNumber: '' });
         setNewMaterialsList([]);
         setNewMaterial({ name: '', sku: '', category: 'Raw Materials', quantity: 0, unit: 'pcs', price: 0 });
         setVendorMaterials([]);
@@ -116,7 +116,8 @@ const Vendors = () => {
             contactPerson: vendor.contactPerson || '',
             email: vendor.email || '',
             phone: vendor.phone || '',
-            address: vendor.address || ''
+            address: vendor.address || '',
+            gstNumber: vendor.gstNumber || ''
         });
         
         const existingMaterials = allMaterials.filter(m => 
@@ -367,6 +368,12 @@ const Vendors = () => {
                                         <input type="text" required value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} />
                                     </div>
                                 </div>
+                                <div className="form-grid">
+                                    <div className="form-group">
+                                        <label>GST / Tax Number (Optional)</label>
+                                        <input type="text" value={formData.gstNumber} onChange={e => setFormData({...formData, gstNumber: e.target.value})} placeholder="e.g. 22AAAAA0000A1Z5" />
+                                    </div>
+                                </div>
                             </form>
 
                             {/* Existing Stock Display (Read Only) during Edit Mode */}
@@ -533,6 +540,7 @@ const Vendors = () => {
                                     <p><strong>Contact Person:</strong> {selectedVendor.contactPerson || 'N/A'}</p>
                                     <p><strong>Email:</strong> {selectedVendor.email || 'N/A'}</p>
                                     <p><strong>Phone:</strong> {selectedVendor.phone || 'N/A'}</p>
+                                    <p><strong>GST Number:</strong> {selectedVendor.gstNumber || 'N/A'}</p>
                                 </div>
                             </div>
 

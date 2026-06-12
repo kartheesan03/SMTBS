@@ -172,6 +172,7 @@ const googleRegister = async (req, res) => {
                 phone: req.body.phone || '',
                 address: req.body.address || '',
                 company: req.body.company || '',
+                customerType: req.body.customerType || 'Individual',
                 status: 'Active'
             });
         } else if (role === 'Vendor') {
@@ -183,7 +184,8 @@ const googleRegister = async (req, res) => {
                 contactPerson: req.body.contactPerson || name,
                 category: 'Uncategorized',
                 status: 'Vendor Created',
-                materialsSupplied: req.body.materialsSupplied || []
+                materialsSupplied: req.body.materialsSupplied || [],
+                gstNumber: req.body.gstNumber || ''
             });
         }
 

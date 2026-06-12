@@ -25,6 +25,10 @@ const CustomerSequelize = sequelize.define('Customer', {
         type: DataTypes.STRING,
         allowNull: true
     },
+    customerType: {
+        type: DataTypes.ENUM('Individual', 'Company'),
+        defaultValue: 'Individual'
+    },
     address: {
         type: DataTypes.TEXT,
         allowNull: true
