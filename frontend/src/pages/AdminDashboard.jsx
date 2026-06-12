@@ -21,23 +21,23 @@ const AdminDashboard = () => {
     const fetchDashboardData = async () => {
         try {
             const [dashRes, matRes, custRes, ordRes, empRes] = await Promise.all([
-                API.get('/dashboard/stats'),
-                API.get('/materials'),
-                API.get('/customers'),
-                API.get('/orders'),
-                API.get('/employees')
+                API.get('/dashboard/stats').catch(e => ({ data: {} })),
+                API.get('/materials').catch(e => ({ data: [] })),
+                API.get('/customers').catch(e => ({ data: [] })),
+                API.get('/orders').catch(e => ({ data: [] })),
+                API.get('/employees').catch(e => ({ data: [] }))
             ]);
-            setDashboardData(dashRes.data);
-            setMaterialsData(matRes.data);
-            setCustomersData(Array.isArray(custRes.data) ? custRes.data : []);
-            setOrdersData(ordRes.data);
             
-            console.log("employees response", empRes.data);
-            const emps = Array.isArray(empRes.data) ? empRes.data : [];
+            setDashboardData(dashRes.data || {});
+            setMaterialsData(matRes.data || []);
+            setCustomersData(Array.isArray(custRes.data) ? custRes.data : []);
+            setOrdersData(ordRes.data || []);
+            
+            const emps = Array.isArray(empRes.data) ? empRes.data : (empRes.data?.employees || []);
+            console.log("Employee count:", emps.length);
             setEmployeesData(emps);
         } catch (error) {
-            console.error("Failed to load dashboard stats", error);
-            setDashboardData({});
+            console.error("Failed to load dashboard data", error);
         } finally {
             setLoading(false);
         }
