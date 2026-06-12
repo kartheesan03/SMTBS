@@ -3,7 +3,7 @@ import API from '../api/axios';
 import { 
     Users, TrendingUp, DollarSign, Target, 
     BarChart2, Activity, Filter, Layers, CheckCircle,
-    Search, Bell, ChevronDown, Award
+    Search, Bell, ChevronDown, Award, FileText, Calendar
 } from 'lucide-react';
 import { 
     PieChart, Pie, Cell, BarChart, Bar, LineChart, Line, 
