@@ -31,7 +31,10 @@ const AdminDashboard = () => {
             setMaterialsData(matRes.data);
             setCustomersData(Array.isArray(custRes.data) ? custRes.data : []);
             setOrdersData(ordRes.data);
-            setEmployeesData(empRes.data);
+            
+            console.log("employees response", empRes.data);
+            const emps = Array.isArray(empRes.data) ? empRes.data : [];
+            setEmployeesData(emps);
         } catch (error) {
             console.error("Failed to load dashboard stats", error);
             setDashboardData({});
@@ -103,7 +106,8 @@ const AdminDashboard = () => {
     console.log("customers.length:", customers.length);
     console.log("materials.length:", totalMaterials);
     console.log("orders.length:", orders.length);
-    console.log("employees.length:", totalEmployees);
+    console.log("employees.length:", employees.length);
+    console.log("dashboard totalEmployees:", totalEmployees);
 
     // Charts Data
     const revenueData = charts.monthlyStats && charts.monthlyStats.length > 0 
