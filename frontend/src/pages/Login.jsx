@@ -11,10 +11,6 @@ const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [showRoleSelector, setShowRoleSelector] = useState(false);
-    const [pendingGoogleToken, setPendingGoogleToken] = useState(null);
-    const [registrationRole, setRegistrationRole] = useState(null);
-    const [regData, setRegData] = useState({ phone: '', address: '', company: '', contactPerson: '', materialsSupplied: '', customerType: 'Individual', gstNumber: '', vendorName: '' });
     const { login } = useContext(AuthContext);
     const navigate = useNavigate();
 
@@ -41,12 +37,6 @@ const Login = () => {
         setError('');
         try {
             const response = await API.post('/auth/google', { credential: credentialResponse.credential });
-            
-            if (response.status === 202 && response.data.action === 'choose_role') {
-                setPendingGoogleToken(credentialResponse.credential);
-                setShowRoleSelector(true);
-                return; // Wait for user to select a role
-            }
 
             console.log('Google login successful. Role:', response.data.role);
             login(response.data);
@@ -59,36 +49,6 @@ const Login = () => {
         }
     };
 
-    const handleRegistrationSubmit = async (e) => {
-        e.preventDefault();
-        if (!registrationRole) return;
-        setIsLoading(true);
-        try {
-            const payload = {
-                credential: pendingGoogleToken,
-                role: registrationRole,
-                ...regData
-            };
-            // If vendor, split comma separated materials
-            if (registrationRole === 'Vendor' && regData.materialsSupplied) {
-                payload.materialsSupplied = regData.materialsSupplied.split(',').map(m => m.trim()).filter(Boolean);
-            }
-
-            const { data } = await API.post('/auth/google/register', payload);
-            console.log('Google registration successful. Role:', data.role);
-            login(data);
-            navigate('/');
-        } catch (err) {
-            setError(err.response?.data?.message || 'Google Registration failed');
-            console.error('Google registration error:', err.response?.data);
-        } finally {
-            setIsLoading(false);
-            setPendingGoogleToken(null);
-            setShowRoleSelector(false);
-            setRegistrationRole(null);
-            setRegData({ phone: '', address: '', company: '', contactPerson: '', materialsSupplied: '', customerType: 'Individual', gstNumber: '', vendorName: '' });
-        }
-    };
 
     return (
         <div className="login-layout">
@@ -199,11 +159,11 @@ const Login = () => {
                             )}
                         </button>
                         
-                        <div className="divider" style={{ display: 'none' }}>
+                        <div className="divider">
                             <span>or continue with</span>
                         </div>
                         
-                        <div className="google-btn-wrapper" style={{ display: 'none' }}>
+                        <div className="google-btn-wrapper">
                             <GoogleLogin 
                                 onSuccess={handleGoogleSuccess}
                                 onError={() => setError('Google Login Failed')}
@@ -220,191 +180,8 @@ const Login = () => {
                 </div>
             </div>
 
-            {/* Role Selection & Details Modal */}
-            {showRoleSelector && (
-                <div className="modal-overlay">
-                    <div className="modal-content">
-                        {!registrationRole ? (
-                            <>
-                                <h3>Complete Your Registration</h3>
-                                <p>Please select your account type to continue.</p>
-                                <div className="role-options">
-                                    <button onClick={() => setRegistrationRole('Customer')} className="role-btn customer-btn">
-                                        I am a Customer
-                                    </button>
-                                    <button onClick={() => setRegistrationRole('Vendor')} className="role-btn vendor-btn">
-                                        I am a Vendor / Supplier
-                                    </button>
-                                </div>
-                                <button className="cancel-btn" onClick={() => { setShowRoleSelector(false); setPendingGoogleToken(null); }}>
-                                    Cancel
-                                </button>
-                            </>
-                        ) : (
-                            <form onSubmit={handleRegistrationSubmit} className="extra-details-form">
-                                <h3>{registrationRole === 'Customer' ? 'Customer Details' : 'Vendor Details'}</h3>
-                                <p>We need a few more details to set up your profile.</p>
-
-                                <div className="input-group">
-                                    <label>Phone Number *</label>
-                                    <input type="text" required value={regData.phone} onChange={e => setRegData({...regData, phone: e.target.value})} placeholder="e.g. +1 234 567 8900" />
-                                </div>
-                                
-                                <div className="input-group">
-                                    <label>Address *</label>
-                                    <input type="text" required value={regData.address} onChange={e => setRegData({...regData, address: e.target.value})} placeholder="Full business or billing address" />
-                                </div>
-
-                                {registrationRole === 'Customer' && (
-                                    <>
-                                        <div className="input-group">
-                                            <label>Customer Type *</label>
-                                            <select 
-                                                value={regData.customerType} 
-                                                onChange={e => setRegData({...regData, customerType: e.target.value})}
-                                                style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: '1px solid #e2e8f0' }}
-                                            >
-                                                <option value="Individual">Individual</option>
-                                                <option value="Company">Company</option>
-                                            </select>
-                                        </div>
-                                        <div className="input-group">
-                                            <label>Company Name (Optional)</label>
-                                            <input type="text" value={regData.company} onChange={e => setRegData({...regData, company: e.target.value})} placeholder="Your Company Ltd" />
-                                        </div>
-                                    </>
-                                )}
-
-                                {registrationRole === 'Vendor' && (
-                                    <>
-                                        <div className="input-group">
-                                            <label>Vendor / Company Name *</label>
-                                            <input type="text" required value={regData.vendorName} onChange={e => setRegData({...regData, vendorName: e.target.value})} placeholder="Your Business Name" />
-                                        </div>
-                                        <div className="input-group">
-                                            <label>Contact Person *</label>
-                                            <input type="text" required value={regData.contactPerson} onChange={e => setRegData({...regData, contactPerson: e.target.value})} placeholder="Name of primary contact" />
-                                        </div>
-                                        <div className="input-group">
-                                            <label>Materials Supplied (Comma separated)</label>
-                                            <input type="text" value={regData.materialsSupplied} onChange={e => setRegData({...regData, materialsSupplied: e.target.value})} placeholder="e.g. Steel, Aluminum, Plastics" />
-                                        </div>
-                                        <div className="input-group">
-                                            <label>GST / Tax Number (Optional)</label>
-                                            <input type="text" value={regData.gstNumber} onChange={e => setRegData({...regData, gstNumber: e.target.value})} placeholder="e.g. 22AAAAA0000A1Z5" />
-                                        </div>
-                                    </>
-                                )}
-
-                                <div className="modal-actions">
-                                    <button type="button" className="cancel-btn" onClick={() => setRegistrationRole(null)}>Back</button>
-                                    <button type="submit" className="login-btn" disabled={isLoading}>{isLoading ? 'Saving...' : 'Complete Registration'}</button>
-                                </div>
-                            </form>
-                        )}
-                    </div>
-                </div>
-            )}
-
             <style jsx="true">{`
-                .modal-overlay {
-                    position: fixed;
-                    top: 0; left: 0; right: 0; bottom: 0;
-                    background: rgba(15, 23, 42, 0.6);
-                    backdrop-filter: blur(4px);
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    z-index: 1000;
-                }
-                .modal-content {
-                    background: #ffffff;
-                    padding: 40px;
-                    border-radius: 20px;
-                    max-width: 450px;
-                    width: 90%;
-                    text-align: center;
-                    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-                    max-height: 90vh;
-                    overflow-y: auto;
-                }
-                .extra-details-form {
-                    text-align: left;
-                    margin-top: 20px;
-                }
-                .extra-details-form h3 {
-                    text-align: center;
-                }
-                .extra-details-form p {
-                    text-align: center;
-                    margin-bottom: 20px;
-                    font-size: 14px;
-                    color: #64748b;
-                }
-                .extra-details-form .input-group {
-                    margin-bottom: 16px;
-                }
-                .extra-details-form input {
-                    width: 100%;
-                    padding: 12px 16px;
-                    border: 1px solid #e2e8f0;
-                    border-radius: 12px;
-                    font-size: 15px;
-                    outline: none;
-                }
-                .extra-details-form input:focus {
-                    border-color: #6366f1;
-                    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-                }
-                .modal-actions {
-                    display: flex;
-                    gap: 15px;
-                    margin-top: 25px;
-                }
-                .modal-actions button {
-                    flex: 1;
-                }
-                .modal-content h3 {
-                    font-size: 22px;
-                    color: #0f172a;
-                    margin-bottom: 10px;
-                }
-                .modal-content p {
-                    color: #64748b;
-                    margin-bottom: 30px;
-                }
-                .role-options {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 16px;
-                    margin-bottom: 24px;
-                }
-                .role-btn {
-                    padding: 16px;
-                    border-radius: 12px;
-                    border: 2px solid #e2e8f0;
-                    background: #ffffff;
-                    font-size: 16px;
-                    font-weight: 600;
-                    cursor: pointer;
-                    transition: all 0.2s;
-                }
-                .role-btn:hover {
-                    border-color: #6366f1;
-                    background: #f8fafc;
-                    color: #6366f1;
-                }
-                .cancel-btn {
-                    background: none;
-                    border: none;
-                    color: #94a3b8;
-                    font-weight: 500;
-                    cursor: pointer;
-                }
-                .cancel-btn:hover {
-                    color: #64748b;
-                    text-decoration: underline;
-                }
+
                 
                 .login-layout {
                     display: flex;

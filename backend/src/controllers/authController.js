@@ -139,17 +139,8 @@ const googleAuth = async (req, res) => {
                 token: generateToken(user._id),
             });
         } else {
-            // User does not exist in our database. 
-            // We return a 202 Accepted with action 'choose_role' so the frontend
-            // can prompt the user if they are a Customer or Vendor.
-            // Internal staff (Admin, HR, etc.) are NOT allowed to register this way.
-            return res.status(202).json({ 
-                action: 'choose_role',
-                message: 'Please choose your account type to continue registration.',
-                email: email,
-                name: name,
-                credential: credential // pass the token back so frontend can submit it to the register endpoint
-            });
+            // User does not exist in our database. Block login.
+            return res.status(401).json({ message: 'Account not registered' });
         }
     } catch (error) {
         console.error('Google Auth Error:', error);
@@ -157,85 +148,7 @@ const googleAuth = async (req, res) => {
     }
 };
 
-// @desc    Google registration (Customer/Vendor only)
-// @route   POST /api/auth/google/register
-// @access  Public
-const googleRegister = async (req, res) => {
-    const { credential, role } = req.body;
 
-    if (!credential || !role) {
-        return res.status(400).json({ message: 'Missing credential or role' });
-    }
-
-    if (role !== 'Customer' && role !== 'Vendor') {
-        return res.status(403).json({ message: 'Auto-registration is only permitted for Customers and Vendors.' });
-    }
-
-    try {
-        const ticket = await client.verifyIdToken({
-            idToken: credential,
-            audience: process.env.GOOGLE_CLIENT_ID,
-        });
-
-        const payload = ticket.getPayload();
-        const email = payload.email;
-        const name = payload.name;
-        const googleId = payload.sub;
-
-        let user = await User.findOne({ email });
-        
-        if (user) {
-            return res.status(400).json({ message: 'User already exists. Please sign in normally.' });
-        }
-
-        const randomPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
-
-        user = await User.create({
-            name,
-            email,
-            password: randomPassword,
-            role,
-            googleId
-        });
-
-        // Create the corresponding Customer or Vendor record
-        if (role === 'Customer') {
-            await Customer.create({
-                name,
-                email,
-                phone: req.body.phone || '',
-                address: req.body.address || '',
-                company: req.body.company || '',
-                customerType: req.body.customerType || 'Individual',
-                status: 'Active'
-            });
-        } else if (role === 'Vendor') {
-            await Vendor.create({
-                name: req.body.vendorName || name,
-                email,
-                phone: req.body.phone || '',
-                address: req.body.address || '',
-                contactPerson: req.body.contactPerson || name,
-                category: 'Uncategorized',
-                status: 'Vendor Created',
-                materialsSupplied: req.body.materialsSupplied || [],
-                gstNumber: req.body.gstNumber || ''
-            });
-        }
-
-        return res.status(201).json({
-            _id: user._id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-            token: generateToken(user._id),
-        });
-
-    } catch (error) {
-        console.error('Google Register Error:', error);
-        return res.status(500).json({ message: 'Server error during Google Registration' });
-    }
-};
 
 // @desc    Update user profile
 // @route   PUT /api/auth/profile
@@ -285,4 +198,4 @@ const getUsers = async (req, res) => {
     }
 };
 
-module.exports = { registerUser, loginUser, googleAuth, googleRegister, updateUserProfile, getUsers };
+module.exports = { registerUser, loginUser, googleAuth, updateUserProfile, getUsers };

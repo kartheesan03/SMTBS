@@ -277,9 +277,7 @@ const Register = () => {
                             )}
                         </button>
                         
-                        <div className="divider" style={{ display: 'none' }}>
-                            <span>or sign up with</span>
-                        </div>
+
                     </form>
                     
                     <div className="form-footer">
