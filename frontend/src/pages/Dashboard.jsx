@@ -165,7 +165,6 @@ const Dashboard = () => {
                     ],
                     actions: [
                         { label: 'Add Customer', icon: <PlusCircle size={20}/>, onClick: () => navigate('/crm') },
-                        { label: 'Create Order', icon: <TrendingUp size={20}/>, onClick: () => navigate('/erp') },
                     ],
                     charts: (
                         <div className="glass-card chart-container flex-col-center">

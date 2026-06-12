@@ -385,7 +385,7 @@ const ERP = () => {
                     <button className="btn-secondary-light flex-center gap-8" onClick={() => setShowFilters(!showFilters)}>
                         <Filter size={16} /> Filters
                     </button>
-                    {['Super Admin', 'Admin', 'HR', 'Manager', 'Sales'].includes(userInfo.role) && (
+                    {(userInfo?.role?.toLowerCase() === 'admin' || userInfo?.role?.toLowerCase() === 'super admin') && (
                         <button className="btn-primary-blue flex-center gap-8" onClick={() => setShowModal(true)}>
                             <Plus size={16} /> Create Order
                         </button>
