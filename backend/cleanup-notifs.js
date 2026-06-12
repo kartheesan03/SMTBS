@@ -31,7 +31,11 @@ const Notification = require('./src/models/Notification');
         console.log('Found duplicates:', duplicates);
 
         if (toDelete.length > 0) {
-            await Notification.deleteMany({ id: { $in: toDelete } });
+            // Because mongoose-bridge acts like mongoose, but under the hood uses sequelize
+            // We can iterate and delete or use destroy if it has standard sequelize methods
+            for (const id of toDelete) {
+                await Notification.deleteOne({ id });
+            }
             console.log(`Successfully deleted ${toDelete.length} duplicate notifications.`);
         }
 

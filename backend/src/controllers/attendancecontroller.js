@@ -115,20 +115,18 @@ const checkIn = async (req, res) => {
 
         const finalStatus = attendance.status || calculatedStatus;
         const msg = `${employee.firstName} ${employee.lastName || ''} checked in at ${new Date(checkInTime).toLocaleTimeString()}. Status: ${finalStatus}`;
+        const ref = `ATTENDANCE_CHECKIN_${empId}_${today}`;
 
-        // Prevent duplicate Check-In notification by checking recent existing notifications
-        const recentNotif = await Notification.findOne({
-            where: {
-                title: 'Employee Check-In',
-                message: msg
-            }
-        });
+        // Prevent duplicate Check-In notification using a unique ref
+        const recentNotifs = await Notification.find();
+        const duplicateExists = recentNotifs.some(n => n.payload && n.payload.ref === ref);
 
-        if (!recentNotif) {
+        if (!duplicateExists) {
             await notifyHR({
                 title: 'Employee Check-In',
                 message: msg,
-                type: finalStatus === 'Late' ? 'warning' : 'info'
+                type: finalStatus === 'Late' ? 'warning' : 'info',
+                payload: { ref }
             });
         }
 
@@ -169,20 +167,18 @@ const checkOut = async (req, res) => {
         await attendance.save();
 
         const msg = `${employee.firstName} ${employee.lastName || ''} checked out at ${new Date(attendance.checkOut).toLocaleTimeString()}.`;
+        const ref = `ATTENDANCE_CHECKOUT_${empId}_${today}`;
 
-        // Prevent duplicate Check-Out notification
-        const recentNotif = await Notification.findOne({
-            where: {
-                title: 'Employee Check-Out',
-                message: msg
-            }
-        });
+        // Prevent duplicate Check-Out notification using a unique ref
+        const recentNotifs = await Notification.find();
+        const duplicateExists = recentNotifs.some(n => n.payload && n.payload.ref === ref);
 
-        if (!recentNotif) {
+        if (!duplicateExists) {
             await notifyHR({
                 title: 'Employee Check-Out',
                 message: msg,
-                type: 'info'
+                type: 'info',
+                payload: { ref }
             });
         }
 

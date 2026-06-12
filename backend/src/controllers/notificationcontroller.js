@@ -9,17 +9,17 @@ const getNotifications = async (req, res) => {
     try {
         let query = {};
         
-        if (req.user.role !== 'Admin' && req.user.role !== 'Super Admin') {
-            query = {
-                $or: [
-                    { userId: null },             // global notifications visible to all
-                    { userId: req.user._id }      // user-specific notifications
-                ]
-            };
+        // Everyone only sees their own or global notifications
+        query = {
+            $or: [
+                { userId: null },             // global notifications visible to all
+                { userId: req.user._id },     // user-specific notifications
+                { userId: req.user.id }       // fallback for int ids
+            ]
+        };
 
-            if (req.user.role === 'HR') {
-                query.category = { $in: ['hr', 'payroll', 'attendance', 'employee', 'system'] };
-            }
+        if (req.user.role === 'HR') {
+            query.category = { $in: ['hr', 'payroll', 'attendance', 'employee', 'system', 'general'] };
         }
 
         let notifications = await Notification.find(query).sort({ createdAt: -1 });
