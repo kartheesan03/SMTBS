@@ -20,8 +20,6 @@ import EmployeeDashboard from './pages/EmployeeDashboard';
 import HRDashboard from './pages/HRDashboard';
 import ManagerDashboard from './pages/ManagerDashboard';
 import SalesDashboard from './pages/SalesDashboard';
-import CustomerDashboard from './pages/CustomerDashboard';
-import VendorDashboard from './pages/VendorDashboard';
 import TeamPerformance from './pages/TeamPerformance';
 import Payroll from './pages/Payroll';
 import Attendance from './pages/Attendance';
@@ -95,8 +93,6 @@ const AppContent = () => {
                                 if (r === 'hr') return <HRDashboard />;
                                 if (r === 'manager') return <ManagerDashboard />;
                                 if (r === 'sales') return <SalesDashboard />;
-                                if (r === 'customer') return <CustomerDashboard />;
-                                if (r === 'vendor' || r === 'vendor/supplier') return <VendorDashboard />;
                                 if (r === 'employee') return <EmployeeDashboard />;
                                 return <Dashboard />;
                             })()}
@@ -110,22 +106,12 @@ const AppContent = () => {
                     <Route path="/attendance" element={<ProtectedRoute allowedRoles={['Admin', 'HR', 'Manager']}><Attendance /></ProtectedRoute>} />
                     <Route path="/hr-reports" element={<ProtectedRoute allowedRoles={['Admin', 'HR']}><HRReports /></ProtectedRoute>} />
                     <Route path="/team-performance" element={<ProtectedRoute allowedRoles={['Admin', 'Manager']}><TeamPerformance /></ProtectedRoute>} />
-                    <Route path="/erp" element={<ProtectedRoute allowedRoles={['Admin', 'Manager', 'Sales', 'HR', 'Employee', 'Customer', 'Vendor', 'Vendor/Supplier']}><ERP /></ProtectedRoute>} />
+                    <Route path="/erp" element={<ProtectedRoute allowedRoles={['Admin', 'Manager', 'Sales', 'HR', 'Employee']}><ERP /></ProtectedRoute>} />
                     <Route path="/crm" element={<ProtectedRoute allowedRoles={['Admin', 'Sales', 'Manager']}><Customers /></ProtectedRoute>} />
                     <Route path="/vendors" element={<ProtectedRoute allowedRoles={['Admin', 'Manager', 'Sales']}><Vendors /></ProtectedRoute>} />
                     <Route path="/analytics" element={<ProtectedRoute allowedRoles={['Admin', 'Manager', 'Sales', 'HR']}><Reports /></ProtectedRoute>} />
                     <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
-                    <Route path="/profile" element={
-                        <ProtectedRoute>
-                            {(() => {
-                                const role = user?.role?.toLowerCase() || '';
-                                if (role === 'customer' || role === 'vendor' || role === 'vendor/supplier') {
-                                    return <Navigate to="/" />;
-                                }
-                                return <Profile />;
-                            })()}
-                        </ProtectedRoute>
-                    } />
+                    <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                     <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
 
 

@@ -15,10 +15,7 @@ const generateToken = (id) => {
 // @access  Public
 const registerUser = async (req, res) => {
     try {
-        const { 
-            name, email, password, phone, role,
-            customerType, company, address, vendorName, contactPerson, materialsSupplied, gstNumber
-        } = req.body;
+        const { name, email, password, phone, role } = req.body;
         
         const userExists = await User.findOne({ email });
 
@@ -30,31 +27,6 @@ const registerUser = async (req, res) => {
 
         if (!user) {
             return res.status(400).json({ message: 'Invalid user data' });
-        }
-
-        // Create associated profile if Customer or Vendor
-        if (role === 'Customer') {
-            await Customer.create({
-                name: name,
-                email: email,
-                phone: phone || '',
-                address: address || '',
-                customerType: customerType || 'Individual',
-                company: company || '',
-                status: 'Active'
-            });
-        } else if (role === 'Vendor') {
-            await Vendor.create({
-                name: vendorName || name,
-                contactPerson: contactPerson || name,
-                email: email,
-                phone: phone || '',
-                address: address || '',
-                materialsSupplied: materialsSupplied || [],
-                rating: 0,
-                status: 'Active',
-                gstNumber: gstNumber || ''
-            });
         }
 
         res.status(201).json({
@@ -120,6 +92,11 @@ const googleAuth = async (req, res) => {
         let user = await User.findOne({ email });
 
         if (user) {
+            // Block if user is Customer or Vendor
+            if (user.role === 'Customer' || user.role === 'Vendor' || user.role === 'Vendor/Supplier') {
+                return res.status(403).json({ message: 'Google Sign-In is only for internal staff.' });
+            }
+
             // User exists, update googleId if not present
             if (!user.googleId) {
                 user.googleId = googleId;

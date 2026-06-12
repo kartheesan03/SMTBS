@@ -8,19 +8,10 @@ const Register = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [phone, setPhone] = useState('');
-    const [role, setRole] = useState('Customer');
+    const [role, setRole] = useState('Employee');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
-    
-    // Additional fields for CRM
-    const [address, setAddress] = useState('');
-    const [company, setCompany] = useState('');
-    const [customerType, setCustomerType] = useState('Individual');
-    const [vendorName, setVendorName] = useState('');
-    const [contactPerson, setContactPerson] = useState('');
-    const [materialsSupplied, setMaterialsSupplied] = useState('');
-    const [gstNumber, setGstNumber] = useState('');
     
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -37,17 +28,7 @@ const Register = () => {
 
         setIsLoading(true);
         try {
-            const payload = { name, email, phone, role, password, address };
-            if (role === 'Customer') {
-                payload.company = company;
-                payload.customerType = customerType;
-            } else if (role === 'Vendor') {
-                payload.vendorName = vendorName;
-                payload.contactPerson = contactPerson;
-                payload.gstNumber = gstNumber;
-                payload.materialsSupplied = materialsSupplied.split(',').map(m => m.trim()).filter(Boolean);
-            }
-            
+            const payload = { name, email, phone, role, password };
             const { data } = await API.post('/auth/register', payload);
             console.log('Registration successful. Received user role from API:', data.role);
             login(data); // Auto-login after registration
@@ -168,71 +149,13 @@ const Register = () => {
                                     required
                                     style={{ width: '100%', padding: '14px 16px 14px 44px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', fontSize: '15px', color: '#0f172a', appearance: 'none' }}
                                 >
-                                    <option value="Customer">Customer</option>
-                                    <option value="Vendor">Vendor / Supplier</option>
+                                    <option value="Employee">Employee</option>
+                                    <option value="Sales">Sales</option>
+                                    <option value="HR">HR</option>
+                                    <option value="Manager">Manager</option>
                                 </select>
                             </div>
                         </div>
-
-                        <div className="input-group">
-                            <label>Address *</label>
-                            <div className="input-wrapper">
-                                <input type="text" placeholder="Full address" value={address} onChange={e => setAddress(e.target.value)} required style={{ width: '100%', padding: '14px 16px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', fontSize: '15px', outline: 'none' }}/>
-                            </div>
-                        </div>
-
-                        {role === 'Customer' && (
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                                <div className="input-group">
-                                    <label>Customer Type *</label>
-                                    <div className="input-wrapper">
-                                        <select value={customerType} onChange={e => setCustomerType(e.target.value)} style={{ width: '100%', padding: '14px 16px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', fontSize: '15px', outline: 'none' }}>
-                                            <option value="Individual">Individual</option>
-                                            <option value="Company">Company</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div className="input-group">
-                                    <label>Company Name</label>
-                                    <div className="input-wrapper">
-                                        <input type="text" placeholder="Optional" value={company} onChange={e => setCompany(e.target.value)} style={{ width: '100%', padding: '14px 16px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', fontSize: '15px', outline: 'none' }}/>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {role === 'Vendor' && (
-                            <>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                                    <div className="input-group">
-                                        <label>Vendor / Company Name *</label>
-                                        <div className="input-wrapper">
-                                            <input type="text" placeholder="Required" value={vendorName} onChange={e => setVendorName(e.target.value)} required style={{ width: '100%', padding: '14px 16px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', fontSize: '15px', outline: 'none' }}/>
-                                        </div>
-                                    </div>
-                                    <div className="input-group">
-                                        <label>Contact Person *</label>
-                                        <div className="input-wrapper">
-                                            <input type="text" placeholder="Required" value={contactPerson} onChange={e => setContactPerson(e.target.value)} required style={{ width: '100%', padding: '14px 16px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', fontSize: '15px', outline: 'none' }}/>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                                    <div className="input-group">
-                                        <label>Materials Supplied</label>
-                                        <div className="input-wrapper">
-                                            <input type="text" placeholder="Comma separated" value={materialsSupplied} onChange={e => setMaterialsSupplied(e.target.value)} style={{ width: '100%', padding: '14px 16px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', fontSize: '15px', outline: 'none' }}/>
-                                        </div>
-                                    </div>
-                                    <div className="input-group">
-                                        <label>GST / Tax Number</label>
-                                        <div className="input-wrapper">
-                                            <input type="text" placeholder="Optional" value={gstNumber} onChange={e => setGstNumber(e.target.value)} style={{ width: '100%', padding: '14px 16px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', fontSize: '15px', outline: 'none' }}/>
-                                        </div>
-                                    </div>
-                                </div>
-                            </>
-                        )}
 
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                             <div className="input-group">
