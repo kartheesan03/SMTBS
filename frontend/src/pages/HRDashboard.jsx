@@ -142,16 +142,19 @@ const HRDashboard = () => {
         fill: CHART_COLORS[index % CHART_COLORS.length]
     })).sort((a, b) => b.count - a.count);
 
-    const absentToday = Math.max(0, totalEmployees - presentToday - onLeave);
+    const unaccounted = Math.max(0, totalEmployees - presentToday - onLeave);
+    const currentHour = new Date().getHours();
+    
+    // Before 2 PM (14:00), unaccounted employees are Pending. At or after, they are Absent.
+    const absentToday = currentHour >= 14 ? unaccounted : 0;
+    const pendingToday = currentHour < 14 ? unaccounted : 0;
+
     const attendanceOverviewData = totalEmployees > 0 ? [
         { name: 'Present', value: presentToday, color: '#10b981' },
         { name: 'Absent', value: absentToday, color: '#ef4444' },
+        { name: 'Pending', value: pendingToday, color: '#64748b' },
         { name: 'On Leave', value: onLeave, color: '#f59e0b' },
-    ] : [
-        { name: 'Present', value: 6, color: '#10b981' },
-        { name: 'Absent', value: 0, color: '#ef4444' },
-        { name: 'On Leave', value: 0, color: '#f59e0b' },
-    ];
+    ].filter(item => item.value > 0) : [];
 
     // Monthly Attendance Trend from actual records (Current Month)
     let totalPresentDays = 0;

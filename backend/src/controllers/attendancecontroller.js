@@ -50,7 +50,7 @@ const getAttendanceStatus = async (req, res) => {
             const now = new Date();
             const istOffset = 5.5 * 60 * 60 * 1000;
             const istTime = new Date(now.getTime() + istOffset);
-            if (istTime.getUTCHours() < 18) {
+            if (istTime.getUTCHours() < 14) {
                 return res.json({ status: 'Pending', date: today });
             }
             return res.json({ status: 'Absent', date: today });
@@ -233,7 +233,7 @@ const getAllAttendance = async (req, res) => {
         const now = new Date();
         const istOffset = 5.5 * 60 * 60 * 1000;
         const istTime = new Date(now.getTime() + istOffset);
-        const defaultStatus = istTime.getUTCHours() < 18 ? 'Pending' : 'Absent';
+        const defaultStatus = istTime.getUTCHours() < 14 ? 'Pending' : 'Absent';
 
         let presentToday = 0;
         let absentToday = 0;
