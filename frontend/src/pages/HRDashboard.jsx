@@ -14,18 +14,24 @@ const HRDashboard = () => {
     const [dashboardData, setDashboardData] = useState(null);
     const [employees, setEmployees] = useState([]);
     const [users, setUsers] = useState([]);
+    const [leavesData, setLeavesData] = useState([]);
+    const [salariesData, setSalariesData] = useState([]);
     const [loading, setLoading] = useState(true);
 
     const fetchDashboardData = async () => {
         try {
-            const [statsRes, empRes, usersRes] = await Promise.all([
+            const [statsRes, empRes, usersRes, leavesRes, salariesRes] = await Promise.all([
                 API.get('/dashboard/stats'),
                 API.get('/employees'),
-                API.get('/auth/users')
+                API.get('/auth/users'),
+                API.get('/leaves'),
+                API.get('/salaries')
             ]);
             setDashboardData(statsRes.data);
             setEmployees(empRes.data);
             setUsers(usersRes.data);
+            setLeavesData(leavesRes.data);
+            setSalariesData(salariesRes.data);
         } catch (error) {
             console.error("Failed to load dashboard stats", error);
             setDashboardData({});
@@ -58,9 +64,18 @@ const HRDashboard = () => {
     const totalEmployees = uniqueEmployees.length;
     const presentToday = hrStats.presentToday || 0;
     const onLeave = hrStats.onLeave || 0;
-    const newJoiners = 4; // Simulated
-    const pendingApprovals = 12; // Simulated
-    const payrollProcessed = 85; // Simulated percentage
+    const newJoiners = employees.filter(e => e.createdAt && new Date(e.createdAt) > new Date(Date.now() - 30*24*60*60*1000)).length || 0;
+
+    const pendingLeaves = (leavesData || []).filter(l => l.status === 'Pending').length;
+    const pendingSalaries = (salariesData || []).filter(s => s.status === 'Awaiting Approval').length;
+    const pendingApprovals = pendingLeaves + pendingSalaries;
+
+    const salaries = salariesData || [];
+    let payrollProcessed = 0;
+    if (salaries.length > 0) {
+        const paidSalaries = salaries.filter(s => s.status === 'Paid').length;
+        payrollProcessed = Math.round((paidSalaries / salaries.length) * 100);
+    }
 
     // Dynamic Chart Data based on employee records
     const departmentCounts = {};
