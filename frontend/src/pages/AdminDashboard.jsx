@@ -200,9 +200,10 @@ const AdminDashboard = () => {
                         <div className="bento-card-header">
                             <div className="bento-card-title"><Layers size={16} /> Material Overview</div>
                         </div>
-                        <div className="bento-card-body" style={{ height: '220px', display: 'flex', flexDirection: 'column' }}>
-                            <ResponsiveContainer width="100%" height="100%">
-                                <PieChart>
+                        <div className="bento-card-body" style={{ height: '220px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                            {materialOverviewData.length > 0 ? (
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <PieChart>
                                     <Pie
                                         data={materialOverviewData}
                                         cx="50%" cy="50%"
@@ -217,6 +218,9 @@ const AdminDashboard = () => {
                                     <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
                                 </PieChart>
                             </ResponsiveContainer>
+                            ) : (
+                                <span style={{ color: '#94a3b8', fontSize: '13px' }}>No materials available</span>
+                            )}
                         </div>
                     </div>
 
@@ -248,17 +252,21 @@ const AdminDashboard = () => {
                             <div className="bento-card-title"><Activity size={16} /> Recent Activity</div>
                         </div>
                         <div className="bento-card-body" style={{ height: '220px', overflowY: 'auto' }}>
-                            <div className="timeline">
-                                {recentActivities.map((activity, i) => (
-                                    <div className="timeline-item" key={activity.id || i}>
-                                        <div className="timeline-dot" style={{ borderColor: '#3b82f6' }}></div>
-                                        <div className="timeline-content">
-                                            <p style={{ margin: '0 0 2px 0', fontSize: '12px', fontWeight: 600, color: '#334155' }}>{activity.text}</p>
-                                            <span style={{ fontSize: '10px', color: '#94a3b8' }}>{activity.time ? new Date(activity.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'Just now'}</span>
+                            {recentActivities.length > 0 ? (
+                                <div className="timeline">
+                                    {recentActivities.map((activity, i) => (
+                                        <div className="timeline-item" key={activity.id || i}>
+                                            <div className="timeline-dot" style={{ borderColor: '#3b82f6' }}></div>
+                                            <div className="timeline-content">
+                                                <p style={{ margin: '0 0 2px 0', fontSize: '12px', fontWeight: 600, color: '#334155' }}>{activity.text}</p>
+                                                <span style={{ fontSize: '10px', color: '#94a3b8' }}>{activity.time ? new Date(activity.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'Just now'}</span>
+                                            </div>
                                         </div>
-                                    </div>
-                                ))}
-                            </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="flex-center" style={{ height: '100%', color: '#94a3b8', fontSize: '13px' }}>No recent activity</div>
+                            )}
                         </div>
                     </div>
 
@@ -286,11 +294,11 @@ const AdminDashboard = () => {
                             <div className="hr-stat-row">
                                 <div>
                                     <span className="stat-label">Pending Payroll</span>
-                                    <h4 className="stat-value text-primary">2</h4>
+                                    <h4 className="stat-value text-primary">{dashboard.stats?.pendingSalaries || 0}</h4>
                                 </div>
                                 <div>
                                     <span className="stat-label">Open Roles</span>
-                                    <h4 className="stat-value">5</h4>
+                                    <h4 className="stat-value">0</h4>
                                 </div>
                             </div>
                             <button className="action-btn-outline" style={{width: '100%', marginTop: 'auto', padding: '8px', borderRadius: '6px', border: '1px solid #e2e8f0', background: 'transparent', color: '#3b82f6', fontWeight: 600, fontSize: '12px', cursor: 'pointer'}}>View HRMS</button>
@@ -302,9 +310,10 @@ const AdminDashboard = () => {
                         <div className="bento-card-header">
                             <div className="bento-card-title"><TrendingUp size={16} /> Sales Pipeline</div>
                         </div>
-                        <div className="bento-card-body" style={{ height: '220px' }}>
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart layout="vertical" data={salesPipelineData} margin={{ top: 10, right: 10, left: 20, bottom: 0 }}>
+                        <div className="bento-card-body" style={{ height: '220px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                            {salesPipelineData.length > 0 ? (
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <BarChart layout="vertical" data={salesPipelineData} margin={{ top: 10, right: 10, left: 20, bottom: 0 }}>
                                     <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
                                     <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} />
                                     <YAxis dataKey="stage" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#334155', fontWeight: 500 }} />
@@ -316,6 +325,9 @@ const AdminDashboard = () => {
                                     </Bar>
                                 </BarChart>
                             </ResponsiveContainer>
+                            ) : (
+                                <span style={{ color: '#94a3b8', fontSize: '13px' }}>No orders found</span>
+                            )}
                         </div>
                     </div>
 
@@ -324,16 +336,20 @@ const AdminDashboard = () => {
                         <div className="bento-card-header">
                             <div className="bento-card-title"><Activity size={16} /> Revenue Overview</div>
                         </div>
-                        <div className="bento-card-body" style={{ height: '220px' }}>
-                            <ResponsiveContainer width="100%" height="100%">
-                                <LineChart data={revenueData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+                        <div className="bento-card-body" style={{ height: '220px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                            {revenueData.length > 0 ? (
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <LineChart data={revenueData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                                     <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} dy={10} />
                                     <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} />
                                     <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
-                                    <Line type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3, strokeWidth: 2 }} activeDot={{ r: 5 }} />
-                                </LineChart>
-                            </ResponsiveContainer>
+                                    <Line type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={1} dot={{ r: 1, strokeWidth: 1 }} activeDot={{ r: 1 }} />
+                                    </LineChart>
+                                </ResponsiveContainer>
+                            ) : (
+                                <span style={{ color: '#94a3b8', fontSize: '13px' }}>No revenue data available</span>
+                            )}
                         </div>
                     </div>
 

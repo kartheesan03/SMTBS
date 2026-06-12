@@ -204,8 +204,8 @@ const HRReports = () => {
 
     // Fallback Mock Datasets
     const mockKPIs = {
-        totalEmployees: stats?.hrStats?.totalEmployees ?? stats?.stats?.totalEmployees ?? 10,
-        attendanceRate: '96.2%',
+        totalEmployees: stats?.hrStats?.totalEmployees ?? stats?.stats?.totalEmployees ?? 0,
+        attendanceRate: stats?.hrStats?.attendanceRate ?? '0%',
         onLeave: stats?.hrStats?.onLeave ?? 0,
         newJoiners: stats?.hrStats?.newJoiners ?? 0
     };
@@ -214,15 +214,9 @@ const HRReports = () => {
         ? stats.hrStats.attendanceHistory.map(day => ({
             name: day.name,
             Present: day.employees,
-            Rate: ((day.employees / (stats.hrStats.totalEmployees || 10)) * 100).toFixed(1)
+            Rate: ((day.employees / (stats.hrStats.totalEmployees || 1)) * 100).toFixed(1)
           }))
-        : [
-            { name: 'Mon', Present: 9, Rate: 90.0 },
-            { name: 'Tue', Present: 10, Rate: 100.0 },
-            { name: 'Wed', Present: 10, Rate: 100.0 },
-            { name: 'Thu', Present: 9, Rate: 90.0 },
-            { name: 'Fri', Present: 10, Rate: 100.0 }
-        ];
+        : [];
 
     const mockEmployeeDistribution = (stats?.hrStats?.employeeDistribution && stats.hrStats.employeeDistribution.length > 0)
         ? stats.hrStats.employeeDistribution.map(dept => ({
@@ -231,13 +225,7 @@ const HRReports = () => {
             percentage: dept.percentage,
             color: dept.color
           }))
-        : [
-            { name: 'Engineering', Count: 4, color: 'var(--dash-primary, #3b82f6)' },
-            { name: 'Sales & BD', Count: 2, color: 'var(--dash-purple, #8b5cf6)' },
-            { name: 'Operations', Count: 2, color: 'var(--dash-teal, #14b8a6)' },
-            { name: 'HR & Admin', Count: 1, color: 'var(--dash-success, #10b981)' },
-            { name: 'Finance', Count: 1, color: 'var(--dash-warning, #f59e0b)' }
-        ];
+        : [];
 
     const CustomTooltip = ({ active, payload, label }) => {
         if (active && payload && payload.length) {
@@ -381,22 +369,28 @@ const HRReports = () => {
                             <h3>Workforce Presence Trend</h3>
                             <span className="badge-glow-blue">Weekly Log</span>
                         </div>
-                        <div className="chart-body">
-                            <ResponsiveContainer width="100%" height={260}>
-                                <AreaChart data={mockAttendanceHistory} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
-                                    <defs>
-                                        <linearGradient id="cyberArea" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="var(--dash-primary, #3b82f6)" stopOpacity={0.2} />
-                                            <stop offset="95%" stopColor="var(--dash-primary, #3b82f6)" stopOpacity={0.0} />
-                                        </linearGradient>
-                                    </defs>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.03)" />
-                                    <XAxis dataKey="name" stroke="var(--dash-text-muted, #64748b)" fontSize={11} tickLine={false} />
-                                    <YAxis stroke="var(--dash-text-muted, #64748b)" fontSize={11} tickLine={false} axisLine={false} domain={[80, 100]} />
-                                    <Tooltip content={<CustomTooltip />} />
-                                    <Area type="monotone" dataKey="Rate" stroke="var(--dash-primary, #3b82f6)" strokeWidth={2.5} fill="url(#cyberArea)" name="Presence Rate" />
-                                </AreaChart>
-                            </ResponsiveContainer>
+                        <div className="chart-body" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                            {mockAttendanceHistory.length > 0 ? (
+                                <ResponsiveContainer width="100%" height={260}>
+                                    <AreaChart data={mockAttendanceHistory} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+                                        <defs>
+                                            <linearGradient id="cyberArea" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="5%" stopColor="var(--dash-primary, #3b82f6)" stopOpacity={0.2} />
+                                                <stop offset="95%" stopColor="var(--dash-primary, #3b82f6)" stopOpacity={0.0} />
+                                            </linearGradient>
+                                        </defs>
+                                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.03)" />
+                                        <XAxis dataKey="name" stroke="var(--dash-text-muted, #64748b)" fontSize={11} tickLine={false} />
+                                        <YAxis stroke="var(--dash-text-muted, #64748b)" fontSize={11} tickLine={false} axisLine={false} domain={[0, 100]} />
+                                        <Tooltip content={<CustomTooltip />} />
+                                        <Area type="monotone" dataKey="Rate" stroke="var(--dash-primary, #3b82f6)" strokeWidth={2.5} fill="url(#cyberArea)" name="Presence Rate" />
+                                    </AreaChart>
+                                </ResponsiveContainer>
+                            ) : (
+                                <div style={{ height: '260px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', fontSize: '13px' }}>
+                                    No attendance data available
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -406,20 +400,26 @@ const HRReports = () => {
                             <h3>Departmental Spread</h3>
                             <span className="badge-glow-purple">Active Roles</span>
                         </div>
-                        <div className="chart-body">
-                            <ResponsiveContainer width="100%" height={260}>
-                                <BarChart data={mockEmployeeDistribution} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.03)" />
-                                    <XAxis dataKey="name" stroke="var(--dash-text-muted, #64748b)" fontSize={10} tickLine={false} />
-                                    <YAxis stroke="var(--dash-text-muted, #64748b)" fontSize={11} tickLine={false} axisLine={false} />
-                                    <Tooltip content={<CustomTooltip />} />
-                                    <Bar dataKey="Count" radius={[6, 6, 0, 0]} name="Headcount">
-                                        {mockEmployeeDistribution.map((entry, index) => (
-                                            <Cell key={index} fill={entry.color || 'var(--dash-purple, #8b5cf6)'} />
-                                        ))}
-                                    </Bar>
-                                </BarChart>
-                            </ResponsiveContainer>
+                        <div className="chart-body" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                            {mockEmployeeDistribution.length > 0 ? (
+                                <ResponsiveContainer width="100%" height={260}>
+                                    <BarChart data={mockEmployeeDistribution} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+                                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.03)" />
+                                        <XAxis dataKey="name" stroke="var(--dash-text-muted, #64748b)" fontSize={10} tickLine={false} />
+                                        <YAxis stroke="var(--dash-text-muted, #64748b)" fontSize={11} tickLine={false} axisLine={false} />
+                                        <Tooltip content={<CustomTooltip />} />
+                                        <Bar dataKey="Count" radius={[6, 6, 0, 0]} name="Headcount">
+                                            {mockEmployeeDistribution.map((entry, index) => (
+                                                <Cell key={index} fill={entry.color || 'var(--dash-purple, #8b5cf6)'} />
+                                            ))}
+                                        </Bar>
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            ) : (
+                                <div style={{ height: '260px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', fontSize: '13px' }}>
+                                    No distribution data available
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

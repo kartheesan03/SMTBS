@@ -73,15 +73,19 @@ const Dashboard = () => {
                         <div className="glass-card chart-container">
                             <h3>Revenue & Sales Growth</h3>
                             <div style={{ height: 300, marginTop: 20 }}>
-                                <ResponsiveContainer>
-                                    <AreaChart data={data?.charts?.monthlyStats || []}>
-                                        <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} />
-                                        <YAxis stroke="#94a3b8" fontSize={12} />
-                                        <Tooltip contentStyle={{ background: '#0f172a', border: '1px solid #334155' }} />
-                                        <Area type="monotone" dataKey="revenue" stroke="#6366f1" fill="rgba(99, 102, 241, 0.2)" />
-                                        <Area type="monotone" dataKey="sales" stroke="#14b8a6" fill="rgba(20, 184, 166, 0.1)" />
-                                    </AreaChart>
-                                </ResponsiveContainer>
+                                {data?.charts?.monthlyStats?.length > 0 ? (
+                                    <ResponsiveContainer>
+                                        <AreaChart data={data.charts.monthlyStats}>
+                                            <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} />
+                                            <YAxis stroke="#94a3b8" fontSize={12} />
+                                            <Tooltip contentStyle={{ background: '#0f172a', border: '1px solid #334155' }} />
+                                            <Area type="monotone" dataKey="revenue" stroke="#6366f1" fill="rgba(99, 102, 241, 0.2)" />
+                                            <Area type="monotone" dataKey="sales" stroke="#14b8a6" fill="rgba(20, 184, 166, 0.1)" />
+                                        </AreaChart>
+                                    </ResponsiveContainer>
+                                ) : (
+                                    <div className="flex-center" style={{ height: '100%', color: '#94a3b8', fontSize: '14px' }}>No revenue data available</div>
+                                )}
                             </div>
                         </div>
                     ),
@@ -119,14 +123,18 @@ const Dashboard = () => {
                         <div className="glass-card chart-container">
                             <h3>Workforce Attendance Trends</h3>
                             <div style={{ height: 300, marginTop: 20 }}>
-                                <ResponsiveContainer>
-                                    <BarChart data={data?.charts?.attendanceHistory || []}>
-                                        <XAxis dataKey="name" stroke="#94a3b8" />
-                                        <YAxis stroke="#94a3b8" />
-                                        <Tooltip cursor={{fill: '#1e293b'}} contentStyle={{ background: '#0f172a', border: '1px solid #334155' }} />
-                                        <Bar dataKey="employees" fill="#6366f1" radius={[4, 4, 0, 0]} />
-                                    </BarChart>
-                                </ResponsiveContainer>
+                                {data?.charts?.attendanceHistory?.length > 0 ? (
+                                    <ResponsiveContainer>
+                                        <BarChart data={data.charts.attendanceHistory}>
+                                            <XAxis dataKey="name" stroke="#94a3b8" />
+                                            <YAxis stroke="#94a3b8" />
+                                            <Tooltip cursor={{fill: '#1e293b'}} contentStyle={{ background: '#0f172a', border: '1px solid #334155' }} />
+                                            <Bar dataKey="employees" fill="#6366f1" radius={[4, 4, 0, 0]} />
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                ) : (
+                                    <div className="flex-center" style={{ height: '100%', color: '#94a3b8', fontSize: '14px' }}>No attendance data available</div>
+                                )}
                             </div>
                         </div>
                     ),
@@ -163,15 +171,19 @@ const Dashboard = () => {
                         <div className="glass-card chart-container flex-col-center">
                             <h3>Lead Conversion Rate</h3>
                             <div style={{ height: 250, width: '100%', marginTop: 20 }}>
-                                <ResponsiveContainer>
-                                    <PieChart>
-                                        <Pie data={data?.charts?.conversionRate || []} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
-                                            <Cell fill="#6366f1" />
-                                            <Cell fill="#1e293b" />
-                                        </Pie>
-                                        <Tooltip />
-                                    </PieChart>
-                                </ResponsiveContainer>
+                                {data?.charts?.conversionRate?.length > 0 ? (
+                                    <ResponsiveContainer>
+                                        <PieChart>
+                                            <Pie data={data.charts.conversionRate} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
+                                                <Cell fill="#6366f1" />
+                                                <Cell fill="#1e293b" />
+                                            </Pie>
+                                            <Tooltip />
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                ) : (
+                                    <div className="flex-center" style={{ height: '100%', color: '#94a3b8', fontSize: '14px' }}>No conversion data available</div>
+                                )}
                             </div>
                         </div>
                     ),

@@ -14,10 +14,22 @@ const ManagerDashboard = () => {
     const [dashboardData, setDashboardData] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    const [ordersData, setOrdersData] = useState([]);
+    const [employeesData, setEmployeesData] = useState([]);
+    const [tasksData, setTasksData] = useState([]);
+
     const fetchDashboardData = async () => {
         try {
-            const response = await API.get('/dashboard/stats');
-            setDashboardData(response.data);
+            const [dashRes, ordRes, empRes, taskRes] = await Promise.all([
+                API.get('/dashboard/stats'),
+                API.get('/orders'),
+                API.get('/employees'),
+                API.get('/tasks')
+            ]);
+            setDashboardData(dashRes.data);
+            setOrdersData(ordRes.data || []);
+            setEmployeesData(empRes.data || []);
+            setTasksData(taskRes.data || []);
         } catch (error) {
             console.error("Failed to load dashboard stats", error);
             setDashboardData({});
@@ -43,33 +55,40 @@ const ManagerDashboard = () => {
     const dashboard = dashboardData || {};
 
     // KPIs
-    const teamMembers = 14; // Simulated
-    const activeProjects = 5; // Simulated
-    const pendingApprovals = 8; // Simulated
-    const completedTasks = 42; // Simulated
-    const teamProductivity = 94; // Simulated percentage
-    const departmentRevenue = 125000; // Simulated
+    const teamMembers = employeesData.length;
+    const activeProjects = ordersData.filter(o => ['Pending', 'Awaiting Approval', 'Approved', 'In Progress'].includes(o.status)).length;
+    const pendingApprovals = ordersData.filter(o => o.status === 'Awaiting Approval').length;
+    
+    // Process Tasks Data
+    let completedTasksCount = 0;
+    let pendingTasksCount = 0;
+    
+    tasksData.forEach(task => {
+        if (task.status === 'Completed' || task.status === 'Done') {
+            completedTasksCount++;
+        } else {
+            pendingTasksCount++;
+        }
+    });
+
+    const completedTasks = completedTasksCount;
+    const totalTasks = completedTasksCount + pendingTasksCount;
+    const teamProductivity = totalTasks > 0 ? Math.round((completedTasksCount / totalTasks) * 100) : 0;
+    const departmentRevenue = dashboardData.totalRevenue || 0;
 
     // Charts Data
-    const teamPerformanceData = [
-        { name: 'Mon', completed: 12, pending: 4 },
-        { name: 'Tue', completed: 15, pending: 3 },
-        { name: 'Wed', completed: 10, pending: 8 },
-        { name: 'Thu', completed: 18, pending: 2 },
-        { name: 'Fri', completed: 14, pending: 5 },
-    ];
+    const teamPerformanceData = [];
+    const teamAttendanceData = [];
 
-    const teamAttendanceData = [
-        { name: 'Present', value: 12, color: '#10b981' },
-        { name: 'On Leave', value: 2, color: '#f59e0b' }
-    ];
-
-    const projectStatusData = [
-        { id: 1, name: 'ERP Phase 2', progress: 75, status: 'On Track' },
-        { id: 2, name: 'Q3 Marketing', progress: 40, status: 'At Risk' },
-        { id: 3, name: 'Vendor Portal', progress: 90, status: 'On Track' },
-        { id: 4, name: 'Security Audit', progress: 100, status: 'Completed' },
-    ];
+    const projectStatusData = ordersData
+        .filter(o => o.status && o.status !== 'Completed' && o.status !== 'Delivered' && o.status !== 'Cancelled')
+        .slice(0, 4)
+        .map(o => ({
+            id: o._id,
+            name: o.description || `Order ${o.orderNumber || ''}`,
+            progress: o.status === 'In Progress' ? 50 : (o.status === 'Approved' ? 25 : 10),
+            status: o.status
+        }));
 
     return (
         <div className="role-dashboard-layout">
@@ -150,18 +169,22 @@ const ManagerDashboard = () => {
                         <div className="bento-card-header">
                             <div className="bento-card-title"><Activity size={16} /> Team Performance</div>
                         </div>
-                        <div className="bento-card-body" style={{ display: 'block', padding: '20px 10px 10px 10px' }}>
-                            <ResponsiveContainer width="100%" height={300}>
-                                <LineChart data={teamPerformanceData} margin={{ top: 5, right: 20, left: -20, bottom: 5 }}>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} dy={10} />
-                                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} />
-                                    <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
-                                    <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} iconType="circle" />
-                                    <Line type="monotone" dataKey="completed" name="Completed" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} activeDot={{ r: 6 }} />
-                                    <Line type="monotone" dataKey="pending" name="Pending" stroke="#ef4444" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} />
-                                </LineChart>
-                            </ResponsiveContainer>
+                        <div className="bento-card-body" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px 10px 10px 10px', height: '320px' }}>
+                            {teamPerformanceData.length > 0 ? (
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <LineChart data={teamPerformanceData} margin={{ top: 5, right: 20, left: -20, bottom: 5 }}>
+                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} dy={10} />
+                                        <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} />
+                                        <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
+                                        <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} iconType="circle" />
+                                        <Line type="monotone" dataKey="completed" name="Completed" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} activeDot={{ r: 6 }} />
+                                        <Line type="monotone" dataKey="pending" name="Pending" stroke="#ef4444" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} />
+                                    </LineChart>
+                                </ResponsiveContainer>
+                            ) : (
+                                <span style={{ color: '#94a3b8', fontSize: '13px' }}>No performance data available</span>
+                            )}
                         </div>
                     </div>
 
@@ -169,27 +192,31 @@ const ManagerDashboard = () => {
                         <div className="bento-card-header">
                             <div className="bento-card-title"><Briefcase size={16} /> Project Status</div>
                         </div>
-                        <div className="bento-card-body" style={{ height: '300px', overflowY: 'auto', padding: '20px' }}>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                                {projectStatusData.map(proj => (
-                                    <div key={proj.id} style={{ background: '#f8fafc', padding: '16px', borderRadius: '12px', border: '1px solid #f1f5f9' }}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-                                            <span style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>{proj.name}</span>
-                                            <span style={{ 
-                                                fontSize: '11px', fontWeight: 700, padding: '4px 8px', borderRadius: '6px',
-                                                background: proj.status === 'Completed' ? '#ecfdf5' : proj.status === 'At Risk' ? '#fee2e2' : '#eff6ff',
-                                                color: proj.status === 'Completed' ? '#059669' : proj.status === 'At Risk' ? '#ef4444' : '#3b82f6'
-                                            }}>{proj.status}</span>
+                        <div className="bento-card-body" style={{ height: '300px', overflowY: 'auto', padding: '20px', display: 'flex', flexDirection: 'column' }}>
+                            {projectStatusData.length > 0 ? (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                    {projectStatusData.map(proj => (
+                                        <div key={proj.id} style={{ background: '#f8fafc', padding: '16px', borderRadius: '12px', border: '1px solid #f1f5f9' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+                                                <span style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>{proj.name}</span>
+                                                <span style={{ 
+                                                    fontSize: '11px', fontWeight: 700, padding: '4px 8px', borderRadius: '6px',
+                                                    background: proj.status === 'Completed' ? '#ecfdf5' : proj.status === 'At Risk' ? '#fee2e2' : '#eff6ff',
+                                                    color: proj.status === 'Completed' ? '#059669' : proj.status === 'At Risk' ? '#ef4444' : '#3b82f6'
+                                                }}>{proj.status}</span>
+                                            </div>
+                                            <div style={{ background: '#e2e8f0', height: '8px', borderRadius: '4px', overflow: 'hidden' }}>
+                                                <div style={{ 
+                                                    height: '100%', width: `${proj.progress}%`, borderRadius: '4px',
+                                                    background: proj.status === 'Completed' ? '#10b981' : proj.status === 'At Risk' ? '#ef4444' : '#3b82f6'
+                                                }}></div>
+                                            </div>
                                         </div>
-                                        <div style={{ background: '#e2e8f0', height: '8px', borderRadius: '4px', overflow: 'hidden' }}>
-                                            <div style={{ 
-                                                height: '100%', width: `${proj.progress}%`, borderRadius: '4px',
-                                                background: proj.status === 'Completed' ? '#10b981' : proj.status === 'At Risk' ? '#ef4444' : '#3b82f6'
-                                            }}></div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div style={{ margin: 'auto', color: '#94a3b8', fontSize: '13px' }}>No active projects found</div>
+                            )}
                         </div>
                     </div>
 
@@ -197,22 +224,28 @@ const ManagerDashboard = () => {
                         <div className="bento-card-header">
                             <div className="bento-card-title"><Users size={16} /> Team Attendance</div>
                         </div>
-                        <div className="bento-card-body" style={{ display: 'block', padding: '10px', position: 'relative' }}>
-                            <div className="chart-center-text" style={{ marginTop: '-20px' }}>
-                                <h3>{teamMembers}</h3>
-                                <span>Total</span>
-                            </div>
-                            <ResponsiveContainer width="100%" height={300}>
-                                <PieChart>
-                                    <Pie data={teamAttendanceData} cx="50%" cy="45%" innerRadius={65} outerRadius={90} paddingAngle={2} dataKey="value" stroke="none">
-                                        {teamAttendanceData.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={entry.color} />
-                                        ))}
-                                    </Pie>
-                                    <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
-                                    <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '11px', paddingTop: '0px' }} />
-                                </PieChart>
-                            </ResponsiveContainer>
+                        <div className="bento-card-body" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '10px', position: 'relative', height: '320px' }}>
+                            {teamAttendanceData.length > 0 ? (
+                                <>
+                                    <div className="chart-center-text" style={{ marginTop: '-20px' }}>
+                                        <h3>{teamMembers}</h3>
+                                        <span>Total</span>
+                                    </div>
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <PieChart>
+                                            <Pie data={teamAttendanceData} cx="50%" cy="45%" innerRadius={65} outerRadius={90} paddingAngle={2} dataKey="value" stroke="none">
+                                                {teamAttendanceData.map((entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={entry.color} />
+                                                ))}
+                                            </Pie>
+                                            <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
+                                            <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '11px', paddingTop: '0px' }} />
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                </>
+                            ) : (
+                                <span style={{ color: '#94a3b8', fontSize: '13px' }}>No attendance data available</span>
+                            )}
                         </div>
                     </div>
                 </div>

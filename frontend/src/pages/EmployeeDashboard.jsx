@@ -13,11 +13,19 @@ const EmployeeDashboard = () => {
     const [dashboardData, setDashboardData] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    const [tasksData, setTasksData] = useState([]);
+    const [ordersData, setOrdersData] = useState([]);
+
     const fetchDashboardData = async () => {
         try {
-            // Reusing the same endpoint, but mapping data for Employee context
-            const response = await API.get('/dashboard/stats');
-            setDashboardData(response.data);
+            const [dashRes, taskRes, ordRes] = await Promise.all([
+                API.get('/dashboard/stats'),
+                API.get('/tasks').catch(() => ({ data: [] })),
+                API.get('/orders').catch(() => ({ data: [] }))
+            ]);
+            setDashboardData(dashRes.data);
+            setTasksData(taskRes.data || []);
+            setOrdersData(ordRes.data || []);
         } catch (error) {
             console.error("Failed to load dashboard stats", error);
             setDashboardData({});
@@ -43,28 +51,31 @@ const EmployeeDashboard = () => {
     const dashboard = dashboardData || {};
 
     // KPIs
-    const attendanceStatus = "Present"; 
-    const pendingTasks = 5; // Simulated
-    const assignedProjects = 3; // Simulated
-    const leaveBalance = 14; // Simulated days
-    const salarySlip = "Generated"; // Simulated
-    const unreadNotifications = 2; // Simulated
+    const attendanceStatus = "Pending"; 
+    
+    // Calculate pending tasks from real tasks data
+    const pendingTasks = tasksData.filter(t => t.status !== 'Completed' && t.status !== 'Done').length;
+    
+    // Calculate active projects
+    const assignedProjects = ordersData.filter(o => ['In Progress', 'Approved'].includes(o.status)).length;
+    
+    const leaveBalance = 0; // Fetch from leaves API if available
+    const salarySlip = "Not Generated";
+    const unreadNotifications = 0;
 
     // Charts Data
-    const myAttendanceData = [
-        { name: 'Mon', hours: 8.5, fill: '#3b82f6' },
-        { name: 'Tue', hours: 8.0, fill: '#3b82f6' },
-        { name: 'Wed', hours: 9.2, fill: '#3b82f6' },
-        { name: 'Thu', hours: 8.5, fill: '#3b82f6' },
-        { name: 'Fri', hours: 7.8, fill: '#10b981' },
-    ];
+    const myAttendanceData = [];
 
-    const myTasks = [
-        { id: 1, title: 'Update HR documentation', priority: 'High', status: 'In Progress', due: 'Today' },
-        { id: 2, title: 'Review Q3 Sales Deck', priority: 'Medium', status: 'Pending', due: 'Tomorrow' },
-        { id: 3, title: 'Submit Expense Report', priority: 'Low', status: 'Completed', due: 'Next Week' },
-        { id: 4, title: 'Team Sync Preparation', priority: 'Medium', status: 'Pending', due: 'Wednesday' },
-    ];
+    const myTasks = tasksData
+        .filter(t => t.status !== 'Completed' && t.status !== 'Done')
+        .slice(0, 5)
+        .map((t, index) => ({
+            id: t._id || index,
+            title: t.title || t.description || 'Task',
+            priority: t.priority || 'Medium',
+            status: t.status || 'Pending',
+            due: t.dueDate ? new Date(t.dueDate).toLocaleDateString() : 'N/A'
+        }));
 
     const rightPanelFeatures = [
         { title: 'My Schedule', icon: <Calendar size={16} /> },
@@ -74,10 +85,7 @@ const EmployeeDashboard = () => {
         { title: 'Company Policies', icon: <Star size={16} /> }
     ];
 
-    const upcomingEvents = [
-        { id: 1, title: 'All-Hands Meeting', date: 'Tomorrow, 10:00 AM' },
-        { id: 2, title: 'Project Kickoff', date: 'Thursday, 2:00 PM' }
-    ];
+    const upcomingEvents = [];
 
     return (
         <div className="role-dashboard-layout">
@@ -169,20 +177,24 @@ const EmployeeDashboard = () => {
                         <div className="bento-card-header">
                             <div className="bento-card-title"><Clock size={16} /> My Attendance (Hours)</div>
                         </div>
-                        <div className="bento-card-body" style={{ height: '280px' }}>
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={myAttendanceData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} dy={10} />
-                                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} />
-                                    <RechartsTooltip cursor={{fill: 'transparent'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
-                                    <Bar dataKey="hours" radius={[4, 4, 0, 0]} barSize={24}>
-                                        {myAttendanceData.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={entry.fill} />
-                                        ))}
-                                    </Bar>
-                                </BarChart>
-                            </ResponsiveContainer>
+                        <div className="bento-card-body" style={{ height: '280px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                            {myAttendanceData.length > 0 ? (
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <BarChart data={myAttendanceData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} dy={10} />
+                                        <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} />
+                                        <RechartsTooltip cursor={{fill: 'transparent'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
+                                        <Bar dataKey="hours" radius={[4, 4, 0, 0]} barSize={24}>
+                                            {myAttendanceData.map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={entry.fill} />
+                                            ))}
+                                        </Bar>
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            ) : (
+                                <span style={{ color: '#94a3b8', fontSize: '13px' }}>No attendance data available</span>
+                            )}
                         </div>
                     </div>
 
@@ -203,7 +215,7 @@ const EmployeeDashboard = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {myTasks.map(task => (
+                                    {myTasks.length > 0 ? myTasks.map(task => (
                                         <tr key={task.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
                                             <td style={{ padding: '12px 8px', fontWeight: 600, color: '#334155' }}>{task.title}</td>
                                             <td style={{ padding: '12px 8px' }}>
@@ -225,7 +237,13 @@ const EmployeeDashboard = () => {
                                                 <button style={{ background: 'transparent', color: '#3b82f6', border: '1px solid #e2e8f0', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontWeight: 600 }}>Update</button>
                                             </td>
                                         </tr>
-                                    ))}
+                                    )) : (
+                                        <tr>
+                                            <td colSpan="5" style={{ padding: '30px', textAlign: 'center', color: '#94a3b8', fontSize: '13px' }}>
+                                                No tasks found.
+                                            </td>
+                                        </tr>
+                                    )}
                                 </tbody>
                             </table>
                         </div>
@@ -252,12 +270,16 @@ const EmployeeDashboard = () => {
 
                     <div className="system-status-block" style={{ marginTop: '20px', background: '#f8fafc', border: '1px solid #e2e8f0' }}>
                         <h4 style={{ color: '#334155', margin: '0 0 8px 0', fontSize: '13px' }}><Calendar size={14} style={{display:'inline', marginBottom:'-2px'}}/> Upcoming Events</h4>
-                        {upcomingEvents.map(event => (
+                        {upcomingEvents.length > 0 ? upcomingEvents.map(event => (
                             <div key={event.id} style={{ padding: '8px', background: '#ffffff', border: '1px solid #f1f5f9', borderRadius: '6px', marginBottom: '8px' }}>
                                 <div style={{ fontSize: '12px', fontWeight: 600, color: '#0f172a' }}>{event.title}</div>
                                 <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>{event.date}</div>
                             </div>
-                        ))}
+                        )) : (
+                            <div style={{ padding: '15px', textAlign: 'center', color: '#94a3b8', fontSize: '13px', background: '#ffffff', border: '1px solid #f1f5f9', borderRadius: '6px' }}>
+                                No upcoming events
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

@@ -14,10 +14,22 @@ const SalesDashboard = () => {
     const [dashboardData, setDashboardData] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    const [ordersData, setOrdersData] = useState([]);
+    const [customersData, setCustomersData] = useState([]);
+    const [employeesData, setEmployeesData] = useState([]);
+
     const fetchDashboardData = async () => {
         try {
-            const response = await API.get('/dashboard/stats');
-            setDashboardData(response.data);
+            const [dashRes, ordRes, custRes, empRes] = await Promise.all([
+                API.get('/dashboard/stats'),
+                API.get('/orders'),
+                API.get('/customers'),
+                API.get('/employees')
+            ]);
+            setDashboardData(dashRes.data);
+            setOrdersData(ordRes.data || []);
+            setCustomersData(Array.isArray(custRes.data) ? custRes.data : []);
+            setEmployeesData(empRes.data || []);
         } catch (error) {
             console.error("Failed to load dashboard stats", error);
             setDashboardData({});
@@ -43,46 +55,51 @@ const SalesDashboard = () => {
     const dashboard = dashboardData || {};
     const charts = dashboard.charts || {};
 
-    // KPIs
-    const totalLeads = 345; // Simulated
-    const qualifiedLeads = 120; // Simulated
-    const openOpportunities = 45; // Simulated
-    const closedDeals = 28; // Simulated
+    // Dynamic KPIs based on real data
+    const totalLeads = customersData.filter(c => c.status === 'Lead').length;
+    const qualifiedLeads = customersData.filter(c => c.status === 'Active').length;
+    const salesOrders = ordersData.filter(o => {
+        const t = String(o.orderType || '').toUpperCase();
+        return t.includes('SALES');
+    });
+    
+    const openOpportunities = salesOrders.filter(o => !['Delivered', 'Completed', 'Cancelled'].includes(o.status)).length;
+    const closedDeals = salesOrders.filter(o => ['Delivered', 'Completed'].includes(o.status)).length;
     const monthlyRevenue = dashboardData.totalRevenue || 0;
-    const targetAchievement = 82; // Simulated %
+    const targetAchievement = 0; // Set to 0 since no sales targets are configured
 
     // Charts Data
     const salesFunnelData = [
-        { stage: 'Leads', value: 345, fill: '#e2e8f0' },
-        { stage: 'Qualified', value: 120, fill: '#94a3b8' },
-        { stage: 'Proposals', value: 75, fill: '#64748b' },
-        { stage: 'Negotiation', value: 45, fill: '#475569' },
-        { stage: 'Closed Won', value: 28, fill: '#3b82f6' },
+        { stage: 'Leads', value: totalLeads, fill: '#e2e8f0' },
+        { stage: 'Qualified', value: qualifiedLeads, fill: '#94a3b8' },
+        { stage: 'Proposals', value: openOpportunities, fill: '#64748b' },
+        { stage: 'Closed Won', value: closedDeals, fill: '#3b82f6' },
     ];
 
     const revenueTrendData = charts.monthlyStats && charts.monthlyStats.length > 0 
         ? charts.monthlyStats 
-        : [
-            { name: 'Jan', revenue: 4000 },
-            { name: 'Feb', revenue: 3000 },
-            { name: 'Mar', revenue: 2000 },
-            { name: 'Apr', revenue: 2780 },
-            { name: 'May', revenue: 1890 },
-            { name: 'Jun', revenue: 2390 },
-        ];
+        : [];
 
-    const leadSourceData = [
-        { name: 'Organic Search', value: 40, color: '#3b82f6' },
-        { name: 'Referrals', value: 25, color: '#10b981' },
-        { name: 'Social Media', value: 20, color: '#f59e0b' },
-        { name: 'Direct', value: 15, color: '#8b5cf6' },
-    ];
+    const leadSourceData = customersData.reduce((acc, c) => {
+        const source = c.source || 'Other';
+        const existing = acc.find(x => x.name === source);
+        if (existing) {
+            existing.value += 1;
+        } else {
+            acc.push({ name: source, value: 1, color: '#' + Math.floor(Math.random()*16777215).toString(16) });
+        }
+        return acc;
+    }, []);
 
-    const topExecutives = [
-        { id: 1, name: 'Alice Smith', deals: 12, revenue: '$45,000', status: 'On Target' },
-        { id: 2, name: 'Bob Johnson', deals: 8, revenue: '$32,000', status: 'On Target' },
-        { id: 3, name: 'Charlie Brown', deals: 5, revenue: '$18,000', status: 'Behind' },
-    ];
+    const topExecutives = employeesData
+        .filter(e => String(e.department || '').toLowerCase().includes('sales'))
+        .map(e => ({
+            id: e._id,
+            name: `${e.firstName} ${e.lastName || ''}`,
+            deals: 0,
+            revenue: '$0',
+            status: 'Active'
+        }));
 
     const rightPanelFeatures = [
         { title: 'Lead Management', icon: <Filter size={16} /> },
@@ -174,20 +191,24 @@ const SalesDashboard = () => {
                         <div className="bento-card-header">
                             <div className="bento-card-title"><Filter size={16} /> Sales Funnel</div>
                         </div>
-                        <div className="bento-card-body" style={{ display: 'block', padding: '20px 10px 10px 10px' }}>
-                            <ResponsiveContainer width="100%" height={300}>
-                                <BarChart layout="vertical" data={salesFunnelData} margin={{ top: 10, right: 10, left: 20, bottom: 0 }}>
-                                    <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
-                                    <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} />
-                                    <YAxis dataKey="stage" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#334155' }} />
-                                    <RechartsTooltip cursor={{fill: 'transparent'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
-                                    <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={24}>
-                                        {salesFunnelData.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={entry.fill} />
-                                        ))}
-                                    </Bar>
-                                </BarChart>
-                            </ResponsiveContainer>
+                        <div className="bento-card-body" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px 10px 10px 10px', height: '320px' }}>
+                            {salesFunnelData.some(d => d.value > 0) ? (
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <BarChart layout="vertical" data={salesFunnelData} margin={{ top: 10, right: 10, left: 20, bottom: 0 }}>
+                                        <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
+                                        <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} />
+                                        <YAxis dataKey="stage" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#334155' }} />
+                                        <RechartsTooltip cursor={{fill: 'transparent'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
+                                        <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={24}>
+                                            {salesFunnelData.map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={entry.fill} />
+                                            ))}
+                                        </Bar>
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            ) : (
+                                <span style={{ color: '#94a3b8', fontSize: '13px' }}>No sales data available</span>
+                            )}
                         </div>
                     </div>
 
@@ -195,16 +216,20 @@ const SalesDashboard = () => {
                         <div className="bento-card-header">
                             <div className="bento-card-title"><TrendingUp size={16} /> Revenue Trend</div>
                         </div>
-                        <div className="bento-card-body" style={{ display: 'block', padding: '20px 10px 10px 10px' }}>
-                            <ResponsiveContainer width="100%" height={300}>
-                                <LineChart data={revenueTrendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} dy={10} />
-                                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} />
-                                    <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
-                                    <Line type="monotone" dataKey="revenue" stroke="#10b981" strokeWidth={2} dot={{ r: 3, strokeWidth: 2 }} activeDot={{ r: 6 }} />
-                                </LineChart>
-                            </ResponsiveContainer>
+                        <div className="bento-card-body" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px 10px 10px 10px', height: '320px' }}>
+                            {revenueTrendData.length > 0 ? (
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <LineChart data={revenueTrendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} dy={10} />
+                                        <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} />
+                                        <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
+                                        <Line type="monotone" dataKey="revenue" stroke="#10b981" strokeWidth={2} dot={{ r: 3, strokeWidth: 2 }} activeDot={{ r: 6 }} />
+                                    </LineChart>
+                                </ResponsiveContainer>
+                            ) : (
+                                <span style={{ color: '#94a3b8', fontSize: '13px' }}>No revenue data available</span>
+                            )}
                         </div>
                     </div>
 
@@ -212,17 +237,21 @@ const SalesDashboard = () => {
                         <div className="bento-card-header">
                             <div className="bento-card-title"><Activity size={16} /> Lead Source Distribution</div>
                         </div>
-                        <div className="bento-card-body" style={{ display: 'block', padding: '10px', position: 'relative' }}>
-                            <ResponsiveContainer width="100%" height={300}>
-                                <PieChart>
-                                    <Pie data={leadSourceData} cx="50%" cy="50%" innerRadius={70} outerRadius={110} paddingAngle={3} dataKey="value" stroke="none">
-                                        {leadSourceData.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={entry.color} />
-                                        ))}
-                                    </Pie>
-                                    <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
-                                </PieChart>
-                            </ResponsiveContainer>
+                        <div className="bento-card-body" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '10px', position: 'relative', height: '320px' }}>
+                            {leadSourceData.length > 0 ? (
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <PieChart>
+                                        <Pie data={leadSourceData} cx="50%" cy="50%" innerRadius={70} outerRadius={110} paddingAngle={3} dataKey="value" stroke="none">
+                                            {leadSourceData.map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={entry.color} />
+                                            ))}
+                                        </Pie>
+                                        <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
+                                    </PieChart>
+                                </ResponsiveContainer>
+                            ) : (
+                                <span style={{ color: '#94a3b8', fontSize: '13px' }}>No lead sources found</span>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -244,7 +273,7 @@ const SalesDashboard = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {topExecutives.map(exec => (
+                                    {topExecutives.length > 0 ? topExecutives.map(exec => (
                                         <tr key={exec.id} style={{ borderBottom: '1px solid #f1f5f9', transition: 'background 0.2s' }} onMouseOver={e => e.currentTarget.style.background='#f8fafc'} onMouseOut={e => e.currentTarget.style.background='transparent'}>
                                             <td style={{ padding: '16px 20px', fontWeight: 600, color: '#334155' }}>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -262,7 +291,13 @@ const SalesDashboard = () => {
                                                 }}>{exec.status}</span>
                                             </td>
                                         </tr>
-                                    ))}
+                                    )) : (
+                                        <tr>
+                                            <td colSpan="4" style={{ padding: '30px', textAlign: 'center', color: '#94a3b8', fontSize: '13px' }}>
+                                                No sales executives found.
+                                            </td>
+                                        </tr>
+                                    )}
                                 </tbody>
                             </table>
                         </div>

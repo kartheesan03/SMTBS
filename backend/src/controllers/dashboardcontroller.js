@@ -205,15 +205,8 @@ const getDashboardStats = async (req, res) => {
             }));
             
             if (data.charts.payrollData.length === 0) {
-                 // Fallback mock if no salaries approved yet
-                 data.charts.payrollData = [
-                    { name: 'Jan', amount: 40000 },
-                    { name: 'Feb', amount: 42000 },
-                    { name: 'Mar', amount: 41000 },
-                    { name: 'Apr', amount: 45000 },
-                    { name: 'May', amount: 48000 },
-                    { name: 'Jun', amount: 47000 },
-                 ];
+                 // Return empty array instead of fallback mock
+                 data.charts.payrollData = [];
             }
         } catch (e) { console.error('Payroll Aggregation Error:', e); }
 
@@ -272,8 +265,31 @@ const getDashboardStats = async (req, res) => {
                     attendanceHistory.push({ name: dayName, employees: count });
                 }
 
-                const presentToday = await Attendance.countDocuments({ date: { $gte: todayStart, $lte: todayEnd }, status: { $in: ['Present', 'Late'] } });
-                const absentToday = await Attendance.countDocuments({ date: { $gte: todayStart, $lte: todayEnd }, status: 'Absent' });
+                const allAttendances = await Attendance.find({ date: { $gte: todayStart, $lte: todayEnd } });
+                const allLeaves = await Leave.find({ status: 'Approved', startDate: { $lte: todayEnd }, endDate: { $gte: todayStart } });
+                const attendanceMap = {};
+                allAttendances.forEach(a => { attendanceMap[a.employeeId?.toString()] = a; });
+                const leaveMap = {};
+                allLeaves.forEach(l => { leaveMap[l.employeeId?.toString()] = true; });
+
+                const now = new Date();
+                const defaultStatus = now.getHours() < 14 ? 'Pending' : 'Absent';
+
+                const allEmployees = await Employee.find({});
+                let presentToday = 0;
+                let absentToday = 0;
+
+                allEmployees.forEach(emp => {
+                    const empId = emp.id?.toString();
+                    let finalStatus = defaultStatus;
+                    if (attendanceMap[empId]) {
+                        finalStatus = attendanceMap[empId].status;
+                    } else if (leaveMap[empId]) {
+                        finalStatus = 'On Leave';
+                    }
+                    if (finalStatus === 'Present' || finalStatus === 'Late') presentToday++;
+                    if (finalStatus === 'Absent') absentToday++;
+                });
                 const onLeave = await Leave.countDocuments({ status: 'Approved', startDate: { $lte: todayEnd }, endDate: { $gte: todayStart } });
                 const pendingLeaves = await Leave.countDocuments({ status: 'Pending' });
 
@@ -311,7 +327,7 @@ const getDashboardStats = async (req, res) => {
                     teamMembers: stats.totalEmployees,
                     activeProjects: await Order.countDocuments({ status: { $in: ['Pending', 'Awaiting Approval', 'Approved', 'In Progress'] } }),
                     pendingApprovals: (await Order.countDocuments({ status: 'Awaiting Approval' })) + (await Leave.countDocuments({ status: 'Pending' })),
-                    teamProductivity: 87 // Placeholder or calculated from task completion
+                    teamProductivity: 0 // Default to 0 instead of placeholder
                 };
             } catch (e) { console.error('Manager Stats Error:', e); }
         }

@@ -190,14 +190,7 @@ const HRDashboard = () => {
         };
     }).sort((a, b) => b.score - a.score).slice(0, 5);
 
-    const employeeGrowth = [
-        { month: 'Jan', employees: totalEmployees > 20 ? totalEmployees - 15 : 2 },
-        { month: 'Feb', employees: totalEmployees > 20 ? totalEmployees - 12 : 3 },
-        { month: 'Mar', employees: totalEmployees > 20 ? totalEmployees - 8 : 5 },
-        { month: 'Apr', employees: totalEmployees > 20 ? totalEmployees - 5 : 8 },
-        { month: 'May', employees: totalEmployees > 20 ? totalEmployees - 2 : 11 },
-        { month: 'Jun', employees: totalEmployees },
-    ];
+    const employeeGrowth = [];
 
     const sumOfChartData = departmentHeadcountData.reduce((acc, curr) => acc + curr.count, 0);
     console.log("HR Dashboard Debug:", {
@@ -420,21 +413,28 @@ const HRDashboard = () => {
                             <div className="bento-card-title"><TrendingUp size={16} /> Employee Growth</div>
                         </div>
                         <div className="bento-card-body" style={{ display: 'block', padding: '20px 10px 10px 10px' }}>
-                            <ResponsiveContainer width="100%" height={300}>
-                                <AreaChart data={employeeGrowth} margin={{ top: 5, right: 20, left: -20, bottom: 5 }}>
-                                    <defs>
-                                        <linearGradient id="colorGrowth" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3}/>
-                                            <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
-                                        </linearGradient>
-                                    </defs>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                                    <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} dy={10} />
-                                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} />
-                                    <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
-                                    <Area type="monotone" dataKey="employees" name="Total Staff" stroke="#8b5cf6" strokeWidth={3} fillOpacity={1} fill="url(#colorGrowth)" />
-                                </AreaChart>
-                            </ResponsiveContainer>
+                            {employeeGrowth.length > 0 ? (
+                                <ResponsiveContainer width="100%" height={300}>
+                                    <AreaChart data={employeeGrowth} margin={{ top: 5, right: 20, left: -20, bottom: 5 }}>
+                                        <defs>
+                                            <linearGradient id="colorGrowth" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3}/>
+                                                <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
+                                            </linearGradient>
+                                        </defs>
+                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                        <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} dy={10} />
+                                        <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} />
+                                        <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
+                                        <Area type="monotone" dataKey="employees" name="Total Staff" stroke="#8b5cf6" strokeWidth={3} fillOpacity={1} fill="url(#colorGrowth)" />
+                                    </AreaChart>
+                                </ResponsiveContainer>
+                            ) : (
+                                <div className="flex-center" style={{ height: '300px', flexDirection: 'column', color: '#94a3b8' }}>
+                                    <AlertCircle size={32} style={{ marginBottom: '8px' }} />
+                                    <p style={{ margin: 0, fontSize: '13px', fontWeight: 500 }}>No growth data available</p>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
