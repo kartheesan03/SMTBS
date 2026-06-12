@@ -13,16 +13,25 @@ import {
 const AdminDashboard = () => {
     const [dashboardData, setDashboardData] = useState(null);
     const [materialsData, setMaterialsData] = useState([]);
+    const [customersData, setCustomersData] = useState([]);
+    const [ordersData, setOrdersData] = useState([]);
+    const [employeesData, setEmployeesData] = useState([]);
     const [loading, setLoading] = useState(true);
 
     const fetchDashboardData = async () => {
         try {
-            const [dashRes, matRes] = await Promise.all([
+            const [dashRes, matRes, custRes, ordRes, empRes] = await Promise.all([
                 API.get('/dashboard/stats'),
-                API.get('/materials')
+                API.get('/materials'),
+                API.get('/customers'),
+                API.get('/orders'),
+                API.get('/employees')
             ]);
             setDashboardData(dashRes.data);
             setMaterialsData(matRes.data);
+            setCustomersData(Array.isArray(custRes.data) ? custRes.data : []);
+            setOrdersData(ordRes.data);
+            setEmployeesData(empRes.data);
         } catch (error) {
             console.error("Failed to load dashboard stats", error);
         } finally {
@@ -49,10 +58,25 @@ const AdminDashboard = () => {
     const tables = dashboardData.tables || {};
 
     // --- Data Preparation ---
-    const totalEmployees = dashboardData.totalEmployees || 0;
-    const openOrders = dashboardData.openOrders || 0;
-    const activeCustomers = 42; // Simulated
-    const totalRevenue = dashboardData.totalRevenue || 0;
+    const customers = customersData || [];
+    const orders = ordersData || [];
+    const employees = employeesData || [];
+    
+    const totalEmployees = employees.length;
+    const openOrders = orders.filter(o => !['Delivered', 'Completed', 'Cancelled'].includes(o.status)).length;
+    const activeCustomers = customers.length;
+    
+    const normalizeOrderType = (type) => {
+        if (!type) return '';
+        const t = String(type).toUpperCase();
+        if (t.includes('SALES')) return 'SALES';
+        if (t.includes('PURCHASE')) return 'PURCHASE';
+        return t;
+    };
+
+    const totalRevenue = orders
+        .filter(o => normalizeOrderType(o.orderType) === 'SALES' && o.status !== 'Cancelled')
+        .reduce((sum, o) => sum + (Number(o.totalAmount) || 0), 0);
 
     // Dynamic Material Status Calculation
     const materials = materialsData || [];
@@ -73,30 +97,26 @@ const AdminDashboard = () => {
 
     const lowStockKpiCount = lowStockCount + outOfStockCount;
 
-    console.log("totalMaterials:", totalMaterials);
-    console.log("inStockCount:", inStockCount);
-    console.log("lowStockCount:", lowStockCount);
-    console.log("outOfStockCount:", outOfStockCount);
-    console.log("lowStockKpiCount:", lowStockKpiCount);
+    console.log("--- ADMIN DASHBOARD DATA LOGS ---");
+    console.log("customers.length:", customers.length);
+    console.log("materials.length:", totalMaterials);
+    console.log("orders.length:", orders.length);
+    console.log("employees.length:", totalEmployees);
 
     // Charts Data
     const revenueData = charts.monthlyStats && charts.monthlyStats.length > 0 
         ? charts.monthlyStats 
-        : [
-            { name: 'Jan', revenue: 4000 },
-            { name: 'Feb', revenue: 3000 },
-            { name: 'Mar', revenue: 2000 },
-            { name: 'Apr', revenue: 2780 },
-            { name: 'May', revenue: 1890 },
-            { name: 'Jun', revenue: 2390 },
-        ];
+        : [];
 
-    const materialOverviewData = [
-        { name: 'Raw Materials', value: 45, color: '#3b82f6' },
-        { name: 'Finished Goods', value: 30, color: '#8b5cf6' },
-        { name: 'Packaging', value: 15, color: '#10b981' },
-        { name: 'Consumables', value: 10, color: '#f59e0b' },
-    ];
+    const materialGroups = materials.reduce((acc, m) => {
+        const cat = m.category || 'Uncategorized';
+        acc[cat] = (acc[cat] || 0) + 1;
+        return acc;
+    }, {});
+    const defaultColors = ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ec4899', '#14b8a6', '#f43f5e'];
+    const materialOverviewData = Object.keys(materialGroups).length > 0
+        ? Object.keys(materialGroups).map((key, i) => ({ name: key, value: materialGroups[key], color: defaultColors[i % defaultColors.length] }))
+        : [];
 
     const stockStatusData = [
         { name: 'In Stock', count: inStockCount, fill: '#10b981' },
@@ -104,19 +124,16 @@ const AdminDashboard = () => {
         { name: 'Out of Stock', count: outOfStockCount, fill: '#ef4444' },
     ];
 
-    const salesPipelineData = [
-        { stage: 'Leads', value: 120, fill: '#e2e8f0' },
-        { stage: 'Qualified', value: 80, fill: '#94a3b8' },
-        { stage: 'Proposals', value: 50, fill: '#64748b' },
-        { stage: 'Negotiation', value: 30, fill: '#475569' },
-        { stage: 'Closed Won', value: 15, fill: '#3b82f6' },
-    ];
+    const orderStatuses = orders.reduce((acc, o) => {
+        const status = o.status || 'Pending';
+        acc[status] = (acc[status] || 0) + 1;
+        return acc;
+    }, {});
+    const salesPipelineData = Object.keys(orderStatuses).length > 0
+        ? Object.keys(orderStatuses).map((key, i) => ({ stage: key, value: orderStatuses[key], fill: defaultColors[i % defaultColors.length] }))
+        : [];
 
-    const recentActivities = tables.recentActivity || [
-        { id: 1, text: 'New employee onboarded', time: new Date(Date.now() - 3600000) },
-        { id: 2, text: 'Order #1024 delivered', time: new Date(Date.now() - 7200000) },
-        { id: 3, text: 'Invoice #INV-22 paid', time: new Date(Date.now() - 86400000) },
-    ];
+    const recentActivities = tables.recentActivity || [];
 
     return (
         <div className="admin-dashboard-layout">
