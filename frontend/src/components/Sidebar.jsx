@@ -83,6 +83,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
         { path: '/team-performance', name: 'Team Performance', icon: <Users size={20} /> },
         { path: '/materials', name: 'Materials Overview', icon: <Briefcase size={20} /> },
         { path: '/vendors', name: 'Supplier/Vendor', icon: <Plug size={20} /> },
+        { path: '/crm', name: 'Customers', icon: <Briefcase size={20} /> },
         { path: '/stock-requests', name: 'Stock Requests', icon: <Box size={20} /> },
         { path: '/analytics', name: 'Reports', icon: <BarChart3 size={20} /> },
         { path: '/notifications', name: 'Notifications', icon: <Bell size={20} /> },
