@@ -26,7 +26,14 @@ const Topbar = () => {
                     {unreadCount > 0 && <span className="notification-dot"></span>}
                 </button>
                 
-                <div className="topbar-profile" onClick={() => navigate('/profile')}>
+                <div className="topbar-profile" onClick={() => {
+                    const r = user?.role?.toLowerCase() || '';
+                    if (r === 'customer' || r === 'vendor' || r === 'vendor/supplier') {
+                        navigate('/');
+                    } else {
+                        navigate('/profile');
+                    }
+                }}>
                     <img src={`https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=2563eb&color=fff`} alt="Profile" className="profile-avatar" />
                     <div className="profile-info desktop-only">
                         <span className="profile-name">{user?.name || 'Admin User'}</span>

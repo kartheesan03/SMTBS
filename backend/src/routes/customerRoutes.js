@@ -1,10 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { getCustomers, getMyCustomerProfile, getCustomerById, createCustomer, updateCustomer, deleteCustomer, approveCustomer, getCustomerOrders, getCustomerTickets } = require('../controllers/customercontroller');
+const { getCustomers, getCustomerById, createCustomer, updateCustomer, deleteCustomer, approveCustomer, getCustomerOrders, getCustomerTickets } = require('../controllers/customercontroller');
 const { protect } = require('../middleware/authMiddleware');
-
-router.route('/me')
-    .get(protect, getMyCustomerProfile);
 
 router.route('/')
     .get(protect, getCustomers)

@@ -28,7 +28,6 @@ import Attendance from './pages/Attendance';
 import HRReports from './pages/HRReports';
 import Settings from './pages/Settings';
 import Profile from './pages/Profile';
-import ExternalProfile from './pages/ExternalProfile';
 import Reports from './pages/Reports';
 import ERP from './pages/ERP';
 import Vendors from './pages/Vendors';
@@ -121,7 +120,7 @@ const AppContent = () => {
                             {(() => {
                                 const role = user?.role?.toLowerCase() || '';
                                 if (role === 'customer' || role === 'vendor' || role === 'vendor/supplier') {
-                                    return <ExternalProfile />;
+                                    return <Navigate to="/" />;
                                 }
                                 return <Profile />;
                             })()}

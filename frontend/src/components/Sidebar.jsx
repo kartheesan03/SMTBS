@@ -102,13 +102,11 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
     const customerMenu = [
         { path: '/', name: 'Dashboard', icon: <LayoutDashboard size={20} /> },
         { path: '/erp', name: 'Orders', icon: <ShoppingCart size={20} /> },
-        { path: '/profile', name: 'Profile', icon: <Briefcase size={20} /> },
     ];
 
     const vendorMenu = [
         { path: '/', name: 'Dashboard', icon: <LayoutDashboard size={20} /> },
         { path: '/erp', name: 'Supply/Orders', icon: <ShoppingCart size={20} /> },
-        { path: '/profile', name: 'Profile', icon: <Briefcase size={20} /> },
     ];
 
     const userRole = user?.role ? user.role.toLowerCase() : '';
@@ -132,7 +130,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
             </div>
 
             {user && (
-                <NavLink to="/profile" className="sidebar-user-card" style={{ textDecoration: 'none' }}>
+                <NavLink to={userRole === 'customer' || userRole === 'vendor' || userRole === 'vendor/supplier' ? '/' : '/profile'} className="sidebar-user-card" style={{ textDecoration: 'none' }}>
                     <div className="user-avatar-wrapper">
                         <div className="user-avatar-circle">
                             <img src={`https://ui-avatars.com/api/?name=${user?.name || 'Admin'}&background=2563eb&color=fff`} alt="User Avatar" />
