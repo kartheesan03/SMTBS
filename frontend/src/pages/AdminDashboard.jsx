@@ -12,12 +12,17 @@ import {
 
 const AdminDashboard = () => {
     const [dashboardData, setDashboardData] = useState(null);
+    const [materialsData, setMaterialsData] = useState([]);
     const [loading, setLoading] = useState(true);
 
     const fetchDashboardData = async () => {
         try {
-            const response = await API.get('/dashboard/stats');
-            setDashboardData(response.data);
+            const [dashRes, matRes] = await Promise.all([
+                API.get('/dashboard/stats'),
+                API.get('/materials')
+            ]);
+            setDashboardData(dashRes.data);
+            setMaterialsData(matRes.data);
         } catch (error) {
             console.error("Failed to load dashboard stats", error);
         } finally {
@@ -44,12 +49,35 @@ const AdminDashboard = () => {
     const tables = dashboardData.tables || {};
 
     // --- Data Preparation ---
-    const totalMaterials = dashboardData.totalMaterials || 0;
-    const lowStockCount = (tables.lowStock || []).length || 2;
     const totalEmployees = dashboardData.totalEmployees || 0;
     const openOrders = dashboardData.openOrders || 0;
     const activeCustomers = 42; // Simulated
     const totalRevenue = dashboardData.totalRevenue || 0;
+
+    // Dynamic Material Status Calculation
+    const materials = materialsData || [];
+    const totalMaterials = materials.length;
+    let inStockCount = 0;
+    let lowStockCount = 0;
+    let outOfStockCount = 0;
+
+    materials.forEach(item => {
+        if (item.quantity === 0) {
+            outOfStockCount++;
+        } else if (item.quantity <= (item.lowStockThreshold || 0)) {
+            lowStockCount++;
+        } else {
+            inStockCount++;
+        }
+    });
+
+    const lowStockKpiCount = lowStockCount + outOfStockCount;
+
+    console.log("totalMaterials:", totalMaterials);
+    console.log("inStockCount:", inStockCount);
+    console.log("lowStockCount:", lowStockCount);
+    console.log("outOfStockCount:", outOfStockCount);
+    console.log("lowStockKpiCount:", lowStockKpiCount);
 
     // Charts Data
     const revenueData = charts.monthlyStats && charts.monthlyStats.length > 0 
@@ -71,9 +99,9 @@ const AdminDashboard = () => {
     ];
 
     const stockStatusData = [
-        { name: 'In Stock', count: 85, fill: '#10b981' },
+        { name: 'In Stock', count: inStockCount, fill: '#10b981' },
         { name: 'Low Stock', count: lowStockCount, fill: '#f59e0b' },
-        { name: 'Out of Stock', count: 3, fill: '#ef4444' },
+        { name: 'Out of Stock', count: outOfStockCount, fill: '#ef4444' },
     ];
 
     const salesPipelineData = [
@@ -112,7 +140,7 @@ const AdminDashboard = () => {
                         <div className="kpi-icon-wrapper" style={{ background: '#fef3c7', color: '#d97706' }}><AlertCircle size={18} /></div>
                         <div className="kpi-info">
                             <span className="kpi-label">Low Stock Items</span>
-                            <h3 className="kpi-value">{lowStockCount}</h3>
+                            <h3 className="kpi-value">{lowStockKpiCount}</h3>
                         </div>
                     </div>
                     <div className="kpi-card">
