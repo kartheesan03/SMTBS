@@ -95,32 +95,7 @@ const SalesDashboard = () => {
         <div className="role-dashboard-layout">
             <div className="main-content">
 
-                {/* Top Nav Bar */}
-                <div className="top-nav-bar">
-                    <div className="search-bar">
-                        <Search size={18} color="#94a3b8" />
-                        <input type="text" placeholder="Search leads, accounts..." />
-                    </div>
-                    <div className="nav-actions">
-                        <div className="date-filter">
-                            <Calendar size={16} />
-                            <span>This Quarter</span>
-                            <ChevronDown size={14} />
-                        </div>
-                        <button className="icon-btn notification-btn">
-                            <Bell size={20} />
-                            <span className="notif-badge"></span>
-                        </button>
-                        <div className="profile-dropdown">
-                            <div className="avatar" style={{background: '#059669'}}>SM</div>
-                            <div className="profile-info">
-                                <span className="p-name">Sales Manager</span>
-                                <span className="p-role">Sales Dept</span>
-                            </div>
-                            <ChevronDown size={14} />
-                        </div>
-                    </div>
-                </div>
+
 
                 <div className="header-section">
                     <h1 className="page-title">Sales Manager Dashboard</h1>
@@ -130,45 +105,63 @@ const SalesDashboard = () => {
                 {/* KPIs */}
                 <div className="kpi-grid">
                     <div className="kpi-card">
-                        <div className="kpi-icon-wrapper" style={{ background: '#f8fafc', color: '#64748b' }}><Users size={18} /></div>
+                        <div className="kpi-header">
+                            <div className="kpi-icon-wrapper" style={{ background: '#eff6ff', color: '#3b82f6' }}><Users size={18} /></div>
+                            <div className="kpi-trend positive"><TrendingUp size={14} /> +5%</div>
+                        </div>
                         <div className="kpi-info">
-                            <span className="kpi-label">Total Leads</span>
                             <h3 className="kpi-value">{totalLeads}</h3>
+                            <span className="kpi-label">Total Leads</span>
                         </div>
                     </div>
                     <div className="kpi-card">
-                        <div className="kpi-icon-wrapper" style={{ background: '#eff6ff', color: '#3b82f6' }}><Filter size={18} /></div>
+                        <div className="kpi-header">
+                            <div className="kpi-icon-wrapper" style={{ background: '#f0fdf4', color: '#16a34a' }}><Filter size={18} /></div>
+                            <div className="kpi-trend positive"><TrendingUp size={14} /> +2%</div>
+                        </div>
                         <div className="kpi-info">
-                            <span className="kpi-label">Qualified Leads</span>
                             <h3 className="kpi-value">{qualifiedLeads}</h3>
+                            <span className="kpi-label">Qualified Leads</span>
                         </div>
                     </div>
                     <div className="kpi-card">
-                        <div className="kpi-icon-wrapper" style={{ background: '#fef3c7', color: '#d97706' }}><Layers size={18} /></div>
+                        <div className="kpi-header">
+                            <div className="kpi-icon-wrapper" style={{ background: '#fef3c7', color: '#d97706' }}><Layers size={18} /></div>
+                            <div className="kpi-trend negative"><TrendingDown size={14} /> -1%</div>
+                        </div>
                         <div className="kpi-info">
-                            <span className="kpi-label">Open Opportunities</span>
                             <h3 className="kpi-value">{openOpportunities}</h3>
+                            <span className="kpi-label">Open Opportunities</span>
                         </div>
                     </div>
                     <div className="kpi-card">
-                        <div className="kpi-icon-wrapper" style={{ background: '#f0fdf4', color: '#16a34a' }}><CheckCircle size={18} /></div>
+                        <div className="kpi-header">
+                            <div className="kpi-icon-wrapper" style={{ background: '#f3e8ff', color: '#9333ea' }}><CheckCircle size={18} /></div>
+                            <div className="kpi-trend positive"><TrendingUp size={14} /> +12%</div>
+                        </div>
                         <div className="kpi-info">
-                            <span className="kpi-label">Closed Deals</span>
                             <h3 className="kpi-value">{closedDeals}</h3>
+                            <span className="kpi-label">Closed Deals</span>
                         </div>
                     </div>
                     <div className="kpi-card">
-                        <div className="kpi-icon-wrapper" style={{ background: '#ecfdf5', color: '#059669' }}><DollarSign size={18} /></div>
+                        <div className="kpi-header">
+                            <div className="kpi-icon-wrapper" style={{ background: '#ecfdf5', color: '#059669' }}><DollarSign size={18} /></div>
+                            <div className="kpi-trend positive"><TrendingUp size={14} /> +8%</div>
+                        </div>
                         <div className="kpi-info">
-                            <span className="kpi-label">Monthly Revenue</span>
                             <h3 className="kpi-value">${Number(monthlyRevenue).toLocaleString(undefined, { maximumFractionDigits: 0 })}</h3>
+                            <span className="kpi-label">Monthly Revenue</span>
                         </div>
                     </div>
                     <div className="kpi-card">
-                        <div className="kpi-icon-wrapper" style={{ background: '#f3e8ff', color: '#9333ea' }}><Target size={18} /></div>
+                        <div className="kpi-header">
+                            <div className="kpi-icon-wrapper" style={{ background: '#fee2e2', color: '#ef4444' }}><Target size={18} /></div>
+                            <div className="kpi-trend positive"><TrendingUp size={14} /> +3%</div>
+                        </div>
                         <div className="kpi-info">
-                            <span className="kpi-label">Target Achievement</span>
                             <h3 className="kpi-value">{targetAchievement}%</h3>
+                            <span className="kpi-label">Target Achievement</span>
                         </div>
                     </div>
                 </div>
@@ -179,14 +172,14 @@ const SalesDashboard = () => {
                         <div className="bento-card-header">
                             <div className="bento-card-title"><Filter size={16} /> Sales Funnel</div>
                         </div>
-                        <div className="bento-card-body" style={{ height: '220px' }}>
-                            <ResponsiveContainer width="100%" height="100%">
+                        <div className="bento-card-body" style={{ display: 'block', padding: '20px 10px 10px 10px' }}>
+                            <ResponsiveContainer width="100%" height={300}>
                                 <BarChart layout="vertical" data={salesFunnelData} margin={{ top: 10, right: 10, left: 20, bottom: 0 }}>
                                     <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
                                     <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} />
                                     <YAxis dataKey="stage" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#334155' }} />
                                     <RechartsTooltip cursor={{fill: 'transparent'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
-                                    <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={16}>
+                                    <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={24}>
                                         {salesFunnelData.map((entry, index) => (
                                             <Cell key={`cell-${index}`} fill={entry.fill} />
                                         ))}
@@ -200,14 +193,14 @@ const SalesDashboard = () => {
                         <div className="bento-card-header">
                             <div className="bento-card-title"><TrendingUp size={16} /> Revenue Trend</div>
                         </div>
-                        <div className="bento-card-body" style={{ height: '220px' }}>
-                            <ResponsiveContainer width="100%" height="100%">
+                        <div className="bento-card-body" style={{ display: 'block', padding: '20px 10px 10px 10px' }}>
+                            <ResponsiveContainer width="100%" height={300}>
                                 <LineChart data={revenueTrendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                                     <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} dy={10} />
                                     <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} />
                                     <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
-                                    <Line type="monotone" dataKey="revenue" stroke="#10b981" strokeWidth={2} dot={{ r: 3, strokeWidth: 2 }} />
+                                    <Line type="monotone" dataKey="revenue" stroke="#10b981" strokeWidth={2} dot={{ r: 3, strokeWidth: 2 }} activeDot={{ r: 6 }} />
                                 </LineChart>
                             </ResponsiveContainer>
                         </div>
@@ -217,10 +210,10 @@ const SalesDashboard = () => {
                         <div className="bento-card-header">
                             <div className="bento-card-title"><Activity size={16} /> Lead Source Distribution</div>
                         </div>
-                        <div className="bento-card-body" style={{ height: '220px', display: 'flex', flexDirection: 'column' }}>
-                            <ResponsiveContainer width="100%" height="100%">
+                        <div className="bento-card-body" style={{ display: 'block', padding: '10px', position: 'relative' }}>
+                            <ResponsiveContainer width="100%" height={300}>
                                 <PieChart>
-                                    <Pie data={leadSourceData} cx="50%" cy="50%" innerRadius={45} outerRadius={75} paddingAngle={5} dataKey="value" stroke="none">
+                                    <Pie data={leadSourceData} cx="50%" cy="50%" innerRadius={70} outerRadius={110} paddingAngle={3} dataKey="value" stroke="none">
                                         {leadSourceData.map((entry, index) => (
                                             <Cell key={`cell-${index}`} fill={entry.color} />
                                         ))}
@@ -241,24 +234,29 @@ const SalesDashboard = () => {
                         <div className="bento-card-body">
                             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
                                 <thead>
-                                    <tr style={{ borderBottom: '1px solid #e2e8f0', color: '#64748b', textAlign: 'left' }}>
-                                        <th style={{ padding: '12px 8px' }}>Executive Name</th>
-                                        <th style={{ padding: '12px 8px' }}>Deals Closed</th>
-                                        <th style={{ padding: '12px 8px' }}>Revenue Generated</th>
-                                        <th style={{ padding: '12px 8px' }}>Target Status</th>
+                                    <tr style={{ borderBottom: '1px solid #e2e8f0', color: '#64748b', textAlign: 'left', background: '#f8fafc' }}>
+                                        <th style={{ padding: '16px 20px', fontWeight: 600 }}>Executive Name</th>
+                                        <th style={{ padding: '16px 20px', fontWeight: 600 }}>Deals Closed</th>
+                                        <th style={{ padding: '16px 20px', fontWeight: 600 }}>Revenue Generated</th>
+                                        <th style={{ padding: '16px 20px', fontWeight: 600 }}>Target Status</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {topExecutives.map(exec => (
-                                        <tr key={exec.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                                            <td style={{ padding: '12px 8px', fontWeight: 600, color: '#334155' }}>{exec.name}</td>
-                                            <td style={{ padding: '12px 8px', color: '#64748b' }}>{exec.deals}</td>
-                                            <td style={{ padding: '12px 8px', color: '#059669', fontWeight: 600 }}>{exec.revenue}</td>
-                                            <td style={{ padding: '12px 8px' }}>
+                                        <tr key={exec.id} style={{ borderBottom: '1px solid #f1f5f9', transition: 'background 0.2s' }} onMouseOver={e => e.currentTarget.style.background='#f8fafc'} onMouseOut={e => e.currentTarget.style.background='transparent'}>
+                                            <td style={{ padding: '16px 20px', fontWeight: 600, color: '#334155' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#475569', fontWeight: 'bold' }}>{exec.name.charAt(0)}</div>
+                                                    {exec.name}
+                                                </div>
+                                            </td>
+                                            <td style={{ padding: '16px 20px', color: '#64748b', fontWeight: 500 }}>{exec.deals}</td>
+                                            <td style={{ padding: '16px 20px', color: '#059669', fontWeight: 700 }}>{exec.revenue}</td>
+                                            <td style={{ padding: '16px 20px' }}>
                                                 <span style={{ 
-                                                    padding: '4px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 600,
-                                                    background: exec.status === 'On Target' ? '#ecfdf5' : '#fee2e2',
-                                                    color: exec.status === 'On Target' ? '#059669' : '#ef4444'
+                                                    padding: '6px 12px', borderRadius: '20px', fontSize: '11px', fontWeight: 700, display: 'inline-block',
+                                                    background: exec.status === 'On Target' ? '#dcfce7' : '#fee2e2',
+                                                    color: exec.status === 'On Target' ? '#16a34a' : '#dc2626'
                                                 }}>{exec.status}</span>
                                             </td>
                                         </tr>
@@ -271,150 +269,71 @@ const SalesDashboard = () => {
 
             </div>
 
-            {/* Right Panel */}
-            <div className="side-panel">
-                <div className="side-panel-header">
-                    <h3>SALES FEATURES</h3>
-                </div>
-                <div className="side-panel-content">
-                    <div className="features-list">
-                        {rightPanelFeatures.map((feature, idx) => (
-                            <div className="feature-item" key={idx}>
-                                <div className="feature-icon">{feature.icon}</div>
-                                <span className="feature-text">{feature.title}</span>
-                                <ChevronDown size={14} className="feature-chevron" style={{ transform: 'rotate(-90deg)' }}/>
-                            </div>
-                        ))}
-                    </div>
-
-                    <div className="system-status-block" style={{ marginTop: 'auto', background: '#ecfdf5', border: '1px solid #a7f3d0' }}>
-                        <h4 style={{ color: '#047857', margin: '0 0 4px 0', fontSize: '13px' }}>Quarterly Target</h4>
-                        <div style={{ background: '#d1fae5', height: '8px', borderRadius: '4px', margin: '8px 0', overflow: 'hidden' }}>
-                            <div style={{ background: '#10b981', height: '100%', width: `${targetAchievement}%` }}></div>
-                        </div>
-                        <p style={{ margin: 0, fontSize: '11px', color: '#059669', textAlign: 'center' }}>{targetAchievement}% achieved. Keep pushing!</p>
-                    </div>
-                </div>
-            </div>
-
             <style jsx="true">{`
                 .role-dashboard-layout {
-                    display: grid;
-                    grid-template-columns: 1fr 280px;
+                    display: block;
                     min-height: 100vh;
-                    background: #f8fafc;
+                    background: #f4f7fb;
                 }
 
                 .main-content {
-                    padding: 20px 24px;
+                    padding: 24px 32px;
                     height: 100vh;
                     overflow-y: auto;
                 }
 
-                /* Top Nav Bar */
-                .top-nav-bar {
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    padding-bottom: 20px;
-                    margin-bottom: 20px;
-                    border-bottom: 1px solid #f1f5f9;
-                }
-                .search-bar {
-                    display: flex; align-items: center; gap: 8px;
-                    background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px;
-                    padding: 8px 12px; width: 300px;
-                }
-                .search-bar input { border: none; outline: none; width: 100%; font-size: 13px; color: #0f172a; }
-                .search-bar input::placeholder { color: #94a3b8; }
-                .nav-actions { display: flex; align-items: center; gap: 16px; }
-                .date-filter {
-                    display: flex; align-items: center; gap: 6px; cursor: pointer;
-                    background: #ffffff; border: 1px solid #e2e8f0; padding: 6px 12px;
-                    border-radius: 6px; font-size: 12px; font-weight: 600; color: #334155;
-                }
-                .icon-btn {
-                    background: #ffffff; border: 1px solid #e2e8f0; border-radius: 50%;
-                    width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
-                    cursor: pointer; color: #64748b; position: relative;
-                }
-                .notification-btn .notif-badge {
-                    position: absolute; top: 6px; right: 6px; width: 6px; height: 6px;
-                    background: #ef4444; border-radius: 50%; border: 2px solid #fff;
-                }
-                .profile-dropdown {
-                    display: flex; align-items: center; gap: 8px; cursor: pointer;
-                }
-                .avatar {
-                    width: 32px; height: 32px; border-radius: 50%; background: #1e293b;
-                    color: white; display: flex; align-items: center; justify-content: center;
-                    font-weight: bold; font-size: 13px;
-                }
-                .profile-info { display: flex; flex-direction: column; }
-                .p-name { font-size: 13px; font-weight: 700; color: #0f172a; }
-                .p-role { font-size: 11px; color: #64748b; }
-
-                .header-section { margin-bottom: 16px; }
-                .page-title { font-size: 20px; font-weight: 800; color: #0f172a; margin: 0 0 2px 0; }
-                .page-subtitle { font-size: 13px; color: #64748b; margin: 0; }
+                .header-section { margin-bottom: 24px; }
+                .page-title { font-size: 24px; font-weight: 800; color: #0f172a; margin: 0 0 4px 0; letter-spacing: -0.5px; }
+                .page-subtitle { font-size: 14px; color: #64748b; margin: 0; font-weight: 500; }
 
                 .kpi-grid {
                     display: grid;
                     grid-template-columns: repeat(6, 1fr);
-                    gap: 12px;
-                    margin-bottom: 16px;
+                    gap: 16px;
+                    margin-bottom: 24px;
                 }
                 .kpi-card {
-                    background: #ffffff; border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 8px;
-                    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); border: 1px solid #f1f5f9;
+                    background: #ffffff; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between;
+                    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02); border: 1px solid #e2e8f0; height: 110px;
+                    transition: transform 0.2s ease, box-shadow 0.2s ease;
                 }
-                .kpi-icon-wrapper { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
-                .kpi-label { display: block; font-size: 11px; font-weight: 600; color: #64748b; margin-bottom: 2px; }
-                .kpi-value { font-size: 16px; font-weight: 800; color: #0f172a; margin: 0; }
+                .kpi-card:hover {
+                    transform: translateY(-4px);
+                    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+                }
+                .kpi-header { display: flex; justify-content: space-between; align-items: flex-start; }
+                .kpi-icon-wrapper { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+                .kpi-trend { font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 2px; padding: 4px 8px; border-radius: 20px; }
+                .kpi-trend.positive { background: #dcfce7; color: #16a34a; }
+                .kpi-trend.negative { background: #fee2e2; color: #dc2626; }
+                
+                .kpi-info { display: flex; flex-direction: column; }
+                .kpi-label { font-size: 12px; font-weight: 600; color: #64748b; margin-top: 2px; }
+                .kpi-value { font-size: 22px; font-weight: 800; color: #0f172a; margin: 0; line-height: 1; }
 
                 .charts-grid-3 {
                     display: grid;
                     grid-template-columns: repeat(3, 1fr);
-                    gap: 12px;
-                    margin-bottom: 12px;
+                    gap: 20px;
+                    margin-bottom: 20px;
                 }
 
                 .bento-card {
-                    background: #ffffff; border-radius: 10px; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); border: 1px solid #f1f5f9;
+                    background: #ffffff; border-radius: 14px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03); border: 1px solid #e2e8f0;
                     display: flex; flex-direction: column; overflow: hidden;
+                    transition: box-shadow 0.2s ease;
                 }
-                .bento-card-header { padding: 12px 14px 0; }
-                .bento-card-title { font-size: 13px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 6px; }
-                .bento-card-body { padding: 14px; flex: 1; overflow-y: auto; }
+                .bento-card:hover { box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06); }
+                .bento-card-header { padding: 18px 20px 0; }
+                .bento-card-title { font-size: 15px; font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 8px; }
+                .bento-card-body { padding: 20px; flex: 1; overflow-y: hidden; }
 
-                .side-panel {
-                    background: #ffffff; border-left: 1px solid #e2e8f0; height: 100vh; overflow-y: auto; display: flex; flex-direction: column;
-                }
-                .side-panel-header { padding: 16px; border-bottom: 1px solid #f1f5f9; }
-                .side-panel-header h3 { margin: 0; font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
-                .side-panel-content { padding: 16px; display: flex; flex-direction: column; flex: 1; }
-                
-                .features-list { display: flex; flex-direction: column; gap: 6px; }
-                .feature-item {
-                    display: flex; align-items: center; padding: 10px 12px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: all 0.2s;
-                }
-                .feature-item:hover { background: #f8fafc; border-color: #cbd5e1; }
-                .feature-icon { color: #3b82f6; margin-right: 10px; display: flex; align-items: center; }
-                .feature-text { font-size: 12px; font-weight: 600; color: #334155; flex: 1; }
-                .feature-chevron { color: #94a3b8; }
-
-                .system-status-block { border-radius: 8px; padding: 16px; }
-
-                @media (max-width: 1024px) {
-                    .role-dashboard-layout { grid-template-columns: 1fr; }
-                    .side-panel { display: none; }
-                }
-                @media (max-width: 768px) {
+                @media (max-width: 1400px) {
                     .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+                }
+                @media (max-width: 1024px) {
                     .charts-grid-3 { grid-template-columns: 1fr; }
                     .main-content { padding: 16px; }
-                    .top-nav-bar { flex-direction: column; gap: 12px; align-items: flex-start; }
-                    .search-bar { width: 100%; }
                 }
             `}</style>
         </div>

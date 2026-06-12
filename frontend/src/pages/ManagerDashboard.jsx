@@ -148,7 +148,7 @@ const ManagerDashboard = () => {
                             <div className="bento-card-title"><Activity size={16} /> Team Performance</div>
                         </div>
                         <div className="bento-card-body" style={{ display: 'block', padding: '20px 10px 10px 10px' }}>
-                            <ResponsiveContainer width="100%" height={320}>
+                            <ResponsiveContainer width="100%" height={300}>
                                 <LineChart data={teamPerformanceData} margin={{ top: 5, right: 20, left: -20, bottom: 5 }}>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                                     <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} dy={10} />
@@ -166,7 +166,7 @@ const ManagerDashboard = () => {
                         <div className="bento-card-header">
                             <div className="bento-card-title"><Briefcase size={16} /> Project Status</div>
                         </div>
-                        <div className="bento-card-body" style={{ height: '320px', overflowY: 'auto', padding: '20px' }}>
+                        <div className="bento-card-body" style={{ height: '300px', overflowY: 'auto', padding: '20px' }}>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                                 {projectStatusData.map(proj => (
                                     <div key={proj.id} style={{ background: '#f8fafc', padding: '16px', borderRadius: '12px', border: '1px solid #f1f5f9' }}>
@@ -199,7 +199,7 @@ const ManagerDashboard = () => {
                                 <h3>{teamMembers}</h3>
                                 <span>Total</span>
                             </div>
-                            <ResponsiveContainer width="100%" height={320}>
+                            <ResponsiveContainer width="100%" height={300}>
                                 <PieChart>
                                     <Pie data={teamAttendanceData} cx="50%" cy="45%" innerRadius={65} outerRadius={90} paddingAngle={2} dataKey="value" stroke="none">
                                         {teamAttendanceData.map((entry, index) => (
