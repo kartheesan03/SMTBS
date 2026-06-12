@@ -22,4 +22,19 @@ const protect = async (req, res, next) => {
     }
 };
 
-module.exports = { protect };
+const authorize = (...roles) => {
+    return (req, res, next) => {
+        if (!req.user) {
+            return res.status(401).json({ message: 'Not authorized' });
+        }
+        if (req.user.email === 'admin@smtbms.com' || req.user.role === 'Super Admin' || req.user.role === 'Admin') {
+            return next();
+        }
+        if (roles.includes(req.user.role)) {
+            return next();
+        }
+        return res.status(403).json({ message: `User role ${req.user.role} is not authorized` });
+    };
+};
+
+module.exports = { protect, authorize };
