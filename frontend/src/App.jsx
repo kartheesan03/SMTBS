@@ -36,6 +36,7 @@ import LeaveManagement from './pages/LeaveManagement';
 import MySalaryPage from './pages/MySalary';
 import Customers from './pages/Customers';
 import AddCustomer from './pages/AddCustomer';
+import AddVendor from './pages/AddVendor';
 import Support from './pages/Support';
 import StockRequests from './pages/StockRequests';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -111,6 +112,7 @@ const AppContent = () => {
                     <Route path="/crm" element={<ProtectedRoute allowedRoles={['Admin', 'Sales', 'Manager']}><Customers /></ProtectedRoute>} />
                     <Route path="/crm/add-customer" element={<ProtectedRoute allowedRoles={['Admin', 'Sales', 'Manager']}><AddCustomer /></ProtectedRoute>} />
                     <Route path="/vendors" element={<ProtectedRoute allowedRoles={['Admin', 'Manager', 'Sales']}><Vendors /></ProtectedRoute>} />
+                    <Route path="/vendors/add-vendor" element={<ProtectedRoute allowedRoles={['Admin', 'Manager', 'Sales']}><AddVendor /></ProtectedRoute>} />
                     <Route path="/analytics" element={<ProtectedRoute allowedRoles={['Admin', 'Manager', 'Sales', 'HR']}><Reports /></ProtectedRoute>} />
                     <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
                     <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />

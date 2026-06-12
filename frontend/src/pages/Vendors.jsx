@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 import DataTable from '../components/Dashboard/DataTable';
 import { Truck, Plus, Star, MapPin, Mail, Phone, ExternalLink, Download, Edit, X, PackagePlus, AlertTriangle, Trash2, History } from 'lucide-react';
@@ -7,6 +8,7 @@ import 'jspdf-autotable';
 import ExcelJS from 'exceljs';
 
 const Vendors = () => {
+    const navigate = useNavigate();
     const [vendors, setVendors] = useState([]);
     const [allMaterials, setAllMaterials] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -314,7 +316,7 @@ const Vendors = () => {
                     <button className="btn-secondary flex-center gap-10" onClick={exportToExcel} style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--bg-body)', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>
                         <Download size={16} /> Excel
                     </button>
-                    <button className="btn-primary flex-center gap-10" onClick={openAddModal}>
+                    <button className="btn-primary flex-center gap-10" onClick={() => navigate('/vendors/add-vendor')}>
                         <Plus size={18} /> Add New Vendor
                     </button>
                 </div>
@@ -492,7 +494,7 @@ const Vendors = () => {
 
                         <div className="modal-actions" style={{ marginTop: '20px', paddingTop: '15px', borderTop: '1px solid var(--border)' }}>
                             <button type="button" className="btn-cancel" onClick={() => setShowModal(false)}>Cancel</button>
-                            <button type="submit" form="vendorForm" className="btn-primary">{isEditMode ? 'Update Vendor & Items' : 'Register Vendor & Items'}</button>
+                            <button type="submit" form="vendorForm" className="btn-primary">Update Vendor & Items</button>
                         </div>
                     </div>
                 </div>
