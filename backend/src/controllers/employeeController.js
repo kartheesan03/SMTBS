@@ -5,7 +5,19 @@ const { logAudit } = require('../services/auditService');
 const getEmployees = async (req, res) => {
     try {
         const employees = await Employee.find({}).populate('userId', 'name email role');
-        res.json(employees);
+        
+        // Filter out Admin accounts so they don't appear in Employee Management
+        const filteredEmployees = employees.filter(emp => {
+            if (emp.userId && (emp.userId.role === 'Admin' || emp.userId.role === 'Super Admin' || emp.userId.role === 'admin' || emp.userId.role === 'super admin')) {
+                return false;
+            }
+            if (emp.department && (emp.department.toLowerCase() === 'admin' || emp.department.toLowerCase() === 'super admin')) {
+                return false;
+            }
+            return true;
+        });
+
+        res.json(filteredEmployees);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

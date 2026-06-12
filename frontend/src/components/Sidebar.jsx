@@ -39,6 +39,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
     
     const adminMenu = [
         { path: '/', name: 'Dashboard', icon: <LayoutDashboard size={20} /> },
+        { path: '/my-attendance', name: 'My Attendance', icon: <CheckCircle size={20} /> },
         { path: '/materials', name: 'Material Tracking', icon: <Box size={20} /> },
         { path: '/hrms', name: 'HRMS', icon: <Users size={20} /> },
         { path: '/erp', name: 'ERP', icon: <ShoppingCart size={20} /> },
