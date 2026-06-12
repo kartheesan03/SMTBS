@@ -28,6 +28,7 @@ const HRDashboard = () => {
             setUsers(usersRes.data);
         } catch (error) {
             console.error("Failed to load dashboard stats", error);
+            setDashboardData({});
         } finally {
             setLoading(false);
         }
@@ -39,7 +40,7 @@ const HRDashboard = () => {
         return () => clearInterval(interval);
     }, []);
 
-    if (loading || !dashboardData) {
+    if (loading) {
         return (
             <div className="flex-center" style={{ height: '80vh' }}>
                 <div className="loader"></div>
@@ -47,7 +48,8 @@ const HRDashboard = () => {
         );
     }
 
-    const hrStats = dashboardData.hrStats || {};
+    const dashboard = dashboardData || {};
+    const hrStats = dashboard.hrStats || {};
 
     // Filter unique active employees
     const uniqueEmployees = Array.from(new Map(employees.map(e => [e.employeeId || e._id || Math.random(), e])).values());

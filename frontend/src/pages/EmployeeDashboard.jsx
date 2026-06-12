@@ -20,6 +20,7 @@ const EmployeeDashboard = () => {
             setDashboardData(response.data);
         } catch (error) {
             console.error("Failed to load dashboard stats", error);
+            setDashboardData({});
         } finally {
             setLoading(false);
         }
@@ -31,13 +32,15 @@ const EmployeeDashboard = () => {
         return () => clearInterval(interval);
     }, []);
 
-    if (loading || !dashboardData) {
+    if (loading) {
         return (
             <div className="flex-center" style={{ height: '80vh' }}>
                 <div className="loader"></div>
             </div>
         );
     }
+
+    const dashboard = dashboardData || {};
 
     // KPIs
     const attendanceStatus = "Present"; 

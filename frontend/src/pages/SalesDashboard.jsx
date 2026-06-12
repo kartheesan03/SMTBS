@@ -20,6 +20,7 @@ const SalesDashboard = () => {
             setDashboardData(response.data);
         } catch (error) {
             console.error("Failed to load dashboard stats", error);
+            setDashboardData({});
         } finally {
             setLoading(false);
         }
@@ -31,7 +32,7 @@ const SalesDashboard = () => {
         return () => clearInterval(interval);
     }, []);
 
-    if (loading || !dashboardData) {
+    if (loading) {
         return (
             <div className="flex-center" style={{ height: '80vh' }}>
                 <div className="loader"></div>
@@ -39,7 +40,8 @@ const SalesDashboard = () => {
         );
     }
 
-    const charts = dashboardData.charts || {};
+    const dashboard = dashboardData || {};
+    const charts = dashboard.charts || {};
 
     // KPIs
     const totalLeads = 345; // Simulated

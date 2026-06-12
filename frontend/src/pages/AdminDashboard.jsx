@@ -34,6 +34,7 @@ const AdminDashboard = () => {
             setEmployeesData(empRes.data);
         } catch (error) {
             console.error("Failed to load dashboard stats", error);
+            setDashboardData({});
         } finally {
             setLoading(false);
         }
@@ -45,7 +46,7 @@ const AdminDashboard = () => {
         return () => clearInterval(interval);
     }, []);
 
-    if (loading || !dashboardData) {
+    if (loading) {
         return (
             <div className="flex-center" style={{ height: '80vh' }}>
                 <div className="loader"></div>
@@ -53,9 +54,10 @@ const AdminDashboard = () => {
         );
     }
 
-    const hrStats = dashboardData.hrStats || {};
-    const charts = dashboardData.charts || {};
-    const tables = dashboardData.tables || {};
+    const dashboard = dashboardData || {};
+    const hrStats = dashboard.hrStats || {};
+    const charts = dashboard.charts || {};
+    const tables = dashboard.tables || {};
 
     // --- Data Preparation ---
     const customers = customersData || [];
