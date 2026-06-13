@@ -36,6 +36,10 @@ const VendorSequelize = sequelize.define('Vendor', {
         type: DataTypes.STRING,
         allowNull: true
     },
+    website: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
     status: {
         type: DataTypes.ENUM('Vendor Created', 'Approved Vendor', 'Receives Purchase Orders', 'Supplies Materials', 'In Transit', 'Delivered', 'Completed'),
         defaultValue: 'Vendor Created'

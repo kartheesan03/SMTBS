@@ -8,7 +8,7 @@ const AddVendor = () => {
     
     // Vendor Form Data
     const [formData, setFormData] = useState({
-        name: '', category: 'Raw Materials', contactPerson: '', email: '', phone: '', address: '', gstNumber: ''
+        name: '', category: 'Raw Materials', contactPerson: '', email: '', phone: '', address: '', gstNumber: '', website: ''
     });
     
     // New Materials Logic
@@ -117,6 +117,10 @@ const AddVendor = () => {
                             <div className="form-group">
                                 <label>GST / Tax Number (Optional)</label>
                                 <input type="text" value={formData.gstNumber} onChange={e => setFormData({...formData, gstNumber: e.target.value})} placeholder="e.g. 22AAAAA0000A1Z5" />
+                            </div>
+                            <div className="form-group">
+                                <label>Website (Optional)</label>
+                                <input type="url" value={formData.website} onChange={e => setFormData({...formData, website: e.target.value})} placeholder="https://www.vendor.com" />
                             </div>
                         </div>
 

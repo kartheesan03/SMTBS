@@ -102,7 +102,7 @@ const AddCustomer = () => {
                                 {formErrors.industry && <span className="error-text">{formErrors.industry}</span>}
                             </div>
                             <div className="form-group">
-                                <label>Website</label>
+                                <label>Website (Optional)</label>
                                 <div className="input-with-icon">
                                     <Globe size={16} />
                                     <input type="url" value={formData.website} onChange={e => setFormData({...formData, website: e.target.value})} placeholder="https://www.acmecorp.com" />

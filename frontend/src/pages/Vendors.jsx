@@ -24,7 +24,7 @@ const Vendors = () => {
     
     // Vendor Form Data
     const [formData, setFormData] = useState({
-        name: '', category: 'Raw Materials', contactPerson: '', email: '', phone: '', address: '', gstNumber: ''
+        name: '', category: 'Raw Materials', contactPerson: '', email: '', phone: '', address: '', gstNumber: '', website: ''
     });
     
     // New Materials Logic (Used for Vendor Form)
@@ -102,7 +102,7 @@ const Vendors = () => {
     // VENDOR CRUD
     const openAddModal = () => {
         setIsEditMode(false);
-        setFormData({ name: '', category: 'Raw Materials', contactPerson: '', email: '', phone: '', address: '', gstNumber: '' });
+        setFormData({ name: '', category: 'Raw Materials', contactPerson: '', email: '', phone: '', address: '', gstNumber: '', website: '' });
         setNewMaterialsList([]);
         setNewMaterial({ name: '', sku: '', category: 'Raw Materials', quantity: 0, unit: 'pcs', price: 0 });
         setVendorMaterials([]);
@@ -119,7 +119,8 @@ const Vendors = () => {
             email: vendor.email || '',
             phone: vendor.phone || '',
             address: vendor.address || '',
-            gstNumber: vendor.gstNumber || ''
+            gstNumber: vendor.gstNumber || '',
+            website: vendor.website || ''
         });
         
         const existingMaterials = allMaterials.filter(m => 
@@ -375,6 +376,10 @@ const Vendors = () => {
                                         <label>GST / Tax Number (Optional)</label>
                                         <input type="text" value={formData.gstNumber} onChange={e => setFormData({...formData, gstNumber: e.target.value})} placeholder="e.g. 22AAAAA0000A1Z5" />
                                     </div>
+                                    <div className="form-group">
+                                        <label>Website (Optional)</label>
+                                        <input type="url" value={formData.website} onChange={e => setFormData({...formData, website: e.target.value})} placeholder="https://www.vendor.com" />
+                                    </div>
                                 </div>
                             </form>
 
@@ -543,6 +548,7 @@ const Vendors = () => {
                                     <p><strong>Email:</strong> {selectedVendor.email || 'N/A'}</p>
                                     <p><strong>Phone:</strong> {selectedVendor.phone || 'N/A'}</p>
                                     <p><strong>GST Number:</strong> {selectedVendor.gstNumber || 'N/A'}</p>
+                                    <p><strong>Website:</strong> {selectedVendor.website ? <a href={selectedVendor.website} target="_blank" rel="noreferrer">{selectedVendor.website}</a> : 'N/A'}</p>
                                 </div>
                             </div>
 

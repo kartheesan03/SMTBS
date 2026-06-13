@@ -40,12 +40,12 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
     const adminMenu = [
         { path: '/', name: 'Dashboard', icon: <LayoutDashboard size={20} /> },
         { path: '/my-attendance', name: 'My Attendance', icon: <CheckCircle size={20} /> },
-        { path: '/materials', name: 'Material Tracking', icon: <Box size={20} /> },
         { path: '/hrms', name: 'HRMS', icon: <Users size={20} /> },
         { path: '/erp', name: 'ERP', icon: <ShoppingCart size={20} /> },
-        { path: '/crm', name: 'CRM', icon: <Briefcase size={20} /> },
-        { path: '/analytics', name: 'Reports & Analytics', icon: <BarChart3 size={20} /> },
+        { path: '/materials', name: 'Material Tracking', icon: <Box size={20} /> },
         { path: '/vendors', name: 'Supplier/Vendor', icon: <Plug size={20} /> },
+        { path: '/crm', name: 'Customers', icon: <Briefcase size={20} /> },
+        { path: '/analytics', name: 'Reports & Analytics', icon: <BarChart3 size={20} /> },
         { path: '/notifications', name: 'Notifications', icon: <Bell size={20} /> },
     ];
 
@@ -151,7 +151,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                             <span className="sidebar-badge">{unreadCount}</span>
                         )}
                         {/* Nested style chevrons for items to match reference image */}
-                        {(item.name === 'Dashboard' || item.name === 'Material Tracking' || item.name === 'HRMS' || item.name === 'ERP' || item.name === 'CRM' || item.name === 'Reports & Analytics' || item.name === 'Supplier/Vendor' || item.name === 'Vendors/Suppliers') && (
+                        {(item.name === 'Dashboard' || item.name === 'Material Tracking' || item.name === 'HRMS' || item.name === 'ERP' || item.name === 'Customers' || item.name === 'Reports & Analytics' || item.name === 'Supplier/Vendor' || item.name === 'Vendors/Suppliers') && (
                             <span className="chevron-indicator">▾</span>
                         )}
                     </NavLink>
