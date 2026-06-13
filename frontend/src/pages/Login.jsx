@@ -177,9 +177,7 @@ const Login = () => {
                         </div>
                     </form>
 
-                    <div className="login-footer">
-                        <p>© 2026 SMTBMS Enterprise Suite</p>
-                    </div>
+
                     </div>
                 </div>
             </div>

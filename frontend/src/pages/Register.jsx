@@ -245,9 +245,7 @@ const Register = () => {
                             </div>
                         </form>
 
-                        <div className="login-footer" style={{ marginTop: '24px' }}>
-                            <p>© 2026 SMTBMS Enterprise Suite</p>
-                        </div>
+
                     </div>
                 </div>
             </div>
