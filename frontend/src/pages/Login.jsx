@@ -2,7 +2,8 @@ import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 import { AuthContext } from '../context/AuthContext';
-import { Mail, Lock, Eye, EyeOff, Box, ArrowRight } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, Box, Package, Archive, ShoppingCart, Truck, FileText } from 'lucide-react';
+import { GoogleLogin } from '@react-oauth/google';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -29,27 +30,86 @@ const Login = () => {
         }
     };
 
+    const handleGoogleSuccess = async (credentialResponse) => {
+        setIsLoading(true);
+        setError('');
+        try {
+            const response = await API.post('/auth/google', { credential: credentialResponse.credential });
+            login(response.data);
+            navigate('/');
+        } catch (err) {
+            setError(err.response?.data?.message || 'Google Login failed');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     return (
-        <div className="login-container-centered">
-            <div className="login-card">
-                <div className="card-header">
-                    <div className="logo-wrapper">
-                        <Box size={28} color="#ffffff" strokeWidth={2.5} />
+        <div className="login-wrapper">
+            <div className="split-card">
+                {/* Left Side: Visual Branding Panel (55%) */}
+                <div className="brand-panel">
+                    <div className="brand-header">
+                        <div className="logo-icon">
+                            <Box size={24} color="#ffffff" strokeWidth={2.5} />
+                        </div>
+                        <span className="logo-text">SMTBMS</span>
                     </div>
-                    <h1 className="brand-title">Smart Material Tracking &<br/>Business Management System</h1>
-                    <p className="brand-subtitle">Inventory • ERP • HRMS • Delivery Tracking</p>
+
+                    <div className="brand-content">
+                        <h1 className="brand-title">Smart Material Tracking &<br/>Business Management System</h1>
+                        <p className="brand-desc">
+                            Manage Inventory, ERP Operations, Material Tracking, HRMS and Delivery Workflows from a Single Platform.
+                        </p>
+
+                        {/* Enterprise-themed icons illustration */}
+                        <div className="erp-illustration">
+                            <div className="icon-badge">
+                                <Archive size={28} color="#6366F1" />
+                                <span>Inventory</span>
+                            </div>
+                            <div className="icon-badge">
+                                <Package size={28} color="#10B981" />
+                                <span>Materials</span>
+                            </div>
+                            <div className="icon-badge">
+                                <ShoppingCart size={28} color="#F59E0B" />
+                                <span>Orders</span>
+                            </div>
+                            <div className="icon-badge">
+                                <Truck size={28} color="#EF4444" />
+                                <span>Delivery</span>
+                            </div>
+                            <div className="icon-badge">
+                                <FileText size={28} color="#8B5CF6" />
+                                <span>Reports</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                {error && (
-                    <div className="error-alert">
-                        <span>{error}</span>
+                {/* Right Side: Login Form (45%) */}
+                <div className="login-panel">
+                    <div className="login-header">
+                        <div className="login-logo-mobile">
+                            <div className="logo-icon-dark">
+                                <Box size={20} color="#ffffff" strokeWidth={2.5} />
+                            </div>
+                            <span className="logo-text-dark">SMTBMS</span>
+                        </div>
+                        <h2 className="welcome-title">Welcome Back</h2>
+                        <p className="welcome-subtitle">Sign in to access your enterprise dashboard.</p>
                     </div>
-                )}
 
-                <form onSubmit={handleSubmit} className="login-form">
-                    <div className="input-group">
-                        <label><Mail size={16} className="label-icon" /> Email Address</label>
-                        <div className="input-wrapper">
+                    {error && (
+                        <div className="error-alert">
+                            {error}
+                        </div>
+                    )}
+
+                    <form onSubmit={handleSubmit} className="login-form">
+                        <div className="input-group">
+                            <label><Mail size={16} className="label-icon" /> Email Address</label>
                             <input 
                                 type="email" 
                                 placeholder="name@company.com" 
@@ -58,106 +118,211 @@ const Login = () => {
                                 required
                             />
                         </div>
-                    </div>
 
-                    <div className="input-group">
-                        <label><Lock size={16} className="label-icon" /> Password</label>
-                        <div className="input-wrapper">
-                            <input 
-                                type={showPassword ? "text" : "password"} 
-                                placeholder="••••••••" 
-                                value={password}
-                                onChange={(e) => { setPassword(e.target.value); setError(''); }}
-                                required
-                            />
-                            <button type="button" className="password-toggle" onClick={() => setShowPassword(!showPassword)}>
-                                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                            </button>
+                        <div className="input-group">
+                            <label><Lock size={16} className="label-icon" /> Password</label>
+                            <div className="password-wrapper">
+                                <input 
+                                    type={showPassword ? "text" : "password"} 
+                                    placeholder="••••••••" 
+                                    value={password}
+                                    onChange={(e) => { setPassword(e.target.value); setError(''); }}
+                                    required
+                                />
+                                <button type="button" className="password-toggle" onClick={() => setShowPassword(!showPassword)}>
+                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                </button>
+                            </div>
                         </div>
+
+                        <div className="form-actions">
+                            <label className="remember-me">
+                                <input type="checkbox" />
+                                <span className="checkmark"></span>
+                                <span>Remember me</span>
+                            </label>
+                            <button type="button" className="forgot-password">Forgot Password?</button>
+                        </div>
+
+                        <button type="submit" className="submit-btn" disabled={isLoading}>
+                            {isLoading ? 'Signing In...' : 'Sign In'}
+                        </button>
+                        
+                        {/* Google Sign In wrapped below */}
+                        <div className="divider">
+                            <span>or continue with</span>
+                        </div>
+                        
+                        <div className="google-btn-wrapper">
+                            <GoogleLogin 
+                                onSuccess={handleGoogleSuccess}
+                                onError={() => setError('Google Login Failed')}
+                                theme="outline"
+                                text="signin_with"
+                                width="300"
+                            />
+                        </div>
+                    </form>
+
+                    <div className="login-footer">
+                        <p>© 2026 SMTBMS Enterprise Suite</p>
                     </div>
-
-                    <div className="form-actions">
-                        <label className="remember-me">
-                            <input type="checkbox" />
-                            <span className="checkmark"></span>
-                            <span>Remember me</span>
-                        </label>
-                        <button type="button" className="forgot-password">Forgot Password?</button>
-                    </div>
-
-                    <button type="submit" className="submit-btn" disabled={isLoading}>
-                        {isLoading ? 'Signing In...' : (
-                            <>
-                                Sign In <ArrowRight size={18} className="btn-icon" />
-                            </>
-                        )}
-                    </button>
-                </form>
-
-                <div className="login-footer">
-                    <p>© 2026 SMTBMS Enterprise Suite</p>
                 </div>
             </div>
 
             <style jsx="true">{`
-                .login-container-centered {
+                .login-wrapper {
                     min-height: 100vh;
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     background: #F8FAFC;
-                    background-image: radial-gradient(circle at top right, rgba(99, 102, 241, 0.08), transparent 40%),
-                                      radial-gradient(circle at bottom left, rgba(59, 130, 246, 0.08), transparent 40%);
-                    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
                     padding: 20px;
+                    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
                 }
 
-                .login-card {
-                    background: #FFFFFF;
+                .split-card {
+                    display: flex;
                     width: 100%;
-                    max-width: 480px;
-                    border-radius: 24px;
-                    padding: 48px;
-                    box-shadow: 0 20px 50px rgba(11, 16, 38, 0.08);
-                    border: 1px solid rgba(0, 0, 0, 0.04);
+                    max-width: 1100px;
+                    min-height: 650px;
+                    background: #FFFFFF;
+                    border-radius: 20px;
+                    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06);
+                    overflow: hidden;
                 }
 
-                .card-header {
+                /* Left Branding Panel (55%) */
+                .brand-panel {
+                    flex: 55%;
+                    background-color: #0B1026;
+                    padding: 56px;
                     display: flex;
                     flex-direction: column;
-                    align-items: center;
-                    text-align: center;
-                    margin-bottom: 40px;
+                    justify-content: space-between;
+                    color: #FFFFFF;
                 }
 
-                .logo-wrapper {
-                    width: 56px;
-                    height: 56px;
-                    background: linear-gradient(135deg, #6366F1 0%, #3B82F6 100%);
-                    border-radius: 16px;
+                .brand-header {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                }
+
+                .logo-icon {
+                    width: 40px;
+                    height: 40px;
+                    background: #6366F1;
+                    border-radius: 10px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
-                    margin-bottom: 24px;
+                }
+
+                .logo-text {
+                    font-size: 24px;
+                    font-weight: 800;
+                    letter-spacing: 0.5px;
+                }
+
+                .brand-content {
+                    margin-top: auto;
+                    margin-bottom: auto;
                 }
 
                 .brand-title {
-                    font-size: 24px;
+                    font-size: 36px;
                     font-weight: 800;
-                    color: #0B1026;
-                    line-height: 1.35;
-                    margin: 0 0 12px 0;
+                    line-height: 1.25;
+                    margin: 0 0 20px 0;
                     letter-spacing: -0.5px;
                 }
 
-                .brand-subtitle {
-                    font-size: 14px;
-                    color: #64748B;
+                .brand-desc {
+                    font-size: 16px;
+                    color: #94A3B8;
+                    line-height: 1.6;
+                    max-width: 90%;
+                    margin: 0 0 48px 0;
+                }
+
+                .erp-illustration {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 16px;
+                }
+
+                .icon-badge {
+                    background: #151B32;
+                    border: 1px solid #1F2947;
+                    border-radius: 12px;
+                    padding: 20px 16px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 12px;
+                    width: 96px;
+                    transition: transform 0.3s ease;
+                }
+
+                .icon-badge:hover {
+                    transform: translateY(-4px);
+                    background: #1A2242;
+                }
+
+                .icon-badge span {
+                    font-size: 13px;
                     font-weight: 600;
+                    color: #E2E8F0;
+                }
+
+                /* Right Login Panel (45%) */
+                .login-panel {
+                    flex: 45%;
+                    background-color: #FFFFFF;
+                    padding: 56px 64px;
+                    display: flex;
+                    flex-direction: column;
+                }
+
+                .login-header {
+                    margin-bottom: 36px;
+                }
+
+                .login-logo-mobile {
+                    display: none;
+                    align-items: center;
+                    gap: 10px;
+                    margin-bottom: 24px;
+                }
+
+                .logo-icon-dark {
+                    width: 32px;
+                    height: 32px;
+                    background: #6366F1;
+                    border-radius: 8px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+
+                .logo-text-dark {
+                    font-size: 20px;
+                    font-weight: 800;
+                    color: #0B1026;
+                }
+
+                .welcome-title {
+                    font-size: 28px;
+                    font-weight: 800;
+                    color: #0B1026;
+                    margin: 0 0 8px 0;
+                }
+
+                .welcome-subtitle {
+                    font-size: 15px;
+                    color: #64748B;
                     margin: 0;
-                    letter-spacing: 0.5px;
-                    text-transform: uppercase;
                 }
 
                 .error-alert {
@@ -165,17 +330,17 @@ const Login = () => {
                     border: 1px solid #FECACA;
                     color: #DC2626;
                     padding: 12px 16px;
-                    border-radius: 10px;
+                    border-radius: 8px;
                     font-size: 14px;
                     font-weight: 500;
                     margin-bottom: 24px;
-                    text-align: center;
                 }
 
                 .login-form {
                     display: flex;
                     flex-direction: column;
                     gap: 20px;
+                    flex: 1;
                 }
 
                 .input-group label {
@@ -192,11 +357,7 @@ const Login = () => {
                     color: #6366F1;
                 }
 
-                .input-wrapper {
-                    position: relative;
-                }
-
-                .input-wrapper input {
+                .input-group input {
                     width: 100%;
                     padding: 14px 16px;
                     background: #F8FAFC;
@@ -207,15 +368,19 @@ const Login = () => {
                     transition: all 0.2s ease;
                 }
 
-                .input-wrapper input:focus {
+                .input-group input:focus {
                     background: #FFFFFF;
                     border-color: #6366F1;
                     box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
                     outline: none;
                 }
 
-                .input-wrapper input::placeholder {
-                    color: #CBD5E1;
+                .input-group input::placeholder {
+                    color: #94A3B8;
+                }
+
+                .password-wrapper {
+                    position: relative;
                 }
 
                 .password-toggle {
@@ -313,19 +478,14 @@ const Login = () => {
                     font-size: 16px;
                     font-weight: 600;
                     cursor: pointer;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 10px;
-                    margin-top: 12px;
+                    margin-top: 8px;
                     transition: all 0.3s ease;
-                    box-shadow: 0 8px 20px rgba(11, 16, 38, 0.2);
                 }
 
                 .submit-btn:hover:not(:disabled) {
-                    transform: translateY(-2px);
-                    box-shadow: 0 12px 24px rgba(11, 16, 38, 0.3);
                     background: #1A2242;
+                    transform: translateY(-2px);
+                    box-shadow: 0 8px 20px rgba(11, 16, 38, 0.15);
                 }
 
                 .submit-btn:disabled {
@@ -333,12 +493,29 @@ const Login = () => {
                     cursor: not-allowed;
                 }
 
-                .btn-icon {
-                    transition: transform 0.3s ease;
+                .divider {
+                    display: flex;
+                    align-items: center;
+                    text-align: center;
+                    color: #94a3b8;
+                    font-size: 13px;
+                    margin: 20px 0;
                 }
 
-                .submit-btn:hover .btn-icon {
-                    transform: translateX(4px);
+                .divider::before, .divider::after {
+                    content: '';
+                    flex: 1;
+                    border-bottom: 1px solid #e2e8f0;
+                }
+
+                .divider span {
+                    padding: 0 10px;
+                }
+
+                .google-btn-wrapper {
+                    display: flex;
+                    justify-content: center;
+                    width: 100%;
                 }
 
                 .login-footer {
@@ -353,13 +530,50 @@ const Login = () => {
                     margin: 0;
                 }
 
-                @media (max-width: 600px) {
-                    .login-card {
+                /* Responsive */
+                @media (max-width: 992px) {
+                    .split-card {
+                        flex-direction: column;
+                        max-width: 500px;
+                        min-height: auto;
+                    }
+                    .brand-panel {
+                        padding: 48px;
+                        flex: none;
+                    }
+                    .login-panel {
+                        padding: 48px;
+                        flex: none;
+                    }
+                    .login-logo-mobile {
+                        display: flex;
+                    }
+                    .brand-header {
+                        display: none;
+                    }
+                    .login-header {
+                        text-align: center;
+                    }
+                    .login-logo-mobile {
+                        justify-content: center;
+                    }
+                }
+
+                @media (max-width: 480px) {
+                    .split-card {
+                        border-radius: 16px;
+                    }
+                    .brand-panel {
                         padding: 32px 24px;
-                        border-radius: 20px;
+                    }
+                    .login-panel {
+                        padding: 32px 24px;
                     }
                     .brand-title {
-                        font-size: 20px;
+                        font-size: 28px;
+                    }
+                    .erp-illustration {
+                        justify-content: center;
                     }
                 }
             `}</style>
