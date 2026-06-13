@@ -112,6 +112,10 @@ const OrderSequelize = sequelize.define('Order', {
     grandTotal: {
         type: DataTypes.DOUBLE,
         defaultValue: 0
+    },
+    trackingTimeline: {
+        type: DataTypes.JSON,
+        allowNull: true
     }
 }, {
     hooks: {

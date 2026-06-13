@@ -6,7 +6,7 @@ import {
     ResponsiveContainer, PieChart, Pie, Cell
 } from 'recharts';
 import { 
-    ShoppingCart, Search, UserPlus, DollarSign, Calendar, ArrowUpRight, ArrowDownRight, FileText, CheckCircle, Clock, AlertTriangle, Filter, Plus, ChevronRight, Eye, Download, Bell 
+    ShoppingCart, Search, UserPlus, DollarSign, Calendar, ArrowUpRight, ArrowDownRight, FileText, CheckCircle, Clock, AlertTriangle, Filter, Plus, ChevronRight, Eye, Download, Bell, Truck 
 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -626,6 +626,13 @@ const ERP = () => {
                                             {/* Legacy non-sales logic */}
                                             {ord.orderType === 'purchase' && (ord.status === 'Pending' || ord.status === 'Awaiting Approval') && (isAdmin || userInfo.role === 'Super Admin' || userInfo.role === 'Manager') && (
                                                 <button className="btn-approve" onClick={() => handleStatusChange(ord._id, 'Approved')}>Approve</button>
+                                            )}
+
+                                            {/* Track Order Button */}
+                                            {ord.deliveryStatus && !['Not Started'].includes(ord.deliveryStatus) && (
+                                                <button className="btn-secondary-light" style={{ padding: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4f46e5' }} onClick={() => navigate(`/orders/${ord.id || ord._id}/tracking`)} title="Track Order">
+                                                    <Truck size={14} />
+                                                </button>
                                             )}
 
                                             {/* Download Invoice Button */}

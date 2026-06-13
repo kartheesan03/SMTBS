@@ -451,7 +451,39 @@ const updatePaymentStatus = async (req, res) => {
         await order.save();
         res.json({ message: `Payment status updated to ${paymentStatus}`, order });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ message: 'Server error updating payment status' });
+    }
+};
+
+const updateTrackingStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status, location, date, remarks } = req.body;
+
+        const order = await Order.findByPk(id);
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        const newTrackingUpdate = {
+            id: Date.now().toString(),
+            status,
+            location,
+            date: date || new Date().toISOString(),
+            remarks,
+            updatedBy: req.user.name,
+            updatedById: req.user.id
+        };
+
+        const currentTimeline = order.trackingTimeline || [];
+        order.trackingTimeline = [...currentTimeline, newTrackingUpdate];
+
+        await order.save();
+
+        res.json({ message: 'Tracking status updated successfully', order });
+    } catch (error) {
+        console.error('Update Tracking Status Error:', error);
+        res.status(500).json({ message: 'Server error updating tracking status' });
     }
 };
 
@@ -459,5 +491,6 @@ module.exports = {
     getOrders,
     createOrder,
     updateOrderStatus,
-    updatePaymentStatus
+    updatePaymentStatus,
+    updateTrackingStatus
 };

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getOrders, createOrder, updateOrderStatus, updatePaymentStatus } = require('../controllers/ordercontroller');
+const { getOrders, createOrder, updateOrderStatus, updatePaymentStatus, updateTrackingStatus } = require('../controllers/ordercontroller');
 const { protect, authorize } = require('../middleware/authMiddleware');
 
 router.route('/')
@@ -12,5 +12,8 @@ router.route('/:id/status')
 
 router.route('/:id/payment-status')
     .put(protect, updatePaymentStatus);
+
+router.route('/:id/tracking')
+    .put(protect, authorize('Admin', 'Manager', 'Sales'), updateTrackingStatus);
 
 module.exports = router;
