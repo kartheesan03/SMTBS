@@ -104,6 +104,14 @@ const OrderSequelize = sequelize.define('Order', {
     updatedById: {
         type: DataTypes.INTEGER,
         allowNull: true
+    },
+    notes: {
+        type: DataTypes.TEXT,
+        allowNull: true
+    },
+    grandTotal: {
+        type: DataTypes.DOUBLE,
+        defaultValue: 0
     }
 }, {
     hooks: {
