@@ -71,7 +71,9 @@ const handleStockStatusNotifications = async (material, previousStatus, newStatu
 const getMaterials = async (req, res) => {
     try {
         const materials = await Material.find({}).populate('vendor', 'name email contactPerson phone');
-        res.json(materials.filter(m => m.isActive !== false));
+        const activeMaterials = materials.filter(m => m.isActive !== false);
+        console.log(`[API /materials] Fetched ${activeMaterials.length} active materials.`);
+        res.json(activeMaterials);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

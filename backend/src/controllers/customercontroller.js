@@ -9,7 +9,8 @@ const { logAudit } = require('../services/auditService');
 // @access  Private
 const getCustomers = async (req, res) => {
     try {
-        const customers = await Customer.find({});
+        const customers = await Customer.find({}).populate('createdBy', 'name email');
+        console.log(`[API /customers] Fetched ${customers.length} customers.`);
         res.json(customers);
     } catch (error) {
         res.status(500).json({ message: error.message });

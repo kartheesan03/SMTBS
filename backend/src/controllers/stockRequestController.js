@@ -134,7 +134,7 @@ exports.employeeApproval = async (req, res) => {
 
         // Ensure only the employee who created it can approve it
         const userId = req.user.id || req.user._id;
-        if (request.employeeId !== userId && req.user.role !== 'Admin') {
+        if (request.employeeId !== userId && !['Admin', 'Manager'].includes(req.user.role)) {
             return res.status(403).json({ message: 'Unauthorized to approve this request' });
         }
 

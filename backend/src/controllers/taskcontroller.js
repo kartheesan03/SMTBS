@@ -102,7 +102,7 @@ const updateTaskStatus = async (req, res) => {
             return String(userId) === String(req.user._id);
         });
         
-        if (completionIndex === -1 && req.user.role !== 'Admin') {
+        if (completionIndex === -1 && !['Admin', 'Manager'].includes(req.user.role)) {
             return res.status(401).json({ message: 'Not authorized to update this task' });
         }
 

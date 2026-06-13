@@ -10,8 +10,8 @@ const getTickets = async (req, res) => {
             .populate('customer', 'name email company')
             .populate('assignedTo', 'name role')
             .sort({ createdAt: -1 });
-        // HR and Manager can see all tickets; Sales and Employee see only their assigned tickets
-        if (['HR', 'Manager'].includes(req.user.role)) {
+        // Admin, HR, and Manager can see all tickets; Sales and Employee see only their assigned tickets
+        if (['Admin', 'HR', 'Manager'].includes(req.user.role)) {
             return res.json(tickets);
         }
         const userIdStr = String(req.user._id);

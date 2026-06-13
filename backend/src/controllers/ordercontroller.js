@@ -36,6 +36,7 @@ const getOrders = async (req, res) => {
             .populate('vendor', 'name email category contactPerson')
             .populate('createdBy', 'name role')
             .populate('updatedBy', 'name role');
+        console.log(`[API /orders] Fetched ${orders.length} orders.`);
         res.json(orders);
     } catch (error) {
         res.status(500).json({ message: error.message });
