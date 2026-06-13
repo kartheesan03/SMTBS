@@ -222,7 +222,7 @@ const AppContent = () => {
 const App = () => {
     return (
         <ErrorBoundary>
-            <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || 'simulated_client_id_for_dev'}>
+            <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
                 <AuthProvider>
                     <NotificationProvider>
                         <Router>
