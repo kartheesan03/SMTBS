@@ -3,7 +3,7 @@ import API from '../api/axios';
 import { AuthContext } from '../context/AuthContext';
 import { 
     Calendar, CheckCircle, Clock, Briefcase, 
-    FileText, Bell, Search, ChevronDown, ListTodo, Star
+    FileText, Bell, Search, ChevronDown, ListTodo
 } from 'lucide-react';
 import { 
     BarChart, Bar, XAxis, YAxis, CartesianGrid, 
@@ -78,16 +78,6 @@ const EmployeeDashboard = () => {
             status: t.status || 'Pending',
             due: t.dueDate ? new Date(t.dueDate).toLocaleDateString() : 'N/A'
         }));
-
-    const rightPanelFeatures = [
-        { title: 'My Schedule', icon: <Calendar size={16} /> },
-        { title: 'Task Board', icon: <ListTodo size={16} /> },
-        { title: 'Apply Leave', icon: <Briefcase size={16} /> },
-        { title: 'Payslips', icon: <FileText size={16} /> },
-        { title: 'Company Policies', icon: <Star size={16} /> }
-    ];
-
-    const upcomingEvents = [];
 
     return (
         <div className="role-dashboard-layout">
@@ -256,42 +246,9 @@ const EmployeeDashboard = () => {
 
             </div>
 
-            {/* Right Panel */}
-            <div className="side-panel">
-                <div className="side-panel-header">
-                    <h3>QUICK LINKS</h3>
-                </div>
-                <div className="side-panel-content">
-                    <div className="features-list">
-                        {rightPanelFeatures.map((feature, idx) => (
-                            <div className="feature-item" key={idx}>
-                                <div className="feature-icon">{feature.icon}</div>
-                                <span className="feature-text">{feature.title}</span>
-                                <ChevronDown size={14} className="feature-chevron" style={{ transform: 'rotate(-90deg)' }}/>
-                            </div>
-                        ))}
-                    </div>
-
-                    <div className="system-status-block" style={{ marginTop: '20px', background: '#f8fafc', border: '1px solid #e2e8f0' }}>
-                        <h4 style={{ color: '#334155', margin: '0 0 8px 0', fontSize: '13px' }}><Calendar size={14} style={{display:'inline', marginBottom:'-2px'}}/> Upcoming Events</h4>
-                        {upcomingEvents.length > 0 ? upcomingEvents.map(event => (
-                            <div key={event.id} style={{ padding: '8px', background: '#ffffff', border: '1px solid #f1f5f9', borderRadius: '6px', marginBottom: '8px' }}>
-                                <div style={{ fontSize: '12px', fontWeight: 600, color: '#0f172a' }}>{event.title}</div>
-                                <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>{event.date}</div>
-                            </div>
-                        )) : (
-                            <div style={{ padding: '15px', textAlign: 'center', color: '#94a3b8', fontSize: '13px', background: '#ffffff', border: '1px solid #f1f5f9', borderRadius: '6px' }}>
-                                No upcoming events
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </div>
-
             <style jsx="true">{`
                 .role-dashboard-layout {
-                    display: grid;
-                    grid-template-columns: 1fr 280px;
+                    display: block;
                     min-height: 100vh;
                     background: #f8fafc;
                 }
@@ -378,28 +335,6 @@ const EmployeeDashboard = () => {
                 .bento-card-title { font-size: 13px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 6px; }
                 .bento-card-body { padding: 14px; flex: 1; overflow-y: auto; }
 
-                .side-panel {
-                    background: #ffffff; border-left: 1px solid #e2e8f0; height: 100vh; overflow-y: auto; display: flex; flex-direction: column;
-                }
-                .side-panel-header { padding: 16px; border-bottom: 1px solid #f1f5f9; }
-                .side-panel-header h3 { margin: 0; font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
-                .side-panel-content { padding: 16px; display: flex; flex-direction: column; flex: 1; }
-                
-                .features-list { display: flex; flex-direction: column; gap: 6px; }
-                .feature-item {
-                    display: flex; align-items: center; padding: 10px 12px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: all 0.2s;
-                }
-                .feature-item:hover { background: #f8fafc; border-color: #cbd5e1; }
-                .feature-icon { color: #3b82f6; margin-right: 10px; display: flex; align-items: center; }
-                .feature-text { font-size: 12px; font-weight: 600; color: #334155; flex: 1; }
-                .feature-chevron { color: #94a3b8; }
-
-                .system-status-block { border-radius: 8px; padding: 16px; }
-
-                @media (max-width: 1024px) {
-                    .role-dashboard-layout { grid-template-columns: 1fr; }
-                    .side-panel { display: none; }
-                }
                 @media (max-width: 768px) {
                     .kpi-grid { grid-template-columns: repeat(3, 1fr); }
                     .charts-grid-3 { grid-template-columns: 1fr; }
