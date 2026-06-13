@@ -4,11 +4,11 @@ const { getVendors, getVendorById, createVendor, updateVendor } = require('../co
 const { protect, authorize } = require('../middleware/authMiddleware');
 
 router.route('/')
-    .get(protect, authorize('Manager', 'Sales'), getVendors)
+    .get(protect, authorize('Manager', 'Sales', 'Employee'), getVendors)
     .post(protect, authorize('Manager'), createVendor);
 
 router.route('/:id')
-    .get(protect, authorize('Manager', 'Sales'), getVendorById)
+    .get(protect, authorize('Manager', 'Sales', 'Employee'), getVendorById)
     .put(protect, authorize('Manager'), updateVendor);
 
 module.exports = router;
