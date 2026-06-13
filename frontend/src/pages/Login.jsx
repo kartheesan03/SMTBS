@@ -2,7 +2,7 @@ import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import API from '../api/axios';
 import { AuthContext } from '../context/AuthContext';
-import { Mail, Lock, Eye, EyeOff, Box, ArrowRight, ShoppingCart, Users, Package, BarChart3, Activity, Archive, FileText, Briefcase, PieChart, Check } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, Box, ArrowRight, ShoppingCart, Users, Package, BarChart3, Activity, Archive, FileText, Briefcase, PieChart, Check, Truck, Monitor, Scan, LayoutGrid } from 'lucide-react';
 import { GoogleLogin } from '@react-oauth/google';
 
 const Login = () => {
@@ -63,70 +63,66 @@ const Login = () => {
                     </div>
                     <div className="brand-text">
                         <h1 className="brand-title">Enterprise Business Management<br/>Made Seamless.</h1>
-                        <p className="brand-subtitle">An all-in-one platform for materials, orders, HR, and ERP workflows.</p>
+                        <p className="brand-subtitle">Manage Materials, Inventory, Orders, HRMS and Delivery Operations from a Single Platform.</p>
                     </div>
                     
-                    <div className="brand-illustration workflow-corporate">
-                        <div className="workflow-tagline">
-                            <h2>Smart Material Tracking & Enterprise Management</h2>
+                    <div className="brand-illustration saas-corporate">
+                        {/* Features List */}
+                        <div className="corporate-features">
+                            <div className="feature-check"><Check size={18} className="check-icon" /> Material Tracking</div>
+                            <div className="feature-check"><Check size={18} className="check-icon" /> Inventory Management</div>
+                            <div className="feature-check"><Check size={18} className="check-icon" /> ERP Order Processing</div>
+                            <div className="feature-check"><Check size={18} className="check-icon" /> Employee & HRMS Management</div>
+                            <div className="feature-check"><Check size={18} className="check-icon" /> Delivery Tracking</div>
                         </div>
-                        
-                        {/* 3D-style Workflow Graphic */}
-                        <div className="erp-workflow-graphic">
-                            {/* Central Hub */}
-                            <div className="workflow-hub">
-                                <Box size={24} className="hub-icon" />
-                                <span>ERP Core</span>
+
+                        {/* Large Enterprise Illustration */}
+                        <div className="enterprise-scene">
+                            <div className="scene-element el-warehouse">
+                                <LayoutGrid size={28} className="scene-icon text-indigo" />
+                                <span>Warehouse</span>
                             </div>
-                            
-                            {/* Nodes */}
-                            <div className="workflow-nodes">
-                                <div className="node node-materials"><Package size={18} /><span>Materials</span></div>
-                                <div className="node node-inventory"><Archive size={18} /><span>Inventory</span></div>
-                                <div className="node node-orders"><ShoppingCart size={18} /><span>Orders</span></div>
-                                <div className="node node-employees"><Users size={18} /><span>Employees</span></div>
-                                <div className="node node-reports"><BarChart3 size={18} /><span>Reports</span></div>
+                            <div className="scene-element el-inventory">
+                                <Package size={28} className="scene-icon text-green" />
+                                <span>Inventory</span>
                             </div>
-                            
-                            {/* Animated Connection Lines */}
-                            <svg className="connection-lines" viewBox="0 0 400 300">
-                                <path className="line-path" d="M200,150 L100,60" />
-                                <path className="line-path" d="M200,150 L300,60" />
-                                <path className="line-path" d="M200,150 L320,240" />
-                                <path className="line-path" d="M200,150 L200,260" />
-                                <path className="line-path" d="M200,150 L80,240" />
-                                
-                                <circle className="particle p1" cx="200" cy="150" r="4" />
-                                <circle className="particle p2" cx="200" cy="150" r="4" />
-                                <circle className="particle p3" cx="200" cy="150" r="4" />
-                                <circle className="particle p4" cx="200" cy="150" r="4" />
-                                <circle className="particle p5" cx="200" cy="150" r="4" />
+                            <div className="scene-element el-dashboard">
+                                <Monitor size={40} className="scene-icon text-blue" />
+                                <span>Dashboard</span>
+                            </div>
+                            <div className="scene-element el-scanner">
+                                <Scan size={28} className="scene-icon text-purple" />
+                                <span>Scanning</span>
+                            </div>
+                            <div className="scene-element el-truck">
+                                <Truck size={28} className="scene-icon text-orange" />
+                                <span>Logistics</span>
+                            </div>
+
+                            {/* Connecting Path */}
+                            <svg className="scene-connections" viewBox="0 0 500 240">
+                                <path className="track-path" d="M80,100 C150,20 350,20 420,100 C350,180 150,180 80,100" />
+                                <circle className="track-dot dot1" r="3" />
+                                <circle className="track-dot dot2" r="3" />
+                                <circle className="track-dot dot3" r="3" />
                             </svg>
                         </div>
 
-                        {/* Supply Chain Flow */}
-                        <div className="supply-chain-flow">
-                            <div className="flow-step">Vendor</div>
-                            <div className="flow-arrow"><ArrowRight size={14} /></div>
-                            <div className="flow-step">Inventory</div>
-                            <div className="flow-arrow"><ArrowRight size={14} /></div>
-                            <div className="flow-step">Order</div>
-                            <div className="flow-arrow"><ArrowRight size={14} /></div>
-                            <div className="flow-step">Delivery</div>
-                            <div className="flow-arrow"><ArrowRight size={14} /></div>
-                            <div className="flow-step">Customer</div>
-                        </div>
-
-                        {/* Feature Highlights */}
-                        <div className="corporate-features">
-                            <div className="feature-check">
-                                <Check size={18} className="check-icon" /> Real-Time Inventory Control
+                        {/* Subtle Animated Line Flow Text */}
+                        <div className="flow-tracker">
+                            <div className="flow-nodes">
+                                <span>Vendor</span>
+                                <ArrowRight size={14} className="flow-arrow" />
+                                <span>Inventory</span>
+                                <ArrowRight size={14} className="flow-arrow" />
+                                <span>Order</span>
+                                <ArrowRight size={14} className="flow-arrow" />
+                                <span>Delivery</span>
+                                <ArrowRight size={14} className="flow-arrow" />
+                                <span>Customer</span>
                             </div>
-                            <div className="feature-check">
-                                <Check size={18} className="check-icon" /> ERP Order Management
-                            </div>
-                            <div className="feature-check">
-                                <Check size={18} className="check-icon" /> Workforce Management
+                            <div className="flow-progress-bar">
+                                <div className="flow-progress-fill"></div>
                             </div>
                         </div>
                     </div>
@@ -148,6 +144,9 @@ const Login = () => {
                         </div>
                         <h2 className="welcome-text">Welcome back to SMTBMS</h2>
                         <p className="welcome-subtitle">Sign in to manage materials, orders, employees, and stock workflows.</p>
+                        <div className="secure-access-note">
+                            <Lock size={14} /> Secure access for Admin, HR, Manager, Sales and Employees.
+                        </div>
                     </div>
                     
                     {error && (
@@ -229,7 +228,6 @@ const Login = () => {
 
             <style jsx="true">{`
 
-                
                 .login-layout {
                     display: flex;
                     min-height: 100vh;
@@ -239,7 +237,7 @@ const Login = () => {
                 /* --- Left Panel --- */
                 .login-brand-panel {
                     flex: 1.2;
-                    background: #0F172A; /* Solid Dark Navy */
+                    background: linear-gradient(145deg, #0B1120 0%, #0F172A 100%);
                     position: relative;
                     overflow: hidden;
                     display: flex;
@@ -261,7 +259,7 @@ const Login = () => {
                     display: flex;
                     align-items: center;
                     gap: 12px;
-                    margin-bottom: 80px;
+                    margin-bottom: 60px;
                 }
 
                 .logo-icon-wrapper {
@@ -285,7 +283,7 @@ const Login = () => {
                     font-size: 42px;
                     font-weight: 800;
                     line-height: 1.2;
-                    margin: 0 0 20px 0;
+                    margin: 0 0 16px 0;
                     letter-spacing: -1px;
                 }
 
@@ -293,17 +291,17 @@ const Login = () => {
                     font-size: 18px;
                     color: #94a3b8;
                     line-height: 1.5;
-                    max-width: 80%;
+                    max-width: 85%;
                 }
 
-                /* Workflow Enterprise Illustration */
-                .brand-illustration.workflow-corporate {
+                /* SaaS Corporate Illustration */
+                .brand-illustration.saas-corporate {
                     position: relative;
-                    margin-top: 20px;
+                    margin-top: 30px;
                     flex: 1;
                     display: flex;
                     flex-direction: column;
-                    justify-content: space-between;
+                    gap: 40px;
                     animation: fadeIn 0.8s ease-out forwards;
                 }
 
@@ -312,82 +310,73 @@ const Login = () => {
                     to { opacity: 1; transform: translateY(0); }
                 }
 
-                .workflow-tagline h2 {
-                    font-size: 22px;
-                    font-weight: 600;
-                    color: #F8FAFC;
-                    margin: 0;
-                    line-height: 1.4;
-                    letter-spacing: -0.5px;
+                .corporate-features {
+                    display: grid;
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 16px;
                 }
 
-                .erp-workflow-graphic {
+                .feature-check {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    font-size: 15px;
+                    color: #E2E8F0;
+                    font-weight: 500;
+                }
+
+                .check-icon {
+                    color: #10B981;
+                }
+
+                .enterprise-scene {
                     position: relative;
-                    height: 300px;
-                    width: 400px;
+                    height: 240px;
+                    width: 100%;
+                    max-width: 500px;
                     margin: 0 auto;
-                    background: rgba(30, 41, 59, 0.5);
-                    border: 1px solid rgba(255, 255, 255, 0.05);
-                    border-radius: 24px;
-                    box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.3), 0 12px 32px rgba(0,0,0,0.2);
+                    background: transparent;
                 }
 
-                .workflow-hub {
+                .scene-element {
                     position: absolute;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                    background: linear-gradient(135deg, #4F46E5, #3B82F6);
-                    color: white;
-                    border-radius: 16px;
-                    padding: 16px 20px;
+                    background: #1E293B;
+                    border: 1px solid rgba(255,255,255,0.08);
+                    border-radius: 12px;
+                    padding: 16px;
                     display: flex;
                     flex-direction: column;
                     align-items: center;
                     gap: 8px;
-                    box-shadow: 0 0 20px rgba(79, 70, 229, 0.5);
-                    z-index: 10;
-                    font-weight: 700;
-                    font-size: 14px;
-                    letter-spacing: 0.5px;
-                }
-
-                .workflow-nodes {
-                    position: absolute;
-                    inset: 0;
-                    z-index: 5;
-                }
-
-                .node {
-                    position: absolute;
-                    background: #1E293B;
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                    border-radius: 12px;
-                    padding: 10px 16px;
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
                     font-size: 13px;
                     font-weight: 600;
                     color: #F8FAFC;
-                    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+                    box-shadow: 0 12px 24px rgba(0,0,0,0.25);
                     transform: translate(-50%, -50%);
                     transition: transform 0.3s ease, box-shadow 0.3s ease;
+                    z-index: 5;
                 }
 
-                .node:hover {
+                .scene-element:hover {
                     transform: translate(-50%, -50%) scale(1.05);
-                    background: #27364B;
-                    box-shadow: 0 12px 24px rgba(0,0,0,0.3);
+                    box-shadow: 0 16px 32px rgba(0,0,0,0.3);
+                    border-color: rgba(255,255,255,0.15);
                 }
 
-                .node-materials { top: 60px; left: 100px; color: #60A5FA; }
-                .node-inventory { top: 60px; left: 300px; color: #34D399; }
-                .node-orders { top: 240px; left: 320px; color: #818CF8; }
-                .node-employees { top: 260px; left: 200px; color: #F472B6; }
-                .node-reports { top: 240px; left: 80px; color: #FBBF24; }
+                .text-indigo { color: #818CF8; }
+                .text-green { color: #34D399; }
+                .text-blue { color: #60A5FA; }
+                .text-purple { color: #A78BFA; }
+                .text-orange { color: #FBBF24; }
 
-                .connection-lines {
+                /* Positions on the path */
+                .el-warehouse { top: 100px; left: 80px; }
+                .el-inventory { top: 20px; left: 250px; }
+                .el-dashboard { top: 100px; left: 250px; z-index: 10; padding: 20px; }
+                .el-scanner { top: 180px; left: 250px; }
+                .el-truck { top: 100px; left: 420px; }
+
+                .scene-connections {
                     position: absolute;
                     inset: 0;
                     width: 100%;
@@ -395,46 +384,88 @@ const Login = () => {
                     z-index: 1;
                 }
 
-                .line-path {
-                    stroke: rgba(255, 255, 255, 0.15);
+                .track-path {
+                    stroke: rgba(255, 255, 255, 0.06);
                     stroke-width: 2;
                     fill: none;
-                    stroke-dasharray: 6 4;
-                    animation: dashLine 20s linear infinite;
                 }
 
-                @keyframes dashLine {
-                    to { stroke-dashoffset: -1000; }
-                }
-
-                .particle {
+                .track-dot {
                     fill: #818CF8;
-                    filter: drop-shadow(0 0 4px #818CF8);
+                    filter: drop-shadow(0 0 6px #818CF8);
                 }
 
-                .p1 { animation: travel1 3s infinite linear; }
-                .p2 { animation: travel2 3.5s infinite linear 1s; }
-                .p3 { animation: travel3 2.5s infinite linear 0.5s; }
-                .p4 { animation: travel4 4s infinite linear 1.5s; }
-                .p5 { animation: travel5 3s infinite linear 2s; }
+                /* Path length ~800, dot travels around */
+                .dot1 { animation: flowDot 8s infinite linear; }
+                .dot2 { animation: flowDot 8s infinite linear 2.6s; }
+                .dot3 { animation: flowDot 8s infinite linear 5.3s; }
 
-                @keyframes travel1 { 0% { cx: 200px; cy: 150px; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { cx: 100px; cy: 60px; opacity: 0; } }
-                @keyframes travel2 { 0% { cx: 200px; cy: 150px; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { cx: 300px; cy: 60px; opacity: 0; } }
-                @keyframes travel3 { 0% { cx: 200px; cy: 150px; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { cx: 320px; cy: 240px; opacity: 0; } }
-                @keyframes travel4 { 0% { cx: 200px; cy: 150px; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { cx: 200px; cy: 260px; opacity: 0; } }
-                @keyframes travel5 { 0% { cx: 200px; cy: 150px; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { cx: 80px; cy: 240px; opacity: 0; } }
+                @keyframes flowDot {
+                    0% { cx: 80px; cy: 100px; opacity: 0; }
+                    10% { opacity: 1; }
+                    25% { cx: 250px; cy: 20px; }
+                    50% { cx: 420px; cy: 100px; }
+                    75% { cx: 250px; cy: 180px; }
+                    90% { opacity: 1; }
+                    100% { cx: 80px; cy: 100px; opacity: 0; }
+                }
 
-                .supply-chain-flow {
+                .flow-tracker {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 12px;
+                    margin-top: auto;
+                    background: transparent;
+                }
+
+                .flow-nodes {
                     display: flex;
                     align-items: center;
-                    justify-content: center;
-                    gap: 12px;
-                    background: #1E293B;
-                    padding: 16px 20px;
-                    border-radius: 12px;
-                    border: 1px solid rgba(255, 255, 255, 0.05);
-                    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-                    flex-wrap: wrap;
+                    justify-content: space-between;
+                    font-size: 13px;
+                    font-weight: 600;
+                    color: #94A3B8;
+                }
+
+                .flow-arrow {
+                    color: #4F46E5;
+                    opacity: 0.5;
+                }
+
+                .flow-progress-bar {
+                    width: 100%;
+                    height: 2px;
+                    background: rgba(255,255,255,0.05);
+                    position: relative;
+                    border-radius: 2px;
+                    overflow: hidden;
+                }
+
+                .flow-progress-fill {
+                    position: absolute;
+                    left: -50%;
+                    top: 0;
+                    height: 100%;
+                    width: 50%;
+                    background: linear-gradient(90deg, transparent, #4F46E5, transparent);
+                    animation: sweep 3s infinite linear;
+                }
+
+                @keyframes sweep {
+                    to { left: 100%; }
+                }
+
+                .secure-access-note {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    margin-top: 16px;
+                    font-size: 13px;
+                    color: #059669;
+                    background: #ecfdf5;
+                    padding: 8px 12px;
+                    border-radius: 6px;
+                    font-weight: 500;
                 }
 
                 .flow-step {
@@ -796,9 +827,12 @@ const Login = () => {
                     .brand-title {
                         font-size: 32px;
                     }
-                    .erp-workflow-graphic {
+                    .enterprise-scene {
                         transform: scale(0.85);
                         transform-origin: center;
+                    }
+                    .corporate-features {
+                        grid-template-columns: 1fr;
                     }
                 }
 
