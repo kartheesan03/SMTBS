@@ -299,18 +299,19 @@ const Vendors = () => {
     };
 
     // Vendor Mini-Dashboard Stats
-    const vendorMaterialsList = 
-        selectedVendor?.materials ||
-        selectedVendor?.materialsSupplied ||
-        selectedVendor?.stockItems ||
-        selectedVendor?.items ||
-        selectedVendor?.vendorMaterials ||
-        vendorMaterials ||
-        [];
+    const linkedMaterials = selectedVendor ? allMaterials.filter((m) => {
+        const mVendorIdStr = String(m.vendorId || (m.vendor && (m.vendor.id || m.vendor._id)) || '');
+        const sVendorIdStr = String(selectedVendor.id || selectedVendor._id || '');
+        
+        return mVendorIdStr === sVendorIdStr ||
+               m.vendorName === selectedVendor.name ||
+               m.supplierName === selectedVendor.name ||
+               (m.vendor && m.vendor.name === selectedVendor.name);
+    }) : [];
 
-    const totalVendorMaterials = vendorMaterialsList.length;
-    const totalVendorStock = vendorMaterialsList.reduce((sum, m) => sum + (Number(m.stockQty || m.quantity || m.stock || 0)), 0);
-    const totalVendorValue = vendorMaterialsList.reduce((sum, m) => sum + (Number(m.stockQty || m.quantity || m.stock || 0) * Number(m.price || m.unitPrice || 0)), 0);
+    const totalVendorMaterials = linkedMaterials.length;
+    const totalVendorStock = linkedMaterials.reduce((sum, m) => sum + (Number(m.stockQty || m.quantity || m.stock || 0)), 0);
+    const totalVendorValue = linkedMaterials.reduce((sum, m) => sum + (Number(m.stockQty || m.quantity || m.stock || 0) * Number(m.price || m.unitPrice || 0)), 0);
 
     return (
         <div className="module-container">
@@ -570,7 +571,7 @@ const Vendors = () => {
                                     </button>
                                 </div>
                                 
-                                {vendorMaterialsList.length === 0 ? (
+                                {linkedMaterials.length === 0 ? (
                                     <div style={{ textAlign: 'center', padding: '30px', background: '#f8fafc', borderRadius: '8px', border: '1px dashed #cbd5e1' }}>
                                         <p className="text-muted" style={{ fontSize: '13px', margin: 0 }}>No physical inventory is currently supplied by this vendor.</p>
                                     </div>
@@ -588,7 +589,7 @@ const Vendors = () => {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {vendorMaterialsList.map(m => (
+                                                {linkedMaterials.map(m => (
                                                     <tr key={m._id || m.id} style={{ borderBottom: '1px solid var(--border)', cursor: 'pointer' }}>
                                                         <td style={{ padding: '10px' }} onClick={() => openNestedMaterialView(m)}>{m.sku}</td>
                                                         <td style={{ padding: '10px', fontWeight: 600 }} onClick={() => openNestedMaterialView(m)}>{m.name}</td>
