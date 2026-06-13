@@ -331,9 +331,7 @@ const MaterialTracking = () => {
                     <button className="btn-secondary-light flex-center gap-8 text-indigo" onClick={() => { if (materials.length > 0) setScanSKU(materials[0].sku); setShowScanner(true); }}>
                         <Camera size={16} /> Scan Item
                     </button>
-                    <button className="btn-primary-blue flex-center gap-8" onClick={() => { setEditId(null); setShowNewCategoryInput(false); setFormData({ name: '', sku: '', category: '', quantity: 0, lowStockThreshold: 10, unit: 'pcs', price: 0, vendorId: '' }); setShowModal(true); }}>
-                        <Plus size={16} /> Add Material
-                    </button>
+
                 </div>
             </header>
 
