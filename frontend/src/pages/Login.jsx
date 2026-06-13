@@ -59,7 +59,7 @@ const Login = () => {
                     <div className="brand-content">
                         <h1 className="brand-title">Smart Material Tracking &<br/>Business Management System</h1>
                         <p className="brand-desc">
-                            Manage Inventory, ERP Operations, Material Tracking, HRMS and Delivery Workflows from a Single Platform.
+                            Enterprise ERP, Inventory Management, Material Tracking, HRMS and Delivery Operations.
                         </p>
 
                         {/* Enterprise-themed icons illustration */}
@@ -90,7 +90,8 @@ const Login = () => {
 
                 {/* Right Side: Login Form (45%) */}
                 <div className="login-panel">
-                    <div className="login-header">
+                    <div className="login-form-container">
+                        <div className="login-header">
                         <div className="login-logo-mobile">
                             <div className="logo-icon-dark">
                                 <Box size={20} color="#ffffff" strokeWidth={2.5} />
@@ -167,40 +168,39 @@ const Login = () => {
                     <div className="login-footer">
                         <p>© 2026 SMTBMS Enterprise Suite</p>
                     </div>
+                    </div>
                 </div>
             </div>
 
             <style jsx="true">{`
                 .login-wrapper {
-                    min-height: 100vh;
+                    width: 100vw;
+                    height: 100vh;
+                    margin: 0;
+                    padding: 0;
                     display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    background: #F8FAFC;
-                    padding: 20px;
+                    overflow: hidden;
                     font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
                 }
 
                 .split-card {
                     display: flex;
                     width: 100%;
-                    max-width: 1100px;
-                    min-height: 650px;
+                    height: 100%;
                     background: #FFFFFF;
-                    border-radius: 20px;
-                    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06);
-                    overflow: hidden;
                 }
 
                 /* Left Branding Panel (55%) */
                 .brand-panel {
-                    flex: 55%;
+                    flex: 0 0 55%;
+                    width: 55%;
                     background-color: #0B1026;
-                    padding: 56px;
+                    padding: 60px 80px;
                     display: flex;
                     flex-direction: column;
                     justify-content: space-between;
                     color: #FFFFFF;
+                    box-sizing: border-box;
                 }
 
                 .brand-header {
@@ -278,11 +278,24 @@ const Login = () => {
 
                 /* Right Login Panel (45%) */
                 .login-panel {
-                    flex: 45%;
+                    flex: 0 0 45%;
+                    width: 45%;
                     background-color: #FFFFFF;
-                    padding: 56px 64px;
+                    padding: 60px 80px;
                     display: flex;
                     flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    box-sizing: border-box;
+                }
+
+                .login-form-container {
+                    width: 100%;
+                    max-width: 420px;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    flex: 1;
                 }
 
                 .login-header {
@@ -532,18 +545,19 @@ const Login = () => {
 
                 /* Responsive */
                 @media (max-width: 992px) {
+                    .login-wrapper {
+                        overflow-y: auto;
+                        height: auto;
+                        min-height: 100vh;
+                    }
                     .split-card {
                         flex-direction: column;
-                        max-width: 500px;
-                        min-height: auto;
+                        height: auto;
                     }
-                    .brand-panel {
-                        padding: 48px;
+                    .brand-panel, .login-panel {
                         flex: none;
-                    }
-                    .login-panel {
-                        padding: 48px;
-                        flex: none;
+                        width: 100%;
+                        padding: 40px;
                     }
                     .login-logo-mobile {
                         display: flex;
@@ -560,9 +574,6 @@ const Login = () => {
                 }
 
                 @media (max-width: 480px) {
-                    .split-card {
-                        border-radius: 16px;
-                    }
                     .brand-panel {
                         padding: 32px 24px;
                     }
