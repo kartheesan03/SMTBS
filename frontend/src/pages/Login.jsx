@@ -124,7 +124,7 @@ const Login = () => {
                             <span className="logo-text-small">SMTBMS</span>
                         </div>
                         <h2 className="welcome-text">SMTBMS Enterprise Portal</h2>
-                        <p className="welcome-subtitle">Secure access to Material Tracking, Inventory Management, ERP Operations, HRMS, and Business Workflows.</p>
+                        <p className="welcome-subtitle">Enterprise Resource Planning & Material Management System</p>
                     </div>
                     
                     {error && (
@@ -136,9 +136,8 @@ const Login = () => {
 
                     <form onSubmit={handleSubmit} className="login-form">
                         <div className="input-group">
-                            <label>Email address</label>
+                            <label><Mail size={16} className="label-icon" /> Email Address</label>
                             <div className="input-wrapper">
-                                <Mail size={18} className="input-icon" />
                                 <input 
                                     type="email" 
                                     placeholder="name@company.com" 
@@ -150,9 +149,8 @@ const Login = () => {
                         </div>
 
                         <div className="input-group">
-                            <label>Password</label>
+                            <label><Lock size={16} className="label-icon" /> Password</label>
                             <div className="input-wrapper">
-                                <Lock size={18} className="input-icon" />
                                 <input 
                                     type={showPassword ? "text" : "password"} 
                                     placeholder="••••••••" 
@@ -184,14 +182,8 @@ const Login = () => {
                         </button>
                     </form>
                     
-                    <div className="trust-indicators">
-                        <div className="trust-item"><Lock size={14} /> Secure Login</div>
-                        <div className="trust-item"><Users size={14} /> Role-Based Access</div>
-                        <div className="trust-item"><Activity size={14} /> Real-Time Tracking</div>
-                    </div>
-
                     <div className="card-footer-text">
-                        <p>© 2026 SMTBMS. All Rights Reserved.</p>
+                        <p>© 2026 SMTBMS | Enterprise Management Suite</p>
                     </div>
                 </div>
             </div>
@@ -496,9 +488,9 @@ const Login = () => {
                     width: 100%;
                     max-width: 420px;
                     background: #ffffff;
-                    padding: 40px;
-                    border-radius: 20px;
-                    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+                    padding: 36px 40px;
+                    border-radius: 18px;
+                    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
                     border: 1px solid rgba(0, 0, 0, 0.05);
                     position: relative;
                     z-index: 1;
@@ -511,7 +503,7 @@ const Login = () => {
                 }
 
                 .form-header {
-                    margin-bottom: 32px;
+                    margin-bottom: 28px;
                     display: flex;
                     flex-direction: column;
                     align-items: center;
@@ -522,7 +514,7 @@ const Login = () => {
                     display: flex;
                     align-items: center;
                     gap: 10px;
-                    margin-bottom: 20px;
+                    margin-bottom: 16px;
                 }
 
                 .logo-icon-wrapper-small {
@@ -546,7 +538,7 @@ const Login = () => {
                     font-size: 24px;
                     font-weight: 800;
                     color: #0B1026;
-                    margin: 0 0 10px 0;
+                    margin: 0 0 6px 0;
                     letter-spacing: -0.5px;
                     line-height: 1.2;
                 }
@@ -558,22 +550,7 @@ const Login = () => {
                     line-height: 1.5;
                 }
 
-                .trust-indicators {
-                    display: flex;
-                    justify-content: space-between;
-                    margin-top: 24px;
-                    padding-top: 24px;
-                    border-top: 1px solid #F1F5F9;
-                }
-
-                .trust-item {
-                    display: flex;
-                    align-items: center;
-                    gap: 6px;
-                    font-size: 12px;
-                    font-weight: 500;
-                    color: #64748b;
-                }
+                /* Removed trust indicators */
 
                 .error-alert {
                     display: flex;
@@ -584,7 +561,7 @@ const Login = () => {
                     color: #dc2626;
                     padding: 14px 16px;
                     border-radius: 12px;
-                    margin-bottom: 24px;
+                    margin-bottom: 20px;
                     font-size: 14px;
                     font-weight: 500;
                 }
@@ -592,15 +569,21 @@ const Login = () => {
                 .login-form {
                     display: flex;
                     flex-direction: column;
-                    gap: 24px;
+                    gap: 20px;
                 }
 
                 .input-group label {
-                    display: block;
-                    font-size: 14px;
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    font-size: 13px;
                     font-weight: 600;
                     color: #334155;
                     margin-bottom: 8px;
+                }
+
+                .label-icon {
+                    color: #6366f1;
                 }
 
                 .input-wrapper {
@@ -609,16 +592,9 @@ const Login = () => {
                     align-items: center;
                 }
 
-                .input-icon {
-                    position: absolute;
-                    left: 16px;
-                    color: #94a3b8;
-                    pointer-events: none;
-                }
-
                 .input-wrapper input {
                     width: 100%;
-                    padding: 14px 16px 14px 44px;
+                    padding: 14px 16px;
                     background: #f8fafc;
                     border: 1px solid #e2e8f0;
                     border-radius: 12px;
