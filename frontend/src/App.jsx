@@ -14,7 +14,7 @@ import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Materials from './pages/Materials';
-import MaterialDetail from './pages/MaterialDetail';
+
 import OrderTracking from './pages/OrderTracking';
 import HRMS from './pages/HRMS';
 import AdminDashboard from './pages/AdminDashboard';
