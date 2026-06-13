@@ -299,9 +299,18 @@ const Vendors = () => {
     };
 
     // Vendor Mini-Dashboard Stats
-    const totalVendorMaterials = vendorMaterials.length;
-    const totalVendorStock = vendorMaterials.reduce((sum, m) => sum + (Number(m.stockQty || m.quantity || m.stock || 0)), 0);
-    const totalVendorValue = vendorMaterials.reduce((sum, m) => sum + (Number(m.stockQty || m.quantity || m.stock || 0) * Number(m.price || 0)), 0);
+    const vendorMaterialsList = 
+        selectedVendor?.materials ||
+        selectedVendor?.materialsSupplied ||
+        selectedVendor?.stockItems ||
+        selectedVendor?.items ||
+        selectedVendor?.vendorMaterials ||
+        vendorMaterials ||
+        [];
+
+    const totalVendorMaterials = vendorMaterialsList.length;
+    const totalVendorStock = vendorMaterialsList.reduce((sum, m) => sum + (Number(m.stockQty || m.quantity || m.stock || 0)), 0);
+    const totalVendorValue = vendorMaterialsList.reduce((sum, m) => sum + (Number(m.stockQty || m.quantity || m.stock || 0) * Number(m.price || m.unitPrice || 0)), 0);
 
     return (
         <div className="module-container">
@@ -561,7 +570,7 @@ const Vendors = () => {
                                     </button>
                                 </div>
                                 
-                                {vendorMaterials.length === 0 ? (
+                                {vendorMaterialsList.length === 0 ? (
                                     <div style={{ textAlign: 'center', padding: '30px', background: '#f8fafc', borderRadius: '8px', border: '1px dashed #cbd5e1' }}>
                                         <p className="text-muted" style={{ fontSize: '13px', margin: 0 }}>No physical inventory is currently supplied by this vendor.</p>
                                     </div>
@@ -579,7 +588,7 @@ const Vendors = () => {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {vendorMaterials.map(m => (
+                                                {vendorMaterialsList.map(m => (
                                                     <tr key={m._id || m.id} style={{ borderBottom: '1px solid var(--border)', cursor: 'pointer' }}>
                                                         <td style={{ padding: '10px' }} onClick={() => openNestedMaterialView(m)}>{m.sku}</td>
                                                         <td style={{ padding: '10px', fontWeight: 600 }} onClick={() => openNestedMaterialView(m)}>{m.name}</td>
