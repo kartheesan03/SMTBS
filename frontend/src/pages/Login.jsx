@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import API from '../api/axios';
 import { AuthContext } from '../context/AuthContext';
 import { Mail, Lock, Eye, EyeOff, Box, Package, Archive, ShoppingCart, Truck, FileText } from 'lucide-react';
@@ -162,6 +162,10 @@ const Login = () => {
                                 text="signin_with"
                                 width="300"
                             />
+                        </div>
+
+                        <div className="signup-link-wrapper">
+                            Don't have an account? <Link to="/register" className="signup-link">Sign up</Link>
                         </div>
                     </form>
 
@@ -529,6 +533,25 @@ const Login = () => {
                     display: flex;
                     justify-content: center;
                     width: 100%;
+                }
+
+                .signup-link-wrapper {
+                    text-align: center;
+                    margin-top: 16px;
+                    font-size: 14px;
+                    color: #64748B;
+                }
+
+                .signup-link {
+                    color: #6366F1;
+                    font-weight: 600;
+                    text-decoration: none;
+                    transition: color 0.2s;
+                }
+
+                .signup-link:hover {
+                    color: #4F46E5;
+                    text-decoration: underline;
                 }
 
                 .login-footer {
