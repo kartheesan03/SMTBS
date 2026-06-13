@@ -2,7 +2,7 @@ import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import API from '../api/axios';
 import { AuthContext } from '../context/AuthContext';
-import { Mail, Lock, Eye, EyeOff, Box, ArrowRight, User, Phone, Shield } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, Box, Package, Archive, ShoppingCart, Truck, FileText, User, Phone, Shield } from 'lucide-react';
 
 const Register = () => {
     const [name, setName] = useState('');
@@ -12,9 +12,9 @@ const Register = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
-    
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    
     const { login } = useContext(AuthContext);
     const navigate = useNavigate();
 
@@ -30,8 +30,7 @@ const Register = () => {
         try {
             const payload = { name, email, phone, role, password };
             const { data } = await API.post('/auth/register', payload);
-            console.log('Registration successful. Received user role from API:', data.role);
-            login(data); // Auto-login after registration
+            login(data);
             setError('');
             navigate('/');
         } catch (err) {
@@ -43,62 +42,72 @@ const Register = () => {
     };
 
     return (
-        <div className="login-layout">
-            {/* Left Side - Branding & Illustration */}
-            <div className="login-brand-panel desktop-only">
-                <div className="brand-content">
-                    <div className="brand-logo-large">
-                        <div className="logo-icon-wrapper">
-                            <Box size={32} color="#ffffff" strokeWidth={2.5} />
+        <div className="login-wrapper">
+            <div className="split-card">
+                {/* Left Side: Visual Branding Panel (55%) */}
+                <div className="brand-panel">
+                    <div className="brand-header">
+                        <div className="logo-icon">
+                            <Box size={24} color="#ffffff" strokeWidth={2.5} />
                         </div>
-                        <span className="logo-text-large">SMTBMS</span>
+                        <span className="logo-text">SMTBMS</span>
                     </div>
-                    <div className="brand-text">
-                        <h1 className="brand-title">Join the Future of<br/>Enterprise Workflows.</h1>
-                        <p className="brand-subtitle">Create an account to access powerful tools for materials, orders, HR, and ERP management.</p>
-                    </div>
-                    
-                    <div className="brand-illustration">
-                        <div className="abstract-card abstract-card-1" style={{ top: '80px', left: '240px', animation: 'float 7s ease-in-out infinite' }}>
-                            <div className="mock-skeleton-title"></div>
-                            <div className="mock-skeleton-line"></div>
-                            <div className="mock-skeleton-line" style={{ width: '60%' }}></div>
-                        </div>
-                        <div className="abstract-circle abstract-circle-1" style={{ background: '#8b5cf6', top: '40px', left: '100px' }}></div>
-                        <div className="abstract-circle abstract-circle-2" style={{ background: '#ec4899', top: '180px', left: '280px' }}></div>
-                    </div>
-                </div>
-                <div className="brand-footer">
-                    <p>© 2026 SMTBMS. All rights reserved.</p>
-                </div>
-            </div>
 
-            {/* Right Side - Register Form */}
-            <div className="login-form-panel" style={{ padding: '40px 20px', alignItems: 'flex-start', overflowY: 'auto' }}>
-                <div className="form-container" style={{ margin: 'auto' }}>
-                    <div className="form-header">
-                        <div className="mobile-logo mobile-only">
-                            <div className="logo-icon-wrapper-small">
-                                <Box size={24} color="#ffffff" strokeWidth={2.5} />
+                    <div className="brand-content">
+                        <h1 className="brand-title">Smart Material Tracking &<br/>Business Management System</h1>
+                        <p className="brand-desc">
+                            Enterprise ERP, Inventory Management, Material Tracking, HRMS and Delivery Operations.
+                        </p>
+
+                        {/* Enterprise-themed icons illustration */}
+                        <div className="erp-illustration">
+                            <div className="icon-badge">
+                                <Archive size={28} color="#6366F1" />
+                                <span>Inventory</span>
                             </div>
-                            <span className="logo-text-small">SMTBMS</span>
+                            <div className="icon-badge">
+                                <Package size={28} color="#10B981" />
+                                <span>Materials</span>
+                            </div>
+                            <div className="icon-badge">
+                                <ShoppingCart size={28} color="#F59E0B" />
+                                <span>Orders</span>
+                            </div>
+                            <div className="icon-badge">
+                                <Truck size={28} color="#EF4444" />
+                                <span>Delivery</span>
+                            </div>
+                            <div className="icon-badge">
+                                <FileText size={28} color="#8B5CF6" />
+                                <span>Reports</span>
+                            </div>
                         </div>
-                        <h2 className="welcome-text">Create an account</h2>
-                        <p className="welcome-subtitle">Get started by filling out the information below.</p>
                     </div>
-                    
-                    {error && (
-                        <div className="error-alert">
-                            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className="error-icon"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                            <span>{error}</span>
-                        </div>
-                    )}
+                </div>
 
-                    <form onSubmit={handleSubmit} className="login-form">
-                        <div className="input-group">
-                            <label>Full Name</label>
-                            <div className="input-wrapper">
-                                <User size={18} className="input-icon" />
+                {/* Right Side: Register Form (45%) */}
+                <div className="login-panel">
+                    <div className="login-form-container">
+                        <div className="login-header" style={{ marginBottom: '24px' }}>
+                            <div className="login-logo-mobile">
+                                <div className="logo-icon-dark">
+                                    <Box size={20} color="#ffffff" strokeWidth={2.5} />
+                                </div>
+                                <span className="logo-text-dark">SMTBMS</span>
+                            </div>
+                            <h2 className="welcome-title">Create an account</h2>
+                            <p className="welcome-subtitle">Get started by filling out the information below.</p>
+                        </div>
+
+                        {error && (
+                            <div className="error-alert" style={{ marginBottom: '16px' }}>
+                                {error}
+                            </div>
+                        )}
+
+                        <form onSubmit={handleSubmit} className="login-form" style={{ gap: '16px' }}>
+                            <div className="input-group">
+                                <label><User size={16} className="label-icon" /> Full Name</label>
                                 <input 
                                     type="text" 
                                     placeholder="John Doe" 
@@ -107,559 +116,440 @@ const Register = () => {
                                     required
                                 />
                             </div>
-                        </div>
 
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                            <div className="input-group">
-                                <label>Email address</label>
-                                <div className="input-wrapper">
-                                    <Mail size={18} className="input-icon" />
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                                <div className="input-group">
+                                    <label><Mail size={16} className="label-icon" /> Email Address</label>
                                     <input 
                                         type="email" 
                                         placeholder="name@company.com" 
                                         value={email}
                                         onChange={(e) => { setEmail(e.target.value); setError(''); }}
                                         required
+                                        autoComplete="email"
                                     />
                                 </div>
-                            </div>
-                            
-                            <div className="input-group">
-                                <label>Phone Number</label>
-                                <div className="input-wrapper">
-                                    <Phone size={18} className="input-icon" />
+                                
+                                <div className="input-group">
+                                    <label><Phone size={16} className="label-icon" /> Phone Number</label>
                                     <input 
-                                        type="text" 
+                                        type="tel" 
                                         placeholder="+1 234 567 890" 
                                         value={phone}
                                         onChange={(e) => { setPhone(e.target.value); setError(''); }}
                                         required
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="input-group">
-                            <label>Account Type</label>
-                            <div className="input-wrapper">
-                                <Shield size={18} className="input-icon" />
-                                <select 
-                                    value={role}
-                                    onChange={(e) => setRole(e.target.value)}
-                                    required
-                                    style={{ width: '100%', padding: '14px 16px 14px 44px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', fontSize: '15px', color: '#0f172a', appearance: 'none' }}
-                                >
-                                    <option value="Employee">Employee</option>
-                                    <option value="Sales">Sales</option>
-                                    <option value="HR">HR</option>
-                                    <option value="Manager">Manager</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                            <div className="input-group">
-                                <label>Password</label>
-                                <div className="input-wrapper">
-                                    <Lock size={18} className="input-icon" />
-                                    <input 
-                                        type={showPassword ? "text" : "password"} 
-                                        placeholder="••••••••" 
-                                        value={password}
-                                        onChange={(e) => { setPassword(e.target.value); setError(''); }}
-                                        required
-                                        minLength={6}
+                                        autoComplete="tel"
                                     />
                                 </div>
                             </div>
 
                             <div className="input-group">
-                                <label>Confirm Password</label>
-                                <div className="input-wrapper">
-                                    <Lock size={18} className="input-icon" />
-                                    <input 
-                                        type={showPassword ? "text" : "password"} 
-                                        placeholder="••••••••" 
-                                        value={confirmPassword}
-                                        onChange={(e) => { setConfirmPassword(e.target.value); setError(''); }}
+                                <label><Shield size={16} className="label-icon" /> Account Type</label>
+                                <div className="select-wrapper">
+                                    <select 
+                                        value={role}
+                                        onChange={(e) => setRole(e.target.value)}
                                         required
-                                        minLength={6}
-                                    />
-                                    <button type="button" className="password-toggle" onClick={() => setShowPassword(!showPassword)}>
-                                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                                    </button>
+                                    >
+                                        <option value="Employee">Employee</option>
+                                        <option value="Sales">Sales</option>
+                                        <option value="HR">HR</option>
+                                        <option value="Manager">Manager</option>
+                                    </select>
                                 </div>
                             </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                                <div className="input-group">
+                                    <label><Lock size={16} className="label-icon" /> Password</label>
+                                    <div className="password-wrapper">
+                                        <input 
+                                            type={showPassword ? "text" : "password"} 
+                                            placeholder="••••••••" 
+                                            value={password}
+                                            onChange={(e) => { setPassword(e.target.value); setError(''); }}
+                                            required
+                                            minLength={6}
+                                            autoComplete="new-password"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="input-group">
+                                    <label><Lock size={16} className="label-icon" /> Confirm Password</label>
+                                    <div className="password-wrapper">
+                                        <input 
+                                            type={showPassword ? "text" : "password"} 
+                                            placeholder="••••••••" 
+                                            value={confirmPassword}
+                                            onChange={(e) => { setConfirmPassword(e.target.value); setError(''); }}
+                                            required
+                                            minLength={6}
+                                            autoComplete="new-password"
+                                        />
+                                        <button type="button" className="password-toggle" onClick={() => setShowPassword(!showPassword)}>
+                                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" className="submit-btn" disabled={isLoading} style={{ marginTop: '0' }}>
+                                {isLoading ? 'Creating Account...' : 'Create Account'}
+                            </button>
+                            
+                            <div className="signup-link-wrapper" style={{ marginTop: '12px' }}>
+                                Already have an account? <Link to="/login" className="signup-link">Sign in here</Link>
+                            </div>
+                        </form>
+
+                        <div className="login-footer" style={{ marginTop: '24px' }}>
+                            <p>© 2026 SMTBMS Enterprise Suite</p>
                         </div>
-
-                        <button type="submit" className="login-btn" disabled={isLoading} style={{ marginTop: '8px' }}>
-                            {isLoading ? 'Creating Account...' : (
-                                <>
-                                    Create Account <ArrowRight size={18} className="btn-icon" />
-                                </>
-                            )}
-                        </button>
-                        
-
-                    </form>
-                    
-                    <div className="form-footer">
-                        <p>Already have an account? <Link to="/login">Sign in here</Link></p>
                     </div>
                 </div>
             </div>
 
             <style jsx="true">{`
-                .login-layout {
+                .login-wrapper {
+                    width: 100vw;
+                    height: 100vh;
+                    margin: 0;
+                    padding: 0;
                     display: flex;
-                    min-height: 100vh;
-                    background: #ffffff;
+                    overflow: hidden;
+                    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
                 }
 
-                /* --- Left Panel --- */
-                .login-brand-panel {
-                    flex: 1.2;
-                    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
-                    position: relative;
-                    overflow: hidden;
+                .split-card {
+                    display: flex;
+                    width: 100%;
+                    height: 100%;
+                    background: #FFFFFF;
+                }
+
+                /* Left Branding Panel (55%) */
+                .brand-panel {
+                    flex: 0 0 55%;
+                    width: 55%;
+                    background-color: #0B1026;
+                    padding: 60px 80px;
                     display: flex;
                     flex-direction: column;
                     justify-content: space-between;
-                    padding: 60px;
-                    color: #ffffff;
-                }
-                
-                .login-brand-panel::before {
-                    content: '';
-                    position: absolute;
-                    top: -20%;
-                    left: -10%;
-                    width: 70%;
-                    height: 70%;
-                    background: radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, rgba(0,0,0,0) 70%);
-                    z-index: 0;
-                }
-                .login-brand-panel::after {
-                    content: '';
-                    position: absolute;
-                    bottom: -20%;
-                    right: -10%;
-                    width: 70%;
-                    height: 70%;
-                    background: radial-gradient(circle, rgba(236, 72, 153, 0.2) 0%, rgba(0,0,0,0) 70%);
-                    z-index: 0;
+                    color: #FFFFFF;
+                    box-sizing: border-box;
                 }
 
-                .brand-content {
-                    position: relative;
-                    z-index: 1;
-                    height: 100%;
-                    display: flex;
-                    flex-direction: column;
-                }
-
-                .brand-logo-large {
+                .brand-header {
                     display: flex;
                     align-items: center;
                     gap: 12px;
-                    margin-bottom: 80px;
                 }
 
-                .logo-icon-wrapper {
-                    background: linear-gradient(135deg, #6366f1 0%, #3b82f6 100%);
-                    width: 48px;
-                    height: 48px;
-                    border-radius: 12px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
-                }
-
-                .logo-text-large {
-                    font-size: 28px;
-                    font-weight: 800;
-                    letter-spacing: -0.5px;
-                }
-
-                .brand-title {
-                    font-size: 42px;
-                    font-weight: 800;
-                    line-height: 1.2;
-                    margin: 0 0 20px 0;
-                    letter-spacing: -1px;
-                }
-
-                .brand-subtitle {
-                    font-size: 18px;
-                    color: #94a3b8;
-                    line-height: 1.5;
-                    max-width: 80%;
-                }
-
-                .brand-illustration {
-                    position: relative;
-                    margin-top: 60px;
-                    flex: 1;
-                }
-
-                .abstract-card {
-                    background: rgba(255, 255, 255, 0.05);
-                    backdrop-filter: blur(12px);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                    border-radius: 16px;
-                    position: absolute;
-                    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-                }
-
-                .abstract-card-1 {
-                    width: 320px;
-                    height: 180px;
-                    padding: 24px;
-                    z-index: 2;
-                }
-
-                .mock-skeleton-title {
-                    width: 40%;
-                    height: 16px;
-                    background: rgba(255, 255, 255, 0.15);
-                    border-radius: 4px;
-                    margin-bottom: 30px;
-                }
-
-                .mock-skeleton-line {
-                    width: 100%;
-                    height: 12px;
-                    background: rgba(255, 255, 255, 0.1);
-                    border-radius: 4px;
-                    margin-bottom: 16px;
-                }
-
-                .abstract-circle {
-                    position: absolute;
-                    border-radius: 50%;
-                    filter: blur(40px);
-                    width: 150px;
-                    height: 150px;
-                    opacity: 0.4;
-                    z-index: 0;
-                }
-
-                @keyframes float {
-                    0% { transform: translateY(0px); }
-                    50% { transform: translateY(-15px); }
-                    100% { transform: translateY(0px); }
-                }
-
-                .brand-footer {
-                    position: relative;
-                    z-index: 1;
-                    color: #64748b;
-                    font-size: 13px;
-                }
-
-                /* --- Right Panel --- */
-                .login-form-panel {
-                    flex: 1;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    background: #ffffff;
-                }
-
-                .form-container {
-                    width: 100%;
-                    max-width: 480px;
-                }
-
-                .form-header {
-                    margin-bottom: 30px;
-                }
-
-                .mobile-logo {
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    margin-bottom: 30px;
-                }
-
-                .logo-icon-wrapper-small {
-                    background: linear-gradient(135deg, #6366f1 0%, #3b82f6 100%);
-                    width: 36px;
-                    height: 36px;
+                .logo-icon {
+                    width: 40px;
+                    height: 40px;
+                    background: #6366F1;
                     border-radius: 10px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
                 }
 
-                .logo-text-small {
+                .logo-text {
+                    font-size: 24px;
+                    font-weight: 800;
+                    letter-spacing: 0.5px;
+                }
+
+                .brand-content {
+                    margin-top: auto;
+                    margin-bottom: auto;
+                }
+
+                .brand-title {
+                    font-size: 36px;
+                    font-weight: 800;
+                    line-height: 1.25;
+                    margin: 0 0 20px 0;
+                    letter-spacing: -0.5px;
+                }
+
+                .brand-desc {
+                    font-size: 16px;
+                    color: #94A3B8;
+                    line-height: 1.6;
+                    max-width: 90%;
+                    margin: 0 0 48px 0;
+                }
+
+                .erp-illustration {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 16px;
+                }
+
+                .icon-badge {
+                    background: #151B32;
+                    border: 1px solid #1F2947;
+                    border-radius: 12px;
+                    padding: 20px 16px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 12px;
+                    width: 96px;
+                    transition: transform 0.3s ease;
+                }
+
+                .icon-badge:hover {
+                    transform: translateY(-4px);
+                    background: #1A2242;
+                }
+
+                .icon-badge span {
+                    font-size: 13px;
+                    font-weight: 600;
+                    color: #E2E8F0;
+                }
+
+                /* Right Login Panel (45%) */
+                .login-panel {
+                    flex: 0 0 45%;
+                    width: 45%;
+                    background-color: #FFFFFF;
+                    padding: 60px 80px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    box-sizing: border-box;
+                    overflow-y: auto;
+                }
+
+                .login-form-container {
+                    width: 100%;
+                    max-width: 440px;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    flex: 1;
+                }
+
+                .login-header {
+                    margin-bottom: 36px;
+                }
+
+                .login-logo-mobile {
+                    display: none;
+                    align-items: center;
+                    gap: 10px;
+                    margin-bottom: 24px;
+                }
+
+                .logo-icon-dark {
+                    width: 32px;
+                    height: 32px;
+                    background: #6366F1;
+                    border-radius: 8px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+
+                .logo-text-dark {
                     font-size: 20px;
                     font-weight: 800;
-                    color: #0f172a;
+                    color: #0B1026;
                 }
 
-                .welcome-text {
-                    font-size: 32px;
+                .welcome-title {
+                    font-size: 28px;
                     font-weight: 800;
-                    color: #0f172a;
-                    margin: 0 0 10px 0;
-                    letter-spacing: -0.5px;
+                    color: #0B1026;
+                    margin: 0 0 8px 0;
                 }
 
                 .welcome-subtitle {
                     font-size: 15px;
-                    color: #64748b;
+                    color: #64748B;
                     margin: 0;
-                    line-height: 1.5;
                 }
 
                 .error-alert {
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                    background: #fef2f2;
-                    border: 1px solid #fecaca;
-                    color: #dc2626;
-                    padding: 14px 16px;
-                    border-radius: 12px;
-                    margin-bottom: 24px;
+                    background: #FEF2F2;
+                    border: 1px solid #FECACA;
+                    color: #DC2626;
+                    padding: 12px 16px;
+                    border-radius: 8px;
                     font-size: 14px;
                     font-weight: 500;
+                    margin-bottom: 24px;
                 }
 
                 .login-form {
                     display: flex;
                     flex-direction: column;
                     gap: 20px;
+                    flex: 1;
                 }
 
                 .input-group label {
-                    display: block;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
                     font-size: 14px;
                     font-weight: 600;
                     color: #334155;
                     margin-bottom: 8px;
                 }
 
-                .input-wrapper {
-                    position: relative;
-                    display: flex;
-                    align-items: center;
+                .label-icon {
+                    color: #6366F1;
                 }
 
-                .input-icon {
-                    position: absolute;
-                    left: 16px;
-                    color: #94a3b8;
-                    pointer-events: none;
-                }
-
-                .input-wrapper input {
+                .input-group input, .select-wrapper select {
                     width: 100%;
-                    padding: 14px 16px 14px 44px;
-                    background: #f8fafc;
-                    border: 1px solid #e2e8f0;
+                    padding: 14px 16px;
+                    background: #F8FAFC;
+                    border: 1px solid #E2E8F0;
                     border-radius: 12px;
                     font-size: 15px;
-                    color: #0f172a;
-                    transition: all 0.2s;
+                    color: #0F172A;
+                    transition: all 0.2s ease;
                 }
 
-                .input-wrapper input:focus, .input-wrapper select:focus {
-                    background: #ffffff !important;
-                    border-color: #6366f1 !important;
-                    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1) !important;
+                .input-group input:focus, .select-wrapper select:focus {
+                    background: #FFFFFF;
+                    border-color: #6366F1;
+                    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
                     outline: none;
                 }
 
-                .input-wrapper input::placeholder {
-                    color: #cbd5e1;
+                .input-group input::placeholder {
+                    color: #94A3B8;
+                }
+
+                .select-wrapper select {
+                    appearance: none;
+                    cursor: pointer;
+                }
+
+                .password-wrapper {
+                    position: relative;
                 }
 
                 .password-toggle {
                     position: absolute;
                     right: 16px;
+                    top: 50%;
+                    transform: translateY(-50%);
                     background: none;
                     border: none;
-                    padding: 0;
-                    color: #94a3b8;
+                    color: #94A3B8;
                     cursor: pointer;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                }
-                .password-toggle:hover {
-                    color: #64748b;
+                    padding: 0;
                 }
 
-                .login-btn {
-                    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-                    color: #ffffff;
+                .password-toggle:hover {
+                    color: #64748B;
+                }
+
+                .submit-btn {
+                    background: #0B1026;
+                    color: #FFFFFF;
                     border: none;
                     padding: 16px;
                     border-radius: 12px;
                     font-size: 16px;
                     font-weight: 600;
                     cursor: pointer;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 10px;
+                    margin-top: 8px;
                     transition: all 0.3s ease;
-                    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.25);
-                    position: relative;
-                    overflow: hidden;
                 }
 
-                .login-btn::after {
-                    content: '';
-                    position: absolute;
-                    top: 0;
-                    left: -100%;
-                    width: 100%;
-                    height: 100%;
-                    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-                    transition: all 0.5s;
-                }
-
-                .login-btn:hover:not(:disabled) {
+                .submit-btn:hover:not(:disabled) {
+                    background: #1A2242;
                     transform: translateY(-2px);
-                    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+                    box-shadow: 0 8px 20px rgba(11, 16, 38, 0.15);
                 }
 
-                .login-btn:hover::after {
-                    left: 100%;
-                }
-
-                .login-btn:disabled {
+                .submit-btn:disabled {
                     opacity: 0.7;
                     cursor: not-allowed;
                 }
 
-                .btn-icon {
-                    transition: transform 0.3s ease;
-                }
-
-                .login-btn:hover .btn-icon {
-                    transform: translateX(4px);
-                }
-
-                .divider {
-                    display: flex;
-                    align-items: center;
+                .signup-link-wrapper {
                     text-align: center;
-                    color: #94a3b8;
-                    font-size: 13px;
-                }
-                .divider::before, .divider::after {
-                    content: '';
-                    flex: 1;
-                    border-bottom: 1px solid #e2e8f0;
-                }
-                .divider span {
-                    padding: 0 10px;
-                }
-
-                .google-btn {
-                    background: #ffffff;
-                    color: #334155;
-                    border: 1px solid #e2e8f0;
-                    padding: 14px;
-                    border-radius: 12px;
-                    font-size: 15px;
-                    font-weight: 600;
-                    cursor: pointer;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 12px;
-                    transition: all 0.2s ease;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-                }
-                .google-btn:hover:not(:disabled) {
-                    background: #f8fafc;
-                    border-color: #cbd5e1;
-                    box-shadow: 0 4px 6px rgba(0,0,0,0.04);
-                }
-
-                .form-footer {
-                    margin-top: 30px;
-                    text-align: center;
-                }
-
-                .form-footer p {
+                    margin-top: 16px;
                     font-size: 14px;
-                    color: #64748b;
+                    color: #64748B;
                 }
 
-                .form-footer a {
-                    color: #6366f1;
+                .signup-link {
+                    color: #6366F1;
                     font-weight: 600;
                     text-decoration: none;
+                    transition: color 0.2s;
                 }
-                .form-footer a:hover {
+
+                .signup-link:hover {
+                    color: #4F46E5;
                     text-decoration: underline;
                 }
 
-                /* --- Responsive Adjustments --- */
-                .mobile-only {
-                    display: none;
-                }
-                .desktop-only {
-                    display: flex;
+                .login-footer {
+                    text-align: center;
+                    margin-top: 40px;
                 }
 
-                @media (max-width: 1024px) {
-                    .login-brand-panel {
+                .login-footer p {
+                    font-size: 13px;
+                    color: #94A3B8;
+                    font-weight: 500;
+                    margin: 0;
+                }
+
+                /* Responsive */
+                @media (max-width: 992px) {
+                    .login-wrapper {
+                        overflow-y: auto;
+                        height: auto;
+                        min-height: 100vh;
+                    }
+                    .split-card {
+                        flex-direction: column;
+                        height: auto;
+                    }
+                    .brand-panel, .login-panel {
+                        flex: none;
+                        width: 100%;
                         padding: 40px;
                     }
-                    .brand-title {
-                        font-size: 32px;
-                    }
-                }
-
-                @media (max-width: 768px) {
-                    .desktop-only {
-                        display: none !important;
-                    }
-                    .mobile-only {
+                    .login-logo-mobile {
                         display: flex;
                     }
-                    .login-layout {
-                        flex-direction: column;
+                    .brand-header {
+                        display: none;
                     }
-                    .login-form-panel {
-                        padding: 30px 20px !important;
-                        background: #f8fafc;
-                        min-height: 100vh;
-                        align-items: flex-start !important;
+                    .login-header {
+                        text-align: center;
                     }
-                    .form-container {
-                        background: #ffffff;
-                        padding: 40px 30px;
-                        border-radius: 20px;
-                        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
-                        border: 1px solid #e2e8f0;
-                    }
-                    .welcome-text {
-                        font-size: 28px;
-                    }
-                    .input-group {
-                        grid-column: span 2;
-                    }
-                    .login-form > div {
-                        grid-template-columns: 1fr !important;
+                    .login-logo-mobile {
+                        justify-content: center;
                     }
                 }
 
                 @media (max-width: 480px) {
-                    .form-container {
-                        padding: 30px 20px;
+                    .brand-panel {
+                        padding: 32px 24px;
                     }
-                    .welcome-text {
-                        font-size: 24px;
+                    .login-panel {
+                        padding: 32px 24px;
                     }
                 }
             `}</style>
