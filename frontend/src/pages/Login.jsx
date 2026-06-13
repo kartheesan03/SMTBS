@@ -142,10 +142,14 @@ const Login = () => {
                             </div>
                             <span className="logo-text-small">SMTBMS</span>
                         </div>
-                        <h2 className="welcome-text">Welcome back to SMTBMS</h2>
-                        <p className="welcome-subtitle">Sign in to manage materials, orders, employees, and stock workflows.</p>
-                        <div className="secure-access-note">
-                            <Lock size={14} /> Secure access for Admin, HR, Manager, Sales and Employees.
+                        <h2 className="welcome-text">Enterprise Resource Management Portal</h2>
+                        <p className="welcome-subtitle">Manage Materials, Inventory, HR, ERP, Vendors, Attendance, and Operations from a single platform.</p>
+                        <div className="role-badges">
+                            <span className="role-badge">Admin</span>
+                            <span className="role-badge">HR</span>
+                            <span className="role-badge">Manager</span>
+                            <span className="role-badge">Sales</span>
+                            <span className="role-badge">Employee</span>
                         </div>
                     </div>
                     
@@ -220,6 +224,12 @@ const Login = () => {
                         </div>
                     </form>
                     
+                    <div className="trust-indicators">
+                        <div className="trust-item"><Lock size={14} /> Secure Login</div>
+                        <div className="trust-item"><Users size={14} /> Role-Based Access</div>
+                        <div className="trust-item"><Activity size={14} /> Real-Time Tracking</div>
+                    </div>
+
                     <div className="form-footer">
                         <p>Don't have an account? <Link to="/register">Create one now</Link></p>
                     </div>
@@ -455,18 +465,7 @@ const Login = () => {
                     to { left: 100%; }
                 }
 
-                .secure-access-note {
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                    margin-top: 16px;
-                    font-size: 13px;
-                    color: #059669;
-                    background: #ecfdf5;
-                    padding: 8px 12px;
-                    border-radius: 6px;
-                    font-weight: 500;
-                }
+                /* Removed old secure-access-note */
 
                 .flow-step {
                     font-size: 13px;
@@ -517,23 +516,49 @@ const Login = () => {
                     align-items: center;
                     justify-content: center;
                     padding: 40px;
-                    background: #ffffff;
+                    background: #F8FAFC;
+                    position: relative;
+                }
+
+                .login-form-panel::before {
+                    content: '';
+                    position: absolute;
+                    top: -20%;
+                    right: -20%;
+                    width: 60%;
+                    height: 60%;
+                    background: radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, transparent 70%);
+                    border-radius: 50%;
+                    z-index: 0;
                 }
 
                 .form-container {
                     width: 100%;
                     max-width: 440px;
+                    background: #ffffff;
+                    padding: 40px;
+                    border-radius: 20px;
+                    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
+                    border: 1px solid rgba(0, 0, 0, 0.05);
+                    position: relative;
+                    z-index: 1;
+                    animation: formFadeIn 0.8s ease-out forwards;
+                }
+
+                @keyframes formFadeIn {
+                    from { opacity: 0; transform: translateY(20px); }
+                    to { opacity: 1; transform: translateY(0); }
                 }
 
                 .form-header {
-                    margin-bottom: 40px;
+                    margin-bottom: 32px;
                 }
 
                 .mobile-logo {
                     display: flex;
                     align-items: center;
                     gap: 10px;
-                    margin-bottom: 30px;
+                    margin-bottom: 24px;
                 }
 
                 .logo-icon-wrapper-small {
@@ -550,15 +575,16 @@ const Login = () => {
                 .logo-text-small {
                     font-size: 20px;
                     font-weight: 800;
-                    color: #0f172a;
+                    color: #0B1026;
                 }
 
                 .welcome-text {
-                    font-size: 32px;
+                    font-size: 28px;
                     font-weight: 800;
-                    color: #0f172a;
-                    margin: 0 0 10px 0;
+                    color: #0B1026;
+                    margin: 0 0 12px 0;
                     letter-spacing: -0.5px;
+                    line-height: 1.2;
                 }
 
                 .welcome-subtitle {
@@ -566,6 +592,39 @@ const Login = () => {
                     color: #64748b;
                     margin: 0;
                     line-height: 1.5;
+                }
+
+                .role-badges {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 8px;
+                    margin-top: 16px;
+                }
+
+                .role-badge {
+                    font-size: 12px;
+                    font-weight: 600;
+                    color: #4F46E5;
+                    background: rgba(99, 102, 241, 0.1);
+                    padding: 4px 10px;
+                    border-radius: 20px;
+                }
+
+                .trust-indicators {
+                    display: flex;
+                    justify-content: space-between;
+                    margin-top: 24px;
+                    padding-top: 24px;
+                    border-top: 1px solid #F1F5F9;
+                }
+
+                .trust-item {
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    font-size: 12px;
+                    font-weight: 500;
+                    color: #64748b;
                 }
 
                 .error-alert {
