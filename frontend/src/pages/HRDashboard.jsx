@@ -145,14 +145,14 @@ const HRDashboard = () => {
     const unaccounted = Math.max(0, totalEmployees - presentToday - onLeave);
     const currentHour = new Date().getHours();
     
-    // Before 2 PM (14:00), unaccounted employees are Pending. At or after, they are Absent.
+    // Before 2 PM (14:00), unaccounted employees are Not Checked In. At or after, they are Absent.
     const absentToday = currentHour >= 14 ? unaccounted : 0;
-    const pendingToday = currentHour < 14 ? unaccounted : 0;
+    const notCheckedInToday = currentHour < 14 ? unaccounted : 0;
 
     const attendanceOverviewData = totalEmployees > 0 ? [
         { name: 'Present', value: presentToday, color: '#10b981' },
         { name: 'Absent', value: absentToday, color: '#ef4444' },
-        { name: 'Pending', value: pendingToday, color: '#64748b' },
+        { name: 'Not Checked In', value: notCheckedInToday, color: '#64748b' },
         { name: 'On Leave', value: onLeave, color: '#f59e0b' },
     ].filter(item => item.value > 0) : [];
 

@@ -95,7 +95,7 @@ const Attendance = () => {
 
     const totalCount = attendanceData?.totalEmployees || 0;
     const presentCount = attendanceData?.presentToday || 0;
-    const pendingCount = attendanceData?.pendingToday || 0;
+    const notCheckedInCount = attendanceData?.notCheckedInToday || 0;
     const absentCount = attendanceData?.absentToday || 0;
     const leaveCount = attendanceData?.onLeaveToday || 0;
 
@@ -134,10 +134,10 @@ const Attendance = () => {
                     color="success" 
                 />
                 <StatCard 
-                    title="Pending" 
-                    value={pendingCount} 
+                    title="Not Checked In" 
+                    value={notCheckedInCount} 
                     icon={<Clock />} 
-                    color="warning" 
+                    color="secondary" 
                 />
                 <StatCard 
                     title="Absent" 
@@ -192,9 +192,9 @@ const Attendance = () => {
                                 <td>{a.employee?.department || '-'}</td>
                                 <td>
                                     <div className={`status-pill-flex ${statusClass}`}>
-                                        {displayStatus === 'Present' ? <CheckCircle size={14}/> : 
-                                         displayStatus === 'Pending' ? <CheckCircle size={14} style={{color: '#f59e0b'}}/> : 
-                                         displayStatus === 'Late' ? <CheckCircle size={14} style={{color: '#f59e0b'}}/> : 
+                                          {displayStatus === 'Present' ? <CheckCircle size={14}/> : 
+                                           displayStatus === 'Not Checked In' ? <Clock size={14} style={{color: '#64748b'}}/> : 
+                                           displayStatus === 'Late' ? <CheckCircle size={14} style={{color: '#f59e0b'}}/> : 
                                          <XCircle size={14}/>}
                                         {displayStatus}
                                     </div>
@@ -247,7 +247,8 @@ const Attendance = () => {
 
                 .status-pill-flex { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.5px; }
                 .status-pill-flex.present { background: rgba(16, 185, 129, 0.1); color: #10b981; }
-                .status-pill-flex.pending { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+                .status-pill-flex.not-checked-in { background: rgba(148, 163, 184, 0.1); color: #64748b; }
+                .status-pill-flex.half-day { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
                 .status-pill-flex.absent { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
                 .status-pill-flex.on-leave { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
                 .status-pill-flex.late { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }

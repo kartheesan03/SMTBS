@@ -50,7 +50,7 @@ const getAttendanceStatus = async (req, res) => {
 
             const now = new Date();
             if (now.getHours() < 14) {
-                return res.json({ status: 'Pending', date: today });
+                return res.json({ status: 'Not Checked In', date: today });
             }
             return res.json({ status: 'Absent', date: today });
         }
@@ -99,7 +99,7 @@ const checkIn = async (req, res) => {
 
         if (attendance) {
             attendance.checkIn = checkInTime;
-            if (!attendance.status || attendance.status === 'Pending' || attendance.status === 'Absent') {
+            if (!attendance.status || attendance.status === 'Not Checked In' || attendance.status === 'Absent') {
                 attendance.status = calculatedStatus;
             }
             await attendance.save();
@@ -249,11 +249,11 @@ const getAllAttendance = async (req, res) => {
         leaves.forEach(l => { leaveMap[l.employeeId?.toString()] = true });
 
         const now = new Date();
-        const defaultStatus = now.getHours() < 14 ? 'Pending' : 'Absent';
+        const defaultStatus = now.getHours() < 14 ? 'Not Checked In' : 'Absent';
 
         let presentToday = 0;
         let absentToday = 0;
-        let pendingToday = 0;
+        let notCheckedInToday = 0;
         let onLeaveToday = 0;
         const totalEmployees = employees.length;
 
@@ -272,7 +272,7 @@ const getAllAttendance = async (req, res) => {
             
             if (finalStatus === 'Present' || finalStatus === 'Late') presentToday++;
             else if (finalStatus === 'Absent') absentToday++;
-            else if (finalStatus === 'Pending') pendingToday++;
+            else if (finalStatus === 'Not Checked In') notCheckedInToday++;
             else if (finalStatus === 'On Leave') onLeaveToday++;
 
             if (record) {
@@ -294,7 +294,7 @@ const getAllAttendance = async (req, res) => {
         res.json({
             totalEmployees,
             presentToday,
-            pendingToday,
+            notCheckedInToday,
             absentToday,
             onLeaveToday,
             employeeAttendanceList: result

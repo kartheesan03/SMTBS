@@ -273,7 +273,7 @@ const getDashboardStats = async (req, res) => {
                 allLeaves.forEach(l => { leaveMap[l.employeeId?.toString()] = true; });
 
                 const now = new Date();
-                const defaultStatus = now.getHours() < 14 ? 'Pending' : 'Absent';
+                const defaultStatus = now.getHours() < 14 ? 'Not Checked In' : 'Absent';
 
                 const allEmployees = await Employee.find({});
                 let presentToday = 0;
