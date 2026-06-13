@@ -99,16 +99,6 @@ const EmployeeDashboard = () => {
                             <Bell size={20} />
                             <span className="notif-badge"></span>
                         </button>
-                        <div className="profile-dropdown">
-                            <div className="avatar" style={{background: '#6366f1'}}>
-                                {user?.name ? user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'U'}
-                            </div>
-                            <div className="profile-info">
-                                <span className="p-name">{user?.name || 'Employee'}</span>
-                                <span className="p-role">{user?.role || 'Employee'}</span>
-                            </div>
-                            <ChevronDown size={14} />
-                        </div>
                     </div>
                 </div>
 
@@ -290,17 +280,6 @@ const EmployeeDashboard = () => {
                     position: absolute; top: 6px; right: 6px; width: 6px; height: 6px;
                     background: #ef4444; border-radius: 50%; border: 2px solid #fff;
                 }
-                .profile-dropdown {
-                    display: flex; align-items: center; gap: 8px; cursor: pointer;
-                }
-                .avatar {
-                    width: 32px; height: 32px; border-radius: 50%; background: #1e293b;
-                    color: white; display: flex; align-items: center; justify-content: center;
-                    font-weight: bold; font-size: 13px;
-                }
-                .profile-info { display: flex; flex-direction: column; }
-                .p-name { font-size: 13px; font-weight: 700; color: #0f172a; }
-                .p-role { font-size: 11px; color: #64748b; }
 
                 .header-section { margin-bottom: 16px; }
                 .page-title { font-size: 20px; font-weight: 800; color: #0f172a; margin: 0 0 2px 0; }
