@@ -44,6 +44,129 @@ const getOrders = async (req, res) => {
 
 
 
+// @desc    Create an order
+// @route   POST /api/orders
+// @access  Private
+const createOrder = async (req, res) => {
+    try {
+        const { customer, customerModel, vendor, items, totalAmount, status, orderNumber, orderType, orderDate, expectedDeliveryDate } = req.body;
+        
+        if ((!customer && !vendor) || !items || items.length === 0) {
+            return res.status(400).json({ message: 'Please provide customer/vendor and items' });
+        }
+
+        // Determine initial status based on role and type
+        const isSales = orderType === 'sales' || !!customer;
+        let initialStatus = isSales ? 'Created' : 'Pending';
+        let initialApprovalStatus = isSales ? 'Pending Manager Approval' : 'Pending';
+        let initialDeliveryStatus = isSales ? 'Not Started' : 'Pending';
+
+        // Verify customer exists if it's a Sales order
+        if (isSales) {
+            if (!customer) {
+                return res.status(400).json({ message: 'Invalid customer or material selected.' });
+            }
+            let customerExists = null;
+            if (customerModel === 'Lead') {
+                const Lead = require('../models/Lead');
+                customerExists = await Lead.findById(customer);
+            } else {
+                customerExists = await Customer.findById(customer);
+            }
+            if (!customerExists) {
+                return res.status(400).json({ message: 'Invalid customer or material selected.' });
+            }
+        }
+
+        // Verify materials exist
+        for (const item of items) {
+            if (!item.material) {
+                return res.status(400).json({ message: 'Invalid customer or material selected.' });
+            }
+            const materialExists = await Material.findById(item.material);
+            if (!materialExists) {
+                return res.status(400).json({ message: 'Invalid customer or material selected.' });
+            }
+            if (item.quantity == null || item.quantity <= 0) {
+                return res.status(400).json({ message: 'Invalid quantity.' });
+            }
+        }
+
+        // Generate Invoice Fields
+        const invDate = new Date();
+        const generatedInvoiceNumber = `INV-${Date.now().toString().slice(-6)}`;
+        let invDueDate = new Date(invDate);
+        invDueDate.setDate(invDate.getDate() + 30); // Default to 30 days if expectedDeliveryDate is not provided
+
+        const createdOrder = await Order.create({
+            orderNumber: orderNumber || `ORD-${Date.now().toString().slice(-6)}`,
+            customer: customer || null,
+            customerModel: customerModel || 'Customer',
+            vendor: vendor || null,
+            items,
+            totalAmount,
+            status: initialStatus,
+            approvalStatus: initialApprovalStatus,
+            deliveryStatus: initialDeliveryStatus,
+            orderType: orderType || (isSales ? 'sales' : 'purchase'),
+            createdById: req.user._id || null,
+            orderDate: orderDate ? new Date(orderDate) : new Date(),
+            expectedDeliveryDate: expectedDeliveryDate ? new Date(expectedDeliveryDate) : null,
+            invoiceNumber: generatedInvoiceNumber,
+            invoiceDate: invDate,
+            invoiceDueDate: expectedDeliveryDate ? new Date(expectedDeliveryDate) : invDueDate,
+            paymentStatus: 'Pending'
+        });
+
+        // If it's already approved, update stock
+        if (initialStatus === 'Approved') {
+            await updateStock(items);
+        }
+
+        const populatedOrder = await Order.findById(createdOrder._id)
+            .populate('customer', 'name')
+            .populate('vendor', 'name');
+
+        const payload = getOrderPayload(populatedOrder, req.user);
+
+        if (initialStatus === 'Awaiting Stock Check') {
+            await broadcast({
+                title: `New Order Stock Check: ${createdOrder.orderNumber}`,
+                message: `New order ${createdOrder.orderNumber} created. Please check stock availability.`,
+                type: 'info',
+                category: 'order',
+                link: '/erp',
+                targetRoles: ['Employee', 'Manager'],
+                payload
+            });
+        } else {
+            await broadcast({
+                title: isSales ? 'New Sales Order Created' : 'New Purchase Order Created',
+                message: `Order ${createdOrder.orderNumber} was created successfully.`,
+                type: 'info',
+                category: 'order',
+                link: '/erp',
+                targetRoles: isSales ? ['Sales', 'Manager'] : ['Manager'],
+                payload
+            });
+        }
+
+        // Audit log
+        await logAudit({
+            user: req.user,
+            action: 'CREATE',
+            module: 'Order',
+            targetId: createdOrder._id,
+            description: `Order created: ${createdOrder.orderNumber} (${orderType || 'sales'})`,
+            ipAddress: req.ip
+        });
+
+        res.status(201).json(createdOrder);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+};
+
 // Helper to update stock (Purchase flow and legacy)
 const updateStock = async (items, updateOrderType = 'sales', orderId = null, userId = null) => {
     for (const item of items) {
@@ -333,6 +456,7 @@ const updatePaymentStatus = async (req, res) => {
 
 module.exports = {
     getOrders,
+    createOrder,
     updateOrderStatus,
     updatePaymentStatus
 };
