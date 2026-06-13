@@ -3,7 +3,6 @@ import { useNavigate, Link } from 'react-router-dom';
 import API from '../api/axios';
 import { AuthContext } from '../context/AuthContext';
 import { Mail, Lock, Eye, EyeOff, Box, ArrowRight, ShoppingCart, Users, Package, BarChart3, Activity, Archive, FileText, Briefcase, PieChart, Check, Truck, Monitor, Scan, LayoutGrid } from 'lucide-react';
-import { GoogleLogin } from '@react-oauth/google';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -31,24 +30,6 @@ const Login = () => {
             setIsLoading(false);
         }
     };
-
-    const handleGoogleSuccess = async (credentialResponse) => {
-        setIsLoading(true);
-        setError('');
-        try {
-            const response = await API.post('/auth/google', { credential: credentialResponse.credential });
-
-            console.log('Google login successful. Role:', response.data.role);
-            login(response.data);
-            navigate('/');
-        } catch (err) {
-            setError(err.response?.data?.message || 'Google Login failed');
-            console.error('Google login error:', err.response?.data);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
 
     return (
         <div className="login-layout">
@@ -136,13 +117,14 @@ const Login = () => {
             <div className="login-form-panel">
                 <div className="form-container">
                     <div className="form-header">
-                        <div className="mobile-logo mobile-only">
+                        <div className="card-logo">
                             <div className="logo-icon-wrapper-small">
                                 <Box size={24} color="#ffffff" strokeWidth={2.5} />
                             </div>
                             <span className="logo-text-small">SMTBMS</span>
                         </div>
-                        <h2 className="welcome-text">Enterprise Resource Management Portal</h2>
+                        <h2 className="welcome-text">SMTBMS Enterprise Portal</h2>
+                        <p className="welcome-subtitle">Secure access to Material Tracking, Inventory Management, ERP Operations, HRMS, and Business Workflows.</p>
                     </div>
                     
                     {error && (
@@ -194,26 +176,12 @@ const Login = () => {
                         </div>
 
                         <button type="submit" className="login-btn" disabled={isLoading}>
-                            {isLoading ? 'Signing in...' : (
+                            {isLoading ? 'Access Portal...' : (
                                 <>
-                                    Sign In <ArrowRight size={18} className="btn-icon" />
+                                    Access Portal <ArrowRight size={18} className="btn-icon" />
                                 </>
                             )}
                         </button>
-                        
-                        <div className="divider">
-                            <span>or continue with</span>
-                        </div>
-                        
-                        <div className="google-btn-wrapper">
-                            <GoogleLogin 
-                                onSuccess={handleGoogleSuccess}
-                                onError={() => setError('Google Login Failed')}
-                                width="360"
-                                theme="outline"
-                                text="signin_with"
-                            />
-                        </div>
                     </form>
                     
                     <div className="trust-indicators">
@@ -222,8 +190,8 @@ const Login = () => {
                         <div className="trust-item"><Activity size={14} /> Real-Time Tracking</div>
                     </div>
 
-                    <div className="form-footer">
-                        <p>Don't have an account? <Link to="/register">Create one now</Link></p>
+                    <div className="card-footer-text">
+                        <p>© 2026 SMTBMS. All Rights Reserved.</p>
                     </div>
                 </div>
             </div>
@@ -526,11 +494,11 @@ const Login = () => {
 
                 .form-container {
                     width: 100%;
-                    max-width: 440px;
+                    max-width: 420px;
                     background: #ffffff;
                     padding: 40px;
                     border-radius: 20px;
-                    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
+                    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
                     border: 1px solid rgba(0, 0, 0, 0.05);
                     position: relative;
                     z-index: 1;
@@ -544,42 +512,51 @@ const Login = () => {
 
                 .form-header {
                     margin-bottom: 32px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    text-align: center;
                 }
 
-                .mobile-logo {
+                .card-logo {
                     display: flex;
                     align-items: center;
                     gap: 10px;
-                    margin-bottom: 24px;
+                    margin-bottom: 20px;
                 }
 
                 .logo-icon-wrapper-small {
                     background: linear-gradient(135deg, #6366f1 0%, #3b82f6 100%);
-                    width: 36px;
-                    height: 36px;
-                    border-radius: 10px;
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 12px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+                    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
                 }
 
                 .logo-text-small {
-                    font-size: 20px;
+                    font-size: 22px;
                     font-weight: 800;
                     color: #0B1026;
                 }
 
                 .welcome-text {
-                    font-size: 28px;
+                    font-size: 24px;
                     font-weight: 800;
                     color: #0B1026;
-                    margin: 0;
+                    margin: 0 0 10px 0;
                     letter-spacing: -0.5px;
                     line-height: 1.2;
                 }
 
-                /* Removed subtitle and role badges */
+                .welcome-subtitle {
+                    font-size: 14px;
+                    color: #64748b;
+                    margin: 0;
+                    line-height: 1.5;
+                }
 
                 .trust-indicators {
                     display: flex;
@@ -801,45 +778,11 @@ const Login = () => {
                     transform: translateX(4px);
                 }
 
-                .divider {
-                    display: flex;
-                    align-items: center;
+                .card-footer-text {
+                    margin-top: 24px;
                     text-align: center;
+                    font-size: 12px;
                     color: #94a3b8;
-                    font-size: 13px;
-                }
-                .divider::before, .divider::after {
-                    content: '';
-                    flex: 1;
-                    border-bottom: 1px solid #e2e8f0;
-                }
-                .divider span {
-                    padding: 0 10px;
-                }
-
-                .google-btn-wrapper {
-                    display: flex;
-                    justify-content: center;
-                    width: 100%;
-                }
-
-                .form-footer {
-                    margin-top: 40px;
-                    text-align: center;
-                }
-
-                .form-footer p {
-                    font-size: 14px;
-                    color: #64748b;
-                }
-
-                .form-footer a {
-                    color: #6366f1;
-                    font-weight: 600;
-                    text-decoration: none;
-                }
-                .form-footer a:hover {
-                    text-decoration: underline;
                 }
 
                 /* --- Responsive Adjustments --- */
