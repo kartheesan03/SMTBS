@@ -21,7 +21,11 @@ const Login = () => {
             const { data } = await API.post('/auth/login', { email, password });
             login(data);
             setError('');
-            navigate('/');
+            if (data.isProfileComplete === false) {
+                navigate(data.role === 'Customer' ? '/complete-customer-profile' : '/complete-vendor-profile');
+            } else {
+                navigate('/');
+            }
         } catch (err) {
             const errorMsg = err.response?.data?.error || err.response?.data?.message || 'Login failed';
             setError(errorMsg);
@@ -36,7 +40,11 @@ const Login = () => {
         try {
             const response = await API.post('/auth/google', { credential: credentialResponse.credential });
             login(response.data);
-            navigate('/');
+            if (response.data.isProfileComplete === false) {
+                navigate(response.data.role === 'Customer' ? '/complete-customer-profile' : '/complete-vendor-profile');
+            } else {
+                navigate('/');
+            }
         } catch (err) {
             setError(err.response?.data?.message || 'Google Login failed');
         } finally {

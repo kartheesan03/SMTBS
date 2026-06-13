@@ -1,11 +1,17 @@
 const express = require('express');
 const router = express.Router();
-const { getOrders, createOrder, updateOrderStatus, updatePaymentStatus, updateTrackingStatus } = require('../controllers/ordercontroller');
+const { getOrders, createOrder, updateOrderStatus, updatePaymentStatus, updateTrackingStatus, getMyCustomerOrders, createCustomerOrder } = require('../controllers/ordercontroller');
 const { protect, authorize } = require('../middleware/authMiddleware');
 
 router.route('/')
     .get(protect, getOrders)
     .post(protect, createOrder);
+
+router.route('/my-orders')
+    .get(protect, getMyCustomerOrders);
+
+router.route('/customer')
+    .post(protect, createCustomerOrder);
 
 router.route('/:id/status')
     .put(protect, updateOrderStatus);

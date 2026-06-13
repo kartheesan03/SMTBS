@@ -38,6 +38,10 @@ const UserSequelize = sequelize.define('User', {
     active: {
         type: DataTypes.BOOLEAN,
         defaultValue: true
+    },
+    isProfileComplete: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
     }
 }, {
     hooks: {

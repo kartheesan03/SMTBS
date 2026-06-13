@@ -203,4 +203,57 @@ const deleteCustomer = async (req, res) => {
     }
 };
 
-module.exports = { getCustomers, getCustomerById, createCustomer, updateCustomer, deleteCustomer, approveCustomer, getCustomerOrders, getCustomerTickets };
+// @desc    Get current user's customer profile
+// @route   GET /api/customers/my-profile
+// @access  Private/Customer
+const getMyCustomerProfile = async (req, res) => {
+    try {
+        const customer = await Customer.findOne({ userId: req.user._id });
+        if (!customer) {
+            return res.status(404).json({ message: 'Customer profile not found' });
+        }
+        res.json(customer);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Create self-service customer profile
+// @route   POST /api/customers/profile
+// @access  Private/Customer
+const createCustomerProfile = async (req, res) => {
+    try {
+        const { _id } = req.user;
+        const customerData = { ...req.body, userId: _id, createdBy: _id, status: 'Active' };
+
+        if (!customerData.company && customerData.name) {
+            customerData.company = customerData.name;
+        }
+
+        const customer = new Customer(customerData);
+        const createdCustomer = await customer.save();
+
+        // Update User profile status
+        const User = require('../models/User');
+        const user = await User.findById(_id);
+        if (user) {
+            user.isProfileComplete = true;
+            await user.save();
+        }
+
+        await logAudit({
+            user: req.user,
+            action: 'CREATE',
+            module: 'Customer Profile',
+            targetId: createdCustomer._id,
+            description: `Self-registered customer created: ${customerData.name}`,
+            ipAddress: req.ip
+        });
+
+        res.status(201).json(createdCustomer);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+};
+
+module.exports = { getCustomers, getCustomerById, createCustomer, updateCustomer, deleteCustomer, approveCustomer, getCustomerOrders, getCustomerTickets, getMyCustomerProfile, createCustomerProfile };

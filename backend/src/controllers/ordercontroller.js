@@ -487,10 +487,45 @@ const updateTrackingStatus = async (req, res) => {
     }
 };
 
+const getMyCustomerOrders = async (req, res) => {
+    try {
+        const customer = await Customer.findOne({ userId: req.user._id });
+        if (!customer) {
+            return res.status(404).json({ message: 'Customer profile not found' });
+        }
+        const orders = await Order.find({ customerId: customer._id || customer.id })
+            .populate('vendor', 'name email category contactPerson')
+            .populate('createdBy', 'name role')
+            .sort({ createdAt: -1 });
+        res.json(orders);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+const createCustomerOrder = async (req, res) => {
+    try {
+        const customerProfile = await Customer.findOne({ userId: req.user._id });
+        if (!customerProfile) {
+            return res.status(400).json({ message: 'Please complete your customer profile first.' });
+        }
+
+        req.body.customer = customerProfile._id || customerProfile.id;
+        req.body.customerModel = 'Customer';
+        req.body.orderType = 'sales';
+        
+        await createOrder(req, res);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 module.exports = {
     getOrders,
     createOrder,
     updateOrderStatus,
     updatePaymentStatus,
-    updateTrackingStatus
+    updateTrackingStatus,
+    getMyCustomerOrders,
+    createCustomerOrder
 };

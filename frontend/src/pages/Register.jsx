@@ -3,12 +3,13 @@ import { useNavigate, Link } from 'react-router-dom';
 import API from '../api/axios';
 import { AuthContext } from '../context/AuthContext';
 import { Mail, Lock, Eye, EyeOff, Box, Package, Archive, ShoppingCart, Truck, FileText, User, Phone, Shield } from 'lucide-react';
+import { GoogleLogin } from '@react-oauth/google';
 
 const Register = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [phone, setPhone] = useState('');
-    const [role, setRole] = useState('Employee');
+    const [role, setRole] = useState('Customer');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
@@ -32,10 +33,35 @@ const Register = () => {
             const { data } = await API.post('/auth/register', payload);
             login(data);
             setError('');
-            navigate('/');
+            if (data.isProfileComplete === false) {
+                navigate(data.role === 'Customer' ? '/complete-customer-profile' : '/complete-vendor-profile');
+            } else {
+                navigate('/');
+            }
         } catch (err) {
             const errorMsg = err.response?.data?.error || err.response?.data?.message || 'Registration failed';
             setError(errorMsg);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleGoogleSuccess = async (credentialResponse) => {
+        setIsLoading(true);
+        setError('');
+        try {
+            const response = await API.post('/auth/google', { 
+                credential: credentialResponse.credential,
+                signupRole: role 
+            });
+            login(response.data);
+            if (response.data.isProfileComplete === false) {
+                navigate(response.data.role === 'Customer' ? '/complete-customer-profile' : '/complete-vendor-profile');
+            } else {
+                navigate('/');
+            }
+        } catch (err) {
+            setError(err.response?.data?.message || 'Google Sign-up failed');
         } finally {
             setIsLoading(false);
         }
@@ -151,6 +177,8 @@ const Register = () => {
                                         onChange={(e) => setRole(e.target.value)}
                                         required
                                     >
+                                        <option value="Customer">Customer</option>
+                                        <option value="Vendor">Vendor/Supplier</option>
                                         <option value="Employee">Employee</option>
                                         <option value="Sales">Sales</option>
                                         <option value="HR">HR</option>
@@ -197,6 +225,20 @@ const Register = () => {
                             <button type="submit" className="submit-btn" disabled={isLoading} style={{ marginTop: '0' }}>
                                 {isLoading ? 'Creating Account...' : 'Create Account'}
                             </button>
+
+                            <div className="divider">
+                                <span>or continue with</span>
+                            </div>
+                            
+                            <div className="google-btn-wrapper">
+                                <GoogleLogin 
+                                    onSuccess={handleGoogleSuccess}
+                                    onError={() => setError('Google Sign-up Failed')}
+                                    theme="outline"
+                                    text="signup_with"
+                                    width="300"
+                                />
+                            </div>
                             
                             <div className="signup-link-wrapper" style={{ marginTop: '12px' }}>
                                 Already have an account? <Link to="/login" className="signup-link">Sign in here</Link>

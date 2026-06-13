@@ -12,6 +12,10 @@ const VendorSequelize = sequelize.define('Vendor', {
         type: DataTypes.STRING,
         allowNull: false
     },
+    userId: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+    },
     contactPerson: {
         type: DataTypes.STRING,
         allowNull: true

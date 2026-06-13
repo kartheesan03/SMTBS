@@ -60,6 +60,7 @@ const loginUser = async (req, res) => {
             name: user.name,
             email: user.email,
             role: role,
+            isProfileComplete: user.isProfileComplete,
             token: generateToken(user._id),
         });
     } else {
@@ -68,11 +69,11 @@ const loginUser = async (req, res) => {
     }
 };
 
-// @desc    Google login
+// @desc    Google login / signup
 // @route   POST /api/auth/google
 // @access  Public
 const googleAuth = async (req, res) => {
-    const { credential } = req.body;
+    const { credential, signupRole } = req.body;
     
     if (!credential) {
         return res.status(400).json({ message: 'Google token missing' });
@@ -92,11 +93,6 @@ const googleAuth = async (req, res) => {
         let user = await User.findOne({ email });
 
         if (user) {
-            // Block if user is Customer or Vendor
-            if (user.role === 'Customer' || user.role === 'Vendor' || user.role === 'Vendor/Supplier') {
-                return res.status(403).json({ message: 'Google Sign-In is only for internal staff.' });
-            }
-
             // User exists, update googleId if not present
             if (!user.googleId) {
                 user.googleId = googleId;
@@ -113,11 +109,33 @@ const googleAuth = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 role: role,
+                isProfileComplete: user.isProfileComplete,
                 token: generateToken(user._id),
             });
         } else {
-            // User does not exist in our database. Block login.
-            return res.status(401).json({ message: 'Account not registered' });
+            // User does not exist. Check if signing up.
+            if (signupRole === 'Customer' || signupRole === 'Vendor' || signupRole === 'Vendor/Supplier') {
+                const actualRole = signupRole === 'Vendor/Supplier' ? 'Vendor' : signupRole;
+                user = await User.create({
+                    name,
+                    email,
+                    googleId,
+                    role: actualRole,
+                    isProfileComplete: false
+                });
+
+                return res.json({
+                    _id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    role: user.role,
+                    isProfileComplete: user.isProfileComplete,
+                    token: generateToken(user._id),
+                });
+            } else {
+                // Not signing up as Customer/Vendor, block login.
+                return res.status(401).json({ message: 'Account not registered' });
+            }
         }
     } catch (error) {
         console.error('Google Auth Error:', error);

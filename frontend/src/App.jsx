@@ -44,6 +44,11 @@ import StockRequests from './pages/StockRequests';
 import CreateOrder from './pages/CreateOrder';
 import ErrorBoundary from './components/ErrorBoundary';
 
+import CompleteCustomerProfile from './pages/CompleteCustomerProfile';
+import CompleteVendorProfile from './pages/CompleteVendorProfile';
+import CustomerDashboard from './pages/CustomerDashboard';
+import VendorDashboard from './pages/VendorDashboard';
+
 const AppContent = () => {
     const { user, loading, logout } = useContext(AuthContext);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -99,6 +104,8 @@ const AppContent = () => {
                                 if (r === 'manager') return <ManagerDashboard />;
                                 if (r === 'sales') return <SalesDashboard />;
                                 if (r === 'employee') return <EmployeeDashboard />;
+                                if (r === 'customer') return <CustomerDashboard />;
+                                if (r === 'vendor') return <VendorDashboard />;
                                 return <Dashboard />;
                             })()}
                         </ProtectedRoute>
@@ -131,6 +138,9 @@ const AppContent = () => {
                     <Route path="/my-salary" element={<ProtectedRoute><MySalaryPage /></ProtectedRoute>} />
                     <Route path="/leave-management" element={<ProtectedRoute><LeaveManagement /></ProtectedRoute>} />
                     <Route path="/stock-requests" element={<ProtectedRoute><StockRequests /></ProtectedRoute>} />
+
+                    <Route path="/complete-customer-profile" element={<ProtectedRoute allowedRoles={['Customer']}><CompleteCustomerProfile /></ProtectedRoute>} />
+                    <Route path="/complete-vendor-profile" element={<ProtectedRoute allowedRoles={['Vendor']}><CompleteVendorProfile /></ProtectedRoute>} />
 
                     {/* Fallback */}
                     <Route path="*" element={<Navigate to="/" />} />

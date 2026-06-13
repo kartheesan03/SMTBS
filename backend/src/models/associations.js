@@ -22,6 +22,8 @@ function setupAssociations() {
 
     // 3. Customer -> User
     Customer.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'createdByField', as: 'createdBy' });
+    Customer.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'userId', as: 'user' });
+    User.sequelizeModel.hasOne(Customer.sequelizeModel, { foreignKey: 'userId', as: 'customerProfile' });
 
     // 4. Attendance -> Employee
     Attendance.sequelizeModel.belongsTo(Employee.sequelizeModel, { foreignKey: 'employeeId', as: 'employee' });
@@ -53,6 +55,10 @@ function setupAssociations() {
     // 12. Material -> Vendor
     Material.sequelizeModel.belongsTo(Vendor.sequelizeModel, { foreignKey: 'vendorId', as: 'vendor' });
     Vendor.sequelizeModel.hasMany(Material.sequelizeModel, { foreignKey: 'vendorId', as: 'materials' });
+    
+    // Vendor -> User
+    Vendor.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'userId', as: 'user' });
+    User.sequelizeModel.hasOne(Vendor.sequelizeModel, { foreignKey: 'userId', as: 'vendorProfile' });
 
     // 13. MaterialMovement -> Material, User, Order
     MaterialMovement.sequelizeModel.belongsTo(Material.sequelizeModel, { foreignKey: 'materialId', as: 'material' });

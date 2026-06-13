@@ -12,6 +12,10 @@ const CustomerSequelize = sequelize.define('Customer', {
         type: DataTypes.STRING,
         allowNull: false
     },
+    userId: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+    },
     email: {
         type: DataTypes.STRING,
         allowNull: true,
