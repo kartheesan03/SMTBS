@@ -21,6 +21,7 @@ const Vendors = () => {
     const [selectedVendor, setSelectedVendor] = useState(null);
     const [vendorOrders, setVendorOrders] = useState([]);
     const [vendorMaterials, setVendorMaterials] = useState([]);
+    const [vendorStats, setVendorStats] = useState(null);
     
     // Vendor Form Data
     const [formData, setFormData] = useState({
@@ -84,16 +85,24 @@ const Vendors = () => {
         setVendorOrders([]);
         setVendorMaterials([]);
         try {
-            const [{ data: orders }, { data: materials }] = await Promise.all([
-                API.get('/orders'),
-                API.get('/materials')
-            ]);
             const vId = String(vendor.id || vendor._id);
+            const [{ data: vendorProfile }, { data: orders }] = await Promise.all([
+                API.get('/vendors/' + vId),
+                API.get('/orders')
+            ]);
+            
             const filteredOrders = orders.filter(o => String(o.vendorId) === vId || String(o.vendor?.id || o.vendor?._id || o.vendor) === vId);
             setVendorOrders(filteredOrders);
-            const filteredMaterials = materials.filter(m => String(m.vendorId) === vId || String(m.vendor?.id || m.vendor?._id || m.vendor) === vId);
-            setVendorMaterials(filteredMaterials);
-            setAllMaterials(materials); // ensure global sync
+            setVendorMaterials(vendorProfile.materials);
+            setAllMaterials(prev => {
+                const map = new Map(prev.map(m => [m.id || m._id, m]));
+                vendorProfile.materials.forEach(m => map.set(m.id || m._id, m));
+                return Array.from(map.values());
+            });
+            // Update selected vendor with full details
+            setSelectedVendor(vendorProfile.vendor);
+            // Save statistics
+            setVendorStats(vendorProfile.statistics);
         } catch (err) {
             console.error("Error fetching vendor data", err);
         }
@@ -298,10 +307,10 @@ const Vendors = () => {
         URL.revokeObjectURL(url);
     };
 
-    // Calculate Vendor Mini-Dashboard Stats
-    const totalVendorMaterials = vendorMaterials.length;
-    const totalVendorStock = vendorMaterials.reduce((sum, m) => sum + (m.quantity || 0), 0);
-    const totalVendorValue = vendorMaterials.reduce((sum, m) => sum + ((m.quantity || 0) * (m.price || 0)), 0);
+    // Vendor Mini-Dashboard Stats
+    const totalVendorMaterials = vendorStats ? vendorStats.totalMaterials : vendorMaterials.length;
+    const totalVendorStock = vendorStats ? vendorStats.totalStockQty : vendorMaterials.reduce((sum, m) => sum + (m.quantity || 0), 0);
+    const totalVendorValue = vendorStats ? vendorStats.totalInventoryValue : vendorMaterials.reduce((sum, m) => sum + ((m.quantity || 0) * (m.price || 0)), 0);
 
     return (
         <div className="module-container">
