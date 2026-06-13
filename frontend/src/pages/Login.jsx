@@ -2,7 +2,7 @@ import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import API from '../api/axios';
 import { AuthContext } from '../context/AuthContext';
-import { Mail, Lock, Eye, EyeOff, Box, ArrowRight, ShoppingCart, Users, Package, BarChart3, Activity, Archive, FileText, Briefcase, PieChart } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, Box, ArrowRight, ShoppingCart, Users, Package, BarChart3, Activity, Archive, FileText, Briefcase, PieChart, Check } from 'lucide-react';
 import { GoogleLogin } from '@react-oauth/google';
 
 const Login = () => {
@@ -66,79 +66,67 @@ const Login = () => {
                         <p className="brand-subtitle">An all-in-one platform for materials, orders, HR, and ERP workflows.</p>
                     </div>
                     
-                    <div className="brand-illustration solid-corporate">
-                        {/* KPI Cards */}
-                        <div className="kpi-grid">
-                            <div className="kpi-card">
-                                <div className="kpi-header">
-                                    <ShoppingCart size={18} className="kpi-icon blue" />
-                                    <span className="kpi-title">Total Orders</span>
-                                </div>
-                                <div className="kpi-value">12,450</div>
-                                <div className="kpi-trend positive">+14.5% vs last month</div>
+                    <div className="brand-illustration workflow-corporate">
+                        <div className="workflow-tagline">
+                            <h2>Smart Material Tracking & Enterprise Management</h2>
+                        </div>
+                        
+                        {/* 3D-style Workflow Graphic */}
+                        <div className="erp-workflow-graphic">
+                            {/* Central Hub */}
+                            <div className="workflow-hub">
+                                <Box size={24} className="hub-icon" />
+                                <span>ERP Core</span>
                             </div>
-                            <div className="kpi-card">
-                                <div className="kpi-header">
-                                    <Users size={18} className="kpi-icon indigo" />
-                                    <span className="kpi-title">Active Employees</span>
-                                </div>
-                                <div className="kpi-value">842</div>
-                                <div className="kpi-trend positive">+2.1% vs last month</div>
+                            
+                            {/* Nodes */}
+                            <div className="workflow-nodes">
+                                <div className="node node-materials"><Package size={18} /><span>Materials</span></div>
+                                <div className="node node-inventory"><Archive size={18} /><span>Inventory</span></div>
+                                <div className="node node-orders"><ShoppingCart size={18} /><span>Orders</span></div>
+                                <div className="node node-employees"><Users size={18} /><span>Employees</span></div>
+                                <div className="node node-reports"><BarChart3 size={18} /><span>Reports</span></div>
                             </div>
-                            <div className="kpi-card">
-                                <div className="kpi-header">
-                                    <Package size={18} className="kpi-icon green" />
-                                    <span className="kpi-title">Inventory Value</span>
-                                </div>
-                                <div className="kpi-value">$4.2M</div>
-                                <div className="kpi-trend negative">-1.2% vs last month</div>
-                            </div>
-                            <div className="kpi-card">
-                                <div className="kpi-header">
-                                    <BarChart3 size={18} className="kpi-icon purple" />
-                                    <span className="kpi-title">Monthly Revenue</span>
-                                </div>
-                                <div className="kpi-value">$1.8M</div>
-                                <div className="kpi-trend positive">+8.4% vs last month</div>
-                            </div>
+                            
+                            {/* Animated Connection Lines */}
+                            <svg className="connection-lines" viewBox="0 0 400 300">
+                                <path className="line-path" d="M200,150 L100,60" />
+                                <path className="line-path" d="M200,150 L300,60" />
+                                <path className="line-path" d="M200,150 L320,240" />
+                                <path className="line-path" d="M200,150 L200,260" />
+                                <path className="line-path" d="M200,150 L80,240" />
+                                
+                                <circle className="particle p1" cx="200" cy="150" r="4" />
+                                <circle className="particle p2" cx="200" cy="150" r="4" />
+                                <circle className="particle p3" cx="200" cy="150" r="4" />
+                                <circle className="particle p4" cx="200" cy="150" r="4" />
+                                <circle className="particle p5" cx="200" cy="150" r="4" />
+                            </svg>
                         </div>
 
-                        {/* Modules */}
-                        <div className="modules-list">
-                            <div className="module-item">
-                                <Activity size={20} className="module-icon" />
-                                <div className="module-info">
-                                    <h4>Material Tracking</h4>
-                                    <p>End-to-end supply chain visibility</p>
-                                </div>
+                        {/* Supply Chain Flow */}
+                        <div className="supply-chain-flow">
+                            <div className="flow-step">Vendor</div>
+                            <div className="flow-arrow"><ArrowRight size={14} /></div>
+                            <div className="flow-step">Inventory</div>
+                            <div className="flow-arrow"><ArrowRight size={14} /></div>
+                            <div className="flow-step">Order</div>
+                            <div className="flow-arrow"><ArrowRight size={14} /></div>
+                            <div className="flow-step">Delivery</div>
+                            <div className="flow-arrow"><ArrowRight size={14} /></div>
+                            <div className="flow-step">Customer</div>
+                        </div>
+
+                        {/* Feature Highlights */}
+                        <div className="corporate-features">
+                            <div className="feature-check">
+                                <Check size={18} className="check-icon" /> Real-Time Inventory Control
                             </div>
-                            <div className="module-item">
-                                <Archive size={20} className="module-icon" />
-                                <div className="module-info">
-                                    <h4>Inventory Management</h4>
-                                    <p>Real-time stock control & alerts</p>
-                                </div>
+                            <div className="feature-check">
+                                <Check size={18} className="check-icon" /> ERP Order Management
                             </div>
-                            <div className="module-item">
-                                <FileText size={20} className="module-icon" />
-                                <div className="module-info">
-                                    <h4>ERP Orders</h4>
-                                    <p>Streamlined purchase & sales</p>
-                                </div>
-                            </div>
-                            <div className="module-item">
-                                <Briefcase size={20} className="module-icon" />
-                                <div className="module-info">
-                                    <h4>HRMS</h4>
-                                    <p>Employee & payroll workflows</p>
-                                </div>
-                            </div>
-                            <div className="module-item">
-                                <PieChart size={20} className="module-icon" />
-                                <div className="module-info">
-                                    <h4>Reports & Analytics</h4>
-                                    <p>Data-driven business insights</p>
-                                </div>
+                            <div className="feature-check">
+                                <Check size={18} className="check-icon" /> Workforce Management
                             </div>
                         </div>
                     </div>
@@ -308,14 +296,14 @@ const Login = () => {
                     max-width: 80%;
                 }
 
-                /* Corporate Enterprise Illustration */
-                .brand-illustration.solid-corporate {
+                /* Workflow Enterprise Illustration */
+                .brand-illustration.workflow-corporate {
                     position: relative;
-                    margin-top: 30px;
+                    margin-top: 20px;
                     flex: 1;
                     display: flex;
                     flex-direction: column;
-                    gap: 32px;
+                    justify-content: space-between;
                     animation: fadeIn 0.8s ease-out forwards;
                 }
 
@@ -324,107 +312,164 @@ const Login = () => {
                     to { opacity: 1; transform: translateY(0); }
                 }
 
-                .kpi-grid {
-                    display: grid;
-                    grid-template-columns: repeat(2, 1fr);
-                    gap: 16px;
-                }
-
-                .kpi-card {
-                    background: #1E293B;
-                    border-radius: 16px;
-                    padding: 20px;
-                    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-                    border: 1px solid rgba(255, 255, 255, 0.05);
-                    transition: transform 0.2s ease, box-shadow 0.2s ease;
-                }
-
-                .kpi-card:hover {
-                    transform: translateY(-4px);
-                    box-shadow: 0 12px 32px rgba(0,0,0,0.25);
-                }
-
-                .kpi-header {
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    margin-bottom: 12px;
-                }
-
-                .kpi-icon {
-                    padding: 6px;
-                    border-radius: 8px;
-                    background: rgba(255, 255, 255, 0.05);
-                }
-                .kpi-icon.blue { color: #60A5FA; background: rgba(96, 165, 250, 0.1); }
-                .kpi-icon.indigo { color: #818CF8; background: rgba(129, 140, 248, 0.1); }
-                .kpi-icon.green { color: #34D399; background: rgba(52, 211, 153, 0.1); }
-                .kpi-icon.purple { color: #C084FC; background: rgba(192, 132, 252, 0.1); }
-
-                .kpi-title {
-                    font-size: 13px;
-                    color: #94A3B8;
-                    font-weight: 500;
-                }
-
-                .kpi-value {
-                    font-size: 24px;
-                    font-weight: 700;
-                    color: #FFFFFF;
-                    margin-bottom: 6px;
+                .workflow-tagline h2 {
+                    font-size: 22px;
+                    font-weight: 600;
+                    color: #F8FAFC;
+                    margin: 0;
+                    line-height: 1.4;
                     letter-spacing: -0.5px;
                 }
 
-                .kpi-trend {
-                    font-size: 12px;
-                    font-weight: 500;
+                .erp-workflow-graphic {
+                    position: relative;
+                    height: 300px;
+                    width: 400px;
+                    margin: 0 auto;
+                    background: rgba(30, 41, 59, 0.5);
+                    border: 1px solid rgba(255, 255, 255, 0.05);
+                    border-radius: 24px;
+                    box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.3), 0 12px 32px rgba(0,0,0,0.2);
                 }
-                .kpi-trend.positive { color: #10B981; }
-                .kpi-trend.negative { color: #EF4444; }
 
-                .modules-list {
+                .workflow-hub {
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: linear-gradient(135deg, #4F46E5, #3B82F6);
+                    color: white;
+                    border-radius: 16px;
+                    padding: 16px 20px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 8px;
+                    box-shadow: 0 0 20px rgba(79, 70, 229, 0.5);
+                    z-index: 10;
+                    font-weight: 700;
+                    font-size: 14px;
+                    letter-spacing: 0.5px;
+                }
+
+                .workflow-nodes {
+                    position: absolute;
+                    inset: 0;
+                    z-index: 5;
+                }
+
+                .node {
+                    position: absolute;
+                    background: #1E293B;
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: 12px;
+                    padding: 10px 16px;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    font-size: 13px;
+                    font-weight: 600;
+                    color: #F8FAFC;
+                    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+                    transform: translate(-50%, -50%);
+                    transition: transform 0.3s ease, box-shadow 0.3s ease;
+                }
+
+                .node:hover {
+                    transform: translate(-50%, -50%) scale(1.05);
+                    background: #27364B;
+                    box-shadow: 0 12px 24px rgba(0,0,0,0.3);
+                }
+
+                .node-materials { top: 60px; left: 100px; color: #60A5FA; }
+                .node-inventory { top: 60px; left: 300px; color: #34D399; }
+                .node-orders { top: 240px; left: 320px; color: #818CF8; }
+                .node-employees { top: 260px; left: 200px; color: #F472B6; }
+                .node-reports { top: 240px; left: 80px; color: #FBBF24; }
+
+                .connection-lines {
+                    position: absolute;
+                    inset: 0;
+                    width: 100%;
+                    height: 100%;
+                    z-index: 1;
+                }
+
+                .line-path {
+                    stroke: rgba(255, 255, 255, 0.15);
+                    stroke-width: 2;
+                    fill: none;
+                    stroke-dasharray: 6 4;
+                    animation: dashLine 20s linear infinite;
+                }
+
+                @keyframes dashLine {
+                    to { stroke-dashoffset: -1000; }
+                }
+
+                .particle {
+                    fill: #818CF8;
+                    filter: drop-shadow(0 0 4px #818CF8);
+                }
+
+                .p1 { animation: travel1 3s infinite linear; }
+                .p2 { animation: travel2 3.5s infinite linear 1s; }
+                .p3 { animation: travel3 2.5s infinite linear 0.5s; }
+                .p4 { animation: travel4 4s infinite linear 1.5s; }
+                .p5 { animation: travel5 3s infinite linear 2s; }
+
+                @keyframes travel1 { 0% { cx: 200px; cy: 150px; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { cx: 100px; cy: 60px; opacity: 0; } }
+                @keyframes travel2 { 0% { cx: 200px; cy: 150px; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { cx: 300px; cy: 60px; opacity: 0; } }
+                @keyframes travel3 { 0% { cx: 200px; cy: 150px; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { cx: 320px; cy: 240px; opacity: 0; } }
+                @keyframes travel4 { 0% { cx: 200px; cy: 150px; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { cx: 200px; cy: 260px; opacity: 0; } }
+                @keyframes travel5 { 0% { cx: 200px; cy: 150px; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { cx: 80px; cy: 240px; opacity: 0; } }
+
+                .supply-chain-flow {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 12px;
+                    background: #1E293B;
+                    padding: 16px 20px;
+                    border-radius: 12px;
+                    border: 1px solid rgba(255, 255, 255, 0.05);
+                    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+                    flex-wrap: wrap;
+                }
+
+                .flow-step {
+                    font-size: 13px;
+                    font-weight: 600;
+                    color: #F8FAFC;
+                    background: rgba(255, 255, 255, 0.05);
+                    padding: 6px 14px;
+                    border-radius: 20px;
+                }
+
+                .flow-arrow {
+                    color: #4F46E5;
+                }
+
+                .corporate-features {
                     display: flex;
                     flex-direction: column;
                     gap: 12px;
                 }
 
-                .module-item {
+                .feature-check {
                     display: flex;
                     align-items: center;
-                    gap: 16px;
-                    background: #1E293B;
-                    padding: 16px 20px;
-                    border-radius: 12px;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-                    border: 1px solid rgba(255, 255, 255, 0.02);
-                    transition: background 0.2s ease;
-                }
-
-                .module-item:hover {
-                    background: #27364B;
-                }
-
-                .module-icon {
-                    color: #4F46E5;
-                    flex-shrink: 0;
-                }
-
-                .module-info {
-                    display: flex;
-                    flex-direction: column;
-                }
-
-                .module-info h4 {
-                    margin: 0 0 4px 0;
-                    color: #F8FAFC;
+                    gap: 12px;
                     font-size: 15px;
-                    font-weight: 600;
+                    color: #E2E8F0;
+                    font-weight: 500;
                 }
 
-                .module-info p {
-                    margin: 0;
-                    color: #94A3B8;
-                    font-size: 13px;
+                .check-icon {
+                    color: #10B981;
+                    background: rgba(16, 185, 129, 0.1);
+                    padding: 4px;
+                    border-radius: 50%;
                 }
 
                 .brand-footer {
@@ -751,8 +796,9 @@ const Login = () => {
                     .brand-title {
                         font-size: 32px;
                     }
-                    .kpi-grid {
-                        grid-template-columns: 1fr;
+                    .erp-workflow-graphic {
+                        transform: scale(0.85);
+                        transform-origin: center;
                     }
                 }
 
