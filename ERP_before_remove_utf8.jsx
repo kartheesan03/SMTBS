@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import API from '../api/axios';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { NotificationContext } from '../context/NotificationContext';
@@ -6,7 +6,8 @@ import {
     ResponsiveContainer, PieChart, Pie, Cell
 } from 'recharts';
 import { 
-    ShoppingCart, Search, UserPlus, DollarSign, Calendar, ArrowUpRight, ArrowDownRight, FileText, CheckCircle, Clock, AlertTriangle, Filter, Plus, ChevronRight, Eye, Download, Bell 
+    ShoppingCart, Plus, Filter, Search, Download, ChevronRight, 
+    FileText, UserPlus, DollarSign, Calendar, Eye, CheckCircle, Bell
 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -18,6 +19,7 @@ const ERP = () => {
     const [orders, setOrders] = useState([]);
     const [activeTab, setActiveTab] = useState('active');
     const [loading, setLoading] = useState(true);
+    const [showModal, setShowModal] = useState(false);
     const [showOrderDetailsModal, setShowOrderDetailsModal] = useState(false);
     const [selectedOrderDetails, setSelectedOrderDetails] = useState(null);
     const [showInvoiceModal, setShowInvoiceModal] = useState(false);
@@ -25,6 +27,15 @@ const ERP = () => {
     const [customers, setCustomers] = useState([]);
     const [vendors, setVendors] = useState([]);
     const [materials, setMaterials] = useState([]);
+    const [formData, setFormData] = useState({
+        customer: '',
+        status: 'Created',
+        orderType: 'sales',
+        items: [{ material: '', quantity: 1, price: 0 }],
+        orderDate: new Date().toISOString().split('T')[0],
+        expectedDeliveryDate: '',
+        notes: ''
+    });
 
     const [statusFilter, setStatusFilter] = useState('All');
     const [showFilters, setShowFilters] = useState(false);
@@ -32,7 +43,7 @@ const ERP = () => {
         openOrders: 0,
         approvedOrders: 0,
         pendingInvoices: 0,
-        totalExpenses: '₹0',
+        totalExpenses: 'Ôé╣0',
         totalPurchaseOrders: 0,
         orderSummary: []
     });
@@ -111,6 +122,58 @@ const ERP = () => {
     const handleOrderClick = (ord) => {
         setSelectedOrderDetails(ord);
         setShowOrderDetailsModal(true);
+    };
+
+    const calculateTotal = () => {
+        return formData.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    };
+
+    const handleCreateOrder = async (e) => {
+        e.preventDefault();
+        try {
+            const custExists = customers.find(c => String(c.id || c._id) === String(formData.customer));
+            if (!custExists) {
+                alert("Selected customer does not exist.");
+                return;
+            }
+
+            for (const item of formData.items) {
+                const matExists = materials.find(m => String(m.id || m._id) === String(item.material));
+                if (!matExists) {
+                    alert("Selected material does not exist.");
+                    return;
+                }
+                if (!item.quantity || item.quantity <= 0) {
+                    alert("Invalid quantity.");
+                    return;
+                }
+            }
+
+            const totalAmount = calculateTotal();
+            const selectedCust = customers.find(c => String(c.id || c._id) === String(formData.customer));
+            
+            const payload = { 
+                ...formData, 
+                orderType: 'sales',
+                status: 'Created',
+                approvalStatus: 'Pending Manager Approval',
+                deliveryStatus: 'Not Started',
+                customerModel: selectedCust?.customerModel || 'Customer',
+                totalAmount 
+            };
+            console.log("ORDER PAYLOAD:", payload);
+
+            await API.post('/orders', payload);
+            setShowModal(false);
+            setFormData({ customer: '', status: 'Created', orderType: 'sales', items: [{ material: '', quantity: 1, price: 0 }], orderDate: new Date().toISOString().split('T')[0], expectedDeliveryDate: '', notes: '' });
+            fetchData();
+        } catch (err) {
+            alert(err.response?.data?.message || 'Error creating order');
+        }
+    };
+
+    const addItem = () => {
+        setFormData({ ...formData, items: [...formData.items, { material: '', quantity: 1, price: 0 }] });
     };
 
     const handleStatusChange = async (id, newStatus) => {
@@ -289,10 +352,10 @@ const ERP = () => {
     const localPendingInvoices = orders.filter(o => ['Pending', 'Overdue', 'Partially Paid'].includes(o.paymentStatus)).length;
 
     const formatCurrencyLocal = (num) => {
-        if (!num) return '₹0';
-        if (num >= 10000000) return `₹${(num / 10000000).toFixed(2)} Cr`;
-        if (num >= 100000) return `₹${(num / 100000).toFixed(2)} L`;
-        return `₹${num.toLocaleString()}`;
+        if (!num) return 'Ôé╣0';
+        if (num >= 10000000) return `Ôé╣${(num / 10000000).toFixed(2)} Cr`;
+        if (num >= 100000) return `Ôé╣${(num / 100000).toFixed(2)} L`;
+        return `Ôé╣${num.toLocaleString()}`;
     };
 
     console.log('--- ERP KPI DATA LOGS ---');
@@ -322,8 +385,8 @@ const ERP = () => {
                     <button className="btn-secondary-light flex-center gap-8" onClick={() => setShowFilters(!showFilters)}>
                         <Filter size={16} /> Filters
                     </button>
-                    {(userInfo?.role?.toLowerCase() === 'admin' || userInfo?.role?.toLowerCase() === 'super admin' || userInfo?.role?.toLowerCase() === 'sales') && (
-                        <button className="btn-primary-blue flex-center gap-8" onClick={() => navigate('/orders/create-order')}>
+                    {(userInfo?.role?.toLowerCase() === 'admin' || userInfo?.role?.toLowerCase() === 'super admin') && (
+                        <button className="btn-primary-blue flex-center gap-8" onClick={() => setShowModal(true)}>
                             <Plus size={16} /> Create Order
                         </button>
                     )}
@@ -643,13 +706,126 @@ const ERP = () => {
                 </table>
             </div>
 
+            {/* Modal */}
+            {showModal && (
+                <div className="modal-overlay">
+                    <div className="modal-content animate-pop">
+                        <div className="modal-header">
+                            <h2>Create Customer Sales Order</h2>
+                            <button className="close-btn" onClick={() => setShowModal(false)}>Ô£ò</button>
+                        </div>
+                        <form onSubmit={handleCreateOrder} className="modal-form">
+                            <div className="form-group">
+                                <label>Select Customer</label>
+                                <select required value={formData.customer} onChange={e => setFormData({...formData, customer: e.target.value})}>
+                                    <option value="">Select Customer...</option>
+                                    {(!customers || customers.length === 0) ? (
+                                        <option value="" disabled>No customers available</option>
+                                    ) : (
+                                        customers.map(c => <option key={c.id || c._id} value={c.id || c._id}>{c.name} ({c.customerModel})</option>)
+                                    )}
+                                </select>
+                            </div>
+                            
+                            <div className="items-section">
+                                <label>Order Items</label>
+                                {formData.items.map((item, index) => (
+                                    <div key={index} className="item-row">
+                                        <select 
+                                            required 
+                                            value={item.material} 
+                                            onChange={e => {
+                                                const mat = materials.find(m => String(m.id || m._id) === e.target.value);
+                                                const newItems = [...formData.items];
+                                                newItems[index] = { ...newItems[index], material: e.target.value, price: mat?.price || 0 };
+                                                setFormData({...formData, items: newItems});
+                                            }}
+                                        >
+                                            <option value="">Select Material...</option>
+                                            {materials.map(m => <option key={m.id || m._id} value={m.id || m._id}>{m.name} (${m.price})</option>)}
+                                        </select>
+                                        <input 
+                                            type="number" 
+                                            min="1" 
+                                            required 
+                                            value={item.quantity} 
+                                            onChange={e => {
+                                                const newItems = [...formData.items];
+                                                newItems[index].quantity = parseInt(e.target.value);
+                                                setFormData({...formData, items: newItems});
+                                            }}
+                                        />
+                                        <span className="item-subtotal">${(item.price * item.quantity).toLocaleString()}</span>
+                                    </div>
+                                ))}
+                                <button type="button" className="text-btn" onClick={addItem}>+ Add Another Item</button>
+                            </div>
+
+                            <div className="form-group" style={{ marginBottom: '16px' }}>
+                                <label>Order Date</label>
+                                <input 
+                                    type="date" 
+                                    required 
+                                    value={formData.orderDate || ''} 
+                                    onChange={e => setFormData({...formData, orderDate: e.target.value})}
+                                    style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border)' }}
+                                />
+                            </div>
+
+                            <div className="form-group" style={{ marginBottom: '16px' }}>
+                                <label>Expected Delivery Date</label>
+                                <input 
+                                    type="date" 
+                                    required 
+                                    value={formData.expectedDeliveryDate || ''} 
+                                    onChange={e => setFormData({...formData, expectedDeliveryDate: e.target.value})}
+                                    style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border)' }}
+                                />
+                            </div>
+
+                            <div className="form-group" style={{ marginBottom: '16px' }}>
+                                <label>Notes / Remarks</label>
+                                <textarea 
+                                    rows="3" 
+                                    value={formData.notes || ''} 
+                                    onChange={e => setFormData({...formData, notes: e.target.value})}
+                                    placeholder="Enter any additional notes..."
+                                    style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border)', resize: 'vertical' }}
+                                />
+                            </div>
+
+                            <div className="order-summary-box">
+                                <span>Grand Total:</span>
+                                <strong>${calculateTotal().toLocaleString()}</strong>
+                            </div>
+
+                            <div className="modal-actions">
+                                <button type="button" className="btn-cancel" onClick={() => setShowModal(false)}>Cancel</button>
+                                <button 
+                                    type="submit" 
+                                    className="btn-save"
+                                    disabled={
+                                        !formData.customer ||
+                                        formData.items.length === 0 ||
+                                        formData.items.some(i => !i.material || i.quantity <= 0) ||
+                                        !formData.expectedDeliveryDate
+                                    }
+                                >
+                                    Confirm Order
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
             {/* Order Details Modal */}
             {showOrderDetailsModal && selectedOrderDetails && (
                 <div className="modal-overlay">
                     <div className="modal-content animate-pop" style={{ maxWidth: '600px' }}>
                         <div className="modal-header">
                             <h2>Order Details: {selectedOrderDetails.orderNumber}</h2>
-                            <button className="close-btn" onClick={() => setShowOrderDetailsModal(false)}>✕</button>
+                            <button className="close-btn" onClick={() => setShowOrderDetailsModal(false)}>Ô£ò</button>
                         </div>
                         <div style={{ padding: '20px' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', fontSize: '14px' }}>
@@ -721,7 +897,7 @@ const ERP = () => {
                     <div className="modal-content animate-pop" style={{ maxWidth: '1000px' }}>
                         <div className="modal-header">
                             <h2>Invoices</h2>
-                            <button className="close-btn" onClick={() => setShowInvoiceModal(false)}>✕</button>
+                            <button className="close-btn" onClick={() => setShowInvoiceModal(false)}>Ô£ò</button>
                         </div>
                         <div className="erp-tabs" style={{ paddingBottom: '16px' }}>
                             {['All', 'Pending', 'Paid', 'Overdue', 'Partially Paid'].map(tab => (

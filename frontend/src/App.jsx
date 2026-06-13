@@ -39,6 +39,7 @@ import AddCustomer from './pages/AddCustomer';
 import AddVendor from './pages/AddVendor';
 import Support from './pages/Support';
 import StockRequests from './pages/StockRequests';
+import CreateOrder from './pages/CreateOrder';
 import ErrorBoundary from './components/ErrorBoundary';
 
 const AppContent = () => {
@@ -109,6 +110,8 @@ const AppContent = () => {
                     <Route path="/hr-reports" element={<ProtectedRoute allowedRoles={['Admin', 'HR']}><HRReports /></ProtectedRoute>} />
                     <Route path="/team-performance" element={<ProtectedRoute allowedRoles={['Admin', 'Manager']}><TeamPerformance /></ProtectedRoute>} />
                     <Route path="/erp" element={<ProtectedRoute allowedRoles={['Admin', 'Manager', 'Sales', 'HR', 'Employee']}><ERP /></ProtectedRoute>} />
+                    <Route path="/orders" element={<Navigate to="/erp" replace />} />
+                    <Route path="/orders/create-order" element={<ProtectedRoute allowedRoles={['Admin', 'Manager', 'Sales', 'HR', 'Employee']}><CreateOrder /></ProtectedRoute>} />
                     <Route path="/crm" element={<ProtectedRoute allowedRoles={['Admin', 'Sales', 'Manager']}><Customers /></ProtectedRoute>} />
                     <Route path="/crm/add-customer" element={<ProtectedRoute allowedRoles={['Admin', 'Sales', 'Manager']}><AddCustomer /></ProtectedRoute>} />
                     <Route path="/vendors" element={<ProtectedRoute allowedRoles={['Admin', 'Manager', 'Sales']}><Vendors /></ProtectedRoute>} />
