@@ -2,7 +2,7 @@ import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import API from '../api/axios';
 import { AuthContext } from '../context/AuthContext';
-import { Mail, Lock, Eye, EyeOff, Box, ArrowRight, Layers, Briefcase, Users, Activity, Package, ShoppingCart } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, Box, ArrowRight, ShoppingCart, Users, Package, BarChart3, Activity, Archive, FileText, Briefcase, PieChart } from 'lucide-react';
 import { GoogleLogin } from '@react-oauth/google';
 
 const Login = () => {
@@ -66,60 +66,81 @@ const Login = () => {
                         <p className="brand-subtitle">An all-in-one platform for materials, orders, HR, and ERP workflows.</p>
                     </div>
                     
-                    <div className="brand-illustration">
-                        {/* Enterprise Premium Dashboard Illustration */}
-                        <div className="glass-dashboard">
-                            <div className="dash-header">
-                                <div className="dash-skeleton-line short"></div>
-                                <div className="dash-skeleton-line"></div>
+                    <div className="brand-illustration solid-corporate">
+                        {/* KPI Cards */}
+                        <div className="kpi-grid">
+                            <div className="kpi-card">
+                                <div className="kpi-header">
+                                    <ShoppingCart size={18} className="kpi-icon blue" />
+                                    <span className="kpi-title">Total Orders</span>
+                                </div>
+                                <div className="kpi-value">12,450</div>
+                                <div className="kpi-trend positive">+14.5% vs last month</div>
                             </div>
-                            
-                            <div className="tracking-container">
-                                <div className="tracking-line">
-                                    <div className="tracking-dot"></div>
+                            <div className="kpi-card">
+                                <div className="kpi-header">
+                                    <Users size={18} className="kpi-icon indigo" />
+                                    <span className="kpi-title">Active Employees</span>
                                 </div>
+                                <div className="kpi-value">842</div>
+                                <div className="kpi-trend positive">+2.1% vs last month</div>
                             </div>
-
-                            <div className="dash-cards">
-                                <div className="mini-glass-card">
-                                    <ShoppingCart size={20} className="card-icon blue-icon" />
-                                    <div className="card-content">
-                                        <div className="card-title">Live Orders</div>
-                                        <div className="card-value">1,248</div>
-                                    </div>
+                            <div className="kpi-card">
+                                <div className="kpi-header">
+                                    <Package size={18} className="kpi-icon green" />
+                                    <span className="kpi-title">Inventory Value</span>
                                 </div>
-                                <div className="mini-glass-card">
-                                    <Package size={20} className="card-icon green-icon" />
-                                    <div className="card-content">
-                                        <div className="card-title">Stock Status</div>
-                                        <div className="card-value">Optimal</div>
-                                    </div>
+                                <div className="kpi-value">$4.2M</div>
+                                <div className="kpi-trend negative">-1.2% vs last month</div>
+                            </div>
+                            <div className="kpi-card">
+                                <div className="kpi-header">
+                                    <BarChart3 size={18} className="kpi-icon purple" />
+                                    <span className="kpi-title">Monthly Revenue</span>
                                 </div>
+                                <div className="kpi-value">$1.8M</div>
+                                <div className="kpi-trend positive">+8.4% vs last month</div>
                             </div>
                         </div>
 
-                        {/* Feature Highlights */}
-                        <div className="feature-highlights">
-                            <div className="feature-item">
-                                <Activity size={20} className="feature-icon" />
-                                <span>Smart Material Tracking</span>
+                        {/* Modules */}
+                        <div className="modules-list">
+                            <div className="module-item">
+                                <Activity size={20} className="module-icon" />
+                                <div className="module-info">
+                                    <h4>Material Tracking</h4>
+                                    <p>End-to-end supply chain visibility</p>
+                                </div>
                             </div>
-                            <div className="feature-item">
-                                <Briefcase size={20} className="feature-icon" />
-                                <span>ERP Order Management</span>
+                            <div className="module-item">
+                                <Archive size={20} className="module-icon" />
+                                <div className="module-info">
+                                    <h4>Inventory Management</h4>
+                                    <p>Real-time stock control & alerts</p>
+                                </div>
                             </div>
-                            <div className="feature-item">
-                                <Users size={20} className="feature-icon" />
-                                <span>HRMS Workflow Control</span>
+                            <div className="module-item">
+                                <FileText size={20} className="module-icon" />
+                                <div className="module-info">
+                                    <h4>ERP Orders</h4>
+                                    <p>Streamlined purchase & sales</p>
+                                </div>
                             </div>
-                            <div className="feature-item">
-                                <Layers size={20} className="feature-icon" />
-                                <span>Real-time Stock Monitoring</span>
+                            <div className="module-item">
+                                <Briefcase size={20} className="module-icon" />
+                                <div className="module-info">
+                                    <h4>HRMS</h4>
+                                    <p>Employee & payroll workflows</p>
+                                </div>
+                            </div>
+                            <div className="module-item">
+                                <PieChart size={20} className="module-icon" />
+                                <div className="module-info">
+                                    <h4>Reports & Analytics</h4>
+                                    <p>Data-driven business insights</p>
+                                </div>
                             </div>
                         </div>
-
-                        <div className="abstract-circle abstract-circle-1"></div>
-                        <div className="abstract-circle abstract-circle-2"></div>
                     </div>
                 </div>
                 <div className="brand-footer">
@@ -230,7 +251,7 @@ const Login = () => {
                 /* --- Left Panel --- */
                 .login-brand-panel {
                     flex: 1.2;
-                    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+                    background: #0F172A; /* Solid Dark Navy */
                     position: relative;
                     overflow: hidden;
                     display: flex;
@@ -238,28 +259,6 @@ const Login = () => {
                     justify-content: space-between;
                     padding: 60px;
                     color: #ffffff;
-                }
-                
-                /* Decorative background gradients */
-                .login-brand-panel::before {
-                    content: '';
-                    position: absolute;
-                    top: -20%;
-                    left: -10%;
-                    width: 70%;
-                    height: 70%;
-                    background: radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, rgba(0,0,0,0) 70%);
-                    z-index: 0;
-                }
-                .login-brand-panel::after {
-                    content: '';
-                    position: absolute;
-                    bottom: -20%;
-                    right: -10%;
-                    width: 70%;
-                    height: 70%;
-                    background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, rgba(0,0,0,0) 70%);
-                    z-index: 0;
                 }
 
                 .brand-content {
@@ -309,187 +308,123 @@ const Login = () => {
                     max-width: 80%;
                 }
 
-                /* Enterprise Premium Illustration */
-                .brand-illustration {
+                /* Corporate Enterprise Illustration */
+                .brand-illustration.solid-corporate {
                     position: relative;
-                    margin-top: 40px;
+                    margin-top: 30px;
                     flex: 1;
                     display: flex;
                     flex-direction: column;
-                    gap: 30px;
+                    gap: 32px;
+                    animation: fadeIn 0.8s ease-out forwards;
                 }
 
-                .glass-dashboard {
-                    background: rgba(255, 255, 255, 0.05);
-                    backdrop-filter: blur(16px);
-                    -webkit-backdrop-filter: blur(16px);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                    border-radius: 20px;
-                    padding: 24px;
-                    position: relative;
-                    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.2);
-                    animation: float 6s ease-in-out infinite;
-                    z-index: 2;
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(10px); }
+                    to { opacity: 1; transform: translateY(0); }
                 }
 
-                .dash-header {
-                    margin-bottom: 24px;
-                }
-
-                .dash-skeleton-line {
-                    height: 8px;
-                    background: rgba(255, 255, 255, 0.15);
-                    border-radius: 4px;
-                    margin-bottom: 12px;
-                    width: 60%;
-                }
-
-                .dash-skeleton-line.short {
-                    width: 30%;
-                    height: 12px;
-                    background: rgba(255, 255, 255, 0.25);
-                }
-
-                .tracking-container {
-                    height: 40px;
-                    background: rgba(0, 0, 0, 0.2);
-                    border-radius: 8px;
-                    position: relative;
-                    margin-bottom: 24px;
-                    overflow: hidden;
-                    display: flex;
-                    align-items: center;
-                    padding: 0 16px;
-                }
-
-                .tracking-line {
-                    width: 100%;
-                    height: 2px;
-                    background: rgba(255, 255, 255, 0.1);
-                    position: relative;
-                }
-
-                .tracking-dot {
-                    width: 12px;
-                    height: 12px;
-                    background: #3b82f6;
-                    border-radius: 50%;
-                    position: absolute;
-                    top: 50%;
-                    transform: translateY(-50%);
-                    box-shadow: 0 0 10px #3b82f6, 0 0 20px #3b82f6;
-                    animation: trackPulse 3s linear infinite;
-                }
-
-                @keyframes trackPulse {
-                    0% { left: 0; opacity: 0; }
-                    10% { opacity: 1; }
-                    90% { opacity: 1; }
-                    100% { left: 100%; opacity: 0; }
-                }
-
-                .dash-cards {
-                    display: flex;
-                    gap: 16px;
-                }
-
-                .mini-glass-card {
-                    flex: 1;
-                    background: rgba(255, 255, 255, 0.08);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                    border-radius: 12px;
-                    padding: 16px;
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                    transition: transform 0.3s ease, background 0.3s ease;
-                }
-
-                .mini-glass-card:hover {
-                    transform: translateY(-4px);
-                    background: rgba(255, 255, 255, 0.12);
-                }
-
-                .card-icon {
-                    padding: 8px;
-                    border-radius: 8px;
-                    background: rgba(255, 255, 255, 0.1);
-                }
-
-                .blue-icon { color: #60a5fa; background: rgba(96, 165, 250, 0.15); }
-                .green-icon { color: #34d399; background: rgba(52, 211, 153, 0.15); }
-
-                .card-title {
-                    font-size: 12px;
-                    color: #94a3b8;
-                    margin-bottom: 4px;
-                }
-
-                .card-value {
-                    font-size: 16px;
-                    font-weight: 700;
-                    color: #ffffff;
-                }
-
-                .feature-highlights {
+                .kpi-grid {
                     display: grid;
-                    grid-template-columns: 1fr 1fr;
+                    grid-template-columns: repeat(2, 1fr);
                     gap: 16px;
-                    z-index: 2;
                 }
 
-                .feature-item {
+                .kpi-card {
+                    background: #1E293B;
+                    border-radius: 16px;
+                    padding: 20px;
+                    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+                    border: 1px solid rgba(255, 255, 255, 0.05);
+                    transition: transform 0.2s ease, box-shadow 0.2s ease;
+                }
+
+                .kpi-card:hover {
+                    transform: translateY(-4px);
+                    box-shadow: 0 12px 32px rgba(0,0,0,0.25);
+                }
+
+                .kpi-header {
                     display: flex;
                     align-items: center;
-                    gap: 12px;
-                    background: rgba(255, 255, 255, 0.03);
-                    border: 1px solid rgba(255, 255, 255, 0.05);
-                    padding: 12px 16px;
-                    border-radius: 12px;
-                    font-size: 14px;
-                    color: #e2e8f0;
+                    gap: 10px;
+                    margin-bottom: 12px;
+                }
+
+                .kpi-icon {
+                    padding: 6px;
+                    border-radius: 8px;
+                    background: rgba(255, 255, 255, 0.05);
+                }
+                .kpi-icon.blue { color: #60A5FA; background: rgba(96, 165, 250, 0.1); }
+                .kpi-icon.indigo { color: #818CF8; background: rgba(129, 140, 248, 0.1); }
+                .kpi-icon.green { color: #34D399; background: rgba(52, 211, 153, 0.1); }
+                .kpi-icon.purple { color: #C084FC; background: rgba(192, 132, 252, 0.1); }
+
+                .kpi-title {
+                    font-size: 13px;
+                    color: #94A3B8;
                     font-weight: 500;
-                    transition: all 0.3s ease;
                 }
 
-                .feature-item:hover {
-                    background: rgba(255, 255, 255, 0.08);
-                    border-color: rgba(99, 102, 241, 0.3);
-                    transform: translateX(4px);
+                .kpi-value {
+                    font-size: 24px;
+                    font-weight: 700;
+                    color: #FFFFFF;
+                    margin-bottom: 6px;
+                    letter-spacing: -0.5px;
                 }
 
-                .feature-icon {
-                    color: #818cf8;
+                .kpi-trend {
+                    font-size: 12px;
+                    font-weight: 500;
+                }
+                .kpi-trend.positive { color: #10B981; }
+                .kpi-trend.negative { color: #EF4444; }
+
+                .modules-list {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 12px;
                 }
 
-                .abstract-circle {
-                    position: absolute;
-                    border-radius: 50%;
-                    filter: blur(40px);
-                }
-                .abstract-circle-1 {
-                    width: 250px;
-                    height: 250px;
-                    background: #6366f1;
-                    top: -50px;
-                    right: -50px;
-                    opacity: 0.3;
-                    z-index: 0;
-                }
-                .abstract-circle-2 {
-                    width: 200px;
-                    height: 200px;
-                    background: #10b981;
-                    bottom: -50px;
-                    left: -50px;
-                    opacity: 0.2;
-                    z-index: 0;
+                .module-item {
+                    display: flex;
+                    align-items: center;
+                    gap: 16px;
+                    background: #1E293B;
+                    padding: 16px 20px;
+                    border-radius: 12px;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                    border: 1px solid rgba(255, 255, 255, 0.02);
+                    transition: background 0.2s ease;
                 }
 
-                @keyframes float {
-                    0% { transform: translateY(0px); }
-                    50% { transform: translateY(-10px); }
-                    100% { transform: translateY(0px); }
+                .module-item:hover {
+                    background: #27364B;
+                }
+
+                .module-icon {
+                    color: #4F46E5;
+                    flex-shrink: 0;
+                }
+
+                .module-info {
+                    display: flex;
+                    flex-direction: column;
+                }
+
+                .module-info h4 {
+                    margin: 0 0 4px 0;
+                    color: #F8FAFC;
+                    font-size: 15px;
+                    font-weight: 600;
+                }
+
+                .module-info p {
+                    margin: 0;
+                    color: #94A3B8;
+                    font-size: 13px;
                 }
 
                 .brand-footer {
@@ -816,7 +751,7 @@ const Login = () => {
                     .brand-title {
                         font-size: 32px;
                     }
-                    .feature-highlights {
+                    .kpi-grid {
                         grid-template-columns: 1fr;
                     }
                 }
