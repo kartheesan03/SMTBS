@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import API from '../api/axios';
+import { AuthContext } from '../context/AuthContext';
 import { 
     Calendar, CheckCircle, Clock, Briefcase, 
     FileText, Bell, Search, ChevronDown, ListTodo, Star
@@ -10,6 +11,7 @@ import {
 } from 'recharts';
 
 const EmployeeDashboard = () => {
+    const { user } = useContext(AuthContext);
     const [dashboardData, setDashboardData] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -51,7 +53,7 @@ const EmployeeDashboard = () => {
     const dashboard = dashboardData || {};
 
     // KPIs
-    const attendanceStatus = "Pending"; 
+    const attendanceStatus = dashboard?.employeeStats?.attendanceToday || "Not Marked"; 
     
     // Calculate pending tasks from real tasks data
     const pendingTasks = tasksData.filter(t => t.status !== 'Completed' && t.status !== 'Done').length;
@@ -59,7 +61,7 @@ const EmployeeDashboard = () => {
     // Calculate active projects
     const assignedProjects = ordersData.filter(o => ['In Progress', 'Approved'].includes(o.status)).length;
     
-    const leaveBalance = 0; // Fetch from leaves API if available
+    const leaveBalance = dashboard?.employeeStats?.myPendingLeaves || 0; // Fetch from leaves API if available
     const salarySlip = "Not Generated";
     const unreadNotifications = 0;
 
@@ -108,10 +110,12 @@ const EmployeeDashboard = () => {
                             <span className="notif-badge"></span>
                         </button>
                         <div className="profile-dropdown">
-                            <div className="avatar" style={{background: '#6366f1'}}>JD</div>
+                            <div className="avatar" style={{background: '#6366f1'}}>
+                                {user?.name ? user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'U'}
+                            </div>
                             <div className="profile-info">
-                                <span className="p-name">Jane Doe</span>
-                                <span className="p-role">Employee</span>
+                                <span className="p-name">{user?.name || 'Employee'}</span>
+                                <span className="p-role">{user?.role || 'Employee'}</span>
                             </div>
                             <ChevronDown size={14} />
                         </div>
@@ -149,8 +153,8 @@ const EmployeeDashboard = () => {
                     <div className="kpi-card">
                         <div className="kpi-icon-wrapper" style={{ background: '#f3e8ff', color: '#9333ea' }}><Calendar size={18} /></div>
                         <div className="kpi-info">
-                            <span className="kpi-label">Leave Balance</span>
-                            <h3 className="kpi-value">{leaveBalance} Days</h3>
+                            <span className="kpi-label">Pending Leaves</span>
+                            <h3 className="kpi-value">{leaveBalance}</h3>
                         </div>
                     </div>
                     <div className="kpi-card">
