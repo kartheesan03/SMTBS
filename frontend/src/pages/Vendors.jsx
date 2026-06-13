@@ -21,7 +21,6 @@ const Vendors = () => {
     const [selectedVendor, setSelectedVendor] = useState(null);
     const [vendorOrders, setVendorOrders] = useState([]);
     const [vendorMaterials, setVendorMaterials] = useState([]);
-    const [vendorStats, setVendorStats] = useState(null);
     
     // Vendor Form Data
     const [formData, setFormData] = useState({
@@ -86,23 +85,15 @@ const Vendors = () => {
         setVendorMaterials([]);
         try {
             const vId = String(vendor.id || vendor._id);
-            const [{ data: vendorProfile }, { data: orders }] = await Promise.all([
-                API.get('/vendors/' + vId),
-                API.get('/orders')
-            ]);
+            const { data: orders } = await API.get('/orders');
             
             const filteredOrders = orders.filter(o => String(o.vendorId) === vId || String(o.vendor?.id || o.vendor?._id || o.vendor) === vId);
             setVendorOrders(filteredOrders);
-            setVendorMaterials(vendorProfile.materials);
-            setAllMaterials(prev => {
-                const map = new Map(prev.map(m => [m.id || m._id, m]));
-                vendorProfile.materials.forEach(m => map.set(m.id || m._id, m));
-                return Array.from(map.values());
-            });
-            // Update selected vendor with full details
-            setSelectedVendor(vendorProfile.vendor);
-            // Save statistics
-            setVendorStats(vendorProfile.statistics);
+            
+            // Match Vendor Directory logic exactly
+            const vMaterials = allMaterials.filter(m => String(m.vendorId) === vId || String(m.vendor?.id || m.vendor?._id || m.vendor) === vId);
+            setVendorMaterials(vMaterials);
+            
         } catch (err) {
             console.error("Error fetching vendor data", err);
         }
@@ -308,9 +299,9 @@ const Vendors = () => {
     };
 
     // Vendor Mini-Dashboard Stats
-    const totalVendorMaterials = vendorStats ? vendorStats.totalMaterials : vendorMaterials.length;
-    const totalVendorStock = vendorStats ? vendorStats.totalStockQty : vendorMaterials.reduce((sum, m) => sum + (m.quantity || 0), 0);
-    const totalVendorValue = vendorStats ? vendorStats.totalInventoryValue : vendorMaterials.reduce((sum, m) => sum + ((m.quantity || 0) * (m.price || 0)), 0);
+    const totalVendorMaterials = vendorMaterials.length;
+    const totalVendorStock = vendorMaterials.reduce((sum, m) => sum + (Number(m.stockQty || m.quantity || m.stock || 0)), 0);
+    const totalVendorValue = vendorMaterials.reduce((sum, m) => sum + (Number(m.stockQty || m.quantity || m.stock || 0) * Number(m.price || 0)), 0);
 
     return (
         <div className="module-container">
