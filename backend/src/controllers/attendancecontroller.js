@@ -219,12 +219,6 @@ const getAllAttendance = async (req, res) => {
         const today = new Date().toISOString().split('T')[0];
         
         let query = {};
-        if (req.user && req.user.role && req.user.role.toLowerCase() === 'manager') {
-            const managerProfile = await Employee.findOne({ userId: req.user._id });
-            if (managerProfile && managerProfile.department) {
-                query.department = managerProfile.department;
-            }
-        }
 
         // Fetch all employees (since status field doesn't exist in the current schema)
         const employees = await Employee.find(query).select('id firstName lastName department employeeId');
@@ -387,12 +381,6 @@ const getMonthlySummary = async (req, res) => {
         const totalDaysInMonth = endDate.getDate();
 
         let query = {};
-        if (req.user && req.user.role && req.user.role.toLowerCase() === 'manager') {
-            const managerProfile = await Employee.findOne({ userId: req.user._id });
-            if (managerProfile && managerProfile.department) {
-                query.department = managerProfile.department;
-            }
-        }
 
         const employees = await Employee.find(query);
         const attendances = await Attendance.find({
