@@ -95,7 +95,6 @@ const Attendance = () => {
 
     const totalCount = attendanceData?.totalEmployees || 0;
     const presentCount = attendanceData?.presentToday || 0;
-    const notCheckedInCount = attendanceData?.notCheckedInToday || 0;
     const absentCount = attendanceData?.absentToday || 0;
     const leaveCount = attendanceData?.onLeaveToday || 0;
 
@@ -132,12 +131,6 @@ const Attendance = () => {
                     value={presentCount} 
                     icon={<CheckCircle />} 
                     color="success" 
-                />
-                <StatCard 
-                    title="Not Checked In" 
-                    value={notCheckedInCount} 
-                    icon={<Clock />} 
-                    color="secondary" 
                 />
                 <StatCard 
                     title="Absent" 
