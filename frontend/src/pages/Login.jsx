@@ -62,8 +62,8 @@ const Login = () => {
                         <span className="logo-text-large">SMTBMS</span>
                     </div>
                     <div className="brand-text">
-                        <h1 className="brand-title">Enterprise Business Management<br/>Made Seamless.</h1>
-                        <p className="brand-subtitle">Manage Materials, Inventory, Orders, HRMS and Delivery Operations from a Single Platform.</p>
+                        <h1 className="brand-title">Smart Material Tracking &<br/>Business Management System</h1>
+                        <p className="brand-subtitle">End-to-End Material Tracking, Inventory Control and Enterprise Operations.</p>
                     </div>
                     
                     <div className="brand-illustration saas-corporate">
@@ -143,14 +143,6 @@ const Login = () => {
                             <span className="logo-text-small">SMTBMS</span>
                         </div>
                         <h2 className="welcome-text">Enterprise Resource Management Portal</h2>
-                        <p className="welcome-subtitle">Manage Materials, Inventory, HR, ERP, Vendors, Attendance, and Operations from a single platform.</p>
-                        <div className="role-badges">
-                            <span className="role-badge">Admin</span>
-                            <span className="role-badge">HR</span>
-                            <span className="role-badge">Manager</span>
-                            <span className="role-badge">Sales</span>
-                            <span className="role-badge">Employee</span>
-                        </div>
                     </div>
                     
                     {error && (
@@ -582,33 +574,12 @@ const Login = () => {
                     font-size: 28px;
                     font-weight: 800;
                     color: #0B1026;
-                    margin: 0 0 12px 0;
+                    margin: 0;
                     letter-spacing: -0.5px;
                     line-height: 1.2;
                 }
 
-                .welcome-subtitle {
-                    font-size: 15px;
-                    color: #64748b;
-                    margin: 0;
-                    line-height: 1.5;
-                }
-
-                .role-badges {
-                    display: flex;
-                    flex-wrap: wrap;
-                    gap: 8px;
-                    margin-top: 16px;
-                }
-
-                .role-badge {
-                    font-size: 12px;
-                    font-weight: 600;
-                    color: #4F46E5;
-                    background: rgba(99, 102, 241, 0.1);
-                    padding: 4px 10px;
-                    border-radius: 20px;
-                }
+                /* Removed subtitle and role badges */
 
                 .trust-indicators {
                     display: flex;
