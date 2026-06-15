@@ -35,17 +35,32 @@ const getERPStats = async (req, res) => {
         const purchaseStatusCounts = {};
         if (poStatuses && poStatuses.length > 0) {
             poStatuses.forEach(s => {
-                purchaseStatusCounts[s._id] = s.count;
+                const count = s.count !== undefined ? s.count : (s.value || 0);
+                purchaseStatusCounts[s._id] = count;
             });
         }
 
+        const draftStatuses = ['Created', 'Pending Approval', 'Awaiting Approval', 'Pending', 'Awaiting Stock Check'];
+        const approvedStatuses = ['Approved', 'Confirmed', 'Processing', 'Shipped', 'Ready for Delivery'];
+        const receivedStatuses = ['Delivered', 'Completed'];
+        const cancelledStatuses = ['Rejected', 'Cancelled'];
+
+        const getCountFor = (statuses) => statuses.reduce((sum, st) => sum + (purchaseStatusCounts[st] || 0), 0);
+
         const orderSummary = [
-            { name: 'Pending', value: purchaseStatusCounts['Pending'] || 0, color: '#2563eb' },
-            { name: 'Confirmed', value: purchaseStatusCounts['Confirmed'] || 0, color: '#8b5cf6' },
-            { name: 'Approved', value: purchaseStatusCounts['Approved'] || 0, color: '#10b981' },
-            { name: 'Delivered', value: purchaseStatusCounts['Delivered'] || 0, color: '#f59e0b' },
-            { name: 'Cancelled', value: purchaseStatusCounts['Cancelled'] || 0, color: '#ef4444' }
+            { name: 'Draft', value: getCountFor(draftStatuses), color: '#2563eb' },
+            { name: 'Approved', value: getCountFor(approvedStatuses), color: '#10b981' },
+            { name: 'Received', value: getCountFor(receivedStatuses), color: '#f59e0b' },
+            { name: 'Cancelled', value: getCountFor(cancelledStatuses), color: '#ef4444' }
         ];
+
+        // Add unmapped statuses to Draft
+        const mappedStatuses = [...draftStatuses, ...approvedStatuses, ...receivedStatuses, ...cancelledStatuses];
+        Object.keys(purchaseStatusCounts).forEach(k => {
+            if (!mappedStatuses.includes(k) && k !== 'null' && k !== 'undefined' && k !== '') {
+                orderSummary[0].value += purchaseStatusCounts[k];
+            }
+        });
 
         const totalSummarized = orderSummary.reduce((acc, curr) => acc + curr.value, 0);
         if (totalSummarized > 0) {
