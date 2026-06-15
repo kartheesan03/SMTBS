@@ -39,29 +39,27 @@ const ERP = () => {
 
     const fetchData = async () => {
         try {
-            const [ordersRes, customersRes, materialsRes, statsRes, vendorsRes] = await Promise.all([
-                API.get('/orders'),
-                API.get('/customers'),
-                API.get('/materials'),
-                API.get('/erp/stats'),
-                API.get('/vendors')
+            setLoading(true);
+            const [ordersRes, customersRes, materialsRes, vendorsRes] = await Promise.all([
+                API.get('/orders').catch(e => ({ data: [] })),
+                API.get('/customers').catch(e => ({ data: [] })),
+                API.get('/materials').catch(e => ({ data: [] })),
+                API.get('/vendors').catch(e => ({ data: [] }))
             ]);
-            setOrders(ordersRes.data);
-            if (statsRes.data) {
-                setErpStats(statsRes.data);
-            }
-            setVendors(vendorsRes.data);
+            
+            const fetchedOrders = Array.isArray(ordersRes.data) ? ordersRes.data : [];
+            setOrders(fetchedOrders);
+            setVendors(vendorsRes.data || []);
             
             const mappedCustomers = (Array.isArray(customersRes.data) ? customersRes.data : [])
                 .map(c => ({ ...c, customerModel: 'Customer' }));
             
-            console.log('ERP Stats Data:', statsRes.data);
-            console.log('Orders Data:', ordersRes.data);
+            console.log('ERP orders response:', fetchedOrders);
             console.log('Fetched Customers:', mappedCustomers);
             console.log('Fetched Vendors:', vendorsRes.data);
             
             setCustomers(mappedCustomers);
-            setMaterials(materialsRes.data);
+            setMaterials(materialsRes.data || []);
         } catch (err) {
             console.error('Error fetching ERP data:', err);
         } finally {
@@ -273,9 +271,21 @@ const ERP = () => {
         return `₹${num.toLocaleString('en-IN')}`;
     };
 
+    // Calculate ERP stats from the orders array exactly as in Reports & Analytics
+    const totalOrders = orders.length;
+    const salesOrders = orders.filter(o => String(o.orderType || o.type || '').toUpperCase().includes('SALES')).length;
+    const purchaseOrders = orders.filter(o => String(o.orderType || o.type || '').toUpperCase().includes('PURCHASE')).length;
+    
+    const totalRevenueNum = orders.reduce((sum, o) => sum + Number(o.totalAmount || o.amount || o.grandTotal || 0), 0);
+    const totalPurchaseCostNum = orders
+        .filter(o => String(o.orderType || o.type || '').toUpperCase().includes('PURCHASE'))
+        .reduce((sum, o) => sum + Number(o.totalAmount || o.amount || o.grandTotal || 0), 0);
+        
+    const pendingInvoices = orders.filter(o => ['Pending', 'Overdue', 'Partially Paid'].includes(o.paymentStatus)).length;
+
     console.log('--- ERP KPI DATA LOGS ---');
-    console.log('ERP API response (stats):', erpStats);
-    console.log('orders array:', orders);
+    console.log('ERP orders response:', orders);
+    console.log('ERP stats:', erpStats);
 
     return (
         <div className="erp-workspace">
@@ -307,27 +317,27 @@ const ERP = () => {
             <section className="erp-metrics-grid">
                 <div className="erp-metric-card">
                     <span className="label">Total Orders</span>
-                    <span className="value">{erpStats.totalOrders || 0}</span>
+                    <span className="value">{totalOrders}</span>
                 </div>
                 <div className="erp-metric-card border-green">
                     <span className="label text-green">Sales Orders</span>
-                    <span className="value text-green">{erpStats.totalSalesOrders || 0}</span>
+                    <span className="value text-green">{salesOrders}</span>
                 </div>
                 <div className="erp-metric-card border-blue">
                     <span className="label text-blue">Purchase Orders</span>
-                    <span className="value text-blue">{erpStats.totalPurchaseOrders || 0}</span>
+                    <span className="value text-blue">{purchaseOrders}</span>
                 </div>
                 <div className="erp-metric-card border-orange cursor-pointer" onClick={() => { setShowInvoiceModal(true); setInvoiceTab('Pending'); }}>
                     <span className="label text-orange">Pending Invoices</span>
-                    <span className="value text-orange">{erpStats.pendingInvoices || 0}</span>
+                    <span className="value text-orange">{pendingInvoices}</span>
                 </div>
                 <div className="erp-metric-card border-green">
                     <span className="label text-green">Total Revenue</span>
-                    <span className="value text-green">{erpStats.totalRevenue || '₹0'}</span>
+                    <span className="value text-green">{formatCurrencyLocal(totalRevenueNum)}</span>
                 </div>
                 <div className="erp-metric-card border-blue">
                     <span className="label text-blue">Total Purchase Cost</span>
-                    <span className="value text-blue">{erpStats.totalPurchaseCost || '₹0'}</span>
+                    <span className="value text-blue">{formatCurrencyLocal(totalPurchaseCostNum)}</span>
                 </div>
                 <div className="erp-metric-card border-purple">
                     <span className="label text-purple" style={{ color: '#8b5cf6' }}>Orders Due Today</span>
