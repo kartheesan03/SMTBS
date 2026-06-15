@@ -79,9 +79,11 @@ const AdminDashboard = () => {
         return t;
     };
 
-    const totalRevenue = orders
-        .filter(o => normalizeOrderType(o.orderType) === 'SALES' && o.status !== 'Cancelled')
-        .reduce((sum, o) => sum + (Number(o.totalAmount) || 0), 0);
+    const revenueData = charts.monthlyStats && charts.monthlyStats.length > 0 
+        ? charts.monthlyStats 
+        : [];
+
+    const totalRevenue = revenueData.reduce((sum, month) => sum + (Number(month.revenue) || 0), 0);
 
     // Dynamic Material Status Calculation
     const materials = materialsData || [];
@@ -110,9 +112,6 @@ const AdminDashboard = () => {
     console.log("dashboard totalEmployees:", totalEmployees);
 
     // Charts Data
-    const revenueData = charts.monthlyStats && charts.monthlyStats.length > 0 
-        ? charts.monthlyStats 
-        : [];
 
     const materialGroups = materials.reduce((acc, m) => {
         const cat = m.category || 'Uncategorized';
@@ -191,7 +190,7 @@ const AdminDashboard = () => {
                         <div className="kpi-icon-wrapper" style={{ background: '#ecfdf5', color: '#059669' }}><DollarSign size={18} /></div>
                         <div className="kpi-info">
                             <span className="kpi-label">Total Revenue</span>
-                            <h3 className="kpi-value">${Number(totalRevenue || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</h3>
+                            <h3 className="kpi-value">₹{Number(totalRevenue || 0).toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</h3>
                         </div>
                     </div>
                 </div>

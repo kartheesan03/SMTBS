@@ -80,7 +80,7 @@ const Reports = () => {
                 const rows = (stats?.charts?.monthlyStats || []).map(m => [m.name, m.revenue || 0, m.sales || 0]);
                 autoTable(doc, {
                     startY: 40,
-                    head: [['Month', 'Revenue ($)', 'Orders']],
+                    head: [['Month', 'Revenue (₹)', 'Orders']],
                     body: rows,
                 });
             } else if (reportName === 'Inventory Usage Summary') {
@@ -170,21 +170,21 @@ const Reports = () => {
                 if (customReport.type === 'Revenue Summary') {
                     const salesOrders = data.filter(o => o.orderType === 'sales' && o.status !== 'Cancelled');
                     head = [['Order#', 'Date', 'Customer', 'Amount', 'Status']];
-                    rows = salesOrders.map(o => [o.orderNumber, new Date(o.createdAt).toLocaleDateString(), o.customer?.name || 'Walk-in Customer', `$${o.totalAmount}`, o.status]);
+                    rows = salesOrders.map(o => [o.orderNumber, new Date(o.createdAt).toLocaleDateString(), o.customer?.name || 'Walk-in Customer', `₹${o.totalAmount}`, o.status]);
                 } else {
                     const hasSales = data.some(o => o.orderType === 'sales');
                     const hasPurchase = data.some(o => o.orderType === 'purchase');
                     const customerVendorHeader = (hasSales && hasPurchase) ? 'Customer / Vendor' : (hasPurchase ? 'Vendor' : 'Customer');
 
                     head = [['Order#', 'Type', 'Date', customerVendorHeader, 'Amount', 'Status']];
-                    rows = data.map(o => [o.orderNumber, o.orderType || 'sales', new Date(o.createdAt).toLocaleDateString(), o.orderType === 'purchase' ? (o.vendor?.name || 'Walk-in Vendor') : (o.customer?.name || 'Walk-in Customer'), `$${o.totalAmount}`, o.status]);
+                    rows = data.map(o => [o.orderNumber, o.orderType || 'sales', new Date(o.createdAt).toLocaleDateString(), o.orderType === 'purchase' ? (o.vendor?.name || 'Walk-in Vendor') : (o.customer?.name || 'Walk-in Customer'), `₹${o.totalAmount}`, o.status]);
                 }
             } else if (customReport.type === 'Inventory Report') {
                 const res = await API.get('/materials');
                 const allData = getArrayData(res);
                 data = allData;
                 head = [['Name', 'SKU', 'Category', 'Quantity', 'Price']];
-                rows = data.map(m => [m.name, m.sku, m.category, m.quantity, `$${m.price}`]);
+                rows = data.map(m => [m.name, m.sku, m.category, m.quantity, `₹${m.price}`]);
             } else if (customReport.type === 'Customer Report') {
                 const res = await API.get('/customers');
                 const allData = getArrayData(res);
@@ -244,13 +244,14 @@ const Reports = () => {
 
     const chartData = stats?.charts?.monthlyStats || [];
     const categoryData = stats?.charts?.categoryData || [];
+    const chartRevenueSum = chartData.reduce((sum, m) => sum + (Number(m.revenue) || 0), 0) || 0;
 
     const kpis = [
         { label: 'Total Orders', value: stats?.stats?.totalOrders ?? '—', icon: <ShoppingCart size={18} />, color: '#f59e0b' },
         { label: 'Sales Orders', value: stats?.stats?.totalSalesOrders ?? '—', icon: <ShoppingCart size={18} />, color: '#10b981' },
         { label: 'Purchase Orders', value: stats?.stats?.totalPurchaseOrders ?? '—', icon: <ShoppingCart size={18} />, color: '#3b82f6' },
-        { label: 'Total Revenue', value: `$${(stats?.stats?.revenue || 0).toLocaleString()}`, icon: <TrendingUp size={18} />, color: '#10b981' },
-        { label: 'Purchase Cost', value: `$${(stats?.stats?.purchaseCost || 0).toLocaleString()}`, icon: <TrendingUp size={18} />, color: '#ef4444' },
+        { label: 'Total Revenue', value: `₹${chartRevenueSum.toLocaleString('en-IN')}`, icon: <TrendingUp size={18} />, color: '#10b981' },
+        { label: 'Purchase Cost', value: `₹${(stats?.stats?.purchaseCost || 0).toLocaleString('en-IN')}`, icon: <TrendingUp size={18} />, color: '#ef4444' },
     ];
 
     return (
@@ -410,7 +411,7 @@ const Reports = () => {
                                 <XAxis dataKey="name" stroke="#64748b" fontSize={12} tickLine={false} />
                                 <YAxis stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} />
                                 <Tooltip contentStyle={{ background: '#ffffff', borderRadius: '8px', border: '1px solid #cbd5e1', color: '#0f172a', fontSize: '12px' }} />
-                                <Area type="monotone" dataKey="revenue" stroke="#6366f1" strokeWidth={3} fill="url(#revGrad)" name="Revenue ($)" />
+                                <Area type="monotone" dataKey="revenue" stroke="#6366f1" strokeWidth={3} fill="url(#revGrad)" name="Revenue (₹)" />
                             </AreaChart>
                         </ResponsiveContainer>
                     ) : activeChart === 'orders' ? (

@@ -160,7 +160,7 @@ const Dashboard = () => {
                         { title: 'Total Sales Orders', value: data?.stats?.totalSalesOrders ?? 0, icon: <TrendingUp />, color: '#6366f1' },
                         { title: 'Active Customers', value: data?.activeCustomers ?? 0, icon: <CheckCircle2 />, color: '#10b981' },
                         { title: 'Recent Customers', value: data?.salesStats?.recentCustomers ?? 0, icon: <Users />, color: '#f59e0b' },
-                        { title: 'Total Revenue', value: `$${(data?.totalRevenue || 0).toLocaleString()}`, icon: <DollarSign />, color: '#14b8a6' },
+                        { title: 'Total Revenue', value: `₹${(data?.charts?.monthlyStats?.reduce((sum, m) => sum + (Number(m.revenue) || 0), 0) || 0).toLocaleString('en-IN')}`, icon: <DollarSign />, color: '#14b8a6' },
                     ],
                     actions: [
                         { label: 'Add Customer', icon: <PlusCircle size={20}/>, onClick: () => navigate('/crm') },
@@ -194,7 +194,7 @@ const Dashboard = () => {
                                 <>
                                     <td>{item.orderNumber}</td>
                                     <td>{item.customer?.name || 'Walk-in'}</td>
-                                    <td>${(item.totalAmount || 0).toLocaleString()}</td>
+                                    <td>₹{(Number(item.totalAmount) || 0).toLocaleString('en-IN')}</td>
                                     <td><span className={`status-badge ${item.status.toLowerCase()}`}>{item.status}</span></td>
                                 </>
                             )}
