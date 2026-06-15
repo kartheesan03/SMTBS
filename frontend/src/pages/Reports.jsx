@@ -8,7 +8,7 @@ import {
     RefreshCw, CheckCircle, X, ChevronDown, AlertTriangle
 } from 'lucide-react';
 import {
-    ResponsiveContainer, AreaChart, Area, BarChart, Bar,
+    ResponsiveContainer, AreaChart, Area, BarChart, Bar, LineChart, Line,
     XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell, Legend
 } from 'recharts';
 
@@ -246,6 +246,15 @@ const Reports = () => {
     const categoryData = stats?.charts?.categoryData || [];
     const chartRevenueSum = chartData.reduce((sum, m) => sum + (Number(m.revenue) || 0), 0) || 0;
 
+    // Summary Analytics Data
+    const totalOrdersCount = chartData.reduce((sum, m) => sum + (Number(m.sales) || 0), 0) || 0;
+    const avgMonthlyRevenue = chartData.length > 0 ? (chartRevenueSum / chartData.length) : 0;
+    const highestRevenueMonth = chartData.length > 0 
+        ? chartData.reduce((max, current) => (Number(current.revenue) > Number(max.revenue) ? current : max), { revenue: 0, name: 'N/A' }) 
+        : { revenue: 0, name: 'N/A' };
+
+    const formatCurrency = (val) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(val);
+
     const kpis = [
         { label: 'Total Orders', value: stats?.stats?.totalOrders ?? '—', icon: <ShoppingCart size={18} />, color: '#f59e0b' },
         { label: 'Sales Orders', value: stats?.stats?.totalSalesOrders ?? '—', icon: <ShoppingCart size={18} />, color: '#10b981' },
@@ -335,34 +344,24 @@ const Reports = () => {
                 ))}
             </div>
 
-            {/* Deep Data Insights */}
-            <div className="glass-card analytics-section mt-30">
-                <div className="analytics-header">
-                    <h3>Deep Data Insights</h3>
-                    <div className="analytics-controls">
-                        <div className="chart-tabs">
-                            {['revenue', 'orders', 'inventory'].map(tab => (
-                                <button
-                                    key={tab}
-                                    className={`chart-tab ${activeChart === tab ? 'active' : ''}`}
-                                    onClick={() => setActiveChart(tab)}
-                                >
-                                    {tab.charAt(0).toUpperCase() + tab.slice(1)}
-                                </button>
-                            ))}
-                        </div>
-                        <div className="filter-wrapper">
-                            <button className="filter-btn flex-center gap-10" onClick={() => setShowFilters(!showFilters)}>
+            {/* Deep Data Insights - BI Dashboard */}
+            <div className="analytics-section mt-30">
+                <div className="analytics-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                    <h3 style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text-primary)' }}>Business Intelligence Dashboard</h3>
+                    <div className="analytics-controls" style={{ display: 'flex', gap: '12px' }}>
+                        <div className="filter-wrapper" style={{ position: 'relative' }}>
+                            <button className="filter-btn flex-center gap-10" onClick={() => setShowFilters(!showFilters)} style={{ padding: '8px 16px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '8px', cursor: 'pointer' }}>
                                 <Filter size={14} /> Filters
                             </button>
                             {showFilters && (
-                                <div className="filter-dropdown glass-card">
-                                    <p className="filter-label">Category</p>
+                                <div className="filter-dropdown glass-card" style={{ position: 'absolute', right: 0, top: '40px', zIndex: 10, padding: '12px', minWidth: '180px' }}>
+                                    <p className="filter-label" style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--text-muted)', marginBottom: '8px' }}>Category</p>
                                     {['All', 'Chemicals', 'Consumables', 'Construction', 'Electrical', 'Electronics', 'Metals', 'Plastics', 'Plumbing', 'Raw Material', 'Sheet Metal', 'Structural Steel'].map(cat => (
                                         <div
                                             key={cat}
                                             className={`filter-option ${filterCategory === cat ? 'active' : ''}`}
                                             onClick={() => { setFilterCategory(cat); setShowFilters(false); }}
+                                            style={{ padding: '6px 10px', fontSize: '13px', cursor: 'pointer', borderRadius: '4px', background: filterCategory === cat ? 'var(--primary-50)' : 'transparent', color: filterCategory === cat ? 'var(--primary)' : 'var(--text-primary)' }}
                                         >
                                             {cat}
                                         </div>
@@ -370,84 +369,118 @@ const Reports = () => {
                                 </div>
                             )}
                         </div>
-                        <button className="refresh-btn" onClick={fetchStats} title="Refresh data">
+                        <button className="refresh-btn" onClick={fetchStats} title="Refresh data" style={{ padding: '8px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '8px', cursor: 'pointer' }}>
                             <RefreshCw size={16} className={loading ? 'spin-icon' : ''} />
                         </button>
                     </div>
                 </div>
 
-                <div className="chart-container">
-                    {loading ? (
-                        <div className="chart-loading">
-                            <RefreshCw size={30} className="spin-icon" />
-                            <p className="text-muted">Loading analytics data...</p>
+                {loading ? (
+                    <div className="chart-loading" style={{ height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
+                        <RefreshCw size={30} className="spin-icon" style={{ marginBottom: '10px' }} />
+                        <p className="text-muted">Loading analytics data...</p>
+                    </div>
+                ) : error || !stats ? (
+                    <div className="chart-empty glass-card" style={{ padding: '40px', textAlign: 'center' }}>
+                        <AlertTriangle size={60} color="#ef4444" style={{ margin: '0 auto 16px auto' }} />
+                        <p className="text-muted" style={{ color: '#ef4444', fontWeight: 600 }}>Failed to load analytics data</p>
+                        <p className="text-muted" style={{ fontSize: '13px', maxWidth: '380px', margin: '10px auto' }}>{error || 'Unable to connect to the server.'}</p>
+                        <button className="btn-primary mt-10" onClick={fetchStats}>Retry Connection</button>
+                    </div>
+                ) : chartData.length === 0 ? (
+                    <div className="chart-empty glass-card" style={{ padding: '40px', textAlign: 'center' }}>
+                        <BarChart2 size={60} color="#334155" style={{ margin: '0 auto 16px auto' }} />
+                        <p className="text-muted">No order data yet. Create orders to see analytics here.</p>
+                    </div>
+                ) : (
+                    <>
+                        {/* Summary Cards */}
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginBottom: '24px' }}>
+                            <div className="glass-card" style={{ padding: '20px', borderRadius: '12px' }}>
+                                <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: '0 0 8px 0' }}>Total Revenue</p>
+                                <h3 style={{ fontSize: '24px', fontWeight: 'bold', margin: 0, color: '#10b981' }}>{formatCurrency(chartRevenueSum)}</h3>
+                            </div>
+                            <div className="glass-card" style={{ padding: '20px', borderRadius: '12px' }}>
+                                <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: '0 0 8px 0' }}>Avg Monthly Revenue</p>
+                                <h3 style={{ fontSize: '24px', fontWeight: 'bold', margin: 0, color: '#6366f1' }}>{formatCurrency(avgMonthlyRevenue)}</h3>
+                            </div>
+                            <div className="glass-card" style={{ padding: '20px', borderRadius: '12px' }}>
+                                <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: '0 0 8px 0' }}>Highest Revenue Month</p>
+                                <h3 style={{ fontSize: '24px', fontWeight: 'bold', margin: 0, color: '#f59e0b' }}>{highestRevenueMonth.name}</h3>
+                                <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{formatCurrency(highestRevenueMonth.revenue)}</span>
+                            </div>
+                            <div className="glass-card" style={{ padding: '20px', borderRadius: '12px' }}>
+                                <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: '0 0 8px 0' }}>Total Orders</p>
+                                <h3 style={{ fontSize: '24px', fontWeight: 'bold', margin: 0, color: '#3b82f6' }}>{totalOrdersCount}</h3>
+                            </div>
                         </div>
-                    ) : error || !stats ? (
-                        <div className="chart-empty">
-                            <AlertTriangle size={60} color="#ef4444" />
-                            <p className="text-muted" style={{ color: '#ef4444', fontWeight: 600 }}>Failed to load analytics data</p>
-                            <p className="text-muted" style={{ fontSize: '13px', maxWidth: '380px', textAlign: 'center' }}>
-                                {error || 'Unable to connect to the server. Please verify your backend server is running and configuration is correct.'}
-                            </p>
-                            <button className="btn-primary mt-10" onClick={fetchStats} style={{ padding: '6px 16px', fontSize: '13px' }}>
-                                Retry Connection
-                            </button>
+
+                        {/* Charts Grid */}
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px' }}>
+                            {/* Revenue Trend Area Chart */}
+                            <div className="glass-card" style={{ padding: '20px', borderRadius: '12px', gridColumn: '1 / -1' }}>
+                                <h4 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: 'var(--text-primary)' }}>Revenue Trend</h4>
+                                <div style={{ height: '300px' }}>
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <AreaChart data={chartData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+                                            <defs>
+                                                <linearGradient id="revGradBI" x1="0" y1="0" x2="0" y2="1">
+                                                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.4} />
+                                                    <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                                                </linearGradient>
+                                            </defs>
+                                            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+                                            <XAxis dataKey="name" stroke="#64748b" fontSize={12} tickLine={false} />
+                                            <YAxis stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(val) => `₹${val.toLocaleString('en-IN')}`} />
+                                            <Tooltip formatter={(value) => formatCurrency(value)} contentStyle={{ background: '#ffffff', borderRadius: '8px', border: '1px solid #cbd5e1', color: '#0f172a', fontSize: '13px', fontWeight: '600' }} />
+                                            <Area type="monotone" dataKey="revenue" stroke="#10b981" strokeWidth={3} fill="url(#revGradBI)" name="Revenue" />
+                                        </AreaChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            </div>
+
+                            {/* Orders Trend Line Chart */}
+                            <div className="glass-card" style={{ padding: '20px', borderRadius: '12px' }}>
+                                <h4 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: 'var(--text-primary)' }}>Monthly Orders</h4>
+                                <div style={{ height: '250px' }}>
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <LineChart data={chartData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+                                            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+                                            <XAxis dataKey="name" stroke="#64748b" fontSize={12} tickLine={false} />
+                                            <YAxis stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} />
+                                            <Tooltip contentStyle={{ background: '#ffffff', borderRadius: '8px', border: '1px solid #cbd5e1', color: '#0f172a', fontSize: '13px', fontWeight: '600' }} />
+                                            <Line type="monotone" dataKey="sales" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4, fill: '#3b82f6', strokeWidth: 2 }} activeDot={{ r: 6 }} name="Orders" />
+                                        </LineChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            </div>
+
+                            {/* Inventory Usage Donut Chart */}
+                            <div className="glass-card" style={{ padding: '20px', borderRadius: '12px' }}>
+                                <h4 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: 'var(--text-primary)' }}>Inventory by Category</h4>
+                                <div style={{ height: '250px' }}>
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <PieChart>
+                                            <Pie
+                                                data={categoryData.length > 0 ? categoryData : [{ name: 'No Data', value: 1 }]}
+                                                innerRadius={60}
+                                                outerRadius={90}
+                                                paddingAngle={4}
+                                                dataKey="value"
+                                            >
+                                                {(categoryData.length > 0 ? categoryData : [{ name: 'No Data', value: 1 }]).map((entry, index) => (
+                                                    <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                                                ))}
+                                            </Pie>
+                                            <Tooltip contentStyle={{ background: '#ffffff', borderRadius: '8px', border: '1px solid #cbd5e1', color: '#0f172a', fontSize: '13px', fontWeight: '600' }} />
+                                            <Legend verticalAlign="bottom" height={36} iconType="circle" />
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            </div>
                         </div>
-                    ) : chartData.length === 0 && activeChart !== 'inventory' ? (
-                        <div className="chart-empty">
-                            <BarChart2 size={60} color="#334155" />
-                            <p className="text-muted">No order data yet. Create orders to see analytics here.</p>
-                        </div>
-                    ) : activeChart === 'revenue' ? (
-                        <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={chartData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
-                                <defs>
-                                    <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
-                                        <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
-                                    </linearGradient>
-                                </defs>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                                <XAxis dataKey="name" stroke="#64748b" fontSize={12} tickLine={false} />
-                                <YAxis stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} />
-                                <Tooltip contentStyle={{ background: '#ffffff', borderRadius: '8px', border: '1px solid #cbd5e1', color: '#0f172a', fontSize: '12px' }} />
-                                <Area type="monotone" dataKey="revenue" stroke="#6366f1" strokeWidth={3} fill="url(#revGrad)" name="Revenue (₹)" />
-                            </AreaChart>
-                        </ResponsiveContainer>
-                    ) : activeChart === 'orders' ? (
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={chartData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                                <XAxis dataKey="name" stroke="#64748b" fontSize={12} tickLine={false} />
-                                <YAxis stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} />
-                                <Tooltip contentStyle={{ background: '#ffffff', borderRadius: '8px', border: '1px solid #cbd5e1', color: '#0f172a', fontSize: '12px' }} />
-                                <Bar dataKey="sales" radius={[6, 6, 0, 0]} name="Orders">
-                                    {chartData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                    ))}
-                                </Bar>
-                            </BarChart>
-                        </ResponsiveContainer>
-                    ) : (
-                        <ResponsiveContainer width="100%" height="100%">
-                            <PieChart>
-                                <Pie
-                                    data={categoryData.length > 0 ? categoryData : [{ name: 'No Data', value: 1 }]}
-                                    innerRadius={80}
-                                    outerRadius={130}
-                                    paddingAngle={4}
-                                    dataKey="value"
-                                >
-                                    {(categoryData.length > 0 ? categoryData : [{ name: 'No Data', value: 1 }]).map((entry, index) => (
-                                        <Cell key={index} fill={COLORS[index % COLORS.length]} />
-                                    ))}
-                                </Pie>
-                                <Tooltip contentStyle={{ background: '#ffffff', borderRadius: '8px', border: '1px solid #cbd5e1', color: '#0f172a', fontSize: '12px' }} />
-                                <Legend />
-                            </PieChart>
-                        </ResponsiveContainer>
-                    )}
-                </div>
+                    </>
+                )}
             </div>
 
             {/* Custom Report Modal */}
