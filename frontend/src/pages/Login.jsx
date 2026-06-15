@@ -39,6 +39,12 @@ const Login = () => {
         setError('');
         try {
             const response = await API.post('/auth/google', { credential: credentialResponse.credential });
+            
+            if (response.data.requireRoleSelection) {
+                navigate('/select-role', { state: { googleData: response.data } });
+                return;
+            }
+
             login(response.data);
             if (response.data.isProfileComplete === false) {
                 navigate(response.data.role === 'Customer' ? '/complete-customer-profile' : '/complete-vendor-profile');
@@ -46,9 +52,24 @@ const Login = () => {
                 navigate('/');
             }
         } catch (err) {
-            setError(err.response?.data?.message || 'Google Login failed');
+            const msg = err.response?.data?.message || err.message;
+            if (msg.includes('invalid_client')) {
+                setError('Google Configuration Error (invalid_client). Check your .env file.');
+            } else if (msg.includes('network_error') || msg.includes('Network Error')) {
+                setError('Network error. Please check your connection.');
+            } else {
+                setError(msg || 'Google Login failed');
+            }
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const handleGoogleError = (errorMsg) => {
+        if (errorMsg?.error === 'popup_closed_by_user') {
+            setError('Google sign-in popup was closed before completing.');
+        } else {
+            setError('Google sign-in was unsuccessful.');
         }
     };
 
@@ -165,7 +186,7 @@ const Login = () => {
                         <div className="google-btn-wrapper">
                             <GoogleLogin 
                                 onSuccess={handleGoogleSuccess}
-                                onError={() => setError('Google Login Failed')}
+                                onError={handleGoogleError}
                                 theme="outline"
                                 text="signin_with"
                                 width="300"

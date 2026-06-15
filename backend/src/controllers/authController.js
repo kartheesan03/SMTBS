@@ -113,29 +113,56 @@ const googleAuth = async (req, res) => {
                 token: generateToken(user._id),
             });
         } else {
-            // User does not exist. Check if signing up.
-            if (signupRole === 'Customer' || signupRole === 'Vendor' || signupRole === 'Vendor/Supplier') {
-                const actualRole = signupRole === 'Vendor/Supplier' ? 'Vendor' : signupRole;
-                user = await User.create({
-                    name,
-                    email,
-                    googleId,
-                    role: actualRole,
-                    isProfileComplete: false
-                });
+            // User does not exist.
+            if (!signupRole) {
+                // Return flag to redirect to select-role page
+                return res.json({ requireRoleSelection: true, email, name, googleId, credential });
+            }
 
-                return res.json({
-                    _id: user._id,
+            // Create the new user
+            const actualRole = signupRole === 'Vendor/Supplier' ? 'Vendor' : signupRole;
+            const isCustomerOrVendor = actualRole === 'Customer' || actualRole === 'Vendor';
+            
+            user = await User.create({
+                name,
+                email,
+                googleId,
+                role: actualRole,
+                isProfileComplete: !isCustomerOrVendor // Profile is incomplete only for customer/vendor
+            });
+
+            // Automatically create empty profile
+            if (actualRole === 'Customer') {
+                await Customer.create({
                     name: user.name,
                     email: user.email,
-                    role: user.role,
-                    isProfileComplete: user.isProfileComplete,
-                    token: generateToken(user._id),
+                    company: 'Pending Details',
+                    phone: '0000000000',
+                    industry: 'Pending',
+                    address: 'Pending',
+                    status: 'Lead',
+                    user: user._id
                 });
-            } else {
-                // Not signing up as Customer/Vendor, block login.
-                return res.status(401).json({ message: 'Account not registered' });
+            } else if (actualRole === 'Vendor') {
+                await Vendor.create({
+                    name: user.name,
+                    email: user.email,
+                    contactPerson: user.name,
+                    phone: '0000000000',
+                    address: 'Pending',
+                    status: 'Pending',
+                    user: user._id
+                });
             }
+
+            return res.json({
+                _id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                isProfileComplete: user.isProfileComplete,
+                token: generateToken(user._id),
+            });
         }
     } catch (error) {
         console.error('Google Auth Error:', error);

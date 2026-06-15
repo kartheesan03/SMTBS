@@ -61,9 +61,24 @@ const Register = () => {
                 navigate('/');
             }
         } catch (err) {
-            setError(err.response?.data?.message || 'Google Sign-up failed');
+            const msg = err.response?.data?.message || err.message;
+            if (msg.includes('invalid_client')) {
+                setError('Google Configuration Error (invalid_client). Check your .env file.');
+            } else if (msg.includes('network_error') || msg.includes('Network Error')) {
+                setError('Network error. Please check your connection.');
+            } else {
+                setError(msg || 'Google Sign-up failed');
+            }
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const handleGoogleError = (errorMsg) => {
+        if (errorMsg?.error === 'popup_closed_by_user') {
+            setError('Google sign-up popup was closed before completing.');
+        } else {
+            setError('Google sign-up was unsuccessful.');
         }
     };
 
@@ -233,7 +248,7 @@ const Register = () => {
                             <div className="google-btn-wrapper">
                                 <GoogleLogin 
                                     onSuccess={handleGoogleSuccess}
-                                    onError={() => setError('Google Sign-up Failed')}
+                                    onError={handleGoogleError}
                                     theme="outline"
                                     text="signup_with"
                                     width="300"
