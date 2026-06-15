@@ -65,13 +65,23 @@ const EmployeeDashboard = () => {
     const dashboard = dashboardData || {};
     const userId = user?.id || user?._id;
 
+    // Safe array conversion
+    const safeArray = (data, key) => Array.isArray(data) ? data : data?.[key] || data?.data || [];
+    
+    const tasksArray = safeArray(tasksData, 'tasks');
+    const ordersArray = safeArray(ordersData, 'orders');
+    const attendancesArray = safeArray(attendancesData, 'attendances');
+    const leavesArray = safeArray(leavesData, 'leaves');
+    const salariesArray = safeArray(salariesData, 'salaries');
+    const notificationsArray = safeArray(notificationsData, 'notifications');
+
     // Filter data for logged-in user
-    const myTasksList = tasksData.filter(t => t.assignedTo === userId || t.employeeId === userId);
-    const myOrdersList = ordersData.filter(o => o.employeeId === userId || o.assignedTo === userId || o.createdById === userId);
-    const myAttendancesList = attendancesData.filter(a => a.employeeId === userId || a.userId === userId);
-    const myLeavesList = leavesData.filter(l => l.employeeId === userId || l.userId === userId);
-    const mySalariesList = salariesData.filter(s => s.employeeId === userId || s.userId === userId);
-    const myNotificationsList = notificationsData.filter(n => n.userId === userId || n.employeeId === userId);
+    const myTasksList = tasksArray.filter(t => t.assignedTo === userId || t.employeeId === userId);
+    const myOrdersList = ordersArray.filter(o => o.employeeId === userId || o.assignedTo === userId || o.createdById === userId);
+    const myAttendancesList = attendancesArray.filter(a => a.employeeId === userId || a.userId === userId);
+    const myLeavesList = leavesArray.filter(l => l.employeeId === userId || l.userId === userId);
+    const mySalariesList = salariesArray.filter(s => s.employeeId === userId || s.userId === userId);
+    const myNotificationsList = notificationsArray.filter(n => n.userId === userId || n.employeeId === userId);
 
     // KPIs
     const todayStr = new Date().toISOString().split('T')[0];
