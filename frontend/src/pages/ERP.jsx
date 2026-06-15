@@ -234,11 +234,23 @@ const ERP = () => {
     const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
     const isAdmin = userInfo.role === 'Admin';
 
-    const historyStatuses = ['Delivered', 'Cancelled', 'Completed', 'Rejected'];
-    const tabFilteredOrders = orders;
-    const filteredOrders = orders;
+    const activeOrders = orders.filter(order =>
+        !["Completed", "Delivered", "Cancelled"].includes(order.finalStatus || order.status)
+    );
+
+    const orderHistory = orders.filter(order =>
+        ["Completed", "Delivered", "Cancelled"].includes(order.finalStatus || order.status)
+    );
+
+    const currentTabOrders = activeTab === 'history' ? orderHistory : activeOrders;
+    
+    const filteredOrders = statusFilter === 'All' 
+        ? currentTabOrders 
+        : currentTabOrders.filter(o => o.status === statusFilter);
 
     console.log("Orders for ERP table:", orders);
+    console.log("Filtered activeOrders:", activeOrders.length);
+    console.log("Filtered orderHistory:", orderHistory.length);
 
     const hasSales = filteredOrders.some(o => o.orderType === 'sales');
     const hasPurchase = filteredOrders.some(o => o.orderType === 'purchase');
@@ -599,26 +611,22 @@ const ERP = () => {
                                         )}
                                     </td>
                                     <td>
-                                        <span className={`status-badge-inline ${(ord.approvalStatus === 'Manager Approved' || ord.approvalStatus === 'Employee Approved') ? 'approved' : ord.approvalStatus === 'Pending Manager Approval' ? 'pending' : 'pending'}`}>
-                                            {(ord.approvalStatus === 'Manager Approved' || ord.approvalStatus === 'Employee Approved') ? 'Approved' : 'Pending'}
+                                        <span className={`status-badge-inline ${(ord.approvalStatus === 'Manager Approved' || ord.approvalStatus === 'Employee Approved' || ord.managerApproval === 'Approved') ? 'approved' : 'pending'}`}>
+                                            {ord.managerApproval || ((ord.approvalStatus === 'Manager Approved' || ord.approvalStatus === 'Employee Approved') ? 'Approved' : 'Pending') || "-"}
                                         </span>
                                     </td>
                                     <td>
-                                        {ord.orderType === 'sales' ? (
-                                            <span className={`status-badge-inline ${ord.approvalStatus === 'Employee Approved' ? 'approved' : (ord.approvalStatus === 'Manager Approved' ? 'pending' : 'not-started')}`}>
-                                                {ord.approvalStatus === 'Employee Approved' ? 'Approved' : (ord.approvalStatus === 'Manager Approved' ? 'Pending' : 'Not Started')}
-                                            </span>
-                                        ) : (
-                                            <span className="text-muted small">N/A</span>
-                                        )}
+                                        <span className={`status-badge-inline ${ord.employeeApproval === 'Approved' || ord.approvalStatus === 'Employee Approved' ? 'approved' : 'not-started'}`}>
+                                            {ord.employeeApproval || (ord.approvalStatus === 'Employee Approved' ? 'Approved' : 'Not Started') || "-"}
+                                        </span>
                                     </td>
                                     <td>
                                         <span className={`status-badge-inline ${ord.deliveryStatus?.toLowerCase().replace(/ /g, '-') || 'not-started'}`}>
-                                            {ord.deliveryStatus || 'Not Started'}
+                                            {ord.deliveryStatus || "-"}
                                         </span>
                                     </td>
                                     <td>
-                                        <span className={`status-badge-inline ${statusClass}`}>{displayStatus(ord.status)}</span>
+                                        <span className={`status-badge-inline ${statusClass}`}>{ord.finalStatus || ord.status || "-"}</span>
                                     </td>
                                     <td>
                                         <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', maxWidth: '200px' }}>
