@@ -235,15 +235,15 @@ const Login = () => {
                     background: #FFFFFF;
                 }
 
-                /* Left Branding Panel (55%) */
                 .brand-panel {
                     flex: 0 0 55%;
                     width: 55%;
-                    background-color: #0B1026;
-                    padding: 60px 80px;
+                    height: 100vh;
+                    background-color: #080D22;
+                    padding: 40px 80px;
                     display: flex;
                     flex-direction: column;
-                    justify-content: space-between;
+                    justify-content: center;
                     color: #FFFFFF;
                     box-sizing: border-box;
                 }
@@ -252,6 +252,7 @@ const Login = () => {
                     display: flex;
                     align-items: center;
                     gap: 12px;
+                    margin-bottom: 80px;
                 }
 
                 .logo-icon {
@@ -278,7 +279,8 @@ const Login = () => {
                 .brand-title {
                     font-size: 36px;
                     font-weight: 800;
-                    line-height: 1.25;
+                    line-height: 1.15;
+                    max-width: 650px;
                     margin: 0 0 20px 0;
                     letter-spacing: -0.5px;
                 }
@@ -293,8 +295,9 @@ const Login = () => {
 
                 .erp-illustration {
                     display: flex;
-                    flex-wrap: wrap;
+                    flex-wrap: nowrap;
                     gap: 16px;
+                    margin-top: 60px;
                 }
 
                 .icon-badge {
@@ -325,8 +328,9 @@ const Login = () => {
                 .login-panel {
                     flex: 0 0 45%;
                     width: 45%;
+                    height: 100vh;
                     background-color: #FFFFFF;
-                    padding: 60px 80px;
+                    padding: 40px 80px;
                     display: flex;
                     flex-direction: column;
                     align-items: center;
@@ -336,11 +340,12 @@ const Login = () => {
 
                 .login-form-container {
                     width: 100%;
-                    max-width: 420px;
+                    max-width: 520px;
                     display: flex;
                     flex-direction: column;
                     justify-content: center;
                     flex: 1;
+                    transform: translateY(0);
                 }
 
                 .login-header {
@@ -374,31 +379,36 @@ const Login = () => {
                     font-size: 28px;
                     font-weight: 800;
                     color: #0B1026;
-                    margin: 0 0 8px 0;
+                    margin: 0 0 12px 0;
                 }
 
                 .welcome-subtitle {
                     font-size: 15px;
                     color: #64748B;
-                    margin: 0;
+                    margin: 0 0 40px 0;
                 }
 
                 .error-alert {
+                    width: 100%;
+                    box-sizing: border-box;
                     background: #FEF2F2;
                     border: 1px solid #FECACA;
                     color: #DC2626;
                     padding: 12px 16px;
-                    border-radius: 8px;
+                    border-radius: 12px;
                     font-size: 14px;
                     font-weight: 500;
-                    margin-bottom: 24px;
+                    margin-bottom: 32px;
                 }
 
                 .login-form {
                     display: flex;
                     flex-direction: column;
-                    gap: 20px;
                     flex: 1;
+                }
+
+                .input-group {
+                    margin-bottom: 28px;
                 }
 
                 .input-group label {
@@ -417,10 +427,12 @@ const Login = () => {
 
                 .input-group input {
                     width: 100%;
-                    padding: 14px 16px;
+                    height: 60px;
+                    padding: 0 16px;
+                    box-sizing: border-box;
                     background: #F8FAFC;
                     border: 1px solid #E2E8F0;
-                    border-radius: 12px;
+                    border-radius: 14px;
                     font-size: 15px;
                     color: #0F172A;
                     transition: all 0.2s ease;
@@ -464,7 +476,8 @@ const Login = () => {
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
-                    margin-top: -4px;
+                    margin-top: 8px;
+                    margin-bottom: 32px;
                 }
 
                 .remember-me {
@@ -528,15 +541,16 @@ const Login = () => {
                 }
 
                 .submit-btn {
+                    width: 100%;
                     background: #0B1026;
                     color: #FFFFFF;
                     border: none;
-                    padding: 16px;
-                    border-radius: 12px;
+                    height: 64px;
+                    border-radius: 14px;
                     font-size: 16px;
                     font-weight: 600;
                     cursor: pointer;
-                    margin-top: 8px;
+                    margin-bottom: 40px;
                     transition: all 0.3s ease;
                 }
 
@@ -557,7 +571,8 @@ const Login = () => {
                     text-align: center;
                     color: #94a3b8;
                     font-size: 13px;
-                    margin: 20px 0;
+                    margin-top: 20px;
+                    margin-bottom: 32px;
                 }
 
                 .divider::before, .divider::after {
@@ -573,12 +588,13 @@ const Login = () => {
                 .google-btn-wrapper {
                     display: flex;
                     justify-content: center;
+                    align-items: center;
                     width: 100%;
                 }
 
                 .signup-link-wrapper {
                     text-align: center;
-                    margin-top: 24px;
+                    margin-top: 36px;
                     font-size: 14px;
                     color: #64748B;
                 }
@@ -612,18 +628,19 @@ const Login = () => {
                     align-items: center;
                     justify-content: center;
                     gap: 12px;
-                    width: 100%;
-                    max-width: 300px;
+                    width: 380px;
+                    height: 58px;
+                    margin: 0 auto;
                     background: #FFFFFF;
                     border: 1px solid #DADCE0;
-                    border-radius: 6px;
-                    padding: 10px 14px;
+                    border-radius: 12px;
                     font-family: 'Roboto', 'Inter', sans-serif;
                     font-size: 14px;
                     font-weight: 500;
                     color: #3C4043;
                     cursor: pointer;
                     transition: all 0.2s ease;
+                    box-sizing: border-box;
                 }
 
                 .google-auth-btn:hover {
