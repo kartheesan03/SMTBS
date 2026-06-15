@@ -307,6 +307,24 @@ const updateOrderStatus = async (req, res) => {
 
         order.status = status;
         order.updatedBy = req.user._id;
+
+        // Ensure order status and tracking history are synced
+        if (status !== prevStatus) {
+            const currentTimeline = order.trackingTimeline || [];
+            order.trackingTimeline = [
+                ...currentTimeline,
+                {
+                    id: Date.now().toString(),
+                    status: status,
+                    location: 'System Update',
+                    date: new Date().toISOString(),
+                    remarks: `Status updated from ${prevStatus} to ${status}`,
+                    updatedBy: req.user.name,
+                    updatedById: req.user.id
+                }
+            ];
+        }
+
         const updatedOrder = await order.save();
 
         // 1. Stock deduction/addition trigger for Purchase

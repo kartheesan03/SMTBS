@@ -7,6 +7,22 @@ import {
     MapPin, Calendar, Clock, Plus, Loader 
 } from 'lucide-react';
 
+const formatDateTime = (dateValue) => {
+    if (!dateValue) return "-";
+  
+    const date = new Date(dateValue);
+  
+    if (isNaN(date.getTime())) return "-";
+  
+    return date.toLocaleString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+};
+
 const OrderTracking = () => {
     const { orderId } = useParams();
     const navigate = useNavigate();
@@ -161,11 +177,19 @@ const OrderTracking = () => {
                         </div>
                         <div className="summary-item">
                             <span className="label">Delivery Date</span>
-                            <span className="value">{order.deliveredAt ? formatDateOnly(order.deliveredAt) : 'Pending Delivery'}</span>
+                            <span className="value">
+                                {order.deliveredAt ? formatDateOnly(order.deliveredAt) : 
+                                 isDelivered ? formatDateOnly(order.deliveryDate || order.updatedAt) : 
+                                 'Pending Delivery'}
+                            </span>
                         </div>
                         <div className="summary-item">
                             <span className="label">Delivery Time</span>
-                            <span className="value">{order.deliveredAt ? formatTimeOnly(order.deliveredAt) : 'Pending Delivery'}</span>
+                            <span className="value">
+                                {order.deliveredAt ? formatTimeOnly(order.deliveredAt) : 
+                                 isDelivered ? formatTimeOnly(order.deliveryDate || order.updatedAt) : 
+                                 'Pending Delivery'}
+                            </span>
                         </div>
                         <div className="summary-item">
                             <span className="label">Last Updated</span>
