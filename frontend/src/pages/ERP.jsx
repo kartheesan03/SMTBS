@@ -57,8 +57,8 @@ const ERP = () => {
 
             // Set states
             setOrders(fetchedOrders);
-            if (data && data.stats) {
-                setErpStats(data.stats);
+            if (data) {
+                setErpStats(data);
             }
             
             const fetchedVendors = Array.isArray(vendorsRes.data) ? vendorsRes.data : [];
@@ -520,6 +520,24 @@ const ERP = () => {
                                 return status;
                             };
                             
+                            const getCustomerName = (order) => {
+                                if (order.customerName) return order.customerName;
+                                if (order.customer && order.customer.name) return order.customer.name;
+                                const cId = order.customerId || order.customer;
+                                const cMatch = customers.find(c => String(c.id || c._id) === String(cId));
+                                return cMatch ? cMatch.name : 'Walk-in Customer';
+                            };
+
+                            const getVendorName = (order) => {
+                                if (order.vendor && order.vendor.name) return order.vendor.name;
+                                const vId = order.vendorId || order.vendor;
+                                const vMatch = vendors.find(v => String(v.id || v._id) === String(vId));
+                                return vMatch ? vMatch.name : 'Walk-in Vendor';
+                            };
+                            
+                            const ordType = String(ord.orderType || ord.type || '').toLowerCase();
+                            const amount = ord.totalAmount || ord.amount || ord.grandTotal || 0;
+                            
                             const currentStatusText = displayStatus(ord.status);
                             const statusClass = currentStatusText.toLowerCase().replace(/ /g, '-');
                             
@@ -557,20 +575,20 @@ const ERP = () => {
                             }
 
                             return (
-                                <tr key={ord._id} id={`order-row-${ord._id}`} className={rowClass}>
-                                    <td><code className="po-code" style={{ cursor: 'pointer', color: 'var(--primary)' }} onClick={() => handleOrderClick(ord)}>{ord.orderNumber}</code></td>
+                                <tr key={ord._id || ord.id} id={`order-row-${ord._id || ord.id}`} className={rowClass}>
+                                    <td><code className="po-code" style={{ cursor: 'pointer', color: 'var(--primary)' }} onClick={() => handleOrderClick(ord)}>{ord.orderNumber || ord.id}</code></td>
                                     <td>
-                                        {ord.orderType === 'purchase' ? (
+                                        {ordType === 'purchase' ? (
                                             <span className="order-type-badge purchase">Purchase Order</span>
                                         ) : (
                                             <span className="order-type-badge sales">Sales Order</span>
                                         )}
                                     </td>
                                     <td className="vendor-name-cell">
-                                        {ord.orderType === 'purchase' ? (ord.vendor?.name || 'Walk-in Vendor') : (ord.customer?.name || 'Walk-in Customer')}
+                                        {ordType === 'purchase' ? getVendorName(ord) : getCustomerName(ord)}
                                     </td>
                                     <td>{renderQuantity(ord)}</td>
-                                    <td><strong>${ord.totalAmount?.toLocaleString()}</strong></td>
+                                    <td><strong>{formatCurrencyLocal(amount)}</strong></td>
                                     <td>{ord.orderDate ? new Date(ord.orderDate).toLocaleDateString() : new Date(ord.createdAt).toLocaleDateString()}</td>
                                     <td>
                                         {ord.expectedDeliveryDate ? (
