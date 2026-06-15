@@ -135,3 +135,28 @@ exports.createVendorProfile = async (req, res) => {
         res.status(400).json({ message: error.message });
     }
 };
+
+exports.deleteVendor = async (req, res) => {
+    try {
+        const vendorId = req.params.id;
+        const vendor = await Vendor.findByIdAndDelete(vendorId);
+        
+        if (!vendor) {
+            return res.status(404).json({ message: 'Vendor not found' });
+        }
+
+        // Optionally delete materials associated with vendor, but user didn't explicitly ask to delete materials, just the vendor.
+        // If they want to just delete the vendor, this is sufficient.
+        
+        await notifyManager({
+            title: 'Vendor Deleted',
+            message: `${vendor.name || 'A vendor'} has been deleted from the system.`,
+            type: 'warning',
+            category: 'system'
+        });
+
+        res.status(200).json({ message: 'Vendor deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};

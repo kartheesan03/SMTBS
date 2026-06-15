@@ -229,18 +229,17 @@ const Login = () => {
                 }
 
                 .split-card {
-                    display: flex;
+                    display: grid;
+                    grid-template-columns: 55% 45%;
                     width: 100%;
-                    height: 100%;
+                    height: 100vh;
                     background: #FFFFFF;
                 }
 
                 .brand-panel {
-                    flex: 0 0 55%;
-                    width: 55%;
                     height: 100vh;
                     background-color: #080D22;
-                    padding: 40px 80px;
+                    padding: 36px 64px;
                     display: flex;
                     flex-direction: column;
                     justify-content: center;
@@ -252,7 +251,7 @@ const Login = () => {
                     display: flex;
                     align-items: center;
                     gap: 12px;
-                    margin-bottom: 80px;
+                    margin-bottom: 72px;
                 }
 
                 .logo-icon {
@@ -286,11 +285,12 @@ const Login = () => {
                 }
 
                 .brand-desc {
-                    font-size: 16px;
+                    font-size: 17px;
                     color: #94A3B8;
                     line-height: 1.6;
                     max-width: 90%;
-                    margin: 0 0 48px 0;
+                    margin-top: 22px;
+                    margin-bottom: 48px;
                 }
 
                 .erp-illustration {
@@ -308,8 +308,11 @@ const Login = () => {
                     display: flex;
                     flex-direction: column;
                     align-items: center;
+                    justify-content: center;
                     gap: 12px;
-                    width: 96px;
+                    width: 104px;
+                    height: 104px;
+                    box-sizing: border-box;
                     transition: transform 0.3s ease;
                 }
 
@@ -326,26 +329,25 @@ const Login = () => {
 
                 /* Right Login Panel (45%) */
                 .login-panel {
-                    flex: 0 0 45%;
-                    width: 45%;
                     height: 100vh;
                     background-color: #FFFFFF;
-                    padding: 40px 80px;
+                    padding: 14px 56px 24px 56px;
                     display: flex;
                     flex-direction: column;
                     align-items: center;
                     justify-content: center;
+                    overflow: hidden;
                     box-sizing: border-box;
                 }
 
                 .login-form-container {
                     width: 100%;
-                    max-width: 520px;
+                    max-width: 470px;
+                    margin: 0;
+                    padding: 0;
                     display: flex;
                     flex-direction: column;
-                    justify-content: center;
-                    flex: 1;
-                    transform: translateY(0);
+                    transform: translateY(-5px);
                 }
 
                 .login-header {
@@ -376,16 +378,16 @@ const Login = () => {
                 }
 
                 .welcome-title {
-                    font-size: 28px;
+                    font-size: 30px;
                     font-weight: 800;
                     color: #0B1026;
-                    margin: 0 0 12px 0;
+                    margin: 0 0 6px 0;
                 }
 
                 .welcome-subtitle {
                     font-size: 15px;
                     color: #64748B;
-                    margin: 0 0 40px 0;
+                    margin: 0 0 18px 0;
                 }
 
                 .error-alert {
@@ -408,7 +410,7 @@ const Login = () => {
                 }
 
                 .input-group {
-                    margin-bottom: 28px;
+                    margin-bottom: 12px;
                 }
 
                 .input-group label {
@@ -427,7 +429,7 @@ const Login = () => {
 
                 .input-group input {
                     width: 100%;
-                    height: 60px;
+                    height: 48px;
                     padding: 0 16px;
                     box-sizing: border-box;
                     background: #F8FAFC;
@@ -476,8 +478,7 @@ const Login = () => {
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
-                    margin-top: 8px;
-                    margin-bottom: 32px;
+                    margin: 12px 0 20px 0;
                 }
 
                 .remember-me {
@@ -545,12 +546,12 @@ const Login = () => {
                     background: #0B1026;
                     color: #FFFFFF;
                     border: none;
-                    height: 64px;
+                    height: 54px;
                     border-radius: 14px;
                     font-size: 16px;
                     font-weight: 600;
                     cursor: pointer;
-                    margin-bottom: 40px;
+                    margin-bottom: 22px;
                     transition: all 0.3s ease;
                 }
 
@@ -571,8 +572,7 @@ const Login = () => {
                     text-align: center;
                     color: #94a3b8;
                     font-size: 13px;
-                    margin-top: 20px;
-                    margin-bottom: 32px;
+                    margin: 14px 0;
                 }
 
                 .divider::before, .divider::after {
@@ -594,7 +594,8 @@ const Login = () => {
 
                 .signup-link-wrapper {
                     text-align: center;
-                    margin-top: 36px;
+                    margin-top: 8px;
+                    margin-bottom: 0;
                     font-size: 14px;
                     color: #64748B;
                 }
@@ -629,8 +630,9 @@ const Login = () => {
                     justify-content: center;
                     gap: 12px;
                     width: 380px;
-                    height: 58px;
+                    height: 48px;
                     margin: 0 auto;
+                    margin-bottom: 16px;
                     background: #FFFFFF;
                     border: 1px solid #DADCE0;
                     border-radius: 12px;

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getVendors, getVendorById, createVendor, updateVendor, getMyVendorProfile, createVendorProfile } = require('../controllers/vendorcontroller');
+const { getVendors, getVendorById, createVendor, updateVendor, getMyVendorProfile, createVendorProfile, deleteVendor } = require('../controllers/vendorcontroller');
 const { protect, authorize } = require('../middleware/authMiddleware');
 
 router.route('/')
@@ -15,6 +15,7 @@ router.route('/my-profile')
 
 router.route('/:id')
     .get(protect, authorize('Manager', 'Sales', 'Employee'), getVendorById)
-    .put(protect, authorize('Manager'), updateVendor);
+    .put(protect, authorize('Manager'), updateVendor)
+    .delete(protect, authorize('Admin'), deleteVendor);
 
 module.exports = router;

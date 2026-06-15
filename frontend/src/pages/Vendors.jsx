@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
+import { AuthContext } from '../context/AuthContext';
 import DataTable from '../components/Dashboard/DataTable';
 import { Truck, Plus, Star, MapPin, Mail, Phone, ExternalLink, Download, Edit, X, PackagePlus, AlertTriangle, Trash2, History } from 'lucide-react';
 import jsPDF from 'jspdf';
@@ -9,6 +10,7 @@ import ExcelJS from 'exceljs';
 
 const Vendors = () => {
     const navigate = useNavigate();
+    const { user } = useContext(AuthContext);
     const [vendors, setVendors] = useState([]);
     const [allMaterials, setAllMaterials] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -177,6 +179,18 @@ const Vendors = () => {
             fetchMaterials();
         } catch (err) {
             alert(err.response?.data?.message || 'Error saving vendor or materials');
+        }
+    };
+
+    const handleDeleteVendor = async (vendor) => {
+        if (window.confirm('Are you sure you want to delete this vendor? This action cannot be undone.')) {
+            try {
+                await API.delete(`/vendors/${vendor._id || vendor.id}`);
+                alert('Vendor deleted successfully.');
+                fetchVendors();
+            } catch (err) {
+                alert(err.response?.data?.message || 'Error deleting vendor');
+            }
         }
     };
 
@@ -800,9 +814,14 @@ const Vendors = () => {
                                         <div className="info-cell" style={{ fontSize: '11px' }}><Phone size={12}/> {v.phone}</div>
                                     </td>
                                     <td style={{ textAlign: 'center' }}>
-                                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                                            <button className="btn-icon view-btn" title="View Profile Dashboard" onClick={() => handleViewVendor(v)}><ExternalLink size={16}/></button>
-                                            <button className="btn-icon view-btn" title="Edit Vendor" onClick={() => openEditModal(v)}><Edit size={16}/></button>
+                                        <div className="action-btns-row" onClick={e => e.stopPropagation()} style={{ justifyContent: 'center' }}>
+                                            <button className="btn-icon-view" title="View Profile Dashboard" onClick={() => handleViewVendor(v)}><ExternalLink size={16}/></button>
+                                            <button className="btn-icon-edit" title="Edit Vendor" onClick={() => openEditModal(v)}><Edit size={16}/></button>
+                                            {user?.role === 'Admin' && (
+                                                <button className="btn-icon-del" title="Delete Vendor" onClick={() => handleDeleteVendor(v)}>
+                                                    <Trash2 size={16}/>
+                                                </button>
+                                            )}
                                         </div>
                                     </td>
                                 </tr>
@@ -834,10 +853,13 @@ const Vendors = () => {
                 .address-wrap { max-width: 250px; white-space: normal; line-height: 1.5; word-wrap: break-word; }
                 .address-wrap svg { flex-shrink: 0; margin-top: 2px; }
                 
-                .btn-icon { background: none; color: var(--primary); border: none; }
-                .view-btn { padding: 6px; border-radius: 6px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; }
-                .view-btn:hover { background: var(--primary-light); color: var(--primary); }
-                .delete-btn:hover { background: #fee2e2 !important; color: #dc2626 !important; }
+                .action-btns-row { display: flex; gap: 8px; }
+                .btn-icon-view { background: rgba(16, 185, 129, 0.1); color: #10b981; border: none; padding: 8px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+                .btn-icon-view:hover { background: #10b981; color: white; }
+                .btn-icon-edit { background: rgba(99, 102, 241, 0.1); color: var(--primary); border: none; padding: 8px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+                .btn-icon-edit:hover { background: var(--primary); color: white; }
+                .btn-icon-del { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: none; padding: 8px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+                .btn-icon-del:hover { background: #ef4444; color: white; }
 
                 .row-hover tbody tr:hover { background: #f8fafc; }
 
