@@ -242,18 +242,42 @@ const Reports = () => {
         { name: 'Vendor Procurement Log', schedule: 'Custom', format: 'PDF', icon: <ShoppingCart color="#ec4899" size={22} />, color: '#ec4899' },
     ];
 
-    const chartData = stats?.charts?.monthlyStats || [];
+    const rawChartData = stats?.charts?.monthlyStats || [];
+    
+    // Ensure 6 months data for the graph
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const currentMonth = new Date().getMonth();
+    
+    const chartData = [];
+    for (let i = 5; i >= 0; i--) {
+        let m = currentMonth - i;
+        if (m < 0) m += 12;
+        const mName = monthNames[m];
+        
+        const existingData = rawChartData.find(d => d.name === mName || d.name?.includes(mName));
+        chartData.push({
+            name: mName,
+            revenue: existingData ? Number(existingData.revenue) : 0,
+            sales: existingData ? Number(existingData.sales) : 0,
+        });
+    }
+
     const categoryData = stats?.charts?.categoryData || [];
-    const chartRevenueSum = chartData.reduce((sum, m) => sum + (Number(m.revenue) || 0), 0) || 0;
+    const chartRevenueSum = rawChartData.reduce((sum, m) => sum + (Number(m.revenue) || 0), 0) || 0;
 
     // Summary Analytics Data
-    const totalOrdersCount = chartData.reduce((sum, m) => sum + (Number(m.sales) || 0), 0) || 0;
-    const avgMonthlyRevenue = chartData.length > 0 ? (chartRevenueSum / chartData.length) : 0;
-    const highestRevenueMonth = chartData.length > 0 
-        ? chartData.reduce((max, current) => (Number(current.revenue) > Number(max.revenue) ? current : max), { revenue: 0, name: 'N/A' }) 
+    const totalOrdersCount = rawChartData.reduce((sum, m) => sum + (Number(m.sales) || 0), 0) || 0;
+    const avgMonthlyRevenue = rawChartData.length > 0 ? (chartRevenueSum / rawChartData.length) : 0;
+    const highestRevenueMonth = rawChartData.length > 0 
+        ? rawChartData.reduce((max, current) => (Number(current.revenue) > Number(max.revenue) ? current : max), { revenue: 0, name: 'N/A' }) 
         : { revenue: 0, name: 'N/A' };
 
     const formatCurrency = (val) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(val);
+    const formatLakhs = (val) => {
+        if (val === 0) return '₹0';
+        if (val >= 100000) return `₹${(val / 100000).toFixed(1).replace('.0', '')}L`;
+        return `₹${val.toLocaleString('en-IN')}`;
+    };
 
     const kpis = [
         { label: 'Total Orders', value: stats?.stats?.totalOrders ?? '—', icon: <ShoppingCart size={18} />, color: '#f59e0b' },
@@ -387,7 +411,7 @@ const Reports = () => {
                         <p className="text-muted" style={{ fontSize: '13px', maxWidth: '380px', margin: '10px auto' }}>{error || 'Unable to connect to the server.'}</p>
                         <button className="btn-primary mt-10" onClick={fetchStats}>Retry Connection</button>
                     </div>
-                ) : chartData.length === 0 ? (
+                ) : rawChartData.length === 0 ? (
                     <div className="chart-empty glass-card" style={{ padding: '40px', textAlign: 'center' }}>
                         <BarChart2 size={60} color="#334155" style={{ margin: '0 auto 16px auto' }} />
                         <p className="text-muted">No order data yet. Create orders to see analytics here.</p>
@@ -431,9 +455,9 @@ const Reports = () => {
                                             </defs>
                                             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
                                             <XAxis dataKey="name" stroke="#64748b" fontSize={12} tickLine={false} />
-                                            <YAxis stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(val) => `₹${val.toLocaleString('en-IN')}`} />
+                                            <YAxis stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} tickFormatter={formatLakhs} />
                                             <Tooltip formatter={(value) => formatCurrency(value)} contentStyle={{ background: '#ffffff', borderRadius: '8px', border: '1px solid #cbd5e1', color: '#0f172a', fontSize: '13px', fontWeight: '600' }} />
-                                            <Area type="monotone" dataKey="revenue" stroke="#10b981" strokeWidth={3} fill="url(#revGradBI)" name="Revenue" />
+                                            <Area type="monotone" dataKey="revenue" stroke="#10b981" strokeWidth={3} fill="url(#revGradBI)" name="Revenue" dot={{ r: 4, fill: '#10b981', strokeWidth: 2, stroke: '#ffffff' }} activeDot={{ r: 6 }} />
                                         </AreaChart>
                                     </ResponsiveContainer>
                                 </div>
