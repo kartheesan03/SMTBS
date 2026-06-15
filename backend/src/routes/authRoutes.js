@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { registerUser, loginUser, googleAuth, updateUserProfile, getUsers, deleteAccount } = require('../controllers/authController');
+const { registerUser, loginUser, googleAuth, updateUserProfile, getUsers, deleteAccount } = require('../controllers/authcontroller');
 const { protect } = require('../middleware/authMiddleware');
 
 router.post('/register', registerUser);
