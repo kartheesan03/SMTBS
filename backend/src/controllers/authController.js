@@ -100,12 +100,37 @@ const googleAuth = async (req, res) => {
             googleId = payload.sub;
         }
 
+        // Extract email safely as a string
+        if (typeof email !== 'string') {
+            email = String(email);
+        }
+
+        if (!email || typeof email !== 'string') {
+            return res.status(400).json({ message: 'Valid email is required' });
+        }
+
+        // NOTE: Mongoose-bridge automatically wraps this query into { where: { email } }. 
+        // Passing { where: { email } } manually causes Sequelize to receive { where: { where: { email } } } which crashes it.
         let user = await User.findOne({ email });
 
         if (user) {
+            let userUpdated = false;
+
             // User exists, update googleId if not present
             if (!user.googleId) {
                 user.googleId = googleId;
+                userUpdated = true;
+            }
+
+            // Update role if signupRole is provided
+            if (signupRole) {
+                user.role = signupRole === 'Vendor/Supplier' ? 'Vendor' : signupRole;
+                const isCustomerOrVendor = user.role === 'Customer' || user.role === 'Vendor';
+                user.isProfileComplete = !isCustomerOrVendor;
+                userUpdated = true;
+            }
+
+            if (userUpdated) {
                 await user.save();
             }
 
@@ -146,6 +171,7 @@ const googleAuth = async (req, res) => {
                 email,
                 googleId,
                 role: actualRole,
+                password: null, // explicitly allow null
                 isProfileComplete: !isCustomerOrVendor // Profile is incomplete only for customer/vendor
             });
 

@@ -18,6 +18,7 @@ import Materials from './pages/Materials';
 
 import OrderTracking from './pages/OrderTracking';
 import HRMS from './pages/HRMS';
+import AddEmployee from './pages/AddEmployee';
 import AdminDashboard from './pages/AdminDashboard';
 import EmployeeDashboard from './pages/EmployeeDashboard';
 import HRDashboard from './pages/HRDashboard';
@@ -113,9 +114,20 @@ const AppContent = () => {
                         </ProtectedRoute>
                     } />
                     
+                    {/* HRMS Routes */}
+                    <Route path="/hrms" element={
+                        <ProtectedRoute allowedRoles={['Super Admin', 'Admin', 'HR']}>
+                            <HRMS />
+                        </ProtectedRoute>
+                    } />
+                    <Route path="/hrms/add-employee" element={
+                        <ProtectedRoute allowedRoles={['Super Admin', 'Admin', 'HR']}>
+                            <AddEmployee />
+                        </ProtectedRoute>
+                    } />
+                    
                     {/* Role Specific Protected Routes */}
                     <Route path="/materials" element={<ProtectedRoute allowedRoles={['Admin', 'Manager', 'Sales', 'Employee']}><Materials /></ProtectedRoute>} />
-                    <Route path="/hrms" element={<ProtectedRoute allowedRoles={['Admin', 'HR']}><HRMS /></ProtectedRoute>} />
                     <Route path="/payroll" element={<ProtectedRoute allowedRoles={['Admin', 'HR']}><Payroll /></ProtectedRoute>} />
                     <Route path="/attendance" element={<ProtectedRoute allowedRoles={['Admin', 'HR', 'Manager']}><Attendance /></ProtectedRoute>} />
                     <Route path="/hr-reports" element={<ProtectedRoute allowedRoles={['Admin', 'HR']}><HRReports /></ProtectedRoute>} />

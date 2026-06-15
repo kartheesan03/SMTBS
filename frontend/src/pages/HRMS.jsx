@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 import { Plus, Search, UserPlus, Mail, Phone, Calendar, Trash2, Download } from 'lucide-react';
 import jsPDF from 'jspdf';
@@ -33,6 +33,7 @@ const HRMS = () => {
     };
 
     const location = useLocation();
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetchEmployees();
@@ -150,15 +151,7 @@ const HRMS = () => {
                         <button className="btn-secondary flex-center gap-10" onClick={exportToExcel} style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--bg-body)', cursor: 'pointer' }}>
                             <Download size={16} /> Excel
                         </button>
-                        <button className="btn-primary flex-center gap-10" onClick={() => {
-                            setIsEditing(false);
-                            setFormData({
-                                employeeId: '', firstName: '', lastName: '', 
-                                department: 'Employee', designation: '', contact: '', phone: '',
-                                address: '', password: '', joinDate: new Date().toISOString().split('T')[0]
-                            });
-                            setShowModal(true);
-                        }}>
+                        <button className="btn-primary flex-center gap-10" onClick={() => navigate('/hrms/add-employee')}>
                             <UserPlus size={18} /> Add Employee
                         </button>
                     </div>
@@ -169,7 +162,7 @@ const HRMS = () => {
                 <div className="modal-overlay">
                     <div className="glass-card modal-content animate-pop">
                         <div className="modal-header">
-                            <h2>{isEditing ? 'Edit Employee Profile' : 'Add New Employee'}</h2>
+                            <h2>Edit Employee Profile</h2>
                             <button className="close-btn" onClick={() => {
                                 setShowModal(false);
                                 setIsEditing(false);
@@ -235,7 +228,7 @@ const HRMS = () => {
                                     setShowModal(false);
                                     setIsEditing(false);
                                 }}>Cancel</button>
-                                <button type="submit" className="btn-primary">{isEditing ? 'Save Changes' : 'Create Profile'}</button>
+                                <button type="submit" className="btn-primary">Save Changes</button>
                             </div>
                         </form>
                     </div>
