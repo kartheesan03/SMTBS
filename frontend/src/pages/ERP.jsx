@@ -40,26 +40,40 @@ const ERP = () => {
     const fetchData = async () => {
         try {
             setLoading(true);
-            const [ordersRes, customersRes, materialsRes, vendorsRes] = await Promise.all([
+            const [dashRes, ordersRes, customersRes, materialsRes, vendorsRes] = await Promise.all([
+                API.get('/dashboard/stats').catch(e => ({ data: {} })),
                 API.get('/orders').catch(e => ({ data: [] })),
                 API.get('/customers').catch(e => ({ data: [] })),
                 API.get('/materials').catch(e => ({ data: [] })),
                 API.get('/vendors').catch(e => ({ data: [] }))
             ]);
             
-            const fetchedOrders = Array.isArray(ordersRes.data) ? ordersRes.data : [];
+            const data = dashRes.data || {};
+            const fetchedOrders = Array.isArray(ordersRes.data) ? ordersRes.data : 
+                                 (ordersRes.data?.data && Array.isArray(ordersRes.data.data) ? ordersRes.data.data : []);
+            
+            console.log("ERP API data:", data);
+            console.log("ERP orders:", fetchedOrders);
+
+            // Set states
             setOrders(fetchedOrders);
-            setVendors(vendorsRes.data || []);
+            if (data && data.stats) {
+                setErpStats(data.stats);
+            }
+            
+            const fetchedVendors = Array.isArray(vendorsRes.data) ? vendorsRes.data : [];
+            setVendors(fetchedVendors);
             
             const mappedCustomers = (Array.isArray(customersRes.data) ? customersRes.data : [])
                 .map(c => ({ ...c, customerModel: 'Customer' }));
             
-            console.log('ERP orders response:', fetchedOrders);
             console.log('Fetched Customers:', mappedCustomers);
-            console.log('Fetched Vendors:', vendorsRes.data);
+            console.log('Fetched Vendors:', fetchedVendors);
             
             setCustomers(mappedCustomers);
-            setMaterials(materialsRes.data || []);
+            
+            const fetchedMaterials = Array.isArray(materialsRes.data) ? materialsRes.data : [];
+            setMaterials(fetchedMaterials);
         } catch (err) {
             console.error('Error fetching ERP data:', err);
         } finally {

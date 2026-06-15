@@ -33,12 +33,11 @@ const getOrders = async (req, res) => {
     try {
         const orders = await Order.find({})
             .populate('customer', 'name email')
-            .populate('vendor', 'name email category contactPerson')
-            .populate('createdBy', 'name role')
-            .populate('updatedBy', 'name role');
+            .populate('vendor', 'name email category contactPerson');
         console.log(`[API /orders] Fetched ${orders.length} orders.`);
         res.json(orders);
     } catch (error) {
+        console.error('[API /orders] Error:', error);
         res.status(500).json({ message: error.message });
     }
 };
