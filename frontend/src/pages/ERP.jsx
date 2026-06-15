@@ -276,24 +276,30 @@ const ERP = () => {
 
     const completedDeliveriesCount = orders.filter(o => ['Delivered', 'Completed'].includes(o.status)).length;
 
-    // --- LOCAL KPI CALCULATION ---
+    // --- KPI CALCULATION USING DASHBOARD STATS EXACTLY LIKE REPORTS ---
     const formatCurrencyLocal = (num) => {
         if (!num) return '₹0';
-        if (typeof num === 'string' && num.includes('₹')) return num; // If it's already formatted by backend
+        if (typeof num === 'string' && num.includes('₹')) return num; 
         if (num >= 10000000) return `₹${(num / 10000000).toFixed(2)} Cr`;
         if (num >= 100000) return `₹${(num / 100000).toFixed(2)} L`;
         return `₹${num.toLocaleString('en-IN')}`;
     };
 
-    // Calculate ERP stats from the orders array exactly as in Reports & Analytics
-    const totalOrders = orders.length;
-    const salesOrders = orders.filter(o => String(o.orderType || o.type || '').toUpperCase().includes('SALES')).length;
-    const purchaseOrders = orders.filter(o => String(o.orderType || o.type || '').toUpperCase().includes('PURCHASE')).length;
+    const dashStats = erpStats?.stats || {};
+    const dashCharts = erpStats?.charts || {};
+    const dashMonthlyStats = dashCharts.monthlyStats || [];
+
+    const totalOrders = dashStats.totalOrders ?? 0;
+    const salesOrders = dashStats.totalSalesOrders ?? 0;
+    const purchaseOrders = dashStats.totalPurchaseOrders ?? 0;
     
-    const totalRevenueNum = orders.reduce((sum, o) => sum + Number(o.totalAmount || o.amount || o.grandTotal || 0), 0);
-    const totalPurchaseCostNum = orders
-        .filter(o => String(o.orderType || o.type || '').toUpperCase().includes('PURCHASE'))
-        .reduce((sum, o) => sum + Number(o.totalAmount || o.amount || o.grandTotal || 0), 0);
+    const chartRevenueSum = dashMonthlyStats.reduce((sum, m) => sum + (Number(m.revenue) || 0), 0) || 0;
+    const totalRevenueNum = chartRevenueSum;
+    
+    // Fallbacks if backend adds totalRevenue later
+    const finalTotalRevenueNum = dashStats.totalRevenue ? dashStats.totalRevenue : totalRevenueNum;
+    
+    const totalPurchaseCostNum = dashStats.purchaseCost || dashStats.totalPurchaseCost || 0;
         
     const pendingInvoices = orders.filter(o => ['Pending', 'Overdue', 'Partially Paid'].includes(o.paymentStatus)).length;
 
@@ -347,7 +353,7 @@ const ERP = () => {
                 </div>
                 <div className="erp-metric-card border-green">
                     <span className="label text-green">Total Revenue</span>
-                    <span className="value text-green">{formatCurrencyLocal(totalRevenueNum)}</span>
+                    <span className="value text-green">{formatCurrencyLocal(finalTotalRevenueNum)}</span>
                 </div>
                 <div className="erp-metric-card border-blue">
                     <span className="label text-blue">Total Purchase Cost</span>
