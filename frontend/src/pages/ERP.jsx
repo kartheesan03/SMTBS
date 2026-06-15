@@ -37,28 +37,32 @@ const ERP = () => {
         orderSummary: []
     });
 
+    const fetchOrders = async () => {
+        try {
+            const res = await API.get('/orders');
+            console.log('ERP Order List:', res.data);
+            setOrders(Array.isArray(res.data) ? res.data : res.data.orders || []);
+        } catch (error) {
+            console.error('Failed to fetch ERP orders:', error);
+            setOrders([]);
+        }
+    };
+
     const fetchData = async () => {
         try {
             setLoading(true);
-            const [dashRes, ordersRes, customersRes, materialsRes, vendorsRes] = await Promise.all([
+            const [dashRes, customersRes, materialsRes, vendorsRes] = await Promise.all([
                 API.get('/dashboard/stats').catch(e => ({ error: true, data: [] })),
-                API.get('/orders').catch(e => ({ error: true, data: [] })),
                 API.get('/customers').catch(e => ({ error: true, data: [] })),
                 API.get('/materials').catch(e => ({ error: true, data: [] })),
                 API.get('/vendors').catch(e => ({ error: true, data: [] }))
             ]);
             
-            console.log("RAW ordersRes:", ordersRes);
-            
             const data = dashRes.data || {};
-            const fetchedOrders = Array.isArray(ordersRes.data) ? ordersRes.data : 
-                                 (ordersRes.data?.data && Array.isArray(ordersRes.data.data) ? ordersRes.data.data : []);
             
             console.log("ERP API data:", data);
-            console.log("ERP orders:", fetchedOrders);
 
             // Set states
-            setOrders(fetchedOrders);
             if (data) {
                 setErpStats(data);
             }
@@ -85,6 +89,7 @@ const ERP = () => {
 
     useEffect(() => {
         fetchData();
+        fetchOrders();
         const interval = setInterval(fetchData, 30000);
         return () => clearInterval(interval);
     }, []);
