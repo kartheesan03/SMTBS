@@ -122,8 +122,15 @@ const googleAuth = async (req, res) => {
                 userUpdated = true;
             }
 
-            // DO NOT update the user's role here. If they exist, they already have their assigned role.
-            // This prevents privilege escalation or accidental role changes.
+            // If user already exists with same email, update role and login.
+            if (signupRole) {
+                const actualRole = signupRole === 'Vendor/Supplier' ? 'Vendor' : signupRole;
+                if (actualRole === 'Customer' || actualRole === 'Vendor') {
+                    user.role = actualRole;
+                    user.isProfileComplete = false;
+                    userUpdated = true;
+                }
+            }
 
             if (userUpdated) {
                 await user.save();
@@ -167,12 +174,16 @@ const googleAuth = async (req, res) => {
 
             const isCustomerOrVendor = actualRole === 'Customer' || actualRole === 'Vendor';
             
+            // Generate a secure random dummy password for Google users to bypass SQLite NOT NULL constraint
+            const crypto = require('crypto');
+            const dummyPassword = crypto.randomBytes(32).toString('hex');
+            
             user = await User.create({
                 name,
                 email,
                 googleId,
                 role: actualRole,
-                password: null, // explicitly allow null
+                password: dummyPassword, // explicitly provide dummy password to pass validation
                 isProfileComplete: !isCustomerOrVendor // Profile is incomplete only for customer/vendor
             });
 
