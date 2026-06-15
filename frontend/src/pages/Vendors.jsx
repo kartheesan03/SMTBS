@@ -451,6 +451,7 @@ const Vendors = () => {
                                             <option value="Raw Materials">Raw Materials</option>
                                             <option value="Electronics">Electronics</option>
                                             <option value="Polymers">Polymers</option>
+                                            <option value="Logistics">Logistics</option>
                                             <option value="Packaging">Packaging</option>
                                         </select>
                                     </div>
@@ -678,6 +679,7 @@ const Vendors = () => {
                                         <option value="Raw Materials">Raw Materials</option>
                                         <option value="Electronics">Electronics</option>
                                         <option value="Polymers">Polymers</option>
+                                        <option value="Logistics">Logistics</option>
                                         <option value="Packaging">Packaging</option>
                                     </select>
                                 </div>
