@@ -289,6 +289,7 @@ const updateOrderStatus = async (req, res) => {
                 }
                 order.deliveryStatus = 'Delivered';
                 order.deliveryDate = new Date();
+                order.deliveredAt = new Date();
 
                 // Final comprehensive notification
                 const targetUserIds = [];
@@ -478,6 +479,13 @@ const updateTrackingStatus = async (req, res) => {
 
         const currentTimeline = order.trackingTimeline || [];
         order.trackingTimeline = [...currentTimeline, newTrackingUpdate];
+
+        if (status === 'Delivered') {
+            order.status = 'Delivered';
+            order.deliveryStatus = 'Delivered';
+            order.deliveryDate = new Date(newTrackingUpdate.date);
+            order.deliveredAt = new Date(newTrackingUpdate.date);
+        }
 
         await order.save();
 

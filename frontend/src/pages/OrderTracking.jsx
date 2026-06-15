@@ -80,7 +80,25 @@ const OrderTracking = () => {
     };
 
     if (loading) {
-        return (
+        const formatDateTime = (isoString) => {
+        if (!isoString) return '';
+        const d = new Date(isoString);
+        return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) + ', ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+    };
+
+    const formatDateOnly = (isoString) => {
+        if (!isoString) return '';
+        const d = new Date(isoString);
+        return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    };
+
+    const formatTimeOnly = (isoString) => {
+        if (!isoString) return '';
+        const d = new Date(isoString);
+        return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+    };
+
+    return (
             <div className="flex-center" style={{ height: '80vh' }}>
                 <div className="loader"></div>
             </div>
@@ -138,12 +156,20 @@ const OrderTracking = () => {
                             </span>
                         </div>
                         <div className="summary-item">
-                            <span className="label">Delivery Date</span>
-                            <span className="value">{order.expectedDeliveryDate ? new Date(order.expectedDeliveryDate).toLocaleDateString() : 'Pending'}</span>
-                        </div>
-                        <div className="summary-item">
                             <span className="label">Amount</span>
                             <span className="value">${(order.totalAmount || order.grandTotal || 0).toLocaleString()}</span>
+                        </div>
+                        <div className="summary-item">
+                            <span className="label">Delivery Date</span>
+                            <span className="value">{order.deliveredAt ? formatDateOnly(order.deliveredAt) : 'Pending Delivery'}</span>
+                        </div>
+                        <div className="summary-item">
+                            <span className="label">Delivery Time</span>
+                            <span className="value">{order.deliveredAt ? formatTimeOnly(order.deliveredAt) : 'Pending Delivery'}</span>
+                        </div>
+                        <div className="summary-item">
+                            <span className="label">Last Updated</span>
+                            <span className="value">{formatDateTime(order.updatedAt || new Date())}</span>
                         </div>
                     </div>
                     
@@ -153,7 +179,7 @@ const OrderTracking = () => {
                         </div>
                         <div className="status-text">
                             <h3>{isDelivered ? 'Your order has been delivered' : `Your order is ${latestStatus.toLowerCase()}`}</h3>
-                            <p>Last updated: {timeline.length > 0 ? new Date(timeline[timeline.length - 1].date).toLocaleString() : 'Just now'}</p>
+                            <p>Last updated: {timeline.length > 0 ? formatDateTime(timeline[timeline.length - 1].date) : 'Just now'}</p>
                         </div>
                     </div>
                 </div>
@@ -178,7 +204,7 @@ const OrderTracking = () => {
                                             <div className="timeline-header">
                                                 <h4>{update.status}</h4>
                                                 <span className="time">
-                                                    <Clock size={12} /> {new Date(update.date).toLocaleString()}
+                                                    <Clock size={12} /> {formatDateTime(update.date)}
                                                 </span>
                                             </div>
                                             {update.location && (
@@ -272,7 +298,7 @@ const OrderTracking = () => {
                 .status-badge.processing { background: #eff6ff; color: #2563eb; }
                 
                 .summary-grid {
-                    display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+                    display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px;
                     padding-bottom: 20px; border-bottom: 1px solid #f1f5f9; margin-bottom: 20px;
                 }
                 .summary-item { display: flex; flex-direction: column; gap: 4px; }

@@ -65,6 +65,10 @@ const OrderSequelize = sequelize.define('Order', {
         type: DataTypes.DATE,
         allowNull: true
     },
+    deliveredAt: {
+        type: DataTypes.DATE,
+        allowNull: true
+    },
     orderDate: {
         type: DataTypes.DATE,
         allowNull: true
