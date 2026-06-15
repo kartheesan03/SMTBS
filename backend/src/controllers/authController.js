@@ -122,13 +122,8 @@ const googleAuth = async (req, res) => {
                 userUpdated = true;
             }
 
-            // Update role if signupRole is provided
-            if (signupRole) {
-                user.role = signupRole === 'Vendor/Supplier' ? 'Vendor' : signupRole;
-                const isCustomerOrVendor = user.role === 'Customer' || user.role === 'Vendor';
-                user.isProfileComplete = !isCustomerOrVendor;
-                userUpdated = true;
-            }
+            // DO NOT update the user's role here. If they exist, they already have their assigned role.
+            // This prevents privilege escalation or accidental role changes.
 
             if (userUpdated) {
                 await user.save();
@@ -164,6 +159,12 @@ const googleAuth = async (req, res) => {
 
             // Create the new user
             const actualRole = signupRole === 'Vendor/Supplier' ? 'Vendor' : signupRole;
+            
+            // SECURITY: Only allow external roles to be created via Google Sign-Up
+            if (actualRole !== 'Customer' && actualRole !== 'Vendor') {
+                return res.status(403).json({ message: 'Only Customer and Vendor accounts can be created via Google Sign-In.' });
+            }
+
             const isCustomerOrVendor = actualRole === 'Customer' || actualRole === 'Vendor';
             
             user = await User.create({

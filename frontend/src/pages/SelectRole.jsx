@@ -72,36 +72,6 @@ const SelectRole = () => {
             title: 'Vendor / Supplier',
             desc: 'Manage supplied materials, deliveries, and stock updates.',
             icon: <Truck size={24} />
-        },
-        {
-            id: 'Employee',
-            title: 'Employee',
-            desc: 'Access attendance, tasks, payslips, and leave management.',
-            icon: <Users size={24} />
-        },
-        {
-            id: 'Sales',
-            title: 'Sales',
-            desc: 'Manage leads, customers, orders, and deliveries.',
-            icon: <TrendingUp size={24} />
-        },
-        {
-            id: 'Manager',
-            title: 'Manager',
-            desc: 'Monitor operations, approvals, inventory, and reports.',
-            icon: <Briefcase size={24} />
-        },
-        {
-            id: 'HR',
-            title: 'HR',
-            desc: 'Manage employees, attendance, payroll, and leaves.',
-            icon: <HeartHandshake size={24} />
-        },
-        {
-            id: 'Admin',
-            title: 'Admin',
-            desc: 'Full access to ERP, HRMS, CRM, inventory, and analytics.',
-            icon: <ShieldCheck size={24} />
         }
     ];
 
@@ -113,7 +83,7 @@ const SelectRole = () => {
                         <Box size={28} color="#ffffff" strokeWidth={2.5} />
                     </div>
                     <h2 className="welcome-title">Welcome to SMTBMS</h2>
-                    <p className="welcome-subtitle">Select your account type to continue and access your personalized dashboard.</p>
+                    <p className="welcome-subtitle">Select your external account type to continue.</p>
                 </div>
 
                 {error && (

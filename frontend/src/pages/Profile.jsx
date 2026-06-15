@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import API from '../api/axios';
 import { User, Briefcase, Key, Bell, Activity, Settings as SettingsIcon, Shield } from 'lucide-react';
+import CustomerProfileSettings from './CustomerProfileSettings';
 
 const Profile = () => {
     const { user, updateUser } = useContext(AuthContext);
@@ -150,6 +151,10 @@ const Profile = () => {
     const displayEmail = formData.email || user?.email;
     const roleBadge = user?.role === 'Admin' ? 'Super Admin' : user?.role || 'Employee';
     const empIdBadge = employeeData?.employeeId || employeeData?.employeeCode || (user?.id ? `EMP${user.id.toString().padStart(4, '0')}` : 'EMP001');
+
+    if (user?.role === 'Customer') {
+        return <CustomerProfileSettings />;
+    }
 
     return (
         <div className="profile-page-wrapper">

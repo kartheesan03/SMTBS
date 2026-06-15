@@ -7,10 +7,8 @@ router.route('/')
     .get(protect, getOrders)
     .post(protect, createOrder);
 
-router.route('/my-orders')
-    .get(protect, getMyCustomerOrders);
-
 router.route('/customer')
+    .get(protect, getMyCustomerOrders)
     .post(protect, createCustomerOrder);
 
 router.route('/:id/status')

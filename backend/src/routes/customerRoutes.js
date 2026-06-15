@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getCustomers, getCustomerById, createCustomer, updateCustomer, deleteCustomer, approveCustomer, getCustomerOrders, getCustomerTickets, getMyCustomerProfile, createCustomerProfile } = require('../controllers/customercontroller');
+const { getCustomers, getCustomerById, createCustomer, updateCustomer, deleteCustomer, approveCustomer, getCustomerOrders, getCustomerTickets, getMyCustomerProfile, createCustomerProfile, updateMyCustomerProfile, deleteMyCustomerAccount } = require('../controllers/customercontroller');
 const { protect } = require('../middleware/authMiddleware');
 
 router.route('/')
@@ -8,10 +8,12 @@ router.route('/')
     .post(protect, createCustomer);
 
 router.route('/profile')
+    .get(protect, getMyCustomerProfile)
+    .put(protect, updateMyCustomerProfile)
     .post(protect, createCustomerProfile);
 
-router.route('/my-profile')
-    .get(protect, getMyCustomerProfile);
+router.route('/delete-account')
+    .delete(protect, deleteMyCustomerAccount);
 
 router.route('/:id')
     .get(protect, getCustomerById)
