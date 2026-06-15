@@ -41,12 +41,14 @@ const ERP = () => {
         try {
             setLoading(true);
             const [dashRes, ordersRes, customersRes, materialsRes, vendorsRes] = await Promise.all([
-                API.get('/dashboard/stats').catch(e => ({ data: {} })),
-                API.get('/orders').catch(e => ({ data: [] })),
-                API.get('/customers').catch(e => ({ data: [] })),
-                API.get('/materials').catch(e => ({ data: [] })),
-                API.get('/vendors').catch(e => ({ data: [] }))
+                API.get('/dashboard/stats').catch(e => ({ error: true, data: [] })),
+                API.get('/orders').catch(e => ({ error: true, data: [] })),
+                API.get('/customers').catch(e => ({ error: true, data: [] })),
+                API.get('/materials').catch(e => ({ error: true, data: [] })),
+                API.get('/vendors').catch(e => ({ error: true, data: [] }))
             ]);
+            
+            console.log("RAW ordersRes:", ordersRes);
             
             const data = dashRes.data || {};
             const fetchedOrders = Array.isArray(ordersRes.data) ? ordersRes.data : 
@@ -228,16 +230,10 @@ const ERP = () => {
     const isAdmin = userInfo.role === 'Admin';
 
     const historyStatuses = ['Delivered', 'Cancelled', 'Completed', 'Rejected'];
-    const tabFilteredOrders = orders.filter(o => {
-        if (activeTab === 'history') {
-            return historyStatuses.includes(o.status);
-        }
-        return !historyStatuses.includes(o.status);
-    });
+    const tabFilteredOrders = orders;
+    const filteredOrders = orders;
 
-    const filteredOrders = statusFilter === 'All' 
-        ? tabFilteredOrders 
-        : tabFilteredOrders.filter(o => o.status === statusFilter);
+    console.log("Orders for ERP table:", orders);
 
     const hasSales = filteredOrders.some(o => o.orderType === 'sales');
     const hasPurchase = filteredOrders.some(o => o.orderType === 'purchase');
