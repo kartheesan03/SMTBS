@@ -477,7 +477,7 @@ const updateTrackingStatus = async (req, res) => {
         const { id } = req.params;
         const { status, location, date, remarks } = req.body;
 
-        const order = await Order.findByPk(id);
+        const order = await Order.findById(id);
         if (!order) {
             return res.status(404).json({ message: 'Order not found' });
         }
@@ -495,9 +495,10 @@ const updateTrackingStatus = async (req, res) => {
         const currentTimeline = order.trackingTimeline || [];
         order.trackingTimeline = [...currentTimeline, newTrackingUpdate];
 
+        order.status = status;
+        order.deliveryStatus = status;
+
         if (status === 'Delivered') {
-            order.status = 'Delivered';
-            order.deliveryStatus = 'Delivered';
             order.deliveryDate = new Date(newTrackingUpdate.date);
             order.deliveredAt = new Date(newTrackingUpdate.date);
         }

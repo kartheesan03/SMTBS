@@ -88,8 +88,8 @@ const OrderTracking = () => {
             // Refresh order
             fetchOrderDetails();
         } catch (err) {
-            console.error(err);
-            alert('Failed to add tracking update');
+            console.error('Update Tracking Error:', err.response?.data || err);
+            alert(`Failed to add tracking update: ${err.response?.data?.message || err.message}`);
         } finally {
             setSubmitting(false);
         }
