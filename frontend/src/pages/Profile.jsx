@@ -28,6 +28,27 @@ const Profile = () => {
 
     const [recentActivity, setRecentActivity] = useState([]);
 
+    // Delete Account State
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [deleteConfirmation, setDeleteConfirmation] = useState('');
+    const [deletePassword, setDeletePassword] = useState('');
+
+    const handleDeleteAccount = async () => {
+        if (deleteConfirmation !== 'DELETE') return alert('Please type DELETE to confirm.');
+        if (!deletePassword) return alert('Password is required.');
+
+        try {
+            await API.delete('/auth/delete-account', {
+                data: { password: deletePassword }
+            });
+            alert('Account has been permanently deleted.');
+            localStorage.clear();
+            window.location.href = '/login';
+        } catch (err) {
+            alert(err.response?.data?.message || 'Error deleting account');
+        }
+    };
+
     const handlePreferenceChange = (key) => {
         const newPrefs = { ...preferences, [key]: !preferences[key] };
         setPreferences(newPrefs);
@@ -168,7 +189,9 @@ const Profile = () => {
                     <p className="text-email">{displayEmail}</p>
                     <div className="banner-badges">
                         <span className="badge-role">{roleBadge}</span>
-                        <span className="badge-emp-id">{empIdBadge}</span>
+                        {user?.role !== 'Vendor' && (
+                            <span className="badge-emp-id">{empIdBadge}</span>
+                        )}
                     </div>
                 </div>
             </div>
@@ -225,34 +248,36 @@ const Profile = () => {
                 <div className="profile-col-right">
                     
                     {/* Employment Details */}
-                    <div className="ui-card mb-24">
-                        <div className="card-header">
-                            <Briefcase size={18} className="header-icon purple-icon" />
-                            <h3>Employment Details</h3>
+                    {user?.role !== 'Vendor' && (
+                        <div className="ui-card mb-24">
+                            <div className="card-header">
+                                <Briefcase size={18} className="header-icon purple-icon" />
+                                <h3>Employment Details</h3>
+                            </div>
+                            <div className="details-list">
+                                <div className="detail-row">
+                                    <div className="detail-label"><Briefcase size={14}/> Department</div>
+                                    <div className="detail-value">{employeeData?.department || 'Operations'}</div>
+                                </div>
+                                <div className="detail-row">
+                                    <div className="detail-label"><User size={14}/> Designation</div>
+                                    <div className="detail-value">{employeeData?.designation || user?.role || 'Staff'}</div>
+                                </div>
+                                <div className="detail-row">
+                                    <div className="detail-label">📅 Joining Date</div>
+                                    <div className="detail-value">{employeeData?.joinDate || employeeData?.joiningDate ? new Date(employeeData?.joinDate || employeeData?.joiningDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Not specified'}</div>
+                                </div>
+                                <div className="detail-row">
+                                    <div className="detail-label">⏱ Employment Type</div>
+                                    <div className="detail-value">Full-Time</div>
+                                </div>
+                                <div className="detail-row">
+                                    <div className="detail-label">🏢 Base Location</div>
+                                    <div className="detail-value">Headquarters</div>
+                                </div>
+                            </div>
                         </div>
-                        <div className="details-list">
-                            <div className="detail-row">
-                                <div className="detail-label"><Briefcase size={14}/> Department</div>
-                                <div className="detail-value">{employeeData?.department || 'Operations'}</div>
-                            </div>
-                            <div className="detail-row">
-                                <div className="detail-label"><User size={14}/> Designation</div>
-                                <div className="detail-value">{employeeData?.designation || user?.role || 'Staff'}</div>
-                            </div>
-                            <div className="detail-row">
-                                <div className="detail-label">📅 Joining Date</div>
-                                <div className="detail-value">{employeeData?.joinDate || employeeData?.joiningDate ? new Date(employeeData?.joinDate || employeeData?.joiningDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Not specified'}</div>
-                            </div>
-                            <div className="detail-row">
-                                <div className="detail-label">⏱ Employment Type</div>
-                                <div className="detail-value">Full-Time</div>
-                            </div>
-                            <div className="detail-row">
-                                <div className="detail-label">Status</div>
-                                <div className="detail-value"><span className="badge-active">active</span></div>
-                            </div>
-                        </div>
-                    </div>
+                    )}
 
                     {/* Change Password */}
                     <div className="ui-card">
@@ -340,6 +365,64 @@ const Profile = () => {
                 </div>
 
             </div>
+
+            {/* Danger Zone for Vendor */}
+            {user?.role === 'Vendor' && (
+                <div className="danger-zone-card">
+                    <div className="danger-header">
+                        <h3>Danger Zone</h3>
+                    </div>
+                    <div className="danger-content">
+                        <div className="danger-info">
+                            <h4>Delete Account Permanently</h4>
+                            <p>⚠ This action cannot be undone. All your profile data, orders, materials, and account information will be permanently removed.</p>
+                        </div>
+                        <button className="btn-danger" onClick={() => setShowDeleteModal(true)}>
+                            Delete My Account
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* Delete Confirmation Modal */}
+            {showDeleteModal && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <h2 className="modal-title">Delete Account</h2>
+                        <p className="modal-desc">
+                            Are you absolutely sure you want to delete your account? This action cannot be undone.
+                        </p>
+                        <div className="form-group">
+                            <label>Please type <strong>DELETE</strong> to confirm</label>
+                            <input 
+                                type="text" 
+                                value={deleteConfirmation}
+                                onChange={(e) => setDeleteConfirmation(e.target.value)}
+                                placeholder="DELETE"
+                            />
+                        </div>
+                        <div className="form-group" style={{ marginTop: '16px' }}>
+                            <label>Confirm Password</label>
+                            <input 
+                                type="password" 
+                                value={deletePassword}
+                                onChange={(e) => setDeletePassword(e.target.value)}
+                                placeholder="Enter your password"
+                            />
+                        </div>
+                        <div className="modal-actions">
+                            <button className="btn-cancel" onClick={() => setShowDeleteModal(false)}>Cancel</button>
+                            <button 
+                                className="btn-delete-confirm" 
+                                onClick={handleDeleteAccount}
+                                disabled={deleteConfirmation !== 'DELETE' || !deletePassword}
+                            >
+                                Permanently Delete Account
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <style jsx="true">{`
                 .profile-page-wrapper {
@@ -622,6 +705,82 @@ const Profile = () => {
                     .banner-info h2 { font-size: 18px; }
                     .banner-avatar { width: 64px; height: 64px; font-size: 24px; }
                 }
+
+                /* Danger Zone */
+                .danger-zone-card {
+                    background: #fff;
+                    border: 1px solid #fecaca;
+                    border-radius: 12px;
+                    margin-top: 24px;
+                    overflow: hidden;
+                }
+                .danger-header {
+                    background: #fef2f2;
+                    padding: 16px 24px;
+                    border-bottom: 1px solid #fecaca;
+                }
+                .danger-header h3 {
+                    margin: 0;
+                    color: #dc2626;
+                    font-size: 16px;
+                }
+                .danger-content {
+                    padding: 24px;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+                .danger-info h4 {
+                    margin: 0 0 4px 0;
+                    color: #1e293b;
+                }
+                .danger-info p {
+                    margin: 0;
+                    color: #64748b;
+                    font-size: 14px;
+                }
+                .btn-danger {
+                    background: #ef4444;
+                    color: white;
+                    border: none;
+                    padding: 10px 16px;
+                    border-radius: 6px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    white-space: nowrap;
+                    margin-left: 24px;
+                }
+                .btn-danger:hover {
+                    background: #dc2626;
+                }
+
+                /* Modal */
+                .modal-overlay {
+                    position: fixed;
+                    top: 0; left: 0; right: 0; bottom: 0;
+                    background: rgba(15, 23, 42, 0.6);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 9999;
+                    backdrop-filter: blur(4px);
+                }
+                .modal-content {
+                    background: white;
+                    padding: 32px;
+                    border-radius: 12px;
+                    width: 100%;
+                    max-width: 400px;
+                    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+                }
+                .modal-title { margin: 0 0 8px 0; font-size: 20px; color: #0f172a; }
+                .modal-desc { margin: 0 0 24px 0; font-size: 14px; color: #64748b; line-height: 1.5; }
+                .modal-actions { display: flex; gap: 12px; margin-top: 24px; }
+                .btn-cancel { flex: 1; padding: 10px; border-radius: 6px; background: white; border: 1px solid #cbd5e1; font-weight: 600; color: #475569; cursor: pointer; }
+                .btn-cancel:hover { background: #f8fafc; }
+                .btn-delete-confirm { flex: 2; padding: 10px; border-radius: 6px; background: #ef4444; color: white; border: none; font-weight: 600; cursor: pointer; }
+                .btn-delete-confirm:disabled { background: #fca5a5; cursor: not-allowed; }
+                .btn-delete-confirm:not(:disabled):hover { background: #dc2626; }
             `}</style>
         </div>
     );

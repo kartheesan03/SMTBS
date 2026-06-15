@@ -92,7 +92,7 @@ const CustomerProfileSettings = () => {
         if (deleteConfirmText !== 'DELETE') return;
         setIsDeleting(true);
         try {
-            await API.delete('/customers/delete-account', {
+            await API.delete('/auth/delete-account', {
                 data: { password: deletePassword }
             });
             alert('Your account has been permanently deleted.');

@@ -289,4 +289,72 @@ const getUsers = async (req, res) => {
     }
 };
 
-module.exports = { registerUser, loginUser, googleAuth, updateUserProfile, getUsers };
+// @desc    Delete user account permanently (Customer/Vendor only)
+// @route   DELETE /api/auth/delete-account
+// @access  Private
+const deleteAccount = async (req, res) => {
+    try {
+        const { role, _id } = req.user;
+        
+        if (role !== 'Customer' && role !== 'Vendor') {
+            return res.status(403).json({ message: 'Only Customers and Vendors can delete their account here.' });
+        }
+
+        const { password } = req.body;
+        if (!password) {
+            return res.status(400).json({ message: 'Password is required to delete account.' });
+        }
+
+        const user = await User.findById(_id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Verify password
+        const isMatch = await user.matchPassword(password);
+        if (!isMatch) {
+            return res.status(401).json({ message: 'Invalid password. Account deletion failed.' });
+        }
+
+        // Handle Customer Deletion
+        if (role === 'Customer') {
+            const Customer = require('../models/Customer');
+            const customer = await Customer.findOne({ userId: _id });
+            if (customer) {
+                const Order = require('../models/Order');
+                const Ticket = require('../models/Ticket');
+                await Order.deleteMany({ customer: customer._id });
+                await Ticket.deleteMany({ customerId: customer._id });
+                await Customer.findByIdAndDelete(customer._id);
+            }
+        }
+
+        // Handle Vendor Deletion
+        if (role === 'Vendor') {
+            const Vendor = require('../models/Vendor');
+            const vendor = await Vendor.findOne({ userId: _id });
+            if (vendor) {
+                const Material = require('../models/Material');
+                const Order = require('../models/Order');
+                await Material.deleteMany({ vendor: vendor._id });
+                await Order.deleteMany({ vendor: vendor._id });
+                await Vendor.findByIdAndDelete(vendor._id);
+            }
+        }
+
+        // Delete notifications
+        const Notification = require('../models/Notification');
+        await Notification.deleteMany({ user: _id });
+
+        // Delete User record
+        await User.findByIdAndDelete(_id);
+
+        res.json({ message: 'Account and all associated data permanently deleted.' });
+
+    } catch (error) {
+        console.error("Delete Account Error:", error);
+        res.status(500).json({ message: 'Server error during account deletion.' });
+    }
+};
+
+module.exports = { registerUser, loginUser, googleAuth, updateUserProfile, getUsers, deleteAccount };
