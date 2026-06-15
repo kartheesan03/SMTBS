@@ -8,13 +8,13 @@ const AddVendor = () => {
     
     // Vendor Form Data
     const [formData, setFormData] = useState({
-        name: '', category: 'Raw Materials', contactPerson: '', email: '', phone: '', address: '', gstNumber: '', website: ''
+        name: '', category: '', contactPerson: '', email: '', phone: '', address: '', gstNumber: '', website: ''
     });
     
     // New Materials Logic
     const [newMaterialsList, setNewMaterialsList] = useState([]);
     const [newMaterial, setNewMaterial] = useState({
-        name: '', sku: '', category: 'Raw Materials', quantity: 0, unit: 'pcs', price: 0
+        name: '', sku: '', category: '', quantity: 0, unit: 'pcs', price: 0
     });
     const [isLoading, setIsLoading] = useState(false);
 
@@ -28,7 +28,7 @@ const AddVendor = () => {
             return;
         }
         setNewMaterialsList([...newMaterialsList, { ...newMaterial }]);
-        setNewMaterial({ name: '', sku: '', category: 'Raw Materials', quantity: 0, unit: 'pcs', price: 0 });
+        setNewMaterial({ name: '', sku: '', category: '', quantity: 0, unit: 'pcs', price: 0 });
     };
 
     const removeNewMaterialFromList = (index) => {
@@ -84,13 +84,7 @@ const AddVendor = () => {
                             </div>
                             <div className="form-group">
                                 <label>Category</label>
-                                <select value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})}>
-                                    <option value="Raw Materials">Raw Materials</option>
-                                    <option value="Electronics">Electronics</option>
-                                    <option value="Polymers">Polymers</option>
-                                    <option value="Logistics">Logistics</option>
-                                    <option value="Packaging">Packaging</option>
-                                </select>
+                                <input type="text" name="category" placeholder="Enter Category (e.g., Electronics, Logistics, Packaging)" value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} />
                             </div>
                         </div>
                         <div className="form-grid">
@@ -145,13 +139,7 @@ const AddVendor = () => {
                                 </div>
                                 <div className="form-group" style={{ flex: 1.5 }}>
                                     <label>Category</label>
-                                    <select value={newMaterial.category} onChange={e => setNewMaterial({...newMaterial, category: e.target.value})}>
-                                        <option value="Raw Materials">Raw Materials</option>
-                                        <option value="Electronics">Electronics</option>
-                                        <option value="Polymers">Polymers</option>
-                                        <option value="Logistics">Logistics</option>
-                                        <option value="Packaging">Packaging</option>
-                                    </select>
+                                    <input type="text" name="category" placeholder="Enter Category (e.g., Electronics, Logistics, Packaging)" value={newMaterial.category} onChange={e => setNewMaterial({...newMaterial, category: e.target.value})} />
                                 </div>
                             </div>
                             <div className="sub-form-row">

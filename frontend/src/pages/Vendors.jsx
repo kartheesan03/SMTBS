@@ -24,20 +24,20 @@ const Vendors = () => {
     
     // Vendor Form Data
     const [formData, setFormData] = useState({
-        name: '', category: 'Raw Materials', contactPerson: '', email: '', phone: '', address: '', gstNumber: '', website: ''
+        name: '', category: '', contactPerson: '', email: '', phone: '', address: '', gstNumber: '', website: ''
     });
     
     // New Materials Logic (Used for Vendor Form)
     const [newMaterialsList, setNewMaterialsList] = useState([]);
     const [newMaterial, setNewMaterial] = useState({
-        name: '', sku: '', category: 'Raw Materials', quantity: 0, unit: 'pcs', price: 0
+        name: '', sku: '', category: '', quantity: 0, unit: 'pcs', price: 0
     });
 
     // Nested Material Modals for View Vendor Profile
     const [showNestedMaterialForm, setShowNestedMaterialForm] = useState(false);
     const [isNestedMaterialEdit, setIsNestedMaterialEdit] = useState(false);
     const [nestedMaterialFormData, setNestedMaterialFormData] = useState({
-        id: null, name: '', sku: '', category: 'Raw Materials', quantity: 0, unit: 'pcs', price: 0
+        id: null, name: '', sku: '', category: '', quantity: 0, unit: 'pcs', price: 0
     });
     const [showNestedMaterialView, setShowNestedMaterialView] = useState(false);
     const [nestedSelectedMaterial, setNestedSelectedMaterial] = useState(null);
@@ -102,9 +102,9 @@ const Vendors = () => {
     // VENDOR CRUD
     const openAddModal = () => {
         setIsEditMode(false);
-        setFormData({ name: '', category: 'Raw Materials', contactPerson: '', email: '', phone: '', address: '', gstNumber: '', website: '' });
+        setFormData({ name: '', category: '', contactPerson: '', email: '', phone: '', address: '', gstNumber: '', website: '' });
         setNewMaterialsList([]);
-        setNewMaterial({ name: '', sku: '', category: 'Raw Materials', quantity: 0, unit: 'pcs', price: 0 });
+        setNewMaterial({ name: '', sku: '', category: '', quantity: 0, unit: 'pcs', price: 0 });
         setVendorMaterials([]);
         setShowModal(true);
     };
@@ -114,7 +114,7 @@ const Vendors = () => {
         setSelectedVendor(vendor);
         setFormData({
             name: vendor.name || '',
-            category: vendor.category || 'Raw Materials',
+            category: vendor.category || '',
             contactPerson: vendor.contactPerson || '',
             email: vendor.email || '',
             phone: vendor.phone || '',
@@ -130,7 +130,7 @@ const Vendors = () => {
         setVendorMaterials(existingMaterials);
         
         setNewMaterialsList([]);
-        setNewMaterial({ name: '', sku: '', category: 'Raw Materials', quantity: 0, unit: 'pcs', price: 0 });
+        setNewMaterial({ name: '', sku: '', category: '', quantity: 0, unit: 'pcs', price: 0 });
         setShowModal(true);
     };
 
@@ -144,7 +144,7 @@ const Vendors = () => {
             return;
         }
         setNewMaterialsList([...newMaterialsList, { ...newMaterial }]);
-        setNewMaterial({ name: '', sku: '', category: 'Raw Materials', quantity: 0, unit: 'pcs', price: 0 });
+        setNewMaterial({ name: '', sku: '', category: '', quantity: 0, unit: 'pcs', price: 0 });
     };
 
     const removeNewMaterialFromList = (index) => {
@@ -184,7 +184,7 @@ const Vendors = () => {
     const openNestedMaterialAdd = () => {
         setIsNestedMaterialEdit(false);
         setNestedMaterialFormData({
-            id: null, name: '', sku: '', category: 'Raw Materials', quantity: 0, unit: 'pcs', price: 0
+            id: null, name: '', sku: '', category: '', quantity: 0, unit: 'pcs', price: 0
         });
         setShowNestedMaterialForm(true);
     };
@@ -195,7 +195,7 @@ const Vendors = () => {
             id: mat._id || mat.id,
             name: mat.name,
             sku: mat.sku,
-            category: mat.category || 'Raw Materials',
+            category: mat.category || '',
             quantity: mat.quantity,
             unit: mat.unit || 'pcs',
             price: mat.price || 0
@@ -352,13 +352,7 @@ const Vendors = () => {
                                     </div>
                                     <div className="form-group">
                                         <label>Category</label>
-                                        <select value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})}>
-                                            <option value="Raw Materials">Raw Materials</option>
-                                            <option value="Electronics">Electronics</option>
-                                            <option value="Polymers">Polymers</option>
-                                            <option value="Logistics">Logistics</option>
-                                            <option value="Packaging">Packaging</option>
-                                        </select>
+                                        <input type="text" name="category" placeholder="Enter Category (e.g., Electronics, Logistics, Packaging)" value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} />
                                     </div>
                                 </div>
                                 <div className="form-grid">
@@ -447,13 +441,7 @@ const Vendors = () => {
                                     </div>
                                     <div className="form-group" style={{ flex: 1.5 }}>
                                         <label>Category</label>
-                                        <select value={newMaterial.category} onChange={e => setNewMaterial({...newMaterial, category: e.target.value})}>
-                                            <option value="Raw Materials">Raw Materials</option>
-                                            <option value="Electronics">Electronics</option>
-                                            <option value="Polymers">Polymers</option>
-                                            <option value="Logistics">Logistics</option>
-                                            <option value="Packaging">Packaging</option>
-                                        </select>
+                                        <input type="text" name="category" placeholder="Enter Category (e.g., Electronics, Logistics, Packaging)" value={newMaterial.category} onChange={e => setNewMaterial({...newMaterial, category: e.target.value})} />
                                     </div>
                                 </div>
                                 <div className="sub-form-row">
@@ -675,13 +663,7 @@ const Vendors = () => {
                                 </div>
                                 <div className="form-group">
                                     <label>Category</label>
-                                    <select value={nestedMaterialFormData.category} onChange={e => setNestedMaterialFormData({...nestedMaterialFormData, category: e.target.value})}>
-                                        <option value="Raw Materials">Raw Materials</option>
-                                        <option value="Electronics">Electronics</option>
-                                        <option value="Polymers">Polymers</option>
-                                        <option value="Logistics">Logistics</option>
-                                        <option value="Packaging">Packaging</option>
-                                    </select>
+                                    <input type="text" name="category" placeholder="Enter Category (e.g., Electronics, Logistics, Packaging)" value={nestedMaterialFormData.category} onChange={e => setNestedMaterialFormData({...nestedMaterialFormData, category: e.target.value})} />
                                 </div>
                                 <div className="form-group">
                                     <label>Vendor</label>
