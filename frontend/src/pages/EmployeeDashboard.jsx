@@ -17,17 +17,29 @@ const EmployeeDashboard = () => {
 
     const [tasksData, setTasksData] = useState([]);
     const [ordersData, setOrdersData] = useState([]);
+    const [attendancesData, setAttendancesData] = useState([]);
+    const [leavesData, setLeavesData] = useState([]);
+    const [salariesData, setSalariesData] = useState([]);
+    const [notificationsData, setNotificationsData] = useState([]);
 
     const fetchDashboardData = async () => {
         try {
-            const [dashRes, taskRes, ordRes] = await Promise.all([
-                API.get('/dashboard/stats'),
+            const [dashRes, taskRes, ordRes, attRes, levRes, salRes, notifRes] = await Promise.all([
+                API.get('/dashboard/stats').catch(() => ({ data: {} })),
                 API.get('/tasks').catch(() => ({ data: [] })),
-                API.get('/orders').catch(() => ({ data: [] }))
+                API.get('/orders').catch(() => ({ data: [] })),
+                API.get('/attendances').catch(() => ({ data: [] })),
+                API.get('/leaves').catch(() => ({ data: [] })),
+                API.get('/salaries').catch(() => ({ data: [] })),
+                API.get('/notifications').catch(() => ({ data: [] }))
             ]);
-            setDashboardData(dashRes.data);
+            setDashboardData(dashRes.data || {});
             setTasksData(taskRes.data || []);
             setOrdersData(ordRes.data || []);
+            setAttendancesData(attRes.data || []);
+            setLeavesData(levRes.data || []);
+            setSalariesData(salRes.data || []);
+            setNotificationsData(notifRes.data || []);
         } catch (error) {
             console.error("Failed to load dashboard stats", error);
             setDashboardData({});
@@ -51,28 +63,81 @@ const EmployeeDashboard = () => {
     }
 
     const dashboard = dashboardData || {};
+    const userId = user?.id || user?._id;
+
+    // Filter data for logged-in user
+    const myTasksList = tasksData.filter(t => t.assignedTo === userId || t.employeeId === userId);
+    const myOrdersList = ordersData.filter(o => o.employeeId === userId || o.assignedTo === userId || o.createdById === userId);
+    const myAttendancesList = attendancesData.filter(a => a.employeeId === userId || a.userId === userId);
+    const myLeavesList = leavesData.filter(l => l.employeeId === userId || l.userId === userId);
+    const mySalariesList = salariesData.filter(s => s.employeeId === userId || s.userId === userId);
+    const myNotificationsList = notificationsData.filter(n => n.userId === userId || n.employeeId === userId);
 
     // KPIs
-    const attendanceStatus = dashboard?.employeeStats?.attendanceToday || "Not Marked"; 
+    const todayStr = new Date().toISOString().split('T')[0];
+    const todaysAttendance = myAttendancesList.find(a => {
+        if (!a.date) return false;
+        return a.date.toString().includes(todayStr) || new Date(a.date).toISOString().split('T')[0] === todayStr;
+    });
     
-    // Calculate pending tasks from real tasks data
-    const pendingTasks = tasksData.filter(t => t.status !== 'Completed' && t.status !== 'Done').length;
+    const todaysLeave = myLeavesList.find(l => {
+        if (!l.startDate || !l.endDate || l.status !== 'Approved') return false;
+        const start = new Date(l.startDate);
+        const end = new Date(l.endDate);
+        const today = new Date();
+        return today >= start && today <= end;
+    });
+
+    let attendanceStatus = "Not Marked";
+    if (todaysLeave) {
+        attendanceStatus = "On Leave";
+    } else if (todaysAttendance) {
+        if (todaysAttendance.checkOut) {
+            attendanceStatus = "Checked Out";
+        } else if (todaysAttendance.checkIn) {
+            attendanceStatus = "Present";
+        }
+    }
     
-    // Calculate active projects
-    const assignedProjects = ordersData.filter(o => ['In Progress', 'Approved'].includes(o.status)).length;
+    const pendingTasks = myTasksList.filter(t => t.status === 'Pending' || t.status === 'In Progress').length;
+    const assignedProjects = myOrdersList.length;
+    const leaveBalance = myLeavesList.filter(l => l.status === 'Pending').length;
     
-    const leaveBalance = dashboard?.employeeStats?.myPendingLeaves || 0; // Fetch from leaves API if available
-    const salarySlip = "Not Generated";
-    const unreadNotifications = 0;
+    const currentMonth = new Date().toLocaleString('default', { month: 'long' });
+    const currentYear = new Date().getFullYear();
+    const hasSalary = mySalariesList.some(s => s.month === currentMonth && s.year === currentYear);
+    const salarySlip = hasSalary ? "Generated" : "Not Generated";
+    
+    const unreadNotifications = myNotificationsList.filter(n => !n.isRead).length;
 
     // Charts Data
     const myAttendanceData = [];
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    for (let i = 6; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const dStr = d.toISOString().split('T')[0];
+        
+        const att = myAttendancesList.find(a => a.date && (a.date.toString().includes(dStr) || new Date(a.date).toISOString().split('T')[0] === dStr));
+        let hours = 0;
+        if (att && att.checkIn && att.checkOut) {
+            const inTime = new Date(att.checkIn);
+            const outTime = new Date(att.checkOut);
+            hours = (outTime - inTime) / (1000 * 60 * 60);
+        }
+        
+        myAttendanceData.push({
+            name: days[d.getDay()],
+            hours: Number(Math.max(0, hours).toFixed(1)),
+            fill: hours >= 8 ? '#10b981' : hours > 0 ? '#f59e0b' : '#e2e8f0'
+        });
+    }
 
-    const myTasks = tasksData
+    const myTasks = myTasksList
         .filter(t => t.status !== 'Completed' && t.status !== 'Done')
         .slice(0, 5)
         .map((t, index) => ({
-            id: t._id || index,
+            id: t._id || t.id || index,
             title: t.title || t.description || 'Task',
             priority: t.priority || 'Medium',
             status: t.status || 'Pending',
@@ -97,7 +162,7 @@ const EmployeeDashboard = () => {
                         </div>
                         <button className="icon-btn notification-btn">
                             <Bell size={20} />
-                            <span className="notif-badge"></span>
+                            {unreadNotifications > 0 && <span className="notif-badge"></span>}
                         </button>
                     </div>
                 </div>
@@ -113,7 +178,9 @@ const EmployeeDashboard = () => {
                         <div className="kpi-icon-wrapper" style={{ background: '#ecfdf5', color: '#059669' }}><CheckCircle size={18} /></div>
                         <div className="kpi-info">
                             <span className="kpi-label">Attendance Status</span>
-                            <h3 className="kpi-value" style={{color: '#059669'}}>{attendanceStatus}</h3>
+                            <h3 className="kpi-value" style={{color: attendanceStatus === 'Present' ? '#059669' : attendanceStatus === 'Checked Out' ? '#f59e0b' : attendanceStatus === 'On Leave' ? '#3b82f6' : '#64748b'}}>
+                                {attendanceStatus}
+                            </h3>
                         </div>
                     </div>
                     <div className="kpi-card">
