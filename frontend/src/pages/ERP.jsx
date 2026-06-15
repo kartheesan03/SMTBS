@@ -40,8 +40,15 @@ const ERP = () => {
     const fetchOrders = async () => {
         try {
             const res = await API.get('/orders');
-            console.log('ERP Order List:', res.data);
-            setOrders(Array.isArray(res.data) ? res.data : res.data.orders || []);
+            const getArrayData = (response) => {
+                if (Array.isArray(response.data)) return response.data;
+                if (response.data && Array.isArray(response.data.data)) return response.data.data;
+                if (response.data && Array.isArray(response.data.orders)) return response.data.orders;
+                return [];
+            };
+            const extractedOrders = getArrayData(res);
+            console.log('ERP Order List:', extractedOrders);
+            setOrders(extractedOrders);
         } catch (error) {
             console.error('Failed to fetch ERP orders:', error);
             setOrders([]);
@@ -88,9 +95,13 @@ const ERP = () => {
     };
 
     useEffect(() => {
-        fetchData();
-        fetchOrders();
-        const interval = setInterval(fetchData, 30000);
+        const loadAll = () => {
+            fetchData();
+            fetchOrders();
+        };
+        
+        loadAll();
+        const interval = setInterval(loadAll, 30000);
         return () => clearInterval(interval);
     }, []);
 
@@ -248,9 +259,10 @@ const ERP = () => {
         ? currentTabOrders 
         : currentTabOrders.filter(o => o.status === statusFilter);
 
-    console.log("Orders for ERP table:", orders);
-    console.log("Filtered activeOrders:", activeOrders.length);
-    console.log("Filtered orderHistory:", orderHistory.length);
+    console.log("ERP Stats:", erpStats);
+    console.log("ERP Orders:", orders);
+    console.log("Active Orders:", activeOrders);
+    console.log("Order History:", orderHistory);
 
     const hasSales = filteredOrders.some(o => o.orderType === 'sales');
     const hasPurchase = filteredOrders.some(o => o.orderType === 'purchase');
@@ -499,6 +511,9 @@ const ERP = () => {
                         Order History
                     </button>
                 </div>
+                <pre style={{ background: '#f8fafc', padding: '15px', borderRadius: '8px', overflowX: 'auto', fontSize: '12px', border: '1px solid #e2e8f0', marginBottom: '20px' }}>
+                    {JSON.stringify(orders, null, 2)}
+                </pre>
                 <table className="modern-table">
                     <thead>
                         <tr>
