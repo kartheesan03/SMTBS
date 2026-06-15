@@ -14,7 +14,7 @@ const Customers = () => {
     const [showModal, setShowModal] = useState(false);
     const [editingId, setEditingId] = useState(null);
     const [formData, setFormData] = useState({
-        name: '', email: '', phone: '', address: '', industry: '', website: '', notes: '', status: 'Active', customerType: 'Individual'
+        name: '', email: '', phone: '', address: '', industry: '', website: '', notes: '', status: '', customerType: 'Individual'
     });
     const [formErrors, setFormErrors] = useState({});
 
@@ -118,7 +118,7 @@ const Customers = () => {
             industry: customer.industry || '',
             website: customer.website || '',
             notes: customer.notes || '',
-            status: customer.status || 'Active',
+            status: customer.status || '',
             customerType: customer.customerType || 'Individual'
         });
         setFormErrors({});
@@ -147,7 +147,7 @@ const Customers = () => {
     const handleCloseModal = () => {
         setShowModal(false);
         setEditingId(null);
-        setFormData({ name: '', email: '', phone: '', address: '', industry: '', website: '', notes: '', status: 'Active', customerType: 'Individual' });
+        setFormData({ name: '', email: '', phone: '', address: '', industry: '', website: '', notes: '', status: '', customerType: 'Individual' });
         setFormErrors({});
     };
 
@@ -470,9 +470,7 @@ const Customers = () => {
                                     </div>
                                     <div className="form-group">
                                         <label>Lifecycle Status</label>
-                                        <select value={formData.status} onChange={e => setFormData({...formData, status: e.target.value})}>
-                                            <option value="Active">Active</option><option value="Lead">Lead</option><option value="Inactive">Inactive</option><option value="Pending Review">Pending Review</option>
-                                        </select>
+                                        <input type="text" name="status" placeholder="Enter status (e.g., Active, Prospect, Inactive)" value={formData.status} onChange={e => setFormData({...formData, status: e.target.value})} />
                                     </div>
                                     <div className="form-group">
                                         <label>Customer Type</label>
@@ -681,12 +679,7 @@ const Customers = () => {
                                 </div>
                                 <div className="form-group">
                                     <label>Lifecycle Status</label>
-                                    <select value={formData.status} onChange={e => setFormData({...formData, status: e.target.value})}>
-                                        <option value="Active">Active</option>
-                                        <option value="Lead">Lead</option>
-                                        <option value="Inactive">Inactive</option>
-                                        <option value="Pending Review">Pending Review</option>
-                                    </select>
+                                    <input type="text" name="status" placeholder="Enter status (e.g., Active, Prospect, Inactive)" value={formData.status} onChange={e => setFormData({...formData, status: e.target.value})} />
                                 </div>
                             </div>
 

@@ -6,7 +6,7 @@ import { Building2, Mail, Phone, Globe, ArrowLeft, Save, X } from 'lucide-react'
 const AddCustomer = () => {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
-        name: '', email: '', phone: '', address: '', industry: '', website: '', notes: '', status: 'Active', customerType: 'Individual'
+        name: '', email: '', phone: '', address: '', industry: '', website: '', notes: '', status: '', customerType: 'Individual'
     });
     const [formErrors, setFormErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
@@ -67,12 +67,7 @@ const AddCustomer = () => {
                             </div>
                             <div className="form-group">
                                 <label>Lifecycle Status</label>
-                                <select value={formData.status} onChange={e => setFormData({...formData, status: e.target.value})}>
-                                    <option value="Active">Active</option>
-                                    <option value="Lead">Lead</option>
-                                    <option value="Inactive">Inactive</option>
-                                    <option value="Pending Review">Pending Review</option>
-                                </select>
+                                <input type="text" name="status" placeholder="Enter status (e.g., Active, Prospect, Inactive)" value={formData.status} onChange={e => setFormData({...formData, status: e.target.value})} />
                             </div>
                         </div>
 

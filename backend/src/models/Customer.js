@@ -50,7 +50,7 @@ const CustomerSequelize = sequelize.define('Customer', {
         allowNull: true
     },
     status: {
-        type: DataTypes.ENUM('Active', 'Lead', 'Inactive', 'Pending Review'),
+        type: DataTypes.STRING,
         defaultValue: 'Active'
     },
 });
