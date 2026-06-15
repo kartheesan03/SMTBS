@@ -8,13 +8,13 @@ const getERPStats = async (req, res) => {
         const pendingInvoices = await Order.countDocuments({ paymentStatus: { $in: ['Pending', 'Overdue', 'Partially Paid'] } });
 
         const revenueResult = await Order.aggregate([
-            { $match: { status: { $ne: 'Cancelled' }, orderType: 'sales', totalAmount: { $exists: true } } },
+            { $match: { totalAmount: { $exists: true } } },
             { $group: { _id: null, total: { $sum: "$totalAmount" } } }
         ]);
         const totalRevenueNum = (revenueResult && revenueResult.length > 0) ? revenueResult[0].total : 0;
 
         const purchaseCostResult = await Order.aggregate([
-            { $match: { status: { $ne: 'Cancelled' }, orderType: 'purchase', totalAmount: { $exists: true } } },
+            { $match: { orderType: 'purchase', totalAmount: { $exists: true } } },
             { $group: { _id: null, total: { $sum: "$totalAmount" } } }
         ]);
         const totalPurchaseCostNum = (purchaseCostResult && purchaseCostResult.length > 0) ? purchaseCostResult[0].total : 0;

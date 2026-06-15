@@ -265,44 +265,17 @@ const ERP = () => {
     const completedDeliveriesCount = orders.filter(o => ['Delivered', 'Completed'].includes(o.status)).length;
 
     // --- LOCAL KPI CALCULATION ---
-    const activeTotalOrders = orders.filter(o => !['Delivered', 'Completed', 'Cancelled'].includes(o.status)).length;
-    
-    const normalizeOrderType = (type) => {
-        if (!type) return '';
-        const t = String(type).toUpperCase();
-        if (t.includes('SALES')) return 'SALES';
-        if (t.includes('PURCHASE')) return 'PURCHASE';
-        return t;
-    };
-
-    const localSalesOrders = orders.filter(o => normalizeOrderType(o.orderType) === 'SALES').length;
-    const localPurchaseOrders = orders.filter(o => normalizeOrderType(o.orderType) === 'PURCHASE').length;
-    
-    const localRevenue = orders
-        .filter(o => normalizeOrderType(o.orderType) === 'SALES' && o.status !== 'Cancelled')
-        .reduce((sum, o) => sum + (Number(o.totalAmount) || 0), 0);
-        
-    const localPurchaseCost = orders
-        .filter(o => normalizeOrderType(o.orderType) === 'PURCHASE' && o.status !== 'Cancelled')
-        .reduce((sum, o) => sum + (Number(o.totalAmount) || 0), 0);
-        
-    const localPendingInvoices = orders.filter(o => ['Pending', 'Overdue', 'Partially Paid'].includes(o.paymentStatus)).length;
-
     const formatCurrencyLocal = (num) => {
         if (!num) return '₹0';
+        if (typeof num === 'string' && num.includes('₹')) return num; // If it's already formatted by backend
         if (num >= 10000000) return `₹${(num / 10000000).toFixed(2)} Cr`;
         if (num >= 100000) return `₹${(num / 100000).toFixed(2)} L`;
-        return `₹${num.toLocaleString()}`;
+        return `₹${num.toLocaleString('en-IN')}`;
     };
 
     console.log('--- ERP KPI DATA LOGS ---');
     console.log('ERP API response (stats):', erpStats);
     console.log('orders array:', orders);
-    console.log('totalOrders:', activeTotalOrders);
-    console.log('salesOrders:', localSalesOrders);
-    console.log('purchaseOrders:', localPurchaseOrders);
-    console.log('revenue:', localRevenue);
-
 
     return (
         <div className="erp-workspace">
@@ -334,27 +307,27 @@ const ERP = () => {
             <section className="erp-metrics-grid">
                 <div className="erp-metric-card">
                     <span className="label">Total Orders</span>
-                    <span className="value">{activeTotalOrders}</span>
+                    <span className="value">{erpStats.totalOrders || 0}</span>
                 </div>
                 <div className="erp-metric-card border-green">
                     <span className="label text-green">Sales Orders</span>
-                    <span className="value text-green">{localSalesOrders}</span>
+                    <span className="value text-green">{erpStats.totalSalesOrders || 0}</span>
                 </div>
                 <div className="erp-metric-card border-blue">
                     <span className="label text-blue">Purchase Orders</span>
-                    <span className="value text-blue">{localPurchaseOrders}</span>
+                    <span className="value text-blue">{erpStats.totalPurchaseOrders || 0}</span>
                 </div>
                 <div className="erp-metric-card border-orange cursor-pointer" onClick={() => { setShowInvoiceModal(true); setInvoiceTab('Pending'); }}>
                     <span className="label text-orange">Pending Invoices</span>
-                    <span className="value text-orange">{localPendingInvoices}</span>
+                    <span className="value text-orange">{erpStats.pendingInvoices || 0}</span>
                 </div>
                 <div className="erp-metric-card border-green">
                     <span className="label text-green">Total Revenue</span>
-                    <span className="value text-green">{formatCurrencyLocal(localRevenue)}</span>
+                    <span className="value text-green">{erpStats.totalRevenue || '₹0'}</span>
                 </div>
                 <div className="erp-metric-card border-blue">
                     <span className="label text-blue">Total Purchase Cost</span>
-                    <span className="value text-blue">{formatCurrencyLocal(localPurchaseCost)}</span>
+                    <span className="value text-blue">{erpStats.totalPurchaseCost || '₹0'}</span>
                 </div>
                 <div className="erp-metric-card border-purple">
                     <span className="label text-purple" style={{ color: '#8b5cf6' }}>Orders Due Today</span>
