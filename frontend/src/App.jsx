@@ -13,7 +13,6 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import SelectRole from './pages/SelectRole';
 import Materials from './pages/Materials';
 
 import OrderTracking from './pages/OrderTracking';
@@ -94,7 +93,6 @@ const AppContent = () => {
                     {/* Public Route */}
                     <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
                     <Route path="/register" element={!user ? <Register /> : <Navigate to="/" />} />
-                    <Route path="/select-role" element={!user ? <SelectRole /> : <Navigate to="/" />} />
                     
                     {/* Protected Root Route - Dispatches to correct dashboard */}
                     <Route path="/" element={

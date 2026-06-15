@@ -89,15 +89,29 @@ const googleAuth = async (req, res) => {
             googleId = `mock_id_${email}`;
         } else {
             // --- REAL GOOGLE VERIFICATION ---
-            const ticket = await client.verifyIdToken({
-                idToken: credential,
-                audience: process.env.GOOGLE_CLIENT_ID,
-            });
-
-            const payload = ticket.getPayload();
-            email = payload.email;
-            name = payload.name;
-            googleId = payload.sub;
+            // If credential is long (a JWT), verify as ID Token
+            if (credential.length > 500) {
+                const ticket = await client.verifyIdToken({
+                    idToken: credential,
+                    audience: process.env.GOOGLE_CLIENT_ID,
+                });
+                const payload = ticket.getPayload();
+                email = payload.email;
+                name = payload.name;
+                googleId = payload.sub;
+            } else {
+                // Otherwise, verify as Access Token (from useGoogleLogin implicit flow)
+                const response = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+                    headers: { Authorization: `Bearer ${credential}` }
+                });
+                if (!response.ok) {
+                    throw new Error('Failed to fetch user info with access token');
+                }
+                const data = await response.json();
+                email = data.email;
+                name = data.name;
+                googleId = data.sub;
+            }
         }
 
         // Extract email safely as a string
@@ -160,8 +174,7 @@ const googleAuth = async (req, res) => {
         } else {
             // User does not exist.
             if (!signupRole) {
-                // Return flag to redirect to select-role page
-                return res.json({ requireRoleSelection: true, email, name, googleId, credential });
+                return res.status(400).json({ message: 'Role selection is required for new users.' });
             }
 
             // Create the new user
