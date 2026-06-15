@@ -23,6 +23,28 @@ const formatDateTime = (dateValue) => {
     });
 };
 
+const formatDateOnly = (dateValue) => {
+  if (!dateValue) return "-";
+  const date = new Date(dateValue);
+  if (isNaN(date.getTime())) return "-";
+  return date.toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+};
+
+const formatTimeOnly = (dateValue) => {
+  if (!dateValue) return "-";
+  const date = new Date(dateValue);
+  if (isNaN(date.getTime())) return "-";
+  return date.toLocaleTimeString("en-IN", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+};
+
 const OrderTracking = () => {
     const { orderId } = useParams();
     const navigate = useNavigate();
@@ -96,23 +118,6 @@ const OrderTracking = () => {
     };
 
     if (loading) {
-        const formatDateTime = (isoString) => {
-        if (!isoString) return '';
-        const d = new Date(isoString);
-        return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) + ', ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-    };
-
-    const formatDateOnly = (isoString) => {
-        if (!isoString) return '';
-        const d = new Date(isoString);
-        return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-    };
-
-    const formatTimeOnly = (isoString) => {
-        if (!isoString) return '';
-        const d = new Date(isoString);
-        return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-    };
 
     return (
             <div className="flex-center" style={{ height: '80vh' }}>
