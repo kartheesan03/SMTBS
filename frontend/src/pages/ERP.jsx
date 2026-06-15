@@ -40,13 +40,17 @@ const ERP = () => {
     const fetchOrders = async () => {
         try {
             const res = await API.get('/orders');
-            const getArrayData = (response) => {
-                if (Array.isArray(response.data)) return response.data;
-                if (response.data && Array.isArray(response.data.data)) return response.data.data;
-                if (response.data && Array.isArray(response.data.orders)) return response.data.orders;
-                return [];
-            };
-            const extractedOrders = getArrayData(res);
+            console.log("Orders API:", res.data);
+            
+            let extractedOrders = [];
+            if (Array.isArray(res.data)) {
+                extractedOrders = res.data;
+            } else if (res.data && Array.isArray(res.data.orders)) {
+                extractedOrders = res.data.orders;
+            } else if (res.data && Array.isArray(res.data.data)) {
+                extractedOrders = res.data.data;
+            }
+            
             console.log('ERP Order List:', extractedOrders);
             setOrders(extractedOrders);
         } catch (error) {
@@ -511,9 +515,6 @@ const ERP = () => {
                         Order History
                     </button>
                 </div>
-                <pre style={{ background: '#f8fafc', padding: '15px', borderRadius: '8px', overflowX: 'auto', fontSize: '12px', border: '1px solid #e2e8f0', marginBottom: '20px' }}>
-                    {JSON.stringify(orders, null, 2)}
-                </pre>
                 <table className="modern-table">
                     <thead>
                         <tr>
