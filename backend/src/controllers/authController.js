@@ -80,15 +80,25 @@ const googleAuth = async (req, res) => {
     }
 
     try {
-        const ticket = await client.verifyIdToken({
-            idToken: credential,
-            audience: process.env.GOOGLE_CLIENT_ID,
-        });
+        let email, name, googleId;
 
-        const payload = ticket.getPayload();
-        const email = payload.email;
-        const name = payload.name;
-        const googleId = payload.sub;
+        // --- DEV-ONLY MOCK LOGIN BYPASS ---
+        if (credential === 'mock_google_token' && process.env.NODE_ENV === 'development') {
+            email = req.body.mockEmail || 'test@mock.com';
+            name = req.body.mockName || 'Mock User';
+            googleId = `mock_id_${email}`;
+        } else {
+            // --- REAL GOOGLE VERIFICATION ---
+            const ticket = await client.verifyIdToken({
+                idToken: credential,
+                audience: process.env.GOOGLE_CLIENT_ID,
+            });
+
+            const payload = ticket.getPayload();
+            email = payload.email;
+            name = payload.name;
+            googleId = payload.sub;
+        }
 
         let user = await User.findOne({ email });
 
@@ -105,12 +115,20 @@ const googleAuth = async (req, res) => {
             }
 
             return res.json({
-                _id: user._id,
+                success: true,
+                _id: user.id || user._id,
                 name: user.name,
                 email: user.email,
                 role: role,
                 isProfileComplete: user.isProfileComplete,
-                token: generateToken(user._id),
+                token: generateToken(user.id || user._id),
+                user: {
+                    id: user.id || user._id,
+                    name: user.name,
+                    email: user.email,
+                    role: role,
+                    isProfileComplete: user.isProfileComplete
+                }
             });
         } else {
             // User does not exist.
@@ -141,7 +159,7 @@ const googleAuth = async (req, res) => {
                     industry: 'Pending',
                     address: 'Pending',
                     status: 'Lead',
-                    user: user._id
+                    userId: user.id || user._id
                 });
             } else if (actualRole === 'Vendor') {
                 await Vendor.create({
@@ -150,23 +168,36 @@ const googleAuth = async (req, res) => {
                     contactPerson: user.name,
                     phone: '0000000000',
                     address: 'Pending',
-                    status: 'Pending',
-                    user: user._id
+                    status: 'Vendor Created',
+                    userId: user.id || user._id
                 });
             }
 
             return res.json({
-                _id: user._id,
+                success: true,
+                _id: user.id || user._id,
                 name: user.name,
                 email: user.email,
                 role: user.role,
                 isProfileComplete: user.isProfileComplete,
-                token: generateToken(user._id),
+                token: generateToken(user.id || user._id),
+                user: {
+                    id: user.id || user._id,
+                    name: user.name,
+                    email: user.email,
+                    role: user.role,
+                    isProfileComplete: user.isProfileComplete
+                }
             });
         }
     } catch (error) {
-        console.error('Google Auth Error:', error);
-        return res.status(500).json({ message: 'Server error during Google Authentication' });
+        console.error('==== GOOGLE AUTH ERROR ====');
+        console.error(error);
+        if (error.errors) {
+            error.errors.forEach(e => console.error('Validation Error:', e.message));
+        }
+        console.error('===========================');
+        return res.status(500).json({ message: 'Server error during Google Authentication: ' + error.message });
     }
 };
 
