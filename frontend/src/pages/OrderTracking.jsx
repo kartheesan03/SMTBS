@@ -130,11 +130,24 @@ const OrderTracking = () => {
         );
     }
 
-    const timeline = order.trackingTimeline || [];
+    let timeline = order.trackingTimeline || [];
+    
+    // Synthesize a timeline event for older orders that missed the timeline sync
+    if (timeline.length === 0 && order.status && order.status !== 'Pending') {
+        timeline = [{
+            id: 'legacy-sync',
+            status: order.deliveryStatus || order.status,
+            location: 'System Update',
+            date: order.deliveredAt || order.deliveryDate || order.updatedAt,
+            remarks: 'Legacy order status migrated'
+        }];
+    }
+
     const latestStatus = timeline.length > 0 ? timeline[timeline.length - 1].status : order.deliveryStatus || order.status;
     const isDelivered = latestStatus === 'Delivered';
 
     const getStatusIcon = (st) => {
+        if (!st) return <Package size={18} />;
         if (st.includes('Delivered')) return <CheckCircle size={18} />;
         if (st.includes('Shipped') || st.includes('Transit') || st.includes('Delivery')) return <Truck size={18} />;
         return <Package size={18} />;
