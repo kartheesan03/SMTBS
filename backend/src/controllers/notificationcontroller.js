@@ -268,6 +268,7 @@ const seedNotifications = async (req, res) => {
 
 module.exports = {
     getNotifications,
+    getUnreadCount,
     markAsRead,
     markAllAsRead,
     deleteNotification,

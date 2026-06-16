@@ -47,26 +47,40 @@ const registerUser = async (req, res) => {
 // @access  Public
 const loginUser = async (req, res) => {
     const { email, password } = req.body;
+    console.log(`[LOGIN] Received login request for email: ${email}`);
+
     const user = await User.findOne({ email });
+    console.log(`[LOGIN] User found in DB: ${!!user}`);
 
-    if (user && (await user.matchPassword(password))) {
-        let role = user.role;
-        if (user.email === 'admin@smtbms.com') {
-            role = 'Super Admin';
+    if (user) {
+        const isMatch = await user.matchPassword(password);
+        console.log(`[LOGIN] bcrypt password match: ${isMatch}`);
+
+        if (isMatch) {
+            let role = user.role;
+            if (user.email === 'admin@smtbms.com') {
+                role = 'Super Admin';
+            }
+
+            return res.json({
+                _id: user._id,
+                name: user.name,
+                email: user.email,
+                role: role,
+                isProfileComplete: user.isProfileComplete,
+                token: generateToken(user._id),
+                user: {
+                    id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    role: role
+                }
+            });
         }
-
-        res.json({
-            _id: user._id,
-            name: user.name,
-            email: user.email,
-            role: role,
-            isProfileComplete: user.isProfileComplete,
-            token: generateToken(user._id),
-        });
-    } else {
-        console.error(`Login failed for email: ${email} - Invalid credentials`);
-        res.status(401).json({ message: 'Invalid email or password' });
     }
+
+    console.error(`[LOGIN] Login failed for email: ${email} - Invalid credentials`);
+    res.status(401).json({ message: 'Invalid email or password' });
 };
 
 // @desc    Google login / signup

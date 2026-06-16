@@ -9,7 +9,8 @@ const {
     paySalaryRecord,
     payAllApproved,
     updateSalaryRecord,
-    deleteSalaryRecord
+    deleteSalaryRecord,
+    calculatePayrollDeductions
 } = require('../controllers/salarycontroller');
 const { protect } = require('../middleware/authMiddleware');
 const { authorize } = require('../middleware/roleMiddleware');
