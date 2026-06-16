@@ -18,19 +18,22 @@ const ManagerDashboard = () => {
     const [ordersData, setOrdersData] = useState([]);
     const [employeesData, setEmployeesData] = useState([]);
     const [tasksData, setTasksData] = useState([]);
+    const [attendanceData, setAttendanceData] = useState(null);
 
     const fetchDashboardData = async () => {
         try {
-            const [dashRes, ordRes, empRes, taskRes] = await Promise.all([
+            const [dashRes, ordRes, empRes, taskRes, attRes] = await Promise.all([
                 API.get('/dashboard/stats').catch(e => ({ data: {} })),
                 API.get('/orders').catch(e => ({ data: [] })),
                 API.get('/employees').catch(e => ({ data: [] })),
-                API.get('/tasks').catch(e => ({ data: [] }))
+                API.get('/tasks').catch(e => ({ data: [] })),
+                API.get('/attendance').catch(e => ({ data: null }))
             ]);
             setDashboardData(dashRes.data || {});
             setOrdersData(ordRes.data || []);
             setEmployeesData(empRes.data || []);
             setTasksData(taskRes.data || []);
+            setAttendanceData(attRes.data);
         } catch (error) {
             console.error("Failed to load dashboard stats", error);
         } finally {
@@ -72,21 +75,44 @@ const ManagerDashboard = () => {
     const completedTasks = completedTasksCount;
     const totalTasks = completedTasksCount + pendingTasksCount;
     const teamProductivity = totalTasks > 0 ? Math.round((completedTasksCount / totalTasks) * 100) : 0;
-    const departmentRevenue = dashboardData.totalRevenue || 0;
+    
+    const departmentRevenue = ordersData
+        .filter(o => o.status === 'Delivered' || o.status === 'Paid')
+        .reduce((sum, o) => sum + (o.totalAmount || 0), 0);
 
-    const teamPerformanceData = [
-        { name: 'Mon', completed: 4, pending: 2 },
-        { name: 'Tue', completed: 6, pending: 3 },
-        { name: 'Wed', completed: 8, pending: 1 },
-        { name: 'Thu', completed: 5, pending: 4 },
-        { name: 'Fri', completed: 9, pending: 2 }
-    ];
+    const daysMap = { 'Mon': { completed: 0, pending: 0 }, 'Tue': { completed: 0, pending: 0 }, 'Wed': { completed: 0, pending: 0 }, 'Thu': { completed: 0, pending: 0 }, 'Fri': { completed: 0, pending: 0 }, 'Sat': { completed: 0, pending: 0 }, 'Sun': { completed: 0, pending: 0 } };
+    
+    tasksData.forEach(task => {
+        if (!task.createdAt) return;
+        const d = new Date(task.createdAt);
+        const dayStr = d.toLocaleDateString('en-US', { weekday: 'short' });
+        if (daysMap[dayStr]) {
+            if (task.status === 'Completed' || task.status === 'Done') {
+                daysMap[dayStr].completed++;
+            } else {
+                daysMap[dayStr].pending++;
+            }
+        }
+    });
+
+    const teamPerformanceData = Object.keys(daysMap)
+        .map(key => ({
+            name: key,
+            completed: daysMap[key].completed,
+            pending: daysMap[key].pending
+        }))
+        .filter(d => d.completed > 0 || d.pending > 0);
+
+    const presentCount = attendanceData?.presentToday || 0;
+    const leaveCount = attendanceData?.onLeaveToday || 0;
+    const absentCount = attendanceData?.absentToday || 0;
+    const totalAttendanceEmployees = presentCount + leaveCount + absentCount;
 
     const teamAttendanceData = [
-        { name: 'Present', value: Math.round(teamMembers * 0.8), color: '#10b981' },
-        { name: 'Absent', value: Math.round(teamMembers * 0.1), color: '#ef4444' },
-        { name: 'On Leave', value: Math.round(teamMembers * 0.1), color: '#f59e0b' }
-    ].filter(item => item.value > 0);
+        { name: 'Present', value: presentCount, color: '#10b981' },
+        { name: 'On Leave', value: leaveCount, color: '#f59e0b' },
+        { name: 'Absent', value: absentCount, color: '#ef4444' }
+    ];
 
     const projectStatusData = ordersData
         .filter(o => o.status && o.status !== 'Completed' && o.status !== 'Delivered' && o.status !== 'Cancelled')
@@ -164,7 +190,7 @@ const ManagerDashboard = () => {
                                         </LineChart>
                                     </ResponsiveContainer>
                                 ) : (
-                                    <div className="flex-center" style={{ height: '100%', color: '#94a3b8', fontSize: '13px' }}>No performance data available</div>
+                                    <div className="flex-center" style={{ height: '100%', color: '#94a3b8', fontSize: '13px' }}>No Records Found</div>
                                 )}
                             </div>
                         </div>
@@ -185,12 +211,20 @@ const ManagerDashboard = () => {
                                                         <Cell key={`cell-${index}`} fill={entry.color} />
                                                     ))}
                                                 </Pie>
-                                                <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
+                                                <RechartsTooltip 
+                                                    formatter={(value, name) => {
+                                                        const pct = totalAttendanceEmployees > 0 ? ((value / totalAttendanceEmployees) * 100) : 0;
+                                                        // Format to 1 decimal place max, removing trailing zeros
+                                                        const formattedPct = Number(pct.toFixed(1));
+                                                        return [`${value} (${formattedPct}%)`, name];
+                                                    }}
+                                                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} 
+                                                />
                                             </PieChart>
                                         </ResponsiveContainer>
                                         <div style={{ position: 'absolute', top: '45%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center', pointerEvents: 'none' }}>
-                                            <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', lineHeight: 1 }}>{teamMembers}</div>
-                                            <div style={{ fontSize: '11px', fontWeight: 600, color: '#64748b' }}>Total</div>
+                                            <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', lineHeight: 1 }}>{totalAttendanceEmployees}</div>
+                                            <div style={{ fontSize: '11px', fontWeight: 600, color: '#64748b' }}>Total Employees</div>
                                         </div>
                                         <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', flexWrap: 'wrap', marginTop: '12px' }}>
                                             {teamAttendanceData.map((item, idx) => (
@@ -202,7 +236,7 @@ const ManagerDashboard = () => {
                                         </div>
                                     </>
                                 ) : (
-                                    <div className="flex-center" style={{ height: '100%', color: '#94a3b8', fontSize: '13px' }}>No attendance data</div>
+                                    <div className="flex-center" style={{ height: '100%', color: '#94a3b8', fontSize: '13px' }}>No Records Found</div>
                                 )}
                             </div>
                         </div>
@@ -262,7 +296,7 @@ const ManagerDashboard = () => {
                                         ))}
                                     </div>
                                 ) : (
-                                    <div className="flex-center" style={{ height: '100%', color: '#94a3b8', fontSize: '13px' }}>No active projects</div>
+                                    <div className="flex-center" style={{ height: '100%', color: '#94a3b8', fontSize: '13px' }}>No Records Found</div>
                                 )}
                             </div>
                         </div>
