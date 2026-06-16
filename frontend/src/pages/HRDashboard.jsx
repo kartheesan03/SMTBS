@@ -183,7 +183,7 @@ const HRDashboard = () => {
 
     return (
         <div className="main-content">
-            <div className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '24px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '24px' }}>
                 <div>
                     <h1 style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '0 0 4px 0', letterSpacing: '-0.5px' }}>HR Overview</h1>
                     <p style={{ fontSize: '14px', color: '#64748b', margin: 0 }}>Human Resources & Analytics Dashboard</p>
@@ -195,190 +195,182 @@ const HRDashboard = () => {
                 </div>
             </div>
 
-            <div className="bento-grid">
-                {/* Left Side: KPIs and Charts (Span 9) */}
-                <div className="bento-col-9 bento-grid" style={{ alignContent: 'start' }}>
-                    
-                    {/* Top KPIs (2 rows of 3) */}
-                    {kpiCards.map((kpi, idx) => (
-                        <div className="bento-col-4" key={idx}>
-                            <div className="bento-card kpi-card-bento" style={{ position: 'relative', overflow: 'hidden' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                                    <div style={{ color: '#64748b', fontSize: '12px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{kpi.title}</div>
-                                    <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: `${kpi.color}15`, color: kpi.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                        <kpi.icon size={16} strokeWidth={2.5} />
+            {/* ===== ROW 1: KPI Cards ===== */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '16px', marginBottom: '20px' }}>
+                {kpiCards.map((kpi, idx) => (
+                    <div key={idx} className="bento-card kpi-card-bento" style={{ position: 'relative', overflow: 'hidden', borderRadius: '14px', padding: '16px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
+                            <div style={{ color: '#64748b', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{kpi.title}</div>
+                            <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: `${kpi.color}15`, color: kpi.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                <kpi.icon size={14} strokeWidth={2.5} />
+                            </div>
+                        </div>
+                        <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', margin: '0 0 6px 0', lineHeight: 1 }}>{kpi.value}</h3>
+                        <div style={{ display: 'flex', alignItems: 'center', fontSize: '11px', fontWeight: 600, color: (kpi.trendType === 'down' && kpi.title !== 'Pending Approvals' && kpi.title !== 'On Leave') ? '#ef4444' : '#10b981' }}>
+                            {kpi.trendType === 'up' ? <ArrowUpRight size={12} style={{ marginRight: '4px' }}/> : <ArrowDownRight size={12} style={{ marginRight: '4px' }}/>}
+                            {kpi.trend}
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {/* ===== ROW 2: Employee Distribution (4fr) + Dept Headcount (5fr) + Right Panel (3fr) ===== */}
+            <div style={{ display: 'grid', gridTemplateColumns: '4fr 5fr 3fr', gap: '20px', marginBottom: '20px' }}>
+
+                {/* Employee Distribution */}
+                <div className="bento-card" style={{ borderRadius: '14px', display: 'flex', flexDirection: 'column', minHeight: '260px', overflow: 'hidden' }}>
+                    <div style={{ padding: '16px 18px', height: '48px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                        <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px', whiteSpace: 'nowrap' }}><PieChartIcon size={16} /> Employee Distribution</h3>
+                    </div>
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '0 24px 24px 24px', overflow: 'hidden' }}>
+                        {employeeDistributionData.length > 0 ? (
+                            <>
+                                <div style={{ position: 'relative', flex: 1, minHeight: '160px' }}>
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <PieChart margin={{ top: 10, right: 10, bottom: 10, left: 10 }}>
+                                            <Pie
+                                                data={employeeDistributionData}
+                                                cx="50%" cy="50%"
+                                                innerRadius={50} outerRadius={70}
+                                                paddingAngle={5}
+                                                dataKey="value" stroke="none"
+                                            >
+                                                {employeeDistributionData.map((entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={entry.color} />
+                                                ))}
+                                            </Pie>
+                                            <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }} />
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                    <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center', pointerEvents: 'none' }}>
+                                        <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', lineHeight: 1 }}>{totalEmployees}</div>
                                     </div>
                                 </div>
-                                <h3 style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '0 0 8px 0', lineHeight: 1 }}>{kpi.value}</h3>
-                                <div style={{ display: 'flex', alignItems: 'center', fontSize: '12px', fontWeight: 600, color: (kpi.trendType === 'down' && kpi.title !== 'Pending Approvals' && kpi.title !== 'On Leave') ? '#ef4444' : '#10b981' }}>
-                                    {kpi.trendType === 'up' ? <ArrowUpRight size={14} style={{ marginRight: '4px' }}/> : <ArrowDownRight size={14} style={{ marginRight: '4px' }}/>}
-                                    {kpi.trend}
+                                <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', flexWrap: 'wrap', paddingTop: '12px', flexShrink: 0 }}>
+                                    {employeeDistributionData.map((item, idx) => (
+                                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 600, color: '#475569' }}>
+                                            <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: item.color, flexShrink: 0 }}></span>
+                                            {item.name}
+                                        </div>
+                                    ))}
                                 </div>
-                            </div>
-                        </div>
-                    ))}
-
-                    {/* Middle Section: Charts */}
-                    <div className="bento-col-4">
-                        <div className="bento-card chart-card">
-                            <div className="bento-card-header">
-                                <h3 className="bento-card-title"><PieChartIcon size={16} /> Employee Distribution</h3>
-                            </div>
-                            <div className="bento-card-body" style={{ position: 'relative' }}>
-                                {employeeDistributionData.length > 0 ? (
-                                    <>
-                                        <ResponsiveContainer width="100%" height={160}>
-                                            <PieChart>
-                                                <Pie
-                                                    data={employeeDistributionData}
-                                                    cx="50%" cy="50%"
-                                                    innerRadius={45} outerRadius={65}
-                                                    paddingAngle={5}
-                                                    dataKey="value" stroke="none"
-                                                >
-                                                    {employeeDistributionData.map((entry, index) => (
-                                                        <Cell key={`cell-${index}`} fill={entry.color} />
-                                                    ))}
-                                                </Pie>
-                                                <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }} />
-                                            </PieChart>
-                                        </ResponsiveContainer>
-                                        <div style={{ position: 'absolute', top: '40%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center', pointerEvents: 'none' }}>
-                                            <div style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', lineHeight: 1 }}>{totalEmployees}</div>
-                                        </div>
-                                        <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', flexWrap: 'wrap', marginTop: '12px' }}>
-                                            {employeeDistributionData.map((item, idx) => (
-                                                <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: 600, color: '#475569' }}>
-                                                    <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: item.color }}></span>
-                                                    {item.name}
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </>
-                                ) : (
-                                    <div className="flex-center" style={{ height: '100%', color: '#94a3b8', fontSize: '13px' }}>No data</div>
-                                )}
-                            </div>
-                        </div>
+                            </>
+                        ) : (
+                            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: '13px' }}>No data</div>
+                        )}
                     </div>
-
-                    <div className="bento-col-8">
-                        <div className="bento-card chart-card">
-                            <div className="bento-card-header">
-                                <h3 className="bento-card-title"><Users size={16} /> Department Headcount</h3>
-                            </div>
-                            <div className="bento-card-body">
-                                {departmentHeadcountData.length > 0 ? (
-                                    <ResponsiveContainer width="100%" height={200}>
-                                        <BarChart data={departmentHeadcountData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                                            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} dy={10} />
-                                            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} />
-                                            <RechartsTooltip cursor={{fill: '#f8fafc'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }} />
-                                            <Bar dataKey="count" radius={[4, 4, 0, 0]} barSize={32}>
-                                                {departmentHeadcountData.map((entry, index) => (
-                                                    <Cell key={`cell-${index}`} fill={entry.fill} />
-                                                ))}
-                                            </Bar>
-                                        </BarChart>
-                                    </ResponsiveContainer>
-                                ) : (
-                                    <div className="flex-center" style={{ height: '100%', color: '#94a3b8', fontSize: '13px' }}>No data</div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="bento-col-12">
-                        <div className="bento-card">
-                            <div className="bento-card-header">
-                                <h3 className="bento-card-title"><Calendar size={16} /> Pending Leave Requests</h3>
-                            </div>
-                            <div className="bento-card-body">
-                                {leavesData.filter(l => l.status === 'Pending').length > 0 ? (
-                                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
-                                        <thead>
-                                            <tr style={{ borderBottom: '1px solid #f1f5f9', color: '#64748b', textAlign: 'left' }}>
-                                                <th style={{ paddingBottom: '8px' }}>Employee</th>
-                                                <th style={{ paddingBottom: '8px' }}>Type</th>
-                                                <th style={{ paddingBottom: '8px' }}>Duration</th>
-                                                <th style={{ paddingBottom: '8px' }}>Status</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {leavesData.filter(l => l.status === 'Pending').slice(0, 5).map((l, i) => (
-                                                <tr key={i} style={{ borderBottom: '1px solid #f8fafc' }}>
-                                                    <td style={{ padding: '12px 0', fontWeight: 500, color: '#0f172a' }}>{l.employeeName || 'Unknown'}</td>
-                                                    <td style={{ padding: '12px 0', color: '#475569' }}>{l.leaveType}</td>
-                                                    <td style={{ padding: '12px 0', color: '#475569' }}>{new Date(l.startDate).toLocaleDateString()} - {new Date(l.endDate).toLocaleDateString()}</td>
-                                                    <td style={{ padding: '12px 0' }}>
-                                                        <span style={{ padding: '4px 8px', borderRadius: '4px', background: '#fef3c7', color: '#d97706', fontSize: '11px', fontWeight: 600 }}>{l.status}</span>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                ) : (
-                                    <div className="flex-center" style={{ height: '60px', color: '#94a3b8', fontSize: '13px' }}>No pending leave requests</div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-
                 </div>
 
-                {/* Right Side: Feature Panel & Activity (Span 3) */}
-                <div className="bento-col-3 bento-grid" style={{ alignContent: 'start' }}>
-                    
-                    <div className="bento-col-12">
-                        <div className="bento-card" style={{ padding: '16px' }}>
-                            <div className="bento-card-header" style={{ marginBottom: '12px', paddingBottom: '8px' }}>
-                                <h3 className="bento-card-title" style={{ fontSize: '13px', color: '#64748b' }}><Cake size={14} /> Upcoming Birthdays</h3>
-                            </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                {upcomingBirthdays.map((bday, idx) => (
-                                    <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                        <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: '#f8fafc', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: '1px solid #e2e8f0' }}>
-                                            <span style={{ fontSize: '10px', color: '#ef4444', fontWeight: 700, textTransform: 'uppercase', lineHeight: 1 }}>{bday.date.split(' ')[0]}</span>
-                                            <span style={{ fontSize: '12px', color: '#0f172a', fontWeight: 800, lineHeight: 1 }}>{bday.date.split(' ')[1]}</span>
-                                        </div>
-                                        <div>
-                                            <div style={{ fontSize: '13px', fontWeight: 600, color: '#0f172a' }}>{bday.name}</div>
-                                            <div style={{ fontSize: '11px', color: '#64748b' }}>{bday.dept}</div>
-                                        </div>
+                {/* Department Headcount */}
+                <div className="bento-card" style={{ borderRadius: '14px', display: 'flex', flexDirection: 'column', minHeight: '260px', overflow: 'hidden' }}>
+                    <div style={{ padding: '16px 18px', height: '48px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                        <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px', whiteSpace: 'nowrap' }}><Users size={16} /> Department Headcount</h3>
+                    </div>
+                    <div style={{ flex: 1, padding: '0 24px 24px 24px', overflow: 'hidden' }}>
+                        {departmentHeadcountData.length > 0 ? (
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={departmentHeadcountData} margin={{ top: 5, right: 5, left: -20, bottom: 5 }} barSize={32}>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b', fontWeight: 500 }} interval={0} />
+                                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} />
+                                    <RechartsTooltip cursor={{fill: '#f8fafc'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }} />
+                                    <Bar dataKey="count" radius={[6, 6, 0, 0]}>
+                                        {departmentHeadcountData.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={entry.fill} />
+                                        ))}
+                                    </Bar>
+                                </BarChart>
+                            </ResponsiveContainer>
+                        ) : (
+                            <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: '13px' }}>No data</div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Right Panel: Birthdays + Activity */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    {/* Upcoming Birthdays */}
+                    <div className="bento-card" style={{ borderRadius: '14px', padding: '18px', overflow: 'hidden' }}>
+                        <div style={{ marginBottom: '14px', display: 'flex', alignItems: 'center' }}>
+                            <h3 style={{ margin: 0, fontSize: '13px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '6px' }}><Cake size={14} /> Upcoming Birthdays</h3>
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            {upcomingBirthdays.map((bday, idx) => (
+                                <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                    <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: '#f8fafc', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: '1px solid #e2e8f0', flexShrink: 0 }}>
+                                        <span style={{ fontSize: '10px', color: '#ef4444', fontWeight: 700, textTransform: 'uppercase', lineHeight: 1 }}>{bday.date.split(' ')[0]}</span>
+                                        <span style={{ fontSize: '12px', color: '#0f172a', fontWeight: 800, lineHeight: 1 }}>{bday.date.split(' ')[1]}</span>
                                     </div>
-                                ))}
-                            </div>
+                                    <div>
+                                        <div style={{ fontSize: '13px', fontWeight: 600, color: '#0f172a' }}>{bday.name}</div>
+                                        <div style={{ fontSize: '11px', color: '#64748b' }}>{bday.dept}</div>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
 
-                    <div className="bento-col-12">
-                        <div className="bento-card" style={{ height: '400px', padding: '16px' }}>
-                            <div className="bento-card-header" style={{ marginBottom: '16px', paddingBottom: '0', borderBottom: 'none' }}>
-                                <h3 className="bento-card-title" style={{ fontSize: '13px', color: '#64748b' }}><Activity size={14} /> Recent HR Activity</h3>
-                            </div>
-                            <div className="bento-card-body" style={{ overflowY: 'auto' }}>
-                                {recentActivities.length > 0 ? (
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                                        {recentActivities.map((act, i) => (
-                                            <div key={act.id || i} style={{ display: 'flex', gap: '12px', position: 'relative' }}>
-                                                <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#f1f5f9', border: '1px solid #e2e8f0', color: '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                                    <Activity size={14} />
-                                                </div>
-                                                <div style={{ flex: 1, paddingBottom: '16px', borderBottom: i < recentActivities.length - 1 ? '1px solid #f1f5f9' : 'none' }}>
-                                                    <div style={{ fontSize: '13px', fontWeight: 600, color: '#0f172a' }}>{act.title}</div>
-                                                    <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px', lineHeight: 1.4 }}>{act.description}</div>
-                                                    <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '4px', fontWeight: 500 }}>{formatTime(act.time)}</div>
-                                                </div>
+                    {/* Recent HR Activity */}
+                    <div className="bento-card" style={{ borderRadius: '14px', padding: '18px', display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
+                        <div style={{ marginBottom: '14px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                            <h3 style={{ margin: 0, fontSize: '13px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '6px' }}><Activity size={14} /> Recent HR Activity</h3>
+                        </div>
+                        <div style={{ overflowY: 'auto', flex: 1 }}>
+                            {recentActivities.length > 0 ? (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                                    {recentActivities.slice(0, 5).map((act, i) => (
+                                        <div key={act.id || i} style={{ display: 'flex', gap: '10px' }}>
+                                            <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#f1f5f9', border: '1px solid #e2e8f0', color: '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                                <Activity size={12} />
                                             </div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <div className="flex-center" style={{ height: '100%', color: '#94a3b8', fontSize: '13px' }}>No activity</div>
-                                )}
-                            </div>
+                                            <div style={{ flex: 1, paddingBottom: i < recentActivities.slice(0, 5).length - 1 ? '14px' : '0', borderBottom: i < recentActivities.slice(0, 5).length - 1 ? '1px solid #f1f5f9' : 'none' }}>
+                                                <div style={{ fontSize: '13px', fontWeight: 600, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{act.title}</div>
+                                                <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px', lineHeight: 1.4, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{act.description}</div>
+                                                <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '3px', fontWeight: 500 }}>{formatTime(act.time)}</div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: '13px' }}>No activity</div>
+                            )}
                         </div>
                     </div>
+                </div>
+            </div>
+
+            {/* ===== ROW 3: Pending Leave Requests (Full Width) ===== */}
+            <div className="bento-card" style={{ borderRadius: '14px', padding: '18px', marginBottom: '20px' }}>
+                <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center' }}>
+                    <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}><Calendar size={16} /> Pending Leave Requests</h3>
+                </div>
+                <div>
+                    {leavesData.filter(l => l.status === 'Pending').length > 0 ? (
+                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+                            <thead>
+                                <tr style={{ borderBottom: '2px solid #f1f5f9', color: '#64748b', textAlign: 'left' }}>
+                                    <th style={{ paddingBottom: '10px', fontWeight: 600 }}>Employee</th>
+                                    <th style={{ paddingBottom: '10px', fontWeight: 600 }}>Type</th>
+                                    <th style={{ paddingBottom: '10px', fontWeight: 600 }}>Duration</th>
+                                    <th style={{ paddingBottom: '10px', fontWeight: 600 }}>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {leavesData.filter(l => l.status === 'Pending').slice(0, 5).map((l, i) => (
+                                    <tr key={i} style={{ borderBottom: '1px solid #f8fafc' }}>
+                                        <td style={{ padding: '12px 0', fontWeight: 500, color: '#0f172a' }}>{l.employeeName || 'Unknown'}</td>
+                                        <td style={{ padding: '12px 0', color: '#475569' }}>{l.leaveType}</td>
+                                        <td style={{ padding: '12px 0', color: '#475569' }}>{new Date(l.startDate).toLocaleDateString()} - {new Date(l.endDate).toLocaleDateString()}</td>
+                                        <td style={{ padding: '12px 0' }}>
+                                            <span style={{ padding: '4px 10px', borderRadius: '6px', background: '#fef3c7', color: '#d97706', fontSize: '11px', fontWeight: 600 }}>{l.status}</span>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    ) : (
+                        <div style={{ textAlign: 'center', padding: '32px', color: '#94a3b8', fontSize: '13px' }}>No pending leave requests</div>
+                    )}
                 </div>
             </div>
         </div>
