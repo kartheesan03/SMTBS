@@ -275,7 +275,7 @@ const getDashboardStats = async (req, res) => {
                 allLeaves.forEach(l => { leaveMap[l.employeeId?.toString()] = true; });
 
                 const now = new Date();
-                const defaultStatus = now.getHours() < 14 ? 'Not Checked In' : 'Absent';
+                const defaultStatus = '-';
 
                 const allEmployees = await Employee.find({});
                 let presentToday = 0;
@@ -343,7 +343,7 @@ const getDashboardStats = async (req, res) => {
                      const todayEnd = new Date(); todayEnd.setHours(23,59,59,999);
                      const att = await Attendance.findOne({ employeeId: empRecord._id, date: { $gte: todayStart, $lte: todayEnd } });
                      data.employeeStats = {
-                         attendanceToday: att ? att.status : 'Not Marked',
+                         attendanceToday: att ? att.status : '-',
                          myPendingLeaves: await Leave.countDocuments({ employeeId: empRecord._id, status: 'Pending' })
                      };
                  }

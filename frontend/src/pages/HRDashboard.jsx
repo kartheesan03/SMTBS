@@ -137,16 +137,11 @@ const HRDashboard = () => {
         fill: CHART_COLORS[index % CHART_COLORS.length]
     })).sort((a, b) => b.count - a.count);
 
-    const unaccounted = Math.max(0, totalEmployees - presentToday - onLeave);
-    const currentHour = new Date().getHours();
-    
-    const absentToday = currentHour >= 14 ? unaccounted : 0;
-    const notCheckedInToday = currentHour < 14 ? unaccounted : 0;
+    const absentToday = dashboard.hrStats?.absentToday || 0;
 
     const attendanceOverviewData = totalEmployees > 0 ? [
         { name: 'Present', value: presentToday, color: '#10b981' },
         { name: 'Absent', value: absentToday, color: '#ef4444' },
-        { name: 'Not Checked In', value: notCheckedInToday, color: '#64748b' },
         { name: 'On Leave', value: onLeave, color: '#f59e0b' },
     ].filter(item => item.value > 0) : [];
 

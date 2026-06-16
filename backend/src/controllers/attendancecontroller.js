@@ -50,9 +50,9 @@ const getAttendanceStatus = async (req, res) => {
 
             const now = new Date();
             if (now.getHours() < 14) {
-                return res.json({ status: 'Not Checked In', date: today });
+                return res.json({ status: '-', date: today });
             }
-            return res.json({ status: 'Absent', date: today });
+            return res.json({ status: '-', date: today });
         }
         res.json(attendance);
     } catch (error) {
@@ -99,7 +99,7 @@ const checkIn = async (req, res) => {
 
         if (attendance) {
             attendance.checkIn = checkInTime;
-            if (!attendance.status || attendance.status === 'Not Checked In' || attendance.status === 'Absent') {
+            if (!attendance.status || attendance.status === '-' || attendance.status === 'Not Checked In' || attendance.status === 'Absent') {
                 attendance.status = calculatedStatus;
             }
             await attendance.save();
@@ -252,7 +252,7 @@ const getAllAttendance = async (req, res) => {
         leaves.forEach(l => { leaveMap[l.employeeId?.toString()] = true });
 
         const now = new Date();
-        const defaultStatus = now.getHours() < 14 ? 'Not Checked In' : 'Absent';
+        const defaultStatus = '-';
 
         let presentToday = 0;
         let absentToday = 0;
