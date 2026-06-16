@@ -60,6 +60,36 @@ const getAllSalaries = async (req, res) => {
     }
 };
 
+// @desc    Update salary record
+// @route   PUT /api/salaries/:id
+// @access  Private/Admin/HR
+const updateSalaryRecord = async (req, res) => {
+    try {
+        const salary = await Salary.findById(req.params.id);
+        if (!salary) {
+            return res.status(404).json({ message: 'Salary record not found' });
+        }
+        if (salary.status === 'Paid') {
+            return res.status(400).json({ message: 'Cannot edit a paid salary record' });
+        }
+
+        const { basicSalary, allowances, deductions, status } = req.body;
+        
+        if (basicSalary !== undefined) salary.basicSalary = Number(basicSalary);
+        if (allowances !== undefined) salary.allowances = Number(allowances);
+        if (deductions !== undefined) salary.deductions = Number(deductions);
+        if (status !== undefined) salary.status = status;
+
+        salary.netSalary = salary.basicSalary + salary.allowances - salary.deductions;
+
+        const updatedSalary = await salary.save();
+        res.json(updatedSalary);
+    } catch (error) {
+        console.error('updateSalaryRecord error:', error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
 // @desc    Approve salary record
 // @route   PUT /api/salaries/:id/approve
 // @access  Private/Admin
@@ -115,15 +145,22 @@ const paySalaryRecord = async (req, res) => {
             return res.status(400).json({ message: 'Salary must be approved or awaiting payment before payment. Current status: ' + salary.status });
         }
 
-        const { paymentMethod, bankRef, notes } = req.body;
+        const { paymentMethod, paymentDetails, bankRef, notes } = req.body;
 
-        // Generate transaction ID
-        const txnId = `TXN-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substr(2, 4).toUpperCase()}`;
+        // Generate or use provided transaction ID
+        let txnId = `TXN-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substr(2, 4).toUpperCase()}`;
+        if (paymentDetails) {
+            if (paymentMethod === 'UPI' && paymentDetails.transactionId) txnId = paymentDetails.transactionId;
+            if (paymentMethod === 'Bank Transfer' && paymentDetails.transactionReference) txnId = paymentDetails.transactionReference;
+            if (paymentMethod === 'Cheque' && paymentDetails.chequeNumber) txnId = paymentDetails.chequeNumber;
+        }
 
         salary.status = 'Paid';
-        salary.paymentDate = new Date();
+        salary.paymentDate = paymentDetails?.paymentDate ? new Date(paymentDetails.paymentDate) : new Date();
         salary.transactionId = txnId;
         salary.paidBy = req.user._id;
+        salary.paymentMethod = paymentMethod || 'Bank Transfer';
+        salary.paymentDetails = paymentDetails || { bankRef, notes };
         
         const updatedSalary = await salary.save();
 
@@ -353,5 +390,6 @@ module.exports = {
     approveSalaryRecord,
     paySalaryRecord,
     payAllApproved,
-    calculatePayrollDeductions
+    calculatePayrollDeductions,
+    updateSalaryRecord
 };

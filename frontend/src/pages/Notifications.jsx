@@ -193,40 +193,44 @@ const NotificationsPage = () => {
             </div>
 
             {/* ===== SEARCH + FILTER BAR ===== */}
-            <div className="bento-card" style={{ borderRadius: '14px', padding: '14px 18px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+            <div style={{ marginBottom: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {/* Search */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '7px 12px', flex: '0 0 240px', minWidth: '180px' }}>
-                    <Search size={15} color="#94a3b8" />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: '10px', padding: '8px 16px', width: '100%', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>
+                    <Search size={16} color="#64748b" />
                     <input
                         type="text"
                         placeholder="Search notifications..."
                         value={searchQuery}
                         onChange={e => setSearchQuery(e.target.value)}
-                        style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: '13px', color: '#0f172a', width: '100%' }}
+                        style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: '14px', color: '#0f172a', width: '100%' }}
                     />
+                    <div style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 500, flexShrink: 0 }}>
+                        {displayed.length} result{displayed.length !== 1 ? 's' : ''}
+                    </div>
                 </div>
 
                 {/* Filter Tabs */}
-                <div style={{ display: 'flex', gap: '4px', flex: 1, overflowX: 'auto', paddingBottom: '2px' }}>
+                <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '4px' }}>
                     {filterTabs.map(tab => (
                         <button
                             key={tab.key}
                             onClick={() => setFilter(tab.key)}
                             style={{
                                 display: 'flex', alignItems: 'center', gap: '6px',
-                                padding: '6px 14px', borderRadius: '8px', border: 'none',
-                                fontSize: '12px', fontWeight: 600, cursor: 'pointer',
+                                padding: '6px 14px', borderRadius: '20px', border: '1px solid',
+                                borderColor: filter === tab.key ? '#3b82f6' : '#e2e8f0',
+                                fontSize: '13px', fontWeight: 600, cursor: 'pointer',
                                 whiteSpace: 'nowrap', transition: 'all 0.2s',
-                                background: filter === tab.key ? '#3b82f6' : 'transparent',
-                                color: filter === tab.key ? '#fff' : '#64748b',
+                                background: filter === tab.key ? '#eff6ff' : '#fff',
+                                color: filter === tab.key ? '#2563eb' : '#64748b',
                             }}
                         >
                             {tab.label}
                             {tab.count !== undefined && tab.count > 0 && (
                                 <span style={{
-                                    fontSize: '10px', fontWeight: 800, padding: '1px 6px',
-                                    borderRadius: '10px', lineHeight: '16px',
-                                    background: filter === tab.key ? 'rgba(255,255,255,0.25)' : '#f1f5f9',
+                                    fontSize: '11px', fontWeight: 800, padding: '2px 6px',
+                                    borderRadius: '10px', lineHeight: 1,
+                                    background: filter === tab.key ? '#3b82f6' : '#f1f5f9',
                                     color: filter === tab.key ? '#fff' : '#64748b',
                                 }}>
                                     {tab.count}
@@ -234,11 +238,6 @@ const NotificationsPage = () => {
                             )}
                         </button>
                     ))}
-                </div>
-
-                {/* Results count */}
-                <div style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 500, flexShrink: 0 }}>
-                    {displayed.length} result{displayed.length !== 1 ? 's' : ''}
                 </div>
             </div>
 
@@ -262,7 +261,7 @@ const NotificationsPage = () => {
                     )}
                 </div>
             ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     {displayed.map((n) => {
                         const catConfig = CATEGORY_CONFIG[n.category] || CATEGORY_CONFIG.general;
                         const typeStyle = TYPE_STYLES[n.type] || TYPE_STYLES.info;
@@ -272,75 +271,78 @@ const NotificationsPage = () => {
                             <div
                                 key={n._id}
                                 style={{
-                                    display: 'flex', alignItems: 'center', gap: '14px',
-                                    padding: '12px 16px', borderRadius: '12px',
-                                    background: n.isRead ? '#fff' : typeStyle.bg,
-                                    border: `1px solid ${n.isRead ? '#f1f5f9' : typeStyle.border}`,
+                                    display: 'flex', alignItems: 'center', gap: '16px',
+                                    padding: '14px 18px', borderRadius: '12px',
+                                    background: '#fff',
+                                    border: '1px solid #e2e8f0',
                                     borderLeft: `4px solid ${typeStyle.color}`,
-                                    opacity: n.isRead ? 0.7 : 1,
+                                    minHeight: '76px',
+                                    opacity: n.isRead ? 0.6 : 1,
                                     transition: 'all 0.2s ease',
                                     cursor: (n.category === 'order' || n.link) ? 'pointer' : 'default',
                                     position: 'relative',
                                 }}
-                                onMouseEnter={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.boxShadow = '0 2px 12px rgba(0,0,0,0.06)'; e.currentTarget.style.transform = 'translateX(2px)'; }}
-                                onMouseLeave={e => { e.currentTarget.style.opacity = n.isRead ? '0.7' : '1'; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'translateX(0)'; }}
+                                onMouseEnter={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.05)'; e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.borderColor = '#cbd5e1'; }}
+                                onMouseLeave={e => { e.currentTarget.style.opacity = n.isRead ? '0.6' : '1'; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
                             >
                                 {/* Category Icon */}
-                                <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: catConfig.bg, color: catConfig.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                    <CatIcon size={17} />
+                                <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: catConfig.bg, color: catConfig.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                    <CatIcon size={20} strokeWidth={2.25} />
                                 </div>
 
                                 {/* Content */}
-                                <div style={{ flex: 1, minWidth: 0 }} onClick={() => handleNotificationClick(n)}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '3px' }}>
-                                        <span style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flex: 1 }}>{n.title}</span>
+                                <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '4px' }} onClick={() => handleNotificationClick(n)}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <span style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{n.title}</span>
                                         {/* Priority Badge */}
-                                        <span style={{ fontSize: '10px', fontWeight: 700, padding: '2px 8px', borderRadius: '6px', textTransform: 'uppercase', letterSpacing: '0.5px', background: typeStyle.badgeBg, color: typeStyle.badgeColor, flexShrink: 0 }}>
+                                        <span style={{ fontSize: '10px', fontWeight: 800, padding: '2px 8px', borderRadius: '6px', textTransform: 'uppercase', letterSpacing: '0.5px', background: typeStyle.badgeBg, color: typeStyle.badgeColor, flexShrink: 0 }}>
                                             {typeStyle.badge}
                                         </span>
                                         {/* Unread Indicator */}
                                         {!n.isRead && (
-                                            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: typeStyle.color, flexShrink: 0, boxShadow: `0 0 6px ${typeStyle.color}40` }}></span>
+                                            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: typeStyle.color, flexShrink: 0, boxShadow: `0 0 6px ${typeStyle.color}40`, marginLeft: 'auto' }}></span>
                                         )}
                                     </div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                        <span style={{ fontSize: '12px', color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flex: 1, lineHeight: 1.4 }}>{n.message}</span>
-                                        <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 500, flexShrink: 0, whiteSpace: 'nowrap' }}>{timeAgo(n.createdAt)}</span>
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
+                                        <span style={{ fontSize: '13px', color: '#475569', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flex: 1 }}>{n.message}</span>
+                                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: '#94a3b8', fontWeight: 600, flexShrink: 0 }}>
+                                            <Clock size={12} /> {timeAgo(n.createdAt)}
+                                        </span>
                                     </div>
                                 </div>
 
                                 {/* Action Buttons */}
-                                <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
+                                <div style={{ display: 'flex', gap: '8px', flexShrink: 0, marginLeft: '8px' }}>
                                     {!n.isRead && (
                                         <button
                                             onClick={(e) => { e.stopPropagation(); handleMarkOne(n._id); }}
-                                            title="Mark as read"
-                                            style={{ width: '32px', height: '32px', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#10b981', transition: 'all 0.2s' }}
+                                            title="Mark Read"
+                                            style={{ width: '34px', height: '34px', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#10b981', transition: 'all 0.2s' }}
                                             onMouseEnter={e => { e.currentTarget.style.background = '#ecfdf5'; e.currentTarget.style.borderColor = '#10b981'; }}
                                             onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
                                         >
-                                            <CheckCircle size={14} />
+                                            <CheckCircle size={17} strokeWidth={2.25} />
                                         </button>
                                     )}
                                     {(n.category === 'order' || n.link) && (
                                         <button
                                             onClick={(e) => { e.stopPropagation(); handleNotificationClick(n); }}
                                             title="View Details"
-                                            style={{ width: '32px', height: '32px', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#3b82f6', transition: 'all 0.2s' }}
+                                            style={{ width: '34px', height: '34px', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#3b82f6', transition: 'all 0.2s' }}
                                             onMouseEnter={e => { e.currentTarget.style.background = '#eff6ff'; e.currentTarget.style.borderColor = '#3b82f6'; }}
                                             onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
                                         >
-                                            <Eye size={14} />
+                                            <Eye size={17} strokeWidth={2.25} />
                                         </button>
                                     )}
                                     <button
                                         onClick={(e) => { e.stopPropagation(); handleDelete(n._id); }}
                                         title="Delete"
-                                        style={{ width: '32px', height: '32px', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#94a3b8', transition: 'all 0.2s' }}
+                                        style={{ width: '34px', height: '34px', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#64748b', transition: 'all 0.2s' }}
                                         onMouseEnter={e => { e.currentTarget.style.background = '#fef2f2'; e.currentTarget.style.borderColor = '#ef4444'; e.currentTarget.style.color = '#ef4444'; }}
-                                        onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#94a3b8'; }}
+                                        onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#64748b'; }}
                                     >
-                                        <Trash2 size={14} />
+                                        <Trash2 size={17} strokeWidth={2.25} />
                                     </button>
                                 </div>
                             </div>

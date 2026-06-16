@@ -45,9 +45,18 @@ const Payroll = () => {
     });
 
     const [payForm, setPayForm] = useState({
-        paymentMethod: 'Bank Transfer',
-        bankRef: '',
-        notes: ''
+        paymentMethod: 'UPI',
+        paymentDetails: {
+            paymentDate: new Date().toISOString().split('T')[0]
+        }
+    });
+
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [editForm, setEditForm] = useState({
+        basicSalary: '',
+        allowances: '',
+        deductions: '',
+        status: ''
     });
 
     const showToast = (msg, ok = true) => {
@@ -132,7 +141,10 @@ const Payroll = () => {
 
     const handleOpenPayModal = (s) => {
         setSelectedSalary(s);
-        setPayForm({ paymentMethod: 'Bank Transfer', bankRef: '', notes: '' });
+        setPayForm({ 
+            paymentMethod: 'UPI', 
+            paymentDetails: { paymentDate: new Date().toISOString().split('T')[0] } 
+        });
         setShowPayModal(true);
     };
 
@@ -157,6 +169,36 @@ const Payroll = () => {
             showToast(err.response?.data?.message || 'Payment failed', false);
         } finally {
             setPaying(false);
+        }
+    };
+
+    const handleOpenEditModal = (s) => {
+        if (s.status === 'Paid') {
+            return showToast('Cannot edit a paid salary record', false);
+        }
+        setSelectedSalary(s);
+        setEditForm({
+            basicSalary: s.basicSalary || 0,
+            allowances: s.allowances || 0,
+            deductions: s.deductions || 0,
+            status: s.status || 'Pending'
+        });
+        setShowEditModal(true);
+    };
+
+    const handleUpdateSalary = async (e) => {
+        e.preventDefault();
+        if (!selectedSalary) return;
+        setSubmitting(true);
+        try {
+            await API.put(`/salaries/${selectedSalary._id}`, editForm);
+            setShowEditModal(false);
+            showToast('Salary record updated successfully');
+            fetchData();
+        } catch (err) {
+            showToast(err.response?.data?.message || 'Error updating salary', false);
+        } finally {
+            setSubmitting(false);
         }
     };
 
@@ -191,6 +233,16 @@ const Payroll = () => {
         } finally {
             setDownloading(false);
         }
+    };
+
+    const isPayFormValid = () => {
+        const method = payForm.paymentMethod;
+        const pd = payForm.paymentDetails || {};
+        if (method === 'UPI') return pd.upiId && pd.transactionId && pd.paymentDate;
+        if (method === 'Bank Transfer') return pd.bankName && pd.accountNumber && pd.ifscCode && pd.transactionReference && pd.paymentDate;
+        if (method === 'Cheque') return pd.chequeNumber && pd.bankName && pd.chequeDate;
+        if (method === 'Cash') return pd.receivedBy && pd.paymentDate;
+        return false;
     };
 
     // ─── DERIVED DATA / CHARTS ───
@@ -501,7 +553,7 @@ const Payroll = () => {
 
                                                     {/* Edit Salary — not for Paid */}
                                                     {s.status !== 'Paid' && (
-                                                        <button onClick={() => console.log('Edit', s._id)} title="Edit Salary"
+                                                        <button onClick={() => handleOpenEditModal(s)} title="Edit Salary"
                                                             style={{ width: '36px', height: '36px', minWidth: '36px', minHeight: '36px', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#1e293b', transition: 'all 0.2s', padding: 0, lineHeight: 0 }}
                                                             onMouseEnter={e => { e.currentTarget.style.background = '#fffbeb'; e.currentTarget.style.borderColor = '#f59e0b'; e.currentTarget.style.color = '#f59e0b'; }}
                                                             onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#1e293b'; }}>
@@ -527,13 +579,13 @@ const Payroll = () => {
                                                         </>
                                                     )}
 
-                                                    {/* Process Payment — for Approved */}
-                                                    {canPay && s.status === 'Approved' && (
+                                                    {/* Pay Button — for Awaiting Approval, Ready To Pay, Approved */}
+                                                    {canPay && ['Awaiting Approval', 'Ready To Pay', 'Approved'].includes(s.status) && (
                                                         <button onClick={() => handleOpenPayModal(s)} title="Process Payment"
-                                                            style={{ width: '36px', height: '36px', minWidth: '36px', minHeight: '36px', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#1e293b', transition: 'all 0.2s', padding: 0, lineHeight: 0 }}
-                                                            onMouseEnter={e => { e.currentTarget.style.background = '#f3e8ff'; e.currentTarget.style.borderColor = '#9333ea'; e.currentTarget.style.color = '#9333ea'; }}
-                                                            onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#1e293b'; }}>
-                                                            <CreditCard size={20} strokeWidth={2.25} />
+                                                            style={{ height: '34px', padding: '0 12px', borderRadius: '8px', border: 'none', background: '#10b981', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px', cursor: 'pointer', color: '#fff', fontSize: '13px', fontWeight: 600, transition: 'all 0.2s', whiteSpace: 'nowrap' }}
+                                                            onMouseEnter={e => { e.currentTarget.style.background = '#059669'; e.currentTarget.style.boxShadow = '0 2px 6px rgba(16,185,129,0.2)'; }}
+                                                            onMouseLeave={e => { e.currentTarget.style.background = '#10b981'; e.currentTarget.style.boxShadow = 'none'; }}>
+                                                            <CreditCard size={16} strokeWidth={2.25} /> Pay
                                                         </button>
                                                     )}
 
@@ -717,55 +769,28 @@ const Payroll = () => {
                     <div className="glass-card modal-content animate-pop pay-modal" onClick={e => e.stopPropagation()}>
                         <div className="modal-header pay-header">
                             <div className="flex-center gap-10">
-                                <div className="pay-header-icon"><CreditCard size={20} /></div>
+                                <div className="pay-header-icon" style={{background: '#d1fae5', color: '#10b981'}}><CreditCard size={20} /></div>
                                 <div>
-                                    <h3>Disburse Salary</h3>
-                                    <p className="text-muted small">Confirm payment to employee</p>
+                                    <h3>Confirm Payment</h3>
                                 </div>
                             </div>
                             <button className="close-btn" onClick={() => setShowPayModal(false)}>✕</button>
                         </div>
                         <div className="p-30">
-                            <div className="pay-emp-card">
-                                <div className="pay-emp-avatar">
-                                    <User size={22} />
-                                </div>
-                                <div className="pay-emp-info">
-                                    <h4>{selectedSalary.employee ? `${selectedSalary.employee.firstName || ''} ${selectedSalary.employee.lastName || ''}`.trim() || 'Employee' : 'Employee'}</h4>
-                                    <span>{selectedSalary.employee?.department || 'N/A'} • {selectedSalary.month}</span>
-                                </div>
-                                <div className="pay-emp-amount">
-                                    <span className="label">Net Payable</span>
-                                    <h2>₹{(selectedSalary.netSalary || 0).toLocaleString()}</h2>
-                                </div>
-                            </div>
-                            <div className="pay-breakdown">
-                                <div className="pay-break-row">
-                                    <span>Basic Salary</span>
-                                    <span>₹{(selectedSalary.basicSalary || 0).toLocaleString()}</span>
-                                </div>
-                                <div className="pay-break-row">
-                                    <span>Allowances</span>
-                                    <span className="text-success">+₹{(selectedSalary.allowances || 0).toLocaleString()}</span>
-                                </div>
-                                <div className="pay-break-row">
-                                    <span>Deductions</span>
-                                    <span className="text-danger">-₹{(selectedSalary.deductions || 0).toLocaleString()}</span>
-                                </div>
-                                <div className="pay-break-row total">
-                                    <span>Net Amount</span>
-                                    <span>₹{(selectedSalary.netSalary || 0).toLocaleString()}</span>
-                                </div>
-                            </div>
-                            <div className="form-group mt-20">
+                            <h2 style={{fontSize: '20px', color: '#0f172a', marginBottom: '8px', fontWeight: 700, textAlign: 'center'}}>
+                                Pay ₹{(selectedSalary.netSalary || 0).toLocaleString()} to {selectedSalary.employee ? `${selectedSalary.employee.firstName || ''} ${selectedSalary.employee.lastName || ''}`.trim() : 'Employee'}
+                            </h2>
+                            <p style={{color: '#64748b', fontSize: '13px', margin: 0, textAlign: 'center', marginBottom: '24px'}}>This will process the salary for {selectedSalary.month}.</p>
+
+                            <div className="form-group mb-20">
                                 <label>Payment Method</label>
                                 <div className="pay-method-grid">
-                                    {['Bank Transfer', 'UPI', 'Cheque', 'Cash'].map(m => (
+                                    {['UPI', 'Bank Transfer', 'Cheque', 'Cash'].map(m => (
                                         <button
                                             key={m}
                                             type="button"
                                             className={`pay-method-btn ${payForm.paymentMethod === m ? 'active' : ''}`}
-                                            onClick={() => setPayForm({ ...payForm, paymentMethod: m })}
+                                            onClick={() => setPayForm({ paymentMethod: m, paymentDetails: { paymentDate: new Date().toISOString().split('T')[0], chequeDate: m==='Cheque'?new Date().toISOString().split('T')[0]:'' } })}
                                         >
                                             {m === 'Bank Transfer' && <Banknote size={16} />}
                                             {m === 'UPI' && <Send size={16} />}
@@ -776,23 +801,101 @@ const Payroll = () => {
                                     ))}
                                 </div>
                             </div>
-                            <div className="form-group mt-20">
-                                <label>Reference / Notes (Optional)</label>
-                                <input
-                                    type="text"
-                                    placeholder="Bank ref, cheque number, etc."
-                                    value={payForm.bankRef}
-                                    onChange={e => setPayForm({ ...payForm, bankRef: e.target.value })}
-                                />
+
+                            <div className="payment-details-container" style={{background: '#f8fafc', padding: '16px', borderRadius: '12px', border: '1px solid #e2e8f0'}}>
+                                {payForm.paymentMethod === 'UPI' && (
+                                    <div className="form-grid">
+                                        <div className="form-group">
+                                            <label>UPI ID *</label>
+                                            <input type="text" placeholder="e.g. name@upi" value={payForm.paymentDetails?.upiId || ''} onChange={e => setPayForm({...payForm, paymentDetails: {...payForm.paymentDetails, upiId: e.target.value}})} />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Transaction ID *</label>
+                                            <input type="text" placeholder="TXN123456" value={payForm.paymentDetails?.transactionId || ''} onChange={e => setPayForm({...payForm, paymentDetails: {...payForm.paymentDetails, transactionId: e.target.value}})} />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Payment Date *</label>
+                                            <input type="date" value={payForm.paymentDetails?.paymentDate || ''} onChange={e => setPayForm({...payForm, paymentDetails: {...payForm.paymentDetails, paymentDate: e.target.value}})} />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Remarks</label>
+                                            <input type="text" placeholder="Optional" value={payForm.paymentDetails?.remarks || ''} onChange={e => setPayForm({...payForm, paymentDetails: {...payForm.paymentDetails, remarks: e.target.value}})} />
+                                        </div>
+                                    </div>
+                                )}
+                                {payForm.paymentMethod === 'Bank Transfer' && (
+                                    <div className="form-grid">
+                                        <div className="form-group" style={{gridColumn: '1 / -1'}}>
+                                            <label>Bank Name *</label>
+                                            <input type="text" placeholder="HDFC, SBI, etc." value={payForm.paymentDetails?.bankName || ''} onChange={e => setPayForm({...payForm, paymentDetails: {...payForm.paymentDetails, bankName: e.target.value}})} />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Account Number *</label>
+                                            <input type="text" placeholder="Account No" value={payForm.paymentDetails?.accountNumber || ''} onChange={e => setPayForm({...payForm, paymentDetails: {...payForm.paymentDetails, accountNumber: e.target.value}})} />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>IFSC Code *</label>
+                                            <input type="text" placeholder="IFSC" value={payForm.paymentDetails?.ifscCode || ''} onChange={e => setPayForm({...payForm, paymentDetails: {...payForm.paymentDetails, ifscCode: e.target.value}})} />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Transaction Ref *</label>
+                                            <input type="text" placeholder="Ref Number" value={payForm.paymentDetails?.transactionReference || ''} onChange={e => setPayForm({...payForm, paymentDetails: {...payForm.paymentDetails, transactionReference: e.target.value}})} />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Payment Date *</label>
+                                            <input type="date" value={payForm.paymentDetails?.paymentDate || ''} onChange={e => setPayForm({...payForm, paymentDetails: {...payForm.paymentDetails, paymentDate: e.target.value}})} />
+                                        </div>
+                                        <div className="form-group" style={{gridColumn: '1 / -1'}}>
+                                            <label>Remarks</label>
+                                            <input type="text" placeholder="Optional" value={payForm.paymentDetails?.remarks || ''} onChange={e => setPayForm({...payForm, paymentDetails: {...payForm.paymentDetails, remarks: e.target.value}})} />
+                                        </div>
+                                    </div>
+                                )}
+                                {payForm.paymentMethod === 'Cheque' && (
+                                    <div className="form-grid">
+                                        <div className="form-group">
+                                            <label>Cheque Number *</label>
+                                            <input type="text" placeholder="000123" value={payForm.paymentDetails?.chequeNumber || ''} onChange={e => setPayForm({...payForm, paymentDetails: {...payForm.paymentDetails, chequeNumber: e.target.value}})} />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Bank Name *</label>
+                                            <input type="text" placeholder="HDFC, SBI, etc." value={payForm.paymentDetails?.bankName || ''} onChange={e => setPayForm({...payForm, paymentDetails: {...payForm.paymentDetails, bankName: e.target.value}})} />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Cheque Date *</label>
+                                            <input type="date" value={payForm.paymentDetails?.chequeDate || ''} onChange={e => setPayForm({...payForm, paymentDetails: {...payForm.paymentDetails, chequeDate: e.target.value}})} />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Remarks</label>
+                                            <input type="text" placeholder="Optional" value={payForm.paymentDetails?.remarks || ''} onChange={e => setPayForm({...payForm, paymentDetails: {...payForm.paymentDetails, remarks: e.target.value}})} />
+                                        </div>
+                                    </div>
+                                )}
+                                {payForm.paymentMethod === 'Cash' && (
+                                    <div className="form-grid">
+                                        <div className="form-group">
+                                            <label>Received By *</label>
+                                            <input type="text" placeholder="Person receiving cash" value={payForm.paymentDetails?.receivedBy || ''} onChange={e => setPayForm({...payForm, paymentDetails: {...payForm.paymentDetails, receivedBy: e.target.value}})} />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Payment Date *</label>
+                                            <input type="date" value={payForm.paymentDetails?.paymentDate || ''} onChange={e => setPayForm({...payForm, paymentDetails: {...payForm.paymentDetails, paymentDate: e.target.value}})} />
+                                        </div>
+                                        <div className="form-group" style={{gridColumn: '1 / -1'}}>
+                                            <label>Remarks</label>
+                                            <input type="text" placeholder="Optional" value={payForm.paymentDetails?.remarks || ''} onChange={e => setPayForm({...payForm, paymentDetails: {...payForm.paymentDetails, remarks: e.target.value}})} />
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
-                        <div className="modal-footer">
+                        <div className="modal-footer" style={{justifyContent: 'flex-end', gap: '12px', background: '#f8fafc', borderTop: '1px solid #e2e8f0'}}>
                             <button className="btn-cancel" onClick={() => setShowPayModal(false)}>Cancel</button>
-                            <button className="btn-pay-confirm" onClick={handlePaySalary} disabled={paying}>
+                            <button className="btn-pay-confirm" onClick={handlePaySalary} disabled={paying || !isPayFormValid()} style={{background: !isPayFormValid() ? '#94a3b8' : '#10b981', borderColor: !isPayFormValid() ? '#94a3b8' : '#10b981', color: '#fff', padding: '0 20px', display: 'inline-flex', alignItems: 'center', gap: '8px', cursor: !isPayFormValid() ? 'not-allowed' : 'pointer'}}>
                                 {paying ? (
                                     <><Loader size={16} className="spin-icon" /> Processing...</>
                                 ) : (
-                                    <><CreditCard size={16} /> Confirm & Pay ₹{(selectedSalary.netSalary || 0).toLocaleString()}</>
+                                    <><CreditCard size={16} /> Confirm Payment</>
                                 )}
                             </button>
                         </div>
@@ -973,6 +1076,79 @@ const Payroll = () => {
                                 )}
                             </div>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* EDIT MODAL */}
+            {showEditModal && selectedSalary && (
+                <div className="modal-overlay" onClick={() => setShowEditModal(false)}>
+                    <div className="glass-card modal-content animate-pop" onClick={e => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <div className="flex-center gap-10">
+                                <Pencil className="text-primary" size={20} />
+                                <h3>Edit Salary Record</h3>
+                            </div>
+                            <button className="close-btn" onClick={() => setShowEditModal(false)}>✕</button>
+                        </div>
+                        <form onSubmit={handleUpdateSalary}>
+                            <div className="p-30">
+                                <div className="form-grid">
+                                    <div className="form-group">
+                                        <label>Employee Name</label>
+                                        <input type="text" value={selectedSalary.employee ? `${selectedSalary.employee.firstName || ''} ${selectedSalary.employee.lastName || ''}`.trim() : 'Employee'} disabled style={{background: '#f8fafc', color: '#64748b'}} />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Department</label>
+                                        <input type="text" value={selectedSalary.employee?.department || 'N/A'} disabled style={{background: '#f8fafc', color: '#64748b'}} />
+                                    </div>
+                                </div>
+                                <div className="form-grid mt-20">
+                                    <div className="form-group">
+                                        <label>Month</label>
+                                        <input type="text" value={selectedSalary.month} disabled style={{background: '#f8fafc', color: '#64748b'}} />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Status</label>
+                                        <select value={editForm.status} onChange={e => setEditForm({...editForm, status: e.target.value})}>
+                                            <option value="Pending">Pending</option>
+                                            <option value="Awaiting Approval">Awaiting Approval</option>
+                                            <option value="Approved">Approved</option>
+                                            <option value="Ready To Pay">Ready To Pay</option>
+                                            <option value="Rejected">Rejected</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div className="form-grid mt-20">
+                                    <div className="form-group">
+                                        <label>Basic Salary (₹)</label>
+                                        <input type="number" required value={editForm.basicSalary} onChange={e => setEditForm({...editForm, basicSalary: Number(e.target.value)})} />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Allowances (₹)</label>
+                                        <input type="number" value={editForm.allowances} onChange={e => setEditForm({...editForm, allowances: Number(e.target.value)})} />
+                                    </div>
+                                </div>
+                                <div className="form-grid mt-20">
+                                    <div className="form-group">
+                                        <label>Deductions (₹)</label>
+                                        <input type="number" value={editForm.deductions} onChange={e => setEditForm({...editForm, deductions: Number(e.target.value)})} />
+                                    </div>
+                                    <div className="form-group" style={{background: '#f0fdf4', padding: '12px 16px', borderRadius: '8px', border: '1px solid #bbf7d0'}}>
+                                        <label style={{color: '#16a34a', margin: '0 0 4px', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px'}}>Calculated Net Pay</label>
+                                        <div style={{fontSize: '20px', fontWeight: 700, color: '#15803d'}}>
+                                            ₹{((Number(editForm.basicSalary) || 0) + (Number(editForm.allowances) || 0) - (Number(editForm.deductions) || 0)).toLocaleString()}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="modal-actions mt-10 p-20" style={{borderTop: '1px solid #f1f5f9'}}>
+                                <button type="button" className="btn-cancel" onClick={() => setShowEditModal(false)}>Cancel</button>
+                                <button type="submit" className="btn-primary" disabled={submitting}>
+                                    {submitting ? 'Saving...' : 'Save Changes'}
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             )}

@@ -47,6 +47,14 @@ const SalarySequelize = sequelize.define('Salary', {
     paidBy: {
         type: DataTypes.INTEGER,
         allowNull: true
+    },
+    paymentMethod: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    paymentDetails: {
+        type: DataTypes.JSON,
+        allowNull: true
     }
 });
 
