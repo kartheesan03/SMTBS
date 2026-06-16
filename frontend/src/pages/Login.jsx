@@ -211,24 +211,25 @@ const Login = () => {
                 .brand-panel {
                     height: 100vh;
                     background-color: #080D22;
-                    padding: 36px 64px;
+                    padding: 24px 48px;
                     display: flex;
                     flex-direction: column;
                     justify-content: center;
                     color: #FFFFFF;
                     box-sizing: border-box;
+                    overflow: hidden;
                 }
 
                 .brand-header {
                     display: flex;
                     align-items: center;
                     gap: 12px;
-                    margin-bottom: 72px;
+                    margin-bottom: 32px;
                 }
 
                 .logo-icon {
-                    width: 40px;
-                    height: 40px;
+                    width: 36px;
+                    height: 36px;
                     background: #6366F1;
                     border-radius: 10px;
                     display: flex;
@@ -237,7 +238,7 @@ const Login = () => {
                 }
 
                 .logo-text {
-                    font-size: 24px;
+                    font-size: 22px;
                     font-weight: 800;
                     letter-spacing: 0.5px;
                 }
@@ -248,42 +249,42 @@ const Login = () => {
                 }
 
                 .brand-title {
-                    font-size: 36px;
+                    font-size: clamp(1.5rem, 3vw, 2.25rem);
                     font-weight: 800;
-                    line-height: 1.15;
+                    line-height: 1.2;
                     max-width: 650px;
-                    margin: 0 0 20px 0;
+                    margin: 0 0 12px 0;
                     letter-spacing: -0.5px;
                 }
 
                 .brand-desc {
-                    font-size: 17px;
+                    font-size: 15px;
                     color: #94A3B8;
-                    line-height: 1.6;
+                    line-height: 1.5;
                     max-width: 90%;
-                    margin-top: 22px;
-                    margin-bottom: 48px;
+                    margin-top: 10px;
+                    margin-bottom: 24px;
                 }
 
                 .erp-illustration {
                     display: flex;
                     flex-wrap: nowrap;
-                    gap: 16px;
-                    margin-top: 60px;
+                    gap: 12px;
+                    margin-top: 24px;
                 }
 
                 .icon-badge {
                     background: #151B32;
                     border: 1px solid #1F2947;
                     border-radius: 12px;
-                    padding: 20px 16px;
+                    padding: 14px 10px;
                     display: flex;
                     flex-direction: column;
                     align-items: center;
                     justify-content: center;
-                    gap: 12px;
-                    width: 104px;
-                    height: 104px;
+                    gap: 8px;
+                    width: 90px;
+                    height: 90px;
                     box-sizing: border-box;
                     transition: transform 0.3s ease;
                 }
@@ -294,7 +295,7 @@ const Login = () => {
                 }
 
                 .icon-badge span {
-                    font-size: 13px;
+                    font-size: 11px;
                     font-weight: 600;
                     color: #E2E8F0;
                 }
@@ -303,7 +304,7 @@ const Login = () => {
                 .login-panel {
                     height: 100vh;
                     background-color: #FFFFFF;
-                    padding: 14px 56px 24px 56px;
+                    padding: 24px 48px;
                     display: flex;
                     flex-direction: column;
                     align-items: center;
@@ -314,23 +315,22 @@ const Login = () => {
 
                 .login-form-container {
                     width: 100%;
-                    max-width: 470px;
+                    max-width: 440px;
                     margin: 0;
                     padding: 0;
                     display: flex;
                     flex-direction: column;
-                    transform: translateY(-5px);
                 }
 
                 .login-header {
-                    margin-bottom: 36px;
+                    margin-bottom: 20px;
                 }
 
                 .login-logo-mobile {
                     display: none;
                     align-items: center;
                     gap: 10px;
-                    margin-bottom: 24px;
+                    margin-bottom: 16px;
                 }
 
                 .logo-icon-dark {
@@ -350,16 +350,16 @@ const Login = () => {
                 }
 
                 .welcome-title {
-                    font-size: 30px;
+                    font-size: 26px;
                     font-weight: 800;
                     color: #0B1026;
-                    margin: 0 0 6px 0;
+                    margin: 0 0 4px 0;
                 }
 
                 .welcome-subtitle {
-                    font-size: 15px;
+                    font-size: 14px;
                     color: #64748B;
-                    margin: 0 0 18px 0;
+                    margin: 0;
                 }
 
                 .error-alert {
@@ -368,31 +368,30 @@ const Login = () => {
                     background: #FEF2F2;
                     border: 1px solid #FECACA;
                     color: #DC2626;
-                    padding: 12px 16px;
-                    border-radius: 12px;
-                    font-size: 14px;
+                    padding: 10px 14px;
+                    border-radius: 10px;
+                    font-size: 13px;
                     font-weight: 500;
-                    margin-bottom: 32px;
+                    margin-bottom: 16px;
                 }
 
                 .login-form {
                     display: flex;
                     flex-direction: column;
-                    flex: 1;
                 }
 
                 .input-group {
-                    margin-bottom: 12px;
+                    margin-bottom: 10px;
                 }
 
                 .input-group label {
                     display: flex;
                     align-items: center;
                     gap: 8px;
-                    font-size: 14px;
+                    font-size: 13px;
                     font-weight: 600;
                     color: #334155;
-                    margin-bottom: 8px;
+                    margin-bottom: 6px;
                 }
 
                 .label-icon {
@@ -401,13 +400,13 @@ const Login = () => {
 
                 .input-group input {
                     width: 100%;
-                    height: 48px;
-                    padding: 0 16px;
+                    height: 44px;
+                    padding: 0 14px;
                     box-sizing: border-box;
                     background: #F8FAFC;
                     border: 1px solid #E2E8F0;
-                    border-radius: 14px;
-                    font-size: 15px;
+                    border-radius: 12px;
+                    font-size: 14px;
                     color: #0F172A;
                     transition: all 0.2s ease;
                 }
@@ -415,7 +414,7 @@ const Login = () => {
                 .input-group input:focus {
                     background: #FFFFFF;
                     border-color: #6366F1;
-                    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+                    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
                     outline: none;
                 }
 
@@ -429,7 +428,7 @@ const Login = () => {
 
                 .password-toggle {
                     position: absolute;
-                    right: 16px;
+                    right: 14px;
                     top: 50%;
                     transform: translateY(-50%);
                     background: none;
@@ -450,14 +449,14 @@ const Login = () => {
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
-                    margin: 12px 0 20px 0;
+                    margin: 8px 0 14px 0;
                 }
 
                 .remember-me {
                     display: flex;
                     align-items: center;
                     gap: 8px;
-                    font-size: 14px;
+                    font-size: 13px;
                     font-weight: 500;
                     color: #475569;
                     cursor: pointer;
@@ -468,8 +467,8 @@ const Login = () => {
                 }
 
                 .checkmark {
-                    width: 18px;
-                    height: 18px;
+                    width: 16px;
+                    height: 16px;
                     border: 1.5px solid #CBD5E1;
                     border-radius: 4px;
                     position: relative;
@@ -488,8 +487,8 @@ const Login = () => {
                 .remember-me input:checked + .checkmark::after {
                     content: '';
                     position: absolute;
-                    left: 5px;
-                    top: 2px;
+                    left: 4px;
+                    top: 1px;
                     width: 4px;
                     height: 8px;
                     border: solid white;
@@ -501,7 +500,7 @@ const Login = () => {
                     background: none;
                     border: none;
                     padding: 0;
-                    font-size: 14px;
+                    font-size: 13px;
                     font-weight: 600;
                     color: #6366F1;
                     cursor: pointer;
@@ -518,12 +517,12 @@ const Login = () => {
                     background: #0B1026;
                     color: #FFFFFF;
                     border: none;
-                    height: 54px;
-                    border-radius: 14px;
-                    font-size: 16px;
+                    height: 46px;
+                    border-radius: 12px;
+                    font-size: 15px;
                     font-weight: 600;
                     cursor: pointer;
-                    margin-bottom: 22px;
+                    margin-bottom: 14px;
                     transition: all 0.3s ease;
                 }
 
@@ -543,8 +542,8 @@ const Login = () => {
                     align-items: center;
                     text-align: center;
                     color: #94a3b8;
-                    font-size: 13px;
-                    margin: 14px 0;
+                    font-size: 12px;
+                    margin: 8px 0;
                 }
 
                 .divider::before, .divider::after {
@@ -562,13 +561,14 @@ const Login = () => {
                     justify-content: center;
                     align-items: center;
                     width: 100%;
+                    margin: 4px 0;
                 }
 
                 .signup-link-wrapper {
                     text-align: center;
-                    margin-top: 8px;
+                    margin-top: 10px;
                     margin-bottom: 0;
-                    font-size: 14px;
+                    font-size: 13px;
                     color: #64748B;
                 }
 
@@ -584,30 +584,18 @@ const Login = () => {
                     text-decoration: underline;
                 }
 
-                .login-footer {
-                    text-align: center;
-                    margin-top: 40px;
-                }
-
-                .login-footer p {
-                    font-size: 13px;
-                    color: #94A3B8;
-                    font-weight: 500;
-                    margin: 0;
-                }
-
                 .google-auth-btn {
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     gap: 12px;
-                    width: 380px;
-                    height: 48px;
+                    width: 100%;
+                    max-width: 300px;
+                    height: 44px;
                     margin: 0 auto;
-                    margin-bottom: 16px;
                     background: #FFFFFF;
                     border: 1px solid #DADCE0;
-                    border-radius: 12px;
+                    border-radius: 10px;
                     font-family: 'Roboto', 'Inter', sans-serif;
                     font-size: 14px;
                     font-weight: 500;
@@ -630,13 +618,19 @@ const Login = () => {
                         min-height: 100vh;
                     }
                     .split-card {
+                        display: flex;
                         flex-direction: column;
                         height: auto;
                     }
-                    .brand-panel, .login-panel {
-                        flex: none;
+                    .brand-panel {
+                        height: auto;
                         width: 100%;
-                        padding: 40px;
+                        padding: 32px;
+                    }
+                    .login-panel {
+                        height: auto;
+                        width: 100%;
+                        padding: 32px;
                     }
                     .login-logo-mobile {
                         display: flex;
@@ -654,19 +648,19 @@ const Login = () => {
 
                 @media (max-width: 480px) {
                     .brand-panel {
-                        padding: 32px 24px;
+                        padding: 24px 20px;
                     }
                     .login-panel {
-                        padding: 32px 24px;
+                        padding: 24px 20px;
                     }
                     .brand-title {
-                        font-size: 28px;
+                        font-size: 1.5rem;
                     }
                     .erp-illustration {
+                        flex-wrap: wrap;
                         justify-content: center;
                     }
                 }
-
             `}</style>
         </div>
     );
