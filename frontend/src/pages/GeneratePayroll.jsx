@@ -29,10 +29,11 @@ const GeneratePayroll = () => {
         const fetchEmployees = async () => {
             try {
                 const { data } = await API.get('/employees');
-                setEmployees(data);
+                setEmployees(Array.isArray(data) ? data : (data?.employees || []));
             } catch (err) {
-                console.error(err);
-                showToast('Failed to load employees', false);
+                console.error('Fetch Employees Error:', err);
+                showToast(err.response?.data?.message || 'Failed to load employees', false);
+                setEmployees([]);
             } finally {
                 setLoading(false);
             }
@@ -130,11 +131,15 @@ const GeneratePayroll = () => {
                                 }}
                             >
                                 <option value="">Choose...</option>
-                                {employees.map(emp => (
-                                    <option key={emp._id || emp.id} value={emp._id || emp.id}>
-                                        {emp.firstName} {emp.lastName || ''} ({emp.department})
-                                    </option>
-                                ))}
+                                {employees.length === 0 ? (
+                                    <option value="" disabled>No employees available</option>
+                                ) : (
+                                    employees.map(emp => (
+                                        <option key={emp._id || emp.id} value={emp._id || emp.id}>
+                                            {emp.firstName} {emp.lastName || ''} - {emp.employeeId || 'No ID'}
+                                        </option>
+                                    ))
+                                )}
                             </select>
                         </div>
 
@@ -235,7 +240,7 @@ const GeneratePayroll = () => {
                             <button 
                                 type="submit" 
                                 className="btn-primary" 
-                                disabled={submitting}
+                                disabled={submitting || !formData.employeeId}
                                 style={{ padding: '10px 24px', fontSize: '14px', fontWeight: 600 }}
                             >
                                 {submitting ? 'Processing...' : 'Submit'}
