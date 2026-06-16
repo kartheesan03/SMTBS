@@ -11,6 +11,9 @@ const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [showRoleModal, setShowRoleModal] = useState(false);
+    const [googleCredential, setGoogleCredential] = useState(null);
+    const [googleUserInfo, setGoogleUserInfo] = useState({ email: '', name: '' });
     const { login } = useContext(AuthContext);
     const navigate = useNavigate();
 
@@ -39,17 +42,31 @@ const Login = () => {
         setError('');
         try {
             let response;
+            let credentialValue;
             if (credentialResponse.isMock) {
-                // Mock Google login is only for local testing. Disable before production.
+                credentialValue = 'mock_google_token';
                 response = await API.post('/auth/google', { 
                     credential: 'mock_google_token',
                     mockEmail: credentialResponse.email || 'mockuser@example.com',
                     mockName: credentialResponse.name || 'Mock User'
                 });
             } else {
+                credentialValue = credentialResponse.access_token;
                 response = await API.post('/auth/google', { 
                     credential: credentialResponse.access_token
                 });
+            }
+
+            // Check if backend says this is a new user needing role selection
+            if (response.data.needsRoleSelection) {
+                setGoogleCredential(credentialValue);
+                setGoogleUserInfo({ 
+                    email: response.data.googleEmail || credentialResponse.email || '', 
+                    name: response.data.googleName || credentialResponse.name || '' 
+                });
+                setShowRoleModal(true);
+                setIsLoading(false);
+                return;
             }
             
             login(response.data);
@@ -67,6 +84,32 @@ const Login = () => {
             } else {
                 setError(msg || 'Google Login failed');
             }
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleRoleSelect = async (selectedRole) => {
+        setIsLoading(true);
+        setError('');
+        try {
+            const payload = { credential: googleCredential, signupRole: selectedRole };
+            // Re-attach mock fields if it was a mock credential
+            if (googleCredential === 'mock_google_token') {
+                payload.mockEmail = googleUserInfo.email || 'mockuser@example.com';
+                payload.mockName = googleUserInfo.name || 'Mock User';
+            }
+            const { data } = await API.post('/auth/google', payload);
+            setShowRoleModal(false);
+            login(data);
+            if (data.isProfileComplete === false) {
+                navigate(data.role === 'Customer' ? '/complete-customer-profile' : '/complete-vendor-profile');
+            } else {
+                navigate('/');
+            }
+        } catch (err) {
+            setError(err.response?.data?.message || 'Account creation failed');
+            setShowRoleModal(false);
         } finally {
             setIsLoading(false);
         }
@@ -196,15 +239,31 @@ const Login = () => {
                         </div>
                         
                         <div className="google-btn-wrapper">
-                            <button type="button" className="google-auth-btn single-google-btn" onClick={() => loginGoogle()}>
-                                <svg viewBox="0 0 24 24" width="20" height="20" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-                                </svg>
-                                <span>Sign in with Google</span>
-                            </button>
+                            {import.meta.env.VITE_ENABLE_MOCK_GOOGLE === 'true' ? (
+                                <button 
+                                    type="button" 
+                                    className="google-auth-btn single-google-btn"
+                                    onClick={() => handleGoogleSuccess({ isMock: true, email: 'kumaresankartheesan@gmail.com', name: 'Kartheesan' })}
+                                >
+                                    <svg viewBox="0 0 24 24" width="20" height="20" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                                    </svg>
+                                    <span>Sign in with Google</span>
+                                </button>
+                            ) : (
+                                <button type="button" className="google-auth-btn single-google-btn" onClick={() => loginGoogle()}>
+                                    <svg viewBox="0 0 24 24" width="20" height="20" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                                    </svg>
+                                    <span>Sign in with Google</span>
+                                </button>
+                            )}
                         </div>
 
                         <div className="signup-link-wrapper">
@@ -216,6 +275,42 @@ const Login = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Role Selection Modal for new Google users */}
+            {showRoleModal && (
+                <div className="role-modal-overlay" onClick={() => setShowRoleModal(false)}>
+                    <div className="role-modal" onClick={e => e.stopPropagation()}>
+                        <div className="role-modal-header">
+                            <h3>Welcome to SMTBMS</h3>
+                            <p>Select your account type to continue{googleUserInfo.name ? `, ${googleUserInfo.name}` : ''}</p>
+                        </div>
+                        <div className="role-modal-body">
+                            <button className="role-option" onClick={() => handleRoleSelect('Customer')} disabled={isLoading}>
+                                <div className="role-option-icon" style={{ background: '#eff6ff', color: '#3b82f6' }}>
+                                    <ShoppingCart size={24} />
+                                </div>
+                                <div className="role-option-info">
+                                    <strong>Customer</strong>
+                                    <span>Place orders, track deliveries, and manage purchases</span>
+                                </div>
+                            </button>
+                            <button className="role-option" onClick={() => handleRoleSelect('Vendor/Supplier')} disabled={isLoading}>
+                                <div className="role-option-icon" style={{ background: '#f0fdf4', color: '#10b981' }}>
+                                    <Truck size={24} />
+                                </div>
+                                <div className="role-option-info">
+                                    <strong>Vendor / Supplier</strong>
+                                    <span>Supply materials, manage inventory, and fulfill orders</span>
+                                </div>
+                            </button>
+                        </div>
+                        {isLoading && <div style={{ textAlign: 'center', padding: '12px 0', color: '#64748b', fontSize: '13px' }}>Creating your account...</div>}
+                        <div className="role-modal-footer">
+                            <button className="role-cancel-btn" onClick={() => setShowRoleModal(false)}>Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <style jsx="true">{`
                 .login-wrapper {
@@ -693,6 +788,137 @@ const Login = () => {
                     .erp-illustration {
                         justify-content: center;
                     }
+                }
+                .role-modal-overlay {
+                    position: fixed;
+                    top: 0; left: 0; right: 0; bottom: 0;
+                    background: rgba(15, 23, 42, 0.6);
+                    backdrop-filter: blur(4px);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 10000;
+                    animation: fadeIn 0.2s ease;
+                }
+
+                .role-modal {
+                    background: #fff;
+                    border-radius: 20px;
+                    width: 440px;
+                    max-width: 95vw;
+                    box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+                    overflow: hidden;
+                    animation: slideUp 0.3s ease;
+                }
+
+                .role-modal-header {
+                    padding: 28px 28px 8px;
+                    text-align: center;
+                }
+
+                .role-modal-header h3 {
+                    font-size: 22px;
+                    font-weight: 800;
+                    color: #0f172a;
+                    margin: 0 0 6px 0;
+                }
+
+                .role-modal-header p {
+                    font-size: 14px;
+                    color: #64748b;
+                    margin: 0;
+                }
+
+                .role-modal-body {
+                    padding: 20px 28px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 12px;
+                }
+
+                .role-option {
+                    display: flex;
+                    align-items: center;
+                    gap: 16px;
+                    padding: 16px;
+                    border: 2px solid #e2e8f0;
+                    border-radius: 14px;
+                    background: #fff;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                    text-align: left;
+                }
+
+                .role-option:hover:not(:disabled) {
+                    border-color: #6366f1;
+                    background: #f8faff;
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
+                }
+
+                .role-option:disabled {
+                    opacity: 0.6;
+                    cursor: not-allowed;
+                }
+
+                .role-option-icon {
+                    width: 48px;
+                    height: 48px;
+                    border-radius: 12px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex-shrink: 0;
+                }
+
+                .role-option-info {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 2px;
+                }
+
+                .role-option-info strong {
+                    font-size: 15px;
+                    font-weight: 700;
+                    color: #0f172a;
+                }
+
+                .role-option-info span {
+                    font-size: 13px;
+                    color: #64748b;
+                    line-height: 1.4;
+                }
+
+                .role-modal-footer {
+                    padding: 12px 28px 20px;
+                    text-align: center;
+                }
+
+                .role-cancel-btn {
+                    background: none;
+                    border: none;
+                    color: #94a3b8;
+                    font-size: 14px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    padding: 8px 20px;
+                    border-radius: 8px;
+                    transition: all 0.2s;
+                }
+
+                .role-cancel-btn:hover {
+                    color: #475569;
+                    background: #f1f5f9;
+                }
+
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+
+                @keyframes slideUp {
+                    from { opacity: 0; transform: translateY(20px); }
+                    to { opacity: 1; transform: translateY(0); }
                 }
             `}</style>
         </div>

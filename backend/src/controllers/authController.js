@@ -174,7 +174,13 @@ const googleAuth = async (req, res) => {
         } else {
             // User does not exist.
             if (!signupRole) {
-                return res.status(400).json({ message: 'Role selection is required for new users.' });
+                // Return a flag so the frontend can show a role selection modal
+                return res.status(200).json({ 
+                    needsRoleSelection: true, 
+                    googleEmail: email, 
+                    googleName: name,
+                    message: 'Please select your account type to continue.' 
+                });
             }
 
             // Create the new user
