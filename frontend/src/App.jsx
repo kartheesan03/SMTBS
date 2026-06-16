@@ -37,6 +37,7 @@ import MyTasks from './pages/MyTasks';
 import MyAttendance from './pages/MyAttendance';
 import GeneratePayroll from './pages/GeneratePayroll';
 import PayrollPayment from './pages/PayrollPayment';
+import Payslips from './pages/Payslips';
 import LeaveManagement from './pages/LeaveManagement';
 import MySalaryPage from './pages/MySalary';
 import Customers from './pages/Customers';
@@ -131,6 +132,7 @@ const AppContent = () => {
                     <Route path="/payroll" element={<ProtectedRoute allowedRoles={['Admin', 'HR', 'Manager']}><Payroll /></ProtectedRoute>} />
                     <Route path="/payroll/generate" element={<ProtectedRoute allowedRoles={['Admin', 'HR', 'Manager']}><GeneratePayroll /></ProtectedRoute>} />
                     <Route path="/payroll/payment/:id" element={<ProtectedRoute allowedRoles={['Admin', 'HR', 'Manager']}><PayrollPayment /></ProtectedRoute>} />
+                    <Route path="/payslips" element={<ProtectedRoute allowedRoles={['Admin', 'HR', 'Manager']}><Payslips /></ProtectedRoute>} />
                     <Route path="/attendance" element={<ProtectedRoute allowedRoles={['Admin', 'HR', 'Manager']}><Attendance /></ProtectedRoute>} />
                     <Route path="/hr-reports" element={<ProtectedRoute allowedRoles={['Admin', 'HR']}><HRReports /></ProtectedRoute>} />
                     <Route path="/team-performance" element={<ProtectedRoute allowedRoles={['Admin', 'Manager']}><TeamPerformance /></ProtectedRoute>} />

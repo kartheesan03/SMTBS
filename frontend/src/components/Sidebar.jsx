@@ -23,7 +23,8 @@ import {
     ChevronRight,
     Activity,
     ClipboardList,
-    FolderKanban
+    FolderKanban,
+    FileText
 } from 'lucide-react';
 
 const Sidebar = ({ logout, isOpen, onClose }) => {
@@ -47,6 +48,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
         { path: '/hrms', name: 'HRMS', icon: <Briefcase size={18} /> },
         { path: '/leave-management', name: 'Leave Mgmt', icon: <Calendar size={18} /> },
         { path: '/payroll', name: 'Payroll', icon: <DollarSign size={18} /> },
+        { path: '/payslips', name: 'Payslips', icon: <FileText size={18} /> },
         { path: '/erp', name: 'ERP System', icon: <FolderKanban size={18} /> },
         { path: '/materials', name: 'Material Tracking', icon: <Package size={18} /> },
         { path: '/vendors', name: 'Suppliers', icon: <Truck size={18} /> },
@@ -75,6 +77,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
         { path: '/attendance', name: 'Master Attendance', icon: <Activity size={18} /> },
         { path: '/leave-management', name: 'Leave Mgmt', icon: <Calendar size={18} /> },
         { path: '/payroll', name: 'Payroll', icon: <DollarSign size={18} /> },
+        { path: '/payslips', name: 'Payslips', icon: <FileText size={18} /> },
         { path: '/erp', name: 'ERP Orders', icon: <ShoppingCart size={18} /> },
         { path: '/notifications', name: 'Notifications', icon: <Bell size={18} /> },
         { path: '/hr-reports', name: 'Reports', icon: <BarChart3 size={18} /> },
@@ -85,6 +88,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
         { path: '/my-attendance', name: 'My Attendance', icon: <CheckCircle size={18} /> },
         { path: '/attendance', name: 'Master Attendance', icon: <Users size={18} /> },
         { path: '/payroll', name: 'Payroll', icon: <DollarSign size={18} /> },
+        { path: '/payslips', name: 'Payslips', icon: <FileText size={18} /> },
         { path: '/erp', name: 'Projects / ERP', icon: <FolderKanban size={18} /> },
         { path: '/my-tasks', name: 'Tasks', icon: <ClipboardList size={18} /> },
         { path: '/team-performance', name: 'Team Performance', icon: <TrendingUp size={18} /> },
