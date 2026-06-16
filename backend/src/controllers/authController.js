@@ -172,27 +172,16 @@ const googleAuth = async (req, res) => {
                 }
             });
         } else {
-            // User does not exist.
-            if (!signupRole) {
-                // Return a flag so the frontend can show a role selection modal
-                return res.status(200).json({ 
-                    needsRoleSelection: true, 
-                    googleEmail: email, 
-                    googleName: name,
-                    message: 'Please select your account type to continue.' 
-                });
-            }
-
-            // Create the new user
-            const actualRole = signupRole === 'Vendor/Supplier' ? 'Vendor' : signupRole;
+            // User does not exist — auto-create as Customer (default) or use signupRole if provided
+            const actualRole = signupRole 
+                ? (signupRole === 'Vendor/Supplier' ? 'Vendor' : signupRole) 
+                : 'Customer';
             
             // SECURITY: Only allow external roles to be created via Google Sign-Up
             if (actualRole !== 'Customer' && actualRole !== 'Vendor') {
                 return res.status(403).json({ message: 'Only Customer and Vendor accounts can be created via Google Sign-In.' });
             }
 
-            const isCustomerOrVendor = actualRole === 'Customer' || actualRole === 'Vendor';
-            
             // Generate a secure random dummy password for Google users to bypass SQLite NOT NULL constraint
             const crypto = require('crypto');
             const dummyPassword = crypto.randomBytes(32).toString('hex');
@@ -202,8 +191,8 @@ const googleAuth = async (req, res) => {
                 email,
                 googleId,
                 role: actualRole,
-                password: dummyPassword, // explicitly provide dummy password to pass validation
-                isProfileComplete: !isCustomerOrVendor // Profile is incomplete only for customer/vendor
+                password: dummyPassword,
+                isProfileComplete: false
             });
 
             // Automatically create empty profile

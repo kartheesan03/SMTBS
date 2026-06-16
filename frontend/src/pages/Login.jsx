@@ -11,9 +11,6 @@ const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [showRoleModal, setShowRoleModal] = useState(false);
-    const [googleCredential, setGoogleCredential] = useState(null);
-    const [googleUserInfo, setGoogleUserInfo] = useState({ email: '', name: '' });
     const { login } = useContext(AuthContext);
     const navigate = useNavigate();
 
@@ -42,31 +39,16 @@ const Login = () => {
         setError('');
         try {
             let response;
-            let credentialValue;
             if (credentialResponse.isMock) {
-                credentialValue = 'mock_google_token';
                 response = await API.post('/auth/google', { 
                     credential: 'mock_google_token',
                     mockEmail: credentialResponse.email || 'mockuser@example.com',
                     mockName: credentialResponse.name || 'Mock User'
                 });
             } else {
-                credentialValue = credentialResponse.access_token;
                 response = await API.post('/auth/google', { 
                     credential: credentialResponse.access_token
                 });
-            }
-
-            // Check if backend says this is a new user needing role selection
-            if (response.data.needsRoleSelection) {
-                setGoogleCredential(credentialValue);
-                setGoogleUserInfo({ 
-                    email: response.data.googleEmail || credentialResponse.email || '', 
-                    name: response.data.googleName || credentialResponse.name || '' 
-                });
-                setShowRoleModal(true);
-                setIsLoading(false);
-                return;
             }
             
             login(response.data);
@@ -84,32 +66,6 @@ const Login = () => {
             } else {
                 setError(msg || 'Google Login failed');
             }
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const handleRoleSelect = async (selectedRole) => {
-        setIsLoading(true);
-        setError('');
-        try {
-            const payload = { credential: googleCredential, signupRole: selectedRole };
-            // Re-attach mock fields if it was a mock credential
-            if (googleCredential === 'mock_google_token') {
-                payload.mockEmail = googleUserInfo.email || 'mockuser@example.com';
-                payload.mockName = googleUserInfo.name || 'Mock User';
-            }
-            const { data } = await API.post('/auth/google', payload);
-            setShowRoleModal(false);
-            login(data);
-            if (data.isProfileComplete === false) {
-                navigate(data.role === 'Customer' ? '/complete-customer-profile' : '/complete-vendor-profile');
-            } else {
-                navigate('/');
-            }
-        } catch (err) {
-            setError(err.response?.data?.message || 'Account creation failed');
-            setShowRoleModal(false);
         } finally {
             setIsLoading(false);
         }
@@ -276,41 +232,7 @@ const Login = () => {
                 </div>
             </div>
 
-            {/* Role Selection Modal for new Google users */}
-            {showRoleModal && (
-                <div className="role-modal-overlay" onClick={() => setShowRoleModal(false)}>
-                    <div className="role-modal" onClick={e => e.stopPropagation()}>
-                        <div className="role-modal-header">
-                            <h3>Welcome to SMTBMS</h3>
-                            <p>Select your account type to continue{googleUserInfo.name ? `, ${googleUserInfo.name}` : ''}</p>
-                        </div>
-                        <div className="role-modal-body">
-                            <button className="role-option" onClick={() => handleRoleSelect('Customer')} disabled={isLoading}>
-                                <div className="role-option-icon" style={{ background: '#eff6ff', color: '#3b82f6' }}>
-                                    <ShoppingCart size={24} />
-                                </div>
-                                <div className="role-option-info">
-                                    <strong>Customer</strong>
-                                    <span>Place orders, track deliveries, and manage purchases</span>
-                                </div>
-                            </button>
-                            <button className="role-option" onClick={() => handleRoleSelect('Vendor/Supplier')} disabled={isLoading}>
-                                <div className="role-option-icon" style={{ background: '#f0fdf4', color: '#10b981' }}>
-                                    <Truck size={24} />
-                                </div>
-                                <div className="role-option-info">
-                                    <strong>Vendor / Supplier</strong>
-                                    <span>Supply materials, manage inventory, and fulfill orders</span>
-                                </div>
-                            </button>
-                        </div>
-                        {isLoading && <div style={{ textAlign: 'center', padding: '12px 0', color: '#64748b', fontSize: '13px' }}>Creating your account...</div>}
-                        <div className="role-modal-footer">
-                            <button className="role-cancel-btn" onClick={() => setShowRoleModal(false)}>Cancel</button>
-                        </div>
-                    </div>
-                </div>
-            )}
+
 
             <style jsx="true">{`
                 .login-wrapper {
@@ -789,137 +711,7 @@ const Login = () => {
                         justify-content: center;
                     }
                 }
-                .role-modal-overlay {
-                    position: fixed;
-                    top: 0; left: 0; right: 0; bottom: 0;
-                    background: rgba(15, 23, 42, 0.6);
-                    backdrop-filter: blur(4px);
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    z-index: 10000;
-                    animation: fadeIn 0.2s ease;
-                }
 
-                .role-modal {
-                    background: #fff;
-                    border-radius: 20px;
-                    width: 440px;
-                    max-width: 95vw;
-                    box-shadow: 0 25px 50px rgba(0,0,0,0.25);
-                    overflow: hidden;
-                    animation: slideUp 0.3s ease;
-                }
-
-                .role-modal-header {
-                    padding: 28px 28px 8px;
-                    text-align: center;
-                }
-
-                .role-modal-header h3 {
-                    font-size: 22px;
-                    font-weight: 800;
-                    color: #0f172a;
-                    margin: 0 0 6px 0;
-                }
-
-                .role-modal-header p {
-                    font-size: 14px;
-                    color: #64748b;
-                    margin: 0;
-                }
-
-                .role-modal-body {
-                    padding: 20px 28px;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 12px;
-                }
-
-                .role-option {
-                    display: flex;
-                    align-items: center;
-                    gap: 16px;
-                    padding: 16px;
-                    border: 2px solid #e2e8f0;
-                    border-radius: 14px;
-                    background: #fff;
-                    cursor: pointer;
-                    transition: all 0.2s ease;
-                    text-align: left;
-                }
-
-                .role-option:hover:not(:disabled) {
-                    border-color: #6366f1;
-                    background: #f8faff;
-                    transform: translateY(-2px);
-                    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
-                }
-
-                .role-option:disabled {
-                    opacity: 0.6;
-                    cursor: not-allowed;
-                }
-
-                .role-option-icon {
-                    width: 48px;
-                    height: 48px;
-                    border-radius: 12px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    flex-shrink: 0;
-                }
-
-                .role-option-info {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 2px;
-                }
-
-                .role-option-info strong {
-                    font-size: 15px;
-                    font-weight: 700;
-                    color: #0f172a;
-                }
-
-                .role-option-info span {
-                    font-size: 13px;
-                    color: #64748b;
-                    line-height: 1.4;
-                }
-
-                .role-modal-footer {
-                    padding: 12px 28px 20px;
-                    text-align: center;
-                }
-
-                .role-cancel-btn {
-                    background: none;
-                    border: none;
-                    color: #94a3b8;
-                    font-size: 14px;
-                    font-weight: 600;
-                    cursor: pointer;
-                    padding: 8px 20px;
-                    border-radius: 8px;
-                    transition: all 0.2s;
-                }
-
-                .role-cancel-btn:hover {
-                    color: #475569;
-                    background: #f1f5f9;
-                }
-
-                @keyframes fadeIn {
-                    from { opacity: 0; }
-                    to { opacity: 1; }
-                }
-
-                @keyframes slideUp {
-                    from { opacity: 0; transform: translateY(20px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
             `}</style>
         </div>
     );
