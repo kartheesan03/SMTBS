@@ -32,7 +32,8 @@ const Payroll = () => {
     const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
     const isAdmin = userInfo.role === 'Admin';
     const isHR = userInfo.role === 'HR';
-    const canPay = isAdmin || isHR;
+    const isManager = userInfo.role === 'Manager';
+    const canPay = isAdmin || isHR || isManager;
 
     const navigate = useNavigate();
 

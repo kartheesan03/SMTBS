@@ -17,13 +17,13 @@ const { authorize } = require('../middleware/roleMiddleware');
 
 router.get('/my', protect, getMySalaryHistory);
 router.get('/summary', protect, getMySalarySummary);
-router.get('/', protect, authorize('Admin', 'HR'), getAllSalaries);
-router.post('/calculate-deductions', protect, authorize('Admin', 'HR'), calculatePayrollDeductions);
-router.post('/', protect, authorize('Admin', 'HR'), createSalaryRecord);
-router.put('/pay-all', protect, authorize('Admin', 'HR'), payAllApproved);
-router.put('/:id/approve', protect, authorize('Admin'), approveSalaryRecord);
-router.put('/:id/pay', protect, authorize('Admin', 'HR'), paySalaryRecord);
-router.put('/:id', protect, authorize('Admin', 'HR'), updateSalaryRecord);
-router.delete('/:id', protect, authorize('Admin', 'HR'), deleteSalaryRecord);
+router.get('/', protect, authorize('Admin', 'HR', 'Manager'), getAllSalaries);
+router.post('/calculate-deductions', protect, authorize('Admin', 'HR', 'Manager'), calculatePayrollDeductions);
+router.post('/', protect, authorize('Admin', 'HR', 'Manager'), createSalaryRecord);
+router.put('/pay-all', protect, authorize('Admin', 'HR', 'Manager'), payAllApproved);
+router.put('/:id/approve', protect, authorize('Admin', 'Manager'), approveSalaryRecord);
+router.put('/:id/pay', protect, authorize('Admin', 'HR', 'Manager'), paySalaryRecord);
+router.put('/:id', protect, authorize('Admin', 'HR', 'Manager'), updateSalaryRecord);
+router.delete('/:id', protect, authorize('Admin', 'HR', 'Manager'), deleteSalaryRecord);
 
 module.exports = router;

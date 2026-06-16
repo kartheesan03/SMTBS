@@ -84,6 +84,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
         { path: '/', name: 'Dashboard', icon: <LayoutDashboard size={18} /> },
         { path: '/my-attendance', name: 'My Attendance', icon: <CheckCircle size={18} /> },
         { path: '/attendance', name: 'Master Attendance', icon: <Users size={18} /> },
+        { path: '/payroll', name: 'Payroll', icon: <DollarSign size={18} /> },
         { path: '/erp', name: 'Projects / ERP', icon: <FolderKanban size={18} /> },
         { path: '/my-tasks', name: 'Tasks', icon: <ClipboardList size={18} /> },
         { path: '/team-performance', name: 'Team Performance', icon: <TrendingUp size={18} /> },
