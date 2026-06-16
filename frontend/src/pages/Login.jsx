@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import API from '../api/axios';
 import { AuthContext } from '../context/AuthContext';
@@ -13,6 +13,24 @@ const Login = () => {
     const [isLoading, setIsLoading] = useState(false);
     const { login } = useContext(AuthContext);
     const navigate = useNavigate();
+
+    // Lock body scroll on login page
+    useEffect(() => {
+        const html = document.documentElement;
+        const body = document.body;
+        html.style.overflow = 'hidden';
+        html.style.height = '100%';
+        body.style.overflow = 'hidden';
+        body.style.height = '100%';
+        body.style.minHeight = 'unset';
+        return () => {
+            html.style.overflow = '';
+            html.style.height = '';
+            body.style.overflow = '';
+            body.style.height = '';
+            body.style.minHeight = '';
+        };
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -193,25 +211,32 @@ const Login = () => {
                 .login-wrapper {
                     width: 100vw;
                     height: 100vh;
+                    max-height: 100vh;
                     margin: 0;
                     padding: 0;
                     display: flex;
                     overflow: hidden;
                     font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                    position: fixed;
+                    top: 0;
+                    left: 0;
                 }
 
                 .split-card {
                     display: grid;
-                    grid-template-columns: 55% 45%;
+                    grid-template-columns: 57% 43%;
                     width: 100%;
                     height: 100vh;
+                    max-height: 100vh;
                     background: #FFFFFF;
+                    overflow: hidden;
                 }
 
                 .brand-panel {
                     height: 100vh;
+                    max-height: 100vh;
                     background-color: #080D22;
-                    padding: 24px 48px;
+                    padding: 38px 64px;
                     display: flex;
                     flex-direction: column;
                     justify-content: center;
@@ -224,67 +249,73 @@ const Login = () => {
                     display: flex;
                     align-items: center;
                     gap: 12px;
-                    margin-bottom: 32px;
+                    margin-bottom: 48px;
+                    flex-shrink: 0;
                 }
 
                 .logo-icon {
-                    width: 36px;
-                    height: 36px;
+                    width: 40px;
+                    height: 40px;
                     background: #6366F1;
                     border-radius: 10px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
+                    flex-shrink: 0;
                 }
 
                 .logo-text {
-                    font-size: 22px;
+                    font-size: 24px;
                     font-weight: 800;
                     letter-spacing: 0.5px;
                 }
 
                 .brand-content {
-                    margin-top: auto;
-                    margin-bottom: auto;
+                    flex: 1;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    overflow: hidden;
                 }
 
                 .brand-title {
-                    font-size: clamp(1.5rem, 3vw, 2.25rem);
+                    font-size: clamp(1.6rem, 2.8vw, 2.2rem);
                     font-weight: 800;
                     line-height: 1.2;
                     max-width: 650px;
-                    margin: 0 0 12px 0;
+                    margin: 0 0 14px 0;
                     letter-spacing: -0.5px;
                 }
 
                 .brand-desc {
-                    font-size: 15px;
+                    font-size: 16px;
                     color: #94A3B8;
-                    line-height: 1.5;
+                    line-height: 1.55;
                     max-width: 90%;
-                    margin-top: 10px;
-                    margin-bottom: 24px;
+                    margin-top: 8px;
+                    margin-bottom: 0;
                 }
 
                 .erp-illustration {
                     display: flex;
                     flex-wrap: nowrap;
-                    gap: 12px;
-                    margin-top: 24px;
+                    gap: 16px;
+                    margin-top: 40px;
+                    flex-shrink: 0;
                 }
 
                 .icon-badge {
                     background: #151B32;
                     border: 1px solid #1F2947;
                     border-radius: 12px;
-                    padding: 14px 10px;
+                    padding: 16px 12px;
                     display: flex;
                     flex-direction: column;
                     align-items: center;
                     justify-content: center;
-                    gap: 8px;
-                    width: 90px;
-                    height: 90px;
+                    gap: 10px;
+                    width: 104px;
+                    height: 104px;
                     box-sizing: border-box;
                     transition: transform 0.3s ease;
                 }
@@ -295,16 +326,17 @@ const Login = () => {
                 }
 
                 .icon-badge span {
-                    font-size: 11px;
+                    font-size: 12px;
                     font-weight: 600;
                     color: #E2E8F0;
                 }
 
-                /* Right Login Panel (45%) */
+                /* Right Login Panel (43%) */
                 .login-panel {
                     height: 100vh;
+                    max-height: 100vh;
                     background-color: #FFFFFF;
-                    padding: 24px 48px;
+                    padding: 32px 48px;
                     display: flex;
                     flex-direction: column;
                     align-items: center;
@@ -315,7 +347,7 @@ const Login = () => {
 
                 .login-form-container {
                     width: 100%;
-                    max-width: 440px;
+                    max-width: 470px;
                     margin: 0;
                     padding: 0;
                     display: flex;
@@ -323,7 +355,7 @@ const Login = () => {
                 }
 
                 .login-header {
-                    margin-bottom: 20px;
+                    margin-bottom: 24px;
                 }
 
                 .login-logo-mobile {
