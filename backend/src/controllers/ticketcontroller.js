@@ -55,12 +55,13 @@ const createTicket = async (req, res) => {
             .populate('assignedTo', 'name role');
 
         await broadcast({
+            module: 'Tickets',
+            referenceId: ticket._id || ticket.id,
             targetUserId: ticket.assignedTo,
             targetRoles: ['Manager'],
             title: `New Ticket Created: ${ticket.ticketNumber}`,
             message: `A new support ticket "${ticket.subject}" has been created and assigned.`,
-            type: ticket.priority === 'High' ? 'warning' : 'info',
-            category: 'system'
+            type: ticket.priority === 'High' ? 'warning' : 'info'
         });
 
         res.status(201).json(populatedTicket);
@@ -86,12 +87,13 @@ const updateTicketStatus = async (req, res) => {
                 .populate('assignedTo', 'name role');
                 
             await broadcast({
+                module: 'Tickets',
+                referenceId: ticket._id || ticket.id,
                 targetUserId: ticket.assignedTo?._id || ticket.assignedTo,
                 targetRoles: ['Manager'],
                 title: `Ticket Status Updated: ${ticket.ticketNumber}`,
                 message: `Ticket "${ticket.subject}" status changed to ${ticket.status}.`,
-                type: ticket.status === 'Resolved' || ticket.status === 'Closed' ? 'success' : 'info',
-                category: 'system'
+                type: ticket.status === 'Resolved' || ticket.status === 'Closed' ? 'success' : 'info'
             });
 
             res.json(populatedTicket);

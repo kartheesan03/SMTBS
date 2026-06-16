@@ -40,13 +40,13 @@ const createTask = async (req, res) => {
             try {
                 for (const uid of finalAssignedTo) {
                     await broadcast({
+                        module: 'Tasks',
+                        referenceId: task._id || task.id,
                         targetUserId: uid,
                         targetRoles: [],
                         title: `📋 New Task Assigned: ${title}`,
                         message: `${req.user.role} ${req.user.name} has assigned you a new task: "${title}". Priority: ${priority || 'Medium'}. ${dueDate ? 'Due: ' + new Date(dueDate).toLocaleDateString() : ''}`,
-                        type: priority === 'High' ? 'warning' : 'info',
-                        category: req.user.role === 'HR' ? 'hr' : 'general',
-                        link: '/my-tasks'
+                        type: priority === 'High' ? 'warning' : 'info'
                     });
                 }
             } catch (err) {
@@ -118,13 +118,13 @@ const updateTaskStatus = async (req, res) => {
         if (status === 'Completed' && task.assignedBy) {
             try {
                 await broadcast({
+                    module: 'Tasks',
+                    referenceId: task._id || task.id,
                     targetUserId: task.assignedBy,
                     targetRoles: [],
                     title: `✅ Task Completed: ${task.title}`,
                     message: `${req.user.name} has completed the task "${task.title}".`,
-                    type: 'success',
-                    category: 'general',
-                    link: '/my-tasks'
+                    type: 'success'
                 });
             } catch (err) {
                 console.error('Error creating task completion notification:', err.message);

@@ -2,24 +2,26 @@ const Notification = require('../models/Notification');
 const User = require('../models/User');
 
 /**
- * Broadcast a notification to relevant users based on the action category.
+ * Broadcast a notification to relevant users or roles based on the action module.
  * @param {Object} params
+ * @param {String} params.module - 'Payroll', 'Attendance', 'Orders', 'Materials', 'Stock Requests', 'Vendors', 'Customers', 'Leave Requests', 'Tasks', 'System'
+ * @param {String|Number} params.referenceId - ID of the entity this relates to
  * @param {String} params.title
  * @param {String} params.message
  * @param {String} params.type - 'warning', 'info', 'success', 'error'
- * @param {String} params.category - 'stock', 'hr', 'order', 'system', 'general'
  * @param {String|Array} params.targetRoles - Roles that should receive this (e.g. ['Admin', 'HR'])
- * @param {String} [params.targetUserId] - Specific user ID to notify (e.g. the employee whose leave was approved)
+ * @param {String|Number} [params.targetUserId] - Specific user ID to notify
  * @param {Boolean} [params.isCritical] - If true, notifies all Admins and Managers
- * @param {String} [params.link] - Optional link
  * @param {Boolean} [params.targetOnly] - If true, ONLY sends to targetUserId
  * @param {Boolean} [params.exactRoles] - If true, ONLY sends to the exact roles provided (doesn't automatically add Admin)
- * @param {Object} [params.payload] - Optional JSON payload for extra metadata
  */
-const broadcast = async ({ title, message, type = 'info', category = 'general', targetRoles = [], targetUserId = null, isCritical = false, link = null, targetOnly = false, exactRoles = false, payload = null }) => {
+const broadcast = async ({ module = 'System', referenceId = null, title, message, type = 'info', targetRoles = [], targetUserId = null, isCritical = false, targetOnly = false, exactRoles = false }) => {
     try {
         const notificationsToCreate = [];
         const notifiedUserIds = new Set();
+        
+        // Always coerce referenceId to string
+        const refIdStr = referenceId ? String(referenceId) : null;
 
         if (!targetOnly) {
             let rolesToNotify = new Set(Array.isArray(targetRoles) ? targetRoles : [targetRoles]);
@@ -40,19 +42,19 @@ const broadcast = async ({ title, message, type = 'info', category = 'general', 
             // Find users matching roles
             const users = await User.find({ role: { $in: rolesArray }, active: true });
             
-            // Create for target roles
+            // Create for target roles individually
             for (const user of users) {
                 const uId = String(user._id || user.id);
                 if (!notifiedUserIds.has(uId)) {
                     notificationsToCreate.push({
+                        module,
+                        referenceId: refIdStr,
+                        userId: user._id || user.id, // Keep original numeric type
+                        role: user.role,
                         title,
                         message,
                         type,
-                        category,
-                        userId: user._id || user.id, // Keep original numeric type
-                        isRead: false,
-                        link,
-                        payload
+                        status: 'unread'
                     });
                     notifiedUserIds.add(uId);
                 }
@@ -64,14 +66,14 @@ const broadcast = async ({ title, message, type = 'info', category = 'general', 
             const tId = String(targetUserId);
             if (!notifiedUserIds.has(tId)) {
                 notificationsToCreate.push({
+                    module,
+                    referenceId: refIdStr,
+                    userId: targetUserId, // Keep original type
+                    role: null, // Specific user targets might have multiple roles, or we just rely on userId
                     title,
                     message,
                     type,
-                    category,
-                    userId: targetUserId, // Keep original type
-                    isRead: false,
-                    link,
-                    payload
+                    status: 'unread'
                 });
                 notifiedUserIds.add(tId);
             }
@@ -86,9 +88,9 @@ const broadcast = async ({ title, message, type = 'info', category = 'general', 
 };
 
 // Domain-specific helpers
-const notifyHR = (params) => broadcast({ ...params, targetRoles: ['HR'], category: params.category || 'hr' });
-const notifySales = (params) => broadcast({ ...params, targetRoles: ['Sales'], category: params.category || 'general' });
-const notifyManager = (params) => broadcast({ ...params, targetRoles: ['Manager'], category: params.category || 'system' });
+const notifyHR = (params) => broadcast({ ...params, targetRoles: ['HR'], module: params.module || 'System' });
+const notifySales = (params) => broadcast({ ...params, targetRoles: ['Sales'], module: params.module || 'System' });
+const notifyManager = (params) => broadcast({ ...params, targetRoles: ['Manager'], module: params.module || 'System' });
 const notifyCritical = (params) => broadcast({ ...params, isCritical: true, type: params.type || 'warning' });
 
 module.exports = { 

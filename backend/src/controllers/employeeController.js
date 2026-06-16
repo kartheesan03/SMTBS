@@ -60,6 +60,8 @@ const createEmployee = async (req, res) => {
 
         const { notifyHR } = require('../services/notificationService');
         await notifyHR({
+            module: 'Employees',
+            referenceId: createdEmployee._id || createdEmployee.id,
             title: 'New Employee Added',
             message: `${firstName} ${lastName || ''} has been added to the system as ${designation || 'Employee'}.`,
             type: 'info'
@@ -126,6 +128,8 @@ const updateEmployee = async (req, res) => {
 
         const { notifyHR } = require('../services/notificationService');
         await notifyHR({
+            module: 'Employees',
+            referenceId: updatedEmployee._id || updatedEmployee.id,
             title: 'Employee Profile Updated',
             message: `Profile details for ${updatedEmployee.firstName} ${updatedEmployee.lastName || ''} have been updated.`,
             type: 'info'

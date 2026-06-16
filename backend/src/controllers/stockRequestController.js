@@ -2,17 +2,19 @@ const StockRequest = require('../models/StockRequest');
 const Material = require('../models/Material');
 const User = require('../models/User');
 const Order = require('../models/Order');
-const Notification = require('../models/Notification');
+const { broadcast } = require('../services/notificationService');
 
 // Helper to create notifications
-const createNotification = async (userId, title, message, type = 'info') => {
+const createNotification = async (userId, title, message, type = 'info', referenceId) => {
     try {
-        await Notification.create({
-            userId,
+        await broadcast({
+            module: 'Stock Requests',
+            referenceId: String(referenceId),
+            targetUserId: userId,
+            targetRoles: [],
             title,
             message,
-            type,
-            isRead: false
+            type
         });
     } catch (err) {
         console.error('Failed to create notification', err);
@@ -43,7 +45,8 @@ exports.createRequest = async (req, res) => {
                 manager.id, 
                 'New Stock Request', 
                 `Employee ${req.user.name} requested ${requiredQuantity} ${material.unit} of ${material.name}.`,
-                'warning'
+                'warning',
+                request.id
             );
         }
 
@@ -112,7 +115,8 @@ exports.managerAction = async (req, res) => {
             request.employeeId,
             'Manager Responded to Stock Request',
             `Manager ${req.user.name} responded to your request for ${request.material.name}. Action required.`,
-            'info'
+            'info',
+            request.id
         );
 
         res.json(request);
@@ -147,7 +151,8 @@ exports.employeeApproval = async (req, res) => {
                 request.managerId,
                 `Stock Request ${approved ? 'Approved' : 'Rejected'}`,
                 `Employee ${req.user.name} ${approved ? 'approved' : 'rejected'} your action for ${request.material.name}.`,
-                approved ? 'success' : 'error'
+                approved ? 'success' : 'error',
+                request.id
             );
         }
 
@@ -159,7 +164,8 @@ exports.employeeApproval = async (req, res) => {
                     sales.id,
                     'New Stock Delivery Required',
                     `A stock request for ${request.material.name} has been approved and requires delivery processing.`,
-                    'warning'
+                    'warning',
+                    request.id
                 );
             }
         }
@@ -205,9 +211,9 @@ exports.salesUpdate = async (req, res) => {
 
         // Notify Employee and Manager
         const notificationMsg = `Sales updated delivery status of ${request.material.name} to ${status}.`;
-        await createNotification(request.employeeId, 'Delivery Update', notificationMsg, 'info');
+        await createNotification(request.employeeId, 'Delivery Update', notificationMsg, 'info', request.id);
         if (request.managerId) {
-            await createNotification(request.managerId, 'Delivery Update', notificationMsg, 'info');
+            await createNotification(request.managerId, 'Delivery Update', notificationMsg, 'info', request.id);
         }
 
         res.json(request);

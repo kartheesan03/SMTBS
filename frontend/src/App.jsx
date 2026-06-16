@@ -35,6 +35,7 @@ import Vendors from './pages/Vendors';
 import NotificationsPage from './pages/Notifications';
 import MyTasks from './pages/MyTasks';
 import MyAttendance from './pages/MyAttendance';
+import GeneratePayroll from './pages/GeneratePayroll';
 import LeaveManagement from './pages/LeaveManagement';
 import MySalaryPage from './pages/MySalary';
 import Customers from './pages/Customers';
@@ -127,6 +128,7 @@ const AppContent = () => {
                     {/* Role Specific Protected Routes */}
                     <Route path="/materials" element={<ProtectedRoute allowedRoles={['Admin', 'Manager', 'Sales', 'Employee']}><Materials /></ProtectedRoute>} />
                     <Route path="/payroll" element={<ProtectedRoute allowedRoles={['Admin', 'HR']}><Payroll /></ProtectedRoute>} />
+                    <Route path="/payroll/generate" element={<ProtectedRoute allowedRoles={['Admin', 'HR']}><GeneratePayroll /></ProtectedRoute>} />
                     <Route path="/attendance" element={<ProtectedRoute allowedRoles={['Admin', 'HR', 'Manager']}><Attendance /></ProtectedRoute>} />
                     <Route path="/hr-reports" element={<ProtectedRoute allowedRoles={['Admin', 'HR']}><HRReports /></ProtectedRoute>} />
                     <Route path="/team-performance" element={<ProtectedRoute allowedRoles={['Admin', 'Manager']}><TeamPerformance /></ProtectedRoute>} />

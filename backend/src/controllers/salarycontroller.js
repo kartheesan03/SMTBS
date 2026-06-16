@@ -106,12 +106,13 @@ const approveSalaryRecord = async (req, res) => {
                 if (employee && employee.userId) {
                     const empUserId = employee.userIdField || employee.userId;
                     await broadcast({
+                        module: 'Payroll',
+                        referenceId: salary._id || salary.id,
                         targetUserId: empUserId,
                         targetOnly: true,
                         title: `Salary Approved: ${salary.month}`,
                         message: `Your salary record for ${salary.month} has been approved.`,
-                        type: 'info',
-                        category: 'hr'
+                        type: 'info'
                     });
                 }
             } catch (notifErr) {
@@ -170,12 +171,13 @@ const paySalaryRecord = async (req, res) => {
             if (employee && employee.userId) {
                 const empUserId = employee.userIdField || employee.userId;
                 await broadcast({
+                    module: 'Payroll',
+                    referenceId: salary._id || salary.id,
                     targetUserId: empUserId,
                     targetOnly: true,
                     title: `Salary Paid: ${salary.month}`,
                     message: `Your salary for ${salary.month} has been paid. You can download your payslip.`,
-                    type: 'success',
-                    category: 'hr'
+                    type: 'success'
                 });
             }
         } catch (notifErr) {
@@ -235,12 +237,13 @@ const payAllApproved = async (req, res) => {
                 if (employee && employee.userId) {
                     const empUserId = employee.userIdField || employee.userId;
                     await broadcast({
+                        module: 'Payroll',
+                        referenceId: salary._id || salary.id,
                         targetUserId: empUserId,
                         targetOnly: true,
                         title: `Salary Paid: ${salary.month}`,
                         message: `Your salary of ₹${salary.netSalary.toLocaleString()} for ${salary.month} has been disbursed. Transaction ID: ${txnId}.`,
-                        type: 'success',
-                        category: 'hr'
+                        type: 'success'
                     });
                 }
             } catch (notifErr) {
@@ -287,32 +290,35 @@ const createSalaryRecord = async (req, res) => {
                 
                 // 1. Employee notification
                 await broadcast({
+                    module: 'Payroll',
+                    referenceId: salary._id || salary.id,
                     targetUserId: empUserId,
                     targetOnly: true,
                     title: `Salary Processed`,
                     message: `Your salary for ${month} has been processed successfully.`,
-                    type: 'info',
-                    category: 'hr'
+                    type: 'info'
                 });
 
                 // 2. HR notification
                 await broadcast({
+                    module: 'Payroll',
+                    referenceId: salary._id || salary.id,
                     targetRoles: ['HR'],
                     exactRoles: true,
                     title: `Salary Processed`,
                     message: `Salary processed for Employee: ${empName} (₹${netSalary.toLocaleString()}).`,
-                    type: 'info',
-                    category: 'hr'
+                    type: 'info'
                 });
 
                 // 3. Admin notification
                 await broadcast({
+                    module: 'Payroll',
+                    referenceId: salary._id || salary.id,
                     targetRoles: ['Admin'],
                     exactRoles: true,
                     title: `Payroll Completed`,
                     message: `Payroll completed for ${empName} (${month}).`,
-                    type: 'info',
-                    category: 'hr'
+                    type: 'info'
                 });
             }
         } catch (notifErr) {
@@ -382,6 +388,26 @@ const calculatePayrollDeductions = async (req, res) => {
     }
 };
 
+// @desc    Delete salary record
+// @route   DELETE /api/salaries/:id
+// @access  Private/Admin/HR
+const deleteSalaryRecord = async (req, res) => {
+    try {
+        const salary = await Salary.findById(req.params.id);
+        if (!salary) {
+            return res.status(404).json({ message: 'Salary record not found' });
+        }
+        if (salary.status === 'Paid') {
+            return res.status(400).json({ message: 'Cannot delete a paid salary record' });
+        }
+        await salary.deleteOne();
+        res.json({ message: 'Payroll record deleted successfully.' });
+    } catch (error) {
+        console.error('deleteSalaryRecord error:', error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
 module.exports = {
     getMySalaryHistory,
     getMySalarySummary,
@@ -391,5 +417,6 @@ module.exports = {
     paySalaryRecord,
     payAllApproved,
     calculatePayrollDeductions,
-    updateSalaryRecord
+    updateSalaryRecord,
+    deleteSalaryRecord
 };

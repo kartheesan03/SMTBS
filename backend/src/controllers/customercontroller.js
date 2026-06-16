@@ -90,10 +90,11 @@ const createCustomer = async (req, res) => {
         });
 
         await notifySales({
+            module: 'Customers',
+            referenceId: createdCustomer._id || createdCustomer.id,
             title: 'New Customer Added',
             message: `${customerData.name} has been added as a customer.`,
-            type: 'info',
-            category: 'general'
+            type: 'info'
         });
 
         res.status(201).json(createdCustomer);
@@ -122,10 +123,11 @@ const approveCustomer = async (req, res) => {
             });
 
             await notifySales({
+                module: 'Customers',
+                referenceId: updatedCustomer._id || updatedCustomer.id,
                 title: 'Customer Approved',
                 message: `${updatedCustomer.name} has been approved.`,
-                type: 'success',
-                category: 'general'
+                type: 'success'
             });
 
             res.json(updatedCustomer);
@@ -161,10 +163,11 @@ const updateCustomer = async (req, res) => {
             });
 
             await notifySales({
+                module: 'Customers',
+                referenceId: updatedCustomer._id || updatedCustomer.id,
                 title: 'Customer Updated',
                 message: `Details for customer ${updatedCustomer.name} have been updated.`,
-                type: 'info',
-                category: 'general'
+                type: 'info'
             });
 
             res.json(updatedCustomer);

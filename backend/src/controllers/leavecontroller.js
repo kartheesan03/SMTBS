@@ -47,6 +47,8 @@ const applyLeave = async (req, res) => {
         const leave = await Leave.create({ employee: employee._id, type, startDate: start, endDate: end, reason });
 
         await notifyHR({
+            module: 'Leave Requests',
+            referenceId: leave._id || leave.id,
             title: 'New Leave Request',
             message: `${employee.firstName} ${employee.lastName || ''} applied for ${type} leave from ${startDate} to ${endDate}.`,
             type: 'info'
@@ -126,10 +128,11 @@ const reviewLeave = async (req, res) => {
         const employee = await Employee.findById(leave.employee);
         if (employee && employee.userId) {
             await broadcast({
+                module: 'Leave Requests',
+                referenceId: leave._id || leave.id,
                 title: `Leave Request ${status}`,
                 message: `Your ${leave.type} leave request from ${new Date(leave.startDate).toISOString().split('T')[0]} to ${new Date(leave.endDate).toISOString().split('T')[0]} was ${status.toLowerCase()}.`,
                 type: status === 'Approved' ? 'success' : 'error',
-                category: 'hr',
                 targetUserId: employee.userId,
                 targetRoles: [] // Only target this specific user
             });

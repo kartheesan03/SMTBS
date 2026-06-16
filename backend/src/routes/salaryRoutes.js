@@ -8,8 +8,8 @@ const {
     approveSalaryRecord,
     paySalaryRecord,
     payAllApproved,
-    calculatePayrollDeductions,
-    updateSalaryRecord
+    updateSalaryRecord,
+    deleteSalaryRecord
 } = require('../controllers/salarycontroller');
 const { protect } = require('../middleware/authMiddleware');
 const { authorize } = require('../middleware/roleMiddleware');
@@ -23,5 +23,6 @@ router.put('/pay-all', protect, authorize('Admin', 'HR'), payAllApproved);
 router.put('/:id/approve', protect, authorize('Admin'), approveSalaryRecord);
 router.put('/:id/pay', protect, authorize('Admin', 'HR'), paySalaryRecord);
 router.put('/:id', protect, authorize('Admin', 'HR'), updateSalaryRecord);
+router.delete('/:id', protect, authorize('Admin', 'HR'), deleteSalaryRecord);
 
 module.exports = router;

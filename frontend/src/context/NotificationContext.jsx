@@ -33,8 +33,8 @@ export const NotificationProvider = ({ children }) => {
 
     const markAsRead = async (id) => {
         try {
-            await API.put(`/notifications/${id}/read`);
-            setNotifications(prev => prev.map(n => n._id === id || n.id === id ? { ...n, isRead: true } : n));
+            await API.patch(`/notifications/${id}/read`);
+            setNotifications(prev => prev.map(n => n._id === id || n.id === id ? { ...n, status: 'read' } : n));
             setUnreadCount(prev => Math.max(0, prev - 1));
         } catch (err) {
             console.error('Error marking notification as read:', err);
@@ -43,8 +43,8 @@ export const NotificationProvider = ({ children }) => {
 
     const markAllAsRead = async () => {
         try {
-            await API.put('/notifications/mark-all-read');
-            setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+            await API.patch('/notifications/mark-all-read');
+            setNotifications(prev => prev.map(n => ({ ...n, status: 'read' })));
             setUnreadCount(0);
         } catch (err) {
             console.error('Error marking all notifications as read:', err);
@@ -56,7 +56,7 @@ export const NotificationProvider = ({ children }) => {
             await API.delete(`/notifications/${id}`);
             setNotifications(prev => {
                 const target = prev.find(n => n._id === id || n.id === id);
-                if (target && !target.isRead) {
+                if (target && target.status === 'unread') {
                     setUnreadCount(c => Math.max(0, c - 1));
                 }
                 return prev.filter(n => n._id !== id && n.id !== id);

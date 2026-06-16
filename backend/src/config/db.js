@@ -84,6 +84,7 @@ const connectDB = async () => {
         // 2. Safely recreate User table to apply schema changes without alter: true bugs
         // Ensure this runs gracefully
         await safelyRecreateTable('User');
+        await safelyRecreateTable('Notification');
 
         // 3. Synchronize Sequelize schemas with database safely (without alter: true)
         await sequelize.sync();

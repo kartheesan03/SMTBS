@@ -33,10 +33,11 @@ const handleStockStatusNotifications = async (material, previousStatus, newStatu
 
         if (!exists) {
             await notifyCritical({
+                module: 'Materials',
+                referenceId: matId,
                 title: `Low Stock Alert: ${material.name}`,
                 message: `${material.name} is currently Low Stock (${material.quantity} ${material.unit} left).`,
-                category: 'stock',
-                payload: { material_id: matId, alert_type: 'low_stock' }
+                type: 'warning'
             });
         }
     } else if (newStatus === 'Out of Stock') {
@@ -56,10 +57,11 @@ const handleStockStatusNotifications = async (material, previousStatus, newStatu
 
         if (!exists) {
             await notifyCritical({
+                module: 'Materials',
+                referenceId: matId,
                 title: `Out of Stock Alert: ${material.name}`,
                 message: `${material.name} is completely Out of Stock.`,
-                category: 'stock',
-                payload: { material_id: matId, alert_type: 'out_of_stock' }
+                type: 'error'
             });
         }
     }
@@ -117,10 +119,11 @@ const createMaterial = async (req, res) => {
         });
 
         await notifyManager({
+            module: 'Materials',
+            referenceId: createdMaterial._id || createdMaterial.id,
             title: 'New Material Added',
             message: `${name} (SKU: ${sku}) has been added to inventory with ${quantity} ${unit}.`,
-            type: 'info',
-            category: 'stock'
+            type: 'info'
         });
 
         await handleStockStatusNotifications(createdMaterial, 'In Stock', status);
@@ -196,10 +199,11 @@ const updateMaterial = async (req, res) => {
 
             if (newStatus === 'In Stock') {
                 await notifyManager({
+                    module: 'Materials',
+                    referenceId: updatedMaterial._id || updatedMaterial.id,
                     title: 'Material Updated',
                     message: `${updatedMaterial.name} inventory details have been updated.`,
-                    type: 'info',
-                    category: 'stock'
+                    type: 'info'
                 });
             }
 

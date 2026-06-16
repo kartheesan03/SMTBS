@@ -130,23 +130,21 @@ const createOrder = async (req, res) => {
 
         if (initialStatus === 'Awaiting Stock Check') {
             await broadcast({
+                module: 'Orders',
+                referenceId: createdOrder._id || createdOrder.id,
                 title: `New Order Stock Check: ${createdOrder.orderNumber}`,
                 message: `New order ${createdOrder.orderNumber} created. Please check stock availability.`,
                 type: 'info',
-                category: 'order',
-                link: '/erp',
-                targetRoles: ['Employee', 'Manager'],
-                payload
+                targetRoles: ['Employee', 'Manager']
             });
         } else {
             await broadcast({
+                module: 'Orders',
+                referenceId: createdOrder._id || createdOrder.id,
                 title: isSales ? 'New Sales Order Created' : 'New Purchase Order Created',
                 message: `Order ${createdOrder.orderNumber} was created successfully.`,
                 type: 'info',
-                category: 'order',
-                link: '/erp',
-                targetRoles: isSales ? ['Sales', 'Manager'] : ['Manager'],
-                payload
+                targetRoles: isSales ? ['Sales', 'Manager'] : ['Manager']
             });
         }
 
@@ -222,13 +220,12 @@ const updateOrderStatus = async (req, res) => {
                 order.approvedDate = new Date();
                 
                 await broadcast({
+                    module: 'Orders',
+                    referenceId: order._id || order.id,
                     title: `Sales Order Approved by Manager`,
                     message: `Order ${order.orderNumber} for ${customerName} has been approved by ${req.user.name || 'Manager'}. Stock check required.`,
                     type: 'info',
-                    category: 'order',
-                    link: '/erp',
-                    targetRoles: ['Employee'],
-                    payload
+                    targetRoles: ['Employee']
                 });
             } 
             else if (status === 'Employee Approved') {
@@ -254,13 +251,12 @@ const updateOrderStatus = async (req, res) => {
                 order.invoiceGenerated = true; // Auto-generated invoice flag
 
                 await broadcast({
+                    module: 'Orders',
+                    referenceId: order._id || order.id,
                     title: `Sales Order Stock Verified`,
                     message: `Stock for Order ${order.orderNumber} (${customerName}) verified by ${req.user.name || 'Employee'}. Ready for processing.`,
                     type: 'success',
-                    category: 'order',
-                    link: '/erp',
-                    targetRoles: ['Sales', 'Admin', 'Manager'],
-                    payload
+                    targetRoles: ['Sales', 'Admin', 'Manager']
                 });
             }
             else if (status === 'Rejected') {
@@ -293,14 +289,13 @@ const updateOrderStatus = async (req, res) => {
                 if (order.employeeId) targetUserIds.push(order.employeeId);
                 
                 await broadcast({
+                    module: 'Orders',
+                    referenceId: order._id || order.id,
                     title: `Sales Order Delivered`,
                     message: `Order ${order.orderNumber} for ${customerName} has been delivered by ${req.user.name || 'Sales'}. Workflow completed.`,
                     type: 'success',
-                    category: 'order',
-                    link: '/erp',
                     targetRoles: ['Admin', 'Manager', 'HR', 'Sales'],
-                    targetUserIds: targetUserIds,
-                    payload
+                    targetUserIds: targetUserIds
                 });
             }
         }
@@ -364,74 +359,71 @@ const updateOrderStatus = async (req, res) => {
             if (order.orderType === 'sales') {
                 if (status === 'Confirmed') {
                     await broadcast({
+                        module: 'Orders', referenceId: order._id || order.id,
                         title: `Order Approved: ${order.orderNumber}`,
                         message: `Order ${order.orderNumber} has been approved and confirmed.`,
-                        type: 'success', category: 'order', link: '/erp', targetRoles: ['Sales', 'Manager'], payload
+                        type: 'success', targetRoles: ['Sales', 'Manager']
                     });
                 } else if (status === 'Rejected') {
                     await broadcast({
+                        module: 'Orders', referenceId: order._id || order.id,
                         title: `Order Rejected: ${order.orderNumber}`,
                         message: `Order ${order.orderNumber} has been rejected.`,
-                        type: 'error', category: 'order', link: '/erp', targetRoles: ['Sales', 'Manager'], payload
+                        type: 'error', targetRoles: ['Sales', 'Manager']
                     });
                 } else if (status === 'Shipped') {
                     await broadcast({
+                        module: 'Orders', referenceId: order._id || order.id,
                         title: `Order Shipped: ${order.orderNumber}`,
                         message: `Order ${order.orderNumber} has been shipped.`,
-                        type: 'info', category: 'order', link: '/erp', targetRoles: ['Sales', 'Manager'], payload
+                        type: 'info', targetRoles: ['Sales', 'Manager']
                     });
                 } else if (status === 'Delivered') {
                     await broadcast({
+                        module: 'Orders', referenceId: order._id || order.id,
                         title: `Order Delivered: ${order.orderNumber}`,
                         message: `Order ${order.orderNumber} has been successfully delivered.`,
-                        type: 'success', category: 'order', link: '/erp', targetRoles: ['Sales', 'Manager', 'HR'], payload
+                        type: 'success', targetRoles: ['Sales', 'Manager', 'HR']
                     });
                 }
             } else {
                 // A. Employee confirms stock -> Notify Sales
                 if (status === 'Ready for Delivery') {
                     await broadcast({
+                        module: 'Orders', referenceId: order._id || order.id,
                         title: `Ready for Delivery: ${order.orderNumber}`,
                         message: `Order ${order.orderNumber} has sufficient stock and is Ready for Delivery. Please coordinate shipping to customer.`,
                         type: 'info',
-                        category: 'order',
-                        link: '/erp',
-                        targetRoles: ['Sales', 'Manager'],
-                        payload
+                        targetRoles: ['Sales', 'Manager']
                     });
                 }
                 // B. Employee alerts low stock -> Notify Admin & Manager
                 else if (status === 'Low Stock Alert') {
                     await notifyCritical({
+                        module: 'Orders', referenceId: order._id || order.id,
                         title: `Low Stock Alert: ${order.orderNumber}`,
                         message: `Low stock alert generated for order ${order.orderNumber}. Please purchase new material supply.`,
-                        category: 'stock',
-                        link: '/erp',
-                        payload
+                        type: 'warning'
                     });
                 }
                 // C. Sales delivers order -> Notify ALL relevant users
                 else if (status === 'Delivered') {
                     await broadcast({
+                        module: 'Orders', referenceId: order._id || order.id,
                         title: `Order Delivered: ${order.orderNumber}`,
                         message: `Order ${order.orderNumber} has been successfully delivered.`,
                         type: 'success',
-                        category: 'order',
-                        link: '/erp',
-                        targetRoles: ['Sales', 'Manager', 'HR'], // Admin implicitly added
-                        payload
+                        targetRoles: ['Sales', 'Manager', 'HR']
                     });
                 }
                 // D. Other updates
                 else {
                     await broadcast({
+                        module: 'Orders', referenceId: order._id || order.id,
                         title: `Order Status Updated: ${order.orderNumber}`,
                         message: `Order ${order.orderNumber} status changed to "${status}".`,
                         type: 'info',
-                        category: 'order',
-                        link: '/erp',
-                        targetRoles: ['Sales', 'Manager'],
-                        payload
+                        targetRoles: ['Sales', 'Manager']
                     });
                 }
             }

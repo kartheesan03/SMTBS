@@ -11,15 +11,19 @@ import {
 } from 'lucide-react';
 
 // Map category → icon component & colors
+// Map module → icon component & colors
 const CATEGORY_CONFIG = {
-    stock:      { icon: Package,       bg: '#f3e8ff', color: '#9333ea', label: 'Stock' },
-    hr:         { icon: Users,         bg: '#ecfdf5', color: '#10b981', label: 'HR' },
-    order:      { icon: ShoppingCart,  bg: '#eff6ff', color: '#3b82f6', label: 'Order' },
-    system:     { icon: Settings,      bg: '#f8fafc', color: '#64748b', label: 'System' },
-    payroll:    { icon: DollarSign,    bg: '#fef3c7', color: '#d97706', label: 'Payroll' },
-    attendance: { icon: Calendar,      bg: '#f0fdf4', color: '#16a34a', label: 'Attendance' },
-    erp:        { icon: Briefcase,     bg: '#eff6ff', color: '#3b82f6', label: 'ERP' },
-    general:    { icon: Bell,          bg: '#f1f5f9', color: '#475569', label: 'General' },
+    'Materials':      { icon: Package,       bg: '#f3e8ff', color: '#9333ea', label: 'Materials' },
+    'Employees':      { icon: Users,         bg: '#ecfdf5', color: '#10b981', label: 'Employees' },
+    'Orders':         { icon: ShoppingCart,  bg: '#eff6ff', color: '#3b82f6', label: 'Orders' },
+    'system':         { icon: Settings,      bg: '#f8fafc', color: '#64748b', label: 'System' },
+    'Payroll':        { icon: DollarSign,    bg: '#fef3c7', color: '#d97706', label: 'Payroll' },
+    'Attendance':     { icon: Calendar,      bg: '#f0fdf4', color: '#16a34a', label: 'Attendance' },
+    'Vendors':        { icon: Briefcase,     bg: '#eff6ff', color: '#3b82f6', label: 'Vendors' },
+    'Customers':      { icon: Users,         bg: '#f1f5f9', color: '#475569', label: 'Customers' },
+    'Leave Requests': { icon: Clock,         bg: '#fef3c7', color: '#d97706', label: 'Leave' },
+    'Tickets':        { icon: Settings,      bg: '#f8fafc', color: '#64748b', label: 'Tickets' },
+    'Tasks':          { icon: CheckCircle,   bg: '#ecfdf5', color: '#10b981', label: 'Tasks' },
 };
 
 // Map type → priority styling
@@ -88,23 +92,23 @@ const NotificationsPage = () => {
     };
 
     const handleNotificationClick = (n) => {
-        if (!n.isRead) handleMarkOne(n._id);
-        if (n.category === 'order' && n.payload?.order_id) {
-            navigate('/erp?highlightOrder=' + n.payload.order_id);
+        if (n.status === 'unread') handleMarkOne(n._id);
+        if (n.module === 'Orders' && n.referenceId) {
+            navigate('/erp?highlightOrder=' + n.referenceId);
         } else if (n.link) {
             navigate(n.link);
         }
     };
 
     // ─── derived data ────────────────────────────────────────────────────────
-    const readCount = notifications.filter(n => n.isRead).length;
+    const readCount = notifications.filter(n => n.status === 'read').length;
     const criticalCount = notifications.filter(n => n.type === 'error').length;
 
     const displayed = notifications
         .filter(n => {
-            if (filter === 'unread') return !n.isRead;
-            if (filter === 'read')   return n.isRead;
-            if (['payroll', 'attendance', 'erp', 'hr', 'system', 'stock', 'order'].includes(filter)) return n.category === filter;
+            if (filter === 'unread') return n.status === 'unread';
+            if (filter === 'read')   return n.status === 'read';
+            if (['Payroll', 'Attendance', 'Orders', 'Materials', 'Employees', 'Tasks'].includes(filter)) return n.module === filter;
             return true;
         })
         .filter(n => {
@@ -130,11 +134,11 @@ const NotificationsPage = () => {
         { key: 'all', label: 'All', count: notifications.length },
         { key: 'unread', label: 'Unread', count: unreadCount },
         { key: 'read', label: 'Read', count: readCount },
-        { key: 'payroll', label: 'Payroll' },
-        { key: 'attendance', label: 'Attendance' },
-        { key: 'erp', label: 'ERP' },
-        { key: 'hr', label: 'HR' },
-        { key: 'system', label: 'System' },
+        { key: 'Payroll', label: 'Payroll' },
+        { key: 'Attendance', label: 'Attendance' },
+        { key: 'Orders', label: 'Orders' },
+        { key: 'Materials', label: 'Materials' },
+        { key: 'Tasks', label: 'Tasks' },
     ];
 
     // ─── render ──────────────────────────────────────────────────────────────
@@ -263,7 +267,7 @@ const NotificationsPage = () => {
             ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     {displayed.map((n) => {
-                        const catConfig = CATEGORY_CONFIG[n.category] || CATEGORY_CONFIG.general;
+                        const catConfig = CATEGORY_CONFIG[n.module] || CATEGORY_CONFIG.system;
                         const typeStyle = TYPE_STYLES[n.type] || TYPE_STYLES.info;
                         const CatIcon = catConfig.icon;
 
@@ -277,13 +281,13 @@ const NotificationsPage = () => {
                                     border: '1px solid #e2e8f0',
                                     borderLeft: `4px solid ${typeStyle.color}`,
                                     minHeight: '76px',
-                                    opacity: n.isRead ? 0.6 : 1,
+                                    opacity: n.status === 'read' ? 0.6 : 1,
                                     transition: 'all 0.2s ease',
-                                    cursor: (n.category === 'order' || n.link) ? 'pointer' : 'default',
+                                    cursor: (n.module === 'Orders' || n.link) ? 'pointer' : 'default',
                                     position: 'relative',
                                 }}
                                 onMouseEnter={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.05)'; e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.borderColor = '#cbd5e1'; }}
-                                onMouseLeave={e => { e.currentTarget.style.opacity = n.isRead ? '0.6' : '1'; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
+                                onMouseLeave={e => { e.currentTarget.style.opacity = n.status === 'read' ? '0.6' : '1'; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
                             >
                                 {/* Category Icon */}
                                 <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: catConfig.bg, color: catConfig.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -299,7 +303,7 @@ const NotificationsPage = () => {
                                             {typeStyle.badge}
                                         </span>
                                         {/* Unread Indicator */}
-                                        {!n.isRead && (
+                                        {n.status === 'unread' && (
                                             <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: typeStyle.color, flexShrink: 0, boxShadow: `0 0 6px ${typeStyle.color}40`, marginLeft: 'auto' }}></span>
                                         )}
                                     </div>
@@ -313,7 +317,7 @@ const NotificationsPage = () => {
 
                                 {/* Action Buttons */}
                                 <div style={{ display: 'flex', gap: '8px', flexShrink: 0, marginLeft: '8px' }}>
-                                    {!n.isRead && (
+                                    {n.status === 'unread' && (
                                         <button
                                             onClick={(e) => { e.stopPropagation(); handleMarkOne(n._id); }}
                                             title="Mark Read"
@@ -324,7 +328,7 @@ const NotificationsPage = () => {
                                             <CheckCircle size={17} strokeWidth={2.25} />
                                         </button>
                                     )}
-                                    {(n.category === 'order' || n.link) && (
+                                    {(n.module === 'Orders' || n.link) && (
                                         <button
                                             onClick={(e) => { e.stopPropagation(); handleNotificationClick(n); }}
                                             title="View Details"

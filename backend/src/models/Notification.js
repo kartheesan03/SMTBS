@@ -8,8 +8,20 @@ const NotificationSequelize = sequelize.define('Notification', {
         primaryKey: true,
         autoIncrement: true
     },
+    module: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    referenceId: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
     userId: {
         type: DataTypes.INTEGER,
+        allowNull: true
+    },
+    role: {
+        type: DataTypes.STRING,
         allowNull: true
     },
     title: {
@@ -24,21 +36,9 @@ const NotificationSequelize = sequelize.define('Notification', {
         type: DataTypes.ENUM('warning', 'info', 'success', 'error'),
         defaultValue: 'info'
     },
-    category: {
-        type: DataTypes.ENUM('stock', 'hr', 'order', 'system', 'general'),
-        defaultValue: 'general'
-    },
-    isRead: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false
-    },
-    link: {
-        type: DataTypes.STRING,
-        allowNull: true
-    },
-    payload: {
-        type: DataTypes.JSON,
-        allowNull: true
+    status: {
+        type: DataTypes.ENUM('unread', 'read'),
+        defaultValue: 'unread'
     }
 });
 

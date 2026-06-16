@@ -11,13 +11,13 @@ import {
     BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
     XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer
 } from 'recharts';
+import { useNavigate } from 'react-router-dom';
 
 const Payroll = () => {
     // ─── STATE MANAGEMENT ───
     const [salaries, setSalaries] = useState([]);
     const [employees, setEmployees] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [showGenModal, setShowGenModal] = useState(false);
     const [showViewModal, setShowViewModal] = useState(false);
     const [showPayModal, setShowPayModal] = useState(false);
     const [showPayAllModal, setShowPayAllModal] = useState(false);
@@ -28,21 +28,13 @@ const Payroll = () => {
     const [paying, setPaying] = useState(false);
     const [downloading, setDownloading] = useState(false);
     const [toast, setToast] = useState(null);
-    const [calcStats, setCalcStats] = useState(null);
-    const [calculating, setCalculating] = useState(false);
 
     const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
     const isAdmin = userInfo.role === 'Admin';
     const isHR = userInfo.role === 'HR';
     const canPay = isAdmin || isHR;
 
-    const [formData, setFormData] = useState({
-        employeeId: '',
-        month: `${new Intl.DateTimeFormat('en', { month: 'long' }).format(new Date())} ${new Date().getFullYear()}`,
-        basicSalary: '',
-        allowances: 0,
-        deductions: 0
-    });
+    const navigate = useNavigate();
 
     const [payForm, setPayForm] = useState({
         paymentMethod: 'UPI',
@@ -52,6 +44,8 @@ const Payroll = () => {
     });
 
     const [showEditModal, setShowEditModal] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [salaryToDelete, setSalaryToDelete] = useState(null);
     const [editForm, setEditForm] = useState({
         basicSalary: '',
         allowances: '',
@@ -84,49 +78,7 @@ const Payroll = () => {
         fetchData();
     }, [fetchData]);
 
-    const handleGenerate = async (e) => {
-        e.preventDefault();
-        setSubmitting(true);
-        try {
-            await API.post('/salaries', formData);
-            setShowGenModal(false);
-            setFormData({
-                employeeId: '',
-                month: `${new Intl.DateTimeFormat('en', { month: 'long' }).format(new Date())} ${new Date().getFullYear()}`,
-                basicSalary: '',
-                allowances: 0,
-                deductions: 0
-            });
-            setCalcStats(null);
-            fetchData();
-            showToast('Payroll entry generated successfully.');
-        } catch (err) {
-            showToast(err.response?.data?.message || 'Error generating payroll', false);
-        } finally {
-            setSubmitting(false);
-        }
-    };
 
-    const handleCalculateDeductions = async () => {
-        if (!formData.employeeId || !formData.month || !formData.basicSalary) {
-            return showToast('Please select an employee and enter basic salary first', false);
-        }
-        setCalculating(true);
-        try {
-            const { data } = await API.post('/salaries/calculate-deductions', {
-                employeeId: formData.employeeId,
-                month: formData.month,
-                basicSalary: Number(formData.basicSalary)
-            });
-            setCalcStats(data);
-            setFormData({ ...formData, deductions: data.suggestedDeduction || 0 });
-            showToast(`Calculated: ${data.absentDays} Absents, ${data.lateDays} Lates`);
-        } catch (err) {
-            showToast(err.response?.data?.message || 'Error calculating deductions', false);
-        } finally {
-            setCalculating(false);
-        }
-    };
 
     const handleApprove = async (id) => {
         try {
@@ -199,6 +151,29 @@ const Payroll = () => {
             showToast(err.response?.data?.message || 'Error updating salary', false);
         } finally {
             setSubmitting(false);
+        }
+    };
+
+    const handleDeleteClick = (id) => {
+        const s = salaries.find(sal => sal._id === id);
+        if (s && s.status === 'Paid') {
+            showToast('Cannot delete a paid salary record', false);
+            return;
+        }
+        setSalaryToDelete(id);
+        setShowDeleteModal(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!salaryToDelete) return;
+        try {
+            const { data } = await API.delete(`/salaries/${salaryToDelete}`);
+            setShowDeleteModal(false);
+            setSalaryToDelete(null);
+            fetchData();
+            showToast(data.message || 'Payroll record deleted successfully.');
+        } catch (err) {
+            showToast(err.response?.data?.message || 'Error deleting salary', false);
         }
     };
 
@@ -306,6 +281,27 @@ const Payroll = () => {
                 </div>
             )}
 
+            {/* Delete Modal */}
+            {showDeleteModal && (
+                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.6)', zIndex: 999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(4px)' }}>
+                    <div style={{ background: '#fff', borderRadius: '16px', width: '100%', maxWidth: '400px', boxShadow: '0 20px 40px rgba(0,0,0,0.2)', overflow: 'hidden', animation: 'scaleIn 0.2s ease' }}>
+                        <div style={{ padding: '24px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <Trash2 size={20} color="#ef4444" /> Delete Payroll Record
+                            </h2>
+                            <button onClick={() => setShowDeleteModal(false)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#94a3b8', display: 'flex' }}><X size={20} /></button>
+                        </div>
+                        <div style={{ padding: '24px', fontSize: '14px', color: '#475569' }}>
+                            Are you sure you want to delete this payroll record? This action cannot be undone.
+                        </div>
+                        <div style={{ padding: '16px 24px', background: '#f8fafc', display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+                            <button type="button" onClick={() => setShowDeleteModal(false)} className="btn-secondary">Cancel</button>
+                            <button type="button" onClick={confirmDelete} style={{ background: '#ef4444', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '8px', fontWeight: 600, cursor: 'pointer' }}>Delete</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div className="main-content">
                 {/* Header */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
@@ -330,7 +326,7 @@ const Payroll = () => {
                                         <Banknote size={16} color="#10b981" /> Pay All ({stats.approved})
                                     </button>
                                 )}
-                                <button className="btn-primary flex-center" onClick={() => setShowGenModal(true)} style={{gap: '8px'}}>
+                                <button className="btn-primary flex-center" onClick={() => navigate('/payroll/generate')} style={{gap: '8px'}}>
                                     <TrendingUp size={16} /> Generate Payroll
                                 </button>
                             </div>
@@ -479,25 +475,31 @@ const Payroll = () => {
                         {loading ? (
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px' }}><Loader size={24} className="spin-icon"/></div>
                         ) : (
-                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', tableLayout: 'fixed', minWidth: '920px' }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', tableLayout: 'fixed', minWidth: '1150px' }}>
                                 <colgroup>
-                                    <col style={{ width: '16%' }} />
-                                    <col style={{ width: '11%' }} />
-                                    <col style={{ width: '9%' }} />
-                                    <col style={{ width: '11%' }} />
-                                    <col style={{ width: '12%' }} />
-                                    <col style={{ width: '11%' }} />
-                                    <col style={{ width: '10%' }} />
-                                    <col style={{ width: '20%' }} />
+                                    <col style={{ width: '12%' }} /> {/* Employee Name */}
+                                    <col style={{ width: '8%' }} />  {/* Employee ID */}
+                                    <col style={{ width: '10%' }} /> {/* Department */}
+                                    <col style={{ width: '8%' }} />  {/* Month */}
+                                    <col style={{ width: '9%' }} />  {/* Base Salary */}
+                                    <col style={{ width: '9%' }} />  {/* Adjustments */}
+                                    <col style={{ width: '9%' }} />  {/* Net Pay */}
+                                    <col style={{ width: '8%' }} />  {/* Pay Method */}
+                                    <col style={{ width: '8%' }} />  {/* Pay Date */}
+                                    <col style={{ width: '8%' }} />  {/* Status */}
+                                    <col style={{ width: '11%' }} /> {/* Actions */}
                                 </colgroup>
                                 <thead>
                                     <tr style={{ borderBottom: '2px solid #e2e8f0', color: '#64748b', textAlign: 'left', background: '#f8fafc', position: 'sticky', top: 0, zIndex: 2 }}>
                                         <th style={{ padding: '10px 14px', fontWeight: 600, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Employee</th>
+                                        <th style={{ padding: '10px 14px', fontWeight: 600, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Emp ID</th>
                                         <th style={{ padding: '10px 14px', fontWeight: 600, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Department</th>
                                         <th style={{ padding: '10px 14px', fontWeight: 600, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Month</th>
                                         <th style={{ padding: '10px 14px', fontWeight: 600, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px', textAlign: 'right' }}>Base Salary</th>
                                         <th style={{ padding: '10px 14px', fontWeight: 600, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px', textAlign: 'right' }}>Adjustments</th>
                                         <th style={{ padding: '10px 14px', fontWeight: 600, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px', textAlign: 'right' }}>Net Pay</th>
+                                        <th style={{ padding: '10px 14px', fontWeight: 600, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Method</th>
+                                        <th style={{ padding: '10px 14px', fontWeight: 600, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Date</th>
                                         <th style={{ padding: '10px 14px', fontWeight: 600, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px', textAlign: 'center' }}>Status</th>
                                         <th style={{ padding: '10px 14px', fontWeight: 600, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px', textAlign: 'center' }}>Actions</th>
                                     </tr>
@@ -518,6 +520,7 @@ const Payroll = () => {
                                                     </span>
                                                 </div>
                                             </td>
+                                            <td style={{ padding: '8px 14px', color: '#64748b', fontSize: '12px', whiteSpace: 'nowrap' }}>{s.employee?.employeeId || '—'}</td>
                                             <td style={{ padding: '8px 14px', color: '#64748b', fontSize: '12px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.employee?.department || 'N/A'}</td>
                                             <td style={{ padding: '8px 14px', color: '#334155', fontWeight: 500, fontSize: '12px', whiteSpace: 'nowrap' }}>{s.month}</td>
                                             <td style={{ padding: '8px 14px', color: '#334155', fontWeight: 600, fontSize: '12px', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>₹{(s.basicSalary || 0).toLocaleString()}</td>
@@ -530,6 +533,8 @@ const Payroll = () => {
                                             <td style={{ padding: '8px 14px', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
                                                 <span style={{ color: '#3b82f6', fontSize: '13px', fontWeight: 700 }}>₹{(s.netSalary || 0).toLocaleString()}</span>
                                             </td>
+                                            <td style={{ padding: '8px 14px', color: '#64748b', fontSize: '12px', whiteSpace: 'nowrap' }}>{s.paymentMethod || '—'}</td>
+                                            <td style={{ padding: '8px 14px', color: '#64748b', fontSize: '12px', whiteSpace: 'nowrap' }}>{s.paymentDate ? new Date(s.paymentDate).toLocaleDateString() : '—'}</td>
                                             <td style={{ padding: '8px 14px', textAlign: 'center' }}>
                                                 <span style={{ 
                                                     display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', 
@@ -599,9 +604,9 @@ const Payroll = () => {
                                                         </button>
                                                     )}
 
-                                                    {/* Delete — for Approved or Rejected */}
-                                                    {canPay && (s.status === 'Approved' || s.status === 'Rejected') && (
-                                                        <button onClick={() => handleDelete && handleDelete(s._id)} title="Delete Record"
+                                                    {/* Delete — for Awaiting Approval, Approved or Rejected */}
+                                                    {canPay && (s.status === 'Approved' || s.status === 'Rejected' || s.status === 'Awaiting Approval') && (
+                                                        <button onClick={() => handleDeleteClick(s._id)} title="Delete Record"
                                                             style={{ width: '36px', height: '36px', minWidth: '36px', minHeight: '36px', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#1e293b', transition: 'all 0.2s', padding: 0, lineHeight: 0 }}
                                                             onMouseEnter={e => { e.currentTarget.style.background = '#fef2f2'; e.currentTarget.style.borderColor = '#ef4444'; e.currentTarget.style.color = '#ef4444'; }}
                                                             onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#1e293b'; }}>
@@ -614,7 +619,7 @@ const Payroll = () => {
                                     ))}
                                     {salaries.length === 0 && (
                                         <tr>
-                                            <td colSpan="8" style={{ textAlign: 'center', padding: '40px', color: '#94a3b8', fontSize: '12px' }}>
+                                            <td colSpan="11" style={{ textAlign: 'center', padding: '40px', color: '#94a3b8', fontSize: '12px' }}>
                                                 No payroll records found. Click "Generate Payroll" to create entries.
                                             </td>
                                         </tr>
@@ -691,77 +696,7 @@ const Payroll = () => {
 
             {/* ═══════════════════ MODALS KEEP UNCHANGED ═══════════════════ */}
             
-            {showGenModal && (
-                <div className="modal-overlay" onClick={() => setShowGenModal(false)}>
-                    <div className="glass-card modal-content animate-pop" onClick={e => e.stopPropagation()}>
-                        <div className="modal-header">
-                            <h3>Generate New Payroll Entry</h3>
-                            <button className="close-btn" onClick={() => setShowGenModal(false)}>✕</button>
-                        </div>
-                        <form onSubmit={handleGenerate} className="p-30">
-                            <div className="form-group">
-                                <label>Select Employee</label>
-                                <select required value={formData.employeeId} onChange={e => {
-                                    setFormData({...formData, employeeId: e.target.value, basicSalary: employees.find(emp => String(emp._id || emp.id) === e.target.value)?.salary || formData.basicSalary});
-                                    setCalcStats(null);
-                                }}>
-                                    <option value="">Choose...</option>
-                                    {employees.map(emp => (
-                                        <option key={emp._id || emp.id} value={emp._id || emp.id}>{emp.firstName} {emp.lastName || ''} ({emp.department})</option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div className="form-grid mt-20">
-                                <div className="form-group">
-                                    <label>Month / Period</label>
-                                    <input type="text" required value={formData.month} onChange={e => setFormData({...formData, month: e.target.value})} />
-                                </div>
-                                <div className="form-group">
-                                    <label>Basic Salary (₹)</label>
-                                    <input type="number" required value={formData.basicSalary} onChange={e => setFormData({...formData, basicSalary: Number(e.target.value)})} placeholder="Enter amount" />
-                                </div>
-                            </div>
-                            <div className="form-grid mt-20">
-                                <div className="form-group">
-                                    <label>Allowances (₹)</label>
-                                    <input type="number" value={formData.allowances} onChange={e => setFormData({...formData, allowances: Number(e.target.value)})} />
-                                </div>
-                                <div className="form-group">
-                                    <label>Deductions (₹)</label>
-                                    <div style={{ display: 'flex', gap: '10px' }}>
-                                        <input type="number" style={{ flex: 1 }} value={formData.deductions} onChange={e => setFormData({...formData, deductions: Number(e.target.value)})} />
-                                        <button type="button" className="btn-secondary" style={{ padding: '0 15px', whiteSpace: 'nowrap' }} onClick={handleCalculateDeductions} disabled={calculating}>
-                                            {calculating ? '...' : 'Auto-Calc'}
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            {calcStats && (
-                                <div className="calc-stats-box mt-10">
-                                    <div className="flex-between"><span>Total Days:</span> <strong>{calcStats.daysInMonth}</strong></div>
-                                    <div className="flex-between"><span>Present:</span> <strong className="text-success">{calcStats.presentDays}</strong></div>
-                                    <div className="flex-between"><span>Absent:</span> <strong className="text-danger">{calcStats.absentDays}</strong></div>
-                                    <div className="flex-between"><span>Late:</span> <strong className="text-warning">{calcStats.lateDays}</strong></div>
-                                </div>
-                            )}
 
-                            {formData.basicSalary > 0 && (
-                                <div className="net-preview mt-20">
-                                    <span>Net Payable:</span>
-                                    <strong>₹{((formData.basicSalary || 0) + (formData.allowances || 0) - (formData.deductions || 0)).toLocaleString()}</strong>
-                                </div>
-                            )}
-                            <div className="modal-actions mt-30">
-                                <button type="button" className="btn-cancel" onClick={() => setShowGenModal(false)}>Cancel</button>
-                                <button type="submit" className="btn-primary" disabled={submitting}>
-                                    {submitting ? 'Processing...' : 'Submit'}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
 
             {/* PAY INDIVIDUAL MODAL */}
             {showPayModal && selectedSalary && (

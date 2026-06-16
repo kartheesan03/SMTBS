@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const {
     getNotifications,
+    getUnreadCount,
     markAsRead,
     markAllAsRead,
     deleteNotification,
@@ -14,8 +15,9 @@ const { authorize } = require('../middleware/roleMiddleware');
 router.use(protect);
 
 router.get('/', getNotifications);
-router.put('/mark-all-read', markAllAsRead);          // must be BEFORE /:id routes
-router.put('/:id/read', markAsRead);
+router.get('/unread-count', getUnreadCount);
+router.patch('/mark-all-read', markAllAsRead);          // must be BEFORE /:id routes
+router.patch('/:id/read', markAsRead);
 router.delete('/:id', deleteNotification);
 router.post('/seed', authorize('Admin', 'HR'), seedNotifications);
 

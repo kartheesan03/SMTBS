@@ -119,14 +119,15 @@ const checkIn = async (req, res) => {
 
         // Prevent duplicate Check-In notification using a unique ref
         const recentNotifs = await Notification.find();
-        const duplicateExists = recentNotifs.some(n => n.payload && n.payload.ref === ref);
+        const duplicateExists = recentNotifs.some(n => n.module === 'Attendance' && n.referenceId === ref);
 
         if (!duplicateExists) {
             await notifyHR({
+                module: 'Attendance',
+                referenceId: ref,
                 title: 'Employee Check-In',
                 message: msg,
-                type: finalStatus === 'Late' ? 'warning' : 'info',
-                payload: { ref }
+                type: finalStatus === 'Late' ? 'warning' : 'info'
             });
         }
 
@@ -171,14 +172,15 @@ const checkOut = async (req, res) => {
 
         // Prevent duplicate Check-Out notification using a unique ref
         const recentNotifs = await Notification.find();
-        const duplicateExists = recentNotifs.some(n => n.payload && n.payload.ref === ref);
+        const duplicateExists = recentNotifs.some(n => n.module === 'Attendance' && n.referenceId === ref);
 
         if (!duplicateExists) {
             await notifyHR({
+                module: 'Attendance',
+                referenceId: ref,
                 title: 'Employee Check-Out',
                 message: msg,
-                type: 'info',
-                payload: { ref }
+                type: 'info'
             });
         }
 

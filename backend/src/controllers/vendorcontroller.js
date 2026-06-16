@@ -48,10 +48,11 @@ exports.createVendor = async (req, res) => {
         await vendor.save();
 
         await notifyManager({
+            module: 'Vendors',
+            referenceId: vendor._id || vendor.id,
             title: 'New Vendor Added',
             message: `${vendorData.name} has been added to the system.`,
-            type: 'info',
-            category: 'system'
+            type: 'info'
         });
 
         res.status(201).json(vendor);
@@ -124,10 +125,11 @@ exports.createVendorProfile = async (req, res) => {
         }
 
         await notifyManager({
+            module: 'Vendors',
+            referenceId: createdVendor._id || createdVendor.id,
             title: 'New Vendor Profile',
             message: `${vendorData.name} has completed their self-registration profile.`,
-            type: 'info',
-            category: 'system'
+            type: 'info'
         });
 
         res.status(201).json(createdVendor);
@@ -149,10 +151,11 @@ exports.deleteVendor = async (req, res) => {
         // If they want to just delete the vendor, this is sufficient.
         
         await notifyManager({
+            module: 'Vendors',
+            referenceId: vendor._id || vendor.id,
             title: 'Vendor Deleted',
             message: `${vendor.name || 'A vendor'} has been deleted from the system.`,
-            type: 'warning',
-            category: 'system'
+            type: 'warning'
         });
 
         res.status(200).json({ message: 'Vendor deleted successfully' });

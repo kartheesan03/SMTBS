@@ -9,29 +9,28 @@ const getNotifications = async (req, res) => {
     try {
         let query = {};
         
-        // Everyone only sees their own or global notifications
+        // Everyone only sees their own or global notifications, or role-based notifications
         query = {
             $or: [
-                { userId: null },             // global notifications visible to all
-                { userId: req.user._id },     // user-specific notifications
-                { userId: req.user.id }       // fallback for int ids
+                { userId: null, role: null },             // global notifications visible to all
+                { userId: req.user._id },                 // user-specific notifications
+                { userId: req.user.id },                  // fallback for int ids
+                { role: req.user.role }                   // role-based notifications
             ]
         };
 
-        if (req.user.role === 'HR') {
-            query.category = { $in: ['hr', 'payroll', 'attendance', 'employee', 'system', 'general'] };
-        }
-
+        // HR sees everything if they need to, but the new role-based logic handles this better.
+        // Let's keep it simple and strictly based on the query above.
         let notifications = await Notification.find(query).sort({ createdAt: -1 });
 
-        // Filter out order notifications where the order no longer exists
-        const orderNotifications = notifications.filter(n => n.category === 'order' && n.payload?.order_id);
+        // Filter out order notifications where the order no longer exists (Clean up old logic if needed, but keeping it safe)
+        const orderNotifications = notifications.filter(n => n.module === 'Orders' && n.referenceId);
         if (orderNotifications.length > 0) {
-            const orderIds = orderNotifications.map(n => n.payload.order_id);
+            const orderIds = orderNotifications.map(n => n.referenceId);
             const validOrders = await Order.find({ id: { $in: orderIds } }).select('id');
             const validOrderIds = new Set(validOrders.map(o => (o.id || o._id).toString()));
 
-            const invalidNotifs = orderNotifications.filter(n => !validOrderIds.has(n.payload.order_id.toString()));
+            const invalidNotifs = orderNotifications.filter(n => !validOrderIds.has(n.referenceId.toString()));
             
             if (invalidNotifs.length > 0) {
                 const invalidIds = invalidNotifs.map(n => n._id || n.id);
@@ -40,7 +39,7 @@ const getNotifications = async (req, res) => {
             }
         }
 
-        const unreadCount = notifications.filter(n => !n.isRead).length;
+        const unreadCount = notifications.filter(n => n.status === 'unread').length;
 
         res.json({ notifications, unreadCount });
     } catch (error) {
@@ -49,8 +48,29 @@ const getNotifications = async (req, res) => {
     }
 };
 
+// @desc    Get unread notification count
+// @route   GET /api/notifications/unread-count
+// @access  Private
+const getUnreadCount = async (req, res) => {
+    try {
+        const query = {
+            status: 'unread',
+            $or: [
+                { userId: null, role: null },
+                { userId: req.user._id },
+                { userId: req.user.id },
+                { role: req.user.role }
+            ]
+        };
+        const count = await Notification.countDocuments(query);
+        res.json({ unreadCount: count });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 // @desc    Mark a single notification as read
-// @route   PUT /api/notifications/:id/read
+// @route   PATCH /api/notifications/:id/read
 // @access  Private
 const markAsRead = async (req, res) => {
     try {
@@ -60,12 +80,7 @@ const markAsRead = async (req, res) => {
             return res.status(404).json({ message: 'Notification not found' });
         }
 
-        // Only allow read if it belongs to this user or is global
-        if (notification.userId && notification.userId.toString() !== req.user._id.toString()) {
-            return res.status(403).json({ message: 'Not authorized to update this notification' });
-        }
-
-        notification.isRead = true;
+        notification.status = 'read';
         await notification.save();
 
         res.json({ message: 'Notification marked as read', notification });
@@ -75,19 +90,21 @@ const markAsRead = async (req, res) => {
 };
 
 // @desc    Mark ALL notifications as read for the current user
-// @route   PUT /api/notifications/mark-all-read
+// @route   PATCH /api/notifications/mark-all-read
 // @access  Private
 const markAllAsRead = async (req, res) => {
     try {
         await Notification.updateMany(
             {
-                isRead: false,
+                status: 'unread',
                 $or: [
-                    { userId: null },
-                    { userId: req.user._id }
+                    { userId: null, role: null },
+                    { userId: req.user._id },
+                    { userId: req.user.id },
+                    { role: req.user.role }
                 ]
             },
-            { $set: { isRead: true } }
+            { $set: { status: 'read' } }
         );
 
         res.json({ message: 'All notifications marked as read' });
@@ -121,12 +138,6 @@ const seedNotifications = async (req, res) => {
     try {
         const seedData = [];
 
-        // Clean up legacy stock notifications (missing payload)
-        await Notification.deleteMany({
-            category: 'stock',
-            'payload.material_id': { $exists: false }
-        });
-
         // Check for actual low-stock materials and create real notifications
         try {
             const allMaterials = await Material.find({});
@@ -138,61 +149,42 @@ const seedNotifications = async (req, res) => {
                 if (qty === 0) status = 'Out of Stock';
                 else if (qty <= threshold && threshold > 0) status = 'Low Stock';
 
-                if (status === 'In Stock') {
-                    // Clear active stock notifications for this material
-                    await Notification.deleteMany({
-                        category: 'stock',
-                        'payload.material_id': mat._id || mat.id,
-                        isRead: false
-                    });
-                } else if (status === 'Low Stock') {
-                    // Clear active out_of_stock
-                    await Notification.deleteMany({
-                        category: 'stock',
-                        'payload.material_id': mat._id || mat.id,
-                        'payload.alert_type': 'out_of_stock',
-                        isRead: false
-                    });
-
+                if (status === 'Low Stock') {
                     const exists = await Notification.findOne({
-                        category: 'stock',
-                        'payload.material_id': mat._id || mat.id,
-                        'payload.alert_type': 'low_stock',
-                        isRead: false
+                        module: 'Materials',
+                        referenceId: mat._id || mat.id,
+                        type: 'warning',
+                        status: 'unread'
                     });
                     if (!exists) {
                         seedData.push({
                             title: `Low Stock Alert: ${mat.name}`,
                             message: `${mat.name} (SKU: ${mat.sku || 'N/A'}) reached critical level: ${qty} ${mat.unit || 'units'}.`,
                             type: 'warning',
-                            category: 'stock',
+                            module: 'Materials',
+                            referenceId: String(mat._id || mat.id),
                             userId: null,
-                            payload: { material_id: mat._id || mat.id, alert_type: 'low_stock' }
+                            role: 'Manager',
+                            status: 'unread'
                         });
                     }
                 } else if (status === 'Out of Stock') {
-                    // Clear active low_stock
-                    await Notification.deleteMany({
-                        category: 'stock',
-                        'payload.material_id': mat._id || mat.id,
-                        'payload.alert_type': 'low_stock',
-                        isRead: false
-                    });
-
                     const exists = await Notification.findOne({
-                        category: 'stock',
-                        'payload.material_id': mat._id || mat.id,
-                        'payload.alert_type': 'out_of_stock',
-                        isRead: false
+                        module: 'Materials',
+                        referenceId: mat._id || mat.id,
+                        type: 'error',
+                        status: 'unread'
                     });
                     if (!exists) {
                         seedData.push({
                             title: `Out of Stock Alert: ${mat.name}`,
                             message: `${mat.name} (SKU: ${mat.sku || 'N/A'}) is completely out of stock.`,
                             type: 'error',
-                            category: 'stock',
+                            module: 'Materials',
+                            referenceId: String(mat._id || mat.id),
                             userId: null,
-                            payload: { material_id: mat._id || mat.id, alert_type: 'out_of_stock' }
+                            role: 'Manager',
+                            status: 'unread'
                         });
                     }
                 }
@@ -211,8 +203,8 @@ const seedNotifications = async (req, res) => {
 
             for (const order of confirmedOrders) {
                 const exists = await Notification.findOne({
-                    category: 'order',
-                    title: `Order Confirmed: ${order.orderNumber}`
+                    module: 'Orders',
+                    referenceId: order._id || order.id
                 });
                 if (!exists) {
                     const isPurchase = order.orderType === 'purchase';
@@ -224,17 +216,11 @@ const seedNotifications = async (req, res) => {
                         title: `Order Confirmed: ${order.orderNumber}`,
                         message: `Order ${order.orderNumber} from ${entityName} has been confirmed.`,
                         type: 'success',
-                        category: 'order',
+                        module: 'Orders',
+                        referenceId: String(order._id || order.id),
                         userId: null,
-                        payload: {
-                            order_id: order._id || order.id,
-                            order_number: order.orderNumber,
-                            order_type: order.orderType,
-                            customer_or_vendor_name: entityName,
-                            status: order.status,
-                            created_by: 'System',
-                            created_at: new Date()
-                        }
+                        role: 'Sales',
+                        status: 'unread'
                     });
                 }
             }
@@ -250,15 +236,21 @@ const seedNotifications = async (req, res) => {
                     title: 'Welcome to SMTBMS',
                     message: 'System is up and running. All modules are operational.',
                     type: 'info',
-                    category: 'system',
-                    userId: null
+                    module: 'System',
+                    referenceId: 'sys-start',
+                    userId: null,
+                    role: null,
+                    status: 'unread'
                 },
                 {
                     title: 'System Maintenance',
                     message: 'Scheduled backup starting at 11:00 PM tonight.',
                     type: 'info',
-                    category: 'system',
-                    userId: null
+                    module: 'System',
+                    referenceId: 'sys-maint',
+                    userId: null,
+                    role: null,
+                    status: 'unread'
                 }
             );
         }
