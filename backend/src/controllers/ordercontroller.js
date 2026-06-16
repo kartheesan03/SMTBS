@@ -31,7 +31,11 @@ const getOrderPayload = (order, reqUser) => {
 
 const getOrders = async (req, res) => {
     try {
-        const orders = await Order.find({});
+        const orders = await Order.find({})
+            .populate('customer', 'name email phone company address')
+            .populate('vendor', 'name email phone address contactPerson')
+            .populate('items.material', 'name price quantity')
+            .sort({ createdAt: -1 });
         console.log(`[API /orders] Fetched ${orders.length} orders.`);
         res.json(orders);
     } catch (error) {

@@ -151,6 +151,7 @@ const ERP = () => {
         try {
             await API.put(`/orders/${id}/status`, { status: newStatus });
             fetchData();
+            fetchOrders();
             if (fetchNotifications) fetchNotifications();
         } catch (err) {
             alert(err.response?.data?.message || 'Error updating order status');
@@ -161,6 +162,7 @@ const ERP = () => {
         try {
             await API.put(`/orders/${id}/payment-status`, { paymentStatus: newStatus });
             fetchData();
+            fetchOrders();
         } catch (err) {
             alert(err.response?.data?.message || 'Error updating payment status');
         }
@@ -178,7 +180,37 @@ const ERP = () => {
 
         const doc = new jsPDF();
         const invoiceNum = order.invoiceNumber || `INV-${order.orderNumber}`;
-        const customerName = order.orderType === 'purchase' ? (order.vendor?.name || 'Walk-in Vendor') : (order.customer?.name || 'Walk-in Customer');
+        const isPurchase = order.orderType === 'purchase';
+
+        let billToName = isPurchase ? 'Walk-in Vendor' : 'Walk-in Customer';
+        let billToEmail = '';
+        let billToPhone = '';
+        let billToAddress = '';
+
+        if (isPurchase) {
+            billToName = 
+                order.vendor?.companyName ||
+                order.vendor?.name ||
+                order.vendorName ||
+                order.companyName ||
+                'Walk-in Vendor';
+                
+            billToEmail = order.vendor?.email || order.vendorEmail || '';
+            billToPhone = order.vendor?.phone || order.vendorPhone || '';
+            billToAddress = order.vendor?.address || order.vendorAddress || '';
+        } else {
+            billToName = 
+                order.customer?.company ||
+                order.customer?.companyName ||
+                order.customer?.name ||
+                order.customerName ||
+                order.companyName ||
+                'Walk-in Customer';
+                
+            billToEmail = order.customer?.email || order.customerEmail || '';
+            billToPhone = order.customer?.phone || order.customerPhone || '';
+            billToAddress = order.customer?.address || order.customerAddress || '';
+        }
 
         // Header
         doc.setFontSize(20);
@@ -194,7 +226,24 @@ const ERP = () => {
         doc.setFontSize(12);
         doc.text('Bill To:', 14, 71);
         doc.setFontSize(10);
-        doc.text(customerName, 14, 78);
+        doc.text(billToName, 14, 78);
+        
+        let yPos = 84;
+        if (billToEmail) {
+            doc.text(`Email: ${billToEmail}`, 14, yPos);
+            yPos += 5;
+        }
+        if (billToPhone) {
+            doc.text(`Phone: ${billToPhone}`, 14, yPos);
+            yPos += 5;
+        }
+        if (billToAddress) {
+            const splitAddress = doc.splitTextToSize(`Address: ${billToAddress}`, 80);
+            doc.text(splitAddress, 14, yPos);
+            yPos += (splitAddress.length * 5);
+        }
+        
+        const tableStartY = Math.max(91, yPos + 5);
 
         // Items Table
         const tableColumn = ["Item", "Quantity", "Price", "Total"];
@@ -203,9 +252,8 @@ const ERP = () => {
 
         if (order.items && order.items.length > 0) {
             order.items.forEach(item => {
-                let materialObj = materials.find(m => String(m._id || m.id) === String(item.material));
-                let materialName = materialObj ? materialObj.name : (item.materialName || 'Material');
-                let price = materialObj ? materialObj.price : (item.price || 0);
+                let materialName = item.material?.name || item.materialName || 'Material';
+                let price = item.price || item.material?.price || 0;
 
                 const itemTotal = item.quantity * price;
                 grandTotal += itemTotal;
@@ -222,10 +270,10 @@ const ERP = () => {
         autoTable(doc, {
             head: [tableColumn],
             body: tableRows,
-            startY: 91,
+            startY: tableStartY,
         });
 
-        const finalY = doc.lastAutoTable.finalY || 91;
+        const finalY = doc.lastAutoTable.finalY || tableStartY;
         doc.setFontSize(12);
         doc.text(`Grand Total: $${grandTotal.toLocaleString()}`, 14, finalY + 10);
 
