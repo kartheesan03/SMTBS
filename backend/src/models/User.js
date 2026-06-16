@@ -42,6 +42,10 @@ const UserSequelize = sequelize.define('User', {
     isProfileComplete: {
         type: DataTypes.BOOLEAN,
         defaultValue: false
+    },
+    provider: {
+        type: DataTypes.STRING,
+        defaultValue: 'local'
     }
 }, {
     hooks: {

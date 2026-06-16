@@ -82,37 +82,15 @@ const googleAuth = async (req, res) => {
     try {
         let email, name, googleId;
 
-        // --- DEV-ONLY MOCK LOGIN BYPASS ---
-        if (credential === 'mock_google_token' && process.env.NODE_ENV === 'development') {
-            email = req.body.mockEmail || 'test@mock.com';
-            name = req.body.mockName || 'Mock User';
-            googleId = `mock_id_${email}`;
-        } else {
-            // --- REAL GOOGLE VERIFICATION ---
-            // If credential is long (a JWT), verify as ID Token
-            if (credential.length > 500) {
-                const ticket = await client.verifyIdToken({
-                    idToken: credential,
-                    audience: process.env.GOOGLE_CLIENT_ID,
-                });
-                const payload = ticket.getPayload();
-                email = payload.email;
-                name = payload.name;
-                googleId = payload.sub;
-            } else {
-                // Otherwise, verify as Access Token (from useGoogleLogin implicit flow)
-                const response = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-                    headers: { Authorization: `Bearer ${credential}` }
-                });
-                if (!response.ok) {
-                    throw new Error('Failed to fetch user info with access token');
-                }
-                const data = await response.json();
-                email = data.email;
-                name = data.name;
-                googleId = data.sub;
-            }
-        }
+        // Verify Google ID Token
+        const ticket = await client.verifyIdToken({
+            idToken: credential,
+            audience: process.env.GOOGLE_CLIENT_ID,
+        });
+        const payload = ticket.getPayload();
+        email = payload.email;
+        name = payload.name;
+        googleId = payload.sub;
 
         // Extract email safely as a string
         if (typeof email !== 'string') {
@@ -128,25 +106,9 @@ const googleAuth = async (req, res) => {
         let user = await User.findOne({ email });
 
         if (user) {
-            let userUpdated = false;
-
-            // User exists, update googleId if not present
+            // User exists — update googleId if not present, then login
             if (!user.googleId) {
                 user.googleId = googleId;
-                userUpdated = true;
-            }
-
-            // If user already exists with same email, update role and login.
-            if (signupRole) {
-                const actualRole = signupRole === 'Vendor/Supplier' ? 'Vendor' : signupRole;
-                if (actualRole === 'Customer' || actualRole === 'Vendor') {
-                    user.role = actualRole;
-                    user.isProfileComplete = false;
-                    userUpdated = true;
-                }
-            }
-
-            if (userUpdated) {
                 await user.save();
             }
 
@@ -192,6 +154,8 @@ const googleAuth = async (req, res) => {
                 googleId,
                 role: actualRole,
                 password: dummyPassword,
+                provider: 'google',
+                active: true,
                 isProfileComplete: false
             });
 
