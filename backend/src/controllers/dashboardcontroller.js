@@ -16,13 +16,14 @@ const getDashboardStats = async (req, res) => {
             const materials = await Material.find({});
             const activeMaterialsCount = materials.filter(m => m.isActive !== false).length;
 
-            const [totalEmployees, totalOrders, totalCustomers, totalVendors] = await Promise.all([
+            const [totalEmployees, totalOrders, totalCustomers, activeCustomers, totalVendors] = await Promise.all([
                 Employee.countDocuments(),
                 Order.countDocuments(),
                 Customer.countDocuments(),
+                Customer.countDocuments({ status: 'Active' }),
                 Vendor.countDocuments()
             ]);
-            stats = { totalMaterials: activeMaterialsCount, totalEmployees, totalOrders, totalCustomers, totalVendors };
+            stats = { totalMaterials: activeMaterialsCount, totalEmployees, totalOrders, totalCustomers, activeCustomers, totalVendors };
         } catch (e) { console.error('Count Stats Error:', e); }
 
         let revenue = 0;
@@ -144,7 +145,8 @@ const getDashboardStats = async (req, res) => {
         let data = {
             totalEmployees: stats.totalEmployees || 0,
             totalMaterials: stats.totalMaterials || 0,
-            activeCustomers: stats.totalCustomers || 0,
+            activeCustomers: stats.activeCustomers || 0,
+            totalCustomers: stats.totalCustomers || 0,
             openOrders: (await Order.countDocuments({ status: { $nin: ['Delivered', 'Completed', 'Cancelled'] } })) || 0,
             lowStockItems: lowStockMaterials.length,
             totalStockQuantity: totalStockQuantity,

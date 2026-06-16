@@ -66,7 +66,7 @@ const AdminDashboard = () => {
     }
 
     const totalEmployees = dashboard.totalEmployees || dashboard.hrStats?.totalEmployees || 0;
-    const activeCustomers = dashboard.totalCustomers || 0;
+    const activeCustomers = dashboard.activeCustomers || 0;
 
     let lowStockCount = 0;
     let outOfStockCount = 0;
