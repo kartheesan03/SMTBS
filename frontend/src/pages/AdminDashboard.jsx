@@ -164,235 +164,224 @@ const AdminDashboard = () => {
                 </div>
             </div>
 
-            <div className="bento-grid">
-                {/* Left Side: KPIs and Charts (Span 9) */}
-                <div className="bento-col-9 bento-grid" style={{ alignContent: 'start' }}>
-                    
-                    {/* Top KPIs (2 rows of 3) */}
-                    {kpiCards.map((kpi, idx) => (
-                        <div className="bento-col-4" key={idx}>
-                            <div className="bento-card kpi-card-bento" style={{ position: 'relative', overflow: 'hidden' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                                    <div style={{ color: '#64748b', fontSize: '12px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{kpi.title}</div>
-                                    <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: `${kpi.color}15`, color: kpi.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                        <kpi.icon size={16} strokeWidth={2.5} />
-                                    </div>
-                                </div>
-                                <h3 style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '0 0 8px 0', lineHeight: 1 }}>{kpi.value}</h3>
-                                <div style={{ display: 'flex', alignItems: 'center', fontSize: '12px', fontWeight: 600, color: kpi.title === 'Low Stock Items' ? (kpi.trendType === 'down' ? '#10b981' : '#ef4444') : (kpi.trendType === 'up' ? '#10b981' : '#ef4444') }}>
-                                    {kpi.trendType === 'up' ? <ArrowUpRight size={14} style={{ marginRight: '4px' }}/> : <ArrowDownRight size={14} style={{ marginRight: '4px' }}/>}
-                                    {kpi.trend}
-                                </div>
+            {/* ===== KPI ROW ===== */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '16px', marginBottom: '20px' }}>
+                {kpiCards.map((kpi, idx) => (
+                    <div key={idx} className="bento-card kpi-card-bento" style={{ position: 'relative', overflow: 'hidden', borderRadius: '14px', padding: '16px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
+                            <div style={{ color: '#64748b', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{kpi.title}</div>
+                            <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: `${kpi.color}15`, color: kpi.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                <kpi.icon size={14} strokeWidth={2.5} />
                             </div>
                         </div>
-                    ))}
-
-                    {/* Middle Section: Charts */}
-                    <div className="bento-col-4">
-                        <div className="bento-card chart-card">
-                            <div className="bento-card-header">
-                                <h3 className="bento-card-title"><PieChartIcon size={16} /> Material Overview</h3>
-                            </div>
-                            <div className="bento-card-body" style={{ position: 'relative' }}>
-                                {inventoryData.length > 0 ? (
-                                    <>
-                                        <ResponsiveContainer width="100%" height={160}>
-                                            <PieChart>
-                                                <Pie
-                                                    data={inventoryData}
-                                                    cx="50%" cy="50%"
-                                                    innerRadius={45} outerRadius={65}
-                                                    paddingAngle={5}
-                                                    dataKey="value" stroke="none"
-                                                >
-                                                    {inventoryData.map((entry, index) => (
-                                                        <Cell key={`cell-${index}`} fill={entry.color} />
-                                                    ))}
-                                                </Pie>
-                                                <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }} />
-                                            </PieChart>
-                                        </ResponsiveContainer>
-                                        <div style={{ position: 'absolute', top: '40%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center', pointerEvents: 'none' }}>
-                                            <div style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', lineHeight: 1 }}>{totalMaterials}</div>
-                                        </div>
-                                        <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', flexWrap: 'wrap', marginTop: '12px' }}>
-                                            {inventoryData.map((item, idx) => (
-                                                <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: 600, color: '#475569' }}>
-                                                    <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: item.color }}></span>
-                                                    {item.name}
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </>
-                                ) : (
-                                    <div className="flex-center" style={{ height: '100%', color: '#94a3b8', fontSize: '13px' }}>No data</div>
-                                )}
-                            </div>
+                        <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', margin: '0 0 6px 0', lineHeight: 1 }}>{kpi.value}</h3>
+                        <div style={{ display: 'flex', alignItems: 'center', fontSize: '11px', fontWeight: 600, color: kpi.title === 'Low Stock Items' ? (kpi.trendType === 'down' ? '#10b981' : '#ef4444') : (kpi.trendType === 'up' ? '#10b981' : '#ef4444') }}>
+                            {kpi.trendType === 'up' ? <ArrowUpRight size={12} style={{ marginRight: '4px' }}/> : <ArrowDownRight size={12} style={{ marginRight: '4px' }}/>}
+                            {kpi.trend}
                         </div>
                     </div>
+                ))}
+            </div>
 
-                    <div className="bento-col-8">
-                        <div className="bento-card chart-card">
-                            <div className="bento-card-header">
-                                <h3 className="bento-card-title"><BarChart2 size={16} /> Stock & Order Status</h3>
-                            </div>
-                            <div className="bento-card-body">
-                                {ordersStatusData.length > 0 ? (
-                                    <ResponsiveContainer width="100%" height={200}>
-                                        <BarChart data={ordersStatusData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                                            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} dy={10} />
-                                            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} />
-                                            <RechartsTooltip cursor={{fill: '#f8fafc'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }} />
-                                            <Bar dataKey="count" radius={[4, 4, 0, 0]} barSize={32}>
-                                                {ordersStatusData.map((entry, index) => (
+            {/* ===== ROW 1: Material Overview (4) + Stock & Order (5) + Quick Actions (3) ===== */}
+            <div style={{ display: 'grid', gridTemplateColumns: '4fr 5fr 3fr', gap: '20px', marginBottom: '20px' }}>
+
+                {/* Material Overview */}
+                <div className="bento-card" style={{ borderRadius: '14px', display: 'flex', flexDirection: 'column', minHeight: '260px', overflow: 'hidden' }}>
+                    <div style={{ padding: '16px 18px', height: '48px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                        <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px', whiteSpace: 'nowrap' }}><PieChartIcon size={16} /> Material Overview</h3>
+                    </div>
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '0 24px 24px 24px', overflow: 'hidden' }}>
+                        {inventoryData.length > 0 ? (
+                            <>
+                                <div style={{ position: 'relative', flex: 1, minHeight: '160px' }}>
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <PieChart margin={{ top: 10, right: 10, bottom: 10, left: 10 }}>
+                                            <Pie
+                                                data={inventoryData}
+                                                cx="50%" cy="50%"
+                                                innerRadius={50} outerRadius={70}
+                                                paddingAngle={5}
+                                                dataKey="value" stroke="none"
+                                            >
+                                                {inventoryData.map((entry, index) => (
                                                     <Cell key={`cell-${index}`} fill={entry.color} />
                                                 ))}
-                                            </Bar>
-                                        </BarChart>
+                                            </Pie>
+                                            <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }} />
+                                        </PieChart>
                                     </ResponsiveContainer>
-                                ) : (
-                                    <div className="flex-center" style={{ height: '100%', color: '#94a3b8', fontSize: '13px' }}>No data</div>
-                                )}
-                            </div>
-                        </div>
+                                    <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center', pointerEvents: 'none' }}>
+                                        <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', lineHeight: 1 }}>{totalMaterials}</div>
+                                    </div>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'center', gap: '14px', flexWrap: 'wrap', paddingTop: '12px', flexShrink: 0 }}>
+                                    {inventoryData.map((item, idx) => (
+                                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 600, color: '#475569' }}>
+                                            <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: item.color, flexShrink: 0 }}></span>
+                                            {item.name}
+                                        </div>
+                                    ))}
+                                </div>
+                            </>
+                        ) : (
+                            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: '13px' }}>No data</div>
+                        )}
                     </div>
-
-                    {/* Bottom Overviews */}
-                    <div className="bento-col-4">
-                        <div className="bento-card" style={{ height: '100%' }}>
-                            <div className="bento-card-header">
-                                <h3 className="bento-card-title"><Users size={16} /> HR Overview</h3>
-                            </div>
-                            <div className="bento-card-body" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>Total Employees</span>
-                                    <span style={{ fontSize: '14px', fontWeight: 600, color: '#0f172a' }}>{dashboard.hrStats?.totalEmployees || 0}</span>
-                                </div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>Present Today</span>
-                                    <span style={{ fontSize: '14px', fontWeight: 600, color: '#10b981' }}>{dashboard.hrStats?.presentToday || 0}</span>
-                                </div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>On Leave</span>
-                                    <span style={{ fontSize: '14px', fontWeight: 600, color: '#f59e0b' }}>{dashboard.hrStats?.onLeave || 0}</span>
-                                </div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>New Joiners</span>
-                                    <span style={{ fontSize: '14px', fontWeight: 600, color: '#3b82f6' }}>{dashboard.hrStats?.newJoiners || 0}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="bento-col-4">
-                        <div className="bento-card" style={{ height: '100%' }}>
-                            <div className="bento-card-header">
-                                <h3 className="bento-card-title"><ShoppingCart size={16} /> ERP Overview</h3>
-                            </div>
-                            <div className="bento-card-body" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>Open Orders</span>
-                                    <span style={{ fontSize: '14px', fontWeight: 600, color: '#0f172a' }}>{openOrders}</span>
-                                </div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>Low Stock Materials</span>
-                                    <span style={{ fontSize: '14px', fontWeight: 600, color: '#ef4444' }}>{lowStockCount}</span>
-                                </div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>Out of Stock</span>
-                                    <span style={{ fontSize: '14px', fontWeight: 600, color: '#ef4444' }}>{outOfStockCount}</span>
-                                </div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>Active Projects</span>
-                                    <span style={{ fontSize: '14px', fontWeight: 600, color: '#3b82f6' }}>{dashboard.managerStats?.activeProjects || 0}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="bento-col-4">
-                        <div className="bento-card" style={{ height: '100%' }}>
-                            <div className="bento-card-header">
-                                <h3 className="bento-card-title"><TrendingUp size={16} /> Revenue Quick Stats</h3>
-                            </div>
-                            <div className="bento-card-body" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>YTD Revenue</span>
-                                    <span style={{ fontSize: '14px', fontWeight: 600, color: '#10b981' }}>{formatYAxis(totalRevenue)}</span>
-                                </div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>Avg Order Value</span>
-                                    <span style={{ fontSize: '14px', fontWeight: 600, color: '#0f172a' }}>{formatYAxis(orders.length ? totalRevenue / orders.length : 0)}</span>
-                                </div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>Total Orders</span>
-                                    <span style={{ fontSize: '14px', fontWeight: 600, color: '#0f172a' }}>{orders.length}</span>
-                                </div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>Customer Count</span>
-                                    <span style={{ fontSize: '14px', fontWeight: 600, color: '#3b82f6' }}>{activeCustomers}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                 </div>
 
-                {/* Right Side: Feature Panel & Activity (Span 3) */}
-                <div className="bento-col-3 bento-grid" style={{ alignContent: 'start' }}>
-                    <div className="bento-col-12">
-                        <div className="bento-card" style={{ padding: '16px' }}>
-                            <h3 style={{ fontSize: '13px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '16px' }}>Quick Actions</h3>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                {[
-                                    { path: '/materials', name: 'Material Tracking', icon: Package, color: '#3b82f6' },
-                                    { path: '/hrms', name: 'HR Management', icon: Users, color: '#8b5cf6' },
-                                    { path: '/erp', name: 'ERP Operations', icon: ShoppingCart, color: '#10b981' },
-                                    { path: '/crm', name: 'CRM Management', icon: Briefcase, color: '#f59e0b' },
-                                    { path: '/analytics', name: 'Reports & Analytics', icon: BarChart2, color: '#ec4899' },
-                                    { path: '/hrms', name: 'User Management', icon: Shield, color: '#64748b' }
-                                ].map((link, idx) => (
-                                    <NavLink to={link.path} key={idx} style={{ display: 'flex', alignItems: 'center', padding: '10px 12px', background: '#f8fafc', border: '1px solid #f1f5f9', borderRadius: '8px', textDecoration: 'none', color: '#0f172a', fontWeight: 500, fontSize: '13px', transition: 'all 0.2s' }} className="quick-action-link">
-                                        <div style={{ width: '28px', height: '28px', borderRadius: '6px', background: `${link.color}15`, color: link.color, display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: '12px' }}>
-                                            <link.icon size={14} />
-                                        </div>
-                                        {link.name}
-                                    </NavLink>
-                                ))}
-                            </div>
-                        </div>
+                {/* Stock & Order Status */}
+                <div className="bento-card" style={{ borderRadius: '14px', display: 'flex', flexDirection: 'column', minHeight: '260px', overflow: 'hidden' }}>
+                    <div style={{ padding: '16px 18px', height: '48px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                        <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px', whiteSpace: 'nowrap' }}><BarChart2 size={16} /> Stock & Order Status</h3>
                     </div>
-
-                    <div className="bento-col-12">
-                        <div className="bento-card" style={{ height: '400px', padding: '16px' }}>
-                            <div className="bento-card-header" style={{ marginBottom: '16px', paddingBottom: '0', borderBottom: 'none' }}>
-                                <h3 className="bento-card-title" style={{ fontSize: '13px', color: '#64748b' }}><Activity size={14} /> Recent Activity</h3>
-                            </div>
-                            <div className="bento-card-body" style={{ overflowY: 'auto' }}>
-                                {recentActivities.length > 0 ? (
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                                        {recentActivities.map((act, i) => (
-                                            <div key={act.id || i} style={{ display: 'flex', gap: '12px', position: 'relative' }}>
-                                                <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#f1f5f9', border: '1px solid #e2e8f0', color: '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                                    {act.type === 'order' ? <ShoppingCart size={14} /> : 
-                                                     act.type === 'material' ? <Package size={14} /> :
-                                                     <Activity size={14} />}
-                                                </div>
-                                                <div style={{ flex: 1, paddingBottom: '16px', borderBottom: i < recentActivities.length - 1 ? '1px solid #f1f5f9' : 'none' }}>
-                                                    <div style={{ fontSize: '13px', fontWeight: 600, color: '#0f172a' }}>{act.title}</div>
-                                                    <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px', lineHeight: 1.4 }}>{act.description}</div>
-                                                    <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '4px', fontWeight: 500 }}>{formatTime(act.time)}</div>
-                                                </div>
-                                            </div>
+                    <div style={{ flex: 1, padding: '0 24px 24px 24px', overflow: 'hidden' }}>
+                        {ordersStatusData.length > 0 ? (
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={ordersStatusData} margin={{ top: 5, right: 5, left: -20, bottom: 5 }} barSize={36}>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b', fontWeight: 500 }} />
+                                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
+                                    <RechartsTooltip cursor={{fill: '#f8fafc'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }} />
+                                    <Bar dataKey="count" radius={[6, 6, 0, 0]}>
+                                        {ordersStatusData.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={entry.color} />
                                         ))}
-                                    </div>
-                                ) : (
-                                    <div className="flex-center" style={{ height: '100%', color: '#94a3b8', fontSize: '13px' }}>No activity</div>
-                                )}
-                            </div>
+                                    </Bar>
+                                </BarChart>
+                            </ResponsiveContainer>
+                        ) : (
+                            <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: '13px' }}>No data</div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Quick Actions */}
+                <div className="bento-card" style={{ borderRadius: '14px', padding: '18px', minHeight: '260px', overflow: 'hidden' }}>
+                    <h3 style={{ fontSize: '13px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '16px', margin: '0 0 16px 0' }}>Quick Actions</h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        {[
+                            { path: '/materials', name: 'Material Tracking', icon: Package, color: '#3b82f6' },
+                            { path: '/hrms', name: 'HR Management', icon: Users, color: '#8b5cf6' },
+                            { path: '/erp', name: 'ERP Operations', icon: ShoppingCart, color: '#10b981' },
+                            { path: '/crm', name: 'CRM Management', icon: Briefcase, color: '#f59e0b' },
+                            { path: '/analytics', name: 'Reports & Analytics', icon: BarChart2, color: '#ec4899' },
+                            { path: '/hrms', name: 'User Management', icon: Shield, color: '#64748b' }
+                        ].map((link, idx) => (
+                            <NavLink to={link.path} key={idx} style={{ display: 'flex', alignItems: 'center', padding: '10px 12px', background: '#f8fafc', border: '1px solid #f1f5f9', borderRadius: '8px', textDecoration: 'none', color: '#0f172a', fontWeight: 500, fontSize: '13px', transition: 'all 0.2s' }} className="quick-action-link">
+                                <div style={{ width: '28px', height: '28px', borderRadius: '6px', background: `${link.color}15`, color: link.color, display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: '12px', flexShrink: 0 }}>
+                                    <link.icon size={14} />
+                                </div>
+                                {link.name}
+                            </NavLink>
+                        ))}
+                    </div>
+                </div>
+            </div>
+
+            {/* ===== ROW 2: HR Overview (4) + ERP Overview (4) + Revenue Quick Stats (4) ===== */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', marginBottom: '20px' }}>
+
+                {/* HR Overview */}
+                <div className="bento-card" style={{ borderRadius: '14px', display: 'flex', flexDirection: 'column', minHeight: '260px' }}>
+                    <div style={{ padding: '16px 18px', height: '48px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                        <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px', whiteSpace: 'nowrap' }}><Users size={16} /> HR Overview</h3>
+                    </div>
+                    <div style={{ padding: '0 18px 18px 18px', display: 'flex', flexDirection: 'column', gap: '16px', flex: 1, justifyContent: 'center' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>Total Employees</span>
+                            <span style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>{dashboard.hrStats?.totalEmployees || 0}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>Present Today</span>
+                            <span style={{ fontSize: '14px', fontWeight: 700, color: '#10b981' }}>{dashboard.hrStats?.presentToday || 0}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>On Leave</span>
+                            <span style={{ fontSize: '14px', fontWeight: 700, color: '#f59e0b' }}>{dashboard.hrStats?.onLeave || 0}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>New Joiners</span>
+                            <span style={{ fontSize: '14px', fontWeight: 700, color: '#3b82f6' }}>{dashboard.hrStats?.newJoiners || 0}</span>
                         </div>
                     </div>
+                </div>
+
+                {/* ERP Overview */}
+                <div className="bento-card" style={{ borderRadius: '14px', display: 'flex', flexDirection: 'column', minHeight: '260px' }}>
+                    <div style={{ padding: '16px 18px', height: '48px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                        <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px', whiteSpace: 'nowrap' }}><ShoppingCart size={16} /> ERP Overview</h3>
+                    </div>
+                    <div style={{ padding: '0 18px 18px 18px', display: 'flex', flexDirection: 'column', gap: '16px', flex: 1, justifyContent: 'center' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>Open Orders</span>
+                            <span style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>{openOrders}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>Low Stock</span>
+                            <span style={{ fontSize: '14px', fontWeight: 700, color: '#ef4444' }}>{lowStockCount}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>Out of Stock</span>
+                            <span style={{ fontSize: '14px', fontWeight: 700, color: '#ef4444' }}>{outOfStockCount}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>Active Projects</span>
+                            <span style={{ fontSize: '14px', fontWeight: 700, color: '#3b82f6' }}>{dashboard.managerStats?.activeProjects || 0}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Revenue Quick Stats */}
+                <div className="bento-card" style={{ borderRadius: '14px', display: 'flex', flexDirection: 'column', minHeight: '260px' }}>
+                    <div style={{ padding: '16px 18px', height: '48px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                        <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px', whiteSpace: 'nowrap' }}><TrendingUp size={16} /> Revenue Quick Stats</h3>
+                    </div>
+                    <div style={{ padding: '0 18px 18px 18px', display: 'flex', flexDirection: 'column', gap: '16px', flex: 1, justifyContent: 'center' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>YTD Revenue</span>
+                            <span style={{ fontSize: '14px', fontWeight: 700, color: '#10b981' }}>{formatYAxis(totalRevenue)}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>Avg Order Value</span>
+                            <span style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>{formatYAxis(orders.length ? totalRevenue / orders.length : 0)}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>Total Orders</span>
+                            <span style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>{orders.length}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>Customer Count</span>
+                            <span style={{ fontSize: '14px', fontWeight: 700, color: '#3b82f6' }}>{activeCustomers}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* ===== ROW 3: Recent Activity (Full Width) ===== */}
+            <div className="bento-card" style={{ borderRadius: '14px', padding: '18px', marginBottom: '20px' }}>
+                <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center' }}>
+                    <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}><Activity size={16} /> Recent Activity</h3>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '12px' }}>
+                    {recentActivities.length > 0 ? (
+                        recentActivities.slice(0, 8).map((act, i) => (
+                            <div key={act.id || i} style={{ display: 'flex', gap: '12px', padding: '12px', background: '#f8fafc', borderRadius: '10px', border: '1px solid #f1f5f9' }}>
+                                <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#fff', border: '1px solid #e2e8f0', color: '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                    {act.type === 'order' ? <ShoppingCart size={14} /> : 
+                                     act.type === 'material' ? <Package size={14} /> :
+                                     <Activity size={14} />}
+                                </div>
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                    <div style={{ fontSize: '13px', fontWeight: 600, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{act.title}</div>
+                                    <div style={{ fontSize: '12px', color: '#64748b', margin: '2px 0 4px 0', lineHeight: 1.4, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{act.description}</div>
+                                    <div style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 500 }}>{formatTime(act.time)}</div>
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '32px', color: '#94a3b8', fontSize: '13px' }}>No recent activity</div>
+                    )}
                 </div>
             </div>
 
