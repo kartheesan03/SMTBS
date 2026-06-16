@@ -5,7 +5,7 @@ import {
     Users, UserCheck, Calendar, DollarSign, 
     FileText, Activity, AlertCircle, Briefcase,
     TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, Clock,
-    Cake
+    Cake, PieChart as PieChartIcon
 } from 'lucide-react';
 import { 
     PieChart, Pie, Cell, BarChart, Bar, 
