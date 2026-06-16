@@ -92,12 +92,7 @@ const Payroll = () => {
     };
 
     const handleOpenPayModal = (s) => {
-        setSelectedSalary(s);
-        setPayForm({ 
-            paymentMethod: 'UPI', 
-            paymentDetails: { paymentDate: new Date().toISOString().split('T')[0] } 
-        });
-        setShowPayModal(true);
+        navigate(`/payroll/payment/${s._id}`);
     };
 
     const handlePaySalary = async () => {

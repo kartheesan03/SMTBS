@@ -45,6 +45,8 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
         { path: '/my-attendance', name: 'My Attendance', icon: <CheckCircle size={18} /> },
         { path: '/attendance', name: 'Master Attendance', icon: <Users size={18} /> },
         { path: '/hrms', name: 'HRMS', icon: <Briefcase size={18} /> },
+        { path: '/leave-management', name: 'Leave Mgmt', icon: <Calendar size={18} /> },
+        { path: '/payroll', name: 'Payroll', icon: <DollarSign size={18} /> },
         { path: '/erp', name: 'ERP System', icon: <FolderKanban size={18} /> },
         { path: '/materials', name: 'Material Tracking', icon: <Package size={18} /> },
         { path: '/vendors', name: 'Suppliers', icon: <Truck size={18} /> },
