@@ -7,12 +7,12 @@ const { broadcast, notifyHR } = require('../services/notificationService');
 // @access  Private
 const getMySalaryHistory = async (req, res) => {
     try {
-        const employee = await Employee.findOne({ userId: req.user._id });
+        const employee = await Employee.findOne({ userId: req.user._id || req.user.id });
         if (!employee) return res.status(404).json({ message: 'Employee profile not found' });
 
         // Show all salary records to the employee so they can track status
         const history = await Salary.find({ 
-            employeeId: employee._id
+            employeeId: employee._id || employee.id
         }).sort({ createdAt: -1 });
         res.json(history);
     } catch (error) {
@@ -25,11 +25,11 @@ const getMySalaryHistory = async (req, res) => {
 // @access  Private
 const getMySalarySummary = async (req, res) => {
     try {
-        const employee = await Employee.findOne({ userId: req.user._id });
+        const employee = await Employee.findOne({ userId: req.user._id || req.user.id });
         if (!employee) return res.status(404).json({ message: 'Employee profile not found' });
 
         const latest = await Salary.findOne({ 
-            employeeId: employee._id
+            employeeId: employee._id || employee.id
         }).sort({ createdAt: -1 });
 
         if (!latest) {
@@ -50,7 +50,16 @@ const getMySalarySummary = async (req, res) => {
 // @access  Private/Admin/HR
 const getAllSalaries = async (req, res) => {
     try {
-        const salaries = await Salary.find({}).populate({
+        let filter = {};
+        if (!['Admin', 'HR', 'Manager'].includes(req.user.role)) {
+            const employee = await Employee.findOne({ userId: req.user._id || req.user.id });
+            if (!employee) {
+                return res.json([]);
+            }
+            filter = { employeeId: employee._id || employee.id };
+        }
+
+        const salaries = await Salary.find(filter).populate({
             path: 'employee',
             populate: { path: 'userId', select: 'name email' }
         }).sort({ createdAt: -1 });
