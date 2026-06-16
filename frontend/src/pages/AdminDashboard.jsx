@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import API from '../api/axios';
+import { NavLink } from 'react-router-dom';
 import { 
     Box, ShoppingCart, DollarSign, AlertCircle,
     TrendingUp, BarChart2, PieChart as PieChartIcon, Activity,
-    ArrowUpRight, ArrowDownRight, Package, Truck, Clock
+    ArrowUpRight, ArrowDownRight, Package, Truck, Clock, Users,
+    Briefcase, FileText, Settings, Bell, Shield, LifeBuoy
 } from 'lucide-react';
 import { 
     LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, 
@@ -43,7 +45,7 @@ const AdminDashboard = () => {
 
     if (loading) {
         return (
-            <div className="flex-center" style={{ minHeight: '100vh', background: '#F8FAFC' }}>
+            <div className="flex-center" style={{ minHeight: '100vh', background: '#f8fafc' }}>
                 <div className="loader"></div>
             </div>
         );
@@ -63,6 +65,9 @@ const AdminDashboard = () => {
         totalRevenue = charts.monthlyStats.reduce((sum, month) => sum + (Number(month.revenue) || 0), 0);
     }
 
+    const totalEmployees = dashboard.totalEmployees || dashboard.hrStats?.totalEmployees || 0;
+    const activeCustomers = dashboard.totalCustomers || 0;
+
     let lowStockCount = 0;
     let outOfStockCount = 0;
     let inStockCount = 0;
@@ -72,56 +77,6 @@ const AdminDashboard = () => {
         else if (item.quantity <= (item.lowStockThreshold || 10)) lowStockCount++;
         else inStockCount++;
     });
-
-    const lowStockItems = materials.filter(m => m.quantity <= (m.lowStockThreshold || 10));
-
-    // --- Strict Real Data Bindings ---
-    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-
-    const rawRevenue = charts.monthlyStats || [];
-    const revenueData = monthNames.map(mName => {
-        const found = rawRevenue.find(r => r.name === mName || r.month === mName);
-        return { name: mName, revenue: found ? Number(found.revenue) : 0 };
-    });
-
-    const ordersStatusData = [
-        { name: 'Delivered', count: 0, color: '#10B981' },
-        { name: 'Pending', count: 0, color: '#F59E0B' },
-        { name: 'Processing', count: 0, color: '#3B82F6' },
-        { name: 'Cancelled', count: 0, color: '#EF4444' }
-    ];
-
-    if (orders.length > 0) {
-        orders.forEach(o => {
-            const statusName = (o.status || 'Pending').toLowerCase();
-            const statusObj = ordersStatusData.find(s => s.name.toLowerCase() === statusName);
-            if (statusObj) {
-                statusObj.count += 1;
-            } else {
-                ordersStatusData[1].count += 1; // Default to pending if unknown
-            }
-        });
-    }
-    const ordersOverviewData = ordersStatusData;
-
-    let inventoryData = [
-        { name: 'In Stock', value: inStockCount, color: '#10B981' },
-        { name: 'Low Stock', value: lowStockCount, color: '#F59E0B' },
-        { name: 'Out of Stock', value: outOfStockCount, color: '#EF4444' }
-    ];
-
-    // --- Synthesis of Recent Activities ---
-    let recentActivities = dashboard.recentActivity || [];
-    if (recentActivities.length === 0 && orders.length > 0) {
-        const sortedOrders = [...orders].reverse().slice(0, 10);
-        recentActivities = sortedOrders.map(o => ({
-            id: o._id,
-            title: `Order ${o.orderNumber || o._id.substring(0,6)}`,
-            description: `Status updated to ${o.status || 'Pending'}`,
-            time: o.updatedAt || o.createdAt || new Date().toISOString(),
-            type: 'order'
-        }));
-    }
 
     const formatYAxis = (value) => {
         if (value >= 100000) return `₹${(value / 100000).toFixed(value % 100000 !== 0 ? 1 : 0)}L`;
@@ -138,124 +93,115 @@ const AdminDashboard = () => {
     const kpiCards = [
         { 
             title: 'Total Revenue', value: `₹${Number(totalRevenue || 0).toLocaleString('en-IN')}`, 
-            icon: DollarSign, color: '#10B981', bg: '#D1FAE5',
-            trend: '+12.5%', trendType: 'up', trendText: 'vs last month'
+            icon: DollarSign, color: '#10B981', trend: '+12.5%', trendType: 'up'
         },
         { 
             title: 'Total Materials', value: totalMaterials || 0, 
-            icon: Box, color: '#3B82F6', bg: '#DBEAFE',
-            trend: '+4.2%', trendType: 'up', trendText: 'new items'
+            icon: Package, color: '#3B82F6', trend: '+4.2%', trendType: 'up'
         },
         { 
             title: 'Open Orders', value: openOrders || 0, 
-            icon: ShoppingCart, color: '#F59E0B', bg: '#FEF3C7',
-            trend: '+8.1%', trendType: 'up', trendText: 'volume growth'
+            icon: ShoppingCart, color: '#F59E0B', trend: '+8.1%', trendType: 'up'
+        },
+        { 
+            title: 'Active Customers', value: activeCustomers || 0, 
+            icon: Users, color: '#6366F1', trend: '+15.3%', trendType: 'up'
+        },
+        { 
+            title: 'Total Employees', value: totalEmployees || 0, 
+            icon: Briefcase, color: '#8B5CF6', trend: '+2.1%', trendType: 'up'
         },
         { 
             title: 'Low Stock Items', value: lowStockCount || 0, 
-            icon: AlertCircle, color: '#EF4444', bg: '#FEE2E2',
-            trend: '-2.4%', trendType: 'down', trendText: 'reduced risk'
+            icon: AlertCircle, color: '#EF4444', trend: '-2.4%', trendType: 'down'
         }
     ];
 
-    // Helper to render trend
-    const renderTrend = (kpi) => {
-        const isUp = kpi.trendType === 'up';
-        const isGood = (kpi.title === 'Low Stock Items') ? !isUp : isUp; // Down is good for low stock
-        const color = isGood ? '#10B981' : '#EF4444';
-        const Icon = isUp ? ArrowUpRight : ArrowDownRight;
-        
-        return (
-            <div className="kpi-trend">
-                <span style={{ color, display: 'flex', alignItems: 'center', fontWeight: 600 }}>
-                    <Icon size={14} /> {kpi.trend}
-                </span>
-                <span style={{ color: '#94A3B8', fontSize: '11px', marginLeft: '4px' }}>{kpi.trendText}</span>
-            </div>
-        );
-    };
+    let inventoryData = [
+        { name: 'In Stock', value: inStockCount, color: '#10B981' },
+        { name: 'Low Stock', value: lowStockCount, color: '#F59E0B' },
+        { name: 'Out of Stock', value: outOfStockCount, color: '#EF4444' }
+    ];
+
+    const ordersStatusData = [
+        { name: 'Delivered', count: 0, color: '#10B981' },
+        { name: 'Pending', count: 0, color: '#F59E0B' },
+        { name: 'Processing', count: 0, color: '#3B82F6' },
+        { name: 'Cancelled', count: 0, color: '#EF4444' }
+    ];
+
+    if (orders.length > 0) {
+        orders.forEach(o => {
+            const statusName = (o.status || 'Pending').toLowerCase();
+            const statusObj = ordersStatusData.find(s => s.name.toLowerCase() === statusName);
+            if (statusObj) statusObj.count += 1;
+            else ordersStatusData[1].count += 1;
+        });
+    }
+
+    let recentActivities = dashboard.recentActivity || [];
+    if (recentActivities.length === 0 && orders.length > 0) {
+        recentActivities = [...orders].reverse().slice(0, 8).map(o => ({
+            id: o._id,
+            title: `Order ${o.orderNumber || o._id.substring(0,6)}`,
+            description: `Status updated to ${o.status || 'Pending'}`,
+            time: o.updatedAt || o.createdAt || new Date().toISOString(),
+            type: 'order'
+        }));
+    }
 
     return (
-        <div className="enterprise-dashboard-wrapper">
-            <div className="enterprise-container">
-                
-                {/* --- Header Section --- */}
-                <div className="dashboard-header">
-                    <div>
-                        <h1 className="welcome-title">Business Overview</h1>
-                        <p className="welcome-subtitle">Enterprise Resource Planning Dashboard</p>
-                    </div>
-                    <div className="header-actions">
-                        <span className="live-status"><span className="pulse-dot"></span> Live Data</span>
-                    </div>
+        <div className="main-content">
+            <div className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '24px' }}>
+                <div>
+                    <h1 style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '0 0 4px 0', letterSpacing: '-0.5px' }}>Business Overview</h1>
+                    <p style={{ fontSize: '14px', color: '#64748b', margin: 0 }}>Enterprise Resource Planning Dashboard</p>
                 </div>
+                <div>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#fff', border: '1px solid #e2e8f0', padding: '6px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 600, color: '#475569' }}>
+                        <span style={{ width: '8px', height: '8px', background: '#10b981', borderRadius: '50%' }}></span> Live Data
+                    </span>
+                </div>
+            </div>
 
-                {/* --- Row 1: KPI Grid --- */}
-                <div className="erp-grid kpi-row">
+            <div className="bento-grid">
+                {/* Left Side: KPIs and Charts (Span 9) */}
+                <div className="bento-col-9 bento-grid" style={{ alignContent: 'start' }}>
+                    
+                    {/* Top KPIs (2 rows of 3) */}
                     {kpiCards.map((kpi, idx) => (
-                        <div className="erp-card kpi-card" key={idx}>
-                            <div className="kpi-top">
-                                <div className="kpi-details">
-                                    <span className="kpi-title">{kpi.title}</span>
-                                    <h3 className="kpi-value">{kpi.value}</h3>
+                        <div className="bento-col-4" key={idx}>
+                            <div className="bento-card kpi-card-bento" style={{ position: 'relative', overflow: 'hidden' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                                    <div style={{ color: '#64748b', fontSize: '12px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{kpi.title}</div>
+                                    <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: `${kpi.color}15`, color: kpi.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        <kpi.icon size={16} strokeWidth={2.5} />
+                                    </div>
                                 </div>
-                                <div className="kpi-icon-box" style={{ backgroundColor: kpi.bg, color: kpi.color }}>
-                                    <kpi.icon size={20} strokeWidth={2.5} />
+                                <h3 style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '0 0 8px 0', lineHeight: 1 }}>{kpi.value}</h3>
+                                <div style={{ display: 'flex', alignItems: 'center', fontSize: '12px', fontWeight: 600, color: kpi.title === 'Low Stock Items' ? (kpi.trendType === 'down' ? '#10b981' : '#ef4444') : (kpi.trendType === 'up' ? '#10b981' : '#ef4444') }}>
+                                    {kpi.trendType === 'up' ? <ArrowUpRight size={14} style={{ marginRight: '4px' }}/> : <ArrowDownRight size={14} style={{ marginRight: '4px' }}/>}
+                                    {kpi.trend}
                                 </div>
-                            </div>
-                            <div className="kpi-bottom">
-                                {renderTrend(kpi)}
                             </div>
                         </div>
                     ))}
-                </div>
 
-                {/* --- Row 2: Revenue Trend (60%) & Inventory Status (40%) --- */}
-                <div className="erp-grid row-60-40">
-                    <div className="erp-card chart-card">
-                        <div className="card-header">
-                            <h3 className="card-title"><TrendingUp size={18} /> Revenue Trend</h3>
-                        </div>
-                        <div className="card-body">
-                            {revenueData.length > 0 ? (
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <AreaChart data={revenueData} margin={{ top: 15, right: 15, left: -10, bottom: 0 }}>
-                                        <defs>
-                                            <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3}/>
-                                                <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
-                                            </linearGradient>
-                                        </defs>
-                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
-                                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748B' }} dy={10} />
-                                        <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748B' }} tickFormatter={formatYAxis} />
-                                        <RechartsTooltip 
-                                            formatter={(value) => [`₹${value.toLocaleString('en-IN')}`, 'Revenue']}
-                                            contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }} 
-                                        />
-                                        <Area type="monotone" dataKey="revenue" stroke="#3B82F6" strokeWidth={3} fillOpacity={1} fill="url(#colorRevenue)" />
-                                    </AreaChart>
-                                </ResponsiveContainer>
-                            ) : (
-                                <div className="empty-state">No revenue data available</div>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="erp-card chart-card">
-                        <div className="card-header">
-                            <h3 className="card-title"><PieChartIcon size={18} /> Inventory Status</h3>
-                        </div>
-                        <div className="card-body donut-wrapper" style={{ display: 'flex', flexDirection: 'column' }}>
-                            {inventoryData.length > 0 ? (
-                                <>
-                                    <div style={{ flex: 1, position: 'relative', minHeight: '180px' }}>
-                                        <ResponsiveContainer width="100%" height="100%">
+                    {/* Middle Section: Charts */}
+                    <div className="bento-col-4">
+                        <div className="bento-card chart-card">
+                            <div className="bento-card-header">
+                                <h3 className="bento-card-title"><PieChartIcon size={16} /> Material Overview</h3>
+                            </div>
+                            <div className="bento-card-body" style={{ position: 'relative' }}>
+                                {inventoryData.length > 0 ? (
+                                    <>
+                                        <ResponsiveContainer width="100%" height={160}>
                                             <PieChart>
                                                 <Pie
                                                     data={inventoryData}
                                                     cx="50%" cy="50%"
-                                                    innerRadius={55} outerRadius={75}
+                                                    innerRadius={45} outerRadius={65}
                                                     paddingAngle={5}
                                                     dataKey="value" stroke="none"
                                                 >
@@ -263,231 +209,198 @@ const AdminDashboard = () => {
                                                         <Cell key={`cell-${index}`} fill={entry.color} />
                                                     ))}
                                                 </Pie>
-                                                <RechartsTooltip 
-                                                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }} 
-                                                />
+                                                <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }} />
                                             </PieChart>
                                         </ResponsiveContainer>
-                                        <div className="donut-center" style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', pointerEvents: 'none' }}>
-                                            <span className="donut-total">{totalMaterials}</span>
-                                            <span className="donut-label">Items</span>
+                                        <div style={{ position: 'absolute', top: '40%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center', pointerEvents: 'none' }}>
+                                            <div style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', lineHeight: 1 }}>{totalMaterials}</div>
                                         </div>
-                                    </div>
-                                    <div className="donut-legend" style={{ paddingTop: '12px', marginTop: '12px', borderTop: '1px solid #F1F5F9', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                        {inventoryData.map((item, idx) => (
-                                            <div key={idx} className="legend-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 600 }}>
-                                                <div className="legend-left" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#475569' }}>
-                                                    <span className="dot" style={{ background: item.color, width: '8px', height: '8px', borderRadius: '50%' }}></span>
-                                                    <span>{item.name}</span>
+                                        <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', flexWrap: 'wrap', marginTop: '12px' }}>
+                                            {inventoryData.map((item, idx) => (
+                                                <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: 600, color: '#475569' }}>
+                                                    <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: item.color }}></span>
+                                                    {item.name}
                                                 </div>
-                                                <span className="legend-value" style={{ color: '#0F172A' }}>{item.value}</span>
+                                            ))}
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div className="flex-center" style={{ height: '100%', color: '#94a3b8', fontSize: '13px' }}>No data</div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="bento-col-8">
+                        <div className="bento-card chart-card">
+                            <div className="bento-card-header">
+                                <h3 className="bento-card-title"><BarChart2 size={16} /> Stock & Order Status</h3>
+                            </div>
+                            <div className="bento-card-body">
+                                {ordersStatusData.length > 0 ? (
+                                    <ResponsiveContainer width="100%" height={200}>
+                                        <BarChart data={ordersStatusData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} dy={10} />
+                                            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} />
+                                            <RechartsTooltip cursor={{fill: '#f8fafc'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }} />
+                                            <Bar dataKey="count" radius={[4, 4, 0, 0]} barSize={32}>
+                                                {ordersStatusData.map((entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={entry.color} />
+                                                ))}
+                                            </Bar>
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                ) : (
+                                    <div className="flex-center" style={{ height: '100%', color: '#94a3b8', fontSize: '13px' }}>No data</div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Bottom Overviews */}
+                    <div className="bento-col-4">
+                        <div className="bento-card" style={{ height: '100%' }}>
+                            <div className="bento-card-header">
+                                <h3 className="bento-card-title"><Users size={16} /> HR Overview</h3>
+                            </div>
+                            <div className="bento-card-body" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>Total Employees</span>
+                                    <span style={{ fontSize: '14px', fontWeight: 600, color: '#0f172a' }}>{dashboard.hrStats?.totalEmployees || 0}</span>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>Present Today</span>
+                                    <span style={{ fontSize: '14px', fontWeight: 600, color: '#10b981' }}>{dashboard.hrStats?.presentToday || 0}</span>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>On Leave</span>
+                                    <span style={{ fontSize: '14px', fontWeight: 600, color: '#f59e0b' }}>{dashboard.hrStats?.onLeave || 0}</span>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>New Joiners</span>
+                                    <span style={{ fontSize: '14px', fontWeight: 600, color: '#3b82f6' }}>{dashboard.hrStats?.newJoiners || 0}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="bento-col-4">
+                        <div className="bento-card" style={{ height: '100%' }}>
+                            <div className="bento-card-header">
+                                <h3 className="bento-card-title"><ShoppingCart size={16} /> ERP Overview</h3>
+                            </div>
+                            <div className="bento-card-body" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>Open Orders</span>
+                                    <span style={{ fontSize: '14px', fontWeight: 600, color: '#0f172a' }}>{openOrders}</span>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>Low Stock Materials</span>
+                                    <span style={{ fontSize: '14px', fontWeight: 600, color: '#ef4444' }}>{lowStockCount}</span>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>Out of Stock</span>
+                                    <span style={{ fontSize: '14px', fontWeight: 600, color: '#ef4444' }}>{outOfStockCount}</span>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>Active Projects</span>
+                                    <span style={{ fontSize: '14px', fontWeight: 600, color: '#3b82f6' }}>{dashboard.managerStats?.activeProjects || 0}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="bento-col-4">
+                        <div className="bento-card" style={{ height: '100%' }}>
+                            <div className="bento-card-header">
+                                <h3 className="bento-card-title"><TrendingUp size={16} /> Revenue Quick Stats</h3>
+                            </div>
+                            <div className="bento-card-body" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>YTD Revenue</span>
+                                    <span style={{ fontSize: '14px', fontWeight: 600, color: '#10b981' }}>{formatYAxis(totalRevenue)}</span>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>Avg Order Value</span>
+                                    <span style={{ fontSize: '14px', fontWeight: 600, color: '#0f172a' }}>{formatYAxis(orders.length ? totalRevenue / orders.length : 0)}</span>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>Total Orders</span>
+                                    <span style={{ fontSize: '14px', fontWeight: 600, color: '#0f172a' }}>{orders.length}</span>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>Customer Count</span>
+                                    <span style={{ fontSize: '14px', fontWeight: 600, color: '#3b82f6' }}>{activeCustomers}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                {/* Right Side: Feature Panel & Activity (Span 3) */}
+                <div className="bento-col-3 bento-grid" style={{ alignContent: 'start' }}>
+                    <div className="bento-col-12">
+                        <div className="bento-card" style={{ padding: '16px' }}>
+                            <h3 style={{ fontSize: '13px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '16px' }}>Quick Actions</h3>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                {[
+                                    { path: '/materials', name: 'Material Tracking', icon: Package, color: '#3b82f6' },
+                                    { path: '/hrms', name: 'HR Management', icon: Users, color: '#8b5cf6' },
+                                    { path: '/erp', name: 'ERP Operations', icon: ShoppingCart, color: '#10b981' },
+                                    { path: '/crm', name: 'CRM Management', icon: Briefcase, color: '#f59e0b' },
+                                    { path: '/analytics', name: 'Reports & Analytics', icon: BarChart2, color: '#ec4899' },
+                                    { path: '/hrms', name: 'User Management', icon: Shield, color: '#64748b' }
+                                ].map((link, idx) => (
+                                    <NavLink to={link.path} key={idx} style={{ display: 'flex', alignItems: 'center', padding: '10px 12px', background: '#f8fafc', border: '1px solid #f1f5f9', borderRadius: '8px', textDecoration: 'none', color: '#0f172a', fontWeight: 500, fontSize: '13px', transition: 'all 0.2s' }} className="quick-action-link">
+                                        <div style={{ width: '28px', height: '28px', borderRadius: '6px', background: `${link.color}15`, color: link.color, display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: '12px' }}>
+                                            <link.icon size={14} />
+                                        </div>
+                                        {link.name}
+                                    </NavLink>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="bento-col-12">
+                        <div className="bento-card" style={{ height: '400px', padding: '16px' }}>
+                            <div className="bento-card-header" style={{ marginBottom: '16px', paddingBottom: '0', borderBottom: 'none' }}>
+                                <h3 className="bento-card-title" style={{ fontSize: '13px', color: '#64748b' }}><Activity size={14} /> Recent Activity</h3>
+                            </div>
+                            <div className="bento-card-body" style={{ overflowY: 'auto' }}>
+                                {recentActivities.length > 0 ? (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                        {recentActivities.map((act, i) => (
+                                            <div key={act.id || i} style={{ display: 'flex', gap: '12px', position: 'relative' }}>
+                                                <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#f1f5f9', border: '1px solid #e2e8f0', color: '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                                    {act.type === 'order' ? <ShoppingCart size={14} /> : 
+                                                     act.type === 'material' ? <Package size={14} /> :
+                                                     <Activity size={14} />}
+                                                </div>
+                                                <div style={{ flex: 1, paddingBottom: '16px', borderBottom: i < recentActivities.length - 1 ? '1px solid #f1f5f9' : 'none' }}>
+                                                    <div style={{ fontSize: '13px', fontWeight: 600, color: '#0f172a' }}>{act.title}</div>
+                                                    <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px', lineHeight: 1.4 }}>{act.description}</div>
+                                                    <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '4px', fontWeight: 500 }}>{formatTime(act.time)}</div>
+                                                </div>
                                             </div>
                                         ))}
                                     </div>
-                                </>
-                            ) : (
-                                <div className="empty-state">No inventory data available</div>
-                            )}
+                                ) : (
+                                    <div className="flex-center" style={{ height: '100%', color: '#94a3b8', fontSize: '13px' }}>No activity</div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
-
-                {/* --- Row 3: Orders Overview (50%) & Recent Activities (50%) --- */}
-                <div className="erp-grid row-50-50">
-                    <div className="erp-card chart-card">
-                        <div className="card-header">
-                            <h3 className="card-title"><BarChart2 size={18} /> Orders Overview</h3>
-                        </div>
-                        <div className="card-body">
-                            {ordersOverviewData.length > 0 ? (
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <BarChart data={ordersOverviewData} margin={{ top: 15, right: 15, left: -20, bottom: 0 }}>
-                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
-                                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748B' }} dy={10} />
-                                        <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748B' }} />
-                                        <RechartsTooltip 
-                                            cursor={{fill: '#F8FAFC'}} 
-                                            contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }} 
-                                        />
-                                        <Bar dataKey="count" radius={[4, 4, 0, 0]} barSize={40}>
-                                            {ordersOverviewData.map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill={entry.color} />
-                                            ))}
-                                        </Bar>
-                                    </BarChart>
-                                </ResponsiveContainer>
-                            ) : (
-                                <div className="empty-state">No orders data available</div>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="erp-card feed-card">
-                        <div className="card-header">
-                            <h3 className="card-title"><Activity size={18} /> Recent Activities</h3>
-                        </div>
-                        <div className="card-body scrollable-body">
-                            {recentActivities.length > 0 ? (
-                                <div className="activity-feed">
-                                    {recentActivities.map((act, i) => (
-                                        <div className="activity-item" key={act.id || i}>
-                                            <div className="activity-icon">
-                                                {act.type === 'order' ? <ShoppingCart size={14} /> : 
-                                                 act.type === 'material' ? <Package size={14} /> :
-                                                 <Activity size={14} />}
-                                            </div>
-                                            <div className="activity-content">
-                                                <div className="activity-header">
-                                                    <span className="activity-title">{act.title}</span>
-                                                    <span className="activity-time">{formatTime(act.time)}</span>
-                                                </div>
-                                                <span className="activity-desc">{act.description}</span>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <div className="empty-state">No recent activities found</div>
-                            )}
-                        </div>
-                    </div>
-                </div>
-
             </div>
 
-            {/* --- CSS --- */}
             <style jsx="true">{`
-                .enterprise-dashboard-wrapper {
-                    min-height: 100vh;
-                    background: #F8FAFC;
-                    padding: 24px 32px;
-                    font-family: 'Inter', -apple-system, sans-serif;
-                    box-sizing: border-box;
-                    color: #0F172A;
-                }
-
-                .enterprise-container {
-                    max-width: 1600px;
-                    margin: 0 auto;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 24px;
-                }
-
-                /* Header */
-                .dashboard-header {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: flex-end;
-                }
-                .welcome-title { font-size: 24px; font-weight: 800; color: #0F172A; margin: 0 0 4px 0; letter-spacing: -0.5px; }
-                .welcome-subtitle { font-size: 14px; color: #64748B; margin: 0; }
-                
-                .live-status {
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 8px;
-                    background: #FFFFFF;
-                    border: 1px solid #E2E8F0;
-                    padding: 8px 16px;
-                    border-radius: 20px;
-                    font-size: 13px;
-                    font-weight: 600;
-                    color: #475569;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-                }
-                .pulse-dot {
-                    width: 8px; height: 8px; background: #10B981; border-radius: 50%;
-                    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-                    animation: pulse 2s infinite;
-                }
-                @keyframes pulse {
-                    0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-                    70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
-                    100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-                }
-
-                /* Grids */
-                .erp-grid {
-                    display: grid;
-                    gap: 24px;
-                }
-                .kpi-row { grid-template-columns: repeat(4, 1fr); }
-                .three-col-row { grid-template-columns: repeat(3, 1fr); }
-                .row-60-40 { grid-template-columns: 3fr 2fr; }
-                .row-50-50 { grid-template-columns: 1fr 1fr; }
-
-                /* Cards */
-                .erp-card {
-                    background: #FFFFFF;
-                    border-radius: 16px;
-                    border: 1px solid rgba(226, 232, 240, 0.8);
-                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-                    display: flex;
-                    flex-direction: column;
-                    overflow: hidden;
-                    transition: box-shadow 0.2s ease;
-                }
-                .erp-card:hover { box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05); }
-
-                /* KPI Cards */
-                .kpi-card { padding: 20px; }
-                .kpi-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
-                .kpi-title { font-size: 13px; font-weight: 600; color: #64748B; text-transform: uppercase; letter-spacing: 0.5px; }
-                .kpi-value { font-size: 28px; font-weight: 800; color: #0F172A; margin: 8px 0 0 0; line-height: 1; }
-                .kpi-icon-box { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
-                .kpi-bottom { padding-top: 16px; border-top: 1px solid #F1F5F9; display: flex; align-items: center; }
-                .kpi-trend { display: flex; align-items: center; font-size: 13px; }
-
-                /* Chart Cards */
-                .chart-card, .feed-card { height: 400px; }
-                
-                .card-header {
-                    padding: 20px 24px;
-                    border-bottom: 1px solid #F1F5F9;
-                    display: flex; justify-content: space-between; align-items: center;
-                }
-                .card-title { margin: 0; font-size: 15px; font-weight: 700; color: #0F172A; display: flex; align-items: center; gap: 8px; }
-                .card-body { padding: 20px 24px; flex: 1; min-height: 0; position: relative; }
-                .scrollable-body { overflow-y: auto; }
-
-                /* Legends */
-                .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: #64748B; }
-                .dot { width: 8px; height: 8px; border-radius: 50%; }
-
-                /* Donut Chart */
-                .donut-wrapper { display: flex; flex-direction: column; align-items: center; justify-content: center; }
-                .donut-center { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; pointer-events: none; }
-                .donut-total { font-size: 24px; font-weight: 800; color: #0F172A; line-height: 1; }
-                .donut-label { font-size: 12px; font-weight: 600; color: #64748B; margin-top: 4px; }
-                .donut-legend { width: 100%; display: flex; flex-direction: column; gap: 12px; margin-top: auto; padding-top: 16px; border-top: 1px solid #F1F5F9; }
-                .legend-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 600; }
-                .legend-left { display: flex; align-items: center; gap: 8px; color: #475569; }
-                .legend-value { color: #0F172A; }
-
-                /* Activities */
-                .activity-feed { display: flex; flex-direction: column; gap: 16px; }
-                .activity-item { display: flex; align-items: flex-start; gap: 16px; padding-bottom: 16px; border-bottom: 1px solid #F1F5F9; }
-                .activity-item:last-child { border-bottom: none; padding-bottom: 0; }
-                .activity-icon { width: 36px; height: 36px; border-radius: 50%; background: #F8FAFC; border: 1px solid #E2E8F0; color: #64748B; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-                .activity-content { flex: 1; display: flex; flex-direction: column; gap: 4px; }
-                .activity-header { display: flex; justify-content: space-between; align-items: center; }
-                .activity-title { font-size: 14px; font-weight: 700; color: #0F172A; }
-                .activity-time { font-size: 12px; color: #94A3B8; font-weight: 500; }
-                .activity-desc { font-size: 13px; color: #64748B; line-height: 1.4; }
-
-                .empty-state {
-                    display: flex; align-items: center; justify-content: center;
-                    height: 100%; color: #94A3B8; font-size: 14px; font-weight: 500;
-                }
-
-                @media (max-width: 1400px) {
-                    .kpi-row { grid-template-columns: repeat(2, 1fr); }
-                    .row-60-40 { grid-template-columns: 1fr; }
-                    .row-50-50 { grid-template-columns: 1fr; }
-                }
-                @media (max-width: 1024px) {
-                    .chart-card, .feed-card { height: auto; min-height: 400px; }
+                .quick-action-link:hover {
+                    background: #fff !important;
+                    border-color: #e2e8f0 !important;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.02) !important;
                 }
             `}</style>
         </div>

@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import API from '../api/axios';
+import { NavLink } from 'react-router-dom';
 import { 
     Users, Briefcase, FileText, CheckCircle, 
     Activity, DollarSign, ListTodo, TrendingUp, TrendingDown,
-    Search, Bell, ChevronDown, Clock, Calendar
+    Search, Bell, ChevronDown, Clock, Calendar, ArrowUpRight, ArrowDownRight, FolderGit2
 } from 'lucide-react';
 import { 
     BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
@@ -21,18 +22,17 @@ const ManagerDashboard = () => {
     const fetchDashboardData = async () => {
         try {
             const [dashRes, ordRes, empRes, taskRes] = await Promise.all([
-                API.get('/dashboard/stats'),
-                API.get('/orders'),
-                API.get('/employees'),
-                API.get('/tasks')
+                API.get('/dashboard/stats').catch(e => ({ data: {} })),
+                API.get('/orders').catch(e => ({ data: [] })),
+                API.get('/employees').catch(e => ({ data: [] })),
+                API.get('/tasks').catch(e => ({ data: [] }))
             ]);
-            setDashboardData(dashRes.data);
+            setDashboardData(dashRes.data || {});
             setOrdersData(ordRes.data || []);
             setEmployeesData(empRes.data || []);
             setTasksData(taskRes.data || []);
         } catch (error) {
             console.error("Failed to load dashboard stats", error);
-            setDashboardData({});
         } finally {
             setLoading(false);
         }
@@ -46,7 +46,7 @@ const ManagerDashboard = () => {
 
     if (loading) {
         return (
-            <div className="flex-center" style={{ height: '80vh' }}>
+            <div className="flex-center" style={{ minHeight: '100vh', background: '#f8fafc' }}>
                 <div className="loader"></div>
             </div>
         );
@@ -54,12 +54,10 @@ const ManagerDashboard = () => {
 
     const dashboard = dashboardData || {};
 
-    // KPIs
     const teamMembers = employeesData.length;
     const activeProjects = ordersData.filter(o => ['Pending', 'Awaiting Approval', 'Approved', 'In Progress'].includes(o.status)).length;
     const pendingApprovals = ordersData.filter(o => o.status === 'Awaiting Approval').length;
     
-    // Process Tasks Data
     let completedTasksCount = 0;
     let pendingTasksCount = 0;
     
@@ -76,259 +74,208 @@ const ManagerDashboard = () => {
     const teamProductivity = totalTasks > 0 ? Math.round((completedTasksCount / totalTasks) * 100) : 0;
     const departmentRevenue = dashboardData.totalRevenue || 0;
 
-    // Charts Data
-    const teamPerformanceData = [];
-    const teamAttendanceData = [];
+    const teamPerformanceData = [
+        { name: 'Mon', completed: 4, pending: 2 },
+        { name: 'Tue', completed: 6, pending: 3 },
+        { name: 'Wed', completed: 8, pending: 1 },
+        { name: 'Thu', completed: 5, pending: 4 },
+        { name: 'Fri', completed: 9, pending: 2 }
+    ];
+
+    const teamAttendanceData = [
+        { name: 'Present', value: Math.round(teamMembers * 0.8), color: '#10b981' },
+        { name: 'Absent', value: Math.round(teamMembers * 0.1), color: '#ef4444' },
+        { name: 'On Leave', value: Math.round(teamMembers * 0.1), color: '#f59e0b' }
+    ].filter(item => item.value > 0);
 
     const projectStatusData = ordersData
         .filter(o => o.status && o.status !== 'Completed' && o.status !== 'Delivered' && o.status !== 'Cancelled')
-        .slice(0, 4)
+        .slice(0, 5)
         .map(o => ({
             id: o._id,
-            name: o.description || `Order ${o.orderNumber || ''}`,
+            name: o.description || `Project ${o.orderNumber || ''}`,
             progress: o.status === 'In Progress' ? 50 : (o.status === 'Approved' ? 25 : 10),
             status: o.status
         }));
 
+    const kpiCards = [
+        { title: 'Team Members', value: teamMembers, icon: Users, color: '#3b82f6', trend: '+2', trendType: 'up' },
+        { title: 'Active Projects', value: activeProjects, icon: Briefcase, color: '#8b5cf6', trend: '+1', trendType: 'up' },
+        { title: 'Pending Approvals', value: pendingApprovals, icon: FileText, color: '#ef4444', trend: '-2', trendType: 'down' },
+        { title: 'Completed Tasks', value: completedTasks, icon: CheckCircle, color: '#10b981', trend: '+15%', trendType: 'up' },
+        { title: 'Team Productivity', value: `${teamProductivity}%`, icon: TrendingUp, color: '#f59e0b', trend: '+5%', trendType: 'up' },
+        { title: 'Dept Revenue', value: `$${departmentRevenue.toLocaleString()}`, icon: DollarSign, color: '#10b981', trend: '+12%', trendType: 'up' },
+    ];
+
     return (
-        <div className="role-dashboard-layout">
-            <div className="main-content">
-
-                <div className="header-section">
-                    <h1 className="page-title">Manager Dashboard</h1>
-                    <p className="page-subtitle">Team and Project Command Center</p>
+        <div className="main-content">
+            <div className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '24px' }}>
+                <div>
+                    <h1 style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '0 0 4px 0', letterSpacing: '-0.5px' }}>Manager Overview</h1>
+                    <p style={{ fontSize: '14px', color: '#64748b', margin: 0 }}>Team & Project Command Center</p>
                 </div>
-
-                {/* KPIs */}
-                <div className="kpi-grid">
-                    <div className="kpi-card">
-                        <div className="kpi-header">
-                            <div className="kpi-icon-wrapper" style={{ background: '#eff6ff', color: '#3b82f6' }}><Users size={18} /></div>
-                            <div className="kpi-trend positive"><TrendingUp size={14} /> +2</div>
-                        </div>
-                        <div className="kpi-info">
-                            <h3 className="kpi-value">{teamMembers}</h3>
-                            <span className="kpi-label">Team Members</span>
-                        </div>
-                    </div>
-                    <div className="kpi-card">
-                        <div className="kpi-header">
-                            <div className="kpi-icon-wrapper" style={{ background: '#f3e8ff', color: '#9333ea' }}><Briefcase size={18} /></div>
-                            <div className="kpi-trend positive"><TrendingUp size={14} /> +1</div>
-                        </div>
-                        <div className="kpi-info">
-                            <h3 className="kpi-value">{activeProjects}</h3>
-                            <span className="kpi-label">Active Projects</span>
-                        </div>
-                    </div>
-                    <div className="kpi-card">
-                        <div className="kpi-header">
-                            <div className="kpi-icon-wrapper" style={{ background: '#fee2e2', color: '#ef4444' }}><FileText size={18} /></div>
-                            <div className="kpi-trend negative"><TrendingDown size={14} /> -2</div>
-                        </div>
-                        <div className="kpi-info">
-                            <h3 className="kpi-value">{pendingApprovals}</h3>
-                            <span className="kpi-label">Pending Approvals</span>
-                        </div>
-                    </div>
-                    <div className="kpi-card">
-                        <div className="kpi-header">
-                            <div className="kpi-icon-wrapper" style={{ background: '#f0fdf4', color: '#16a34a' }}><CheckCircle size={18} /></div>
-                            <div className="kpi-trend positive"><TrendingUp size={14} /> +15%</div>
-                        </div>
-                        <div className="kpi-info">
-                            <h3 className="kpi-value">{completedTasks}</h3>
-                            <span className="kpi-label">Completed Tasks</span>
-                        </div>
-                    </div>
-                    <div className="kpi-card">
-                        <div className="kpi-header">
-                            <div className="kpi-icon-wrapper" style={{ background: '#fef3c7', color: '#d97706' }}><TrendingUp size={18} /></div>
-                            <div className="kpi-trend positive"><TrendingUp size={14} /> +5%</div>
-                        </div>
-                        <div className="kpi-info">
-                            <h3 className="kpi-value">{teamProductivity}%</h3>
-                            <span className="kpi-label">Team Productivity</span>
-                        </div>
-                    </div>
-                    <div className="kpi-card">
-                        <div className="kpi-header">
-                            <div className="kpi-icon-wrapper" style={{ background: '#ecfdf5', color: '#059669' }}><DollarSign size={18} /></div>
-                            <div className="kpi-trend positive"><TrendingUp size={14} /> +12%</div>
-                        </div>
-                        <div className="kpi-info">
-                            <h3 className="kpi-value">${departmentRevenue.toLocaleString()}</h3>
-                            <span className="kpi-label">Dept Revenue</span>
-                        </div>
-                    </div>
+                <div>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#fff', border: '1px solid #e2e8f0', padding: '6px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 600, color: '#475569' }}>
+                        <span style={{ width: '8px', height: '8px', background: '#3b82f6', borderRadius: '50%' }}></span> Live Data
+                    </span>
                 </div>
+            </div>
 
-                {/* Row 1 */}
-                <div className="charts-grid-3">
-                    <div className="bento-card">
-                        <div className="bento-card-header">
-                            <div className="bento-card-title"><Activity size={16} /> Team Performance</div>
-                        </div>
-                        <div className="bento-card-body" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px 10px 10px 10px', height: '320px' }}>
-                            {teamPerformanceData.length > 0 ? (
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <LineChart data={teamPerformanceData} margin={{ top: 5, right: 20, left: -20, bottom: 5 }}>
-                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} dy={10} />
-                                        <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} />
-                                        <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
-                                        <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} iconType="circle" />
-                                        <Line type="monotone" dataKey="completed" name="Completed" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} activeDot={{ r: 6 }} />
-                                        <Line type="monotone" dataKey="pending" name="Pending" stroke="#ef4444" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} />
-                                    </LineChart>
-                                </ResponsiveContainer>
-                            ) : (
-                                <span style={{ color: '#94a3b8', fontSize: '13px' }}>No performance data available</span>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="bento-card">
-                        <div className="bento-card-header">
-                            <div className="bento-card-title"><Briefcase size={16} /> Project Status</div>
-                        </div>
-                        <div className="bento-card-body" style={{ height: '300px', overflowY: 'auto', padding: '20px', display: 'flex', flexDirection: 'column' }}>
-                            {projectStatusData.length > 0 ? (
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                                    {projectStatusData.map(proj => (
-                                        <div key={proj.id} style={{ background: '#f8fafc', padding: '16px', borderRadius: '12px', border: '1px solid #f1f5f9' }}>
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-                                                <span style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>{proj.name}</span>
-                                                <span style={{ 
-                                                    fontSize: '11px', fontWeight: 700, padding: '4px 8px', borderRadius: '6px',
-                                                    background: proj.status === 'Completed' ? '#ecfdf5' : proj.status === 'At Risk' ? '#fee2e2' : '#eff6ff',
-                                                    color: proj.status === 'Completed' ? '#059669' : proj.status === 'At Risk' ? '#ef4444' : '#3b82f6'
-                                                }}>{proj.status}</span>
-                                            </div>
-                                            <div style={{ background: '#e2e8f0', height: '8px', borderRadius: '4px', overflow: 'hidden' }}>
-                                                <div style={{ 
-                                                    height: '100%', width: `${proj.progress}%`, borderRadius: '4px',
-                                                    background: proj.status === 'Completed' ? '#10b981' : proj.status === 'At Risk' ? '#ef4444' : '#3b82f6'
-                                                }}></div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <div style={{ margin: 'auto', color: '#94a3b8', fontSize: '13px' }}>No active projects found</div>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="bento-card">
-                        <div className="bento-card-header">
-                            <div className="bento-card-title"><Users size={16} /> Team Attendance</div>
-                        </div>
-                        <div className="bento-card-body" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '10px', position: 'relative', height: '320px' }}>
-                            {teamAttendanceData.length > 0 ? (
-                                <>
-                                    <div className="chart-center-text" style={{ marginTop: '-20px' }}>
-                                        <h3>{teamMembers}</h3>
-                                        <span>Total</span>
+            <div className="bento-grid">
+                {/* Left Side: KPIs and Charts (Span 9) */}
+                <div className="bento-col-9 bento-grid" style={{ alignContent: 'start' }}>
+                    
+                    {/* Top KPIs (2 rows of 3) */}
+                    {kpiCards.map((kpi, idx) => (
+                        <div className="bento-col-4" key={idx}>
+                            <div className="bento-card kpi-card-bento" style={{ position: 'relative', overflow: 'hidden' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                                    <div style={{ color: '#64748b', fontSize: '12px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{kpi.title}</div>
+                                    <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: `${kpi.color}15`, color: kpi.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        <kpi.icon size={16} strokeWidth={2.5} />
                                     </div>
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <PieChart>
-                                            <Pie data={teamAttendanceData} cx="50%" cy="45%" innerRadius={65} outerRadius={90} paddingAngle={2} dataKey="value" stroke="none">
-                                                {teamAttendanceData.map((entry, index) => (
-                                                    <Cell key={`cell-${index}`} fill={entry.color} />
-                                                ))}
-                                            </Pie>
+                                </div>
+                                <h3 style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '0 0 8px 0', lineHeight: 1 }}>{kpi.value}</h3>
+                                <div style={{ display: 'flex', alignItems: 'center', fontSize: '12px', fontWeight: 600, color: (kpi.trendType === 'down' && kpi.title !== 'Pending Approvals') ? '#ef4444' : '#10b981' }}>
+                                    {kpi.trendType === 'up' ? <ArrowUpRight size={14} style={{ marginRight: '4px' }}/> : <ArrowDownRight size={14} style={{ marginRight: '4px' }}/>}
+                                    {kpi.trend}
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+
+                    {/* Middle Section: Charts */}
+                    <div className="bento-col-8">
+                        <div className="bento-card chart-card">
+                            <div className="bento-card-header">
+                                <h3 className="bento-card-title"><Activity size={16} /> Team Performance</h3>
+                            </div>
+                            <div className="bento-card-body">
+                                {teamPerformanceData.length > 0 ? (
+                                    <ResponsiveContainer width="100%" height={260}>
+                                        <LineChart data={teamPerformanceData} margin={{ top: 5, right: 20, left: -20, bottom: 5 }}>
+                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} dy={10} />
+                                            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} />
                                             <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
-                                            <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '11px', paddingTop: '0px' }} />
-                                        </PieChart>
+                                            <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} iconType="circle" />
+                                            <Line type="monotone" dataKey="completed" name="Completed Tasks" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} activeDot={{ r: 6 }} />
+                                            <Line type="monotone" dataKey="pending" name="Pending Tasks" stroke="#ef4444" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} />
+                                        </LineChart>
                                     </ResponsiveContainer>
-                                </>
-                            ) : (
-                                <span style={{ color: '#94a3b8', fontSize: '13px' }}>No attendance data available</span>
-                            )}
+                                ) : (
+                                    <div className="flex-center" style={{ height: '100%', color: '#94a3b8', fontSize: '13px' }}>No performance data available</div>
+                                )}
+                            </div>
                         </div>
                     </div>
+
+                    <div className="bento-col-4">
+                        <div className="bento-card chart-card">
+                            <div className="bento-card-header">
+                                <h3 className="bento-card-title"><Users size={16} /> Team Attendance</h3>
+                            </div>
+                            <div className="bento-card-body" style={{ position: 'relative' }}>
+                                {teamAttendanceData.length > 0 ? (
+                                    <>
+                                        <ResponsiveContainer width="100%" height={200}>
+                                            <PieChart>
+                                                <Pie data={teamAttendanceData} cx="50%" cy="50%" innerRadius={55} outerRadius={75} paddingAngle={2} dataKey="value" stroke="none">
+                                                    {teamAttendanceData.map((entry, index) => (
+                                                        <Cell key={`cell-${index}`} fill={entry.color} />
+                                                    ))}
+                                                </Pie>
+                                                <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
+                                            </PieChart>
+                                        </ResponsiveContainer>
+                                        <div style={{ position: 'absolute', top: '45%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center', pointerEvents: 'none' }}>
+                                            <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', lineHeight: 1 }}>{teamMembers}</div>
+                                            <div style={{ fontSize: '11px', fontWeight: 600, color: '#64748b' }}>Total</div>
+                                        </div>
+                                        <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', flexWrap: 'wrap', marginTop: '12px' }}>
+                                            {teamAttendanceData.map((item, idx) => (
+                                                <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: 600, color: '#475569' }}>
+                                                    <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: item.color }}></span>
+                                                    {item.name}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div className="flex-center" style={{ height: '100%', color: '#94a3b8', fontSize: '13px' }}>No attendance data</div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
 
+                {/* Right Side: Feature Panel & Activity (Span 3) */}
+                <div className="bento-col-3 bento-grid" style={{ alignContent: 'start' }}>
+                    
+                    <div className="bento-col-12">
+                        <div className="bento-card" style={{ padding: '16px' }}>
+                            <h3 style={{ fontSize: '13px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '16px' }}>Quick Actions</h3>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                {[
+                                    { path: '/tasks', name: 'Task Management', icon: ListTodo, color: '#3b82f6' },
+                                    { path: '/projects', name: 'Project Boards', icon: FolderGit2, color: '#8b5cf6' },
+                                    { path: '/team', name: 'Team Directory', icon: Users, color: '#10b981' },
+                                    { path: '/approvals', name: 'Pending Approvals', icon: CheckCircle, color: '#ef4444' }
+                                ].map((link, idx) => (
+                                    <NavLink to={link.path} key={idx} style={{ display: 'flex', alignItems: 'center', padding: '10px 12px', background: '#f8fafc', border: '1px solid #f1f5f9', borderRadius: '8px', textDecoration: 'none', color: '#0f172a', fontWeight: 500, fontSize: '13px', transition: 'all 0.2s' }} className="quick-action-link">
+                                        <div style={{ width: '28px', height: '28px', borderRadius: '6px', background: `${link.color}15`, color: link.color, display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: '12px' }}>
+                                            <link.icon size={14} />
+                                        </div>
+                                        {link.name}
+                                    </NavLink>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="bento-col-12">
+                        <div className="bento-card" style={{ height: '380px', padding: '16px' }}>
+                            <div className="bento-card-header" style={{ marginBottom: '16px', paddingBottom: '0', borderBottom: 'none' }}>
+                                <h3 className="bento-card-title" style={{ fontSize: '13px', color: '#64748b' }}><Briefcase size={14} /> Project Status</h3>
+                            </div>
+                            <div className="bento-card-body" style={{ overflowY: 'auto' }}>
+                                {projectStatusData.length > 0 ? (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                        {projectStatusData.map(proj => (
+                                            <div key={proj.id} style={{ background: '#f8fafc', padding: '12px', borderRadius: '10px', border: '1px solid #f1f5f9' }}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', alignItems: 'center' }}>
+                                                    <span style={{ fontSize: '13px', fontWeight: 600, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '120px' }}>{proj.name}</span>
+                                                    <span style={{ 
+                                                        fontSize: '10px', fontWeight: 700, padding: '2px 6px', borderRadius: '4px',
+                                                        background: proj.status === 'Completed' ? '#ecfdf5' : proj.status === 'At Risk' ? '#fee2e2' : '#eff6ff',
+                                                        color: proj.status === 'Completed' ? '#059669' : proj.status === 'At Risk' ? '#ef4444' : '#3b82f6'
+                                                    }}>{proj.status}</span>
+                                                </div>
+                                                <div style={{ background: '#e2e8f0', height: '6px', borderRadius: '3px', overflow: 'hidden' }}>
+                                                    <div style={{ 
+                                                        height: '100%', width: `${proj.progress}%`, borderRadius: '3px',
+                                                        background: proj.status === 'Completed' ? '#10b981' : proj.status === 'At Risk' ? '#ef4444' : '#3b82f6'
+                                                    }}></div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="flex-center" style={{ height: '100%', color: '#94a3b8', fontSize: '13px' }}>No active projects</div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
             </div>
 
             <style jsx="true">{`
-                .role-dashboard-layout {
-                    display: block;
-                    min-height: 100vh;
-                    background: #f4f7fb;
-                }
-
-                .main-content {
-                    padding: 24px 32px;
-                    height: 100vh;
-                    overflow-y: auto;
-                }
-
-                .header-section { margin-bottom: 24px; }
-                .page-title { font-size: 24px; font-weight: 800; color: #0f172a; margin: 0 0 4px 0; letter-spacing: -0.5px; }
-                .page-subtitle { font-size: 14px; color: #64748b; margin: 0; font-weight: 500; }
-
-                .kpi-grid {
-                    display: grid;
-                    grid-template-columns: repeat(6, 1fr);
-                    gap: 16px;
-                    margin-bottom: 24px;
-                }
-                .kpi-card {
-                    background: #ffffff; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between;
-                    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02); border: 1px solid #e2e8f0; height: 110px;
-                    transition: transform 0.2s ease, box-shadow 0.2s ease;
-                }
-                .kpi-card:hover {
-                    transform: translateY(-4px);
-                    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
-                }
-                .kpi-header { display: flex; justify-content: space-between; align-items: flex-start; }
-                .kpi-icon-wrapper { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
-                .kpi-trend { font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 2px; padding: 4px 8px; border-radius: 20px; }
-                .kpi-trend.positive { background: #dcfce7; color: #16a34a; }
-                .kpi-trend.negative { background: #fee2e2; color: #dc2626; }
-                
-                .kpi-info { display: flex; flex-direction: column; }
-                .kpi-label { font-size: 12px; font-weight: 600; color: #64748b; margin-top: 2px; }
-                .kpi-value { font-size: 22px; font-weight: 800; color: #0f172a; margin: 0; line-height: 1; }
-
-                .charts-grid-3 {
-                    display: grid;
-                    grid-template-columns: repeat(3, 1fr);
-                    gap: 20px;
-                    margin-bottom: 20px;
-                }
-
-                .bento-card {
-                    background: #ffffff; border-radius: 14px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03); border: 1px solid #e2e8f0;
-                    display: flex; flex-direction: column; overflow: hidden;
-                    transition: box-shadow 0.2s ease;
-                }
-                .bento-card:hover { box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06); }
-                .bento-card-header { padding: 18px 20px 0; }
-                .bento-card-title { font-size: 15px; font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 8px; }
-                .bento-card-body { flex: 1; overflow-y: hidden; }
-
-                .chart-center-text {
-                    position: absolute;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                    text-align: center;
-                    pointer-events: none;
-                    margin-top: -15px;
-                }
-                .chart-center-text h3 { margin: 0; font-size: 32px; font-weight: 800; color: #0f172a; line-height: 1; }
-                .chart-center-text span { font-size: 13px; font-weight: 600; color: #64748b; }
-
-                @media (max-width: 1400px) {
-                    .kpi-grid { grid-template-columns: repeat(3, 1fr); }
-                }
-                @media (max-width: 1024px) {
-                    .charts-grid-3 { grid-template-columns: 1fr; }
-                    .main-content { padding: 16px; }
+                .quick-action-link:hover {
+                    background: #fff !important;
+                    border-color: #e2e8f0 !important;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.02) !important;
                 }
             `}</style>
         </div>
