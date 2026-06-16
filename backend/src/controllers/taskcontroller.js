@@ -16,8 +16,8 @@ const createTask = async (req, res) => {
             const targetRoles = broadcastRoles && broadcastRoles.length > 0 
                 ? broadcastRoles 
                 : ['Employee', 'Sales'];
-            const users = await User.find({ role: { $in: targetRoles } }).select('_id');
-            finalAssignedTo = users.map(u => u._id);
+            const users = await User.find({ role: { $in: targetRoles } }).select('id');
+            finalAssignedTo = users.map(u => u.id || u._id);
         }
 
         if (finalAssignedTo.length === 0) {
@@ -28,7 +28,7 @@ const createTask = async (req, res) => {
             title,
             description,
             assignedTo: JSON.stringify(finalAssignedTo),
-            assignedBy: req.user._id,
+            assignedById: req.user.id || req.user._id,
             completions: JSON.stringify(finalAssignedTo.map(userId => ({ user: userId, status: 'Pending' }))),
             priority,
             dueDate,
@@ -110,7 +110,7 @@ const updateTaskStatus = async (req, res) => {
         if (!Array.isArray(completions)) completions = [];
 
         const completionIndex = completions.findIndex(c => {
-            const userId = c.user?._id || c.user;
+            const userId = c.user?.id || c.user?._id || c.user;
             return String(userId) === String(req.user._id || req.user.id);
         });
         
@@ -127,12 +127,13 @@ const updateTaskStatus = async (req, res) => {
         await task.save();
 
         // Notify the assigner when task is completed
-        if (status === 'Completed' && task.assignedBy) {
+        const assignerId = task.assignedById || task.assignedBy?.id || task.assignedBy?._id || task.assignedBy;
+        if (status === 'Completed' && assignerId) {
             try {
                 await broadcast({
                     module: 'Tasks',
-                    referenceId: task._id || task.id,
-                    targetUserId: task.assignedBy,
+                    referenceId: task.id || task._id,
+                    targetUserId: assignerId,
                     targetRoles: [],
                     title: `✅ Task Completed: ${task.title}`,
                     message: `${req.user.name} has completed the task "${task.title}".`,
