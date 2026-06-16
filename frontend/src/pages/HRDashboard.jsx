@@ -195,12 +195,12 @@ const HRDashboard = () => {
                 </div>
             </div>
 
-            {/* ===== ROW 1: KPI Cards ===== */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '16px', marginBottom: '20px' }}>
+            {/* ===== ROW 1: KPI Cards (3 per row) ===== */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '16px' }}>
                 {kpiCards.map((kpi, idx) => (
-                    <div key={idx} className="bento-card kpi-card-bento" style={{ position: 'relative', overflow: 'hidden', borderRadius: '14px', padding: '16px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
-                            <div style={{ color: '#64748b', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{kpi.title}</div>
+                    <div key={idx} className="bento-card kpi-card-bento" style={{ position: 'relative', overflow: 'hidden', borderRadius: '14px', padding: '14px 16px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                            <div style={{ color: '#64748b', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{kpi.title}</div>
                             <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: `${kpi.color}15`, color: kpi.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                                 <kpi.icon size={14} strokeWidth={2.5} />
                             </div>
@@ -215,7 +215,7 @@ const HRDashboard = () => {
             </div>
 
             {/* ===== ROW 2: Employee Distribution (4fr) + Dept Headcount (5fr) + Right Panel (3fr) ===== */}
-            <div style={{ display: 'grid', gridTemplateColumns: '4fr 5fr 3fr', gap: '20px', marginBottom: '20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '4fr 5fr 3fr', gap: '16px', marginBottom: '16px' }}>
 
                 {/* Employee Distribution */}
                 <div className="bento-card" style={{ borderRadius: '14px', display: 'flex', flexDirection: 'column', minHeight: '260px', overflow: 'hidden' }}>
@@ -269,9 +269,9 @@ const HRDashboard = () => {
                     <div style={{ flex: 1, padding: '0 24px 24px 24px', overflow: 'hidden' }}>
                         {departmentHeadcountData.length > 0 ? (
                             <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={departmentHeadcountData} margin={{ top: 5, right: 5, left: -20, bottom: 5 }} barSize={32}>
+                                <BarChart data={departmentHeadcountData} margin={{ top: 5, right: 5, left: -20, bottom: 25 }} barSize={32}>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b', fontWeight: 500 }} interval={0} />
+                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b', fontWeight: 500 }} interval={0} angle={-25} textAnchor="end" />
                                     <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} />
                                     <RechartsTooltip cursor={{fill: '#f8fafc'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }} />
                                     <Bar dataKey="count" radius={[6, 6, 0, 0]}>
@@ -311,7 +311,7 @@ const HRDashboard = () => {
                     </div>
 
                     {/* Recent HR Activity */}
-                    <div className="bento-card" style={{ borderRadius: '14px', padding: '18px', display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
+                    <div className="bento-card" style={{ borderRadius: '14px', padding: '18px', display: 'flex', flexDirection: 'column', minHeight: '120px', flex: 1, overflow: 'hidden' }}>
                         <div style={{ marginBottom: '14px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
                             <h3 style={{ margin: 0, fontSize: '13px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '6px' }}><Activity size={14} /> Recent HR Activity</h3>
                         </div>
