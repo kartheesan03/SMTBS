@@ -1,18 +1,20 @@
 import React, { useState, useEffect, useContext } from 'react';
 import API from '../api/axios';
 import { AuthContext } from '../context/AuthContext';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { 
     Calendar, CheckCircle, Clock, Briefcase, 
     FileText, Bell, Search, ChevronDown, ListTodo, ArrowUpRight, ArrowDownRight, Fingerprint
 } from 'lucide-react';
 import { 
     BarChart, Bar, XAxis, YAxis, CartesianGrid, 
-    Tooltip as RechartsTooltip, ResponsiveContainer, Cell
+    Tooltip as RechartsTooltip, ResponsiveContainer, Cell,
+    PieChart, Pie
 } from 'recharts';
 
 const EmployeeDashboard = () => {
     const { user } = useContext(AuthContext);
+    const navigate = useNavigate();
     const [dashboardData, setDashboardData] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -121,26 +123,25 @@ const EmployeeDashboard = () => {
     const unreadNotifications = myNotificationsList.filter(n => !n.isRead).length;
 
     const myAttendanceData = [];
-    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    for (let i = 6; i >= 0; i--) {
-        const d = new Date();
-        d.setDate(d.getDate() - i);
-        const dStr = d.toISOString().split('T')[0];
-        
-        const att = myAttendancesList.find(a => a.date && (a.date.toString().includes(dStr) || new Date(a.date).toISOString().split('T')[0] === dStr));
-        let hours = 0;
-        if (att && att.checkIn && att.checkOut) {
-            const inTime = new Date(att.checkIn);
-            const outTime = new Date(att.checkOut);
-            hours = (outTime - inTime) / (1000 * 60 * 60);
+    let presentCount = 0, absentCount = 0, leaveCount = 0, lateCount = 0;
+    const currentM = new Date().getMonth();
+    const currentY = new Date().getFullYear();
+
+    myAttendancesList.forEach(a => {
+        if (!a.date) return;
+        const d = new Date(a.date);
+        if (d.getMonth() === currentM && d.getFullYear() === currentY) {
+            if (a.status === 'Present' || (a.status !== 'Absent' && a.status !== 'Leave' && a.status !== 'Late' && a.checkIn)) presentCount++;
+            else if (a.status === 'Absent') absentCount++;
+            else if (a.status === 'Leave') leaveCount++;
+            else if (a.status === 'Late') lateCount++;
         }
-        
-        myAttendanceData.push({
-            name: days[d.getDay()],
-            hours: Number(Math.max(0, hours).toFixed(1)),
-            fill: hours >= 8 ? '#10b981' : hours > 0 ? '#f59e0b' : '#e2e8f0'
-        });
-    }
+    });
+
+    if (presentCount > 0) myAttendanceData.push({ name: 'Present', value: presentCount, fill: '#10b981' });
+    if (leaveCount > 0) myAttendanceData.push({ name: 'Leave', value: leaveCount, fill: '#3b82f6' });
+    if (absentCount > 0) myAttendanceData.push({ name: 'Absent', value: absentCount, fill: '#ef4444' });
+    if (lateCount > 0) myAttendanceData.push({ name: 'Late', value: lateCount, fill: '#f59e0b' });
 
     const myTasks = myTasksList
         .filter(t => t.status !== 'Completed' && t.status !== 'Done')
@@ -251,17 +252,17 @@ const EmployeeDashboard = () => {
                             <h3 style={{ fontSize: '13px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '16px' }}>Quick Actions</h3>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                 {[
-                                    { path: '/tasks', name: 'My Tasks', icon: ListTodo, color: '#3b82f6' },
-                                    { path: '/my-leaves', name: 'Apply Leave', icon: Calendar, color: '#8b5cf6' },
+                                    { path: '/my-tasks', name: 'My Tasks', icon: ListTodo, color: '#3b82f6' },
+                                    { path: '/leave-management', name: 'Apply Leave', icon: Calendar, color: '#8b5cf6' },
                                     { path: '/my-attendance', name: 'Mark Attendance', icon: Fingerprint, color: '#10b981' },
                                     { path: '/my-salary', name: 'Salary Slips', icon: FileText, color: '#f59e0b' }
                                 ].map((link, idx) => (
-                                    <NavLink to={link.path} key={idx} style={{ display: 'flex', alignItems: 'center', padding: '10px 12px', background: '#f8fafc', border: '1px solid #f1f5f9', borderRadius: '8px', textDecoration: 'none', color: '#0f172a', fontWeight: 500, fontSize: '13px', transition: 'all 0.2s' }} className="quick-action-link">
+                                    <div onClick={() => navigate(link.path)} key={idx} style={{ display: 'flex', alignItems: 'center', padding: '10px 12px', background: '#f8fafc', border: '1px solid #f1f5f9', borderRadius: '8px', cursor: 'pointer', color: '#0f172a', fontWeight: 500, fontSize: '13px', transition: 'all 0.2s' }} className="quick-action-link">
                                         <div style={{ width: '28px', height: '28px', borderRadius: '6px', background: `${link.color}15`, color: link.color, display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: '12px' }}>
                                             <link.icon size={14} />
                                         </div>
                                         {link.name}
-                                    </NavLink>
+                                    </div>
                                 ))}
                             </div>
                         </div>
@@ -275,20 +276,27 @@ const EmployeeDashboard = () => {
                             <div className="bento-card-body" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '10px 10px 20px 10px' }}>
                                 {myAttendanceData.length > 0 ? (
                                     <ResponsiveContainer width="100%" height={260}>
-                                        <BarChart data={myAttendanceData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
-                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                                            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} dy={10} />
-                                            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} />
+                                        <PieChart margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
                                             <RechartsTooltip cursor={{fill: 'transparent'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
-                                            <Bar dataKey="hours" radius={[4, 4, 0, 0]} barSize={20}>
+                                            <Pie
+                                                data={myAttendanceData}
+                                                dataKey="value"
+                                                nameKey="name"
+                                                cx="50%"
+                                                cy="50%"
+                                                innerRadius={60}
+                                                outerRadius={90}
+                                                paddingAngle={5}
+                                                labelLine={false}
+                                            >
                                                 {myAttendanceData.map((entry, index) => (
                                                     <Cell key={`cell-${index}`} fill={entry.fill} />
                                                 ))}
-                                            </Bar>
-                                        </BarChart>
+                                            </Pie>
+                                        </PieChart>
                                     </ResponsiveContainer>
                                 ) : (
-                                    <div className="flex-center" style={{ height: '100%', color: '#94a3b8', fontSize: '13px' }}>No attendance data</div>
+                                    <div className="flex-center" style={{ height: '100%', color: '#94a3b8', fontSize: '13px' }}>No attendance data available</div>
                                 )}
                             </div>
                         </div>
