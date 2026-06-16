@@ -354,7 +354,7 @@ const ERP = () => {
                     <button className="btn-secondary-light flex-center gap-8" onClick={() => setShowFilters(!showFilters)}>
                         <Filter size={16} /> Filters
                     </button>
-                    {(userInfo?.role?.toLowerCase() === 'admin' || userInfo?.role?.toLowerCase() === 'super admin' || userInfo?.role?.toLowerCase() === 'sales') && (
+                    {(userInfo?.role?.toLowerCase() === 'admin' || userInfo?.role?.toLowerCase() === 'super admin' || userInfo?.role?.toLowerCase() === 'manager') && (
                         <button className="btn-primary-blue flex-center gap-8" onClick={() => navigate('/orders/create-order')}>
                             <Plus size={16} /> Create Order
                         </button>
