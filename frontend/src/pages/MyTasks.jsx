@@ -122,8 +122,8 @@ const MyTasks = () => {
     const filteredTasks = tasks.filter(task => {
         const completions = parseJSON(task.completions);
         const userStatus = completions.find(c => {
-            const uid = c.user?._id || c.user;
-            return String(uid) === String(userInfo._id);
+            const uid = c.user?._id || c.user?.id || c.user;
+            return String(uid) === String(userInfo.id || userInfo._id);
         })?.status || 'Pending';
 
         const matchesFilter = filter === 'All' || (isManager ? completions.some(c => c.status === filter) : userStatus === filter);
@@ -221,8 +221,8 @@ const MyTasks = () => {
                 ) : filteredTasks.length === 0 ? (
                     <div className="empty-state glass-card">
                         <AlertCircle size={48} />
-                        <h3>No Tasks Found</h3>
-                        <p>No tasks match the current filter.</p>
+                        <h3>{tasks.length === 0 ? 'No Tasks Assigned' : 'No Tasks Found'}</h3>
+                        <p>{tasks.length === 0 ? 'No tasks assigned yet.' : 'No tasks match the current filter.'}</p>
                     </div>
                 ) : (
                     <DataTable 
@@ -233,8 +233,8 @@ const MyTasks = () => {
                             const completions = parseJSON(t.completions);
                             const assignedTo = parseJSON(t.assignedTo);
                             const myCompletion = completions.find(c => {
-                                const uid = c.user?._id || c.user;
-                                return String(uid) === String(userInfo._id);
+                                const uid = c.user?._id || c.user?.id || c.user;
+                                return String(uid) === String(userInfo.id || userInfo._id);
                             });
                             const myStatus = myCompletion?.status || 'Pending';
 

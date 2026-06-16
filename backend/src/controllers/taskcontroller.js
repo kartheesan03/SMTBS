@@ -63,8 +63,20 @@ const createTask = async (req, res) => {
 
 const getMyTasks = async (req, res) => {
     try {
-        const tasks = await Task.find({ assignedTo: req.user._id }).populate('assignedBy', 'name');
-        res.json(tasks);
+        const userId = String(req.user._id || req.user.id);
+        const tasks = await Task.find({}).populate('assignedBy', 'name');
+        
+        const myTasks = tasks.filter(task => {
+            let assigned = task.assignedTo;
+            if (typeof assigned === 'string') {
+                try { assigned = JSON.parse(assigned); } catch (e) { assigned = []; }
+            }
+            if (!Array.isArray(assigned)) assigned = [];
+            
+            return assigned.some(id => String(id) === userId);
+        });
+
+        res.json(myTasks);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -99,7 +111,7 @@ const updateTaskStatus = async (req, res) => {
 
         const completionIndex = completions.findIndex(c => {
             const userId = c.user?._id || c.user;
-            return String(userId) === String(req.user._id);
+            return String(userId) === String(req.user._id || req.user.id);
         });
         
         if (completionIndex === -1 && !['Admin', 'Manager'].includes(req.user.role)) {

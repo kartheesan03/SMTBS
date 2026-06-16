@@ -83,28 +83,44 @@ const loginUser = async (req, res) => {
     res.status(401).json({ message: 'Invalid email or password' });
 };
 
-// @desc    Google login / signup
+// @desc    Google Auth (Login / Signup)
 // @route   POST /api/auth/google
 // @access  Public
 const googleAuth = async (req, res) => {
-    const { credential, signupRole } = req.body;
-    
-    if (!credential) {
-        return res.status(400).json({ message: 'Google token missing' });
-    }
-
     try {
-        let email, name, googleId;
+        const { credential, access_token, signupRole } = req.body;
+        
+        if (!credential && !access_token) {
+            return res.status(400).json({ message: 'Google credential or access token is required' });
+        }
 
-        // Verify Google ID Token
-        const ticket = await client.verifyIdToken({
-            idToken: credential,
-            audience: process.env.GOOGLE_CLIENT_ID,
-        });
-        const payload = ticket.getPayload();
-        email = payload.email;
-        name = payload.name;
-        googleId = payload.sub;
+        let email, name, googleId, picture;
+
+        if (access_token) {
+            // Flow 1: access_token from useGoogleLogin custom button
+            const response = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+                headers: { Authorization: `Bearer ${access_token}` }
+            });
+            const payload = await response.json();
+            if (!response.ok) {
+                return res.status(400).json({ message: 'Invalid Google access token' });
+            }
+            email = payload.email;
+            name = payload.name;
+            googleId = payload.sub;
+            picture = payload.picture;
+        } else {
+            // Flow 2: idToken from standard GoogleLogin button
+            const ticket = await client.verifyIdToken({
+                idToken: credential,
+                audience: process.env.GOOGLE_CLIENT_ID,
+            });
+            const payload = ticket.getPayload();
+            email = payload.email;
+            name = payload.name;
+            googleId = payload.sub;
+            picture = payload.picture;
+        }
 
         // Extract email safely as a string
         if (typeof email !== 'string') {
@@ -120,9 +136,17 @@ const googleAuth = async (req, res) => {
         let user = await User.findOne({ email });
 
         if (user) {
-            // User exists — update googleId if not present, then login
+            // User exists — update googleId or picture if not present, then login
+            let shouldSave = false;
             if (!user.googleId) {
                 user.googleId = googleId;
+                shouldSave = true;
+            }
+            if (picture && !user.picture) {
+                user.picture = picture;
+                shouldSave = true;
+            }
+            if (shouldSave) {
                 await user.save();
             }
 
@@ -137,6 +161,7 @@ const googleAuth = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 role: role,
+                picture: user.picture,
                 isProfileComplete: user.isProfileComplete,
                 token: generateToken(user.id || user._id),
                 user: {
@@ -144,6 +169,7 @@ const googleAuth = async (req, res) => {
                     name: user.name,
                     email: user.email,
                     role: role,
+                    picture: user.picture,
                     isProfileComplete: user.isProfileComplete
                 }
             });
@@ -170,7 +196,8 @@ const googleAuth = async (req, res) => {
                 password: dummyPassword,
                 provider: 'google',
                 active: true,
-                isProfileComplete: false
+                isProfileComplete: false,
+                picture: picture
             });
 
             // Automatically create empty profile
@@ -203,6 +230,7 @@ const googleAuth = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 role: user.role,
+                picture: user.picture,
                 isProfileComplete: user.isProfileComplete,
                 token: generateToken(user.id || user._id),
                 user: {
@@ -210,6 +238,7 @@ const googleAuth = async (req, res) => {
                     name: user.name,
                     email: user.email,
                     role: user.role,
+                    picture: user.picture,
                     isProfileComplete: user.isProfileComplete
                 }
             });
