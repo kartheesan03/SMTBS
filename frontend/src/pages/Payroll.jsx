@@ -3,7 +3,8 @@ import API from '../api/axios';
 import { 
     DollarSign, FileText, Download, TrendingUp, X, CheckCircle, 
     Clock, Loader, User, AlertCircle, Check, CreditCard, Banknote, 
-    Send, Wallet, ArrowRight, BadgeCheck, Receipt, Search, Bell, ChevronDown, Activity, Users, Layers, Calendar
+    Send, Wallet, ArrowRight, BadgeCheck, Receipt, Search, Bell, ChevronDown, Activity, Users, Layers, Calendar,
+    Eye, Trash2, XCircle, Pencil
 } from 'lucide-react';
 import { generatePayslipPDF } from '../utils/pdfGenerator';
 import { 
@@ -215,12 +216,26 @@ const Payroll = () => {
         { name: 'Jun', amount: stats.thisMonth || 135000 },
     ];
 
-    const deptDistributionData = [
-        { name: 'Engineering', value: 45, color: '#3b82f6' },
-        { name: 'Sales', value: 30, color: '#10b981' },
-        { name: 'HR & Admin', value: 15, color: '#8b5cf6' },
-        { name: 'Operations', value: 10, color: '#f59e0b' },
-    ];
+    // Dynamic department salary distribution from real payroll data
+    const DEPT_COLORS = ['#3b82f6', '#10b981', '#8b5cf6', '#f59e0b', '#ef4444', '#06b6d4', '#ec4899', '#14b8a6', '#f97316', '#6366f1'];
+    const deptAggregation = salaries.reduce((acc, s) => {
+        const dept = s.employee?.department || 'Others';
+        if (!acc[dept]) acc[dept] = { total: 0, count: 0 };
+        acc[dept].total += Number(s.netSalary || 0);
+        acc[dept].count += 1;
+        return acc;
+    }, {});
+    const totalPayroll = Object.values(deptAggregation).reduce((sum, d) => sum + d.total, 0);
+    const deptDistributionData = Object.entries(deptAggregation)
+        .sort((a, b) => b[1].total - a[1].total)
+        .map(([name, data], idx) => ({
+            name,
+            value: data.total,
+            count: data.count,
+            pct: totalPayroll > 0 ? ((data.total / totalPayroll) * 100).toFixed(1) : '0.0',
+            color: DEPT_COLORS[idx % DEPT_COLORS.length],
+        }));
+    const totalDeptCount = deptDistributionData.length;
 
     const statusOverviewData = [
         { name: 'Paid', count: stats.paid, fill: '#10b981' },
@@ -229,43 +244,41 @@ const Payroll = () => {
     ];
 
     return (
-        <div className="admin-dashboard-layout">
+        <div style={{ position: 'relative' }}>
 
             {/* Toast */}
             {toast && (
-                <div className={`pay-toast ${toast.ok ? 'ok' : 'err'}`}>
+                <div style={{ position: 'fixed', top: '24px', right: '24px', zIndex: 9999, display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 20px', borderRadius: '10px', fontSize: '13px', fontWeight: 600, color: '#fff', background: toast.ok ? '#10b981' : '#ef4444', boxShadow: '0 8px 25px rgba(0,0,0,0.15)', animation: 'slideIn 0.3s ease' }}>
                     {toast.ok ? <CheckCircle size={15} /> : <AlertCircle size={15} />}
                     {toast.msg}
                 </div>
             )}
 
             <div className="main-content">
-                <div className="header-section" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
+                {/* Header */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
                     <div>
-                        <h1 className="page-title">Payroll Management</h1>
-                        <p className="page-subtitle">Process salaries, approvals, and payment tracking</p>
+                        <h1 style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '0 0 4px 0', letterSpacing: '-0.5px' }}>Payroll Management</h1>
+                        <p style={{ fontSize: '14px', color: '#64748b', margin: 0 }}>Process salaries, approvals, and payment tracking</p>
                     </div>
-                    
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
-                        <div className="search-bar" style={{ display: 'flex', alignItems: 'center', background: '#fff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '8px 12px', gap: '8px' }}>
-                            <Search size={18} color="#94a3b8" />
-                            <input type="text" placeholder="Search payroll records..." style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: '13px', width: '200px' }} />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', background: '#fff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '8px 14px', gap: '8px' }}>
+                            <Search size={16} color="#94a3b8" />
+                            <input type="text" placeholder="Search payroll..." style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: '13px', width: '160px' }} />
                         </div>
-                        
-                        <div className="date-filter" style={{ display: 'flex', alignItems: 'center', background: '#fff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '8px 12px', gap: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 600, color: '#334155' }}>
-                            <Calendar size={16} color="#64748b" />
+                        <div style={{ display: 'flex', alignItems: 'center', background: '#fff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '8px 14px', gap: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 600, color: '#334155' }}>
+                            <Calendar size={14} color="#64748b" />
                             <span>This Month</span>
                             <ChevronDown size={14} color="#64748b" />
                         </div>
-
                         {canPay && (
-                            <div style={{ display: 'flex', gap: '12px' }}>
+                            <div style={{ display: 'flex', gap: '10px' }}>
                                 {stats.approved > 0 && (
-                                    <button className="btn-secondary flex-center" onClick={() => setShowPayAllModal(true)} style={{gap: '8px', padding: '8px 16px', height: '100%'}}>
-                                        <Banknote size={16} color="#10b981" /> <span>Pay All Approved ({stats.approved})</span>
+                                    <button className="btn-secondary flex-center" onClick={() => setShowPayAllModal(true)} style={{gap: '8px', padding: '8px 16px'}}>
+                                        <Banknote size={16} color="#10b981" /> Pay All ({stats.approved})
                                     </button>
                                 )}
-                                <button className="btn-primary flex-center" onClick={() => setShowGenModal(true)} style={{gap: '8px', height: '100%'}}>
+                                <button className="btn-primary flex-center" onClick={() => setShowGenModal(true)} style={{gap: '8px'}}>
                                     <TrendingUp size={16} /> Generate Payroll
                                 </button>
                             </div>
@@ -273,107 +286,127 @@ const Payroll = () => {
                     </div>
                 </div>
 
-                {/* KPIs */}
-                <div className="kpi-grid-6">
-                    <div className="kpi-card">
-                        <div className="kpi-icon-wrapper" style={{ background: '#eff6ff', color: '#3b82f6' }}><Wallet size={18} /></div>
-                        <div className="kpi-info">
-                            <span className="kpi-label">Total Disbursement</span>
-                            <h3 className="kpi-value">₹{stats.total.toLocaleString()}</h3>
-                            <span className="kpi-subtext">All time</span>
+                {/* ===== KPI ROW (3 per row, 2 rows) ===== */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '16px' }}>
+                    {[
+                        { label: 'Total Disbursement', value: `₹${stats.total.toLocaleString()}`, sub: 'All time', icon: Wallet, iconBg: '#eff6ff', iconColor: '#3b82f6' },
+                        { label: 'Paid Employees', value: stats.paid, sub: `₹${stats.paidTotal.toLocaleString()}`, icon: Users, iconBg: '#ecfdf5', iconColor: '#10b981', subColor: '#10b981' },
+                        { label: 'Pending Approval', value: stats.pending, sub: 'Requires Action', icon: Clock, iconBg: '#fef3c7', iconColor: '#d97706', subColor: '#d97706' },
+                        { label: 'Ready to Pay', value: stats.approved, sub: `₹${stats.approvedTotal.toLocaleString()}`, icon: CheckCircle, iconBg: '#f3e8ff', iconColor: '#9333ea', subColor: '#3b82f6' },
+                        { label: 'Current Month Payroll', value: `₹${stats.thisMonth.toLocaleString()}`, sub: 'Current period', icon: Activity, iconBg: '#f0fdf4', iconColor: '#16a34a' },
+                        { label: 'Average Salary', value: `₹${Math.round(averageSalary).toLocaleString()}`, sub: 'Per employee', icon: DollarSign, iconBg: '#f8fafc', iconColor: '#64748b' },
+                    ].map((kpi, idx) => (
+                        <div key={idx} className="bento-card" style={{ borderRadius: '14px', padding: '16px 18px', display: 'flex', alignItems: 'center', gap: '14px' }}>
+                            <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: kpi.iconBg, color: kpi.iconColor, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                <kpi.icon size={18} />
+                            </div>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                                <div style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>{kpi.label}</div>
+                                <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', lineHeight: 1, marginBottom: '4px' }}>{kpi.value}</div>
+                                <div style={{ fontSize: '11px', fontWeight: 600, color: kpi.subColor || '#94a3b8' }}>{kpi.sub}</div>
+                            </div>
                         </div>
-                    </div>
-                    <div className="kpi-card">
-                        <div className="kpi-icon-wrapper" style={{ background: '#ecfdf5', color: '#10b981' }}><Users size={18} /></div>
-                        <div className="kpi-info">
-                            <span className="kpi-label">Paid Employees</span>
-                            <h3 className="kpi-value">{stats.paid}</h3>
-                            <span className="kpi-subtext text-success">₹{stats.paidTotal.toLocaleString()}</span>
-                        </div>
-                    </div>
-                    <div className="kpi-card">
-                        <div className="kpi-icon-wrapper" style={{ background: '#fef3c7', color: '#d97706' }}><Clock size={18} /></div>
-                        <div className="kpi-info">
-                            <span className="kpi-label">Pending Approval</span>
-                            <h3 className="kpi-value">{stats.pending}</h3>
-                            <span className="kpi-subtext text-warning">Requires Action</span>
-                        </div>
-                    </div>
-                    <div className="kpi-card">
-                        <div className="kpi-icon-wrapper" style={{ background: '#f3e8ff', color: '#9333ea' }}><CheckCircle size={18} /></div>
-                        <div className="kpi-info">
-                            <span className="kpi-label">Ready to Pay</span>
-                            <h3 className="kpi-value">{stats.approved}</h3>
-                            <span className="kpi-subtext text-primary">₹{stats.approvedTotal.toLocaleString()}</span>
-                        </div>
-                    </div>
-                    <div className="kpi-card">
-                        <div className="kpi-icon-wrapper" style={{ background: '#f0fdf4', color: '#16a34a' }}><Activity size={18} /></div>
-                        <div className="kpi-info">
-                            <span className="kpi-label">This Month Payroll</span>
-                            <h3 className="kpi-value">₹{stats.thisMonth.toLocaleString()}</h3>
-                            <span className="kpi-subtext">Current period</span>
-                        </div>
-                    </div>
-                    <div className="kpi-card">
-                        <div className="kpi-icon-wrapper" style={{ background: '#f8fafc', color: '#64748b' }}><DollarSign size={18} /></div>
-                        <div className="kpi-info">
-                            <span className="kpi-label">Average Salary</span>
-                            <h3 className="kpi-value">₹{Math.round(averageSalary).toLocaleString()}</h3>
-                            <span className="kpi-subtext">Per employee</span>
-                        </div>
-                    </div>
+                    ))}
                 </div>
 
-                {/* Analytics Row */}
-                <div className="charts-grid-3">
-                    <div className="bento-card">
-                        <div className="bento-card-header">
-                            <div className="bento-card-title"><TrendingUp size={16} /> Monthly Payroll Trend</div>
+                {/* ===== ANALYTICS ROW: Trend (5fr) + Distribution (3fr) + Status (4fr) ===== */}
+                <div style={{ display: 'grid', gridTemplateColumns: '5fr 3fr 4fr', gap: '16px', marginBottom: '16px' }}>
+
+                    {/* Monthly Payroll Trend */}
+                    <div className="bento-card" style={{ borderRadius: '14px', display: 'flex', flexDirection: 'column', minHeight: '280px', overflow: 'hidden' }}>
+                        <div style={{ padding: '16px 18px', height: '48px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                            <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}><TrendingUp size={16} /> Monthly Payroll Trend</h3>
                         </div>
-                        <div className="bento-card-body" style={{ height: '220px' }}>
+                        <div style={{ flex: 1, padding: '0 18px 18px 18px', overflow: 'hidden' }}>
                             <ResponsiveContainer width="100%" height="100%">
-                                <LineChart data={monthlyTrendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} dy={10} />
+                                <LineChart data={monthlyTrendData} margin={{ top: 5, right: 10, left: -15, bottom: 5 }}>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} />
                                     <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} />
-                                    <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
-                                    <Line type="monotone" dataKey="amount" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3, strokeWidth: 2 }} />
+                                    <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }} />
+                                    <Line type="monotone" dataKey="amount" stroke="#3b82f6" strokeWidth={2.5} dot={{ r: 4, strokeWidth: 2, fill: '#fff' }} activeDot={{ r: 6 }} />
                                 </LineChart>
                             </ResponsiveContainer>
                         </div>
                     </div>
 
-                    <div className="bento-card">
-                        <div className="bento-card-header">
-                            <div className="bento-card-title"><Layers size={16} /> Salary Distribution by Dept</div>
+                    {/* Salary Distribution by Department */}
+                    <div className="bento-card" style={{ borderRadius: '14px', display: 'flex', flexDirection: 'column', minHeight: '280px', overflow: 'hidden' }}>
+                        <div style={{ padding: '14px 18px', height: '44px', display: 'flex', alignItems: 'center', flexShrink: 0, borderBottom: '1px solid #f1f5f9' }}>
+                            <h3 style={{ margin: 0, fontSize: '13px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}><Layers size={15} /> Salary Distribution by Department</h3>
                         </div>
-                        <div className="bento-card-body" style={{ height: '220px', display: 'flex', flexDirection: 'column' }}>
-                            <ResponsiveContainer width="100%" height="100%">
-                                <PieChart>
-                                    <Pie data={deptDistributionData} cx="50%" cy="50%" innerRadius={45} outerRadius={75} paddingAngle={5} dataKey="value" stroke="none">
-                                        {deptDistributionData.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={entry.color} />
+                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '10px 16px 0 16px', overflow: 'hidden' }}>
+                            {deptDistributionData.length === 0 ? (
+                                <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: '12px' }}>No payroll data available</div>
+                            ) : (
+                                <>
+                                    {/* Donut with center label */}
+                                    <div style={{ position: 'relative', flex: 1, minHeight: '140px' }}>
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
+                                                <Pie data={deptDistributionData} cx="50%" cy="50%" innerRadius={42} outerRadius={62} paddingAngle={deptDistributionData.length > 1 ? 4 : 0} dataKey="value" stroke="none">
+                                                    {deptDistributionData.map((entry, index) => (
+                                                        <Cell key={`dept-cell-${index}`} fill={entry.color} />
+                                                    ))}
+                                                </Pie>
+                                                <RechartsTooltip
+                                                    content={({ active, payload }) => {
+                                                        if (!active || !payload || !payload.length) return null;
+                                                        const d = payload[0].payload;
+                                                        return (
+                                                            <div style={{ background: '#fff', borderRadius: '10px', padding: '10px 14px', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', border: 'none', fontSize: '12px', lineHeight: 1.6, minWidth: '160px' }}>
+                                                                <div style={{ fontWeight: 700, color: '#0f172a', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                                    <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: d.color, flexShrink: 0 }}></span>
+                                                                    {d.name}
+                                                                </div>
+                                                                <div style={{ color: '#64748b' }}>Employees: <strong style={{ color: '#0f172a' }}>{d.count}</strong></div>
+                                                                <div style={{ color: '#64748b' }}>Total Salary: <strong style={{ color: '#3b82f6' }}>₹{d.value.toLocaleString()}</strong></div>
+                                                                <div style={{ color: '#64748b' }}>Contribution: <strong style={{ color: '#0f172a' }}>{d.pct}%</strong></div>
+                                                            </div>
+                                                        );
+                                                    }}
+                                                />
+                                            </PieChart>
+                                        </ResponsiveContainer>
+                                        {/* Center label */}
+                                        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center', pointerEvents: 'none' }}>
+                                            <div style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a', lineHeight: 1.1 }}>₹{totalPayroll.toLocaleString()}</div>
+                                            <div style={{ fontSize: '9px', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '2px' }}>Total Payroll</div>
+                                        </div>
+                                    </div>
+                                    {/* Rich Legend */}
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', paddingTop: '8px', paddingBottom: '6px', flexShrink: 0 }}>
+                                        {deptDistributionData.map((item, idx) => (
+                                            <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#475569' }}>
+                                                <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: item.color, flexShrink: 0 }}></span>
+                                                <span style={{ fontWeight: 600, flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</span>
+                                                <span style={{ fontWeight: 500, color: '#94a3b8', flexShrink: 0, whiteSpace: 'nowrap' }}>₹{item.value.toLocaleString()} ({item.pct}%)</span>
+                                            </div>
                                         ))}
-                                    </Pie>
-                                    <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
-                                </PieChart>
-                            </ResponsiveContainer>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                        {/* Footer */}
+                        <div style={{ padding: '8px 16px', borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
+                            <span style={{ fontSize: '10px', fontWeight: 600, color: '#94a3b8' }}>Departments: {totalDeptCount}</span>
+                            <span style={{ fontSize: '10px', fontWeight: 600, color: '#94a3b8' }}>Total: ₹{totalPayroll.toLocaleString()}</span>
                         </div>
                     </div>
 
-                    <div className="bento-card">
-                        <div className="bento-card-header">
-                            <div className="bento-card-title"><Activity size={16} /> Payroll Status Overview</div>
+                    {/* Payroll Status Overview */}
+                    <div className="bento-card" style={{ borderRadius: '14px', display: 'flex', flexDirection: 'column', minHeight: '280px', overflow: 'hidden' }}>
+                        <div style={{ padding: '16px 18px', height: '48px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                            <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}><Activity size={16} /> Payroll Status Overview</h3>
                         </div>
-                        <div className="bento-card-body" style={{ height: '220px' }}>
+                        <div style={{ flex: 1, padding: '0 18px 18px 18px', overflow: 'hidden' }}>
                             <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={statusOverviewData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} dy={10} />
-                                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} />
-                                    <RechartsTooltip cursor={{fill: 'transparent'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
-                                    <Bar dataKey="count" radius={[4, 4, 0, 0]} barSize={32}>
+                                <BarChart data={statusOverviewData} margin={{ top: 5, right: 5, left: -20, bottom: 5 }} barSize={36}>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b', fontWeight: 500 }} />
+                                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} />
+                                    <RechartsTooltip cursor={{fill: '#f8fafc'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }} />
+                                    <Bar dataKey="count" radius={[6, 6, 0, 0]}>
                                         {statusOverviewData.map((entry, index) => (
                                             <Cell key={`cell-${index}`} fill={entry.fill} />
                                         ))}
@@ -384,74 +417,143 @@ const Payroll = () => {
                     </div>
                 </div>
 
-                {/* Table Section */}
-                <div className="bento-card mt-16">
-                    <div className="bento-card-header" style={{ padding: '20px 24px', borderBottom: '1px solid #f1f5f9' }}>
-                        <div className="bento-card-title"><FileText size={18} /> Employee Salary Ledger</div>
+                {/* ===== TABLE: Employee Salary Ledger ===== */}
+                <div className="bento-card" style={{ borderRadius: '12px', overflow: 'hidden', marginBottom: '16px' }}>
+                    <div style={{ padding: '12px 16px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <h3 style={{ margin: 0, fontSize: '13px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}><FileText size={15} /> Employee Salary Ledger</h3>
+                        <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 500 }}>{salaries.length} record{salaries.length !== 1 ? 's' : ''}</span>
                     </div>
-                    <div className="bento-card-body" style={{ padding: 0 }}>
+                    <div style={{ maxHeight: '420px', overflowY: 'auto', overflowX: 'auto' }}>
                         {loading ? (
-                            <div className="flex-center p-50"><Loader size={30} className="spin-icon"/></div>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px' }}><Loader size={24} className="spin-icon"/></div>
                         ) : (
-                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', tableLayout: 'fixed', minWidth: '920px' }}>
+                                <colgroup>
+                                    <col style={{ width: '16%' }} />
+                                    <col style={{ width: '11%' }} />
+                                    <col style={{ width: '9%' }} />
+                                    <col style={{ width: '11%' }} />
+                                    <col style={{ width: '12%' }} />
+                                    <col style={{ width: '11%' }} />
+                                    <col style={{ width: '10%' }} />
+                                    <col style={{ width: '20%' }} />
+                                </colgroup>
                                 <thead>
-                                    <tr style={{ borderBottom: '1px solid #e2e8f0', color: '#64748b', textAlign: 'left', background: '#f8fafc' }}>
-                                        <th style={{ padding: '16px 24px' }}>Employee</th>
-                                        <th style={{ padding: '16px 24px' }}>Department</th>
-                                        <th style={{ padding: '16px 24px' }}>Month</th>
-                                        <th style={{ padding: '16px 24px' }}>Base Salary</th>
-                                        <th style={{ padding: '16px 24px' }}>Adjustments</th>
-                                        <th style={{ padding: '16px 24px' }}>Net Pay</th>
-                                        <th style={{ padding: '16px 24px' }}>Status</th>
-                                        <th style={{ padding: '16px 24px', textAlign: 'right' }}>Actions</th>
+                                    <tr style={{ borderBottom: '2px solid #e2e8f0', color: '#64748b', textAlign: 'left', background: '#f8fafc', position: 'sticky', top: 0, zIndex: 2 }}>
+                                        <th style={{ padding: '10px 14px', fontWeight: 600, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Employee</th>
+                                        <th style={{ padding: '10px 14px', fontWeight: 600, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Department</th>
+                                        <th style={{ padding: '10px 14px', fontWeight: 600, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Month</th>
+                                        <th style={{ padding: '10px 14px', fontWeight: 600, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px', textAlign: 'right' }}>Base Salary</th>
+                                        <th style={{ padding: '10px 14px', fontWeight: 600, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px', textAlign: 'right' }}>Adjustments</th>
+                                        <th style={{ padding: '10px 14px', fontWeight: 600, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px', textAlign: 'right' }}>Net Pay</th>
+                                        <th style={{ padding: '10px 14px', fontWeight: 600, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px', textAlign: 'center' }}>Status</th>
+                                        <th style={{ padding: '10px 14px', fontWeight: 600, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px', textAlign: 'center' }}>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {salaries.map(s => (
-                                        <tr key={s._id} style={{ borderBottom: '1px solid #f1f5f9', transition: 'background 0.2s' }} className="table-row-hover">
-                                            <td style={{ padding: '16px 24px' }}>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#e0e7ff', color: '#4f46e5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
-                                                        <User size={14}/>
+                                        <tr key={s._id}
+                                            style={{ borderBottom: '1px solid #f1f5f9', transition: 'background 0.15s', height: '52px' }}
+                                            onMouseEnter={e => e.currentTarget.style.background = '#f8fafc'}
+                                            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                                            <td style={{ padding: '8px 14px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                    <div style={{ width: '26px', height: '26px', borderRadius: '6px', background: '#e0e7ff', color: '#4f46e5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '11px', fontWeight: 700 }}>
+                                                        {(s.employee?.firstName?.[0] || 'U').toUpperCase()}
                                                     </div>
-                                                    <strong style={{ color: '#0f172a' }}>{s.employee ? `${s.employee.firstName || ''} ${s.employee.lastName || ''}`.trim() : 'Unknown'}</strong>
+                                                    <span style={{ color: '#0f172a', fontWeight: 600, fontSize: '12px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                                        {s.employee ? `${s.employee.firstName || ''} ${s.employee.lastName || ''}`.trim() : 'Unknown'}
+                                                    </span>
                                                 </div>
                                             </td>
-                                            <td style={{ padding: '16px 24px', color: '#64748b' }}>{s.employee?.department || 'N/A'}</td>
-                                            <td style={{ padding: '16px 24px', color: '#334155', fontWeight: 500 }}>{s.month}</td>
-                                            <td style={{ padding: '16px 24px', color: '#334155' }}>₹{(s.basicSalary || 0).toLocaleString()}</td>
-                                            <td style={{ padding: '16px 24px' }}>
-                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', fontSize: '12px', fontWeight: 600 }}>
-                                                    <span style={{color: '#10b981'}}>+₹{(s.allowances || 0).toLocaleString()}</span>
-                                                    <span style={{color: '#ef4444'}}>-₹{(s.deductions || 0).toLocaleString()}</span>
+                                            <td style={{ padding: '8px 14px', color: '#64748b', fontSize: '12px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.employee?.department || 'N/A'}</td>
+                                            <td style={{ padding: '8px 14px', color: '#334155', fontWeight: 500, fontSize: '12px', whiteSpace: 'nowrap' }}>{s.month}</td>
+                                            <td style={{ padding: '8px 14px', color: '#334155', fontWeight: 600, fontSize: '12px', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>₹{(s.basicSalary || 0).toLocaleString()}</td>
+                                            <td style={{ padding: '8px 14px', textAlign: 'right' }}>
+                                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '1px', fontSize: '11px', fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>
+                                                    <span style={{ color: '#10b981' }}>+₹{(s.allowances || 0).toLocaleString()}</span>
+                                                    <span style={{ color: '#ef4444' }}>-₹{(s.deductions || 0).toLocaleString()}</span>
                                                 </div>
                                             </td>
-                                            <td style={{ padding: '16px 24px' }}><strong style={{color: '#3b82f6', fontSize: '14px'}}>₹{(s.netSalary || 0).toLocaleString()}</strong></td>
-                                            <td style={{ padding: '16px 24px' }}>
-                                                <div style={{ 
-                                                    display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', 
-                                                    padding: '6px 10px', borderRadius: '20px', width: 'fit-content', letterSpacing: '0.5px',
-                                                    background: s.status === 'Paid' ? '#ecfdf5' : s.status === 'Approved' ? '#eff6ff' : '#fffbeb',
-                                                    color: s.status === 'Paid' ? '#059669' : s.status === 'Approved' ? '#3b82f6' : '#d97706'
+                                            <td style={{ padding: '8px 14px', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
+                                                <span style={{ color: '#3b82f6', fontSize: '13px', fontWeight: 700 }}>₹{(s.netSalary || 0).toLocaleString()}</span>
+                                            </td>
+                                            <td style={{ padding: '8px 14px', textAlign: 'center' }}>
+                                                <span style={{ 
+                                                    display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', 
+                                                    padding: '3px 8px', borderRadius: '6px', letterSpacing: '0.3px', whiteSpace: 'nowrap',
+                                                    background: s.status === 'Paid' ? '#eff6ff' : s.status === 'Approved' ? '#ecfdf5' : s.status === 'Rejected' ? '#fef2f2' : '#fffbeb',
+                                                    color: s.status === 'Paid' ? '#2563eb' : s.status === 'Approved' ? '#059669' : s.status === 'Rejected' ? '#dc2626' : '#d97706'
                                                 }}>
-                                                    {s.status === 'Paid' ? <CheckCircle size={14}/> : s.status === 'Approved' ? <Check size={14}/> : <Clock size={14}/>}
+                                                    {s.status === 'Paid' ? <CheckCircle size={10}/> : s.status === 'Approved' ? <Check size={10}/> : s.status === 'Rejected' ? <AlertCircle size={10}/> : <Clock size={10}/>}
                                                     {s.status}
-                                                </div>
+                                                </span>
                                             </td>
-                                            <td style={{ padding: '16px 24px', textAlign: 'right' }}>
-                                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px' }}>
-                                                    <button className="btn-icon-action" onClick={() => handleViewDetails(s)} title="Details"><FileText size={15} /></button>
-                                                    {isAdmin && s.status === 'Awaiting Approval' && (
-                                                        <button className="btn-icon-action approve" onClick={() => handleApprove(s._id)} title="Approve"><Check size={15} /></button>
-                                                    )}
-                                                    {canPay && (s.status === 'Approved' || s.status === 'Awaiting Approval') && (
-                                                        <button className="btn-icon-action pay" onClick={() => handleOpenPayModal(s)} title="Pay">
-                                                            <CreditCard size={15} />
+                                            <td style={{ padding: '8px 14px', textAlign: 'center' }}>
+                                                <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                                                    {/* View Payslip — always visible */}
+                                                    <button onClick={() => handleViewDetails(s)} title="View Payslip"
+                                                        style={{ width: '36px', height: '36px', minWidth: '36px', minHeight: '36px', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#1e293b', transition: 'all 0.2s', padding: 0, lineHeight: 0 }}
+                                                        onMouseEnter={e => { e.currentTarget.style.background = '#eff6ff'; e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.color = '#3b82f6'; }}
+                                                        onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#1e293b'; }}>
+                                                        <Eye size={20} strokeWidth={2.25} />
+                                                    </button>
+
+                                                    {/* Edit Salary — not for Paid */}
+                                                    {s.status !== 'Paid' && (
+                                                        <button onClick={() => console.log('Edit', s._id)} title="Edit Salary"
+                                                            style={{ width: '36px', height: '36px', minWidth: '36px', minHeight: '36px', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#1e293b', transition: 'all 0.2s', padding: 0, lineHeight: 0 }}
+                                                            onMouseEnter={e => { e.currentTarget.style.background = '#fffbeb'; e.currentTarget.style.borderColor = '#f59e0b'; e.currentTarget.style.color = '#f59e0b'; }}
+                                                            onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#1e293b'; }}>
+                                                            <Pencil size={20} strokeWidth={2.25} />
                                                         </button>
                                                     )}
+
+                                                    {/* Approve / Reject — only for Awaiting Approval */}
+                                                    {isAdmin && s.status === 'Awaiting Approval' && (
+                                                        <>
+                                                            <button onClick={() => handleApprove(s._id)} title="Approve Payroll"
+                                                                style={{ width: '36px', height: '36px', minWidth: '36px', minHeight: '36px', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#1e293b', transition: 'all 0.2s', padding: 0, lineHeight: 0 }}
+                                                                onMouseEnter={e => { e.currentTarget.style.background = '#ecfdf5'; e.currentTarget.style.borderColor = '#10b981'; e.currentTarget.style.color = '#10b981'; }}
+                                                                onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#1e293b'; }}>
+                                                                <CheckCircle size={20} strokeWidth={2.25} />
+                                                            </button>
+                                                            <button onClick={() => console.log('Reject', s._id)} title="Reject Payroll"
+                                                                style={{ width: '36px', height: '36px', minWidth: '36px', minHeight: '36px', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#1e293b', transition: 'all 0.2s', padding: 0, lineHeight: 0 }}
+                                                                onMouseEnter={e => { e.currentTarget.style.background = '#fef2f2'; e.currentTarget.style.borderColor = '#ef4444'; e.currentTarget.style.color = '#ef4444'; }}
+                                                                onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#1e293b'; }}>
+                                                                <XCircle size={20} strokeWidth={2.25} />
+                                                            </button>
+                                                        </>
+                                                    )}
+
+                                                    {/* Process Payment — for Approved */}
+                                                    {canPay && s.status === 'Approved' && (
+                                                        <button onClick={() => handleOpenPayModal(s)} title="Process Payment"
+                                                            style={{ width: '36px', height: '36px', minWidth: '36px', minHeight: '36px', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#1e293b', transition: 'all 0.2s', padding: 0, lineHeight: 0 }}
+                                                            onMouseEnter={e => { e.currentTarget.style.background = '#f3e8ff'; e.currentTarget.style.borderColor = '#9333ea'; e.currentTarget.style.color = '#9333ea'; }}
+                                                            onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#1e293b'; }}>
+                                                            <CreditCard size={20} strokeWidth={2.25} />
+                                                        </button>
+                                                    )}
+
+                                                    {/* Download Payslip — only for Paid */}
                                                     {s.status === 'Paid' && (
-                                                        <button className="btn-icon-action download" onClick={() => handleDownload(s)} title="Download Payslip">
-                                                            <Download size={15} />
+                                                        <button onClick={() => handleDownload(s)} title="Download Payslip"
+                                                            style={{ width: '36px', height: '36px', minWidth: '36px', minHeight: '36px', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#1e293b', transition: 'all 0.2s', padding: 0, lineHeight: 0 }}
+                                                            onMouseEnter={e => { e.currentTarget.style.background = '#f0fdf4'; e.currentTarget.style.borderColor = '#16a34a'; e.currentTarget.style.color = '#16a34a'; }}
+                                                            onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#1e293b'; }}>
+                                                            <Download size={20} strokeWidth={2.25} />
+                                                        </button>
+                                                    )}
+
+                                                    {/* Delete — for Approved or Rejected */}
+                                                    {canPay && (s.status === 'Approved' || s.status === 'Rejected') && (
+                                                        <button onClick={() => handleDelete && handleDelete(s._id)} title="Delete Record"
+                                                            style={{ width: '36px', height: '36px', minWidth: '36px', minHeight: '36px', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#1e293b', transition: 'all 0.2s', padding: 0, lineHeight: 0 }}
+                                                            onMouseEnter={e => { e.currentTarget.style.background = '#fef2f2'; e.currentTarget.style.borderColor = '#ef4444'; e.currentTarget.style.color = '#ef4444'; }}
+                                                            onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#1e293b'; }}>
+                                                            <Trash2 size={20} strokeWidth={2.25} />
                                                         </button>
                                                     )}
                                                 </div>
@@ -460,8 +562,8 @@ const Payroll = () => {
                                     ))}
                                     {salaries.length === 0 && (
                                         <tr>
-                                            <td colSpan="8" style={{ textAlign: 'center', padding: '40px', color: '#94a3b8' }}>
-                                                No payroll records found.
+                                            <td colSpan="8" style={{ textAlign: 'center', padding: '40px', color: '#94a3b8', fontSize: '12px' }}>
+                                                No payroll records found. Click "Generate Payroll" to create entries.
                                             </td>
                                         </tr>
                                     )}
@@ -471,58 +573,63 @@ const Payroll = () => {
                     </div>
                 </div>
 
-                {/* Bottom Row: Recent Activity & Upcoming */}
-                <div className="charts-grid-2 mt-16" style={{ gridTemplateColumns: '1fr 1fr', display: 'grid', gap: '16px' }}>
-                    <div className="bento-card">
-                        <div className="bento-card-header" style={{ padding: '16px 20px', borderBottom: '1px solid #f1f5f9' }}>
-                            <div className="bento-card-title"><Activity size={16} /> Recent Payroll Activities</div>
+                {/* ===== BOTTOM ROW: Recent Activity + Upcoming Payments ===== */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px', marginBottom: '20px' }}>
+                    {/* Recent Payroll Activities */}
+                    <div className="bento-card" style={{ borderRadius: '14px', overflow: 'hidden' }}>
+                        <div style={{ padding: '16px 18px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center' }}>
+                            <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}><Activity size={16} /> Recent Payroll Activities</h3>
                         </div>
-                        <div className="bento-card-body" style={{ padding: '16px 20px' }}>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#ecfdf5', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><CheckCircle size={16} /></div>
-                                    <div>
-                                        <p style={{ margin: '0 0 4px 0', fontSize: '13px', color: '#334155', fontWeight: 600 }}>Bulk Disbursed 14 Salaries</p>
-                                        <span style={{ fontSize: '11px', color: '#94a3b8' }}>2 hours ago by HR Admin</span>
+                        <div style={{ padding: '16px 18px' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                                {[
+                                    { icon: CheckCircle, bg: '#ecfdf5', color: '#10b981', title: `${stats.paid} Salaries Disbursed`, time: 'Recently' },
+                                    { icon: TrendingUp, bg: '#eff6ff', color: '#3b82f6', title: `${salaries.length} Payroll Entries Generated`, time: 'Current cycle' },
+                                    { icon: Clock, bg: '#fffbeb', color: '#d97706', title: `${stats.pending} Awaiting Approval`, time: 'Pending review' },
+                                ].map((act, i) => (
+                                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 12px', background: '#f8fafc', borderRadius: '10px', border: '1px solid #f1f5f9' }}>
+                                        <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: act.bg, color: act.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                            <act.icon size={15} />
+                                        </div>
+                                        <div style={{ flex: 1 }}>
+                                            <div style={{ fontSize: '13px', fontWeight: 600, color: '#0f172a' }}>{act.title}</div>
+                                            <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>{act.time}</div>
+                                        </div>
                                     </div>
-                                </div>
-                                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#eff6ff', color: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><TrendingUp size={16} /></div>
-                                    <div>
-                                        <p style={{ margin: '0 0 4px 0', fontSize: '13px', color: '#334155', fontWeight: 600 }}>Generated June Payrolls</p>
-                                        <span style={{ fontSize: '11px', color: '#94a3b8' }}>Yesterday by System</span>
-                                    </div>
-                                </div>
-                                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#fffbeb', color: '#d97706', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Clock size={16} /></div>
-                                    <div>
-                                        <p style={{ margin: '0 0 4px 0', fontSize: '13px', color: '#334155', fontWeight: 600 }}>Approval Requested: 3 Employees</p>
-                                        <span style={{ fontSize: '11px', color: '#94a3b8' }}>2 days ago by Manager</span>
-                                    </div>
-                                </div>
+                                ))}
                             </div>
                         </div>
                     </div>
-                    
-                    <div className="bento-card">
-                        <div className="bento-card-header" style={{ padding: '16px 20px', borderBottom: '1px solid #f1f5f9' }}>
-                            <div className="bento-card-title"><Calendar size={16} /> Upcoming Salary Payments</div>
+
+                    {/* Upcoming Salary Payments */}
+                    <div className="bento-card" style={{ borderRadius: '14px', overflow: 'hidden' }}>
+                        <div style={{ padding: '16px 18px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center' }}>
+                            <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}><Calendar size={16} /> Upcoming Salary Payments</h3>
                         </div>
-                        <div className="bento-card-body" style={{ padding: '16px 20px' }}>
+                        <div style={{ padding: '16px 18px' }}>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '8px', border: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div style={{ background: '#f8fafc', padding: '14px 16px', borderRadius: '10px', border: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                     <div>
-                                        <span style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#0f172a' }}>June 2026 Salary</span>
-                                        <span style={{ fontSize: '11px', color: '#64748b' }}>Due in 4 days</span>
+                                        <span style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#0f172a' }}>Next Month Salary</span>
+                                        <span style={{ fontSize: '11px', color: '#64748b' }}>Due in ~30 days</span>
                                     </div>
-                                    <div style={{ fontSize: '14px', fontWeight: 700, color: '#3b82f6' }}>Est. ₹140,000</div>
+                                    <div style={{ fontSize: '15px', fontWeight: 700, color: '#3b82f6' }}>Est. ₹{stats.thisMonth > 0 ? stats.thisMonth.toLocaleString() : '—'}</div>
                                 </div>
-                                <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '8px', border: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                {stats.approved > 0 && (
+                                    <div style={{ background: '#f0fdf4', padding: '14px 16px', borderRadius: '10px', border: '1px solid #dcfce7', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <div>
+                                            <span style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#0f172a' }}>Approved & Ready</span>
+                                            <span style={{ fontSize: '11px', color: '#64748b' }}>{stats.approved} employees</span>
+                                        </div>
+                                        <div style={{ fontSize: '15px', fontWeight: 700, color: '#10b981' }}>₹{stats.approvedTotal.toLocaleString()}</div>
+                                    </div>
+                                )}
+                                <div style={{ background: '#f8fafc', padding: '14px 16px', borderRadius: '10px', border: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                     <div>
                                         <span style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#0f172a' }}>Bonus Payouts Q2</span>
                                         <span style={{ fontSize: '11px', color: '#64748b' }}>Due in 15 days</span>
                                     </div>
-                                    <div style={{ fontSize: '14px', fontWeight: 700, color: '#10b981' }}>Est. ₹45,000</div>
+                                    <div style={{ fontSize: '15px', fontWeight: 700, color: '#8b5cf6' }}>Est. ₹45,000</div>
                                 </div>
                             </div>
                         </div>
