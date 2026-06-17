@@ -55,7 +55,7 @@ const CustomerDashboard = () => {
                             Welcome back, {profile?.name || 'Valued Customer'}. Here's an overview of your account.
                         </p>
                     </div>
-                    <Link to="/orders/create-order" className="btn-primary flex-center gap-10" style={{ textDecoration: 'none' }}>
+                    <Link to="/customer/new-order" className="btn-primary flex-center gap-10" style={{ textDecoration: 'none' }}>
                         <Plus size={18} /> New Order
                     </Link>
                 </div>
@@ -161,7 +161,7 @@ const CustomerDashboard = () => {
                                 <div className="empty-icon"><ShoppingCart size={48} /></div>
                                 <h3>No orders found</h3>
                                 <p>You haven't placed any orders yet. Create your first order to get started!</p>
-                                <Link to="/orders/create-order" className="btn-primary" style={{ marginTop: '20px', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                                <Link to="/customer/new-order" className="btn-primary" style={{ marginTop: '20px', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
                                     <Plus size={18} /> Create First Order
                                 </Link>
                             </div>

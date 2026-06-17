@@ -57,6 +57,7 @@ import ComingSoonPage from './pages/ComingSoonPage';
 import CustomerDashboard from './pages/CustomerDashboard';
 import VendorDashboard from './pages/VendorDashboard';
 import RevenueDashboard from './pages/RevenueDashboard';
+import CustomerNewOrder from './pages/CustomerNewOrder';
 
 const AppContent = () => {
     const { user, loading, logout } = useContext(AuthContext);
@@ -177,6 +178,7 @@ const AppContent = () => {
 
                     <Route path="/complete-customer-profile" element={<ProtectedRoute allowedRoles={['Customer']}><CompleteCustomerProfile /></ProtectedRoute>} />
                     <Route path="/complete-vendor-profile" element={<ProtectedRoute allowedRoles={['Vendor']}><CompleteVendorProfile /></ProtectedRoute>} />
+                    <Route path="/customer/new-order" element={<ProtectedRoute allowedRoles={['Customer']}><CustomerNewOrder /></ProtectedRoute>} />
 
                     {/* Fallback */}
                     <Route path="*" element={<Navigate to="/" />} />
