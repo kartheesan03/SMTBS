@@ -276,7 +276,6 @@ const updateMyCustomerProfile = async (req, res) => {
         // Don't allow changing restricted fields via this endpoint
         delete updateData.userId;
         delete updateData.createdBy;
-        delete updateData.status;
 
         if (!customer) {
             // If CRM customer record does not exist: Create one automatically.

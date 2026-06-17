@@ -19,6 +19,7 @@ const CustomerProfileSettings = () => {
         name: '',
         company: '',
         status: '',
+        email: '',
         phone: '',
         industry: '',
         website: '',
@@ -37,6 +38,7 @@ const CustomerProfileSettings = () => {
                         name: data.name || user?.name || '',
                         company: data.company === 'Pending Details' ? 'Individual Customer' : (data.company || 'Individual Customer'),
                         status: data.status || '',
+                        email: data.email || user?.email || '',
                         phone: data.phone || '',
                         industry: data.industry || '',
                         website: data.website || '',
@@ -50,7 +52,8 @@ const CustomerProfileSettings = () => {
                 if (user) {
                     setFormData(prev => ({
                         ...prev,
-                        name: user.name || ''
+                        name: user.name || '',
+                        email: user.email || ''
                     }));
                 }
             } finally {
@@ -68,14 +71,14 @@ const CustomerProfileSettings = () => {
             const { data } = await API.put(`/customers/profile`, payload);
             setCustomerData(data);
             
-            // Update auth context name if changed
-            if (formData.name !== user.name) {
-                const authRes = await API.put('/auth/profile', { name: formData.name });
+            // Update auth context name or email if changed
+            if (formData.name !== user.name || formData.email !== user.email) {
+                const authRes = await API.put('/auth/profile', { name: formData.name, email: formData.email });
                 updateUser(authRes.data);
             }
             
             setIsEditing(false);
-            alert('Customer Profile Updated Successfully');
+            alert('Profile updated and synced with CRM successfully.');
         } catch (err) {
             alert(err.response?.data?.message || 'Error updating profile');
         }
@@ -171,8 +174,8 @@ const CustomerProfileSettings = () => {
                                 onSubmit={handleUpdate}
                                 onCancel={() => setIsEditing(false)}
                                 isLoading={loading}
-                                emailDisabled={true}
-                                statusDisabled={true}
+                                emailDisabled={false}
+                                statusDisabled={false}
                                 saveButtonText="Save Changes"
                             />
                         )}

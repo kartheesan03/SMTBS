@@ -108,6 +108,10 @@ const Customers = ({ directoryOnly }) => {
             }
             handleCloseModal();
             fetchCustomers();
+            if (editingId && selectedCustomer && editingId === selectedCustomer._id) {
+                const updatedRes = await API.get(`/customers/${editingId}`);
+                setSelectedCustomer(updatedRes.data);
+            }
         } catch (err) {
             alert(err.response?.data?.message || 'Error processing request');
         }
