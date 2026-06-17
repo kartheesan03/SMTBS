@@ -7,6 +7,7 @@ const MyTasks = () => {
     const [tasks, setTasks] = useState([]);
     const [employees, setEmployees] = useState([]);
     const [salesUsers, setSalesUsers] = useState([]);
+    const [allUsers, setAllUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [filter, setFilter] = useState('All');
@@ -36,9 +37,10 @@ const MyTasks = () => {
 
             if (isManager) {
                 const empRes = await API.get('/auth/users');
-                const allUsers = empRes.data || [];
-                setEmployees(allUsers.filter(u => u.role === 'Employee'));
-                setSalesUsers(allUsers.filter(u => u.role === 'Sales'));
+                const usersData = empRes.data || [];
+                setAllUsers(usersData);
+                setEmployees(usersData.filter(u => u.role === 'Employee'));
+                setSalesUsers(usersData.filter(u => u.role === 'Sales'));
             }
         } catch (err) {
             console.error(err);
@@ -239,38 +241,47 @@ const MyTasks = () => {
                             const myStatus = myCompletion?.status || 'Pending';
 
                             return (
-                                <>
-                                    <td>
+                                <tr key={t._id || t.id}>
+                                    <td style={{ width: '25%', minWidth: '200px', whiteSpace: 'normal', wordWrap: 'break-word' }}>
                                         <div className="task-title-cell">
                                             <strong>{t.title}</strong>
-                                            <p>{t.description}</p>
+                                            <p style={{ whiteSpace: 'normal', wordBreak: 'break-word' }}>{t.description}</p>
                                             {t.isBroadcast && <span className="broadcast-tag"><Users size={12}/> Broadcast</span>}
                                         </div>
                                     </td>
                                     {isManager ? (
-                                        <td>
+                                        <td style={{ width: '20%', minWidth: '150px' }}>
                                             <div className="assignee-list">
-                                                {completions.slice(0, 3).map((c, i) => (
-                                                    <div key={i} className="assignee-chip">
-                                                        <span className="assignee-name">{c.user?.name || `User #${c.user}`}</span>
-                                                        <span className={`mini-status ${(c.status || 'pending').toLowerCase().replace(' ', '-')}`}>{c.status}</span>
-                                                    </div>
-                                                ))}
+                                                {completions.slice(0, 3).map((c, i) => {
+                                                    const uId = c.user?.id || c.user?._id || c.user;
+                                                    const userObj = allUsers.find(u => String(u._id || u.id) === String(uId));
+                                                    const uName = userObj ? userObj.name : (c.user?.name || `User #${uId}`);
+                                                    const uRole = userObj ? userObj.role : '';
+                                                    return (
+                                                        <div key={i} className="assignee-chip">
+                                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                                                <span className="assignee-name">{uName}</span>
+                                                                {uRole && <span style={{ fontSize: '9px', color: '#94a3b8' }}>{uRole}</span>}
+                                                            </div>
+                                                            <span className={`mini-status ${(c.status || 'pending').toLowerCase().replace(' ', '-')}`}>{c.status}</span>
+                                                        </div>
+                                                    );
+                                                })}
                                                 {completions.length > 3 && <span className="more-tag">+{completions.length - 3} more</span>}
                                             </div>
                                         </td>
                                     ) : (
-                                        <td>
+                                        <td style={{ width: '15%', minWidth: '120px' }}>
                                             <span className="assigned-by-name">{t.assignedBy?.name || t.assignedById || '—'}</span>
                                         </td>
                                     )}
-                                    <td><span className={`priority-tag ${(t.priority || 'medium').toLowerCase()}`}>{t.priority}</span></td>
-                                    <td>
-                                        <div className="flex-center gap-5" style={{justifyContent: 'flex-start'}}>
+                                    <td style={{ width: '10%', minWidth: '100px' }}><span className={`priority-tag ${(t.priority || 'medium').toLowerCase()}`}>{t.priority}</span></td>
+                                    <td style={{ width: '12%', minWidth: '110px' }}>
+                                        <div className="flex-center gap-5" style={{justifyContent: 'flex-start', whiteSpace: 'nowrap'}}>
                                             <Clock size={14}/> {t.dueDate ? new Date(t.dueDate).toLocaleDateString() : 'No Deadline'}
                                         </div>
                                     </td>
-                                    <td>
+                                    <td style={{ width: '15%', minWidth: '120px' }}>
                                         {isManager ? (
                                             <div className="progress-bar-container">
                                                 <div className="progress-bar">
@@ -285,7 +296,7 @@ const MyTasks = () => {
                                             </div>
                                         )}
                                     </td>
-                                    <td>
+                                    <td style={{ width: '10%', minWidth: '120px' }}>
                                         <div className="action-btns">
                                             {!isManager && myStatus !== 'Completed' && (
                                                 <button className="btn-table-action" onClick={() => handleUpdateStatus(t._id || t.id, myStatus)}>
@@ -299,7 +310,7 @@ const MyTasks = () => {
                                             )}
                                         </div>
                                     </td>
-                                </>
+                                </tr>
                             );
                         }}
                     />
@@ -461,7 +472,8 @@ const MyTasks = () => {
                 .filter-pill.active { background: var(--primary); color: white; border-color: var(--primary); }
 
                 /* Table Cells */
-                .task-title-cell p { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+                .task-title-cell strong { font-size: 14px; color: var(--text-primary); display: block; margin-bottom: 4px; }
+                .task-title-cell p { font-size: 12px; color: var(--text-muted); margin-top: 4px; line-height: 1.5; }
                 .priority-tag { font-size: 11px; font-weight: 700; text-transform: uppercase; padding: 4px 10px; border-radius: 4px; background: rgba(255,255,255,0.05); white-space: nowrap; }
                 .priority-tag.high { color: #ef4444; background: rgba(239, 68, 68, 0.1); }
                 .priority-tag.medium { color: #f59e0b; background: rgba(245, 158, 11, 0.1); }
