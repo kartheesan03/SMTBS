@@ -174,23 +174,7 @@ const googleAuth = async (req, res) => {
                 }
             });
         } else {
-            // User does not exist — require signupRole to proceed
-            if (!signupRole) {
-                return res.status(202).json({
-                    requiresRoleSelection: true,
-                    message: 'Please select an account type to complete registration.',
-                    googleData: { email, name, googleId, picture }
-                });
-            }
-
-            const actualRole = signupRole === 'Vendor/Supplier' ? 'Vendor' : signupRole;
-            
-            const allowedRoles = ['Admin', 'HR', 'Manager', 'Employee', 'Sales', 'Customer', 'Vendor'];
-            if (!allowedRoles.includes(actualRole)) {
-                return res.status(403).json({ message: 'Invalid role selected for Google Sign-In.' });
-            }
-
-            // Generate a secure random dummy password for Google users to bypass SQLite NOT NULL constraint
+            // User does not exist — auto-create as Customer
             const crypto = require('crypto');
             const dummyPassword = crypto.randomBytes(32).toString('hex');
             
@@ -198,7 +182,7 @@ const googleAuth = async (req, res) => {
                 name,
                 email,
                 googleId,
-                role: actualRole,
+                role: 'Customer',
                 password: dummyPassword,
                 provider: 'google',
                 active: true,
@@ -206,29 +190,17 @@ const googleAuth = async (req, res) => {
                 picture: picture
             });
 
-            // Automatically create empty profile
-            if (actualRole === 'Customer') {
-                await Customer.create({
-                    name: user.name,
-                    email: user.email,
-                    company: 'Pending Details',
-                    phone: '0000000000',
-                    industry: 'Pending',
-                    address: 'Pending',
-                    status: 'Lead',
-                    userId: user.id || user._id
-                });
-            } else if (actualRole === 'Vendor') {
-                await Vendor.create({
-                    name: user.name,
-                    email: user.email,
-                    contactPerson: user.name,
-                    phone: '0000000000',
-                    address: 'Pending',
-                    status: 'Vendor Created',
-                    userId: user.id || user._id
-                });
-            }
+            // Automatically create Customer profile
+            await Customer.create({
+                name: user.name,
+                email: user.email,
+                company: 'Pending Details',
+                phone: '0000000000',
+                industry: 'Pending',
+                address: 'Pending',
+                status: 'Lead',
+                userId: user.id || user._id
+            });
 
             return res.json({
                 success: true,

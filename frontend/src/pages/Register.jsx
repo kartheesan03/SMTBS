@@ -53,8 +53,7 @@ const Register = () => {
             setError('');
             try {
                 const { data } = await API.post('/auth/google', {
-                    access_token: tokenResponse.access_token,
-                    signupRole: role
+                    access_token: tokenResponse.access_token
                 });
                 
                 login(data);

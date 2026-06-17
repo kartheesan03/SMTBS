@@ -12,9 +12,6 @@ const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [showRoleSelection, setShowRoleSelection] = useState(false);
-    const [pendingGoogleToken, setPendingGoogleToken] = useState(null);
-    const [selectedRole, setSelectedRole] = useState('Customer');
     const { login } = useContext(AuthContext);
     const navigate = useNavigate();
 
@@ -61,17 +58,10 @@ const Login = () => {
             setIsLoading(true);
             setError('');
             try {
-                const response = await API.post('/auth/google', {
+                const { data } = await API.post('/auth/google', {
                     access_token: tokenResponse.access_token
                 });
                 
-                if (response.status === 202 && response.data.requiresRoleSelection) {
-                    setPendingGoogleToken(tokenResponse.access_token);
-                    setShowRoleSelection(true);
-                    return;
-                }
-                
-                const data = response.data;
                 login(data);
                 
                 if (data.isProfileComplete === false) {
@@ -89,32 +79,6 @@ const Login = () => {
         onError: () => setError('Google Sign-In failed. Please try again.'),
         prompt: 'select_account'
     });
-
-    const handleRoleSelectionSubmit = async () => {
-        if (!pendingGoogleToken) return;
-        setIsLoading(true);
-        setError('');
-        try {
-            const { data } = await API.post('/auth/google', {
-                access_token: pendingGoogleToken,
-                signupRole: selectedRole
-            });
-            
-            setShowRoleSelection(false);
-            login(data);
-            
-            if (data.isProfileComplete === false) {
-                navigate(data.role === 'Customer' ? '/complete-customer-profile' : '/complete-vendor-profile');
-            } else {
-                navigate('/');
-            }
-        } catch (err) {
-            const msg = err.response?.data?.message || err.message;
-            setError(msg || 'Role selection failed');
-        } finally {
-            setIsLoading(false);
-        }
-    };
 
     return (
         <div className="login-wrapper">
@@ -238,42 +202,6 @@ const Login = () => {
                 </div>
             </div>
 
-            {/* Role Selection Modal */}
-            {showRoleSelection && (
-                <div className="modal-overlay">
-                    <div className="modal-content animate-slide-up">
-                        <div className="modal-header">
-                            <h2>Complete Your Registration</h2>
-                            <p>You're almost there! Please select your account type.</p>
-                        </div>
-                        <div className="modal-body">
-                            <div className="role-options">
-                                <div className="role-select-wrapper">
-                                    <select 
-                                        className="role-select"
-                                        value={selectedRole}
-                                        onChange={(e) => setSelectedRole(e.target.value)}
-                                    >
-                                        <option value="Customer">Customer (Buyer)</option>
-                                        <option value="Vendor">Vendor/Supplier</option>
-                                        <option value="Employee">Employee</option>
-                                        <option value="HR">HR</option>
-                                        <option value="Manager">Manager</option>
-                                        <option value="Sales">Sales</option>
-                                        <option value="Admin">Admin</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="modal-footer">
-                            <button className="btn-secondary" onClick={() => setShowRoleSelection(false)} disabled={isLoading}>Cancel</button>
-                            <button className="btn-primary" onClick={handleRoleSelectionSubmit} disabled={isLoading}>
-                                {isLoading ? 'Completing...' : 'Complete Registration'}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
 
             <style jsx="true">{`
                 .login-wrapper {
@@ -728,98 +656,7 @@ const Login = () => {
                     }
                 }
 
-                /* Modal Styles */
-                .modal-overlay {
-                    position: fixed;
-                    top: 0; left: 0; right: 0; bottom: 0;
-                    background: rgba(11, 16, 38, 0.6);
-                    backdrop-filter: blur(4px);
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    z-index: 1000;
-                }
-                .modal-content {
-                    background: #FFF;
-                    width: 90%;
-                    max-width: 500px;
-                    border-radius: 16px;
-                    overflow: hidden;
-                    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-                }
-                .modal-header {
-                    padding: 24px 32px;
-                    border-bottom: 1px solid #E2E8F0;
-                }
-                .modal-header h2 { margin: 0 0 8px; font-size: 20px; color: #0F172A; }
-                .modal-header p { margin: 0; font-size: 14px; color: #64748B; }
-                .modal-body {
-                    padding: 32px;
-                }
-                .role-options {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 16px;
-                }
-                .role-select-wrapper {
-                    position: relative;
-                }
-                .role-select {
-                    width: 100%;
-                    height: 48px;
-                    padding: 0 16px;
-                    border-radius: 12px;
-                    border: 2px solid #E2E8F0;
-                    background: #F8FAFC;
-                    font-size: 15px;
-                    font-weight: 500;
-                    color: #0F172A;
-                    appearance: none;
-                    outline: none;
-                    cursor: pointer;
-                    transition: all 0.2s;
-                }
-                .role-select:focus, .role-select:hover {
-                    border-color: #6366F1;
-                    background: #FFFFFF;
-                }
-                .role-select-wrapper::after {
-                    content: '▼';
-                    position: absolute;
-                    right: 16px;
-                    top: 50%;
-                    transform: translateY(-50%);
-                    font-size: 12px;
-                    color: #64748B;
-                    pointer-events: none;
-                }
-                .modal-footer {
-                    padding: 16px 32px;
-                    background: #F8FAFC;
-                    border-top: 1px solid #E2E8F0;
-                    display: flex;
-                    justify-content: flex-end;
-                    gap: 12px;
-                }
-                .btn-secondary {
-                    padding: 10px 20px;
-                    border: 1px solid #CBD5E1;
-                    background: #FFF;
-                    color: #475569;
-                    border-radius: 8px;
-                    font-weight: 600;
-                    cursor: pointer;
-                }
-                .btn-primary {
-                    padding: 10px 20px;
-                    background: #6366F1;
-                    color: #FFF;
-                    border: none;
-                    border-radius: 8px;
-                    font-weight: 600;
-                    cursor: pointer;
-                }
-                .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
+
             `}</style>
         </div>
     );
