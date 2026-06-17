@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import API from '../api/axios';
-import { NavLink } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { 
     Users, TrendingUp, TrendingDown, DollarSign, Target, 
     BarChart2, Activity, Filter, Layers, CheckCircle,
@@ -12,6 +12,7 @@ import {
 } from 'recharts';
 
 const SalesDashboard = () => {
+    const navigate = useNavigate();
     const [dashboardData, setDashboardData] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -330,19 +331,19 @@ const SalesDashboard = () => {
                             <h3 style={{ fontSize: '13px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '16px' }}>Quick Actions</h3>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                 {[
-                                    { path: '/crm', name: 'Lead Management', icon: Filter, color: '#3b82f6' },
-                                    { path: '/crm', name: 'Pipeline Overview', icon: Layers, color: '#8b5cf6' },
+                                    { path: '/crm/leads', name: 'Lead Management', icon: Filter, color: '#3b82f6' },
+                                    { path: '/crm/pipeline', name: 'Pipeline Overview', icon: Layers, color: '#8b5cf6' },
                                     { path: '/customers', name: 'Customer Directory', icon: Users, color: '#10b981' },
-                                    { path: '/reports', name: 'Revenue Tracking', icon: DollarSign, color: '#f59e0b' },
-                                    { path: '/reports', name: 'Sales Goals', icon: Target, color: '#ec4899' },
-                                    { path: '/orders', name: 'Quotations', icon: FileText, color: '#64748b' }
+                                    { path: '/sales/revenue', name: 'Revenue Tracking', icon: DollarSign, color: '#f59e0b' },
+                                    { path: '/sales/goals', name: 'Sales Goals', icon: Target, color: '#ec4899' },
+                                    { path: '/quotations', name: 'Quotations', icon: FileText, color: '#64748b' }
                                 ].map((link, idx) => (
-                                    <NavLink to={link.path} key={idx} style={{ display: 'flex', alignItems: 'center', padding: '10px 12px', background: '#f8fafc', border: '1px solid #f1f5f9', borderRadius: '8px', textDecoration: 'none', color: '#0f172a', fontWeight: 500, fontSize: '13px', transition: 'all 0.2s' }} className="quick-action-link quick-action-3d">
+                                    <div onClick={() => navigate(link.path)} key={idx} style={{ display: 'flex', alignItems: 'center', padding: '10px 12px', background: '#f8fafc', border: '1px solid #f1f5f9', borderRadius: '8px', cursor: 'pointer', color: '#0f172a', fontWeight: 500, fontSize: '13px', transition: 'all 0.2s' }} className="quick-action-link quick-action-3d">
                                         <div style={{ width: '28px', height: '28px', borderRadius: '6px', background: `${link.color}15`, color: link.color, display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: '12px' }}>
                                             <link.icon size={14} />
                                         </div>
                                         {link.name}
-                                    </NavLink>
+                                    </div>
                                 ))}
                             </div>
                         </div>
