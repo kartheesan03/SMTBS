@@ -311,8 +311,8 @@ const SalesDashboard = () => {
                             </div>
                             <div className="bento-card-body">
                                 {revenueTrendData.length > 0 ? (
-                                    <ResponsiveContainer width="100%" height={200}>
-                                        <AreaChart data={revenueTrendData} margin={{ top: 20, right: 10, left: -20, bottom: 0 }}>
+                                    <ResponsiveContainer width="100%" height={260}>
+                                        <AreaChart data={revenueTrendData} margin={{ top: 30, right: 45, left: 20, bottom: 20 }}>
                                             <defs>
                                                 <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
                                                     <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
@@ -321,9 +321,9 @@ const SalesDashboard = () => {
                                             </defs>
                                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                                             <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} dy={10} />
-                                            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} tickFormatter={formatYAxis} />
+                                            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} tickFormatter={formatYAxis} domain={[0, 'auto']} allowDataOverflow={false} width={60} />
                                             <RechartsTooltip content={<CustomTooltip />} cursor={{fill: 'transparent'}} />
-                                            <Area type="monotone" dataKey="revenue" stroke="#10b981" strokeWidth={2} fillOpacity={1} fill="url(#colorRevenue)" dot={{ r: 3, strokeWidth: 2, fill: '#fff' }} activeDot={{ r: 6 }} label={{ position: 'top', formatter: formatIndianCurrency, fill: '#1e293b', fontSize: 11, fontWeight: 600 }} animationDuration={1500} isAnimationActive={true} />
+                                            <Area type="monotone" dataKey="revenue" stroke="#10b981" strokeWidth={2} fillOpacity={1} fill="url(#colorRevenue)" dot={{ r: 3, strokeWidth: 2, fill: '#fff' }} activeDot={{ r: 6 }} label={{ position: 'top', formatter: formatIndianCurrency, fill: '#1e293b', fontSize: 11, fontWeight: 600, dy: -5 }} animationDuration={1500} isAnimationActive={true} />
                                         </AreaChart>
                                     </ResponsiveContainer>
                                 ) : (
