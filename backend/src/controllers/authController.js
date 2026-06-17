@@ -88,8 +88,9 @@ const loginUser = async (req, res) => {
 // @access  Public
 const googleAuth = async (req, res) => {
     try {
-        const { credential, access_token, mode } = req.body;
-        
+        const { credential, access_token, mode, role: reqRole } = req.body;
+        const selectedRole = reqRole || 'Customer';
+
         if (!credential && !access_token) {
             return res.status(400).json({ message: 'Google credential or access token is required' });
         }
@@ -178,7 +179,7 @@ const googleAuth = async (req, res) => {
                 }
             });
         } else {
-            // User does not exist — auto-create as Customer
+            // User does not exist — auto-create
             const crypto = require('crypto');
             const dummyPassword = crypto.randomBytes(32).toString('hex');
             
@@ -186,7 +187,7 @@ const googleAuth = async (req, res) => {
                 name,
                 email,
                 googleId,
-                role: 'Customer',
+                role: selectedRole,
                 password: dummyPassword,
                 provider: 'google',
                 active: true,
@@ -194,17 +195,31 @@ const googleAuth = async (req, res) => {
                 picture: picture
             });
 
-            // Automatically create Customer profile
-            await Customer.create({
-                name: user.name,
-                email: user.email,
-                company: 'Pending Details',
-                phone: '0000000000',
-                industry: 'Pending',
-                address: 'Pending',
-                status: 'Lead',
-                userId: user.id || user._id
-            });
+            // Automatically create Customer or Vendor profile based on role
+            if (selectedRole === 'Vendor') {
+                const Vendor = require('../models/Vendor');
+                await Vendor.create({
+                    name: user.name,
+                    email: user.email,
+                    company: 'Pending Details',
+                    phone: '0000000000',
+                    address: 'Pending',
+                    status: 'Active',
+                    userId: user.id || user._id
+                });
+            } else {
+                // Default to Customer profile
+                await Customer.create({
+                    name: user.name,
+                    email: user.email,
+                    company: 'Pending Details',
+                    phone: '0000000000',
+                    industry: 'Pending',
+                    address: 'Pending',
+                    status: 'Lead',
+                    userId: user.id || user._id
+                });
+            }
 
             return res.json({
                 success: true,

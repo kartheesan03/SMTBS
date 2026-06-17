@@ -54,7 +54,8 @@ const Register = () => {
             try {
                 const { data } = await API.post('/auth/google', {
                     access_token: tokenResponse.access_token,
-                    mode: 'signup'
+                    mode: 'signup',
+                    role: role
                 });
                 
                 login(data);
