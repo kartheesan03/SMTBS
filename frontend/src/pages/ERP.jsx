@@ -180,7 +180,7 @@ const ERP = () => {
         const invoiceNum = order.invoiceNumber || `INV-${order.orderNumber}`;
         const isPurchase = order.orderType === 'purchase';
 
-        let billToName = isPurchase ? 'Walk-in Vendor' : 'Walk-in Customer';
+        let billToName = isPurchase ? 'Unassigned' : 'Unassigned';
         let billToEmail = '';
         let billToPhone = '';
         let billToAddress = '';
@@ -191,7 +191,7 @@ const ERP = () => {
                 order.vendor?.name ||
                 order.vendorName ||
                 order.companyName ||
-                'Walk-in Vendor';
+                'Unassigned';
                 
             billToEmail = order.vendor?.email || order.vendorEmail || '';
             billToPhone = order.vendor?.phone || order.vendorPhone || '';
@@ -203,7 +203,7 @@ const ERP = () => {
                 order.customer?.name ||
                 order.customerName ||
                 order.companyName ||
-                'Walk-in Customer';
+                'Unassigned';
                 
             billToEmail = order.customer?.email || order.customerEmail || '';
             billToPhone = order.customer?.phone || order.customerPhone || '';
@@ -401,7 +401,7 @@ const ERP = () => {
                         <Filter size={16} /> Filters
                     </button>
                     {(userInfo?.role?.toLowerCase() === 'admin' || userInfo?.role?.toLowerCase() === 'super admin' || userInfo?.role?.toLowerCase() === 'manager') && (
-                        <button className="btn-primary-blue flex-center gap-8" onClick={() => navigate('/orders/create-order')}>
+                        <button className="btn-primary-blue flex-center gap-8" onClick={() => navigate('/orders/select-type')}>
                             <Plus size={16} /> Create Order
                         </button>
                     )}
@@ -508,7 +508,7 @@ const ERP = () => {
                                     recentPurchaseOrders.map((po, idx) => (
                                         <tr key={idx}>
                                             <td><code className="po-code">{po.orderNumber}</code></td>
-                                            <td className="vendor-name-cell">{po.vendor?.name || 'Walk-in Vendor'}</td>
+                                            <td className="vendor-name-cell">{po.vendor?.name || 'Unassigned'}</td>
                                             <td>
                                                 <span className={`po-status-badge ${po.status.toLowerCase().replace(/ /g, '-')}`}>
                                                     {po.status}
@@ -600,14 +600,14 @@ const ERP = () => {
                                 if (order.customer && order.customer.name) return order.customer.name;
                                 const cId = order.customerId || order.customer;
                                 const cMatch = customers.find(c => String(c.id || c._id) === String(cId));
-                                return cMatch ? cMatch.name : 'Walk-in Customer';
+                                return cMatch ? cMatch.name : 'Unassigned';
                             };
 
                             const getVendorName = (order) => {
                                 if (order.vendor && order.vendor.name) return order.vendor.name;
                                 const vId = order.vendorId || order.vendor;
                                 const vMatch = vendors.find(v => String(v.id || v._id) === String(vId));
-                                return vMatch ? vMatch.name : 'Walk-in Vendor';
+                                return vMatch ? vMatch.name : 'Unassigned';
                             };
                             
                             const ordType = String(ord.orderType || ord.type || '').toLowerCase();
@@ -754,7 +754,7 @@ const ERP = () => {
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', fontSize: '14px' }}>
                                 <div>
                                     <p style={{ margin: '0 0 8px 0', color: 'var(--text-muted)' }}>{selectedOrderDetails.orderType === 'purchase' ? 'Vendor' : 'Customer'}</p>
-                                    <h3 style={{ margin: 0 }}>{selectedOrderDetails.orderType === 'purchase' ? (selectedOrderDetails.vendor?.name || 'Walk-in') : (selectedOrderDetails.customer?.name || 'Walk-in')}</h3>
+                                    <h3 style={{ margin: 0 }}>{selectedOrderDetails.orderType === 'purchase' ? (selectedOrderDetails.vendor?.name || 'Unassigned') : (selectedOrderDetails.customer?.name || 'Unassigned')}</h3>
                                 </div>
                                 <div style={{ textAlign: 'right' }}>
                                     <p style={{ margin: '0 0 8px 0', color: 'var(--text-muted)' }}>Status</p>
@@ -856,7 +856,7 @@ const ERP = () => {
                                         <tr key={o._id}>
                                             <td><strong>{o.invoiceNumber || `INV-${o.orderNumber}`}</strong></td>
                                             <td>{o.orderNumber}</td>
-                                            <td>{o.customer?.name || o.vendor?.name || 'Walk-in'}</td>
+                                            <td>{o.customer?.name || o.vendor?.name || 'Unassigned'}</td>
                                             <td>{o.orderType === 'sales' ? 'Receivable' : 'Payable'}</td>
                                             <td>${(o.totalAmount || 0).toLocaleString()}</td>
                                             <td>{o.invoiceDate ? new Date(o.invoiceDate).toLocaleDateString() : new Date(o.createdAt).toLocaleDateString()}</td>

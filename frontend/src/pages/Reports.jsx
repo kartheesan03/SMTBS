@@ -101,7 +101,7 @@ const Reports = () => {
                 });
             } else if (reportName === 'Vendor Procurement Log') {
                 const rows = (stats?.tables?.recentOrders || []).map(o => [
-                    o.orderNumber || 'N/A', o.orderType || 'N/A', o.vendor?.name || 'Walk-in Vendor',
+                    o.orderNumber || 'N/A', o.orderType || 'N/A', o.vendor?.name || 'Unassigned',
                     o.totalAmount || 0, o.status || 'Pending'
                 ]);
                 autoTable(doc, {
@@ -170,14 +170,14 @@ const Reports = () => {
                 if (customReport.type === 'Revenue Summary') {
                     const salesOrders = data.filter(o => o.orderType === 'sales' && o.status !== 'Cancelled');
                     head = [['Order#', 'Date', 'Customer', 'Amount', 'Status']];
-                    rows = salesOrders.map(o => [o.orderNumber, new Date(o.createdAt).toLocaleDateString(), o.customer?.name || 'Walk-in Customer', `₹${o.totalAmount}`, o.status]);
+                    rows = salesOrders.map(o => [o.orderNumber, new Date(o.createdAt).toLocaleDateString(), o.customer?.name || 'Unassigned', `₹${o.totalAmount}`, o.status]);
                 } else {
                     const hasSales = data.some(o => o.orderType === 'sales');
                     const hasPurchase = data.some(o => o.orderType === 'purchase');
                     const customerVendorHeader = (hasSales && hasPurchase) ? 'Customer / Vendor' : (hasPurchase ? 'Vendor' : 'Customer');
 
                     head = [['Order#', 'Type', 'Date', customerVendorHeader, 'Amount', 'Status']];
-                    rows = data.map(o => [o.orderNumber, o.orderType || 'sales', new Date(o.createdAt).toLocaleDateString(), o.orderType === 'purchase' ? (o.vendor?.name || 'Walk-in Vendor') : (o.customer?.name || 'Walk-in Customer'), `₹${o.totalAmount}`, o.status]);
+                    rows = data.map(o => [o.orderNumber, o.orderType || 'sales', new Date(o.createdAt).toLocaleDateString(), o.orderType === 'purchase' ? (o.vendor?.name || 'Unassigned') : (o.customer?.name || 'Unassigned'), `₹${o.totalAmount}`, o.status]);
                 }
             } else if (customReport.type === 'Inventory Report') {
                 const res = await API.get('/materials');

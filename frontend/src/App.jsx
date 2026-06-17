@@ -46,6 +46,9 @@ import AddVendor from './pages/AddVendor';
 import Support from './pages/Support';
 import StockRequests from './pages/StockRequests';
 import CreateOrder from './pages/CreateOrder';
+import SelectOrderType from './pages/SelectOrderType';
+import SelectCustomer from './pages/SelectCustomer';
+import SelectVendor from './pages/SelectVendor';
 import ErrorBoundary from './components/ErrorBoundary';
 
 import CompleteCustomerProfile from './pages/CompleteCustomerProfile';
@@ -138,7 +141,10 @@ const AppContent = () => {
                     <Route path="/team-performance" element={<ProtectedRoute allowedRoles={['Admin', 'Manager']}><TeamPerformance /></ProtectedRoute>} />
                     <Route path="/erp" element={<ProtectedRoute allowedRoles={['Admin', 'Manager', 'Sales', 'HR', 'Employee']}><ERP /></ProtectedRoute>} />
                     <Route path="/orders" element={<Navigate to="/erp" replace />} />
-                    <Route path="/orders/create-order" element={<ProtectedRoute allowedRoles={['Admin', 'Manager', 'Customer']}><CreateOrder /></ProtectedRoute>} />
+                    <Route path="/orders/select-type" element={<ProtectedRoute allowedRoles={['Admin', 'Manager']}><SelectOrderType /></ProtectedRoute>} />
+                    <Route path="/erp/customers/select" element={<ProtectedRoute allowedRoles={['Admin', 'Manager']}><SelectCustomer /></ProtectedRoute>} />
+                    <Route path="/erp/vendors/select" element={<ProtectedRoute allowedRoles={['Admin', 'Manager']}><SelectVendor /></ProtectedRoute>} />
+                    <Route path="/orders/create/:orderType" element={<ProtectedRoute allowedRoles={['Admin', 'Manager']}><CreateOrder /></ProtectedRoute>} />
                     <Route path="/orders/:orderId/tracking" element={<ProtectedRoute allowedRoles={['Admin', 'Manager', 'Sales', 'HR', 'Employee', 'Customer']}><OrderTracking /></ProtectedRoute>} />
                     <Route path="/crm" element={<ProtectedRoute allowedRoles={['Admin', 'Sales', 'Manager']}><Customers /></ProtectedRoute>} />
                     <Route path="/crm/add-customer" element={<ProtectedRoute allowedRoles={['Admin', 'Sales', 'Manager']}><AddCustomer /></ProtectedRoute>} />
