@@ -3,7 +3,7 @@ import API from '../api/axios';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { NotificationContext } from '../context/NotificationContext';
 import { 
-    ResponsiveContainer, PieChart, Pie, Cell
+    ResponsiveContainer, PieChart, Pie, Cell, Tooltip
 } from 'recharts';
 import { 
     ShoppingCart, Search, UserPlus, DollarSign, Calendar, ArrowUpRight, ArrowDownRight, FileText, CheckCircle, Clock, AlertTriangle, Filter, Plus, ChevronRight, Eye, Download, Bell, Truck, Trash2
@@ -343,18 +343,20 @@ const ERP = () => {
     const customerVendorHeader = (hasSales && hasPurchase) ? 'Customer / Vendor' : (hasPurchase ? 'Vendor' : 'Customer');
 
     const purchaseOrdersList = orders.filter(o => o.orderType === 'purchase');
-    const totalPo = purchaseOrdersList.length || 1;
+    const totalPo = purchaseOrdersList.length;
     const poDraftCount = purchaseOrdersList.filter(o => ['Pending Approval', 'Awaiting Approval', 'Created', 'Pending'].includes(o.status)).length;
     const poApprovedCount = purchaseOrdersList.filter(o => ['Approved', 'Confirmed', 'Processing', 'Shipped', 'Ready for Delivery'].includes(o.status)).length;
     const poReceivedCount = purchaseOrdersList.filter(o => ['Delivered', 'Completed', 'Received'].includes(o.status)).length;
     const poCancelledCount = purchaseOrdersList.filter(o => ['Cancelled', 'Rejected'].includes(o.status)).length;
 
     const poSummaryData = [
-        { name: 'Draft', value: poDraftCount, percentage: Math.round((poDraftCount / totalPo) * 100) + '%', color: '#2563eb' },
-        { name: 'Approved', value: poApprovedCount, percentage: Math.round((poApprovedCount / totalPo) * 100) + '%', color: '#10b981' },
-        { name: 'Received', value: poReceivedCount, percentage: Math.round((poReceivedCount / totalPo) * 100) + '%', color: '#f59e0b' },
-        { name: 'Cancelled', value: poCancelledCount, percentage: Math.round((poCancelledCount / totalPo) * 100) + '%', color: '#ef4444' }
+        { name: 'Draft', value: poDraftCount, percentage: totalPo > 0 ? Math.round((poDraftCount / totalPo) * 100) + '%' : '0%', color: '#2563eb' },
+        { name: 'Approved', value: poApprovedCount, percentage: totalPo > 0 ? Math.round((poApprovedCount / totalPo) * 100) + '%' : '0%', color: '#10b981' },
+        { name: 'Received', value: poReceivedCount, percentage: totalPo > 0 ? Math.round((poReceivedCount / totalPo) * 100) + '%' : '0%', color: '#f59e0b' },
+        { name: 'Cancelled', value: poCancelledCount, percentage: totalPo > 0 ? Math.round((poCancelledCount / totalPo) * 100) + '%' : '0%', color: '#ef4444' }
     ];
+
+    const activePoStatuses = poSummaryData.filter(d => d.value > 0);
 
     const recentPurchaseOrders = orders
         .filter(o => o.orderType === 'purchase' || o.vendor)
@@ -485,39 +487,96 @@ const ERP = () => {
             {/* Charts Row */}
             <div className="charts-grid">
                 {/* Donut summary */}
-                <div className="chart-card">
+                <div className="chart-card po-summary-card">
                     <h3 className="card-title">Purchase Order Summary</h3>
-                    <div className="distribution-container">
-                        <div className="donut-chart-box">
-                            <ResponsiveContainer width="100%" height={200}>
-                                <PieChart>
-                                    <Pie 
-                                        data={poSummaryData}
-                                        innerRadius={65}
-                                        outerRadius={85}
-                                        paddingAngle={3}
-                                        dataKey="value"
-                                    >
-                                        {poSummaryData.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={entry.color} />
-                                        ))}
-                                    </Pie>
-                                </PieChart>
-                            </ResponsiveContainer>
-                            <div className="donut-label-box">
-                                <span className="donut-val">{poSummaryData.reduce((acc, curr) => acc + curr.value, 0)}</span>
-                                <span className="donut-lbl">Total</span>
+                    
+                    {/* Summary mini cards rendered above the chart/KPI state */}
+                    <div className="po-summary-cards-grid">
+                        <div className="po-summary-mini-card">
+                            <span className="mini-card-label">Total Orders</span>
+                            <span className="mini-card-value">{totalPo}</span>
+                        </div>
+                        <div className="po-summary-mini-card approved">
+                            <span className="mini-card-label">Approved Orders</span>
+                            <span className="mini-card-value">{poApprovedCount}</span>
+                        </div>
+                        <div className="po-summary-mini-card pending">
+                            <span className="mini-card-label">Pending Orders</span>
+                            <span className="mini-card-value">{poDraftCount}</span>
+                        </div>
+                        <div className="po-summary-mini-card completed">
+                            <span className="mini-card-label">Completed Orders</span>
+                            <span className="mini-card-value">{poReceivedCount}</span>
+                        </div>
+                    </div>
+
+                    {/* Content Area */}
+                    <div className="po-summary-content-area">
+                        {totalPo === 0 ? (
+                            <div className="po-empty-state">
+                                <ShoppingCart size={40} className="po-empty-icon" />
+                                <h4>No Purchase Orders Available</h4>
+                                <p>There are no purchase orders in the database yet.</p>
                             </div>
-                        </div>
-                        <div className="distribution-legend">
-                            {poSummaryData.map((dept, idx) => (
-                                <div key={idx} className="legend-item">
-                                    <span className="dot" style={{ backgroundColor: dept.color }}></span>
-                                    <span className="name">{dept.name}</span>
-                                    <span className="val">{dept.value} ({dept.percentage})</span>
+                        ) : activePoStatuses.length === 1 ? (
+                            <div className="po-kpi-card">
+                                <div className="po-kpi-header">
+                                    <h4>Status Highlights</h4>
+                                    <span className="status-indicator-dot" style={{ backgroundColor: activePoStatuses[0].color }}></span>
                                 </div>
-                            ))}
-                        </div>
+                                <div className="po-kpi-body">
+                                    <div className="kpi-row">
+                                        <span className="kpi-label">Total Purchase Orders</span>
+                                        <span className="kpi-value">{totalPo}</span>
+                                    </div>
+                                    <div className="kpi-row">
+                                        <span className="kpi-label">Current Status</span>
+                                        <span className="kpi-value highlighted-status" style={{ color: activePoStatuses[0].color }}>
+                                            {activePoStatuses[0].name}
+                                        </span>
+                                    </div>
+                                    <div className="kpi-row">
+                                        <span className="kpi-label">Completion Rate</span>
+                                        <span className="kpi-value completion-rate-badge">100%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="distribution-container">
+                                <div className="donut-chart-box">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <PieChart>
+                                            <Pie 
+                                                data={poSummaryData.filter(d => d.value > 0)}
+                                                innerRadius={70}
+                                                outerRadius={90}
+                                                paddingAngle={3}
+                                                dataKey="value"
+                                                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                                            >
+                                                {poSummaryData.filter(d => d.value > 0).map((entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={entry.color} />
+                                                ))}
+                                            </Pie>
+                                            <Tooltip formatter={(value, name, props) => [`${value} Orders (${props.payload.percentage})`, name]} />
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                    <div className="donut-label-box">
+                                        <span className="donut-val">{totalPo}</span>
+                                        <span className="donut-lbl">Total</span>
+                                    </div>
+                                </div>
+                                <div className="distribution-legend">
+                                    {poSummaryData.map((dept, idx) => (
+                                        <div key={idx} className="legend-item">
+                                            <span className="dot" style={{ backgroundColor: dept.color }}></span>
+                                            <span className="name">{dept.name}</span>
+                                            <span className="val">{dept.value} ({dept.percentage})</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -1133,17 +1192,185 @@ const ERP = () => {
                     padding: 20px 20px 0 20px;
                 }
                 
+                .po-summary-card {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 16px;
+                }
+                
+                .po-summary-cards-grid {
+                    display: grid;
+                    grid-template-columns: repeat(4, 1fr);
+                    gap: 12px;
+                    margin-bottom: 8px;
+                }
+                
+                .po-summary-mini-card {
+                    background: var(--bg-body);
+                    border: 1px solid var(--border);
+                    border-radius: 12px;
+                    padding: 12px 14px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 4px;
+                    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), var(--shadow-sm);
+                    transition: transform 0.2s;
+                }
+                
+                .po-summary-mini-card:hover {
+                    transform: translateY(-1px);
+                    border-color: var(--border-hover);
+                }
+                
+                .po-summary-mini-card.approved {
+                    border-left: 3px solid #10b981;
+                }
+                .po-summary-mini-card.pending {
+                    border-left: 3px solid #2563eb;
+                }
+                .po-summary-mini-card.completed {
+                    border-left: 3px solid #f59e0b;
+                }
+                
+                .mini-card-label {
+                    font-size: 10px;
+                    font-weight: 700;
+                    color: var(--text-muted);
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                }
+                
+                .mini-card-value {
+                    font-size: 18px;
+                    font-weight: 800;
+                    color: var(--text-primary);
+                    line-height: 1.2;
+                }
+
+                .po-summary-content-area {
+                    flex: 1;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    min-height: 230px;
+                    width: 100%;
+                }
+
+                .po-empty-state {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    text-align: center;
+                    padding: 30px;
+                    color: var(--text-secondary);
+                    gap: 8px;
+                    width: 100%;
+                }
+                
+                .po-empty-icon {
+                    color: var(--text-muted);
+                    opacity: 0.7;
+                    margin-bottom: 4px;
+                }
+                
+                .po-empty-state h4 {
+                    margin: 0;
+                    font-size: 16px;
+                    font-weight: 700;
+                    color: var(--text-primary);
+                }
+                
+                .po-empty-state p {
+                    margin: 0;
+                    font-size: 13px;
+                    color: var(--text-muted);
+                }
+
+                .po-kpi-card {
+                    background: var(--bg-body);
+                    border: 1px solid var(--border);
+                    border-radius: 14px;
+                    padding: 20px;
+                    width: 100%;
+                    box-shadow: var(--shadow-sm);
+                }
+                
+                .po-kpi-header {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    margin-bottom: 16px;
+                    padding-bottom: 12px;
+                    border-bottom: 1px dashed var(--border);
+                }
+                
+                .po-kpi-header h4 {
+                    margin: 0;
+                    font-size: 14px;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    color: var(--text-muted);
+                    letter-spacing: 0.5px;
+                }
+                
+                .status-indicator-dot {
+                    width: 10px;
+                    height: 10px;
+                    border-radius: 50%;
+                    box-shadow: 0 0 8px currentColor;
+                }
+                
+                .po-kpi-body {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 14px;
+                }
+                
+                .kpi-row {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    font-size: 14px;
+                }
+                
+                .kpi-label {
+                    color: var(--text-secondary);
+                    font-weight: 500;
+                }
+                
+                .kpi-value {
+                    font-weight: 700;
+                    color: var(--text-primary);
+                }
+                
+                .kpi-value.highlighted-status {
+                    font-size: 15px;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                }
+                
+                .completion-rate-badge {
+                    background: rgba(16, 185, 129, 0.1);
+                    color: #10b981;
+                    padding: 4px 10px;
+                    border-radius: 20px;
+                    font-weight: 800;
+                    font-size: 13px;
+                }
+                
                 .distribution-container {
                     display: flex;
                     align-items: center;
                     justify-content: space-between;
-                    gap: 20px;
+                    gap: 40px;
+                    width: 100%;
                 }
                 
                 .donut-chart-box {
                     position: relative;
-                    width: 180px;
-                    height: 180px;
+                    width: 220px;
+                    height: 220px;
                     flex-shrink: 0;
                 }
                 
