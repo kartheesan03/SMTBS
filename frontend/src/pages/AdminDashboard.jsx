@@ -167,10 +167,10 @@ const AdminDashboard = () => {
             {/* ===== KPI ROW ===== */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '16px', marginBottom: '20px' }}>
                 {kpiCards.map((kpi, idx) => (
-                    <div key={idx} className="premium-3d-card" style={{ position: 'relative', overflow: 'hidden', borderRadius: '16px', padding: '18px' }}>
+                    <div key={idx} className="dashboard-card-3d" style={{ position: 'relative', overflow: 'hidden', borderRadius: '16px', padding: '18px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
                             <div style={{ color: '#64748b', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{kpi.title}</div>
-                            <div className="premium-kpi-icon-wrap" style={{ width: '32px', height: '32px', borderRadius: '10px', background: `linear-gradient(135deg, ${kpi.color}22, ${kpi.color}10)`, color: kpi.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <div className="kpi-icon-3d" style={{ width: '32px', height: '32px', borderRadius: '10px', background: `linear-gradient(135deg, ${kpi.color}22, ${kpi.color}10)`, color: kpi.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                                 <kpi.icon size={16} strokeWidth={2.5} />
                             </div>
                         </div>
@@ -187,7 +187,7 @@ const AdminDashboard = () => {
             <div style={{ display: 'grid', gridTemplateColumns: '4fr 5fr 3fr', gap: '20px', marginBottom: '20px' }}>
 
                 {/* Material Overview */}
-                <div className="premium-3d-card" style={{ borderRadius: '16px', display: 'flex', flexDirection: 'column', minHeight: '260px', overflow: 'hidden' }}>
+                <div className="dashboard-card-3d" style={{ borderRadius: '16px', display: 'flex', flexDirection: 'column', minHeight: '260px', overflow: 'hidden' }}>
                     <div style={{ padding: '16px 18px', height: '48px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
                         <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px', whiteSpace: 'nowrap' }}><PieChartIcon size={16} /> Material Overview</h3>
                     </div>
@@ -231,7 +231,7 @@ const AdminDashboard = () => {
                 </div>
 
                 {/* Stock & Order Status */}
-                <div className="premium-3d-card" style={{ borderRadius: '16px', display: 'flex', flexDirection: 'column', minHeight: '260px', overflow: 'hidden' }}>
+                <div className="dashboard-card-3d" style={{ borderRadius: '16px', display: 'flex', flexDirection: 'column', minHeight: '260px', overflow: 'hidden' }}>
                     <div style={{ padding: '16px 18px', height: '48px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
                         <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px', whiteSpace: 'nowrap' }}><BarChart2 size={16} /> Stock & Order Status</h3>
                     </div>
@@ -257,7 +257,7 @@ const AdminDashboard = () => {
                 </div>
 
                 {/* Quick Actions */}
-                <div className="premium-3d-card" style={{ borderRadius: '16px', padding: '20px', minHeight: '260px', overflow: 'hidden' }}>
+                <div className="dashboard-card-3d" style={{ borderRadius: '16px', padding: '20px', minHeight: '260px', overflow: 'hidden' }}>
                     <h3 style={{ fontSize: '13px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '16px', margin: '0 0 16px 0' }}>Quick Actions</h3>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         {[
@@ -268,7 +268,7 @@ const AdminDashboard = () => {
                             { path: '/analytics', name: 'Reports & Analytics', icon: BarChart2, color: '#ec4899' },
                             { path: '/hrms', name: 'User Management', icon: Shield, color: '#64748b' }
                         ].map((link, idx) => (
-                            <NavLink to={link.path} key={idx} style={{ display: 'flex', alignItems: 'center', padding: '10px 12px', background: '#f8fafc', border: '1px solid #f1f5f9', borderRadius: '8px', textDecoration: 'none', color: '#0f172a', fontWeight: 500, fontSize: '13px', transition: 'all 0.2s' }} className="quick-action-link">
+                            <NavLink to={link.path} key={idx} style={{ display: 'flex', alignItems: 'center', padding: '10px 12px', background: '#f8fafc', border: '1px solid #f1f5f9', borderRadius: '8px', textDecoration: 'none', color: '#0f172a', fontWeight: 500, fontSize: '13px', transition: 'all 0.2s' }} className="quick-action-link quick-action-3d">
                                 <div style={{ width: '28px', height: '28px', borderRadius: '6px', background: `${link.color}15`, color: link.color, display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: '12px', flexShrink: 0 }}>
                                     <link.icon size={14} />
                                 </div>
@@ -283,7 +283,7 @@ const AdminDashboard = () => {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', marginBottom: '20px' }}>
 
                 {/* HR Overview */}
-                <div className="premium-3d-card" style={{ borderRadius: '16px', display: 'flex', flexDirection: 'column', minHeight: '260px' }}>
+                <div className="dashboard-card-3d" style={{ borderRadius: '16px', display: 'flex', flexDirection: 'column', minHeight: '260px' }}>
                     <div style={{ padding: '16px 18px', height: '48px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
                         <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px', whiteSpace: 'nowrap' }}><Users size={16} /> HR Overview</h3>
                     </div>
@@ -308,7 +308,7 @@ const AdminDashboard = () => {
                 </div>
 
                 {/* ERP Overview */}
-                <div className="premium-3d-card" style={{ borderRadius: '16px', display: 'flex', flexDirection: 'column', minHeight: '260px' }}>
+                <div className="dashboard-card-3d" style={{ borderRadius: '16px', display: 'flex', flexDirection: 'column', minHeight: '260px' }}>
                     <div style={{ padding: '16px 18px', height: '48px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
                         <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px', whiteSpace: 'nowrap' }}><ShoppingCart size={16} /> ERP Overview</h3>
                     </div>
@@ -333,7 +333,7 @@ const AdminDashboard = () => {
                 </div>
 
                 {/* Revenue Quick Stats */}
-                <div className="premium-3d-card" style={{ borderRadius: '16px', display: 'flex', flexDirection: 'column', minHeight: '260px' }}>
+                <div className="dashboard-card-3d" style={{ borderRadius: '16px', display: 'flex', flexDirection: 'column', minHeight: '260px' }}>
                     <div style={{ padding: '16px 18px', height: '48px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
                         <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px', whiteSpace: 'nowrap' }}><TrendingUp size={16} /> Revenue Quick Stats</h3>
                     </div>
@@ -359,14 +359,14 @@ const AdminDashboard = () => {
             </div>
 
             {/* ===== ROW 3: Recent Activity (Full Width) ===== */}
-            <div className="premium-3d-card" style={{ borderRadius: '16px', padding: '20px', marginBottom: '24px' }}>
+            <div className="dashboard-card-3d" style={{ borderRadius: '16px', padding: '20px', marginBottom: '24px' }}>
                 <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center' }}>
                     <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}><Activity size={16} /> Recent Activity</h3>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '12px' }}>
                     {recentActivities.length > 0 ? (
                         recentActivities.slice(0, 8).map((act, i) => (
-                            <div key={act.id || i} className="recent-activity-card" style={{ display: 'flex', gap: '12px', padding: '14px', borderRadius: '12px' }}>
+                            <div key={act.id || i} className="activity-card-3d" style={{ display: 'flex', gap: '12px', padding: '14px', borderRadius: '12px' }}>
                                 <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#fff', border: '1px solid #e2e8f0', color: '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                                     {act.type === 'order' ? <ShoppingCart size={14} /> : 
                                      act.type === 'material' ? <Package size={14} /> :
@@ -385,60 +385,6 @@ const AdminDashboard = () => {
                 </div>
             </div>
 
-            <style jsx="true">{`
-                .premium-3d-card {
-                    background: rgba(255, 255, 255, 0.85);
-                    backdrop-filter: blur(12px);
-                    -webkit-backdrop-filter: blur(12px);
-                    border: 1px solid rgba(255, 255, 255, 0.6);
-                    border-radius: 16px;
-                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04), 
-                                inset 0 1px 0 rgba(255, 255, 255, 0.9),
-                                inset 0 -1px 0 rgba(0, 0, 0, 0.02);
-                    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-                    position: relative;
-                }
-
-                .premium-3d-card:hover {
-                    transform: translateY(-6px) scale(1.02);
-                    box-shadow: 0 20px 40px rgba(99, 102, 241, 0.12),
-                                0 10px 20px rgba(0, 0, 0, 0.04),
-                                inset 0 1px 0 rgba(255, 255, 255, 1);
-                    border-color: rgba(99, 102, 241, 0.2);
-                    z-index: 10;
-                }
-
-                .premium-kpi-icon-wrap {
-                    box-shadow: 0 4px 10px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.6);
-                    border: 1px solid rgba(255,255,255,0.4);
-                }
-                
-                .quick-action-link {
-                    background: rgba(248, 250, 252, 0.7) !important;
-                    border: 1px solid rgba(226, 232, 240, 0.6) !important;
-                    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-                }
-                
-                .quick-action-link:hover {
-                    background: #fff !important;
-                    border-color: rgba(99, 102, 241, 0.3) !important;
-                    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.08), 0 2px 5px rgba(0,0,0,0.02) !important;
-                    transform: translateX(4px);
-                }
-                
-                .recent-activity-card {
-                    background: rgba(255,255,255,0.6) !important;
-                    border: 1px solid rgba(226,232,240,0.8) !important;
-                    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-                    transition: all 0.3s ease;
-                }
-                
-                .recent-activity-card:hover {
-                    background: #fff !important;
-                    transform: translateY(-2px);
-                    box-shadow: 0 8px 16px rgba(0,0,0,0.05);
-                }
-            `}</style>
         </div>
     );
 };

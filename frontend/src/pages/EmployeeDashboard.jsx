@@ -24,17 +24,21 @@ const EmployeeDashboard = () => {
     const [leavesData, setLeavesData] = useState([]);
     const [salariesData, setSalariesData] = useState([]);
     const [notificationsData, setNotificationsData] = useState([]);
+    const [attStatusData, setAttStatusData] = useState(null);
+    const [attHistoryData, setAttHistoryData] = useState([]);
 
     const fetchDashboardData = async () => {
         try {
-            const [dashRes, taskRes, ordRes, attRes, levRes, salRes, notifRes] = await Promise.all([
+            const [dashRes, taskRes, ordRes, attRes, levRes, salRes, notifRes, attStatusRes, attHistoryRes] = await Promise.all([
                 API.get('/dashboard/stats').catch(() => ({ data: {} })),
                 API.get('/tasks/my').catch(() => API.get('/tasks').catch(() => ({ data: [] }))),
                 API.get('/orders').catch(() => ({ data: [] })),
                 API.get('/attendances').catch(() => ({ data: [] })),
                 API.get('/leaves').catch(() => ({ data: [] })),
                 API.get('/salaries').catch(() => ({ data: [] })),
-                API.get('/notifications').catch(() => ({ data: [] }))
+                API.get('/notifications').catch(() => ({ data: [] })),
+                API.get('/attendance/status').catch(() => ({ data: null })),
+                API.get('/attendance/my-history').catch(() => ({ data: [] }))
             ]);
             setDashboardData(dashRes.data || {});
             setTasksData(taskRes.data || []);
@@ -43,6 +47,8 @@ const EmployeeDashboard = () => {
             setLeavesData(levRes.data || []);
             setSalariesData(salRes.data || []);
             setNotificationsData(notifRes.data || []);
+            setAttStatusData(attStatusRes.data || null);
+            setAttHistoryData(attHistoryRes.data || []);
         } catch (error) {
             console.error("Failed to load dashboard stats", error);
         } finally {
@@ -97,10 +103,6 @@ const EmployeeDashboard = () => {
     const myNotificationsList = notificationsArray.filter(n => n.userId === userId || n.employeeId === userId);
 
     const todayStr = new Date().toISOString().split('T')[0];
-    const todaysAttendance = myAttendancesList.find(a => {
-        if (!a.date) return false;
-        return a.date.toString().includes(todayStr) || new Date(a.date).toISOString().split('T')[0] === todayStr;
-    });
     
     const todaysLeave = myLeavesList.find(l => {
         if (!l.startDate || !l.endDate || l.status !== 'Approved') return false;
@@ -110,17 +112,57 @@ const EmployeeDashboard = () => {
         return today >= start && today <= end;
     });
 
+    const parseDateTime = (timeStr, baseDateStr) => {
+        if (!timeStr) return null;
+        if (timeStr.includes('T') || (timeStr.includes('-') && timeStr.includes(':') && timeStr.length > 10)) {
+            const d = new Date(timeStr);
+            if (!isNaN(d.getTime())) return d;
+        }
+        const datePart = baseDateStr ? baseDateStr.split('T')[0] : new Date().toISOString().split('T')[0];
+        const combined = `${datePart} ${timeStr}`;
+        const d = new Date(combined);
+        if (!isNaN(d.getTime())) return d;
+        
+        const match = timeStr.match(/^(\d+):(\d+)\s*(AM|PM)$/i);
+        if (match) {
+            let [_, hours, minutes, ampm] = match;
+            hours = parseInt(hours, 10);
+            minutes = parseInt(minutes, 10);
+            if (ampm.toUpperCase() === 'PM' && hours < 12) hours += 12;
+            if (ampm.toUpperCase() === 'AM' && hours === 12) hours = 0;
+            const d = new Date(datePart);
+            d.setHours(hours, minutes, 0, 0);
+            return d;
+        }
+        
+        const fallback = new Date(timeStr);
+        return isNaN(fallback.getTime()) ? null : fallback;
+    };
+
     let attendanceStatus = "Not Marked";
     let attendanceColor = '#64748b';
+    
     if (todaysLeave) {
         attendanceStatus = "On Leave";
         attendanceColor = '#3b82f6';
-    } else if (todaysAttendance) {
-        if (todaysAttendance.checkOut) {
-            attendanceStatus = "Checked Out";
+    } else if (attStatusData && attStatusData.status && attStatusData.status !== 'Not Checked In' && attStatusData.status !== '-') {
+        if (attStatusData.checkIn && !attStatusData.checkOut) {
+            const start = parseDateTime(attStatusData.checkIn, attStatusData.date);
+            const timeStr = start ? start.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'Checked In';
+            attendanceStatus = `Checked In (${timeStr})`;
+            attendanceColor = '#10b981';
+        } else if (attStatusData.checkIn && attStatusData.checkOut) {
+            const start = parseDateTime(attStatusData.checkIn, attStatusData.date);
+            const end = parseDateTime(attStatusData.checkOut, attStatusData.date);
+            if (start && end) {
+                const diffHours = ((end - start) / 3600000).toFixed(1);
+                attendanceStatus = `Completed (${diffHours}h)`;
+            } else {
+                attendanceStatus = `Completed`;
+            }
             attendanceColor = '#f59e0b';
-        } else if (todaysAttendance.checkIn) {
-            attendanceStatus = "Present";
+        } else {
+            attendanceStatus = attStatusData.status || "Present";
             attendanceColor = '#10b981';
         }
     }
@@ -141,7 +183,7 @@ const EmployeeDashboard = () => {
     const currentM = new Date().getMonth();
     const currentY = new Date().getFullYear();
 
-    myAttendancesList.forEach(a => {
+    attHistoryData.forEach(a => {
         if (!a.date) return;
         const d = new Date(a.date);
         if (d.getMonth() === currentM && d.getFullYear() === currentY) {
@@ -198,7 +240,7 @@ const EmployeeDashboard = () => {
                     {/* Top KPIs (2 rows of 3) */}
                     {kpiCards.map((kpi, idx) => (
                         <div className="bento-col-4" key={idx}>
-                            <div className="bento-card kpi-card-bento" style={{ position: 'relative', overflow: 'hidden' }}>
+                            <div className="dashboard-card-3d kpi-card-3d" style={{ position: 'relative', overflow: 'hidden' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
                                     <div style={{ color: '#64748b', fontSize: '12px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{kpi.title}</div>
                                     <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: `${kpi.color}15`, color: kpi.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -211,7 +253,7 @@ const EmployeeDashboard = () => {
                     ))}
 
                     <div className="bento-col-12">
-                        <div className="bento-card">
+                        <div className="dashboard-card-3d">
                             <div className="bento-card-header">
                                 <h3 className="bento-card-title"><ListTodo size={16} /> My Tasks</h3>
                             </div>
@@ -262,7 +304,7 @@ const EmployeeDashboard = () => {
                 <div className="bento-col-3 bento-grid" style={{ alignContent: 'start' }}>
                     
                     <div className="bento-col-12">
-                        <div className="bento-card" style={{ padding: '16px' }}>
+                        <div className="dashboard-card-3d" style={{ padding: '16px' }}>
                             <h3 style={{ fontSize: '13px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '16px' }}>Quick Actions</h3>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                 {[
@@ -271,7 +313,7 @@ const EmployeeDashboard = () => {
                                     { path: '/my-attendance', name: 'Mark Attendance', icon: Fingerprint, color: '#10b981' },
                                     { path: '/my-salary', name: 'Salary Slips', icon: FileText, color: '#f59e0b' }
                                 ].map((link, idx) => (
-                                    <div onClick={() => navigate(link.path)} key={idx} style={{ display: 'flex', alignItems: 'center', padding: '10px 12px', background: '#f8fafc', border: '1px solid #f1f5f9', borderRadius: '8px', cursor: 'pointer', color: '#0f172a', fontWeight: 500, fontSize: '13px', transition: 'all 0.2s' }} className="quick-action-link">
+                                    <div onClick={() => navigate(link.path)} key={idx} style={{ display: 'flex', alignItems: 'center', padding: '10px 12px', background: '#f8fafc', border: '1px solid #f1f5f9', borderRadius: '8px', cursor: 'pointer', color: '#0f172a', fontWeight: 500, fontSize: '13px', transition: 'all 0.2s' }} className="quick-action-link quick-action-3d">
                                         <div style={{ width: '28px', height: '28px', borderRadius: '6px', background: `${link.color}15`, color: link.color, display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: '12px' }}>
                                             <link.icon size={14} />
                                         </div>
@@ -283,7 +325,7 @@ const EmployeeDashboard = () => {
                     </div>
 
                     <div className="bento-col-12">
-                        <div className="bento-card chart-card" style={{ height: '340px' }}>
+                        <div className="dashboard-card-3d chart-card-3d" style={{ height: '340px' }}>
                             <div className="bento-card-header">
                                 <h3 className="bento-card-title"><Clock size={16} /> My Attendance</h3>
                             </div>

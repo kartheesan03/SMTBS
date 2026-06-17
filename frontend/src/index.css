@@ -617,6 +617,49 @@ body {
   border-radius: var(--radius-card) !important;
 }
 
+/* ─── PREMIUM 3D DASHBOARD UI ─── */
+.dashboard-card-3d, .kpi-card-3d, .chart-card-3d, .quick-action-3d, .table-card-3d {
+    background: rgba(255, 255, 255, 0.85) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.6) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04), 
+                inset 0 1px 0 rgba(255, 255, 255, 0.9),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.02) !important;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    position: relative !important;
+    padding: 20px !important;
+}
+
+.dashboard-card-3d:hover, .kpi-card-3d:hover, .chart-card-3d:hover, .quick-action-3d:hover, .table-card-3d:hover {
+    transform: translateY(-6px) scale(1.02) !important;
+    box-shadow: 0 20px 40px rgba(99, 102, 241, 0.12),
+                0 10px 20px rgba(0, 0, 0, 0.04),
+                inset 0 1px 0 rgba(255, 255, 255, 1) !important;
+    border-color: rgba(99, 102, 241, 0.2) !important;
+    z-index: 10 !important;
+}
+
+/* Specific icon wrap for KPIs */
+.kpi-icon-3d {
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.6) !important;
+    border: 1px solid rgba(255,255,255,0.4) !important;
+}
+
+/* Activity sub-cards */
+.activity-card-3d {
+    background: rgba(255,255,255,0.6) !important;
+    border: 1px solid rgba(226,232,240,0.8) !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02) !important;
+    transition: all 0.3s ease !important;
+}
+.activity-card-3d:hover {
+    background: #fff !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.05) !important;
+}
+
 button, .btn-primary, .btn-secondary, .action-btn, .qa-btn {
   height: 36px;
   padding: 0 12px !important;

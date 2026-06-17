@@ -192,7 +192,7 @@ const SalesDashboard = () => {
                     {/* Top KPIs (2 rows of 3) */}
                     {kpiCards.map((kpi, idx) => (
                         <div className="bento-col-4" key={idx}>
-                            <div className="bento-card kpi-card-bento" style={{ position: 'relative', overflow: 'hidden' }}>
+                            <div className="dashboard-card-3d kpi-card-3d" style={{ position: 'relative', overflow: 'hidden' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
                                     <div style={{ color: '#64748b', fontSize: '12px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{kpi.title}</div>
                                     <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: `${kpi.color}15`, color: kpi.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -276,7 +276,7 @@ const SalesDashboard = () => {
                     </div>
 
                     <div className="bento-col-12">
-                        <div className="bento-card">
+                        <div className="dashboard-card-3d">
                             <div className="bento-card-header">
                                 <h3 className="bento-card-title"><Award size={16} /> Top Sales Executives</h3>
                             </div>
@@ -322,7 +322,7 @@ const SalesDashboard = () => {
                 <div className="bento-col-3 bento-grid" style={{ alignContent: 'start' }}>
                     
                     <div className="bento-col-12">
-                        <div className="bento-card" style={{ padding: '16px' }}>
+                        <div className="dashboard-card-3d" style={{ padding: '16px' }}>
                             <h3 style={{ fontSize: '13px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '16px' }}>Quick Actions</h3>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                 {[
@@ -333,7 +333,7 @@ const SalesDashboard = () => {
                                     { path: '/reports', name: 'Sales Goals', icon: Target, color: '#ec4899' },
                                     { path: '/orders', name: 'Quotations', icon: FileText, color: '#64748b' }
                                 ].map((link, idx) => (
-                                    <NavLink to={link.path} key={idx} style={{ display: 'flex', alignItems: 'center', padding: '10px 12px', background: '#f8fafc', border: '1px solid #f1f5f9', borderRadius: '8px', textDecoration: 'none', color: '#0f172a', fontWeight: 500, fontSize: '13px', transition: 'all 0.2s' }} className="quick-action-link">
+                                    <NavLink to={link.path} key={idx} style={{ display: 'flex', alignItems: 'center', padding: '10px 12px', background: '#f8fafc', border: '1px solid #f1f5f9', borderRadius: '8px', textDecoration: 'none', color: '#0f172a', fontWeight: 500, fontSize: '13px', transition: 'all 0.2s' }} className="quick-action-link quick-action-3d">
                                         <div style={{ width: '28px', height: '28px', borderRadius: '6px', background: `${link.color}15`, color: link.color, display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: '12px' }}>
                                             <link.icon size={14} />
                                         </div>
@@ -345,7 +345,7 @@ const SalesDashboard = () => {
                     </div>
 
                     <div className="bento-col-12">
-                        <div className="bento-card" style={{ height: '340px', padding: '16px' }}>
+                        <div className="dashboard-card-3d" style={{ height: '340px', padding: '16px' }}>
                             <div className="bento-card-header" style={{ marginBottom: '16px', paddingBottom: '0', borderBottom: 'none' }}>
                                 <h3 className="bento-card-title" style={{ fontSize: '13px', color: '#64748b' }}><Filter size={14} /> Sales Funnel</h3>
                             </div>

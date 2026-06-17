@@ -193,11 +193,11 @@ const HRDashboard = () => {
             {/* ===== ROW 1: KPI Cards (3 per row) ===== */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '16px' }}>
                 {kpiCards.map((kpi, idx) => (
-                    <div key={idx} className="bento-card kpi-card-bento" style={{ position: 'relative', overflow: 'hidden', borderRadius: '14px', padding: '14px 16px' }}>
+                    <div key={idx} className="dashboard-card-3d kpi-card-3d" style={{ position: 'relative', overflow: 'hidden', borderRadius: '16px', padding: '18px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
                             <div style={{ color: '#64748b', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{kpi.title}</div>
-                            <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: `${kpi.color}15`, color: kpi.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                <kpi.icon size={14} strokeWidth={2.5} />
+                            <div className="kpi-icon-3d" style={{ width: '32px', height: '32px', borderRadius: '10px', background: `linear-gradient(135deg, ${kpi.color}22, ${kpi.color}10)`, color: kpi.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                <kpi.icon size={16} strokeWidth={2.5} />
                             </div>
                         </div>
                         <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', margin: '0 0 6px 0', lineHeight: 1 }}>{kpi.value}</h3>
@@ -213,7 +213,7 @@ const HRDashboard = () => {
             <div style={{ display: 'grid', gridTemplateColumns: '4fr 5fr 3fr', gap: '16px', marginBottom: '16px' }}>
 
                 {/* Employee Distribution */}
-                <div className="bento-card" style={{ borderRadius: '14px', display: 'flex', flexDirection: 'column', minHeight: '260px', overflow: 'hidden' }}>
+                <div className="dashboard-card-3d" style={{ borderRadius: '14px', display: 'flex', flexDirection: 'column', minHeight: '260px', overflow: 'hidden' }}>
                     <div style={{ padding: '16px 18px', height: '48px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
                         <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px', whiteSpace: 'nowrap' }}><PieChartIcon size={16} /> Employee Distribution</h3>
                     </div>
@@ -257,7 +257,7 @@ const HRDashboard = () => {
                 </div>
 
                 {/* Department Headcount */}
-                <div className="bento-card" style={{ borderRadius: '14px', display: 'flex', flexDirection: 'column', minHeight: '260px', overflow: 'hidden' }}>
+                <div className="dashboard-card-3d" style={{ borderRadius: '14px', display: 'flex', flexDirection: 'column', minHeight: '260px', overflow: 'hidden' }}>
                     <div style={{ padding: '16px 18px', height: '48px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
                         <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px', whiteSpace: 'nowrap' }}><Users size={16} /> Department Headcount</h3>
                     </div>
@@ -285,7 +285,7 @@ const HRDashboard = () => {
                 {/* Right Panel: Birthdays + Activity */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                     {/* Upcoming Birthdays */}
-                    <div className="bento-card" style={{ borderRadius: '14px', padding: '18px', overflow: 'hidden' }}>
+                    <div className="dashboard-card-3d" style={{ borderRadius: '14px', padding: '18px', overflow: 'hidden' }}>
                         <div style={{ marginBottom: '14px', display: 'flex', alignItems: 'center' }}>
                             <h3 style={{ margin: 0, fontSize: '13px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '6px' }}><Cake size={14} /> Upcoming Birthdays</h3>
                         </div>
@@ -306,7 +306,7 @@ const HRDashboard = () => {
                     </div>
 
                     {/* Recent HR Activity */}
-                    <div className="bento-card" style={{ borderRadius: '14px', padding: '18px', display: 'flex', flexDirection: 'column', minHeight: '120px', flex: 1, overflow: 'hidden' }}>
+                    <div className="dashboard-card-3d" style={{ borderRadius: '14px', padding: '18px', display: 'flex', flexDirection: 'column', minHeight: '120px', flex: 1, overflow: 'hidden' }}>
                         <div style={{ marginBottom: '14px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
                             <h3 style={{ margin: 0, fontSize: '13px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '6px' }}><Activity size={14} /> Recent HR Activity</h3>
                         </div>
@@ -335,7 +335,7 @@ const HRDashboard = () => {
             </div>
 
             {/* ===== ROW 3: Pending Leave Requests (Full Width) ===== */}
-            <div className="bento-card" style={{ borderRadius: '14px', padding: '18px', marginBottom: '20px' }}>
+            <div className="dashboard-card-3d" style={{ borderRadius: '14px', padding: '18px', marginBottom: '20px' }}>
                 <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center' }}>
                     <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}><Calendar size={16} /> Pending Leave Requests</h3>
                 </div>
