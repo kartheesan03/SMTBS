@@ -59,7 +59,8 @@ const Login = () => {
             setError('');
             try {
                 const { data } = await API.post('/auth/google', {
-                    access_token: tokenResponse.access_token
+                    access_token: tokenResponse.access_token,
+                    mode: 'login'
                 });
                 
                 login(data);

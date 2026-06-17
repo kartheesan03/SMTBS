@@ -88,7 +88,7 @@ const loginUser = async (req, res) => {
 // @access  Public
 const googleAuth = async (req, res) => {
     try {
-        const { credential, access_token, signupRole } = req.body;
+        const { credential, access_token, mode } = req.body;
         
         if (!credential && !access_token) {
             return res.status(400).json({ message: 'Google credential or access token is required' });
@@ -134,6 +134,10 @@ const googleAuth = async (req, res) => {
         // NOTE: Mongoose-bridge automatically wraps this query into { where: { email } }. 
         // Passing { where: { email } } manually causes Sequelize to receive { where: { where: { email } } } which crashes it.
         let user = await User.findOne({ email });
+
+        if (mode === 'login' && !user) {
+            return res.status(404).json({ message: 'Account not found. Please sign up first.' });
+        }
 
         if (user) {
             // User exists — update googleId or picture if not present, then login
