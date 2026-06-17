@@ -64,8 +64,8 @@ const SalesDashboard = () => {
     let qualifiedLeads = customersData.filter(c => c.status === 'Active').length;
 
     if (totalLeads === 0 && qualifiedLeads === 0 && salesOrders.length > 0) {
-        totalLeads = salesOrders.length;
-        qualifiedLeads = salesOrders.filter(o => ['Approved', 'Processing', 'Shipped', 'Delivered', 'Completed'].includes(o.status)).length;
+        // totalLeads = salesOrders.length;
+        // qualifiedLeads = salesOrders.filter(o => ['Approved', 'Processing', 'Shipped', 'Delivered', 'Completed'].includes(o.status)).length;
     }
     
     const openOpportunities = salesOrders.filter(o => !['Delivered', 'Completed', 'Cancelled'].includes(o.status)).length;
@@ -110,15 +110,22 @@ const SalesDashboard = () => {
         });
     }
 
-    const revenueTrendData = trendData.some(d => d.revenue > 0) ? trendData : (charts.monthlyStats && charts.monthlyStats.length > 0 ? charts.monthlyStats : []);
+    const revenueTrendData = trendData;
 
     let leadSourceData = [];
-    if (customersData.length > 0) {
-        const sources = ['Website', 'Google', 'Referral', 'Direct', 'Social Media'];
-        const colors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444'];
+    const leads = customersData.filter(c => c.status === 'Lead');
+    if (leads.length > 0) {
+        const colors = {
+            'Website': '#3b82f6',
+            'Google': '#10b981',
+            'Referral': '#f59e0b',
+            'Direct': '#8b5cf6',
+            'Social Media': '#ec4899',
+            'Other': '#64748b'
+        };
         
-        customersData.forEach((c, i) => {
-            const sourceName = c.source || sources[i % sources.length];
+        leads.forEach(c => {
+            const sourceName = c.source || 'Other';
             const existing = leadSourceData.find(x => x.name === sourceName);
             if (existing) {
                 existing.value += 1;
@@ -126,16 +133,10 @@ const SalesDashboard = () => {
                 leadSourceData.push({ 
                     name: sourceName, 
                     value: 1, 
-                    color: colors[sources.indexOf(sourceName)] || colors[leadSourceData.length % colors.length] 
+                    color: colors[sourceName] || colors['Other']
                 });
             }
         });
-    } else if (salesOrders.length > 0) {
-        leadSourceData = [
-            { name: 'Website', value: Math.ceil(salesOrders.length * 0.4), color: '#3b82f6' },
-            { name: 'Direct', value: Math.ceil(salesOrders.length * 0.3), color: '#10b981' },
-            { name: 'Referral', value: Math.ceil(salesOrders.length * 0.3), color: '#f59e0b' }
-        ];
     }
 
     const topExecutives = employeesData
@@ -234,13 +235,16 @@ const SalesDashboard = () => {
                                             {leadSourceData.map((item, idx) => (
                                                 <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: 600, color: '#475569' }}>
                                                     <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: item.color }}></span>
-                                                    {item.name}
+                                                    {item.name} ({item.value})
                                                 </div>
                                             ))}
                                         </div>
                                     </>
                                 ) : (
-                                    <div className="flex-center" style={{ height: '100%', color: '#94a3b8', fontSize: '13px' }}>No lead sources found</div>
+                                    <div className="flex-center" style={{ height: '100%', color: '#94a3b8', fontSize: '13px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                        <Filter size={24} style={{ opacity: 0.5 }} />
+                                        No Lead Data Available
+                                    </div>
                                 )}
                             </div>
                         </div>
@@ -254,7 +258,7 @@ const SalesDashboard = () => {
                             <div className="bento-card-body">
                                 {revenueTrendData.length > 0 ? (
                                     <ResponsiveContainer width="100%" height={200}>
-                                        <AreaChart data={revenueTrendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                        <AreaChart data={revenueTrendData} margin={{ top: 20, right: 10, left: -20, bottom: 0 }}>
                                             <defs>
                                                 <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
                                                     <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
@@ -264,8 +268,8 @@ const SalesDashboard = () => {
                                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                                             <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} dy={10} />
                                             <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} tickFormatter={formatYAxis} />
-                                            <RechartsTooltip cursor={{fill: 'transparent'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }} />
-                                            <Area type="monotone" dataKey="revenue" stroke="#10b981" strokeWidth={2} fillOpacity={1} fill="url(#colorRevenue)" dot={{ r: 3, strokeWidth: 2, fill: '#fff' }} activeDot={{ r: 6 }} />
+                                            <RechartsTooltip formatter={(value) => `$${Number(value).toLocaleString()}`} cursor={{fill: 'transparent'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }} />
+                                            <Area type="monotone" dataKey="revenue" stroke="#10b981" strokeWidth={2} fillOpacity={1} fill="url(#colorRevenue)" dot={{ r: 3, strokeWidth: 2, fill: '#fff' }} activeDot={{ r: 6 }} label={{ position: 'top', formatter: formatYAxis, fill: '#64748b', fontSize: 11 }} />
                                         </AreaChart>
                                     </ResponsiveContainer>
                                 ) : (
