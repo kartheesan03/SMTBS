@@ -342,12 +342,18 @@ const ERP = () => {
     const hasPurchase = filteredOrders.some(o => o.orderType === 'purchase');
     const customerVendorHeader = (hasSales && hasPurchase) ? 'Customer / Vendor' : (hasPurchase ? 'Vendor' : 'Customer');
 
-    // Purchase Order summary donut data from API
-    const poSummaryData = erpStats.orderSummary && erpStats.orderSummary.length > 0 ? erpStats.orderSummary : [
-        { name: 'Draft', value: 0, percentage: '0%', color: '#2563eb' },
-        { name: 'Approved', value: 0, percentage: '0%', color: '#10b981' },
-        { name: 'Received', value: 0, percentage: '0%', color: '#f59e0b' },
-        { name: 'Cancelled', value: 0, percentage: '0%', color: '#ef4444' }
+    const purchaseOrdersList = orders.filter(o => o.orderType === 'purchase');
+    const totalPo = purchaseOrdersList.length || 1;
+    const poDraftCount = purchaseOrdersList.filter(o => ['Pending Approval', 'Awaiting Approval', 'Created', 'Pending'].includes(o.status)).length;
+    const poApprovedCount = purchaseOrdersList.filter(o => ['Approved', 'Confirmed', 'Processing', 'Shipped', 'Ready for Delivery'].includes(o.status)).length;
+    const poReceivedCount = purchaseOrdersList.filter(o => ['Delivered', 'Completed', 'Received'].includes(o.status)).length;
+    const poCancelledCount = purchaseOrdersList.filter(o => ['Cancelled', 'Rejected'].includes(o.status)).length;
+
+    const poSummaryData = [
+        { name: 'Draft', value: poDraftCount, percentage: Math.round((poDraftCount / totalPo) * 100) + '%', color: '#2563eb' },
+        { name: 'Approved', value: poApprovedCount, percentage: Math.round((poApprovedCount / totalPo) * 100) + '%', color: '#10b981' },
+        { name: 'Received', value: poReceivedCount, percentage: Math.round((poReceivedCount / totalPo) * 100) + '%', color: '#f59e0b' },
+        { name: 'Cancelled', value: poCancelledCount, percentage: Math.round((poCancelledCount / totalPo) * 100) + '%', color: '#ef4444' }
     ];
 
     const recentPurchaseOrders = orders
@@ -605,7 +611,7 @@ const ERP = () => {
                     <tbody>
                         {filteredOrders.length === 0 ? (
                             <tr>
-                                <td colSpan="9" style={{ textAlign: 'center', padding: '30px', color: 'var(--text-muted)' }}>No Orders Available</td>
+                                <td colSpan="12" style={{ textAlign: 'center', padding: '30px', color: 'var(--text-muted)' }}>No Orders Available</td>
                             </tr>
                         ) : filteredOrders.map((ord) => {
                             const isEmp = userInfo.role === 'Employee';
@@ -710,6 +716,9 @@ const ERP = () => {
                                         <span className={`status-badge-inline ${ord.deliveryStatus?.toLowerCase().replace(/ /g, '-') || 'not-started'}`}>
                                             {ord.deliveryStatus || "-"}
                                         </span>
+                                    </td>
+                                    <td>
+                                        <span className={`status-badge-inline ${String(ord.deliveryStatus || 'Not Started').toLowerCase().replace(/ /g, '-')}`}>{ord.deliveryStatus || "-"}</span>
                                     </td>
                                     <td>
                                         <span className={`status-badge-inline ${statusClass}`}>{ord.finalStatus || ord.status || "-"}</span>
