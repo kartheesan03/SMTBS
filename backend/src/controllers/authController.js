@@ -174,10 +174,16 @@ const googleAuth = async (req, res) => {
                 }
             });
         } else {
-            // User does not exist — auto-create as Customer (default) or use signupRole if provided
-            const actualRole = signupRole 
-                ? (signupRole === 'Vendor/Supplier' ? 'Vendor' : signupRole) 
-                : 'Customer';
+            // User does not exist — require signupRole to proceed
+            if (!signupRole) {
+                return res.status(202).json({
+                    requiresRoleSelection: true,
+                    message: 'Please select an account type to complete registration.',
+                    googleData: { email, name, googleId, picture }
+                });
+            }
+
+            const actualRole = signupRole === 'Vendor/Supplier' ? 'Vendor' : signupRole;
             
             // SECURITY: Only allow external roles to be created via Google Sign-Up
             if (actualRole !== 'Customer' && actualRole !== 'Vendor') {
