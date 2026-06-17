@@ -522,7 +522,7 @@ const ERP = () => {
                             <div className="po-kpi-card">
                                 <div className="po-kpi-header">
                                     <h4>Status Highlights</h4>
-                                    <span className="status-indicator-dot" style={{ backgroundColor: activePoStatuses[0].color }}></span>
+                                    <span className="status-indicator-dot" style={{ backgroundColor: activePoStatuses[0].color, boxShadow: `0 0 8px ${activePoStatuses[0].color}` }}></span>
                                 </div>
                                 <div className="po-kpi-body">
                                     <div className="kpi-row">
@@ -537,7 +537,9 @@ const ERP = () => {
                                     </div>
                                     <div className="kpi-row">
                                         <span className="kpi-label">Completion Rate</span>
-                                        <span className="kpi-value completion-rate-badge">100%</span>
+                                        <span className="kpi-value completion-rate-badge" style={{ backgroundColor: `${activePoStatuses[0].color}15`, color: activePoStatuses[0].color }}>
+                                            100%
+                                        </span>
                                     </div>
                                 </div>
                             </div>
@@ -547,18 +549,18 @@ const ERP = () => {
                                     <ResponsiveContainer width="100%" height="100%">
                                         <PieChart>
                                             <Pie 
-                                                data={poSummaryData.filter(d => d.value > 0)}
-                                                innerRadius={70}
-                                                outerRadius={90}
-                                                paddingAngle={3}
+                                                data={activePoStatuses}
+                                                innerRadius={65}
+                                                outerRadius={85}
+                                                paddingAngle={4}
                                                 dataKey="value"
-                                                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                                                stroke="none"
                                             >
-                                                {poSummaryData.filter(d => d.value > 0).map((entry, index) => (
+                                                {activePoStatuses.map((entry, index) => (
                                                     <Cell key={`cell-${index}`} fill={entry.color} />
                                                 ))}
                                             </Pie>
-                                            <Tooltip formatter={(value, name, props) => [`${value} Orders (${props.payload.percentage})`, name]} />
+                                            <Tooltip formatter={(value, name, props) => [`${value} Orders (${props.payload.percentage})`, name]} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
                                         </PieChart>
                                     </ResponsiveContainer>
                                     <div className="donut-label-box">
@@ -568,7 +570,7 @@ const ERP = () => {
                                 </div>
                                 <div className="distribution-legend">
                                     {poSummaryData.map((dept, idx) => (
-                                        <div key={idx} className="legend-item">
+                                        <div key={idx} className="legend-item" style={{ opacity: dept.value === 0 ? 0.4 : 1 }}>
                                             <span className="dot" style={{ backgroundColor: dept.color }}></span>
                                             <span className="name">{dept.name}</span>
                                             <span className="val">{dept.value} ({dept.percentage})</span>
@@ -1252,8 +1254,9 @@ const ERP = () => {
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    min-height: 230px;
+                    min-height: 180px;
                     width: 100%;
+                    padding-top: 8px;
                 }
 
                 .po-empty-state {
@@ -1262,23 +1265,25 @@ const ERP = () => {
                     align-items: center;
                     justify-content: center;
                     text-align: center;
-                    padding: 30px;
+                    padding: 40px 20px;
                     color: var(--text-secondary);
-                    gap: 8px;
+                    gap: 12px;
                     width: 100%;
+                    background: var(--bg-body);
+                    border: 1px dashed var(--border);
+                    border-radius: 12px;
                 }
                 
                 .po-empty-icon {
                     color: var(--text-muted);
-                    opacity: 0.7;
-                    margin-bottom: 4px;
+                    opacity: 0.5;
                 }
                 
                 .po-empty-state h4 {
                     margin: 0;
-                    font-size: 16px;
+                    font-size: 15px;
                     font-weight: 700;
-                    color: var(--text-primary);
+                    color: var(--text-secondary);
                 }
                 
                 .po-empty-state p {
@@ -1290,10 +1295,10 @@ const ERP = () => {
                 .po-kpi-card {
                     background: var(--bg-body);
                     border: 1px solid var(--border);
-                    border-radius: 14px;
+                    border-radius: 12px;
                     padding: 20px;
                     width: 100%;
-                    box-shadow: var(--shadow-sm);
+                    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), var(--shadow-sm);
                 }
                 
                 .po-kpi-header {
@@ -1302,12 +1307,12 @@ const ERP = () => {
                     justify-content: space-between;
                     margin-bottom: 16px;
                     padding-bottom: 12px;
-                    border-bottom: 1px dashed var(--border);
+                    border-bottom: 1px solid var(--border);
                 }
                 
                 .po-kpi-header h4 {
                     margin: 0;
-                    font-size: 14px;
+                    font-size: 13px;
                     font-weight: 700;
                     text-transform: uppercase;
                     color: var(--text-muted);
@@ -1318,13 +1323,12 @@ const ERP = () => {
                     width: 10px;
                     height: 10px;
                     border-radius: 50%;
-                    box-shadow: 0 0 8px currentColor;
                 }
                 
                 .po-kpi-body {
                     display: flex;
                     flex-direction: column;
-                    gap: 14px;
+                    gap: 12px;
                 }
                 
                 .kpi-row {
@@ -1332,45 +1336,44 @@ const ERP = () => {
                     justify-content: space-between;
                     align-items: center;
                     font-size: 14px;
+                    padding: 4px 0;
                 }
                 
                 .kpi-label {
                     color: var(--text-secondary);
-                    font-weight: 500;
+                    font-weight: 600;
                 }
                 
                 .kpi-value {
-                    font-weight: 700;
+                    font-weight: 800;
                     color: var(--text-primary);
                 }
                 
                 .kpi-value.highlighted-status {
-                    font-size: 15px;
+                    font-size: 14px;
                     text-transform: uppercase;
                     letter-spacing: 0.5px;
                 }
                 
                 .completion-rate-badge {
-                    background: rgba(16, 185, 129, 0.1);
-                    color: #10b981;
                     padding: 4px 10px;
                     border-radius: 20px;
                     font-weight: 800;
-                    font-size: 13px;
+                    font-size: 12px;
                 }
                 
                 .distribution-container {
                     display: flex;
                     align-items: center;
-                    justify-content: space-between;
-                    gap: 40px;
+                    justify-content: center;
+                    gap: 30px;
                     width: 100%;
                 }
                 
                 .donut-chart-box {
                     position: relative;
-                    width: 220px;
-                    height: 220px;
+                    width: 180px;
+                    height: 180px;
                     flex-shrink: 0;
                 }
                 
