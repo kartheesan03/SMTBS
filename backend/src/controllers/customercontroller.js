@@ -69,8 +69,8 @@ const createCustomer = async (req, res) => {
         const { role, _id } = req.user;
         const customerData = { ...req.body, createdBy: _id };
 
-        if (!customerData.company && customerData.name) {
-            customerData.company = customerData.name;
+        if (!customerData.company || customerData.company.trim() === '') {
+            customerData.company = 'Individual Customer';
         }
 
         if (role === 'Sales') {
@@ -147,8 +147,8 @@ const updateCustomer = async (req, res) => {
         const customer = await Customer.findById(req.params.id);
         if (customer) {
             const updateData = { ...req.body };
-            if (!updateData.company && updateData.name) {
-                updateData.company = updateData.name;
+            if (!updateData.company || updateData.company.trim() === '') {
+                updateData.company = 'Individual Customer';
             }
             Object.assign(customer, updateData);
             const updatedCustomer = await customer.save();
@@ -230,8 +230,8 @@ const createCustomerProfile = async (req, res) => {
         const { _id } = req.user;
         const customerData = { ...req.body, userId: _id, createdBy: _id, status: 'Active' };
 
-        if (!customerData.company && customerData.name) {
-            customerData.company = customerData.name;
+        if (!customerData.company || customerData.company.trim() === '') {
+            customerData.company = 'Individual Customer';
         }
 
         const customer = new Customer(customerData);

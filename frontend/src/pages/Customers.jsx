@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 import DataTable from '../components/Dashboard/DataTable';
-import { Users, Plus, Mail, Phone, ExternalLink, UserCheck, Edit2, Trash2, Globe, Building2, FileText, ArrowLeft, ShoppingCart, MessageSquare, LifeBuoy, Calendar, Clock, PhoneCall, Send, StickyNote, X, Download } from 'lucide-react';
+import { Users, Plus, Mail, Phone, ExternalLink, UserCheck, Edit2, Trash2, Globe, Building2, FileText, ArrowLeft, ShoppingCart, MessageSquare, LifeBuoy, Calendar, Clock, PhoneCall, Send, StickyNote, X, Download, Search } from 'lucide-react';
 import CustomerForm from '../components/CustomerForm';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
@@ -11,6 +11,7 @@ import ExcelJS from 'exceljs';
 const Customers = ({ directoryOnly }) => {
     const navigate = useNavigate();
     const [customers, setCustomers] = useState([]);
+    const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [editingId, setEditingId] = useState(null);
@@ -197,10 +198,10 @@ const Customers = ({ directoryOnly }) => {
         doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 30);
 
         const tableData = customers.map(c => [
-            c.name, c.email, c.phone || '—', c.industry || '—', c.status || 'Active'
+            c.name, c.company || 'Individual Customer', c.email, c.phone || '—', c.industry || '—', c.status || 'Active'
         ]);
         doc.autoTable({
-            head: [['Name', 'Email', 'Phone', 'Industry', 'Status']],
+            head: [['Full Name', 'Organization Name', 'Email', 'Phone', 'Industry', 'Status']],
             body: tableData,
             startY: 36,
             styles: { fontSize: 9 },
@@ -213,7 +214,8 @@ const Customers = ({ directoryOnly }) => {
         const workbook = new ExcelJS.Workbook();
         const sheet = workbook.addWorksheet('Customers');
         sheet.columns = [
-            { header: 'Name', key: 'name', width: 30 },
+            { header: 'Full Name', key: 'name', width: 25 },
+            { header: 'Organization Name', key: 'company', width: 30 },
             { header: 'Email', key: 'email', width: 30 },
             { header: 'Phone', key: 'phone', width: 18 },
             { header: 'Industry', key: 'industry', width: 22 },
@@ -223,7 +225,7 @@ const Customers = ({ directoryOnly }) => {
         ];
         customers.forEach(c => {
             sheet.addRow({
-                name: c.name, email: c.email, phone: c.phone || '', industry: c.industry || '',
+                name: c.name, company: c.company || 'Individual Customer', email: c.email, phone: c.phone || '', industry: c.industry || '',
                 address: c.address || '', website: c.website || '', status: c.status || 'Active'
             });
         });
@@ -611,6 +613,16 @@ const Customers = ({ directoryOnly }) => {
                     <p className="text-muted">{directoryOnly ? 'Manage your active customer base.' : 'Manage your customers, leads, and tracking.'}</p>
                 </div>
                 <div className="header-actions">
+                    <div className="search-bar" style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-body)', padding: '8px 16px', borderRadius: '8px', border: '1px solid var(--border)', marginRight: '10px' }}>
+                        <Search size={16} color="var(--text-muted)" style={{ marginRight: '8px' }} />
+                        <input 
+                            type="text" 
+                            placeholder="Search customers..." 
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            style={{ border: 'none', background: 'transparent', outline: 'none', color: 'var(--text-primary)' }}
+                        />
+                    </div>
                     <button className="btn-export" onClick={exportToPDF} title="Export PDF"><Download size={16} /> PDF</button>
                     <button className="btn-export" onClick={exportToExcel} title="Export Excel"><Download size={16} /> Excel</button>
                     <button className="btn-primary flex-center gap-10" onClick={() => navigate('/crm/add-customer')}>
@@ -648,13 +660,18 @@ const Customers = ({ directoryOnly }) => {
                 <div className="glass-card table-wrapper">
                     <DataTable 
                         title="Customers (CRM) Ledger"
-                        headers={['Organization', 'Contact Details', 'Industry', ...(directoryOnly ? [] : ['Status']), 'Action']}
-                        data={directoryOnly ? customers.filter(c => c.status === 'Active') : customers}
+                        headers={['Full Name', 'Organization Name', 'Contact Details', 'Industry', ...(directoryOnly ? [] : ['Status']), 'Action']}
+                        data={(directoryOnly ? customers.filter(c => c.status === 'Active') : customers).filter(c => 
+                            (c.name || '').toLowerCase().includes(searchTerm.toLowerCase()) || 
+                            (c.company || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                            (c.email || '').toLowerCase().includes(searchTerm.toLowerCase())
+                        )}
                         renderRow={(c) => (
                             <tr key={c._id} onClick={() => openCustomerDetail(c)} style={{ cursor: 'pointer' }}>
+                                <td><strong>{c.name}</strong></td>
                                 <td>
                                     <div className="org-cell">
-                                        <strong>{c.name}</strong>
+                                        <strong>{c.company || 'Individual Customer'}</strong>
                                         {c.website && <a href={c.website} target="_blank" rel="noreferrer" className="web-link" onClick={e => e.stopPropagation()}><Globe size={12}/> Visit Site</a>}
                                     </div>
                                 </td>
