@@ -248,21 +248,20 @@ const Login = () => {
                         </div>
                         <div className="modal-body">
                             <div className="role-options">
-                                <div 
-                                    className={`role-card ${selectedRole === 'Customer' ? 'active' : ''}`}
-                                    onClick={() => setSelectedRole('Customer')}
-                                >
-                                    <div className="role-icon"><Box size={24} /></div>
-                                    <h3>Customer</h3>
-                                    <p>I want to buy materials or products.</p>
-                                </div>
-                                <div 
-                                    className={`role-card ${selectedRole === 'Vendor' ? 'active' : ''}`}
-                                    onClick={() => setSelectedRole('Vendor')}
-                                >
-                                    <div className="role-icon"><Package size={24} /></div>
-                                    <h3>Vendor/Supplier</h3>
-                                    <p>I want to supply materials or products.</p>
+                                <div className="role-select-wrapper">
+                                    <select 
+                                        className="role-select"
+                                        value={selectedRole}
+                                        onChange={(e) => setSelectedRole(e.target.value)}
+                                    >
+                                        <option value="Customer">Customer (Buyer)</option>
+                                        <option value="Vendor">Vendor/Supplier</option>
+                                        <option value="Employee">Employee</option>
+                                        <option value="HR">HR</option>
+                                        <option value="Manager">Manager</option>
+                                        <option value="Sales">Sales</option>
+                                        <option value="Admin">Admin</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -758,32 +757,42 @@ const Login = () => {
                     padding: 32px;
                 }
                 .role-options {
-                    display: grid;
-                    grid-template-columns: 1fr 1fr;
+                    display: flex;
+                    flex-direction: column;
                     gap: 16px;
                 }
-                .role-card {
-                    border: 2px solid #E2E8F0;
+                .role-select-wrapper {
+                    position: relative;
+                }
+                .role-select {
+                    width: 100%;
+                    height: 48px;
+                    padding: 0 16px;
                     border-radius: 12px;
-                    padding: 20px;
-                    text-align: center;
+                    border: 2px solid #E2E8F0;
+                    background: #F8FAFC;
+                    font-size: 15px;
+                    font-weight: 500;
+                    color: #0F172A;
+                    appearance: none;
+                    outline: none;
                     cursor: pointer;
                     transition: all 0.2s;
                 }
-                .role-card:hover {
-                    border-color: #94A3B8;
-                    background: #F8FAFC;
-                }
-                .role-card.active {
+                .role-select:focus, .role-select:hover {
                     border-color: #6366F1;
-                    background: #EEF2FF;
+                    background: #FFFFFF;
                 }
-                .role-icon {
-                    color: #6366F1;
-                    margin-bottom: 12px;
+                .role-select-wrapper::after {
+                    content: '▼';
+                    position: absolute;
+                    right: 16px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    font-size: 12px;
+                    color: #64748B;
+                    pointer-events: none;
                 }
-                .role-card h3 { margin: 0 0 8px; font-size: 16px; color: #0F172A; }
-                .role-card p { margin: 0; font-size: 12px; color: #64748B; line-height: 1.4; }
                 .modal-footer {
                     padding: 16px 32px;
                     background: #F8FAFC;

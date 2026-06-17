@@ -185,9 +185,9 @@ const googleAuth = async (req, res) => {
 
             const actualRole = signupRole === 'Vendor/Supplier' ? 'Vendor' : signupRole;
             
-            // SECURITY: Only allow external roles to be created via Google Sign-Up
-            if (actualRole !== 'Customer' && actualRole !== 'Vendor') {
-                return res.status(403).json({ message: 'Only Customer and Vendor accounts can be created via Google Sign-In.' });
+            const allowedRoles = ['Admin', 'HR', 'Manager', 'Employee', 'Sales', 'Customer', 'Vendor'];
+            if (!allowedRoles.includes(actualRole)) {
+                return res.status(403).json({ message: 'Invalid role selected for Google Sign-In.' });
             }
 
             // Generate a secure random dummy password for Google users to bypass SQLite NOT NULL constraint
