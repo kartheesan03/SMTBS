@@ -94,7 +94,9 @@ const SalesDashboard = () => {
             const date = new Date(o.orderDate || o.createdAt);
             if (!isNaN(date.getTime())) {
                 const month = monthNames[date.getMonth()];
-                revMap[month] = (revMap[month] || 0) + (Number(o.totalAmount) || Number(o.grandTotal) || 0);
+                if (!revMap[month]) revMap[month] = { revenue: 0, count: 0 };
+                revMap[month].revenue += (Number(o.totalAmount) || Number(o.grandTotal) || 0);
+                revMap[month].count += 1;
             }
         }
     });
@@ -107,11 +109,24 @@ const SalesDashboard = () => {
         const monthName = monthNames[m];
         trendData.push({
             name: monthName,
-            revenue: revMap[monthName] || 0
+            revenue: revMap[monthName]?.revenue || 0,
+            count: revMap[monthName]?.count || 0
         });
     }
 
     const revenueTrendData = trendData;
+    
+    const prevMonthName = monthNames[(currentMonthIdx - 1 + 12) % 12];
+    const prevMonthlyRevenue = revMap[prevMonthName]?.revenue || 0;
+    const thisMonthRevenue = revMap[monthNames[currentMonthIdx]]?.revenue || 0;
+    let revGrowth = 0;
+    if (prevMonthlyRevenue > 0) {
+        revGrowth = ((thisMonthRevenue - prevMonthlyRevenue) / prevMonthlyRevenue) * 100;
+    } else if (thisMonthRevenue > 0) {
+        revGrowth = 100;
+    }
+    const growthTrend = revGrowth >= 0 ? `+${revGrowth.toFixed(1)}%` : `${revGrowth.toFixed(1)}%`;
+    const trendTotalRevenue = trendData.reduce((sum, d) => sum + d.revenue, 0);
 
     let leadSourceData = [];
     const leads = customersData.filter(c => c.status === 'Lead');
@@ -138,7 +153,17 @@ const SalesDashboard = () => {
                 });
             }
         });
+        
+        leadSourceData.forEach(item => {
+            item.percentage = ((item.value / leads.length) * 100).toFixed(1);
+        });
     }
+
+    const formatIndianCurrency = (value) => {
+        if (!value) return '₹0';
+        if (value >= 100000) return `₹${(value / 100000).toFixed(2)} L`;
+        return `₹${value.toLocaleString('en-IN')}`;
+    };
 
     const topExecutives = employeesData
         .filter(e => String(e.department || '').toLowerCase().includes('sales') || String(e.role || '').toLowerCase().includes('sales'))
@@ -150,8 +175,8 @@ const SalesDashboard = () => {
                 id: e._id || e.id,
                 name: `${e.firstName} ${e.lastName || ''}`.trim(),
                 deals: closed.length,
-                revenue: '$' + rev.toLocaleString(undefined, { maximumFractionDigits: 0 }),
-                status: closed.length >= 2 || rev > 100000 ? 'On Target' : 'At Risk',
+                revenue: formatIndianCurrency(rev),
+                status: rev > 0 ? Math.min(100, Math.round((rev / 500000) * 100)) + '%' : '0%',
                 rawRevenue: rev
             };
         })
@@ -167,10 +192,28 @@ const SalesDashboard = () => {
         { title: 'Target Achievement', value: `${targetAchievement}%`, icon: Target, color: '#ef4444', trend: '+3%', trendType: 'up' },
     ];
 
-    const formatYAxis = (value) => {
-        if (value >= 100000) return `$${(value / 100000).toFixed(1)}L`;
-        if (value >= 1000) return `$${(value / 1000).toFixed(0)}k`;
-        return `$${value}`;
+    const formatYAxis = formatIndianCurrency;
+    
+    const CustomTooltip = ({ active, payload, label }) => {
+        if (active && payload && payload.length) {
+            const data = payload[0].payload;
+            return (
+                <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}>
+                    <p style={{ margin: '0 0 8px 0', fontWeight: 700, color: '#0f172a' }}>{label}</p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '13px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '16px' }}>
+                            <span style={{ color: '#64748b' }}>Revenue:</span>
+                            <span style={{ fontWeight: 600, color: '#10b981' }}>{formatIndianCurrency(data.revenue)}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '16px' }}>
+                            <span style={{ color: '#64748b' }}>Orders:</span>
+                            <span style={{ fontWeight: 600, color: '#0f172a' }}>{data.count}</span>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+        return null;
     };
 
     return (
@@ -236,7 +279,7 @@ const SalesDashboard = () => {
                                             {leadSourceData.map((item, idx) => (
                                                 <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: 600, color: '#475569' }}>
                                                     <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: item.color }}></span>
-                                                    {item.name} ({item.value})
+                                                    {item.name} ({item.percentage}%)
                                                 </div>
                                             ))}
                                         </div>
@@ -253,8 +296,18 @@ const SalesDashboard = () => {
 
                     <div className="bento-col-8">
                         <div className="bento-card chart-card">
-                            <div className="bento-card-header">
-                                <h3 className="bento-card-title"><TrendingUp size={16} /> Revenue Trend</h3>
+                            <div className="bento-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <h3 className="bento-card-title" style={{ margin: 0 }}><TrendingUp size={16} /> Revenue Trend</h3>
+                                <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                                    <div style={{ textAlign: 'right' }}>
+                                        <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>6-Month Total</div>
+                                        <div style={{ fontSize: '16px', fontWeight: 800, color: '#10b981' }}>{formatIndianCurrency(trendTotalRevenue)}</div>
+                                    </div>
+                                    <div style={{ textAlign: 'right' }}>
+                                        <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>Monthly Growth</div>
+                                        <div style={{ fontSize: '14px', fontWeight: 700, color: revGrowth >= 0 ? '#10b981' : '#ef4444' }}>{growthTrend}</div>
+                                    </div>
+                                </div>
                             </div>
                             <div className="bento-card-body">
                                 {revenueTrendData.length > 0 ? (
@@ -269,8 +322,8 @@ const SalesDashboard = () => {
                                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                                             <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} dy={10} />
                                             <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} tickFormatter={formatYAxis} />
-                                            <RechartsTooltip formatter={(value) => `$${Number(value).toLocaleString()}`} cursor={{fill: 'transparent'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }} />
-                                            <Area type="monotone" dataKey="revenue" stroke="#10b981" strokeWidth={2} fillOpacity={1} fill="url(#colorRevenue)" dot={{ r: 3, strokeWidth: 2, fill: '#fff' }} activeDot={{ r: 6 }} label={{ position: 'top', formatter: formatYAxis, fill: '#64748b', fontSize: 11 }} />
+                                            <RechartsTooltip content={<CustomTooltip />} cursor={{fill: 'transparent'}} />
+                                            <Area type="monotone" dataKey="revenue" stroke="#10b981" strokeWidth={2} fillOpacity={1} fill="url(#colorRevenue)" dot={{ r: 3, strokeWidth: 2, fill: '#fff' }} activeDot={{ r: 6 }} label={{ position: 'top', formatter: formatIndianCurrency, fill: '#1e293b', fontSize: 11, fontWeight: 600 }} animationDuration={1500} isAnimationActive={true} />
                                         </AreaChart>
                                     </ResponsiveContainer>
                                 ) : (
@@ -291,9 +344,9 @@ const SalesDashboard = () => {
                                         <thead>
                                             <tr style={{ borderBottom: '1px solid #f1f5f9', color: '#64748b', textAlign: 'left' }}>
                                                 <th style={{ paddingBottom: '8px', fontWeight: 600 }}>Executive</th>
-                                                <th style={{ paddingBottom: '8px', fontWeight: 600 }}>Deals Closed</th>
-                                                <th style={{ paddingBottom: '8px', fontWeight: 600 }}>Revenue</th>
-                                                <th style={{ paddingBottom: '8px', fontWeight: 600 }}>Target Status</th>
+                                                <th style={{ paddingBottom: '8px', fontWeight: 600 }}>Orders Completed</th>
+                                                <th style={{ paddingBottom: '8px', fontWeight: 600 }}>Revenue Generated</th>
+                                                <th style={{ paddingBottom: '8px', fontWeight: 600 }}>Achievement %</th>
                                             </tr>
                                         </thead>
                                         <tbody>
