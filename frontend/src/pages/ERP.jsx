@@ -105,8 +105,6 @@ const ERP = () => {
         };
         
         loadAll();
-        const interval = setInterval(loadAll, 30000);
-        return () => clearInterval(interval);
     }, []);
 
     useEffect(() => {
