@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import API from '../../api/axios';
 import { Calendar, Search, Filter, Download, CheckCircle, XCircle, Clock, Loader } from 'lucide-react';
 import ExcelJS from 'exceljs';
-import { saveAs } from 'file-saver';
 
 const AttendanceHistoryTable = ({ isEmployeeView = false }) => {
     const [logs, setLogs] = useState([]);
@@ -91,7 +90,15 @@ const AttendanceHistoryTable = ({ isEmployeeView = false }) => {
 
         const buffer = await workbook.xlsx.writeBuffer();
         const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-        saveAs(blob, `Attendance_History_${new Date().getTime()}.xlsx`);
+        
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Attendance_History_${new Date().getTime()}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
     };
 
     const parseDateTime = (timeStr, baseDateStr) => {
