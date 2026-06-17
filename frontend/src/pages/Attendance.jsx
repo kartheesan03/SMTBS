@@ -233,6 +233,7 @@ const Attendance = () => {
                     }}
                 />
             </div>
+            </>
             )}
 
             <style jsx="true">{`
