@@ -127,6 +127,9 @@ const SalesDashboard = () => {
     }
     const growthTrend = revGrowth >= 0 ? `+${revGrowth.toFixed(1)}%` : `${revGrowth.toFixed(1)}%`;
     const trendTotalRevenue = trendData.reduce((sum, d) => sum + d.revenue, 0);
+    const monthsWithRevenue = revenueTrendData.filter(d => d.revenue > 0).length;
+    const highestRevenueMonth = [...revenueTrendData].sort((a,b) => b.revenue - a.revenue)[0];
+    const trendTotalOrders = trendData.reduce((sum, d) => sum + d.count, 0);
 
     let leadSourceData = [];
     const leads = customersData.filter(c => c.status === 'Lead');
@@ -174,14 +177,15 @@ const SalesDashboard = () => {
             return {
                 id: e._id || e.id,
                 name: `${e.firstName} ${e.lastName || ''}`.trim(),
-                deals: closed.length,
+                deals: execOrders.length,
+                deliveries: closed.length,
                 revenue: formatIndianCurrency(rev),
-                status: rev > 0 ? Math.min(100, Math.round((rev / 500000) * 100)) + '%' : '0%',
                 rawRevenue: rev
             };
         })
         .sort((a, b) => b.rawRevenue - a.rawRevenue)
-        .slice(0, 5);
+        .slice(0, 5)
+        .map((exec, idx) => ({ ...exec, rank: idx + 1 }));
 
     const kpiCards = [
         { title: 'Total Leads', value: totalLeads, icon: Users, color: '#3b82f6', trend: '+5%', trendType: 'up' },
@@ -255,11 +259,11 @@ const SalesDashboard = () => {
 
                     {/* Middle Section: Charts */}
                     <div className="bento-col-4">
-                        <div className="bento-card chart-card">
+                        <div className="dashboard-card-3d bento-card chart-card" style={{ height: leadSourceData.length > 0 ? '320px' : '220px', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
                             <div className="bento-card-header">
                                 <h3 className="bento-card-title"><Activity size={16} /> Lead Sources</h3>
                             </div>
-                            <div className="bento-card-body" style={{ position: 'relative' }}>
+                            <div className="bento-card-body" style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                                 {leadSourceData.length > 0 ? (
                                     <>
                                         <ResponsiveContainer width="100%" height={160}>
@@ -285,9 +289,12 @@ const SalesDashboard = () => {
                                         </div>
                                     </>
                                 ) : (
-                                    <div className="flex-center" style={{ height: '100%', color: '#94a3b8', fontSize: '13px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                        <Filter size={24} style={{ opacity: 0.5 }} />
-                                        No Lead Data Available
+                                    <div className="flex-center" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px', justifyContent: 'center', alignItems: 'center', color: '#94a3b8', fontSize: '13px' }}>
+                                        <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '4px' }}>
+                                            <Filter size={20} style={{ opacity: 0.5, color: '#64748b' }} />
+                                        </div>
+                                        <span style={{ fontWeight: 500 }}>No Lead Data Available</span>
+                                        <span style={{ fontSize: '11px', opacity: 0.7 }}>Add sources to see distribution</span>
                                     </div>
                                 )}
                             </div>
@@ -295,8 +302,8 @@ const SalesDashboard = () => {
                     </div>
 
                     <div className="bento-col-8">
-                        <div className="bento-card chart-card">
-                            <div className="bento-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div className="dashboard-card-3d bento-card chart-card analytics-card revenue-card" style={{ height: monthsWithRevenue >= 2 ? '320px' : '220px', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                            <div className="bento-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: monthsWithRevenue >= 2 ? '1px solid #f1f5f9' : 'none', paddingBottom: monthsWithRevenue >= 2 ? '16px' : '8px', marginBottom: monthsWithRevenue >= 2 ? '8px' : '0' }}>
                                 <h3 className="bento-card-title" style={{ margin: 0 }}><TrendingUp size={16} /> Revenue Trend</h3>
                                 <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
                                     <div style={{ textAlign: 'right' }}>
@@ -309,66 +316,96 @@ const SalesDashboard = () => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="bento-card-body">
-                                {revenueTrendData.length > 0 ? (
-                                    <ResponsiveContainer width="100%" height={260}>
-                                        <AreaChart data={revenueTrendData} margin={{ top: 30, right: 45, left: 20, bottom: 20 }}>
-                                            <defs>
-                                                <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                                                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
-                                                    <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
-                                                </linearGradient>
-                                            </defs>
-                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                                            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} dy={10} />
-                                            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} tickFormatter={formatYAxis} domain={[0, 'auto']} allowDataOverflow={false} width={60} />
-                                            <RechartsTooltip content={<CustomTooltip />} cursor={{fill: 'transparent'}} />
-                                            <Area type="monotone" dataKey="revenue" stroke="#10b981" strokeWidth={2} fillOpacity={1} fill="url(#colorRevenue)" dot={{ r: 3, strokeWidth: 2, fill: '#fff' }} activeDot={{ r: 6 }} label={{ position: 'top', formatter: formatIndianCurrency, fill: '#1e293b', fontSize: 11, fontWeight: 600, dy: -5 }} animationDuration={1500} isAnimationActive={true} />
-                                        </AreaChart>
-                                    </ResponsiveContainer>
+                            <div className="bento-card-body" style={{ flex: 1, padding: monthsWithRevenue >= 2 ? '0 16px 8px 16px' : '0', display: 'flex', flexDirection: 'column' }}>
+                                {monthsWithRevenue >= 2 ? (
+                                    <div className="chart-container" style={{ height: '220px', width: '100%' }}>
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <AreaChart data={revenueTrendData} margin={{ top: 20, right: 30, left: 10, bottom: 0 }}>
+                                                <defs>
+                                                    <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                                                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
+                                                        <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                                                    </linearGradient>
+                                                </defs>
+                                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} dy={10} />
+                                                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} tickFormatter={formatYAxis} domain={[0, 'auto']} allowDataOverflow={false} width={60} />
+                                                <RechartsTooltip content={<CustomTooltip />} cursor={{fill: 'transparent'}} />
+                                                <Area type="monotone" dataKey="revenue" stroke="#10b981" strokeWidth={2} fillOpacity={1} fill="url(#colorRevenue)" dot={{ r: 3, strokeWidth: 2, fill: '#fff' }} activeDot={{ r: 6 }} label={{ position: 'top', formatter: formatIndianCurrency, fill: '#1e293b', fontSize: 11, fontWeight: 600, dy: -5 }} animationDuration={1500} isAnimationActive={true} />
+                                            </AreaChart>
+                                        </ResponsiveContainer>
+                                    </div>
+                                ) : monthsWithRevenue === 1 ? (
+                                    <div style={{ flex: 1, display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', padding: '16px', background: '#f8fafc', borderRadius: '12px', margin: '0 16px 16px 16px' }}>
+                                        <div style={{ padding: '16px', background: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                                            <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600, textTransform: 'uppercase', marginBottom: '8px' }}>Current Revenue</div>
+                                            <div style={{ fontSize: '20px', fontWeight: 800, color: '#10b981' }}>{formatIndianCurrency(thisMonthRevenue)}</div>
+                                        </div>
+                                        <div style={{ padding: '16px', background: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                                            <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600, textTransform: 'uppercase', marginBottom: '8px' }}>Highest Month</div>
+                                            <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a' }}>{highestRevenueMonth?.name || '-'}</div>
+                                        </div>
+                                        <div style={{ padding: '16px', background: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                                            <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600, textTransform: 'uppercase', marginBottom: '8px' }}>Total Orders</div>
+                                            <div style={{ fontSize: '20px', fontWeight: 800, color: '#3b82f6' }}>{trendTotalOrders}</div>
+                                        </div>
+                                        <div style={{ padding: '16px', background: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                                            <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600, textTransform: 'uppercase', marginBottom: '8px' }}>Growth Trend</div>
+                                            <div style={{ fontSize: '20px', fontWeight: 800, color: revGrowth >= 0 ? '#10b981' : '#ef4444' }}>{growthTrend}</div>
+                                        </div>
+                                    </div>
                                 ) : (
-                                    <div className="flex-center" style={{ height: '100%', color: '#94a3b8', fontSize: '13px' }}>No revenue data available</div>
+                                    <div className="flex-center" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px', justifyContent: 'center', alignItems: 'center', color: '#94a3b8', fontSize: '13px', background: '#f8fafc', borderRadius: '12px', margin: '0 16px 16px 16px' }}>
+                                        <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#fff', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '4px' }}>
+                                            <TrendingUp size={20} style={{ opacity: 0.5, color: '#64748b' }} />
+                                        </div>
+                                        <span style={{ fontWeight: 500 }}>No Revenue Data</span>
+                                        <span style={{ fontSize: '11px', opacity: 0.7 }}>Awaiting completed orders</span>
+                                    </div>
                                 )}
                             </div>
                         </div>
                     </div>
 
                     <div className="bento-col-12">
-                        <div className="dashboard-card-3d">
-                            <div className="bento-card-header">
+                        <div className="dashboard-card-3d" style={{ height: topExecutives.length > 0 ? 'auto' : '180px', display: 'flex', flexDirection: 'column' }}>
+                            <div className="bento-card-header" style={{ borderBottom: topExecutives.length > 0 ? '1px solid #f1f5f9' : 'none', paddingBottom: '16px', marginBottom: '8px' }}>
                                 <h3 className="bento-card-title"><Award size={16} /> Top Sales Executives</h3>
                             </div>
-                            <div className="bento-card-body">
+                            <div className="bento-card-body" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                                 {topExecutives.length > 0 ? (
                                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
                                         <thead>
                                             <tr style={{ borderBottom: '1px solid #f1f5f9', color: '#64748b', textAlign: 'left' }}>
-                                                <th style={{ paddingBottom: '8px', fontWeight: 600 }}>Executive</th>
-                                                <th style={{ paddingBottom: '8px', fontWeight: 600 }}>Orders Completed</th>
-                                                <th style={{ paddingBottom: '8px', fontWeight: 600 }}>Revenue Generated</th>
-                                                <th style={{ paddingBottom: '8px', fontWeight: 600 }}>Achievement %</th>
+                                                <th style={{ paddingBottom: '8px', fontWeight: 600 }}>Name</th>
+                                                <th style={{ paddingBottom: '8px', fontWeight: 600 }}>Orders</th>
+                                                <th style={{ paddingBottom: '8px', fontWeight: 600 }}>Revenue</th>
+                                                <th style={{ paddingBottom: '8px', fontWeight: 600 }}>Rank</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {topExecutives.map((exec, i) => (
-                                                <tr key={i} style={{ borderBottom: '1px solid #f8fafc' }}>
-                                                    <td style={{ padding: '12px 0', fontWeight: 600, color: '#0f172a' }}>
-                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                            <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', fontWeight: 'bold', fontSize: '11px' }}>{exec.name.charAt(0)}</div>
-                                                            {exec.name}
-                                                        </div>
-                                                    </td>
-                                                    <td style={{ padding: '12px 0', color: '#475569', fontWeight: 500 }}>{exec.deals}</td>
+                                                <tr key={i} style={{ borderBottom: i === topExecutives.length - 1 ? 'none' : '1px solid #f1f5f9' }}>
+                                                    <td style={{ padding: '12px 0', fontWeight: 600, color: '#0f172a' }}>{exec.name}</td>
+                                                    <td style={{ padding: '12px 0', color: '#475569' }}>{exec.deliveries}</td>
                                                     <td style={{ padding: '12px 0', color: '#10b981', fontWeight: 700 }}>{exec.revenue}</td>
                                                     <td style={{ padding: '12px 0' }}>
-                                                        <span style={{ padding: '4px 8px', borderRadius: '4px', background: exec.status === 'On Target' ? '#dcfce7' : '#fee2e2', color: exec.status === 'On Target' ? '#16a34a' : '#dc2626', fontSize: '11px', fontWeight: 600 }}>{exec.status}</span>
+                                                        <span style={{ display: 'inline-block', padding: '2px 8px', borderRadius: '12px', background: exec.rank === 1 ? '#f59e0b20' : '#f1f5f9', color: exec.rank === 1 ? '#d97706' : '#64748b', fontSize: '11px', fontWeight: 700 }}>
+                                                            #{exec.rank}
+                                                        </span>
                                                     </td>
                                                 </tr>
                                             ))}
                                         </tbody>
                                     </table>
                                 ) : (
-                                    <div className="flex-center" style={{ height: '60px', color: '#94a3b8', fontSize: '13px' }}>No sales executives found</div>
+                                    <div className="flex-center" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px', justifyContent: 'center', alignItems: 'center', color: '#94a3b8', fontSize: '13px', background: '#f8fafc', borderRadius: '12px' }}>
+                                        <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#fff', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '4px' }}>
+                                            <Award size={20} style={{ opacity: 0.5, color: '#64748b' }} />
+                                        </div>
+                                        <span style={{ fontWeight: 500 }}>No Sales Performance Data Available</span>
+                                        <span style={{ fontSize: '11px', opacity: 0.7 }}>Awaiting sales assignments</span>
+                                    </div>
                                 )}
                             </div>
                         </div>
