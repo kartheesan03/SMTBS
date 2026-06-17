@@ -541,6 +541,34 @@ const createCustomerOrder = async (req, res) => {
     }
 };
 
+// @desc    Delete an order
+// @route   DELETE /api/orders/:id
+// @access  Private (Admin/Manager)
+const deleteOrder = async (req, res) => {
+    try {
+        const order = await Order.findById(req.params.id);
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        // Audit log before deletion
+        await logAudit({
+            user: req.user,
+            action: 'DELETE',
+            module: 'Order',
+            targetId: order._id || order.id,
+            description: `Order deleted: ${order.orderNumber} (${order.orderType || 'sales'})`,
+            ipAddress: req.ip
+        });
+
+        await order.remove(); // or Order.findByIdAndDelete depending on mongoose vs sequelize
+        res.json({ message: 'Order removed successfully' });
+    } catch (error) {
+        console.error('[API DELETE /orders/:id] Error:', error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
 module.exports = {
     getOrders,
     createOrder,
@@ -548,5 +576,6 @@ module.exports = {
     updatePaymentStatus,
     updateTrackingStatus,
     getMyCustomerOrders,
-    createCustomerOrder
+    createCustomerOrder,
+    deleteOrder
 };

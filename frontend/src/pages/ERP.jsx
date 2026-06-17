@@ -6,7 +6,7 @@ import {
     ResponsiveContainer, PieChart, Pie, Cell
 } from 'recharts';
 import { 
-    ShoppingCart, Search, UserPlus, DollarSign, Calendar, ArrowUpRight, ArrowDownRight, FileText, CheckCircle, Clock, AlertTriangle, Filter, Plus, ChevronRight, Eye, Download, Bell, Truck 
+    ShoppingCart, Search, UserPlus, DollarSign, Calendar, ArrowUpRight, ArrowDownRight, FileText, CheckCircle, Clock, AlertTriangle, Filter, Plus, ChevronRight, Eye, Download, Bell, Truck, Trash2
 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -163,6 +163,18 @@ const ERP = () => {
             fetchOrders();
         } catch (err) {
             alert(err.response?.data?.message || 'Error updating payment status');
+        }
+    };
+
+    const handleDeleteOrder = async (id) => {
+        if (!window.confirm("Are you sure you want to delete this order?")) return;
+        try {
+            await API.delete(`/orders/${id}`);
+            fetchData();
+            fetchOrders();
+            if (fetchNotifications) fetchNotifications();
+        } catch (err) {
+            alert(err.response?.data?.message || 'Error deleting order');
         }
     };
 
@@ -731,6 +743,13 @@ const ERP = () => {
                                             {(['Confirmed', 'Processing', 'Shipped', 'Delivered'].includes(ord.status) || ord.invoiceGenerated) && (
                                                 <button className="btn-secondary-light" style={{ padding: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => handleDownloadInvoice(ord)} title="Download Invoice">
                                                     <Download size={14} />
+                                                </button>
+                                            )}
+
+                                            {/* Delete Action (Admin/Manager) */}
+                                            {(isAdmin || userInfo.role === 'Manager' || userInfo.role === 'Super Admin') && (
+                                                <button className="btn-secondary-light" style={{ padding: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--danger)' }} onClick={() => handleDeleteOrder(ord._id || ord.id)} title="Delete Order">
+                                                    <Trash2 size={14} />
                                                 </button>
                                             )}
                                         </div>
