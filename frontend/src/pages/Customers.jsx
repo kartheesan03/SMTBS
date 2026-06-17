@@ -7,7 +7,7 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import ExcelJS from 'exceljs';
 
-const Customers = () => {
+const Customers = ({ directoryOnly }) => {
     const navigate = useNavigate();
     const [customers, setCustomers] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -39,7 +39,11 @@ const Customers = () => {
         try {
             setLoading(true);
             const { data } = await API.get('/customers');
-            setCustomers(Array.isArray(data) ? data : []);
+            let fetchedData = Array.isArray(data) ? data : [];
+            if (directoryOnly) {
+                fetchedData = fetchedData.filter(c => c.status !== 'Lead' && c.customerType !== 'Lead');
+            }
+            setCustomers(fetchedData);
         } catch (err) {
             console.error(err);
         } finally {
@@ -648,8 +652,8 @@ const Customers = () => {
         <div className="module-container">
             <header className="module-header glass-card">
                 <div>
-                    <h1 className="title-gradient">Customers (CRM)</h1>
-                    <p className="text-muted">Track customer details, communications, and order history.</p>
+                    <h1 className="title-gradient">{directoryOnly ? 'Customer Directory' : 'Customers (CRM)'}</h1>
+                    <p className="text-muted">{directoryOnly ? 'Manage your active customer base.' : 'Manage your customers, leads, and tracking.'}</p>
                 </div>
                 <div className="header-actions">
                     <button className="btn-export" onClick={exportToPDF} title="Export PDF"><Download size={16} /> PDF</button>
@@ -741,8 +745,8 @@ const Customers = () => {
                 <div className="glass-card table-wrapper">
                     <DataTable 
                         title="Customers (CRM) Ledger"
-                        headers={['Organization', 'Contact Details', 'Industry', 'Status', 'Action']}
-                        data={customers}
+                        headers={['Organization', 'Contact Details', 'Industry', ...(directoryOnly ? [] : ['Status']), 'Action']}
+                        data={directoryOnly ? customers.filter(c => c.status === 'Active') : customers}
                         renderRow={(c) => (
                             <tr key={c._id} onClick={() => openCustomerDetail(c)} style={{ cursor: 'pointer' }}>
                                 <td>
@@ -758,7 +762,7 @@ const Customers = () => {
                                     </div>
                                 </td>
                                 <td>{c.industry || '—'}</td>
-                                <td><span className={`status-pill ${c.status?.toLowerCase().replace(/ /g, '-') || 'active'}`}>{c.status || 'Active'}</span></td>
+                                {!directoryOnly && <td><span className={`status-pill ${c.status?.toLowerCase().replace(/ /g, '-') || 'active'}`}>{c.status || 'Active'}</span></td>}
                                 <td>
                                     <div className="action-btns-row" onClick={e => e.stopPropagation()}>
                                         {isAdmin && c.status === 'Pending Review' && (

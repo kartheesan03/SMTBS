@@ -56,6 +56,7 @@ import CompleteVendorProfile from './pages/CompleteVendorProfile';
 import ComingSoonPage from './pages/ComingSoonPage';
 import CustomerDashboard from './pages/CustomerDashboard';
 import VendorDashboard from './pages/VendorDashboard';
+import RevenueDashboard from './pages/RevenueDashboard';
 
 const AppContent = () => {
     const { user, loading, logout } = useContext(AuthContext);
@@ -153,8 +154,9 @@ const AppContent = () => {
                     {/* Sales Dashboard Quick Action Routes */}
                     <Route path="/crm/leads" element={<ProtectedRoute allowedRoles={['Admin', 'Sales', 'Manager']}><ComingSoonPage title="Lead Management" subtitle="The Lead Management module is currently under development." /></ProtectedRoute>} />
                     <Route path="/crm/pipeline" element={<ProtectedRoute allowedRoles={['Admin', 'Sales', 'Manager']}><ComingSoonPage title="Pipeline Overview" subtitle="The visual sales pipeline is being assembled." /></ProtectedRoute>} />
-                    <Route path="/customers" element={<ProtectedRoute allowedRoles={['Admin', 'Sales', 'Manager']}><ComingSoonPage title="Customer Directory" subtitle="Advanced Customer Directory will be available soon." /></ProtectedRoute>} />
-                    <Route path="/sales/revenue" element={<ProtectedRoute allowedRoles={['Admin', 'Sales', 'Manager']}><ComingSoonPage title="Revenue Tracking" subtitle="Detailed revenue reporting is currently being configured." /></ProtectedRoute>} />
+                    <Route path="/crm/customers" element={<ProtectedRoute allowedRoles={['Admin', 'Sales', 'Manager']}><Customers directoryOnly={true} /></ProtectedRoute>} />
+                    <Route path="/customers" element={<Navigate to="/crm/customers" replace />} />
+                    <Route path="/sales/revenue" element={<ProtectedRoute allowedRoles={['Admin', 'Sales', 'Manager']}><RevenueDashboard /></ProtectedRoute>} />
                     <Route path="/sales/goals" element={<ProtectedRoute allowedRoles={['Admin', 'Sales', 'Manager']}><ComingSoonPage title="Sales Goals" subtitle="Sales targeting and team goals will be available shortly." /></ProtectedRoute>} />
                     <Route path="/quotations" element={<ProtectedRoute allowedRoles={['Admin', 'Sales', 'Manager']}><ComingSoonPage title="Quotations" subtitle="Quotation and proposal generation will be enabled soon." /></ProtectedRoute>} />
                     

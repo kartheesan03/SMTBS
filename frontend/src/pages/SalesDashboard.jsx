@@ -333,7 +333,7 @@ const SalesDashboard = () => {
                                 {[
                                     { path: '/crm/leads', name: 'Lead Management', icon: Filter, color: '#3b82f6' },
                                     { path: '/crm/pipeline', name: 'Pipeline Overview', icon: Layers, color: '#8b5cf6' },
-                                    { path: '/customers', name: 'Customer Directory', icon: Users, color: '#10b981' },
+                                    { path: '/crm/customers', name: 'Customer Directory', icon: Users, color: '#10b981' },
                                     { path: '/sales/revenue', name: 'Revenue Tracking', icon: DollarSign, color: '#f59e0b' },
                                     { path: '/sales/goals', name: 'Sales Goals', icon: Target, color: '#ec4899' },
                                     { path: '/quotations', name: 'Quotations', icon: FileText, color: '#64748b' }
