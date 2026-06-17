@@ -29,7 +29,7 @@ const EmployeeDashboard = () => {
         try {
             const [dashRes, taskRes, ordRes, attRes, levRes, salRes, notifRes] = await Promise.all([
                 API.get('/dashboard/stats').catch(() => ({ data: {} })),
-                API.get('/tasks').catch(() => ({ data: [] })),
+                API.get('/tasks/my').catch(() => API.get('/tasks').catch(() => ({ data: [] }))),
                 API.get('/orders').catch(() => ({ data: [] })),
                 API.get('/attendances').catch(() => ({ data: [] })),
                 API.get('/leaves').catch(() => ({ data: [] })),
@@ -75,7 +75,21 @@ const EmployeeDashboard = () => {
     const salariesArray = safeArray(salariesData, 'salaries');
     const notificationsArray = safeArray(notificationsData, 'notifications');
 
-    const myTasksList = tasksArray.filter(t => t.assignedTo === userId || t.employeeId === userId);
+    const parseJSON = (val) => {
+        if (Array.isArray(val)) return val;
+        if (typeof val === 'string') { try { return JSON.parse(val); } catch { return []; } }
+        return [];
+    };
+
+    const myTasksList = tasksArray.map(task => {
+        const completions = parseJSON(task.completions);
+        const userStatus = completions.find(c => {
+            const uid = c.user?._id || c.user?.id || c.user;
+            return String(uid) === String(userId);
+        })?.status || 'Pending';
+        return { ...task, userStatus };
+    });
+
     const myOrdersList = ordersArray.filter(o => o.employeeId === userId || o.assignedTo === userId || o.createdById === userId);
     const myAttendancesList = attendancesArray.filter(a => a.employeeId === userId || a.userId === userId);
     const myLeavesList = leavesArray.filter(l => l.employeeId === userId || l.userId === userId);
@@ -111,8 +125,8 @@ const EmployeeDashboard = () => {
         }
     }
     
-    const pendingTasks = myTasksList.filter(t => t.status === 'Pending' || t.status === 'In Progress').length;
-    const assignedProjects = myOrdersList.length;
+    const pendingTasks = myTasksList.filter(t => t.userStatus === 'Pending' || t.userStatus === 'In Progress').length;
+    const assignedProjects = myTasksList.length;
     const leaveBalance = myLeavesList.filter(l => l.status === 'Pending').length;
     
     const currentMonth = new Date().toLocaleString('default', { month: 'long' });
@@ -144,13 +158,13 @@ const EmployeeDashboard = () => {
     if (lateCount > 0) myAttendanceData.push({ name: 'Late', value: lateCount, fill: '#f59e0b' });
 
     const myTasks = myTasksList
-        .filter(t => t.status !== 'Completed' && t.status !== 'Done')
+        .filter(t => t.userStatus !== 'Completed' && t.userStatus !== 'Done')
         .slice(0, 5)
         .map((t, index) => ({
             id: t._id || t.id || index,
             title: t.title || t.description || 'Task',
             priority: t.priority || 'Medium',
-            status: t.status || 'Pending',
+            status: t.userStatus || 'Pending',
             due: t.dueDate ? new Date(t.dueDate).toLocaleDateString() : 'N/A'
         }));
 
