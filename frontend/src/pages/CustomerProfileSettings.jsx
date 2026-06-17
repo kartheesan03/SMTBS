@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import API from '../api/axios';
-import { User, Building2, Key, MapPin, Globe, Phone, Mail, FileText, Activity, AlertTriangle, X, Calendar, Edit2 } from 'lucide-react';
+import { User, Building2, Key, MapPin, Globe, Phone, Mail, FileText, Activity, AlertTriangle, X, Calendar, Edit2, Save } from 'lucide-react';
 
 const CustomerProfileSettings = () => {
     const { user, updateUser } = useContext(AuthContext);
@@ -164,65 +164,80 @@ const CustomerProfileSettings = () => {
                                 <div className="info-row"><label>Address</label><span>{formData.address || 'Not provided'}</span></div>
                             </div>
                         ) : (
-                            <form className="ui-form" onSubmit={handleUpdate}>
-                                <div className="form-row-2">
+                            <form className="page-form" onSubmit={handleUpdate}>
+                                <div className="form-grid">
                                     <div className="form-group">
-                                        <label>Full Name <span style={{color: '#ef4444'}}>*</span></label>
+                                        <label>Full Name <span className="req">*</span></label>
                                         <div className="input-with-icon">
-                                            <span className="input-icon"><User size={14}/></span>
+                                            <User size={16} />
                                             <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="John Doe" required />
                                         </div>
                                     </div>
                                     <div className="form-group">
-                                        <label>Company Name</label>
+                                        <label>Organization Name / Company Name</label>
                                         <div className="input-with-icon">
-                                            <span className="input-icon"><Building2 size={14}/></span>
+                                            <Building2 size={16} />
                                             <input type="text" value={formData.company} onChange={e => setFormData({...formData, company: e.target.value})} placeholder="Individual Customer" />
                                         </div>
                                     </div>
                                 </div>
                                 
-                                <div className="form-row-2">
+                                <div className="form-grid">
+                                    <div className="form-group">
+                                        <label>Lifecycle Status</label>
+                                        <input type="text" value={formData.status} disabled style={{ backgroundColor: '#f8fafc', color: '#94a3b8', cursor: 'not-allowed' }} />
+                                    </div>
                                     <div className="form-group">
                                         <label>Email Address</label>
                                         <div className="input-with-icon">
-                                            <span className="input-icon"><Mail size={14}/></span>
-                                            <input type="email" value={user?.email} disabled className="input-disabled" />
+                                            <Mail size={16} />
+                                            <input type="email" value={user?.email} disabled style={{ backgroundColor: '#f8fafc', color: '#94a3b8', cursor: 'not-allowed' }} />
                                         </div>
-                                        <span className="input-helper">Email cannot be changed</span>
                                     </div>
+                                </div>
+
+                                <div className="form-grid">
                                     <div className="form-group">
-                                        <label>Phone Number <span style={{color: '#ef4444'}}>*</span></label>
+                                        <label>Phone Number <span className="req">*</span></label>
                                         <div className="input-with-icon">
-                                            <span className="input-icon"><Phone size={14}/></span>
+                                            <Phone size={16} />
                                             <input type="text" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} placeholder="+1 (555) 123-4567" required />
                                         </div>
                                     </div>
+                                    <div className="form-group">
+                                        <label>Industry</label>
+                                        <input type="text" value={formData.industry} onChange={e => setFormData({...formData, industry: e.target.value})} placeholder="e.g. Manufacturing, Retail" />
+                                    </div>
                                 </div>
 
-                                <div className="form-row-2">
+                                <div className="form-grid">
+                                    <div className="form-group">
+                                        <label>Website (Optional)</label>
+                                        <div className="input-with-icon">
+                                            <Globe size={16} />
+                                            <input type="url" value={formData.website} onChange={e => setFormData({...formData, website: e.target.value})} placeholder="https://www.acmecorp.com" />
+                                        </div>
+                                    </div>
                                     <div className="form-group">
                                         <label>GST Number (Optional)</label>
                                         <div className="input-with-icon">
-                                            <span className="input-icon"><FileText size={14}/></span>
+                                            <FileText size={16} />
                                             <input type="text" value={formData.gstNumber} onChange={e => setFormData({...formData, gstNumber: e.target.value})} placeholder="e.g. 22AAAAA0000A1Z5" />
-                                        </div>
-                                    </div>
-                                    <div className="form-group">
-                                        <label>Primary Address <span style={{color: '#ef4444'}}>*</span></label>
-                                        <div className="input-with-icon">
-                                            <span className="input-icon"><MapPin size={14}/></span>
-                                            <input type="text" value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} placeholder="123 Business Rd, Tech Park, City, ZIP" required />
                                         </div>
                                     </div>
                                 </div>
 
-                                <div style={{display: 'flex', gap: '12px', marginTop: '24px'}}>
-                                    <button type="button" className="btn-cancel" onClick={() => setIsEditing(false)} style={{flex: 1}}>
-                                        Cancel
+                                <div className="form-group">
+                                    <label>Primary Address <span className="req">*</span></label>
+                                    <input type="text" value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} placeholder="123 Business Rd, Tech Park, City, ZIP" required />
+                                </div>
+
+                                <div className="form-actions">
+                                    <button type="button" className="btn-cancel" onClick={() => setIsEditing(false)}>
+                                        <X size={18} /> Cancel
                                     </button>
-                                    <button type="submit" className="btn-save-full" style={{flex: 2, marginTop: 0}}>
-                                        <span>💾</span> Save Changes
+                                    <button type="submit" className="btn-primary">
+                                        <Save size={18} /> Save Changes
                                     </button>
                                 </div>
                             </form>
@@ -412,111 +427,31 @@ const CustomerProfileSettings = () => {
                     color: #1e293b;
                 }
 
-                .ui-form {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 16px;
-                }
-                .form-row-2 {
-                    display: grid;
-                    grid-template-columns: 1fr 1fr;
-                    gap: 16px;
-                }
-                .form-group {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 6px;
-                }
-                .form-group label {
-                    font-size: 13px;
-                    font-weight: 500;
-                    color: #64748b;
-                }
-                .ui-form input {
-                    padding: 10px 14px;
-                    border: 1px solid #cbd5e1;
-                    border-radius: 6px;
-                    font-size: 14px;
-                    color: #334155;
-                    outline: none;
-                    transition: border-color 0.2s;
-                }
-                .ui-form input:focus {
-                    border-color: #2563eb;
-                    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-                }
-                .input-disabled {
-                    background-color: #f8fafc;
-                    color: #94a3b8 !important;
-                    cursor: not-allowed;
-                }
-                .input-helper {
-                    font-size: 11px;
-                    color: #94a3b8;
-                }
-                .profile-read-only {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 16px;
-                }
-                .info-row {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 4px;
-                    padding-bottom: 12px;
-                    border-bottom: 1px solid #f1f5f9;
-                }
-                .info-row:last-child {
-                    border-bottom: none;
-                }
-                .info-row label {
-                    font-size: 13px;
-                    color: #64748b;
-                    font-weight: 500;
-                }
-                .info-row span {
-                    font-size: 15px;
-                    color: #1e293b;
-                    font-weight: 500;
-                }
+                .page-form { display: flex; flex-direction: column; }
                 
-                .input-with-icon {
-                    position: relative;
-                    display: flex;
-                    align-items: center;
+                .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+                .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 20px; }
+                .form-group:last-child { margin-bottom: 0; }
+                .form-group label { font-size: 13px; font-weight: 600; color: #475569; }
+                
+                .req { color: #ef4444; margin-left: 2px; }
+                
+                .input-with-icon { display: flex; align-items: center; gap: 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0 12px; transition: all 0.2s; }
+                .input-with-icon:focus-within { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); background: #ffffff; }
+                .input-with-icon input { background: none; border: none; padding: 12px 0; color: #0f172a; width: 100%; font-size: 15px; outline: none; }
+                
+                .form-group input:not([type]), .form-group input[type="text"], .form-group input[type="email"], .form-group input[type="url"], .form-group select, .form-group textarea, .form-group input:disabled {
+                    padding: 12px 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; color: #0f172a; font-size: 15px; outline: none; transition: all 0.2s;
                 }
-                .input-with-icon input {
-                    width: 100%;
-                    padding-left: 36px;
-                }
-                .input-icon {
-                    position: absolute;
-                    left: 12px;
-                    color: #94a3b8;
-                    font-size: 14px;
-                    display: flex;
-                    align-items: center;
-                }
-
-                .btn-save-full {
-                    width: 100%;
-                    background: #2563eb;
-                    color: white;
-                    border: none;
-                    padding: 12px;
-                    border-radius: 6px;
-                    font-size: 14px;
-                    font-weight: 600;
-                    cursor: pointer;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    gap: 8px;
-                    transition: background 0.2s;
-                }
-                .btn-save-full:hover {
-                    background: #1d4ed8;
-                }
+                .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); background: #ffffff; }
+                .form-group input:disabled { color: #94a3b8; }
+                
+                .form-actions { display: flex; justify-content: flex-end; gap: 15px; margin-top: 20px; padding-top: 24px; border-top: 1px solid #e2e8f0; }
+                .btn-cancel { display: flex; align-items: center; gap: 8px; background: #ffffff; color: #475569; border: 1px solid #cbd5e1; padding: 10px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; transition: all 0.2s; }
+                .btn-cancel:hover { background: #f8fafc; color: #0f172a; border-color: #94a3b8; }
+                
+                .btn-primary { display: flex; align-items: center; gap: 8px; background: #6366f1; color: #ffffff; border: none; padding: 10px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; transition: all 0.2s; }
+                .btn-primary:hover:not(:disabled) { background: #4f46e5; transform: translateY(-1px); }
                 .btn-outline-purple {
                     background: transparent;
                     color: #2563eb;
