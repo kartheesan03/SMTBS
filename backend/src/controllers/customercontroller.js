@@ -265,9 +265,11 @@ const createCustomerProfile = async (req, res) => {
 // @access  Private/Customer
 const updateMyCustomerProfile = async (req, res) => {
     try {
-        const customer = await Customer.findOne({ userId: req.user._id });
+        let customer = await Customer.findOne({ userId: req.user._id });
+        
+        // Match CRM customer record using userId first, email as fallback
         if (!customer) {
-            return res.status(404).json({ message: 'Customer profile not found' });
+            customer = await Customer.findOne({ email: req.user.email });
         }
 
         const updateData = { ...req.body };
@@ -276,12 +278,49 @@ const updateMyCustomerProfile = async (req, res) => {
         delete updateData.createdBy;
         delete updateData.status;
 
-        if (!updateData.company && updateData.name) {
-            updateData.company = updateData.name;
+        if (!customer) {
+            // If CRM customer record does not exist: Create one automatically.
+            customer = new Customer({
+                userId: req.user._id,
+                createdBy: req.user._id,
+                email: req.user.email,
+                status: 'Active',
+                ...updateData
+            });
+        } else {
+            // Update existing customer record
+            Object.assign(customer, updateData);
+            // Ensure userId is linked if it matched by email fallback
+            if (!customer.userId) {
+                customer.userId = req.user._id;
+            }
         }
 
-        Object.assign(customer, updateData);
         const updatedCustomer = await customer.save();
+
+        // Update User table
+        const User = require('../models/User');
+        const user = await User.findById(req.user._id);
+        if (user) {
+            let userModified = false;
+            if (updateData.name && user.name !== updateData.name) {
+                user.name = updateData.name;
+                userModified = true;
+            }
+            if (updateData.phone && user.phone !== updateData.phone) {
+                user.phone = updateData.phone;
+                userModified = true;
+            }
+            // Only sync email if it's explicitly provided and valid
+            if (updateData.email && user.email !== updateData.email) {
+                user.email = updateData.email;
+                userModified = true;
+            }
+            
+            if (userModified) {
+                await user.save();
+            }
+        }
 
         await logAudit({
             user: req.user,
