@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import DataTable from '../components/Dashboard/DataTable';
 import StatCard from '../components/Dashboard/StatCard';
-import { Calendar, CheckCircle, XCircle, Search, Filter, Users, Clock, Eye } from 'lucide-react';
+import { Calendar, CheckCircle, XCircle, Search, Filter, Users, Clock, Eye, History } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
+import AttendanceHistoryTable from '../components/Dashboard/AttendanceHistoryTable';
 
 const Attendance = () => {
     const [attendanceData, setAttendanceData] = useState(null);
@@ -12,6 +13,7 @@ const Attendance = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [filterDate, setFilterDate] = useState(new Date().toISOString().split('T')[0]);
     const [filterDept, setFilterDept] = useState('All');
+    const [viewMode, setViewMode] = useState('today'); // 'today' or 'history'
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -101,11 +103,28 @@ const Attendance = () => {
     return (
         <div className="module-container">
             <header className="module-header">
-                <div>
-                    <h1 className="title-gradient">Master Attendance Log</h1>
-                    <p className="text-muted">Review and oversee daily check-ins across all departments.</p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <div>
+                        <h1 className="title-gradient">Master Attendance Log</h1>
+                        <p className="text-muted">Review and oversee daily check-ins across all departments.</p>
+                    </div>
+                    <div className="tab-group" style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                        <button 
+                            className={`tab-btn ${viewMode === 'today' ? 'active' : ''}`}
+                            onClick={() => setViewMode('today')}
+                        >
+                            <Calendar size={16}/> Today's Log
+                        </button>
+                        <button 
+                            className={`tab-btn ${viewMode === 'history' ? 'active' : ''}`}
+                            onClick={() => setViewMode('history')}
+                        >
+                            <History size={16}/> Attendance History
+                        </button>
+                    </div>
                 </div>
-                <div className="header-actions">
+                {viewMode === 'today' && (
+                    <div className="header-actions">
                     <div className="search-bar-sm glass-card">
                         <Search size={16}/>
                         <input 
@@ -116,9 +135,14 @@ const Attendance = () => {
                         />
                     </div>
                 </div>
+                )}
             </header>
 
-            <div className="attendance-dashboard-grid mt-30">
+            {viewMode === 'history' ? (
+                <AttendanceHistoryTable isEmployeeView={false} />
+            ) : (
+                <>
+                    <div className="attendance-dashboard-grid mt-30">
                 <StatCard 
                     title="Total Employees" 
                     value={totalCount} 
@@ -209,6 +233,7 @@ const Attendance = () => {
                     }}
                 />
             </div>
+            )}
 
             <style jsx="true">{`
                 .module-container { padding: 30px; background-color: var(--bg-body); min-height: 100vh; font-family: 'Outfit', sans-serif; color: var(--text-primary); }
@@ -220,6 +245,10 @@ const Attendance = () => {
                 .search-bar-sm:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-50); }
                 .search-bar-sm input { background: none; border: none; color: var(--text-primary); width: 100%; outline: none; font-size: 14px; }
                 
+                .tab-btn { display: flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-muted); transition: all 0.2s; }
+                .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+                .tab-btn:hover:not(.active) { background: rgba(255,255,255,0.05); color: var(--text-primary); }
+
                 .attendance-controls { display: flex; gap: 15px; flex-wrap: wrap; }
                 .date-selector, .dept-selector { padding: 12px 18px; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 10px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md, 8px); box-shadow: var(--shadow-sm); color: var(--text-primary); transition: all 0.2s; }
                 .date-selector:focus-within, .dept-selector:focus-within { border-color: var(--primary); }

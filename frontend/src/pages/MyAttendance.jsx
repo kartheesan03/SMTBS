@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import DataTable from '../components/Dashboard/DataTable';
+import AttendanceHistoryTable from '../components/Dashboard/AttendanceHistoryTable';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip } from 'recharts';
 import { Clock, Calendar, CheckCircle, Play, Square, Timer } from 'lucide-react';
 import API from '../api/axios';
@@ -273,26 +274,7 @@ const MyAttendance = () => {
             </div>
 
             <div className="module-content mt-30">
-                <DataTable 
-                    title="Recent Daily Logs"
-                    headers={['Date', 'Shift', 'Check In', 'Check Out', 'Total Hours', 'Status']}
-                    data={history}
-                    emptyText="No attendance records found."
-                    renderRow={(a) => (
-                        <tr key={a._id || a.date}>
-                            <td><strong>{new Date(a.date).toLocaleDateString()}</strong></td>
-                            <td>{a.shift || 'Day'}</td>
-                            <td>{formatTime(a.checkIn, a.date)}</td>
-                            <td>{formatTime(a.checkOut, a.date)}</td>
-                            <td>{calculateDuration(a.checkIn, a.checkOut, a.date)}</td>
-                            <td>
-                                <span className={a.status === '-' ? '' : `status-pill ${a.status.toLowerCase().replace(/ /g, '-')}`}>
-                                    {a.status}
-                                </span>
-                            </td>
-                        </tr>
-                    )}
-                />
+                <AttendanceHistoryTable isEmployeeView={true} />
             </div>
 
             <style jsx="true">{`

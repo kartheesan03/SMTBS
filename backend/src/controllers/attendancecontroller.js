@@ -443,6 +443,70 @@ const getMonthlySummary = async (req, res) => {
     }
 };
 
+// @desc    Get attendance history with filters
+// @route   GET /api/attendance/history
+// @access  Private
+const getAttendanceHistory = async (req, res) => {
+    try {
+        const { fromDate, toDate, employeeName, department, status, employeeId } = req.query;
+        let query = {};
+
+        // Restrict to employee's own records if they are not an Admin/HR/Manager
+        let empIdToFilter = employeeId;
+        if (!['Admin', 'HR', 'Manager'].includes(req.user.role)) {
+            const employee = await Employee.findOne({ userId: req.user._id });
+            if (!employee) return res.json([]);
+            empIdToFilter = employee._id || employee.id;
+        }
+
+        if (empIdToFilter) {
+            query.employeeId = empIdToFilter;
+        }
+
+        if (fromDate || toDate) {
+            query.date = {};
+            if (fromDate) query.date.$gte = new Date(fromDate);
+            if (toDate) {
+                const endDate = new Date(toDate);
+                endDate.setHours(23, 59, 59, 999);
+                query.date.$lte = endDate;
+            }
+        }
+
+        if (status && status !== 'All') {
+            query.status = status;
+        }
+
+        // We populate employee first to allow filtering by department and employee name
+        let attendances = await Attendance.find(query)
+            .populate({
+                path: 'employee',
+                select: 'firstName lastName employeeId department'
+            })
+            .sort({ date: -1 })
+            .lean();
+
+        // Apply employee name and department filters in memory 
+        // (Since employee is a referenced document, Mongoose $match inside populate is possible but in-memory is simpler for this scale)
+        if (department && department !== 'All') {
+            attendances = attendances.filter(a => a.employee?.department === department);
+        }
+
+        if (employeeName && employeeName.trim() !== '') {
+            const searchLower = employeeName.toLowerCase();
+            attendances = attendances.filter(a => {
+                const fullName = `${a.employee?.firstName || ''} ${a.employee?.lastName || ''}`.toLowerCase();
+                return fullName.includes(searchLower);
+            });
+        }
+
+        res.json(attendances);
+    } catch (error) {
+        console.error('getAttendanceHistory error:', error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
 module.exports = {
     getAttendanceStatus,
     checkIn,
@@ -450,5 +514,6 @@ module.exports = {
     getMyAttendanceHistory,
     getAllAttendance,
     autoMarkAbsent,
-    getMonthlySummary
+    getMonthlySummary,
+    getAttendanceHistory
 };
