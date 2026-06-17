@@ -21,6 +21,23 @@ const createNotification = async (userId, title, message, type = 'info', referen
     }
 };
 
+const addHistory = (request, status, user) => {
+    let history = [];
+    if (request.history) {
+        try {
+            history = JSON.parse(request.history);
+        } catch (e) {
+            history = [];
+        }
+    }
+    history.push({
+        status,
+        timestamp: new Date().toISOString(),
+        user: { id: user.id || user._id, name: user.name, role: user.role }
+    });
+    request.history = JSON.stringify(history);
+};
+
 exports.createRequest = async (req, res) => {
     try {
         const { materialId, requiredQuantity, reason } = req.body;
@@ -37,6 +54,9 @@ exports.createRequest = async (req, res) => {
             reason,
             status: 'Pending'
         });
+        
+        addHistory(request, 'Pending', req.user);
+        await request.save();
 
         // Notify Managers and Admins
         const managers = await User.sequelizeModel.findAll({ where: { role: ['Manager', 'Admin'] } });
@@ -67,7 +87,7 @@ exports.getRequests = async (req, res) => {
         if (userRole === 'Employee') {
             whereClause.employeeId = userId;
         } else if (userRole === 'Sales') {
-            whereClause.status = ['Employee Approved', 'Processing', 'Dispatched', 'Delivered'];
+            whereClause.status = ['Manager Approved', 'Processing', 'Dispatched', 'Delivered'];
         }
 
         const requests = await StockRequest.sequelizeModel.findAll({
@@ -91,7 +111,7 @@ exports.getRequests = async (req, res) => {
 exports.managerAction = async (req, res) => {
     try {
         const { id } = req.params;
-        const { managerMessage, orderId } = req.body;
+        const { actionType, managerMessage } = req.body;
         const managerId = req.user.id || req.user._id;
 
         const request = await StockRequest.sequelizeModel.findByPk(id, {
@@ -105,59 +125,25 @@ exports.managerAction = async (req, res) => {
 
         request.managerId = managerId;
         request.managerMessage = managerMessage;
-        if (orderId) request.orderId = orderId;
-        request.status = 'Manager Action Taken';
         
-        await request.save();
+        let newStatus = 'Pending';
+        if (actionType === 'Approve' || actionType === 'CreatePO') {
+            newStatus = 'Manager Approved';
+            
+            if (actionType === 'CreatePO') {
+                const newOrder = await Order.sequelizeModel.create({
+                    orderNumber: `PO-${Date.now()}`,
+                    orderType: 'purchase',
+                    companyName: 'Internal Request',
+                    totalAmount: 0,
+                    status: 'Pending',
+                    paymentStatus: 'Pending',
+                    createdById: managerId
+                });
+                request.orderId = newOrder.id;
+            }
 
-        // Notify Employee
-        await createNotification(
-            request.employeeId,
-            'Manager Responded to Stock Request',
-            `Manager ${req.user.name} responded to your request for ${request.material.name}. Action required.`,
-            'info',
-            request.id
-        );
-
-        res.json(request);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Failed to process manager action' });
-    }
-};
-
-exports.employeeApproval = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { approved } = req.body;
-
-        const request = await StockRequest.sequelizeModel.findByPk(id, {
-            include: [{ model: Material.sequelizeModel, as: 'material' }]
-        });
-        if (!request) return res.status(404).json({ message: 'Request not found' });
-
-        // Ensure only the employee who created it can approve it
-        const userId = req.user.id || req.user._id;
-        if (request.employeeId !== userId && !['Admin', 'Manager'].includes(req.user.role)) {
-            return res.status(403).json({ message: 'Unauthorized to approve this request' });
-        }
-
-        request.status = approved ? 'Employee Approved' : 'Employee Rejected';
-        await request.save();
-
-        // Notify Manager
-        if (request.managerId) {
-            await createNotification(
-                request.managerId,
-                `Stock Request ${approved ? 'Approved' : 'Rejected'}`,
-                `Employee ${req.user.name} ${approved ? 'approved' : 'rejected'} your action for ${request.material.name}.`,
-                approved ? 'success' : 'error',
-                request.id
-            );
-        }
-
-        // Notify Sales if approved
-        if (approved) {
+            // Notify Sales if approved
             const salesTeam = await User.sequelizeModel.findAll({ where: { role: 'Sales' } });
             for (const sales of salesTeam) {
                 await createNotification(
@@ -168,12 +154,79 @@ exports.employeeApproval = async (req, res) => {
                     request.id
                 );
             }
+        } else if (actionType === 'Reject') {
+            newStatus = 'Rejected';
+        } else if (actionType === 'MoreInfo') {
+            newStatus = 'More Info Requested';
+        }
+
+        request.status = newStatus;
+        addHistory(request, newStatus, req.user);
+        
+        await request.save();
+
+        // Notify Employee
+        await createNotification(
+            request.employeeId,
+            `Manager ${actionType === 'Approve' || actionType === 'CreatePO' ? 'Approved' : 'Responded to'} Stock Request`,
+            `Manager ${req.user.name} responded to your request for ${request.material.name}: ${newStatus}.`,
+            actionType === 'Reject' ? 'error' : 'info',
+            request.id
+        );
+
+        res.json(request);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Failed to process manager action' });
+    }
+};
+
+exports.employeeReceive = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const request = await StockRequest.sequelizeModel.findByPk(id, {
+            include: [{ model: Material.sequelizeModel, as: 'material' }]
+        });
+        if (!request) return res.status(404).json({ message: 'Request not found' });
+
+        // Ensure only the employee who created it can receive it
+        const userId = req.user.id || req.user._id;
+        if (request.employeeId !== userId && !['Admin', 'Manager'].includes(req.user.role)) {
+            return res.status(403).json({ message: 'Unauthorized to receive this request' });
+        }
+
+        if (request.status !== 'Delivered') {
+            return res.status(400).json({ message: 'Cannot receive material that has not been delivered' });
+        }
+
+        request.status = 'Completed';
+        
+        // Add actual stock
+        const material = await Material.sequelizeModel.findByPk(request.materialId);
+        if (material) {
+            material.quantity += request.requiredQuantity;
+            await material.save();
+        }
+
+        addHistory(request, 'Completed', req.user);
+        await request.save();
+
+        // Notify Manager
+        if (request.managerId) {
+            await createNotification(
+                request.managerId,
+                `Stock Request Completed`,
+                `Employee ${req.user.name} has received the material for ${request.material.name}.`,
+                'success',
+                request.id
+            );
         }
 
         res.json(request);
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Failed to process employee approval' });
+        res.status(500).json({ message: 'Failed to process employee receive' });
     }
 };
 
@@ -198,16 +251,8 @@ exports.salesUpdate = async (req, res) => {
         if (!request) return res.status(404).json({ message: 'Request not found' });
 
         request.status = status;
+        addHistory(request, status, req.user);
         await request.save();
-
-        // Automatically update material quantity if delivered (simplified for this workflow, can be extended)
-        if (status === 'Delivered') {
-            const material = await Material.sequelizeModel.findByPk(request.materialId);
-            if (material) {
-                material.quantity += request.requiredQuantity;
-                await material.save();
-            }
-        }
 
         // Notify Employee and Manager
         const notificationMsg = `Sales updated delivery status of ${request.material.name} to ${status}.`;

@@ -39,12 +39,17 @@ const StockRequestSequelize = sequelize.define('StockRequest', {
         allowNull: true
     },
     status: {
-        type: DataTypes.ENUM('Pending', 'Manager Action Taken', 'Employee Approved', 'Employee Rejected', 'Processing', 'Dispatched', 'Delivered', 'Cancelled'),
+        type: DataTypes.ENUM('Pending', 'Manager Approved', 'Rejected', 'More Info Requested', 'Processing', 'Dispatched', 'Delivered', 'Cancelled', 'Completed'),
         defaultValue: 'Pending'
     },
     orderId: {
         type: DataTypes.INTEGER,
         allowNull: true
+    },
+    history: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+        defaultValue: '[]' // Will store JSON stringified array of { status, timestamp, user }
     }
 }, {
     timestamps: true

@@ -26,6 +26,10 @@ const StockRequests = () => {
     const [showSalesModal, setShowSalesModal] = useState(false);
     const [salesFormData, setSalesFormData] = useState({ id: '', status: 'Processing' });
 
+    // History Modal
+    const [showHistoryModal, setShowHistoryModal] = useState(false);
+    const [selectedHistory, setSelectedHistory] = useState('[]');
+
     useEffect(() => {
         fetchRequests();
     }, []);
@@ -49,22 +53,23 @@ const StockRequests = () => {
     const getStatusBadge = (status) => {
         switch (status) {
             case 'Pending': return <span className="status-badge-premium low">Pending</span>;
-            case 'Manager Action Taken': return <span className="status-badge-premium warn" style={{ background: '#fef3c7', color: '#b45309' }}>Manager Action Taken</span>;
-            case 'Employee Approved': return <span className="status-badge-premium ok">Employee Approved</span>;
-            case 'Employee Rejected': return <span className="status-badge-premium out">Rejected</span>;
+            case 'Manager Approved': return <span className="status-badge-premium ok">Manager Approved</span>;
+            case 'Rejected': return <span className="status-badge-premium out">Rejected</span>;
+            case 'More Info Requested': return <span className="status-badge-premium warn" style={{ background: '#fef3c7', color: '#b45309' }}>More Info Requested</span>;
             case 'Processing': return <span className="status-badge-premium" style={{ background: '#e0e7ff', color: '#4338ca' }}>Processing</span>;
             case 'Dispatched': return <span className="status-badge-premium" style={{ background: '#dbeafe', color: '#1d4ed8' }}>Dispatched</span>;
             case 'Delivered': return <span className="status-badge-premium" style={{ background: '#dcfce7', color: '#15803d' }}>Delivered</span>;
+            case 'Completed': return <span className="status-badge-premium" style={{ background: '#dcfce7', color: '#166534' }}>Completed</span>;
             case 'Cancelled': return <span className="status-badge-premium out">Cancelled</span>;
             default: return <span className="status-badge-premium">{status}</span>;
         }
     };
 
     // Employee Actions
-    const handleEmployeeApproval = async (id, approved) => {
+    const handleEmployeeReceive = async (id) => {
         try {
-            await API.put(`/stock-requests/${id}/employee-approval`, { approved });
-            showToast(approved ? 'Request Approved successfully.' : 'Request Rejected.');
+            await API.put(`/stock-requests/${id}/employee-receive`);
+            showToast('Material received and request completed.');
             fetchRequests();
         } catch (err) {
             showToast('Action failed.');
@@ -72,12 +77,11 @@ const StockRequests = () => {
     };
 
     // Manager Actions
-    const submitManagerAction = async (e) => {
-        e.preventDefault();
+    const submitManagerAction = async (actionType) => {
         try {
             await API.put(`/stock-requests/${managerFormData.id}/manager-action`, {
                 managerMessage: managerFormData.message,
-                orderId: managerFormData.orderId || null
+                actionType
             });
             setShowManagerModal(false);
             showToast('Manager response recorded.');
@@ -146,29 +150,31 @@ const StockRequests = () => {
                                         {req.managerMessage || '-'}
                                     </td>
                                     <td>
-                                        <div style={{ display: 'flex', gap: '8px' }}>
+                                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                                            <button className="btn-primary-blue" style={{ padding: '6px 12px', background: '#64748b', border: 'none' }} onClick={() => {
+                                                setSelectedHistory(req.history || '[]');
+                                                setShowHistoryModal(true);
+                                            }}>History</button>
+
                                             {/* Manager Button */}
                                             {(isManager || isAdmin || isSuperAdmin) && req.status === 'Pending' && (
                                                 <button className="btn-primary-blue" style={{ padding: '6px 12px', background: '#f59e0b', border: 'none' }} onClick={() => {
-                                                    setManagerFormData({ id: req.id, message: '', orderId: '' });
+                                                    setManagerFormData({ id: req.id, message: '' });
                                                     setShowManagerModal(true);
                                                 }}>
                                                     Take Action
                                                 </button>
                                             )}
 
-                                            {/* Employee Approval Buttons */}
-                                            {isEmployee && req.status === 'Manager Action Taken' && (
-                                                <>
-                                                    <button className="btn-primary-blue" style={{ padding: '6px 12px', background: '#10b981', border: 'none' }} onClick={() => handleEmployeeApproval(req.id, true)}>Approve</button>
-                                                    <button className="btn-primary-blue" style={{ padding: '6px 12px', background: '#ef4444', border: 'none' }} onClick={() => handleEmployeeApproval(req.id, false)}>Reject</button>
-                                                </>
+                                            {/* Employee Receive Button */}
+                                            {isEmployee && req.status === 'Delivered' && (
+                                                <button className="btn-primary-blue" style={{ padding: '6px 12px', background: '#10b981', border: 'none' }} onClick={() => handleEmployeeReceive(req.id)}>Mark as Received</button>
                                             )}
 
                                             {/* Sales Delivery Update Button */}
-                                            {(isSales || isAdmin || isSuperAdmin) && ['Employee Approved', 'Processing', 'Dispatched'].includes(req.status) && (
+                                            {(isSales || isAdmin || isSuperAdmin) && ['Manager Approved', 'Processing', 'Dispatched'].includes(req.status) && (
                                                 <button className="btn-primary-blue" style={{ padding: '6px 12px', background: '#3b82f6', border: 'none' }} onClick={() => {
-                                                    setSalesFormData({ id: req.id, status: req.status === 'Employee Approved' ? 'Processing' : req.status });
+                                                    setSalesFormData({ id: req.id, status: req.status === 'Manager Approved' ? 'Processing' : req.status });
                                                     setShowSalesModal(true);
                                                 }}>
                                                     Update Delivery
@@ -191,20 +197,19 @@ const StockRequests = () => {
                             <h2>Manager Action</h2>
                             <button className="close-btn" onClick={() => setShowManagerModal(false)}>✕</button>
                         </div>
-                        <form onSubmit={submitManagerAction} className="modal-form">
-                            <div className="form-group" style={{ marginBottom: '16px' }}>
+                        <div className="modal-form">
+                            <div className="form-group" style={{ marginBottom: '24px' }}>
                                 <label>Manager Message / Note</label>
                                 <textarea rows="3" required placeholder="Let the employee know your decision..." value={managerFormData.message} onChange={e => setManagerFormData({ ...managerFormData, message: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0' }}></textarea>
                             </div>
-                            <div className="form-group" style={{ marginBottom: '24px' }}>
-                                <label>Linked Purchase Order ID (Optional)</label>
-                                <input type="number" placeholder="Order ID" value={managerFormData.orderId} onChange={e => setManagerFormData({ ...managerFormData, orderId: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0' }} />
-                            </div>
-                            <div className="modal-actions" style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+                            <div className="modal-actions" style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
                                 <button type="button" onClick={() => setShowManagerModal(false)} style={{ padding: '10px 16px', background: 'transparent', border: '1px solid #cbd5e1', borderRadius: '8px', cursor: 'pointer' }}>Cancel</button>
-                                <button type="submit" style={{ padding: '10px 16px', background: '#f59e0b', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>Send to Employee</button>
+                                <button type="button" onClick={() => submitManagerAction('MoreInfo')} style={{ padding: '10px 16px', background: '#f59e0b', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>Request More Info</button>
+                                <button type="button" onClick={() => submitManagerAction('Reject')} style={{ padding: '10px 16px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>Reject</button>
+                                <button type="button" onClick={() => submitManagerAction('Approve')} style={{ padding: '10px 16px', background: '#10b981', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>Approve Request</button>
+                                <button type="button" onClick={() => submitManagerAction('CreatePO')} style={{ padding: '10px 16px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>Create Purchase Order</button>
                             </div>
-                        </form>
+                        </div>
                     </div>
                 </div>
             )}
@@ -232,6 +237,45 @@ const StockRequests = () => {
                                 <button type="submit" style={{ padding: '10px 16px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>Update Status</button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {/* History Modal */}
+            {showHistoryModal && (
+                <div className="modal-overlay">
+                    <div className="modal-content animate-pop" style={{ maxWidth: '500px' }}>
+                        <div className="modal-header">
+                            <h2>Request History</h2>
+                            <button className="close-btn" onClick={() => setShowHistoryModal(false)}>✕</button>
+                        </div>
+                        <div style={{ padding: '10px 0' }}>
+                            {(() => {
+                                let historyArray = [];
+                                try { historyArray = JSON.parse(selectedHistory); } catch(e){}
+                                if (!Array.isArray(historyArray) || historyArray.length === 0) {
+                                    return <p style={{ color: 'var(--text-muted)' }}>No history available for this request.</p>;
+                                }
+                                return (
+                                    <ul style={{ listStyleType: 'none', padding: 0, margin: 0 }}>
+                                        {historyArray.map((entry, i) => (
+                                            <li key={i} style={{ marginBottom: '16px', display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                                                <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#3b82f6', marginTop: '6px' }}></div>
+                                                <div>
+                                                    <div style={{ fontWeight: 'bold' }}>{entry.status}</div>
+                                                    <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
+                                                        {new Date(entry.timestamp).toLocaleString()} • by {entry.user?.name || 'System'} ({entry.user?.role || ''})
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                );
+                            })()}
+                        </div>
+                        <div className="modal-actions" style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
+                            <button type="button" onClick={() => setShowHistoryModal(false)} style={{ padding: '10px 16px', background: '#cbd5e1', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>Close</button>
+                        </div>
                     </div>
                 </div>
             )}
