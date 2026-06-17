@@ -4,6 +4,7 @@ import API from '../api/axios';
 import { AuthContext } from '../context/AuthContext';
 import { Mail, Lock, Eye, EyeOff, Box, Package, Archive, ShoppingCart, Truck, FileText, User, Phone, Shield } from 'lucide-react';
 import { useGoogleLogin } from '@react-oauth/google';
+import GoogleButton from '../components/GoogleButton';
 
 const Register = () => {
     const [name, setName] = useState('');
@@ -232,12 +233,7 @@ const Register = () => {
                                 <span>or continue with</span>
                             </div>
                             
-                            <div className="google-btn-wrapper">
-                                <button type="button" className="clean-mock-google-btn" onClick={() => handleGoogleSignup()}>
-                                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google logo" style={{width: '18px'}} />
-                                    Sign up with Google
-                                </button>
-                            </div>
+                            <GoogleButton text="Sign up with Google" onClick={() => handleGoogleSignup()} />
                             
                             <div className="signup-link-wrapper" style={{ marginTop: '12px' }}>
                                 Already have an account? <Link to="/login" className="signup-link">Sign in here</Link>
@@ -551,31 +547,6 @@ const Register = () => {
                     color: #94A3B8;
                     font-weight: 500;
                     margin: 0;
-                }
-
-                .clean-mock-google-btn {
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 12px;
-                    width: 100%;
-                    max-width: 300px;
-                    margin: 0 auto;
-                    background: #FFFFFF;
-                    border: 1px solid #DADCE0;
-                    border-radius: 4px;
-                    padding: 10px 14px;
-                    font-family: 'Roboto', sans-serif;
-                    font-size: 14px;
-                    font-weight: 500;
-                    color: #3C4043;
-                    cursor: pointer;
-                    transition: background-color 0.2s, box-shadow 0.2s;
-                }
-
-                .clean-mock-google-btn:hover {
-                    background: #F8FAFC;
-                    box-shadow: 0 1px 3px rgba(60,64,67,0.3);
                 }
 
                 /* Responsive */

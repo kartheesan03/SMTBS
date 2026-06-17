@@ -254,6 +254,7 @@ const AppContent = () => {
 };
 
 const App = () => {
+    console.log("Google Client ID:", import.meta.env.VITE_GOOGLE_CLIENT_ID);
     return (
         <ErrorBoundary>
             <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
