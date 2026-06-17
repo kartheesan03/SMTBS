@@ -41,14 +41,21 @@ const CreateOrder = () => {
 
     const fetchData = async () => {
         try {
-            const [materialsRes, entityRes] = await Promise.all([
-                API.get('/materials'),
-                orderType === 'sales' 
-                    ? API.get(`/customers/${customerId}`)
-                    : API.get(`/vendors/${vendorId}`)
-            ]);
-            setMaterials(materialsRes.data);
-            setSelectedEntity(entityRes.data);
+            if (orderType === 'sales') {
+                const [materialsRes, entityRes] = await Promise.all([
+                    API.get('/materials'),
+                    API.get(`/customers/${customerId}`)
+                ]);
+                setMaterials(materialsRes.data);
+                setSelectedEntity(entityRes.data);
+            } else {
+                const [vendorMatsRes, entityRes] = await Promise.all([
+                    API.get(`/vendors/${vendorId}/materials`),
+                    API.get(`/vendors/${vendorId}`)
+                ]);
+                setMaterials(vendorMatsRes.data);
+                setSelectedEntity(entityRes.data.vendor);
+            }
         } catch (error) {
             console.error("Error fetching data:", error);
             alert("Failed to load details. Redirecting...");
@@ -154,7 +161,7 @@ const CreateOrder = () => {
                                     Email: {selectedEntity.email || 'N/A'} <br/>
                                     Phone: {selectedEntity.phone || 'N/A'} <br/>
                                     {!isSales && (
-                                        <>Materials Supplied: {selectedEntity.materialsSupplied?.length ? selectedEntity.materialsSupplied.join(', ') : 'None'}</>
+                                        <>Materials Supplied: {materials.length > 0 ? materials.map(m => m.name).join(', ') : 'None'}</>
                                     )}
                                 </div>
                             </div>
@@ -187,13 +194,10 @@ const CreateOrder = () => {
                                         }}
                                     >
                                         <option value="">Select Material...</option>
-                                        {(!isSales && selectedEntity.materialsSupplied && selectedEntity.materialsSupplied.length === 0) ? (
+                                        {(!isSales && materials.length === 0) ? (
                                             <option value="" disabled>No materials assigned to this vendor.</option>
                                         ) : (
-                                            (!isSales && selectedEntity.materialsSupplied 
-                                                ? materials.filter(m => selectedEntity.materialsSupplied.includes(m.name)) 
-                                                : materials
-                                            ).map(m => <option key={m.id || m._id} value={m.id || m._id}>{m.name}</option>)
+                                            materials.map(m => <option key={m.id || m._id} value={m.id || m._id}>{m.name}</option>)
                                         )}
                                     </select>
                                     

@@ -40,6 +40,15 @@ exports.getVendorById = async (req, res) => {
     }
 };
 
+exports.getVendorMaterials = async (req, res) => {
+    try {
+        const materials = await Material.find({ vendorId: req.params.id });
+        res.status(200).json(materials);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 exports.createVendor = async (req, res) => {
     try {
         const vendorData = { ...req.body };
