@@ -53,6 +53,10 @@ const CustomerSequelize = sequelize.define('Customer', {
         type: DataTypes.STRING,
         defaultValue: 'Active'
     },
+    gstNumber: {
+        type: DataTypes.STRING,
+        allowNull: true
+    }
 });
 
 const Customer = makeBridgedModel('Customer', CustomerSequelize);

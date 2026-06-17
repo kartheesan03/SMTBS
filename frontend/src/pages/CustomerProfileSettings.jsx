@@ -1,12 +1,13 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import API from '../api/axios';
-import { User, Building2, Key, MapPin, Globe, Phone, Mail, FileText, Activity, AlertTriangle, X } from 'lucide-react';
+import { User, Building2, Key, MapPin, Globe, Phone, Mail, FileText, Activity, AlertTriangle, X, Calendar, Edit2 } from 'lucide-react';
 
 const CustomerProfileSettings = () => {
     const { user, updateUser } = useContext(AuthContext);
     const [customerData, setCustomerData] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [isEditing, setIsEditing] = useState(false);
 
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [deleteConfirmText, setDeleteConfirmText] = useState('');
@@ -15,11 +16,13 @@ const CustomerProfileSettings = () => {
 
     const [formData, setFormData] = useState({
         name: '',
+        company: '',
         status: '',
         phone: '',
         industry: '',
         website: '',
         address: '',
+        gstNumber: '',
         notes: ''
     });
 
@@ -31,11 +34,13 @@ const CustomerProfileSettings = () => {
                     setCustomerData(data);
                     setFormData({
                         name: data.name || user?.name || '',
+                        company: data.company === 'Pending Details' ? 'Individual Customer' : (data.company || 'Individual Customer'),
                         status: data.status || '',
                         phone: data.phone || '',
                         industry: data.industry || '',
                         website: data.website || '',
                         address: data.address || '',
+                        gstNumber: data.gstNumber || '',
                         notes: data.notes || ''
                     });
                 }
@@ -57,7 +62,9 @@ const CustomerProfileSettings = () => {
     const handleUpdate = async (e) => {
         e.preventDefault();
         try {
-            const { data } = await API.put(`/customers/profile`, formData);
+            const payload = { ...formData };
+            if (!payload.company || payload.company === 'Pending Details') payload.company = 'Individual Customer';
+            const { data } = await API.put(`/customers/profile`, payload);
             setCustomerData(data);
             
             // Update auth context name if changed
@@ -66,6 +73,7 @@ const CustomerProfileSettings = () => {
                 updateUser(authRes.data);
             }
             
+            setIsEditing(false);
             alert('Customer Profile Updated Successfully');
         } catch (err) {
             alert(err.response?.data?.message || 'Error updating profile');
@@ -117,16 +125,24 @@ const CustomerProfileSettings = () => {
             {/* Top Banner Card */}
             <div className="profile-banner-card">
                 <div className="banner-avatar">
-                    {initials}
+                    {user?.picture ? <img src={user.picture} alt="Avatar" style={{width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover'}} /> : initials}
                 </div>
                 <div className="banner-info">
                     <h2>{formData.name || user?.name}</h2>
                     <p className="text-email">{user?.email}</p>
                     <div className="banner-badges">
                         <span className="badge-role">Customer</span>
-                        {formData.industry && <span className="badge-company"><Building2 size={12} style={{marginRight: '4px'}}/> {formData.industry}</span>}
+                        <span className="badge-company"><Building2 size={12} style={{marginRight: '4px'}}/> {formData.company || 'Individual Customer'}</span>
+                        <span className="badge-date" style={{ background: '#f1f5f9', color: '#475569', padding: '4px 10px', borderRadius: '4px', fontSize: '12px', fontWeight: '600', display: 'flex', alignItems: 'center' }}>
+                            <Calendar size={12} style={{marginRight: '4px'}}/> Joined: {new Date(user?.createdAt || Date.now()).toLocaleDateString()}
+                        </span>
                     </div>
                 </div>
+                {!isEditing && (
+                    <button className="btn-outline-purple" onClick={() => setIsEditing(true)} style={{marginLeft: 'auto', marginTop: 0}}>
+                        <Edit2 size={16} style={{marginRight: '6px', verticalAlign: 'text-bottom'}} /> Edit Profile
+                    </button>
+                )}
             </div>
 
             <div className="profile-grid">
@@ -137,88 +153,80 @@ const CustomerProfileSettings = () => {
                             <Building2 size={18} className="header-icon purple-icon" />
                             <h3>Organization Profile</h3>
                         </div>
-                        <form className="ui-form" onSubmit={handleUpdate}>
-                            <div className="form-row-2">
-                                <div className="form-group">
-                                    <label>Organization Name <span style={{color: '#ef4444'}}>*</span></label>
-                                    <div className="input-with-icon">
-                                        <span className="input-icon"><Building2 size={14}/></span>
-                                        <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="e.g. Acme Corporation" required />
-                                    </div>
-                                </div>
-                                <div className="form-group">
-                                    <label>Lifecycle Status</label>
-                                    <div className="input-with-icon">
-                                        <span className="input-icon"><Activity size={14}/></span>
-                                        <input type="text" value={formData.status} onChange={e => setFormData({...formData, status: e.target.value})} placeholder="e.g. Active, Prospect" />
-                                    </div>
-                                </div>
+                        
+                        {!isEditing ? (
+                            <div className="profile-read-only">
+                                <div className="info-row"><label>Full Name</label><span>{formData.name}</span></div>
+                                <div className="info-row"><label>Company Name</label><span>{formData.company || 'Individual Customer'}</span></div>
+                                <div className="info-row"><label>Email Address</label><span>{user?.email}</span></div>
+                                <div className="info-row"><label>Phone Number</label><span>{formData.phone || 'Not provided'}</span></div>
+                                <div className="info-row"><label>GST Number</label><span>{formData.gstNumber || 'Not provided'}</span></div>
+                                <div className="info-row"><label>Address</label><span>{formData.address || 'Not provided'}</span></div>
                             </div>
-                            
-                            <div className="form-row-2">
-                                <div className="form-group">
-                                    <label>Email Address</label>
-                                    <div className="input-with-icon">
-                                        <span className="input-icon"><Mail size={14}/></span>
-                                        <input type="email" value={user?.email} disabled className="input-disabled" />
+                        ) : (
+                            <form className="ui-form" onSubmit={handleUpdate}>
+                                <div className="form-row-2">
+                                    <div className="form-group">
+                                        <label>Full Name <span style={{color: '#ef4444'}}>*</span></label>
+                                        <div className="input-with-icon">
+                                            <span className="input-icon"><User size={14}/></span>
+                                            <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="John Doe" required />
+                                        </div>
                                     </div>
-                                    <span className="input-helper">Email cannot be changed</span>
-                                </div>
-                                <div className="form-group">
-                                    <label>Phone Number <span style={{color: '#ef4444'}}>*</span></label>
-                                    <div className="input-with-icon">
-                                        <span className="input-icon"><Phone size={14}/></span>
-                                        <input type="text" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} placeholder="+1 (555) 123-4567" required />
+                                    <div className="form-group">
+                                        <label>Company Name</label>
+                                        <div className="input-with-icon">
+                                            <span className="input-icon"><Building2 size={14}/></span>
+                                            <input type="text" value={formData.company} onChange={e => setFormData({...formData, company: e.target.value})} placeholder="Individual Customer" />
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                                
+                                <div className="form-row-2">
+                                    <div className="form-group">
+                                        <label>Email Address</label>
+                                        <div className="input-with-icon">
+                                            <span className="input-icon"><Mail size={14}/></span>
+                                            <input type="email" value={user?.email} disabled className="input-disabled" />
+                                        </div>
+                                        <span className="input-helper">Email cannot be changed</span>
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Phone Number <span style={{color: '#ef4444'}}>*</span></label>
+                                        <div className="input-with-icon">
+                                            <span className="input-icon"><Phone size={14}/></span>
+                                            <input type="text" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} placeholder="+1 (555) 123-4567" required />
+                                        </div>
+                                    </div>
+                                </div>
 
-                            <div className="form-row-2">
-                                <div className="form-group">
-                                    <label>Industry</label>
-                                    <input type="text" value={formData.industry} onChange={e => setFormData({...formData, industry: e.target.value})} placeholder="e.g. Manufacturing, Retail" />
-                                </div>
-                                <div className="form-group">
-                                    <label>Website (Optional)</label>
-                                    <div className="input-with-icon">
-                                        <span className="input-icon"><Globe size={14}/></span>
-                                        <input type="url" value={formData.website} onChange={e => setFormData({...formData, website: e.target.value})} placeholder="https://www.acmecorp.com" />
+                                <div className="form-row-2">
+                                    <div className="form-group">
+                                        <label>GST Number (Optional)</label>
+                                        <div className="input-with-icon">
+                                            <span className="input-icon"><FileText size={14}/></span>
+                                            <input type="text" value={formData.gstNumber} onChange={e => setFormData({...formData, gstNumber: e.target.value})} placeholder="e.g. 22AAAAA0000A1Z5" />
+                                        </div>
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Primary Address <span style={{color: '#ef4444'}}>*</span></label>
+                                        <div className="input-with-icon">
+                                            <span className="input-icon"><MapPin size={14}/></span>
+                                            <input type="text" value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} placeholder="123 Business Rd, Tech Park, City, ZIP" required />
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div className="form-group">
-                                <label>Primary Address <span style={{color: '#ef4444'}}>*</span></label>
-                                <div className="input-with-icon">
-                                    <span className="input-icon"><MapPin size={14}/></span>
-                                    <input type="text" value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} placeholder="123 Business Rd, Tech Park, City, ZIP" required />
+                                <div style={{display: 'flex', gap: '12px', marginTop: '24px'}}>
+                                    <button type="button" className="btn-cancel" onClick={() => setIsEditing(false)} style={{flex: 1}}>
+                                        Cancel
+                                    </button>
+                                    <button type="submit" className="btn-save-full" style={{flex: 2, marginTop: 0}}>
+                                        <span>💾</span> Save Changes
+                                    </button>
                                 </div>
-                            </div>
-
-                            <div className="form-group">
-                                <label>Internal Notes</label>
-                                <textarea 
-                                    value={formData.notes} 
-                                    onChange={e => setFormData({...formData, notes: e.target.value})} 
-                                    placeholder="Key partnership details..."
-                                    rows="4"
-                                    style={{
-                                        width: '100%',
-                                        padding: '12px',
-                                        borderRadius: '6px',
-                                        border: '1px solid #cbd5e1',
-                                        outline: 'none',
-                                        resize: 'vertical',
-                                        fontFamily: 'inherit',
-                                        fontSize: '14px'
-                                    }}
-                                ></textarea>
-                            </div>
-                            
-                            <button type="submit" className="btn-save-full" style={{marginTop: '24px'}}>
-                                <span>💾</span> Save Changes
-                            </button>
-                        </form>
+                            </form>
+                        )}
                     </div>
                 </div>
 
@@ -445,6 +453,31 @@ const CustomerProfileSettings = () => {
                 .input-helper {
                     font-size: 11px;
                     color: #94a3b8;
+                }
+                .profile-read-only {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 16px;
+                }
+                .info-row {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 4px;
+                    padding-bottom: 12px;
+                    border-bottom: 1px solid #f1f5f9;
+                }
+                .info-row:last-child {
+                    border-bottom: none;
+                }
+                .info-row label {
+                    font-size: 13px;
+                    color: #64748b;
+                    font-weight: 500;
+                }
+                .info-row span {
+                    font-size: 15px;
+                    color: #1e293b;
+                    font-weight: 500;
                 }
                 
                 .input-with-icon {

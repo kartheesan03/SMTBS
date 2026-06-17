@@ -173,9 +173,10 @@ const googleAuth = async (req, res) => {
                     id: user.id || user._id,
                     name: user.name,
                     email: user.email,
-                    role: role,
+                    role: role || user.role,
                     picture: user.picture,
-                    isProfileComplete: user.isProfileComplete
+                    isProfileComplete: user.isProfileComplete,
+                    createdAt: user.createdAt
                 }
             });
         } else {
