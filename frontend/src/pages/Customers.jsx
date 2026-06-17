@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 import DataTable from '../components/Dashboard/DataTable';
 import { Users, Plus, Mail, Phone, ExternalLink, UserCheck, Edit2, Trash2, Globe, Building2, FileText, ArrowLeft, ShoppingCart, MessageSquare, LifeBuoy, Calendar, Clock, PhoneCall, Send, StickyNote, X, Download } from 'lucide-react';
+import CustomerForm from '../components/CustomerForm';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import ExcelJS from 'exceljs';
@@ -462,70 +463,20 @@ const Customers = ({ directoryOnly }) => {
                                 <h2>{editingId ? 'Edit Customer' : 'Add New Customer'}</h2>
                                 <button className="close-btn" onClick={handleCloseModal}>✕</button>
                             </div>
-                            <form onSubmit={handleSubmit} className="modal-form">
-                                <div className="form-grid">
-                                    <div className="form-group">
-                                        <label>Organization Name <span className="req">*</span></label>
-                                        <div className={`input-with-icon ${formErrors.name ? 'error-border' : ''}`}>
-                                            <Building2 size={16} />
-                                            <input type="text" value={formData.name} onChange={e => { setFormData({...formData, name: e.target.value}); if(formErrors.name) setFormErrors({...formErrors, name: null}); }} placeholder="e.g. Acme Corporation" />
-                                        </div>
-                                        {formErrors.name && <span className="error-text">{formErrors.name}</span>}
-                                    </div>
-                                    <div className="form-group">
-                                        <label>Lifecycle Status</label>
-                                        <input type="text" name="status" placeholder="Enter status (e.g., Active, Prospect, Inactive)" value={formData.status} onChange={e => setFormData({...formData, status: e.target.value})} />
-                                    </div>
-                                    <div className="form-group">
-                                        <label>Customer Type</label>
-                                        <select value={formData.customerType} onChange={e => setFormData({...formData, customerType: e.target.value})}>
-                                            <option value="Individual">Individual</option><option value="Company">Company</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div className="form-grid">
-                                    <div className="form-group">
-                                        <label>Email Address <span className="req">*</span></label>
-                                        <div className={`input-with-icon ${formErrors.email ? 'error-border' : ''}`}>
-                                            <Mail size={16} />
-                                            <input type="email" value={formData.email} onChange={e => { setFormData({...formData, email: e.target.value}); if(formErrors.email) setFormErrors({...formErrors, email: null}); }} placeholder="contact@acmecorp.com" />
-                                        </div>
-                                        {formErrors.email && <span className="error-text">{formErrors.email}</span>}
-                                    </div>
-                                    <div className="form-group">
-                                        <label>Phone Number <span className="req">*</span></label>
-                                        <div className={`input-with-icon ${formErrors.phone ? 'error-border' : ''}`}>
-                                            <Phone size={16} />
-                                            <input type="text" value={formData.phone} onChange={e => { setFormData({...formData, phone: e.target.value}); if(formErrors.phone) setFormErrors({...formErrors, phone: null}); }} placeholder="+1 (555) 123-4567" />
-                                        </div>
-                                        {formErrors.phone && <span className="error-text">{formErrors.phone}</span>}
-                                    </div>
-                                </div>
-                                <div className="form-grid">
-                                    <div className="form-group">
-                                        <label>Industry <span className="req">*</span></label>
-                                        <input type="text" className={formErrors.industry ? 'error-border' : ''} value={formData.industry} onChange={e => { setFormData({...formData, industry: e.target.value}); if(formErrors.industry) setFormErrors({...formErrors, industry: null}); }} placeholder="e.g. Manufacturing, Software, Retail" />
-                                        {formErrors.industry && <span className="error-text">{formErrors.industry}</span>}
-                                    </div>
-                                    <div className="form-group">
-                                        <label>Website (Optional)</label>
-                                        <div className="input-with-icon">
-                                            <Globe size={16} />
-                                            <input type="url" value={formData.website} onChange={e => setFormData({...formData, website: e.target.value})} placeholder="https://www.acmecorp.com" />
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="form-group">
-                                    <label>Primary Address <span className="req">*</span></label>
-                                    <input type="text" className={formErrors.address ? 'error-border' : ''} value={formData.address} onChange={e => { setFormData({...formData, address: e.target.value}); if(formErrors.address) setFormErrors({...formErrors, address: null}); }} placeholder="123 Business Rd, Tech Park, City, ZIP" />
-                                    {formErrors.address && <span className="error-text">{formErrors.address}</span>}
-                                </div>
-                                <div className="form-group"><label>Internal Notes</label><textarea rows="3" value={formData.notes} onChange={e => setFormData({...formData, notes: e.target.value})} placeholder="Key partnership details..."></textarea></div>
-                                <div className="modal-actions">
-                                    <button type="button" className="btn-cancel" onClick={handleCloseModal}>Cancel</button>
-                                    <button type="submit" className="btn-primary">{editingId ? 'Update Customer' : 'Save Customer'}</button>
-                                </div>
-                            </form>
+                            <div style={{ padding: '30px' }}>
+                                <CustomerForm 
+                                    formData={formData}
+                                    setFormData={setFormData}
+                                    formErrors={formErrors}
+                                    setFormErrors={setFormErrors}
+                                    onSubmit={handleSubmit}
+                                    onCancel={handleCloseModal}
+                                    isLoading={false}
+                                    emailDisabled={false}
+                                    statusDisabled={false}
+                                    saveButtonText={editingId ? 'Update Customer' : 'Save Customer'}
+                                />
+                            </div>
                         </div>
                     </div>
                 )}
@@ -671,72 +622,20 @@ const Customers = ({ directoryOnly }) => {
                             <h2>Edit Customer</h2>
                             <button className="close-btn" onClick={handleCloseModal}>✕</button>
                         </div>
-                        <form onSubmit={handleSubmit} className="modal-form">
-                            <div className="form-grid">
-                                <div className="form-group">
-                                    <label>Organization Name <span className="req">*</span></label>
-                                    <div className={`input-with-icon ${formErrors.name ? 'error-border' : ''}`}>
-                                        <Building2 size={16} />
-                                        <input type="text" value={formData.name} onChange={e => { setFormData({...formData, name: e.target.value}); if(formErrors.name) setFormErrors({...formErrors, name: null}); }} placeholder="e.g. Acme Corporation" />
-                                    </div>
-                                    {formErrors.name && <span className="error-text">{formErrors.name}</span>}
-                                </div>
-                                <div className="form-group">
-                                    <label>Lifecycle Status</label>
-                                    <input type="text" name="status" placeholder="Enter status (e.g., Active, Prospect, Inactive)" value={formData.status} onChange={e => setFormData({...formData, status: e.target.value})} />
-                                </div>
+                            <div style={{ padding: '30px' }}>
+                                <CustomerForm 
+                                    formData={formData}
+                                    setFormData={setFormData}
+                                    formErrors={formErrors}
+                                    setFormErrors={setFormErrors}
+                                    onSubmit={handleSubmit}
+                                    onCancel={handleCloseModal}
+                                    isLoading={false}
+                                    emailDisabled={false}
+                                    statusDisabled={false}
+                                    saveButtonText="Update Customer"
+                                />
                             </div>
-
-                            <div className="form-grid">
-                                <div className="form-group">
-                                    <label>Email Address <span className="req">*</span></label>
-                                    <div className={`input-with-icon ${formErrors.email ? 'error-border' : ''}`}>
-                                        <Mail size={16} />
-                                        <input type="email" value={formData.email} onChange={e => { setFormData({...formData, email: e.target.value}); if(formErrors.email) setFormErrors({...formErrors, email: null}); }} placeholder="contact@acmecorp.com" />
-                                    </div>
-                                    {formErrors.email && <span className="error-text">{formErrors.email}</span>}
-                                </div>
-                                <div className="form-group">
-                                    <label>Phone Number <span className="req">*</span></label>
-                                    <div className={`input-with-icon ${formErrors.phone ? 'error-border' : ''}`}>
-                                        <Phone size={16} />
-                                        <input type="text" value={formData.phone} onChange={e => { setFormData({...formData, phone: e.target.value}); if(formErrors.phone) setFormErrors({...formErrors, phone: null}); }} placeholder="+1 (555) 123-4567" />
-                                    </div>
-                                    {formErrors.phone && <span className="error-text">{formErrors.phone}</span>}
-                                </div>
-                            </div>
-
-                            <div className="form-grid">
-                                <div className="form-group">
-                                    <label>Industry <span className="req">*</span></label>
-                                    <input type="text" className={formErrors.industry ? 'error-border' : ''} value={formData.industry} onChange={e => { setFormData({...formData, industry: e.target.value}); if(formErrors.industry) setFormErrors({...formErrors, industry: null}); }} placeholder="e.g. Manufacturing, Software, Retail" />
-                                    {formErrors.industry && <span className="error-text">{formErrors.industry}</span>}
-                                </div>
-                                <div className="form-group">
-                                    <label>Website (Optional)</label>
-                                    <div className="input-with-icon">
-                                        <Globe size={16} />
-                                        <input type="url" value={formData.website} onChange={e => setFormData({...formData, website: e.target.value})} placeholder="https://www.acmecorp.com" />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="form-group">
-                                <label>Primary Address <span className="req">*</span></label>
-                                <input type="text" className={formErrors.address ? 'error-border' : ''} value={formData.address} onChange={e => { setFormData({...formData, address: e.target.value}); if(formErrors.address) setFormErrors({...formErrors, address: null}); }} placeholder="123 Business Rd, Tech Park, City, ZIP" />
-                                {formErrors.address && <span className="error-text">{formErrors.address}</span>}
-                            </div>
-
-                            <div className="form-group">
-                                <label>Internal Notes</label>
-                                <textarea rows="3" value={formData.notes} onChange={e => setFormData({...formData, notes: e.target.value})} placeholder="Key partnership details..."></textarea>
-                            </div>
-
-                            <div className="modal-actions">
-                                <button type="button" className="btn-cancel" onClick={handleCloseModal}>Cancel</button>
-                                <button type="submit" className="btn-primary">Update Customer</button>
-                            </div>
-                        </form>
                     </div>
                 </div>
             )}
