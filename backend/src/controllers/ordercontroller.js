@@ -304,6 +304,10 @@ const updateOrderStatus = async (req, res) => {
             }
         }
 
+        if (order.orderType === 'purchase' && status === 'Approved') {
+            order.managerApproval = 'Approved';
+        }
+
         order.status = status;
         order.updatedBy = req.user._id;
 
@@ -569,6 +573,87 @@ const deleteOrder = async (req, res) => {
     }
 };
 
+const employeeApprovePurchaseOrder = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { action } = req.body; // 'Approve' or 'Reject'
+        
+        const order = await Order.findById(id).populate('vendor', 'name');
+        if (!order) return res.status(404).json({ message: 'Order not found' });
+        
+        if (order.orderType !== 'purchase') {
+            return res.status(400).json({ message: 'Only purchase orders can be approved by this endpoint' });
+        }
+        
+        if (order.managerApproval !== 'Approved') {
+            return res.status(400).json({ message: 'Manager must approve this purchase order first' });
+        }
+        
+        const vendorName = order.vendor ? (order.vendor.name || 'Vendor') : 'Vendor';
+        
+        if (action === 'Approve') {
+            order.employeeApproval = 'Approved';
+            order.status = 'Confirmed'; // finalStatus updates correctly
+            
+            await broadcast({
+                module: 'Orders',
+                referenceId: order._id || order.id,
+                title: 'Purchase Order Employee Approved',
+                message: `Employee ${req.user.name} approved the purchase order ${order.orderNumber} for ${vendorName}.`,
+                type: 'success',
+                targetRoles: ['Manager', 'Sales', 'Admin']
+            });
+        } else if (action === 'Reject') {
+            order.employeeApproval = 'Rejected';
+            order.status = 'Rejected'; // finalStatus updates correctly
+            
+            await broadcast({
+                module: 'Orders',
+                referenceId: order._id || order.id,
+                title: 'Purchase Order Employee Rejected',
+                message: `Employee ${req.user.name} rejected the purchase order ${order.orderNumber} for ${vendorName}.`,
+                type: 'error',
+                targetRoles: ['Manager', 'Admin']
+            });
+        } else {
+            return res.status(400).json({ message: 'Invalid action. Use Approve or Reject.' });
+        }
+        
+        order.updatedBy = req.user._id;
+        
+        // Log action in tracking timeline
+        const currentTimeline = order.trackingTimeline || [];
+        order.trackingTimeline = [
+            ...currentTimeline,
+            {
+                id: Date.now().toString(),
+                status: action === 'Approve' ? 'Employee Approved' : 'Employee Rejected',
+                location: 'System Update',
+                date: new Date().toISOString(),
+                remarks: `Employee has ${action.toLowerCase()}ed the purchase order.`,
+                updatedBy: req.user.name,
+                updatedById: req.user.id
+            }
+        ];
+        
+        await order.save();
+        
+        // Audit log
+        await logAudit({
+            user: req.user,
+            action: 'UPDATE',
+            module: 'Order',
+            targetId: order._id,
+            description: `Employee ${action.toLowerCase()}ed purchase order ${order.orderNumber}`,
+            ipAddress: req.ip
+        });
+        
+        res.json(order);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 module.exports = {
     getOrders,
     createOrder,
@@ -577,5 +662,6 @@ module.exports = {
     updateTrackingStatus,
     getMyCustomerOrders,
     createCustomerOrder,
-    deleteOrder
+    deleteOrder,
+    employeeApprovePurchaseOrder
 };

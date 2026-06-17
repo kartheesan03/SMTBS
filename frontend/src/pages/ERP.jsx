@@ -178,6 +178,18 @@ const ERP = () => {
         }
     };
 
+    const handleEmployeePurchaseApproval = async (id, action) => {
+        try {
+            await API.post(`/orders/${id}/employee-approve`, { action });
+            fetchData();
+            fetchOrders();
+            if (fetchNotifications) fetchNotifications();
+            alert(`Purchase order ${action.toLowerCase()}ed successfully!`);
+        } catch (err) {
+            alert(err.response?.data?.message || `Error trying to ${action.toLowerCase()} order`);
+        }
+    };
+
     const handleDownloadInvoice = (orderOrId) => {
         let order;
         if (typeof orderOrId === 'string' || typeof orderOrId === 'number') {
@@ -685,13 +697,13 @@ const ERP = () => {
                                         )}
                                     </td>
                                     <td>
-                                        <span className={`status-badge-inline ${(ord.approvalStatus === 'Manager Approved' || ord.approvalStatus === 'Employee Approved' || ord.managerApproval === 'Approved') ? 'approved' : 'pending'}`}>
-                                            {ord.managerApproval || ((ord.approvalStatus === 'Manager Approved' || ord.approvalStatus === 'Employee Approved') ? 'Approved' : 'Pending') || "-"}
+                                        <span className={`status-badge-inline ${(ord.approvalStatus === 'Manager Approved' || ord.approvalStatus === 'Employee Approved' || ord.managerApproval === 'Approved' || (ord.orderType === 'purchase' && ord.status === 'Approved')) ? 'approved' : 'pending'}`}>
+                                            {ord.managerApproval === 'Approved' || ord.approvalStatus === 'Manager Approved' || ord.approvalStatus === 'Employee Approved' || (ord.orderType === 'purchase' && ord.status === 'Approved') ? 'Approved' : 'Pending'}
                                         </span>
                                     </td>
                                     <td>
                                         <span className={`status-badge-inline ${ord.employeeApproval === 'Approved' || ord.approvalStatus === 'Employee Approved' ? 'approved' : 'not-started'}`}>
-                                            {ord.employeeApproval || (ord.approvalStatus === 'Employee Approved' ? 'Approved' : 'Not Started') || "-"}
+                                            {ord.employeeApproval === 'Approved' || ord.approvalStatus === 'Employee Approved' ? 'Approved' : (ord.employeeApproval === 'Rejected' ? 'Rejected' : 'Not Started')}
                                         </span>
                                     </td>
                                     <td>
@@ -730,6 +742,14 @@ const ERP = () => {
                                             {/* Legacy non-sales logic */}
                                             {ord.orderType === 'purchase' && (ord.status === 'Pending' || ord.status === 'Awaiting Approval') && (isAdmin || userInfo.role === 'Super Admin' || userInfo.role === 'Manager') && (
                                                 <button className="btn-approve" onClick={() => handleStatusChange(ord._id, 'Approved')}>Approve</button>
+                                            )}
+
+                                            {/* Employee Purchase Order Approval Action */}
+                                            {ord.orderType === 'purchase' && (ord.managerApproval === 'Approved' || ord.status === 'Approved') && (!ord.employeeApproval || ord.employeeApproval === 'Not Started' || ord.employeeApproval === 'Pending') && (isAdmin || userInfo.role === 'Employee' || userInfo.role === 'Super Admin') && (
+                                                <>
+                                                    <button className="btn-workflow-confirm" style={{ background: '#10b981', color: 'white', padding: '6px 12px', borderRadius: '6px', fontSize: '11px', fontWeight: '700', border: 'none', cursor: 'pointer' }} onClick={() => handleEmployeePurchaseApproval(ord._id || ord.id, 'Approve')}>Approve (Emp)</button>
+                                                    <button className="btn-workflow-confirm" style={{ background: '#ef4444', color: 'white', padding: '6px 12px', borderRadius: '6px', fontSize: '11px', fontWeight: '700', border: 'none', cursor: 'pointer' }} onClick={() => handleEmployeePurchaseApproval(ord._id || ord.id, 'Reject')}>Reject (Emp)</button>
+                                                </>
                                             )}
 
                                             {/* Track Order Button */}

@@ -45,6 +45,14 @@ const OrderSequelize = sequelize.define('Order', {
         type: DataTypes.ENUM('Pending', 'Pending Manager Approval', 'Manager Approved', 'Employee Approved', 'Approved', 'Rejected'),
         defaultValue: 'Pending'
     },
+    managerApproval: {
+        type: DataTypes.ENUM('Pending', 'Approved', 'Rejected'),
+        defaultValue: 'Pending'
+    },
+    employeeApproval: {
+        type: DataTypes.ENUM('Not Started', 'Pending', 'Approved', 'Rejected'),
+        defaultValue: 'Not Started'
+    },
     deliveryStatus: {
         type: DataTypes.ENUM('Not Started', 'Pending', 'Processing', 'Shipped', 'Delivered'),
         defaultValue: 'Pending'
