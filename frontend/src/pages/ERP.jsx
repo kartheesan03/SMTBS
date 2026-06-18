@@ -512,12 +512,7 @@ const ERP = () => {
 
                     {/* Content Area */}
                     <div className="po-summary-content-area">
-                        {totalPo === 0 ? (
-                            <div className="po-empty-state">
-                                <h4>No Purchase Orders Available</h4>
-                                <p>There are no purchase orders in the database yet.</p>
-                            </div>
-                        ) : activePoStatuses.length === 1 ? (
+                        {totalPo === 0 ? null : activePoStatuses.length === 1 ? (
                             <div className="po-kpi-card">
                                 <div className="po-kpi-header">
                                     <h4>Status Highlights</h4>
