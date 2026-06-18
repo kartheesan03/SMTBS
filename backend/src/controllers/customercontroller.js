@@ -153,12 +153,45 @@ const updateCustomer = async (req, res) => {
             Object.assign(customer, updateData);
             const updatedCustomer = await customer.save();
 
+            // Synchronize with User account if linked
+            const User = require('../models/User');
+            let user = null;
+            if (customer.userId) {
+                user = await User.findById(customer.userId);
+            }
+            if (!user && customer.email) {
+                user = await User.findOne({ email: customer.email });
+                if (user) {
+                    customer.userId = user._id || user.id;
+                    await customer.save();
+                }
+            }
+
+            if (user) {
+                let userModified = false;
+                if (updateData.name && user.name !== updateData.name) {
+                    user.name = updateData.name;
+                    userModified = true;
+                }
+                if (updateData.phone && user.phone !== updateData.phone) {
+                    user.phone = updateData.phone;
+                    userModified = true;
+                }
+                if (updateData.email && user.email !== updateData.email) {
+                    user.email = updateData.email;
+                    userModified = true;
+                }
+                if (userModified) {
+                    await user.save();
+                }
+            }
+
             await logAudit({
                 user: req.user,
                 action: 'UPDATE',
                 module: 'Customer',
-                targetId: updatedCustomer._id,
-                description: `Customer updated: ${updatedCustomer.name}`,
+                targetId: updatedCustomer._id || updatedCustomer.id,
+                description: `Customer updated and synchronized: ${updatedCustomer.name}`,
                 ipAddress: req.ip
             });
 
@@ -166,7 +199,7 @@ const updateCustomer = async (req, res) => {
                 module: 'Customers',
                 referenceId: updatedCustomer._id || updatedCustomer.id,
                 title: 'Customer Updated',
-                message: `Details for customer ${updatedCustomer.name} have been updated.`,
+                message: `Details for customer ${updatedCustomer.name} have been updated and synchronized.`,
                 type: 'info'
             });
 

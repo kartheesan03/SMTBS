@@ -104,8 +104,10 @@ const Customers = ({ directoryOnly }) => {
         try {
             if (editingId) {
                 await API.put(`/customers/${editingId}`, formData);
+                alert("Customer profile updated and synchronized successfully.");
             } else {
                 await API.post('/customers', formData);
+                alert("Customer created successfully.");
             }
             handleCloseModal();
             fetchCustomers();
@@ -119,7 +121,7 @@ const Customers = ({ directoryOnly }) => {
     };
 
     const handleEdit = (customer) => {
-        setEditingId(customer._id);
+        setEditingId(customer._id || customer.id);
         setFormData({
             name: customer.name || '',
             email: customer.email || '',
@@ -129,7 +131,9 @@ const Customers = ({ directoryOnly }) => {
             website: customer.website || '',
             notes: customer.notes || '',
             status: customer.status || '',
-            customerType: customer.customerType || 'Individual'
+            customerType: customer.customerType || 'Individual',
+            company: customer.company || '',
+            gstNumber: customer.gstNumber || ''
         });
         setFormErrors({});
         setShowModal(true);
@@ -625,7 +629,7 @@ const Customers = ({ directoryOnly }) => {
                     </div>
                     <button className="btn-export" onClick={exportToPDF} title="Export PDF"><Download size={16} /> PDF</button>
                     <button className="btn-export" onClick={exportToExcel} title="Export Excel"><Download size={16} /> Excel</button>
-                    <button className="btn-primary flex-center gap-10" onClick={() => navigate('/crm/add-customer')}>
+                    <button className="btn-primary flex-center gap-10" onClick={() => { setEditingId(null); setFormData({ name: '', email: '', phone: '', address: '', industry: '', website: '', notes: '', status: 'Active', customerType: 'Individual', company: '', gstNumber: '' }); setFormErrors({}); setShowModal(true); }}>
                         <Plus size={18} /> Add New Customer
                     </button>
                 </div>
