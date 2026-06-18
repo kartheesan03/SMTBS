@@ -208,11 +208,10 @@ const HRMS = () => {
                                     <input type="tel" pattern="[0-9\-\+\s\(\)]+" maxLength="15" title="Valid mobile number" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} placeholder="+91 9876543210" required />
                                 </div>
                                 <div className="form-group full-width">
-                                    <label>{isEditing ? 'New Password (Min 8 chars, Optional)' : 'Set Password (Min 8 chars)'}</label>
+                                    <label>{isEditing ? 'New Password (Optional)' : 'Set Password'}</label>
                                     <input 
                                         type="password" 
                                         required={!isEditing} 
-                                        minLength={8}
                                         value={formData.password} 
                                         onChange={e => setFormData({...formData, password: e.target.value})} 
                                         placeholder="Enter password"

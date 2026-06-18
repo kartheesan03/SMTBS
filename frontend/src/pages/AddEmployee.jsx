@@ -87,14 +87,13 @@ const AddEmployee = () => {
                             <input type="tel" pattern="[0-9\-\+\s\(\)]+" maxLength="15" title="Valid mobile number" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} placeholder="+91 9876543210" required />
                         </div>
                         <div className="form-group full-width">
-                            <label>Set Password (Min 8 chars)</label>
+                            <label>Set Password</label>
                             <input 
                                 type="password" 
                                 required
-                                minLength={8}
                                 value={formData.password} 
                                 onChange={e => setFormData({...formData, password: e.target.value})} 
-                                placeholder="Enter secure password"
+                                placeholder="Enter password"
                             />
                         </div>
                         <div className="form-group full-width">

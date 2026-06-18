@@ -1,5 +1,59 @@
 const sequelize = require('./sequelize');
 const setupAssociations = require('../models/associations');
+const bcrypt = require('bcryptjs');
+
+const defaultSystemAccounts = [
+    { email: 'admin@smtbms.com',    password: 'admin123',    role: 'Admin',    name: 'System Admin' },
+    { email: 'hr@smtbms.com',       password: 'hr123',       role: 'HR',       name: 'HR Manager' },
+    { email: 'manager@smtbms.com',  password: 'manager123',  role: 'Manager',  name: 'Manager' },
+    { email: 'employee@smtbms.com', password: 'employee123', role: 'Employee', name: 'System Employee' },
+    { email: 'sales@smtbms.com',    password: 'sales123',    role: 'Sales',    name: 'Sales Team' },
+];
+
+const seedDefaultUsers = async () => {
+    try {
+        const UserModel = sequelize.models.User;
+        if (!UserModel) return;
+
+        for (const acct of defaultSystemAccounts) {
+            let user = await UserModel.findOne({ where: { email: acct.email } });
+
+            if (!user) {
+                // Create missing user with pre-hashed password (hooks:false to avoid double-hash)
+                const salt = await bcrypt.genSalt(10);
+                const hashed = await bcrypt.hash(acct.password, salt);
+                await UserModel.create({
+                    name: acct.name,
+                    email: acct.email,
+                    password: hashed,
+                    role: acct.role,
+                    active: true,
+                    isProfileComplete: true
+                }, { hooks: false });
+                console.log(`[Seed] Created default account: ${acct.email}`);
+            } else {
+                // Verify the password works
+                const isValidHash = user.password && user.password.startsWith('$2');
+                let passwordWorks = false;
+                if (isValidHash) {
+                    passwordWorks = await bcrypt.compare(acct.password, user.password);
+                }
+                if (!passwordWorks) {
+                    const salt = await bcrypt.genSalt(10);
+                    const hashed = await bcrypt.hash(acct.password, salt);
+                    await UserModel.update(
+                        { password: hashed },
+                        { where: { id: user.id }, hooks: false }
+                    );
+                    console.log(`[Seed] Fixed password for: ${acct.email}`);
+                }
+            }
+        }
+        console.log('[Seed] Default system accounts verified.');
+    } catch (error) {
+        console.error('[Seed] Error seeding default users:', error.message);
+    }
+};
 
 const safelyRecreateTable = async (modelName) => {
     const Model = sequelize.models[modelName];
@@ -89,6 +143,9 @@ const connectDB = async () => {
         // 3. Synchronize Sequelize schemas with database safely (without alter: true)
         await sequelize.sync();
         console.log('SQLite Database tables synchronized.');
+        
+        // 4. Ensure default system accounts always exist with valid passwords
+        await seedDefaultUsers();
         
         return true;
     } catch (error) {

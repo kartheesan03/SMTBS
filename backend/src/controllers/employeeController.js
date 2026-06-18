@@ -91,25 +91,49 @@ const updateEmployee = async (req, res) => {
         const { firstName, lastName, contact, phone, department, designation, employeeId, salary, joinDate, address, password } = req.body;
 
         // Sync with User model
+        let user = null;
         if (employee.userId) {
-            const user = await User.findById(employee.userId);
-            if (user) {
-                // If email is changing, check for uniqueness
-                if (contact && contact !== employee.contact) {
-                    const emailExists = await User.findOne({ email: contact });
-                    if (emailExists) return res.status(400).json({ message: 'Email is already in use by another user' });
-                    user.email = contact;
-                }
+            user = await User.findById(employee.userId);
+        }
 
-                if (firstName || lastName) {
-                    user.name = `${firstName || employee.firstName} ${lastName || employee.lastName || ''}`.trim();
-                }
-
-                if (department) user.role = department;
-                if (password && password.trim() !== '') user.password = password;
-
-                await user.save();
+        if (!user && contact && contact.includes('@')) {
+            // Try to find by email first
+            const existingUser = await User.findOne({ email: contact });
+            if (existingUser) {
+                user = existingUser;
+            } else {
+                const name = `${firstName || employee.firstName} ${lastName || employee.lastName || ''}`.trim();
+                const [newUser] = await User.findOrCreate({
+                    where: { email: contact },
+                    defaults: {
+                        name: name,
+                        password: password || 'password123',
+                        role: department || employee.department || 'Employee'
+                    }
+                });
+                user = newUser;
             }
+            // Link employee to this user
+            employee.userId = user._id || user.id;
+        }
+
+        if (user) {
+            if (contact && contact !== user.email) {
+                const emailExists = await User.findOne({ email: contact });
+                if (emailExists && String(emailExists.id || emailExists._id) !== String(user.id || user._id)) {
+                    return res.status(400).json({ message: 'Email is already in use by another user' });
+                }
+                user.email = contact;
+            }
+
+            if (firstName || lastName) {
+                user.name = `${firstName || employee.firstName} ${lastName || employee.lastName || ''}`.trim();
+            }
+
+            if (department) user.role = department;
+            if (password && password.trim() !== '') user.password = password;
+
+            await user.save();
         }
 
         // Update Employee fields explicitly
