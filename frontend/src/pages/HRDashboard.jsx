@@ -154,11 +154,7 @@ const HRDashboard = () => {
         { title: 'Payroll Processed', value: `${payrollProcessed}%`, icon: DollarSign, color: '#14b8a6', trend: '+1%', trendType: 'up' },
     ];
 
-    const upcomingBirthdays = [
-        { name: 'John Doe', date: 'Oct 15', dept: 'Engineering' },
-        { name: 'Jane Smith', date: 'Oct 18', dept: 'HR' },
-        { name: 'Michael Brown', date: 'Oct 22', dept: 'Sales' }
-    ];
+    const upcomingBirthdays = [];
 
     let recentActivities = dashboard.recentActivity || [];
     if (recentActivities.length === 0 && leavesData.length > 0) {
@@ -290,7 +286,7 @@ const HRDashboard = () => {
                             <h3 style={{ margin: 0, fontSize: '13px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '6px' }}><Cake size={14} /> Upcoming Birthdays</h3>
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                            {upcomingBirthdays.map((bday, idx) => (
+                            {upcomingBirthdays.length > 0 ? upcomingBirthdays.map((bday, idx) => (
                                 <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                     <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: '#f8fafc', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: '1px solid #e2e8f0', flexShrink: 0 }}>
                                         <span style={{ fontSize: '10px', color: '#ef4444', fontWeight: 700, textTransform: 'uppercase', lineHeight: 1 }}>{bday.date.split(' ')[0]}</span>
@@ -301,7 +297,9 @@ const HRDashboard = () => {
                                         <div style={{ fontSize: '11px', color: '#64748b' }}>{bday.dept}</div>
                                     </div>
                                 </div>
-                            ))}
+                            )) : (
+                                <div style={{ fontSize: '13px', color: '#94a3b8', textAlign: 'center', padding: '20px 0' }}>No upcoming birthdays</div>
+                            )}
                         </div>
                     </div>
 
