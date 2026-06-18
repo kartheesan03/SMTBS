@@ -10,16 +10,28 @@ const defaultSystemAccounts = [
     { email: 'sales@smtbms.com',    password: 'sales123',    role: 'Sales',    name: 'Sales Team' },
 ];
 
-const seedDefaultUsers = async () => {
+const syncAndRepairDatabase = async () => {
     try {
         const UserModel = sequelize.models.User;
-        if (!UserModel) return;
+        const EmployeeModel = sequelize.models.Employee;
+        if (!UserModel || !EmployeeModel) return;
 
+        const defaultSystemAccounts = [
+            { email: 'admin@smtbms.com',    password: 'admin123',    role: 'Admin',    name: 'System Admin' },
+            { email: 'hr@smtbms.com',       password: 'hr123',       role: 'HR',       name: 'HR Manager' },
+            { email: 'manager@smtbms.com',  password: 'manager123',  role: 'Manager',  name: 'Manager' },
+            { email: 'employee@smtbms.com', password: 'employee123', role: 'Employee', name: 'System Employee' },
+            { email: 'sales@smtbms.com',    password: 'sales123',    role: 'Sales',    name: 'Sales Team' },
+        ];
+
+        // Build a set of protected system emails — these must NEVER be overwritten by employee sync
+        const protectedEmails = new Set(defaultSystemAccounts.map(a => a.email));
+
+        // STEP 1: Ensure default users exist and passwords match
         for (const acct of defaultSystemAccounts) {
             let user = await UserModel.findOne({ where: { email: acct.email } });
 
             if (!user) {
-                // Create missing user with pre-hashed password (hooks:false to avoid double-hash)
                 const salt = await bcrypt.genSalt(10);
                 const hashed = await bcrypt.hash(acct.password, salt);
                 await UserModel.create({
@@ -30,9 +42,18 @@ const seedDefaultUsers = async () => {
                     active: true,
                     isProfileComplete: true
                 }, { hooks: false });
-                console.log(`[Seed] Created default account: ${acct.email}`);
+                console.log(`[Sync] Created default account: ${acct.email}`);
             } else {
-                // Verify the password works
+                let updated = false;
+                if (user.role !== acct.role) {
+                    user.role = acct.role;
+                    updated = true;
+                }
+                if (user.name !== acct.name) {
+                    user.name = acct.name;
+                    updated = true;
+                }
+
                 const isValidHash = user.password && user.password.startsWith('$2');
                 let passwordWorks = false;
                 if (isValidHash) {
@@ -40,18 +61,158 @@ const seedDefaultUsers = async () => {
                 }
                 if (!passwordWorks) {
                     const salt = await bcrypt.genSalt(10);
-                    const hashed = await bcrypt.hash(acct.password, salt);
+                    user.password = await bcrypt.hash(acct.password, salt);
+                    updated = true;
+                }
+                if (updated) {
                     await UserModel.update(
-                        { password: hashed },
+                        { name: user.name, role: user.role, password: user.password },
                         { where: { id: user.id }, hooks: false }
                     );
-                    console.log(`[Seed] Fixed password for: ${acct.email}`);
+                    console.log(`[Sync] Restored/fixed default user credentials: ${acct.email}`);
                 }
             }
         }
-        console.log('[Seed] Default system accounts verified.');
+
+        // STEP 2: Harmonize user roles
+        const allowedRoles = ['Admin', 'HR', 'Manager', 'Employee', 'Sales'];
+        const allUsers = await UserModel.findAll();
+        for (const user of allUsers) {
+            if (user.role === 'Customer' || user.role === 'Vendor') continue;
+            if (!allowedRoles.includes(user.role)) {
+                await UserModel.update({ role: 'Employee' }, { where: { id: user.id }, hooks: false });
+                console.log(`[Sync] Fixed legacy role for user: ${user.email}`);
+            }
+        }
+
+        // STEP 3: Repair Employee ↔ User linkages
+        // IMPORTANT: Skip syncing user attributes for system/protected accounts
+        const allEmployees = await EmployeeModel.findAll();
+        for (const emp of allEmployees) {
+            let user = null;
+            if (emp.contact && emp.contact.includes('@')) {
+                user = await UserModel.findOne({ where: { email: emp.contact } });
+            }
+            if (!user && emp.userIdField) {
+                user = await UserModel.findByPk(emp.userIdField);
+            }
+
+            if (user) {
+                // Link employee to user if not already linked
+                if (emp.userIdField !== user.id) {
+                    await EmployeeModel.update({ userIdField: user.id }, { where: { id: emp.id } });
+                }
+
+                // Only sync user attributes if the user is NOT a protected system account
+                if (!protectedEmails.has(user.email)) {
+                    let userUpdated = false;
+                    const empFullName = `${emp.firstName} ${emp.lastName || ''}`.trim();
+                    if (user.name !== empFullName) {
+                        user.name = empFullName;
+                        userUpdated = true;
+                    }
+                    if (user.email !== emp.contact && emp.contact && emp.contact.includes('@') && !protectedEmails.has(emp.contact)) {
+                        user.email = emp.contact;
+                        userUpdated = true;
+                    }
+                    if (user.role !== emp.department) {
+                        if (allowedRoles.includes(emp.department)) {
+                            user.role = emp.department;
+                            userUpdated = true;
+                        } else {
+                            await EmployeeModel.update({ department: 'Employee' }, { where: { id: emp.id } });
+                            user.role = 'Employee';
+                            userUpdated = true;
+                        }
+                    }
+                    if (userUpdated) {
+                        await UserModel.update(
+                            { name: user.name, email: user.email, role: user.role },
+                            { where: { id: user.id }, hooks: false }
+                        );
+                    }
+                }
+            } else {
+                // Recreate user if missing
+                const salt = await bcrypt.genSalt(10);
+                const hashed = await bcrypt.hash('password123', salt);
+                const finalEmail = emp.contact && emp.contact.includes('@') 
+                    ? emp.contact 
+                    : `${emp.firstName.toLowerCase()}.${(emp.lastName || 'user').toLowerCase()}@smtbms.com`;
+                const userRole = allowedRoles.includes(emp.department) ? emp.department : 'Employee';
+                const newUser = await UserModel.create({
+                    name: `${emp.firstName} ${emp.lastName || ''}`.trim(),
+                    email: finalEmail,
+                    password: hashed,
+                    role: userRole,
+                    active: true,
+                    isProfileComplete: true
+                }, { hooks: false });
+                await EmployeeModel.update(
+                    { userIdField: newUser.id, contact: finalEmail },
+                    { where: { id: emp.id } }
+                );
+                console.log(`[Sync] Recreated missing User for Employee: ${finalEmail}`);
+            }
+        }
+
+        // STEP 4: Create missing Employees for existing Users (avoid duplicates)
+        const updatedUsers = await UserModel.findAll();
+        for (const user of updatedUsers) {
+            if (user.role === 'Customer' || user.role === 'Vendor') continue;
+            
+            // Check by userIdField first, then by contact email to avoid duplicates
+            let emp = await EmployeeModel.findOne({ where: { userIdField: user.id } });
+            if (!emp && user.email) {
+                emp = await EmployeeModel.findOne({ where: { contact: user.email } });
+                if (emp && !emp.userIdField) {
+                    // Found by email but not linked — link it
+                    await EmployeeModel.update({ userIdField: user.id }, { where: { id: emp.id } });
+                }
+            }
+            
+            if (!emp) {
+                // Generate a unique employee ID
+                const [emps] = await sequelize.query("SELECT employeeId FROM Employee;");
+                const ids = emps.map(e => {
+                    const match = e.employeeId.match(/\d+/);
+                    return match ? parseInt(match[0], 10) : 0;
+                });
+                const maxVal = ids.length > 0 ? Math.max(...ids) : 0;
+                const empId = `EMP${String(maxVal + 1).padStart(3, '0')}`;
+
+                const nameParts = user.name.split(' ');
+                const firstName = nameParts[0] || 'System';
+                const lastName = nameParts.slice(1).join(' ') || '';
+
+                await EmployeeModel.create({
+                    userIdField: user.id,
+                    employeeId: empId,
+                    firstName: firstName,
+                    lastName: lastName,
+                    department: allowedRoles.includes(user.role) ? user.role : 'Employee',
+                    designation: user.role + ' Staff',
+                    contact: user.email,
+                    phone: user.phone || '0000000000',
+                    address: 'Office HQ',
+                    joinDate: user.createdAt || new Date()
+                });
+                console.log(`[Sync] Created missing Employee for User: ${user.email}`);
+            }
+        }
+
+        // STEP 5: Ensure all remaining user passwords are valid hashes
+        const checkUsers = await UserModel.findAll();
+        for (const u of checkUsers) {
+            if (u.password && !u.password.startsWith('$2')) {
+                const salt = await bcrypt.genSalt(10);
+                const hashed = await bcrypt.hash(u.password, salt);
+                await UserModel.update({ password: hashed }, { where: { id: u.id }, hooks: false });
+            }
+        }
+        console.log('[Sync] Database synchronization & repair complete.');
     } catch (error) {
-        console.error('[Seed] Error seeding default users:', error.message);
+        console.error('[Sync] Error during database sync:', error.message);
     }
 };
 
@@ -145,7 +306,7 @@ const connectDB = async () => {
         console.log('SQLite Database tables synchronized.');
         
         // 4. Ensure default system accounts always exist with valid passwords
-        await seedDefaultUsers();
+        await syncAndRepairDatabase();
         
         return true;
     } catch (error) {

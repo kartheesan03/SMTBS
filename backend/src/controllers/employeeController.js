@@ -27,23 +27,27 @@ const createEmployee = async (req, res) => {
     try {
         const { employeeId, firstName, lastName, department, designation, contact, phone, address, joinDate, password } = req.body;
 
-        // Check if user already exists; if so, reuse it
-        const [user, userCreated] = await User.findOrCreate({
-            where: { email: contact },
-            defaults: {
-                name: `${firstName} ${lastName || ''}`.trim(),
-                password: password || 'password123',
-                role: department || 'Employee'
-            }
-        });
-        // If user already existed, you may want to update its name/role if needed
-        if (!userCreated) {
-            // optional: update fields
-            await user.update({
-                name: `${firstName} ${lastName || ''}`.trim(),
-                role: department || user.role
-            });
+        // Requirement 9: Validate role/department
+        const allowedRoles = ['Admin', 'HR', 'Manager', 'Employee', 'Sales'];
+        if (!allowedRoles.includes(department)) {
+            return res.status(400).json({ message: `Invalid department/role. Allowed departments are: ${allowedRoles.join(', ')}` });
         }
+
+        // Requirement 6: Prevent duplicate email addresses across all users/employees
+        const userExists = await User.findOne({ email: contact });
+        const employeeExists = await Employee.findOne({ contact });
+        if (userExists || employeeExists) {
+            return res.status(400).json({ message: 'Email is already in use by another user' });
+        }
+
+        // Create User (let User hooks:beforeSave handle hashed password automatically)
+        const user = await User.create({
+            name: `${firstName} ${lastName || ''}`.trim(),
+            email: contact,
+            password: password || 'password123',
+            role: department
+        });
+
         // Create Employee linked to User via Employee.create
         const createdEmployee = await Employee.create({
             userId: user._id,
@@ -90,6 +94,11 @@ const updateEmployee = async (req, res) => {
 
         const { firstName, lastName, contact, phone, department, designation, employeeId, salary, joinDate, address, password } = req.body;
 
+        const allowedRoles = ['Admin', 'HR', 'Manager', 'Employee', 'Sales'];
+        if (department && !allowedRoles.includes(department)) {
+            return res.status(400).json({ message: `Invalid department/role. Allowed departments are: ${allowedRoles.join(', ')}` });
+        }
+
         // Sync with User model
         let user = null;
         if (employee.userId) {
@@ -103,15 +112,12 @@ const updateEmployee = async (req, res) => {
                 user = existingUser;
             } else {
                 const name = `${firstName || employee.firstName} ${lastName || employee.lastName || ''}`.trim();
-                const [newUser] = await User.findOrCreate({
-                    where: { email: contact },
-                    defaults: {
-                        name: name,
-                        password: password || 'password123',
-                        role: department || employee.department || 'Employee'
-                    }
+                user = await User.create({
+                    name: name,
+                    email: contact,
+                    password: password || 'password123',
+                    role: department || employee.department || 'Employee'
                 });
-                user = newUser;
             }
             // Link employee to this user
             employee.userId = user._id || user.id;
@@ -120,7 +126,9 @@ const updateEmployee = async (req, res) => {
         if (user) {
             if (contact && contact !== user.email) {
                 const emailExists = await User.findOne({ email: contact });
-                if (emailExists && String(emailExists.id || emailExists._id) !== String(user.id || user._id)) {
+                const empEmailExists = await Employee.findOne({ contact });
+                if ((emailExists && String(emailExists.id || emailExists._id) !== String(user.id || user._id)) ||
+                    (empEmailExists && String(empEmailExists.id || empEmailExists._id) !== String(employee.id || employee._id))) {
                     return res.status(400).json({ message: 'Email is already in use by another user' });
                 }
                 user.email = contact;
@@ -131,7 +139,10 @@ const updateEmployee = async (req, res) => {
             }
 
             if (department) user.role = department;
-            if (password && password.trim() !== '') user.password = password;
+            if (password && password.trim() !== '') {
+                // Set password (beforeSave hook in User model will automatically re-hash if it's not hashed)
+                user.password = password;
+            }
 
             await user.save();
         }
