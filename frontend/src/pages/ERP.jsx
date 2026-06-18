@@ -340,7 +340,7 @@ const ERP = () => {
 
     const hasSales = filteredOrders.some(o => o.orderType === 'sales');
     const hasPurchase = filteredOrders.some(o => o.orderType === 'purchase');
-    const customerVendorHeader = (hasSales && hasPurchase) ? 'Customer / Vendor' : (hasPurchase ? 'Vendor' : 'Customer');
+    const customerVendorHeader = (hasSales && hasPurchase) ? 'Organization / Vendor' : (hasPurchase ? 'Vendor' : 'Organization / Company');
 
     const purchaseOrdersList = orders.filter(o => o.orderType === 'purchase');
     const totalPo = purchaseOrdersList.length;
@@ -486,11 +486,11 @@ const ERP = () => {
 
             {/* Charts Row */}
             <div className="charts-grid">
-                {/* Donut summary */}
+                {/* Purchase Order Summary */}
                 <div className="chart-card po-summary-card">
                     <h3 className="card-title">Purchase Order Summary</h3>
                     
-                    {/* Summary mini cards rendered above the chart/KPI state */}
+                    {/* Summary mini cards */}
                     <div className="po-summary-cards-grid">
                         <div className="po-summary-mini-card">
                             <span className="mini-card-label">Total Orders</span>
@@ -508,106 +508,6 @@ const ERP = () => {
                             <span className="mini-card-label">Completed Orders</span>
                             <span className="mini-card-value">{poReceivedCount}</span>
                         </div>
-                    </div>
-
-                    {/* Content Area */}
-                    <div className="po-summary-content-area">
-                        {totalPo === 0 ? null : activePoStatuses.length === 1 ? (
-                            <div className="po-kpi-card">
-                                <div className="po-kpi-header">
-                                    <h4>Status Highlights</h4>
-                                    <span className="status-indicator-dot" style={{ backgroundColor: activePoStatuses[0].color, boxShadow: `0 0 8px ${activePoStatuses[0].color}` }}></span>
-                                </div>
-                                <div className="po-kpi-body">
-                                    <div className="kpi-row">
-                                        <span className="kpi-label">Total Purchase Orders</span>
-                                        <span className="kpi-value">{totalPo}</span>
-                                    </div>
-                                    <div className="kpi-row">
-                                        <span className="kpi-label">Current Status</span>
-                                        <span className="kpi-value highlighted-status" style={{ color: activePoStatuses[0].color }}>
-                                            {activePoStatuses[0].name}
-                                        </span>
-                                    </div>
-                                    <div className="kpi-row">
-                                        <span className="kpi-label">Completion Rate</span>
-                                        <span className="kpi-value completion-rate-badge" style={{ backgroundColor: `${activePoStatuses[0].color}15`, color: activePoStatuses[0].color }}>
-                                            100%
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="distribution-container">
-                                <div className="donut-chart-box">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <PieChart>
-                                            <Pie 
-                                                data={activePoStatuses}
-                                                innerRadius={65}
-                                                outerRadius={85}
-                                                paddingAngle={4}
-                                                dataKey="value"
-                                                stroke="none"
-                                            >
-                                                {activePoStatuses.map((entry, index) => (
-                                                    <Cell key={`cell-${index}`} fill={entry.color} />
-                                                ))}
-                                            </Pie>
-                                            <Tooltip formatter={(value, name, props) => [`${value} Orders (${props.payload.percentage})`, name]} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
-                                        </PieChart>
-                                    </ResponsiveContainer>
-                                    <div className="donut-label-box">
-                                        <span className="donut-val">{totalPo}</span>
-                                        <span className="donut-lbl">Total</span>
-                                    </div>
-                                </div>
-                                <div className="distribution-legend">
-                                    {poSummaryData.map((dept, idx) => (
-                                        <div key={idx} className="legend-item" style={{ opacity: dept.value === 0 ? 0.4 : 1 }}>
-                                            <span className="dot" style={{ backgroundColor: dept.color }}></span>
-                                            <span className="name">{dept.name}</span>
-                                            <span className="val">{dept.value} ({dept.percentage})</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                </div>
-
-                {/* Recent Purchase Orders */}
-                <div className="chart-card">
-                    <h3 className="card-title">Recent Purchase Orders</h3>
-                    <div className="po-list">
-                        <table className="po-table">
-                            <thead>
-                                <tr>
-                                    <th>PO Number</th>
-                                    <th>Vendor</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {recentPurchaseOrders.length > 0 ? (
-                                    recentPurchaseOrders.map((po, idx) => (
-                                        <tr key={idx}>
-                                            <td><code className="po-code">{po.orderNumber}</code></td>
-                                            <td className="vendor-name-cell">{po.vendor?.name || 'Unassigned'}</td>
-                                            <td>
-                                                <span className={`po-status-badge ${po.status.toLowerCase().replace(/ /g, '-')}`}>
-                                                    {po.status}
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    ))
-                                ) : (
-                                    <tr>
-                                        <td colSpan="3" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-muted)' }}>No Orders Available</td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
                     </div>
                 </div>
             </div>
@@ -681,11 +581,12 @@ const ERP = () => {
                             };
                             
                             const getCustomerName = (order) => {
+                                const cId = order.customerId || (order.customer && (order.customer.id || order.customer._id)) || order.customer;
+                                const cMatch = customers.find(c => String(c.id || c._id) === String(cId)) || (typeof order.customer === 'object' ? order.customer : null);
+                                if (cMatch && cMatch.company) return cMatch.company;
                                 if (order.customerName) return order.customerName;
                                 if (order.customer && order.customer.name) return order.customer.name;
-                                const cId = order.customerId || order.customer;
-                                const cMatch = customers.find(c => String(c.id || c._id) === String(cId));
-                                return cMatch ? cMatch.name : 'Unassigned';
+                                return cMatch && cMatch.name ? cMatch.name : 'Unassigned';
                             };
 
                             const getVendorName = (order) => {
