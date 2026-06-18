@@ -60,14 +60,14 @@ const Support = () => {
             console.error('Error fetching support tickets:', err);
         }
 
-        // 2. Fetch leads only (shown under "Customers (CRM)" in sidebar)
+        // 2. Fetch customers
         try {
-            const leadsRes = await API.get('/leads');
-            const fetchedLeads = (Array.isArray(leadsRes.data) ? leadsRes.data : [])
-                .map(l => ({ ...l, customerModel: 'Lead', company: l.name }));
-            setCustomers(fetchedLeads);
+            const customersRes = await API.get('/customers');
+            const fetchedCustomers = (Array.isArray(customersRes.data) ? customersRes.data : [])
+                .map(c => ({ ...c, customerModel: 'Customer' }));
+            setCustomers(fetchedCustomers);
         } catch (err) {
-            console.error('Error fetching support leads:', err);
+            console.error('Error fetching support customers:', err);
         }
 
         setLoading(false);
@@ -82,7 +82,7 @@ const Support = () => {
         try {
             setSubmitting(true);
             
-            const selectedCust = customers.find(c => String(c._id) === String(formData.customer));
+            const selectedCust = customers.find(c => String(c._id || c.id) === String(formData.customer));
             const ticketPayload = {
                 ...formData,
                 customerModel: selectedCust?.customerModel || 'Customer'
@@ -205,8 +205,8 @@ const Support = () => {
                             >
                                 <option value="" style={{ backgroundColor: '#ffffff', color: '#0f172a' }}>Choose Customer...</option>
                                 {customers.map(c => (
-                                    <option key={c._id} value={c._id} style={{ backgroundColor: '#ffffff', color: '#0f172a' }}>
-                                        {c.name}{c.company && c.company !== c.name ? ` (${c.company})` : ''}
+                                    <option key={c._id || c.id} value={c._id || c.id} style={{ backgroundColor: '#ffffff', color: '#0f172a' }}>
+                                        {c.company && c.company !== 'Individual Customer' ? `${c.company} (${c.name})` : c.name}
                                     </option>
                                 ))}
                             </select>
