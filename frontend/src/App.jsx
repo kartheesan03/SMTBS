@@ -123,12 +123,12 @@ const AppContent = () => {
                     
                     {/* HRMS Routes */}
                     <Route path="/hrms" element={
-                        <ProtectedRoute allowedRoles={['Super Admin', 'Admin', 'HR']}>
+                        <ProtectedRoute allowedRoles={['Super Admin', 'Admin', 'HR', 'Manager']}>
                             <HRMS />
                         </ProtectedRoute>
                     } />
                     <Route path="/hrms/add-employee" element={
-                        <ProtectedRoute allowedRoles={['Super Admin', 'Admin', 'HR']}>
+                        <ProtectedRoute allowedRoles={['Super Admin', 'Admin', 'HR', 'Manager']}>
                             <AddEmployee />
                         </ProtectedRoute>
                     } />
