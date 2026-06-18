@@ -3,11 +3,29 @@ import { Bell, Calendar as CalendarIcon, ChevronDown } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
 import { NotificationContext } from '../context/NotificationContext';
 import { useNavigate } from 'react-router-dom';
+import API from '../api/axios';
 
 const Topbar = () => {
     const { user } = useContext(AuthContext);
     const { unreadCount } = useContext(NotificationContext);
     const navigate = useNavigate();
+    const [designation, setDesignation] = React.useState('');
+
+    React.useEffect(() => {
+        const fetchMe = async () => {
+            if (user && user.role !== 'Customer' && user.role !== 'Vendor') {
+                try {
+                    const { data } = await API.get('/employees/me');
+                    if (data && data.designation) {
+                        setDesignation(data.designation);
+                    }
+                } catch (err) {
+                    console.error("Failed to fetch designation in Topbar", err);
+                }
+            }
+        };
+        fetchMe();
+    }, [user]);
 
     const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
@@ -29,8 +47,8 @@ const Topbar = () => {
                 <div className="topbar-profile" onClick={() => navigate('/profile')}>
                     <img src={`https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=2563eb&color=fff`} alt="Profile" className="profile-avatar" />
                     <div className="profile-info desktop-only">
-                        <span className="profile-name">{user?.name || 'Admin User'}</span>
-                        <span className="profile-role">{user?.role || 'Super Admin'}</span>
+                        <span className="profile-name">{user?.name || 'User'}</span>
+                        <span className="profile-role">{designation || user?.role || 'Employee'}</span>
                     </div>
                     <ChevronDown size={14} className="text-muted desktop-only" />
                 </div>

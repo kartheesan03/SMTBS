@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { NotificationContext } from '../context/NotificationContext';
+import API from '../api/axios';
 import { 
     LayoutDashboard, 
     Box, 
@@ -32,6 +33,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
     const { unreadCount } = useContext(NotificationContext);
     const location = useLocation();
     const [isCollapsed, setIsCollapsed] = useState(false);
+    const [designation, setDesignation] = useState('');
 
     useEffect(() => {
         if (window.innerWidth <= 768) {
@@ -39,6 +41,22 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
             setIsCollapsed(false);
         }
     }, [location, onClose]);
+
+    useEffect(() => {
+        const fetchMe = async () => {
+            if (user && user.role !== 'Customer' && user.role !== 'Vendor') {
+                try {
+                    const { data } = await API.get('/employees/me');
+                    if (data && data.designation) {
+                        setDesignation(data.designation);
+                    }
+                } catch (err) {
+                    console.error("Failed to fetch designation in Sidebar", err);
+                }
+            }
+        };
+        fetchMe();
+    }, [user]);
     
     // Core icons upgraded
     const adminMenu = [
@@ -158,8 +176,8 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                     </div>
                     {!isCollapsed && (
                         <div className="user-details">
-                            <h4 className="user-name" style={{color: '#ffffff'}}>{user?.name || 'Admin User'}</h4>
-                            <span className="user-role" style={{color: '#94a3b8'}}>{isAdmin ? 'Super Admin' : user?.role}</span>
+                            <h4 className="user-name" style={{color: '#ffffff'}}>{user?.name || 'User'}</h4>
+                            <span className="user-role" style={{color: '#94a3b8'}}>{designation || user?.role || 'Employee'}</span>
                         </div>
                     )}
                 </NavLink>
