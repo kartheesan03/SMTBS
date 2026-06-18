@@ -514,7 +514,6 @@ const ERP = () => {
                     <div className="po-summary-content-area">
                         {totalPo === 0 ? (
                             <div className="po-empty-state">
-                                <ShoppingCart size={40} className="po-empty-icon" />
                                 <h4>No Purchase Orders Available</h4>
                                 <p>There are no purchase orders in the database yet.</p>
                             </div>
