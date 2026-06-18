@@ -283,17 +283,27 @@ const HRMS = () => {
                             <button type="button" className="btn-cancel" onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
+                                
+                                let safeJoinDate = new Date().toISOString().split('T')[0];
+                                if (selectedEmployee.joinDate) {
+                                    try {
+                                        safeJoinDate = new Date(selectedEmployee.joinDate).toISOString().split('T')[0];
+                                    } catch (err) {
+                                        console.error('Invalid date', err);
+                                    }
+                                }
+
                                 setFormData({
-                                    employeeId: selectedEmployee.employeeId,
-                                    firstName: selectedEmployee.firstName,
-                                    lastName: selectedEmployee.lastName,
-                                    department: selectedEmployee.department,
-                                    designation: selectedEmployee.designation,
-                                    contact: selectedEmployee.contact,
+                                    employeeId: selectedEmployee.employeeId || '',
+                                    firstName: selectedEmployee.firstName || '',
+                                    lastName: selectedEmployee.lastName || '',
+                                    department: selectedEmployee.department || 'Employee',
+                                    designation: selectedEmployee.designation || '',
+                                    contact: selectedEmployee.contact || '',
                                     phone: selectedEmployee.phone || '',
-                                    address: selectedEmployee.address,
+                                    address: selectedEmployee.address || '',
                                     password: '',
-                                    joinDate: new Date(selectedEmployee.joinDate).toISOString().split('T')[0]
+                                    joinDate: safeJoinDate
                                 });
                                 setEditingId(selectedEmployee._id);
                                 setIsEditing(true);
