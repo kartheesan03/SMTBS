@@ -25,7 +25,7 @@ const SelectVendor = () => {
 
     const filteredVendors = vendors.filter(v => 
         (v.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (v.companyName || '').toLowerCase().includes(searchTerm.toLowerCase())
+        (v.contactPerson || '').toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const handleSelect = (id) => {
@@ -85,8 +85,8 @@ const SelectVendor = () => {
                         <tbody>
                             {filteredVendors.map((v) => (
                                 <tr key={v.id || v._id}>
-                                    <td><strong>{v.companyName || v.name}</strong></td>
-                                    <td>{v.contactPerson || v.name}</td>
+                                    <td><strong>{v.name}</strong></td>
+                                    <td>{v.contactPerson || '-'}</td>
                                     <td>{v.email || '-'}</td>
                                     <td>{v.phone || '-'}</td>
                                     <td>

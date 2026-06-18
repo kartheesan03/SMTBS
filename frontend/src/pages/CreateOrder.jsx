@@ -154,10 +154,10 @@ const CreateOrder = () => {
                             </div>
                             <div>
                                 <h3 style={{ margin: '0 0 4px 0' }}>Selected {isSales ? 'Customer' : 'Vendor'}</h3>
-                                <div style={{ fontSize: '18px', fontWeight: 'bold' }}>{selectedEntity.companyName || selectedEntity.name}</div>
+                                <div style={{ fontSize: '18px', fontWeight: 'bold' }}>{isSales ? (selectedEntity.company || selectedEntity.name) : selectedEntity.name}</div>
                                 <div style={{ color: 'var(--text-muted)', fontSize: '13px', marginTop: '4px', lineHeight: '1.5' }}>
                                     {isSales ? 'Customer' : 'Vendor'} ID: {selectedEntity.id || selectedEntity._id} <br/>
-                                    Contact Person: {selectedEntity.contactPerson || selectedEntity.name} <br/>
+                                    Contact Person: {isSales ? selectedEntity.name : (selectedEntity.contactPerson || selectedEntity.name)} <br/>
                                     Email: {selectedEntity.email || 'N/A'} <br/>
                                     Phone: {selectedEntity.phone || 'N/A'} <br/>
                                     {!isSales && (

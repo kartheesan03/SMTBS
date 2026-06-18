@@ -25,7 +25,8 @@ const SelectCustomer = () => {
 
     const filteredCustomers = customers.filter(c => 
         (c.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (c.email || '').toLowerCase().includes(searchTerm.toLowerCase())
+        (c.email || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (c.company || '').toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const handleSelect = (id) => {
@@ -85,7 +86,7 @@ const SelectCustomer = () => {
                         <tbody>
                             {filteredCustomers.map((c) => (
                                 <tr key={c.id || c._id}>
-                                    <td><strong>{c.companyName || c.name}</strong></td>
+                                    <td><strong>{c.company || c.name}</strong></td>
                                     <td>{c.name}</td>
                                     <td>{c.email || '-'}</td>
                                     <td>{c.phone || '-'}</td>
