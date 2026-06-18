@@ -330,9 +330,9 @@ const Support = () => {
                                     </td>
                                     <td>
                                         <div className="org-cell">
-                                            <strong>{t.customer?.name || 'Walk-in'}</strong>
-                                            {t.customer?.company && t.customer.company !== t.customer.name && (
-                                                <span className="company-tag text-muted">{t.customer.company}</span>
+                                            <strong>{t.customer?.company && t.customer.company !== 'Individual Customer' ? t.customer.company : (t.customer?.name || 'Walk-in')}</strong>
+                                            {t.customer?.company && t.customer.company !== 'Individual Customer' && t.customer?.name && (
+                                                <span className="company-tag text-muted">{t.customer.name}</span>
                                             )}
                                         </div>
                                     </td>
