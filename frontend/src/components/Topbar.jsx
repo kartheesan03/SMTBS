@@ -58,92 +58,100 @@ const Topbar = () => {
                 .topbar {
                     display: flex;
                     align-items: center;
-                    justify-content: flex-end; /* Align actions to right since search is removed */
-                    height: 70px;
-                    padding: 0 30px;
-                    background: #ffffff;
-                    border-bottom: 1px solid var(--border);
+                    justify-content: flex-end;
+                    height: var(--header-height, 64px);
+                    padding: 0 24px;
+                    background: var(--bg-surface);
+                    border-bottom: 1px solid var(--border-subtle);
                     position: sticky;
                     top: 0;
                     z-index: 900;
+                    backdrop-filter: blur(8px);
+                    -webkit-backdrop-filter: blur(8px);
+                    background: rgba(255, 255, 255, 0.95);
                 }
 
                 .topbar-actions {
                     display: flex;
                     align-items: center;
-                    gap: 20px;
+                    gap: 16px;
                 }
 
                 .date-selector {
                     display: flex;
                     align-items: center;
                     gap: 8px;
-                    background: var(--bg-body);
-                    padding: 8px 16px;
-                    border-radius: 20px;
+                    background: var(--bg-app);
+                    padding: 6px 12px;
+                    border-radius: var(--radius-sm);
                     font-size: 13px;
-                    font-weight: 600;
-                    color: var(--text-primary);
+                    font-weight: 500;
+                    color: var(--text-main);
                     cursor: pointer;
-                    border: 1px solid var(--border);
-                    transition: all 0.2s;
+                    border: 1px solid var(--border-strong);
+                    transition: all 0.15s ease;
                 }
                 .date-selector:hover {
-                    border-color: var(--border-hover);
+                    border-color: var(--text-disabled);
                     background: var(--bg-hover);
                 }
 
                 .topbar-btn {
-                    background: var(--bg-body);
-                    border: 1px solid var(--border);
-                    width: 40px;
-                    height: 40px;
+                    background: var(--bg-surface);
+                    border: 1px solid var(--border-strong);
+                    width: 36px;
+                    height: 36px;
                     border-radius: 50%;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    color: var(--text-secondary);
+                    color: var(--text-muted);
                     cursor: pointer;
-                    transition: all 0.2s;
+                    transition: all 0.15s ease;
                 }
                 .topbar-btn:hover {
                     color: var(--primary);
-                    border-color: var(--primary-100);
-                    background: var(--primary-50);
+                    border-color: var(--primary);
+                    background: var(--primary-light);
                 }
                 .notification-dot {
                     position: absolute;
-                    top: 10px;
-                    right: 12px;
+                    top: 8px;
+                    right: 8px;
                     width: 8px;
                     height: 8px;
                     background: var(--danger);
                     border-radius: 50%;
-                    border: 2px solid #fff;
+                    border: 2px solid var(--bg-surface);
                 }
 
                 .topbar-profile {
                     display: flex;
                     align-items: center;
-                    gap: 12px;
+                    gap: 10px;
                     cursor: pointer;
-                    padding-left: 10px;
-                    border-left: 1px solid var(--border);
+                    padding-left: 16px;
+                    border-left: 1px solid var(--border-subtle);
+                    transition: opacity 0.2s;
+                }
+                .topbar-profile:hover {
+                    opacity: 0.8;
                 }
                 .profile-avatar {
-                    width: 40px;
-                    height: 40px;
+                    width: 36px;
+                    height: 36px;
                     border-radius: 50%;
                     object-fit: cover;
+                    border: 1px solid var(--border-subtle);
                 }
                 .profile-info {
                     display: flex;
                     flex-direction: column;
                 }
                 .profile-name {
-                    font-size: 14px;
-                    font-weight: 700;
-                    color: var(--text-primary);
+                    font-size: 13px;
+                    font-weight: 600;
+                    color: var(--text-heading);
                 }
                 .profile-role {
                     font-size: 12px;

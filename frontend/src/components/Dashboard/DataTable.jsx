@@ -29,9 +29,9 @@ const DataTable = ({ title, headers, data, renderRow, onViewAll, emptyText }) =>
             </div>
             <style jsx="true">{`
                 .dt-card {
-                    background: var(--bg-card);
-                    border: 1px solid var(--border);
-                    border-radius: var(--radius-lg, 16px);
+                    background: var(--bg-surface);
+                    border: 1px solid var(--border-subtle);
+                    border-radius: var(--radius-md);
                     overflow: hidden;
                     box-shadow: var(--shadow-sm);
                 }
@@ -39,26 +39,28 @@ const DataTable = ({ title, headers, data, renderRow, onViewAll, emptyText }) =>
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
-                    padding: 18px 20px;
-                    border-bottom: 1px solid var(--border);
+                    padding: 16px 20px;
+                    border-bottom: 1px solid var(--border-subtle);
                 }
                 .dt-title {
                     font-size: 15px;
-                    font-weight: 700;
-                    color: var(--text-primary);
+                    font-weight: 600;
+                    color: var(--text-heading);
                     margin: 0;
                 }
                 .dt-view-all {
                     background: none;
                     color: var(--primary);
                     font-size: 13px;
-                    font-weight: 600;
-                    padding: 4px 8px;
-                    border-radius: 6px;
+                    font-weight: 500;
+                    padding: 6px 12px;
+                    border-radius: var(--radius-sm);
                     transition: background 0.15s;
+                    border: 1px solid transparent;
                 }
                 .dt-view-all:hover {
                     background: var(--primary-light);
+                    border-color: var(--primary-100);
                 }
                 .dt-body {
                     overflow-x: auto;
@@ -70,22 +72,22 @@ const DataTable = ({ title, headers, data, renderRow, onViewAll, emptyText }) =>
                 .dt-table th {
                     padding: 12px 20px;
                     text-align: left;
-                    font-size: 11px;
-                    font-weight: 600;
+                    font-size: 12px;
+                    font-weight: 500;
                     color: var(--text-muted);
                     text-transform: uppercase;
-                    letter-spacing: 0.5px;
+                    letter-spacing: 0.05em;
                     background: #f8fafc;
-                    border-bottom: 1px solid var(--border);
+                    border-bottom: 1px solid var(--border-subtle);
                 }
                 .dt-table td {
                     padding: 14px 20px;
-                    font-size: 14px;
-                    border-bottom: 1px solid #f1f5f9;
-                    color: var(--text-primary);
+                    font-size: 13px;
+                    border-bottom: 1px solid var(--border-light);
+                    color: var(--text-main);
                 }
                 .dt-table tbody tr:hover td {
-                    background: #fafbfd;
+                    background: var(--bg-hover);
                 }
                 .dt-table tbody tr:last-child td {
                     border-bottom: none;
@@ -94,7 +96,7 @@ const DataTable = ({ title, headers, data, renderRow, onViewAll, emptyText }) =>
                     padding: 40px 20px;
                     text-align: center;
                     color: var(--text-muted);
-                    font-size: 14px;
+                    font-size: 13px;
                 }
             `}</style>
         </div>

@@ -449,44 +449,43 @@ const Profile = () => {
             <style jsx="true">{`
                 .profile-page-wrapper {
                     padding: 24px;
-                    background-color: #f8fafc;
+                    background-color: var(--bg-app);
                     min-height: 100vh;
-                    font-family: 'Inter', sans-serif;
                 }
 
                 /* Top Banner Card */
                 .profile-banner-card {
-                    background: #ffffff;
-                    border-radius: 12px;
+                    background: var(--bg-surface);
+                    border-radius: var(--radius-md);
                     padding: 24px;
                     display: flex;
                     align-items: center;
                     gap: 24px;
-                    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-                    border: 1px solid #e2e8f0;
+                    box-shadow: var(--shadow-sm);
+                    border: 1px solid var(--border-subtle);
                     margin-bottom: 24px;
                 }
                 .banner-avatar {
                     position: relative;
                     width: 80px;
                     height: 80px;
-                    background: #8b5cf6;
+                    background: var(--primary);
                     color: white;
                     border-radius: 50%;
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     font-size: 28px;
-                    font-weight: 700;
-                    letter-spacing: 1px;
+                    font-weight: 600;
+                    letter-spacing: 0.05em;
                     flex-shrink: 0;
                 }
                 .avatar-upload-btn {
                     position: absolute;
                     bottom: -4px;
                     right: -4px;
-                    background: #ffffff;
-                    border: 1px solid #e2e8f0;
+                    background: var(--bg-surface);
+                    border: 1px solid var(--border-strong);
                     border-radius: 50%;
                     width: 28px;
                     height: 28px;
@@ -495,11 +494,11 @@ const Profile = () => {
                     justify-content: center;
                     font-size: 14px;
                     cursor: pointer;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                    box-shadow: var(--shadow-sm);
                     transition: all 0.2s;
                 }
                 .avatar-upload-btn:hover {
-                    background: #f8fafc;
+                    background: var(--bg-hover);
                     transform: scale(1.05);
                 }
                 .banner-info {
@@ -510,13 +509,14 @@ const Profile = () => {
                 .banner-info h2 {
                     margin: 0;
                     font-size: 22px;
-                    font-weight: 600;
-                    color: #1e293b;
+                    font-weight: 700;
+                    color: var(--text-heading);
+                    letter-spacing: -0.01em;
                 }
                 .text-email {
                     margin: 0;
                     font-size: 14px;
-                    color: #64748b;
+                    color: var(--text-muted);
                 }
                 .banner-badges {
                     display: flex;
@@ -524,18 +524,18 @@ const Profile = () => {
                     margin-top: 4px;
                 }
                 .badge-role {
-                    background: #dcfce7;
-                    color: #166534;
+                    background: var(--info-bg);
+                    color: var(--info);
                     padding: 4px 10px;
-                    border-radius: 4px;
+                    border-radius: var(--radius-sm);
                     font-size: 12px;
                     font-weight: 600;
                 }
                 .badge-emp-id {
-                    background: #f1f5f9;
-                    color: #475569;
+                    background: var(--bg-hover);
+                    color: var(--text-main);
                     padding: 4px 10px;
-                    border-radius: 4px;
+                    border-radius: var(--radius-sm);
                     font-size: 12px;
                     font-weight: 600;
                 }
@@ -550,11 +550,11 @@ const Profile = () => {
 
                 /* Cards */
                 .ui-card {
-                    background: #ffffff;
-                    border-radius: 12px;
+                    background: var(--bg-surface);
+                    border-radius: var(--radius-md);
                     padding: 24px;
-                    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-                    border: 1px solid #e2e8f0;
+                    box-shadow: var(--shadow-sm);
+                    border: 1px solid var(--border-subtle);
                 }
                 .mb-24 { margin-bottom: 24px; }
                 
@@ -565,13 +565,13 @@ const Profile = () => {
                     margin-bottom: 24px;
                 }
                 .purple-icon {
-                    color: #7c3aed;
+                    color: var(--primary);
                 }
                 .card-header h3 {
                     margin: 0;
-                    font-size: 18px;
+                    font-size: 16px;
                     font-weight: 600;
-                    color: #1e293b;
+                    color: var(--text-heading);
                 }
 
                 /* Forms */
@@ -593,29 +593,30 @@ const Profile = () => {
                 .form-group label {
                     font-size: 13px;
                     font-weight: 500;
-                    color: #64748b;
+                    color: var(--text-main);
                 }
                 .ui-form input {
                     padding: 10px 14px;
-                    border: 1px solid #cbd5e1;
-                    border-radius: 6px;
+                    border: 1px solid var(--border-strong);
+                    border-radius: var(--radius-sm);
                     font-size: 14px;
-                    color: #334155;
+                    color: var(--text-heading);
                     outline: none;
-                    transition: border-color 0.2s;
+                    transition: border-color 0.15s ease;
+                    background: var(--bg-input);
                 }
                 .ui-form input:focus {
-                    border-color: #8b5cf6;
-                    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+                    border-color: var(--primary);
+                    box-shadow: var(--ring-focus);
                 }
                 .input-disabled {
-                    background-color: #f8fafc;
-                    color: #94a3b8 !important;
+                    background-color: var(--bg-hover) !important;
+                    color: var(--text-disabled) !important;
                     cursor: not-allowed;
                 }
                 .input-helper {
                     font-size: 11px;
-                    color: #94a3b8;
+                    color: var(--text-muted);
                 }
                 
                 /* Input with icon */
@@ -631,46 +632,46 @@ const Profile = () => {
                 .input-icon {
                     position: absolute;
                     left: 12px;
-                    color: #94a3b8;
+                    color: var(--text-muted);
                     font-size: 14px;
                 }
 
                 /* Buttons */
                 .btn-save-full {
                     width: 100%;
-                    background: #7c3aed;
+                    background: var(--primary);
                     color: white;
                     border: none;
                     padding: 12px;
-                    border-radius: 6px;
+                    border-radius: var(--radius-sm);
                     font-size: 14px;
-                    font-weight: 600;
+                    font-weight: 500;
                     cursor: pointer;
                     display: flex;
                     justify-content: center;
                     align-items: center;
                     gap: 8px;
-                    transition: background 0.2s;
+                    transition: background 0.15s;
                     margin-top: 8px;
                 }
                 .btn-save-full:hover {
-                    background: #6d28d9;
+                    background: var(--primary-hover);
                 }
                 .btn-outline-purple {
                     background: transparent;
-                    color: #7c3aed;
-                    border: 1px solid #7c3aed;
+                    color: var(--primary);
+                    border: 1px solid var(--primary);
                     padding: 10px 16px;
-                    border-radius: 6px;
+                    border-radius: var(--radius-sm);
                     font-size: 14px;
-                    font-weight: 600;
+                    font-weight: 500;
                     cursor: pointer;
-                    transition: all 0.2s;
+                    transition: all 0.15s;
                     margin-top: 8px;
                     width: max-content;
                 }
                 .btn-outline-purple:hover {
-                    background: #f5f3ff;
+                    background: var(--primary-light);
                 }
 
                 /* Details List */
@@ -689,34 +690,26 @@ const Profile = () => {
                     align-items: center;
                     gap: 8px;
                     font-size: 14px;
-                    color: #64748b;
+                    color: var(--text-muted);
                 }
                 .detail-value {
                     font-size: 14px;
                     font-weight: 500;
-                    color: #1e293b;
-                }
-                .badge-active {
-                    background: #dcfce7;
-                    color: #166534;
-                    padding: 4px 10px;
-                    border-radius: 4px;
-                    font-size: 12px;
-                    font-weight: 600;
+                    color: var(--text-heading);
                 }
 
                 .h-full { height: 100%; }
 
                 /* Toggles */
                 .toggle-list { display: flex; flex-direction: column; gap: 16px; }
-                .toggle-item { display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid #e2e8f0; }
+                .toggle-item { display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid var(--border-light); }
                 .toggle-item:last-child { border-bottom: none; padding-bottom: 0; }
-                .toggle-label { font-size: 14px; font-weight: 500; color: #1e293b; }
+                .toggle-label { font-size: 14px; font-weight: 500; color: var(--text-heading); }
                 .switch { position: relative; display: inline-block; width: 40px; height: 22px; flex-shrink: 0; }
                 .switch input { opacity: 0; width: 0; height: 0; }
-                .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .4s; border-radius: 24px; }
-                .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-                input:checked + .slider { background-color: #7c3aed; }
+                .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--border-strong); transition: .2s; border-radius: 24px; }
+                .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .2s; border-radius: 50%; box-shadow: var(--shadow-sm); }
+                input:checked + .slider { background-color: var(--primary); }
                 input:checked + .slider:before { transform: translateX(18px); }
 
                 /* Timeline */
@@ -728,17 +721,17 @@ const Profile = () => {
                     top: 10px;
                     bottom: 10px;
                     width: 2px;
-                    background: #e2e8f0;
+                    background: var(--border-light);
                     z-index: 0;
                 }
                 .timeline-item { display: flex; gap: 16px; position: relative; z-index: 1; }
-                .timeline-icon { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #ffffff; border: 2px solid #ffffff; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
-                .timeline-icon.green { background: #ecfeff; color: #0891b2; }
-                .timeline-icon.blue { background: #eff6ff; color: #2563eb; }
-                .timeline-icon.purple { background: #f5f3ff; color: #7c3aed; }
+                .timeline-icon { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--bg-surface); border: 2px solid var(--bg-surface); box-shadow: var(--shadow-sm); }
+                .timeline-icon.green { background: var(--success-bg); color: var(--success); }
+                .timeline-icon.blue { background: var(--info-bg); color: var(--info); }
+                .timeline-icon.purple { background: var(--primary-light); color: var(--primary); }
                 .timeline-content { display: flex; flex-direction: column; gap: 4px; padding-top: 4px; }
-                .timeline-content p { margin: 0; font-size: 14px; font-weight: 500; color: #1e293b; }
-                .timeline-content span { font-size: 12px; color: #64748b; }
+                .timeline-content p { margin: 0; font-size: 13px; font-weight: 500; color: var(--text-heading); }
+                .timeline-content span { font-size: 12px; color: var(--text-muted); }
 
                 /* Responsive */
                 @media (max-width: 900px) {
@@ -752,21 +745,22 @@ const Profile = () => {
 
                 /* Danger Zone */
                 .danger-zone-card {
-                    background: #fff;
-                    border: 1px solid #fecaca;
-                    border-radius: 12px;
+                    background: var(--bg-surface);
+                    border: 1px solid var(--danger);
+                    border-radius: var(--radius-md);
                     margin-top: 24px;
                     overflow: hidden;
                 }
                 .danger-header {
-                    background: #fef2f2;
+                    background: var(--danger-bg);
                     padding: 16px 24px;
-                    border-bottom: 1px solid #fecaca;
+                    border-bottom: 1px solid var(--danger);
                 }
                 .danger-header h3 {
                     margin: 0;
-                    color: #dc2626;
-                    font-size: 16px;
+                    color: var(--danger);
+                    font-size: 15px;
+                    font-weight: 600;
                 }
                 .danger-content {
                     padding: 24px;
@@ -776,26 +770,26 @@ const Profile = () => {
                 }
                 .danger-info h4 {
                     margin: 0 0 4px 0;
-                    color: #1e293b;
+                    color: var(--text-heading);
                 }
                 .danger-info p {
                     margin: 0;
-                    color: #64748b;
-                    font-size: 14px;
+                    color: var(--text-muted);
+                    font-size: 13px;
                 }
                 .btn-danger {
-                    background: #ef4444;
+                    background: var(--danger);
                     color: white;
                     border: none;
                     padding: 10px 16px;
-                    border-radius: 6px;
-                    font-weight: 600;
+                    border-radius: var(--radius-sm);
+                    font-weight: 500;
                     cursor: pointer;
                     white-space: nowrap;
                     margin-left: 24px;
                 }
                 .btn-danger:hover {
-                    background: #dc2626;
+                    background: #b91c1c; /* darker red */
                 }
 
                 /* Modal */

@@ -19,19 +19,19 @@ const StatCard = ({ title, value, icon, color, trend, onClick }) => {
             </div>
             <style jsx="true">{`
                 .stat-card-modern {
-                    background: var(--bg-card);
-                    border: 1px solid var(--border);
-                    border-radius: var(--radius-lg, 16px);
+                    background: var(--bg-surface);
+                    border: 1px solid var(--border-subtle);
+                    border-radius: var(--radius-md);
                     padding: 22px;
                     box-shadow: var(--shadow-sm);
-                    transition: all 0.25s ease;
+                    transition: all 0.2s ease;
                     position: relative;
                     overflow: hidden;
                 }
                 .stat-card-modern:hover {
                     transform: translateY(-2px);
                     box-shadow: var(--shadow-md);
-                    border-color: var(--border-hover);
+                    border-color: var(--border-strong);
                 }
                 .stat-card-modern.clickable {
                     cursor: pointer;
@@ -44,34 +44,34 @@ const StatCard = ({ title, value, icon, color, trend, onClick }) => {
                 .stat-visual {
                     width: 48px;
                     height: 48px;
-                    border-radius: var(--radius-md, 12px);
+                    border-radius: var(--radius-md);
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     flex-shrink: 0;
-                    transition: transform 0.25s ease;
+                    transition: transform 0.2s ease;
                 }
                 .stat-card-modern:hover .stat-visual {
                     transform: scale(1.05);
                 }
                 .stat-label-text {
-                    font-size: 12px;
+                    font-size: 13px;
                     font-weight: 500;
                     color: var(--text-muted);
                     text-transform: uppercase;
-                    letter-spacing: 0.3px;
+                    letter-spacing: 0.05em;
                     margin: 0;
                 }
                 .stat-value-text {
                     font-size: 24px;
-                    font-weight: 800;
+                    font-weight: 700;
                     margin: 2px 0 4px;
-                    color: var(--text-primary);
+                    color: var(--text-heading);
                     line-height: 1.1;
                 }
                 .trend {
                     font-size: 12px;
-                    font-weight: 600;
+                    font-weight: 500;
                     display: flex;
                     align-items: center;
                     gap: 4px;
