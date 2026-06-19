@@ -67,13 +67,16 @@ const loginUser = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 role: role,
+                picture: user.picture,
                 isProfileComplete: user.isProfileComplete,
                 token: generateToken(user._id),
                 user: {
                     id: user._id,
                     name: user.name,
                     email: user.email,
-                    role: role
+                    role: role,
+                    picture: user.picture,
+                    isProfileComplete: user.isProfileComplete
                 }
             });
         }
@@ -303,6 +306,44 @@ const updateUserProfile = async (req, res) => {
     }
 };
 
+// @desc    Get user profile
+// @route   GET /api/auth/profile
+// @access  Private
+const getUserProfile = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id);
+
+        if (user) {
+            let role = user.role;
+            if (user.email === 'admin@smtbms.com') {
+                role = 'Super Admin';
+            }
+
+            res.json({
+                _id: user._id,
+                name: user.name,
+                email: user.email,
+                role: role,
+                picture: user.picture,
+                isProfileComplete: user.isProfileComplete,
+                token: generateToken(user._id),
+                user: {
+                    id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    role: role,
+                    picture: user.picture,
+                    isProfileComplete: user.isProfileComplete
+                }
+            });
+        } else {
+            res.status(404).json({ message: 'User not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 // @desc    Get all users
 // @route   GET /api/auth/users
 // @access  Private/Admin/Manager
@@ -383,4 +424,4 @@ const deleteAccount = async (req, res) => {
     }
 };
 
-module.exports = { registerUser, loginUser, googleAuth, updateUserProfile, getUsers, deleteAccount };
+module.exports = { registerUser, loginUser, googleAuth, getUserProfile, updateUserProfile, getUsers, deleteAccount };
