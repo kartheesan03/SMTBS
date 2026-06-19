@@ -298,12 +298,12 @@ const Payroll = () => {
                 </div>
             )}
 
-            <div className="main-content">
+            <div className="module-container">
                 {/* Header */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
+                <div className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', flexWrap: 'wrap', gap: '16px' }}>
                     <div>
-                        <h1 style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '0 0 4px 0', letterSpacing: '-0.5px' }}>Payroll Management</h1>
-                        <p style={{ fontSize: '14px', color: '#64748b', margin: 0 }}>Process salaries, approvals, and payment tracking</p>
+                        <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '0 0 4px 0', letterSpacing: '-0.02em' }}>Payroll Management</h1>
+                        <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0, fontWeight: 500 }}>Process salaries, approvals, and payment tracking</p>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
                         <div style={{ display: 'flex', alignItems: 'center', background: '#fff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '8px 14px', gap: '8px' }}>
@@ -331,7 +331,7 @@ const Payroll = () => {
                 </div>
 
                 {/* ===== KPI ROW (3 per row, 2 rows) ===== */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '16px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '24px' }}>
                     {[
                         { label: 'Total Disbursement', value: `₹${stats.total.toLocaleString()}`, sub: 'All time', icon: Wallet, iconBg: '#eff6ff', iconColor: '#3b82f6' },
                         { label: 'Paid Employees', value: stats.paid, sub: `₹${stats.paidTotal.toLocaleString()}`, icon: Users, iconBg: '#ecfdf5', iconColor: '#10b981', subColor: '#10b981' },
@@ -340,26 +340,26 @@ const Payroll = () => {
                         { label: 'Current Month Payroll', value: `₹${stats.thisMonth.toLocaleString()}`, sub: 'Current period', icon: Activity, iconBg: '#f0fdf4', iconColor: '#16a34a' },
                         { label: 'Average Salary', value: `₹${Math.round(averageSalary).toLocaleString()}`, sub: 'Per employee', icon: DollarSign, iconBg: '#f8fafc', iconColor: '#64748b' },
                     ].map((kpi, idx) => (
-                        <div key={idx} className="bento-card" style={{ borderRadius: '14px', padding: '16px 18px', display: 'flex', alignItems: 'center', gap: '14px' }}>
+                        <div key={idx} className="dashboard-card-3d" style={{ padding: '16px 18px', display: 'flex', alignItems: 'center', gap: '14px' }}>
                             <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: kpi.iconBg, color: kpi.iconColor, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                                 <kpi.icon size={18} />
                             </div>
                             <div style={{ flex: 1, minWidth: 0 }}>
-                                <div style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>{kpi.label}</div>
-                                <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', lineHeight: 1, marginBottom: '4px' }}>{kpi.value}</div>
-                                <div style={{ fontSize: '11px', fontWeight: 600, color: kpi.subColor || '#94a3b8' }}>{kpi.sub}</div>
+                                <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>{kpi.label}</div>
+                                <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-heading)', lineHeight: 1, marginBottom: '4px' }}>{kpi.value}</div>
+                                <div style={{ fontSize: '11px', fontWeight: 600, color: kpi.subColor || 'var(--text-muted)' }}>{kpi.sub}</div>
                             </div>
                         </div>
                     ))}
                 </div>
 
                 {/* ===== ANALYTICS ROW: Trend (5fr) + Distribution (3fr) + Status (4fr) ===== */}
-                <div style={{ display: 'grid', gridTemplateColumns: '5fr 3fr 4fr', gap: '16px', marginBottom: '16px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '5fr 3fr 4fr', gap: '16px', marginBottom: '24px' }}>
 
                     {/* Monthly Payroll Trend */}
-                    <div className="bento-card" style={{ borderRadius: '14px', display: 'flex', flexDirection: 'column', minHeight: '280px', overflow: 'hidden' }}>
+                    <div className="dashboard-card-3d" style={{ display: 'flex', flexDirection: 'column', minHeight: '280px', overflow: 'hidden' }}>
                         <div style={{ padding: '16px 18px', height: '48px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
-                            <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}><TrendingUp size={16} /> Monthly Payroll Trend</h3>
+                            <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: 'var(--text-heading)', display: 'flex', alignItems: 'center', gap: '8px' }}><TrendingUp size={16} /> Monthly Payroll Trend</h3>
                         </div>
                         <div style={{ flex: 1, padding: '0 18px 18px 18px', overflow: 'hidden' }}>
                             <ResponsiveContainer width="100%" height="100%">
@@ -375,9 +375,9 @@ const Payroll = () => {
                     </div>
 
                     {/* Salary Distribution by Department */}
-                    <div className="bento-card" style={{ borderRadius: '14px', display: 'flex', flexDirection: 'column', minHeight: '280px', overflow: 'hidden' }}>
-                        <div style={{ padding: '14px 18px', height: '44px', display: 'flex', alignItems: 'center', flexShrink: 0, borderBottom: '1px solid #f1f5f9' }}>
-                            <h3 style={{ margin: 0, fontSize: '13px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}><Layers size={15} /> Salary Distribution by Department</h3>
+                    <div className="dashboard-card-3d" style={{ display: 'flex', flexDirection: 'column', minHeight: '280px', overflow: 'hidden' }}>
+                        <div style={{ padding: '14px 18px', height: '44px', display: 'flex', alignItems: 'center', flexShrink: 0, borderBottom: '1px solid var(--border)' }}>
+                            <h3 style={{ margin: 0, fontSize: '13px', fontWeight: 700, color: 'var(--text-heading)', display: 'flex', alignItems: 'center', gap: '8px' }}><Layers size={15} /> Salary Distribution by Department</h3>
                         </div>
                         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '10px 16px 0 16px', overflow: 'hidden' }}>
                             {deptDistributionData.length === 0 ? (
@@ -439,9 +439,9 @@ const Payroll = () => {
                     </div>
 
                     {/* Payroll Status Overview */}
-                    <div className="bento-card" style={{ borderRadius: '14px', display: 'flex', flexDirection: 'column', minHeight: '280px', overflow: 'hidden' }}>
+                    <div className="dashboard-card-3d" style={{ display: 'flex', flexDirection: 'column', minHeight: '280px', overflow: 'hidden' }}>
                         <div style={{ padding: '16px 18px', height: '48px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
-                            <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}><Activity size={16} /> Payroll Status Overview</h3>
+                            <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: 'var(--text-heading)', display: 'flex', alignItems: 'center', gap: '8px' }}><Activity size={16} /> Payroll Status Overview</h3>
                         </div>
                         <div style={{ flex: 1, padding: '0 18px 18px 18px', overflow: 'hidden' }}>
                             <ResponsiveContainer width="100%" height="100%">
@@ -462,16 +462,17 @@ const Payroll = () => {
                 </div>
 
                 {/* ===== TABLE: Employee Salary Ledger ===== */}
-                <div className="bento-card" style={{ borderRadius: '12px', overflow: 'hidden', marginBottom: '16px' }}>
-                    <div style={{ padding: '12px 16px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <h3 style={{ margin: 0, fontSize: '13px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}><FileText size={15} /> Employee Salary Ledger</h3>
-                        <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 500 }}>{salaries.length} record{salaries.length !== 1 ? 's' : ''}</span>
+                <div className="dashboard-card-3d" style={{ overflow: 'hidden', marginBottom: '16px' }}>
+                    <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <h3 style={{ margin: 0, fontSize: '13px', fontWeight: 700, color: 'var(--text-heading)', display: 'flex', alignItems: 'center', gap: '8px' }}><FileText size={15} /> Employee Salary Ledger</h3>
+                        <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 500 }}>{salaries.length} record{salaries.length !== 1 ? 's' : ''}</span>
                     </div>
                     <div style={{ maxHeight: '420px', overflowY: 'auto', overflowX: 'auto' }}>
                         {loading ? (
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px' }}><Loader size={24} className="spin-icon"/></div>
                         ) : (
-                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', tableLayout: 'fixed', minWidth: '1150px' }}>
+                            <div className="enterprise-table-container">
+                            <table className="enterprise-table">
                                 <colgroup>
                                     <col style={{ width: '12%' }} /> {/* Employee Name */}
                                     <col style={{ width: '8%' }} />  {/* Employee ID */}
@@ -486,26 +487,23 @@ const Payroll = () => {
                                     <col style={{ width: '11%' }} /> {/* Actions */}
                                 </colgroup>
                                 <thead>
-                                    <tr style={{ borderBottom: '2px solid #e2e8f0', color: '#64748b', textAlign: 'left', background: '#f8fafc', position: 'sticky', top: 0, zIndex: 2 }}>
-                                        <th style={{ padding: '10px 14px', fontWeight: 600, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Employee</th>
-                                        <th style={{ padding: '10px 14px', fontWeight: 600, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Emp ID</th>
-                                        <th style={{ padding: '10px 14px', fontWeight: 600, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Department</th>
-                                        <th style={{ padding: '10px 14px', fontWeight: 600, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Month</th>
-                                        <th style={{ padding: '10px 14px', fontWeight: 600, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px', textAlign: 'right' }}>Base Salary</th>
-                                        <th style={{ padding: '10px 14px', fontWeight: 600, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px', textAlign: 'right' }}>Adjustments</th>
-                                        <th style={{ padding: '10px 14px', fontWeight: 600, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px', textAlign: 'right' }}>Net Pay</th>
-                                        <th style={{ padding: '10px 14px', fontWeight: 600, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Method</th>
-                                        <th style={{ padding: '10px 14px', fontWeight: 600, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Date</th>
-                                        <th style={{ padding: '10px 14px', fontWeight: 600, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px', textAlign: 'center' }}>Status</th>
-                                        <th style={{ padding: '10px 14px', fontWeight: 600, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px', textAlign: 'center' }}>Actions</th>
+                                    <tr>
+                                        <th>Employee</th>
+                                        <th>Emp ID</th>
+                                        <th>Department</th>
+                                        <th>Month</th>
+                                        <th style={{ textAlign: 'right' }}>Base Salary</th>
+                                        <th style={{ textAlign: 'right' }}>Adjustments</th>
+                                        <th style={{ textAlign: 'right' }}>Net Pay</th>
+                                        <th>Method</th>
+                                        <th>Date</th>
+                                        <th style={{ textAlign: 'center' }}>Status</th>
+                                        <th style={{ textAlign: 'center' }}>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {salaries.map(s => (
-                                        <tr key={s._id}
-                                            style={{ borderBottom: '1px solid #f1f5f9', transition: 'background 0.15s', height: '52px' }}
-                                            onMouseEnter={e => e.currentTarget.style.background = '#f8fafc'}
-                                            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                                        <tr key={s._id}>
                                             <td style={{ padding: '8px 14px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                                     <div style={{ width: '26px', height: '26px', borderRadius: '6px', background: '#e0e7ff', color: '#4f46e5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '11px', fontWeight: 700 }}>
@@ -622,6 +620,7 @@ const Payroll = () => {
                                     )}
                                 </tbody>
                             </table>
+                            </div>
                         )}
                     </div>
                 </div>
@@ -629,7 +628,7 @@ const Payroll = () => {
                 {/* ===== BOTTOM ROW: Recent Activity + Upcoming Payments ===== */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px', marginBottom: '20px' }}>
                     {/* Recent Payroll Activities */}
-                    <div className="bento-card" style={{ borderRadius: '14px', overflow: 'hidden' }}>
+                    <div className="dashboard-card-3d" style={{ borderRadius: '14px', overflow: 'hidden' }}>
                         <div style={{ padding: '16px 18px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center' }}>
                             <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}><Activity size={16} /> Recent Payroll Activities</h3>
                         </div>
@@ -655,7 +654,7 @@ const Payroll = () => {
                     </div>
 
                     {/* Upcoming Salary Payments */}
-                    <div className="bento-card" style={{ borderRadius: '14px', overflow: 'hidden' }}>
+                    <div className="dashboard-card-3d" style={{ borderRadius: '14px', overflow: 'hidden' }}>
                         <div style={{ padding: '16px 18px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center' }}>
                             <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}><Calendar size={16} /> Upcoming Salary Payments</h3>
                         </div>

@@ -168,20 +168,18 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
             </div>
 
             {user && (
-                <NavLink to="/profile" className="sidebar-user-card" style={{ textDecoration: 'none' }}>
+                <div className="sidebar-profile-section" onClick={() => window.location.href='/profile'}>
                     <div className="user-avatar-wrapper">
-                        <div className="user-avatar-circle">
-                            <img src={user?.picture || `https://ui-avatars.com/api/?name=${user?.name || 'Admin'}&background=2563eb&color=fff`} alt="User Avatar" />
-                        </div>
+                        <img src={user?.picture || `https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=2563eb&color=fff`} alt="User Avatar" className="user-avatar-circle" />
                         {isCollapsed && <span className="status-dot-absolute"></span>}
                     </div>
                     {!isCollapsed && (
                         <div className="user-details">
-                            <h4 className="user-name" style={{color: '#ffffff'}}>{user?.name || 'User'}</h4>
-                            <span className="user-role" style={{color: '#94a3b8'}}>{designation || user?.role || 'Employee'}</span>
+                            <span className="user-name">{user?.name || 'User'}</span>
+                            <span className="user-role">{designation || user?.role || 'Employee'}</span>
                         </div>
                     )}
-                </NavLink>
+                </div>
             )}
 
             <nav className="sidebar-nav">
@@ -204,13 +202,14 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                         )}
                     </NavLink>
                 ))}
+                {/* Integrate Logout directly into nav */}
+                <div style={{ marginTop: 'auto', paddingTop: '12px' }}>
+                    <button onClick={logout} className="nav-item logout-btn" title={isCollapsed ? 'Logout' : ''}>
+                        <span className="item-icon-wrapper"><LogOut size={18} /></span>
+                        {!isCollapsed && <span className="item-name">Logout</span>}
+                    </button>
+                </div>
             </nav>
-            <div className="sidebar-footer">
-                <button onClick={logout} className="logout-btn nav-item" title={isCollapsed ? 'Logout' : ''}>
-                    <span className="item-icon-wrapper"><LogOut size={18} /></span>
-                    {!isCollapsed && <span className="item-name">Logout</span>}
-                </button>
-            </div>
 
             <style jsx="true">{`
                 .sidebar {
@@ -223,9 +222,16 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                     position: fixed;
                     left: 0;
                     top: 0;
-                    padding: 20px 0;
+                    padding: 16px 0;
                     z-index: 1000;
                     transition: width 0.3s ease, transform 0.3s ease;
+                }
+                .sidebar::-webkit-scrollbar {
+                    display: none;
+                }
+                .sidebar {
+                    -ms-overflow-style: none;
+                    scrollbar-width: none;
                 }
                 .sidebar.collapsed {
                     width: 72px;
@@ -234,11 +240,11 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                     display: flex;
                     align-items: center;
                     justify-content: space-between;
-                    padding: 0 20px 20px;
+                    padding: 0 16px 16px;
                 }
                 .sidebar.collapsed .sidebar-header {
                     justify-content: center;
-                    padding: 0 10px 20px;
+                    padding: 0 10px 16px;
                 }
                 .sidebar-logo h2 {
                     font-size: 20px;
@@ -281,37 +287,31 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                     z-index: 10;
                 }
                 
-                .sidebar-user-card {
+                .sidebar-profile-section {
                     display: flex;
                     align-items: center;
                     gap: 12px;
-                    padding: 12px;
-                    margin: 0 16px 20px;
+                    padding: 12px 16px;
+                    margin-bottom: 16px;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                }
+                .sidebar-profile-section:hover {
                     background: var(--bg-hover);
-                    border-radius: 8px;
-                    border: 1px solid var(--border-light);
-                    transition: all 0.2s ease;
                 }
-                .sidebar-user-card:hover {
-                    border-color: var(--border-strong);
-                    background: var(--bg-surface);
-                    box-shadow: var(--shadow-sm);
-                }
-                .sidebar.collapsed .sidebar-user-card {
-                    padding: 8px;
-                    margin: 0 12px 20px;
+                .sidebar.collapsed .sidebar-profile-section {
+                    padding: 12px 0;
                     justify-content: center;
                 }
-                .user-avatar-wrapper { position: relative; }
+                .user-avatar-wrapper { position: relative; display: flex; align-items: center; justify-content: center; }
                 .user-avatar-circle {
-                    width: 36px; height: 36px; border-radius: 50%; overflow: hidden; border: 1px solid var(--border-strong);
+                    width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border-subtle);
                 }
                 .sidebar.collapsed .user-avatar-circle {
                     width: 32px; height: 32px;
                 }
-                .user-avatar-circle img { width: 100%; height: 100%; object-fit: cover; }
-                .user-details { display: flex; flex-direction: column; justify-content: center; }
-                .user-name { color: var(--text-heading); font-size: 13px; font-weight: 600; margin: 0; line-height: 1.2; }
+                .user-details { display: flex; flex-direction: column; justify-content: center; overflow: hidden; }
+                .user-name { color: var(--text-heading); font-size: 13px; font-weight: 600; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
                 .user-role { color: var(--text-muted); font-size: 11px; font-weight: 500; margin-top: 2px; text-transform: capitalize; }
                 .status-dot-absolute {
                     position: absolute; bottom: 0; right: 0; width: 8px; height: 8px;
@@ -319,14 +319,16 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                 }
 
                 .sidebar-nav {
-                    flex: 1; padding: 0 12px; overflow-y: auto; overflow-x: hidden;
+                    flex: 1; padding: 0 16px 16px; overflow-y: auto; overflow-x: hidden;
                     display: flex; flex-direction: column; gap: 4px;
+                    -ms-overflow-style: none; scrollbar-width: none;
                 }
+                .sidebar-nav::-webkit-scrollbar { display: none; }
+                
                 .nav-item {
                     display: flex; align-items: center; padding: 10px 12px;
-                    color: var(--text-main); border-radius: 6px; transition: all 0.15s ease;
-                    cursor: pointer; font-weight: 500; font-size: 13px; text-decoration: none;
-                    position: relative; white-space: nowrap;
+                    color: var(--text-muted); border-radius: var(--radius-sm); transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+                    text-decoration: none; font-weight: 500; font-size: 13px; position: relative; border: none; background: transparent; width: 100%; text-align: left; cursor: pointer;
                 }
                 .sidebar.collapsed .nav-item {
                     padding: 10px; justify-content: center;
@@ -349,16 +351,17 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                 .nav-item:hover { background: var(--bg-hover); color: var(--text-heading); }
                 .nav-item:hover .item-icon-wrapper { color: var(--text-heading); }
                 
-                .nav-item.active { background: var(--primary-light); color: var(--primary) !important; font-weight: 600; }
+                .nav-item.active { 
+                    background: var(--primary-light); 
+                    color: var(--primary) !important; 
+                    font-weight: 600; 
+                }
                 .nav-item.active .item-icon-wrapper { color: var(--primary) !important; }
                 
-                .sidebar-footer { padding: 12px; margin-top: auto; border-top: 1px solid var(--border-subtle); }
                 .logout-btn {
-                    width: 100%; background: transparent; border: none; text-align: left;
-                    color: var(--text-muted); display: flex; align-items: center; padding: 10px 12px; font-weight: 500; border-radius: 6px; cursor: pointer; transition: all 0.15s ease;
+                    color: var(--text-muted);
                 }
-                .sidebar.collapsed .logout-btn { justify-content: center; padding: 10px; }
-                .logout-btn:hover { color: var(--danger); background: var(--danger-bg); }
+                .logout-btn:hover { color: var(--danger); background: #fef2f2; }
                 .logout-btn:hover .item-icon-wrapper { color: var(--danger); }
 
                 @media (max-width: 768px) {

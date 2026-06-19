@@ -111,10 +111,10 @@ const LeaveManagement = () => {
             )}
 
             {/* ── Header ── */}
-            <header className="module-header">
+            <header className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
                 <div>
-                    <h1 className="title-gradient">{isHR ? 'Leave Administration' : 'Leave Management'}</h1>
-                    <p className="text-muted">
+                    <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '0 0 4px 0', letterSpacing: '-0.02em' }}>{isHR ? 'Leave Administration' : 'Leave Management'}</h1>
+                    <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0, fontWeight: 500 }}>
                         {isHR ? 'Review employee leave requests and manage organization-wide attendance.' : 'Manage your time-off requests and track your leave balance.'}
                     </p>
                 </div>
@@ -133,7 +133,7 @@ const LeaveManagement = () => {
                     const b = balance[type];
                     const pct = Math.round((b.remaining / b.total) * 100);
                     return (
-                        <div key={type} className="glass-card lv-bal-card">
+                        <div key={type} className="dashboard-card-3d lv-bal-card" style={{ padding: '22px' }}>
                             <div className="lv-bal-top">
                                 <span className="lv-bal-type">{type} Leave</span>
                                 <span className="lv-bal-pct">{pct}%</span>
@@ -162,7 +162,7 @@ const LeaveManagement = () => {
             {/* ── Application Form Modal ── */}
             {formOpen && (
                 <div className="modal-overlay">
-                    <div className="glass-card lv-form-card animate-pop">
+                    <div className="dashboard-card-3d lv-form-card animate-pop" style={{ padding: '32px' }}>
                         <div className="lv-form-head">
                             <h3>New Leave Application</h3>
                             <button className="close-btn" onClick={() => setFormOpen(false)}>✕</button>
@@ -236,7 +236,7 @@ const LeaveManagement = () => {
             {/* ── Review Modal (HR) ── */}
             {reviewModal && (
                 <div className="modal-overlay">
-                    <div className="glass-card lv-form-card animate-pop">
+                    <div className="dashboard-card-3d lv-form-card animate-pop" style={{ padding: '32px' }}>
                         <div className="lv-form-head">
                             <h3>Review Leave Request</h3>
                             <button className="close-btn" onClick={() => setReviewModal(null)}>✕</button>
@@ -270,9 +270,9 @@ const LeaveManagement = () => {
             )}
 
             {/* ── Leave History Table ── */}
-            <div className="glass-card lv-table-card">
-                <div className="lv-table-header">
-                    <h3>{isHR ? 'All Leave Requests' : 'Leave History'}</h3>
+            <div className="dashboard-card-3d lv-table-card" style={{ padding: '0', overflow: 'hidden' }}>
+                <div className="lv-table-header" style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)' }}>
+                    <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: 'var(--text-heading)' }}>{isHR ? 'All Leave Requests' : 'Leave History'}</h3>
                     <span className="text-muted" style={{ fontSize: 13 }}>{leaves.length} request{leaves.length !== 1 ? 's' : ''}</span>
                 </div>
 
@@ -287,15 +287,16 @@ const LeaveManagement = () => {
                         <p>No leave requests found. Apply for leave above.</p>
                     </div>
                 ) : (
-                    <table className="lv-table">
+                    <div className="enterprise-table-container">
+                    <table className="enterprise-table">
                         <thead>
                             <tr>
                                 {isHR && <th>Employee</th>}
                                 <th>Type</th>
                                 <th>Dates</th>
                                 <th>Days</th>
-                                <th>Status</th>
-                                <th>Actions</th>
+                                <th style={{ textAlign: 'center' }}>Status</th>
+                                <th style={{ textAlign: 'right' }}>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -323,7 +324,7 @@ const LeaveManagement = () => {
                                             )}
                                         </td>
                                         <td>{days} day{days !== 1 ? 's' : ''}</td>
-                                        <td>
+                                        <td style={{ textAlign: 'center' }}>
                                             <div className={`lv-status-pill ${l.status.toLowerCase()}`}>
                                                 {l.status === 'Approved'  && <CheckCircle size={13} />}
                                                 {l.status === 'Pending'   && <Clock size={13} />}
@@ -332,17 +333,18 @@ const LeaveManagement = () => {
                                                 {l.status}
                                             </div>
                                         </td>
-                                        <td>
+                                        <td style={{ textAlign: 'right' }}>
                                             {l.status === 'Pending' && !isHR && (
                                                 <button
                                                     className="lv-cancel-btn"
                                                     onClick={() => handleCancel(l._id)}
+                                                    style={{ display: 'inline-flex' }}
                                                 >
                                                     <Trash2 size={14} /> Cancel
                                                 </button>
                                             )}
                                             {l.status === 'Pending' && isHR && (
-                                                <div className="lv-review-actions">
+                                                <div className="lv-review-actions" style={{ justifyContent: 'flex-end' }}>
                                                     <button className="btn-approve-sm" onClick={() => setReviewModal({ ...l, reviewStatus: 'Approved', note: '' })}>Approve</button>
                                                     <button className="btn-reject-sm" onClick={() => setReviewModal({ ...l, reviewStatus: 'Rejected', note: '' })}>Reject</button>
                                                 </div>
@@ -358,6 +360,7 @@ const LeaveManagement = () => {
                             })}
                         </tbody>
                     </table>
+                    </div>
                 )}
             </div>
 

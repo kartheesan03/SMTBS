@@ -79,7 +79,7 @@ const GeneratePayroll = () => {
 
     if (loading) {
         return (
-            <div className="main-content flex-center" style={{ height: '80vh' }}>
+            <div className="module-container flex-center" style={{ height: '80vh' }}>
                 <Loader size={30} className="spin-icon" color="#3b82f6" />
             </div>
         );
@@ -95,7 +95,7 @@ const GeneratePayroll = () => {
                 </div>
             )}
 
-            <div className="main-content" style={{ maxWidth: '800px', margin: '0 auto' }}>
+            <div className="module-container" style={{ maxWidth: '800px', margin: '0 auto' }}>
                 <button 
                     onClick={() => navigate('/payroll')} 
                     className="btn-secondary flex-center" 
@@ -104,12 +104,12 @@ const GeneratePayroll = () => {
                     <ArrowLeft size={16} /> Back to Payroll
                 </button>
 
-                <div className="glass-card" style={{ padding: '32px' }}>
+                <div className="dashboard-card-3d" style={{ padding: '32px' }}>
                     <div style={{ marginBottom: '24px' }}>
-                        <h1 style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '0 0 8px 0', letterSpacing: '-0.5px' }}>
+                        <h1 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-heading)', margin: '0 0 8px 0', letterSpacing: '-0.5px' }}>
                             Generate New Payroll Entry
                         </h1>
-                        <p style={{ fontSize: '14px', color: '#64748b', margin: 0 }}>
+                        <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0 }}>
                             Create employee salary record for selected month
                         </p>
                     </div>

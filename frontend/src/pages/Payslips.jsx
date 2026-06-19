@@ -60,21 +60,22 @@ const Payslips = () => {
 
     return (
         <div className="module-container">
-            <header className="module-header">
+            <header className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
                 <div>
-                    <h1 className="title-gradient">Payslips</h1>
-                    <p className="text-muted">Review employee payment history and download official payslips.</p>
+                    <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '0 0 4px 0', letterSpacing: '-0.02em' }}>Payslips</h1>
+                    <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0, fontWeight: 500 }}>Review employee payment history and download official payslips.</p>
                 </div>
             </header>
 
-            <div className="module-content mt-30">
+            <div className="module-content">
                 {history.length === 0 ? (
-                    <div className="no-salary-card">
+                    <div className="dashboard-card-3d no-salary-card">
                         <DollarSign size={48} className="no-salary-icon" />
                         <h3>No Salary Generated</h3>
                         <p>Payroll has not been generated yet.</p>
                     </div>
                 ) : (
+                <div className="dashboard-card-3d" style={{ overflow: 'hidden' }}>
                 <DataTable 
                     title="Employee Payslips"
                     headers={['Employee', 'ID', 'Department', 'Month', 'Net Amount', 'Status', 'Actions']}
@@ -113,6 +114,7 @@ const Payslips = () => {
                         );
                     }}
                 />
+                </div>
                 )}
             </div>
 

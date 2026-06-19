@@ -254,16 +254,16 @@ const HRReports = () => {
             )}
 
             {/* Premium Light Header */}
-            <header className="hr-reports-header">
+            <header className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
                 <div>
-                    <h1 className="title-text">
+                    <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '0 0 4px 0', letterSpacing: '-0.02em' }}>
                         HR Reports & Analytics
                     </h1>
-                    <p className="subtitle-text">Export comprehensive workforce data, compliance audits, and deep demographic insights.</p>
+                    <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0, fontWeight: 500 }}>Export comprehensive workforce data, compliance audits, and deep demographic insights.</p>
                 </div>
-                <div className="header-actions">
+                <div style={{ display: 'flex', gap: '12px' }}>
                     <button 
-                        className="btn-primary-blue" 
+                        className="btn-primary flex-center gap-8" 
                         onClick={() => setShowCustomModal(true)}
                         disabled={downloading === 'custom-generator'}
                     >
@@ -279,7 +279,7 @@ const HRReports = () => {
                             </>
                         )}
                     </button>
-                    <button className="btn-refresh" onClick={fetchHRStats} title="Sync Live Data">
+                    <button className="btn-secondary-light flex-center" onClick={fetchHRStats} title="Sync Live Data" style={{ padding: '8px', borderRadius: '8px' }}>
                         <RefreshCw size={16} className={loading ? 'spin-icon' : ''} />
                     </button>
                 </div>
@@ -287,7 +287,7 @@ const HRReports = () => {
 
             {/* Premium light KPI Row */}
             <section className="cyber-kpi-row">
-                <div className="kpi-glass-card blue-edge">
+                <div className="dashboard-card-3d blue-edge">
                     <div className="kpi-head">
                         <span>Total Active Staff</span>
                         <Users className="icon-blue" size={18} />
@@ -295,7 +295,7 @@ const HRReports = () => {
                     <h3>{loading ? '...' : mockKPIs.totalEmployees}</h3>
                     <p className="kpi-sub"><TrendingUp size={12} /> Live Headcount</p>
                 </div>
-                <div className="kpi-glass-card green-edge">
+                <div className="dashboard-card-3d green-edge">
                     <div className="kpi-head">
                         <span>Attendance Rate</span>
                         <CheckCircle className="icon-green" size={18} />
@@ -303,7 +303,7 @@ const HRReports = () => {
                     <h3>{mockKPIs.attendanceRate}</h3>
                     <p className="kpi-sub">Weekly Average</p>
                 </div>
-                <div className="kpi-glass-card yellow-edge">
+                <div className="dashboard-card-3d yellow-edge">
                     <div className="kpi-head">
                         <span>Active Absences</span>
                         <Clock className="icon-yellow" size={18} />
@@ -311,7 +311,7 @@ const HRReports = () => {
                     <h3>{loading ? '...' : mockKPIs.onLeave}</h3>
                     <p className="kpi-sub">Approved Leaves</p>
                 </div>
-                <div className="kpi-glass-card pink-edge">
+                <div className="dashboard-card-3d pink-edge">
                     <div className="kpi-head">
                         <span>Monthly Hires</span>
                         <Award className="icon-pink" size={18} />
@@ -321,12 +321,11 @@ const HRReports = () => {
                 </div>
             </section>
 
-            {/* Reports Export Grid */}
             <section className="reports-grid-section">
                 <h2 className="section-title">Core Document Exports</h2>
                 <div className="reports-export-grid">
                     {hrReportsList.map((report, i) => (
-                        <div key={i} className="glass-card hr-report-card">
+                        <div key={i} className="dashboard-card-3d hr-report-card" style={{ padding: '24px' }}>
                             <div className="card-top-accent" style={{ background: report.color }}></div>
                             <div className="report-icon-box" style={{ borderColor: report.color + '33', background: report.color + '0d' }}>
                                 {report.icon}
@@ -354,7 +353,7 @@ const HRReports = () => {
             </section>
 
             {/* High-Fidelity Interactive Analytics double chart */}
-            <section className="interactive-analytics-section mt-30">
+            <section className="interactive-analytics-section mt-30" style={{ marginTop: '30px' }}>
                 <div className="analytics-box-header">
                     <div>
                         <h2 className="section-title">Advanced Demographic & Attendance Analytics</h2>
@@ -364,7 +363,7 @@ const HRReports = () => {
 
                 <div className="analytics-charts-grid">
                     {/* Workforce Attendance Area Chart */}
-                    <div className="glass-card chart-box">
+                    <div className="dashboard-card-3d chart-box" style={{ padding: '24px' }}>
                         <div className="chart-info-header">
                             <h3>Workforce Presence Trend</h3>
                             <span className="badge-glow-blue">Weekly Log</span>
@@ -395,7 +394,7 @@ const HRReports = () => {
                     </div>
 
                     {/* Department Distribution Bar Chart */}
-                    <div className="glass-card chart-box">
+                    <div className="dashboard-card-3d chart-box" style={{ padding: '24px' }}>
                         <div className="chart-info-header">
                             <h3>Departmental Spread</h3>
                             <span className="badge-glow-purple">Active Roles</span>
@@ -428,7 +427,7 @@ const HRReports = () => {
             {/* Custom Report Compilation Modal */}
             {showCustomModal && (
                 <div className="cyber-modal-overlay">
-                    <div className="glass-card cyber-modal-box animate-pop">
+                    <div className="dashboard-card-3d cyber-modal-box animate-pop" style={{ background: 'var(--bg-card)', padding: '32px' }}>
                         <header className="modal-header-cyber">
                             <h3>Compile Custom HR Audit</h3>
                             <button className="btn-close-modal" onClick={() => setShowCustomModal(false)}><X size={16} /></button>
@@ -530,68 +529,21 @@ const HRReports = () => {
                     to { opacity: 1; transform: translateX(0); }
                 }
 
-                /* Header Component */
-                .hr-reports-header {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    gap: 20px;
-                    border-bottom: 1px solid var(--dash-border, #e2e8f0);
-                    padding-bottom: 20px;
-                }
-                .title-text {
-                    font-size: 24px;
-                    font-weight: 800;
-                    color: var(--dash-text-main, #0f172a);
-                    margin: 0;
-                }
-                .subtitle-text {
-                    font-size: 13px;
-                    color: var(--dash-text-muted, #64748b);
-                    margin-top: 6px;
-                }
-                .header-actions {
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                }
-                .btn-primary-blue {
-                    background: var(--dash-primary, #3b82f6);
-                    color: #ffffff;
-                    padding: 10px 18px;
+                .btn-secondary-light {
+                    background: white;
+                    border: 1px solid #cbd5e1;
+                    color: #475569;
+                    padding: 8px 16px;
                     border-radius: 8px;
-                    font-weight: 700;
-                    font-size: 13px;
-                    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
-                    display: inline-flex;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 8px;
-                    transition: all 0.2s ease;
-                }
-                .btn-primary-blue:hover {
-                    background: #2563eb;
-                    transform: translateY(-1px);
-                    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.3);
-                }
-                .btn-refresh {
-                    width: 40px;
-                    height: 40px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    background: #ffffff;
-                    border: 1px solid var(--dash-border, #e2e8f0);
-                    border-radius: 8px;
-                    color: var(--dash-text-muted, #64748b);
+                    font-size: 14px;
+                    font-weight: 600;
                     cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
                     transition: 0.2s;
-                    box-shadow: var(--dash-shadow-sm);
                 }
-                .btn-refresh:hover {
-                    color: var(--dash-primary, #3b82f6);
-                    border-color: var(--dash-primary, #3b82f6);
-                }
+                .btn-secondary-light:hover { background: #f8fafc; color: #1e293b; }
 
                 /* Light KPI Row */
                 .cyber-kpi-row {
@@ -599,23 +551,19 @@ const HRReports = () => {
                     grid-template-columns: repeat(4, 1fr);
                     gap: 20px;
                 }
-                .kpi-glass-card {
-                    background: #ffffff;
-                    border: 1px solid var(--dash-border, #e2e8f0);
-                    padding: 20px;
-                    border-radius: 12px;
+                .blue-edge::before { background: var(--dash-primary, #3b82f6); }
+                .green-edge::before { background: var(--dash-success, #10b981); }
+                .yellow-edge::before { background: var(--dash-warning, #f59e0b); }
+                .pink-edge::before { background: #ec4899; }
+                
+                .blue-edge, .green-edge, .yellow-edge, .pink-edge {
                     position: relative;
+                    padding: 20px;
                     display: flex;
                     flex-direction: column;
                     gap: 6px;
-                    transition: all 0.25s ease;
-                    box-shadow: var(--dash-shadow-sm);
                 }
-                .kpi-glass-card:hover {
-                    transform: translateY(-1.5px);
-                    box-shadow: var(--dash-shadow);
-                }
-                .kpi-glass-card::before {
+                .blue-edge::before, .green-edge::before, .yellow-edge::before, .pink-edge::before {
                     content: '';
                     position: absolute;
                     top: 0; left: 0; right: 0;
@@ -623,10 +571,6 @@ const HRReports = () => {
                     border-top-left-radius: 12px;
                     border-top-right-radius: 12px;
                 }
-                .blue-edge::before { background: var(--dash-primary, #3b82f6); }
-                .green-edge::before { background: var(--dash-success, #10b981); }
-                .yellow-edge::before { background: var(--dash-warning, #f59e0b); }
-                .pink-edge::before { background: #ec4899; }
 
                 .kpi-head {
                     display: flex;
@@ -638,7 +582,7 @@ const HRReports = () => {
                     letter-spacing: 0.5px;
                     color: var(--dash-text-muted, #64748b);
                 }
-                .kpi-glass-card h3 {
+                .kpi-head ~ h3 {
                     font-size: 26px;
                     font-weight: 800;
                     color: var(--dash-text-main, #0f172a);
@@ -676,22 +620,12 @@ const HRReports = () => {
                     gap: 20px;
                 }
                 .hr-report-card {
-                    background: #ffffff;
-                    border: 1px solid var(--dash-border, #e2e8f0);
-                    border-radius: 16px;
-                    padding: 24px;
                     display: flex;
                     align-items: center;
                     gap: 20px;
                     overflow: hidden;
                     position: relative;
                     transition: 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
-                    box-shadow: var(--dash-shadow-sm);
-                }
-                .hr-report-card:hover {
-                    transform: translateY(-2px);
-                    border-color: #cbd5e1;
-                    box-shadow: var(--dash-shadow);
                 }
                 .card-top-accent {
                     position: absolute;
@@ -757,13 +691,6 @@ const HRReports = () => {
                     display: grid;
                     grid-template-columns: repeat(2, 1fr);
                     gap: 20px;
-                }
-                .chart-box {
-                    background: #ffffff;
-                    border: 1px solid var(--dash-border, #e2e8f0);
-                    border-radius: 16px;
-                    padding: 24px;
-                    box-shadow: var(--dash-shadow-sm);
                 }
                 .chart-info-header {
                     display: flex;

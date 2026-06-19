@@ -161,35 +161,46 @@ const CustomerForm = ({
             </div>
 
             <style jsx="true">{`
-                .page-form { display: flex; flex-direction: column; }
+                .page-form { display: flex; flex-direction: column; background: #ffffff; border-radius: var(--radius-lg); border: 1px solid var(--border-subtle); padding: 24px; box-shadow: var(--shadow-sm); }
                 
-                .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
-                .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 20px; }
+                .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+                .form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; position: relative; }
                 .form-group:last-child { margin-bottom: 0; }
-                .form-group label { font-size: 13px; font-weight: 600; color: #475569; }
+                .form-group label { font-size: 13px; font-weight: 600; color: var(--secondary-hover); }
                 
-                .req { color: #ef4444; margin-left: 2px; }
-                .error-text { color: #ef4444; font-size: 12px; margin-top: 4px; font-weight: 500; }
-                .error-border { border-color: #ef4444 !important; }
+                .req { color: var(--danger); margin-left: 2px; }
+                .error-text { color: var(--danger); font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 4px; margin-top: 4px; }
+                .error-border { border-color: var(--danger) !important; box-shadow: 0 0 0 1px var(--danger) !important; }
                 
-                .input-with-icon { display: flex; align-items: center; gap: 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0 12px; transition: all 0.2s; }
-                .input-with-icon:focus-within { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); background: #ffffff; }
-                .input-with-icon input { background: none; border: none; padding: 12px 0; color: #0f172a; width: 100%; font-size: 15px; outline: none; }
+                .input-with-icon { display: flex; align-items: center; gap: 10px; background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-sm); padding: 0 14px; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
+                .input-with-icon:focus-within { border-color: var(--primary); box-shadow: var(--ring-focus); }
+                .input-with-icon input { background: none; border: none; padding: 12px 0; color: var(--text-heading); width: 100%; font-size: 14px; outline: none; font-family: 'Inter', sans-serif; }
+                .input-with-icon svg { color: var(--text-muted); transition: color 0.2s; }
+                .input-with-icon:focus-within svg { color: var(--primary); }
                 
-                .form-group input:not([type]), .form-group input[type="text"], .form-group input[type="email"], .form-group input[type="url"], .form-group select, .form-group textarea, .form-group input:disabled {
-                    padding: 12px 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; color: #0f172a; font-size: 15px; outline: none; transition: all 0.2s;
+                .form-group input:not([type]), .form-group input[type="text"]:not(.input-with-icon input), .form-group input[type="email"]:not(.input-with-icon input), .form-group input[type="url"]:not(.input-with-icon input), .form-group select, .form-group textarea {
+                    padding: 12px 14px; background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-sm); color: var(--text-heading); font-size: 14px; outline: none; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 1px 2px rgba(0,0,0,0.02); font-family: 'Inter', sans-serif;
                 }
-                .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); background: #ffffff; }
-                .form-group input:disabled { color: #94a3b8; cursor: not-allowed; }
-                .input-with-icon input:disabled { color: #94a3b8; cursor: not-allowed; }
+                .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--primary); box-shadow: var(--ring-focus); }
                 
-                .form-actions { display: flex; justify-content: flex-end; gap: 15px; margin-top: 20px; padding-top: 24px; border-top: 1px solid #e2e8f0; }
-                .btn-cancel { display: flex; align-items: center; gap: 8px; background: #ffffff; color: #475569; border: 1px solid #cbd5e1; padding: 10px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; transition: all 0.2s; }
-                .btn-cancel:hover { background: #f8fafc; color: #0f172a; border-color: #94a3b8; }
+                .form-group input:disabled, .input-with-icon input:disabled { color: var(--text-muted); cursor: not-allowed; background: #f8fafc; }
+                .input-with-icon:has(input:disabled) { background: #f8fafc; }
                 
-                .btn-primary { display: flex; align-items: center; gap: 8px; background: #6366f1; color: #ffffff; border: none; padding: 10px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; transition: all 0.2s; }
-                .btn-primary:hover:not(:disabled) { background: #4f46e5; transform: translateY(-1px); }
-                .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
+                .form-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 12px; padding-top: 24px; border-top: 1px solid var(--border-subtle); }
+                
+                /* Reuse global buttons */
+                .btn-cancel {
+                    display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 8px 16px; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s;
+                    background-color: transparent; color: var(--secondary-hover); border: 1px solid var(--border-light);
+                }
+                .btn-cancel:hover { background-color: var(--bg-hover); color: var(--text-heading); }
+                
+                .btn-primary {
+                    display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 8px 16px; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s;
+                    background-color: var(--primary); color: white; border: 1px solid var(--primary); box-shadow: 0 1px 2px rgba(37, 99, 235, 0.2);
+                }
+                .btn-primary:hover:not(:disabled) { background-color: var(--primary-hover); border-color: var(--primary-hover); }
+                .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
 
                 @media (max-width: 768px) {
                     .form-grid { grid-template-columns: 1fr; }

@@ -89,6 +89,7 @@ const Dashboard = () => {
                         </div>
                     ),
                     tables: (
+                        <div className="dashboard-card-3d" style={{ overflow: 'hidden' }}>
                         <DataTable 
                             title="Critical Stock Alerts" 
                             headers={['Item', 'SKU', 'Level', 'Status']} 
@@ -102,6 +103,7 @@ const Dashboard = () => {
                                 </>
                             )}
                         />
+                        </div>
                     )
                 };
             case 'HR':
@@ -138,6 +140,7 @@ const Dashboard = () => {
                         </div>
                     ),
                     tables: (
+                        <div className="dashboard-card-3d" style={{ overflow: 'hidden' }}>
                         <DataTable 
                             title="Employees" 
                             headers={['Name', 'Designation', 'Department', 'Status']} 
@@ -151,6 +154,7 @@ const Dashboard = () => {
                                 </>
                             )}
                         />
+                        </div>
                     )
                 };
             case 'Sales':
@@ -186,6 +190,7 @@ const Dashboard = () => {
                         </div>
                     ),
                     tables: (
+                        <div className="dashboard-card-3d" style={{ overflow: 'hidden' }}>
                         <DataTable 
                             title="Recent Orders" 
                             headers={['Order #', 'Customer', 'Amount', 'Status']} 
@@ -199,6 +204,7 @@ const Dashboard = () => {
                                 </>
                             )}
                         />
+                        </div>
                     )
                 };
             default:
@@ -225,7 +231,7 @@ const Dashboard = () => {
                             </div>
                         </div>
                     ),
-                    tables: <div><p className="text-muted" style={{padding: '20px'}}>No recent activity found.</p></div>
+                    tables: <div className="dashboard-card-3d" style={{ overflow: 'hidden' }}><p className="text-muted" style={{padding: '20px'}}>No recent activity found.</p></div>
                 };
         }
     };

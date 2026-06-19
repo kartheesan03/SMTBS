@@ -107,7 +107,7 @@ const StockRequests = () => {
     };
 
     return (
-        <div className="stock-requests-workspace" style={{ padding: '24px', background: 'var(--bg-body)', minHeight: '100vh' }}>
+        <div className="module-container" style={{ padding: '24px', background: 'var(--bg-body)', minHeight: '100vh' }}>
             <header className="module-header" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px' }}>
                 <div>
                     <h1 style={{ margin: '0 0 6px 0', fontSize: '26px' }}>Stock Requests Pipeline</h1>
@@ -123,7 +123,7 @@ const StockRequests = () => {
                 ) : requests.length === 0 ? (
                     <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>No stock requests found.</div>
                 ) : (
-                    <table className="modern-table">
+                    <table className="enterprise-table">
                         <thead>
                             <tr>
                                 <th>Date</th>

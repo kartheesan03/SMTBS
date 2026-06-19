@@ -102,11 +102,11 @@ const Attendance = () => {
 
     return (
         <div className="module-container">
-            <header className="module-header">
+            <header className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                     <div>
-                        <h1 className="title-gradient">Master Attendance Log</h1>
-                        <p className="text-muted">Review and oversee daily check-ins across all departments.</p>
+                        <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '0 0 4px 0', letterSpacing: '-0.02em' }}>Master Attendance Log</h1>
+                        <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0, fontWeight: 500 }}>Review and oversee daily check-ins across all departments.</p>
                     </div>
                     <div className="tab-group" style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
                         <button 
@@ -124,17 +124,18 @@ const Attendance = () => {
                     </div>
                 </div>
                 {viewMode === 'today' && (
-                    <div className="header-actions">
-                    <div className="search-bar-sm glass-card">
-                        <Search size={16}/>
-                        <input 
-                            type="text" 
-                            placeholder="Search employee..." 
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                        />
+                    <div style={{ display: 'flex', gap: '12px' }}>
+                        <div className="search-bar-sm glass-card" style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--bg-card)' }}>
+                            <Search size={16}/>
+                            <input 
+                                type="text" 
+                                placeholder="Search employee..." 
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                style={{ background: 'transparent', border: 'none', outline: 'none', color: 'var(--text-primary)', marginLeft: '8px' }}
+                            />
+                        </div>
                     </div>
-                </div>
                 )}
             </header>
 
@@ -170,29 +171,31 @@ const Attendance = () => {
                 />
             </div>
 
-            <div className="attendance-controls mt-30">
-                <div className="date-selector glass-card flex-center gap-10">
+            <div className="attendance-controls mt-30" style={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>
+                <div className="dashboard-card-3d flex-center gap-10" style={{ padding: '12px 18px', borderRadius: '8px', display: 'flex', alignItems: 'center' }}>
                     <Calendar size={16}/>
                     <input 
                         type="date" 
                         value={filterDate} 
                         onChange={(e) => setFilterDate(e.target.value)}
                         className="date-input-clean"
+                        style={{ background: 'transparent', border: 'none', outline: 'none', color: 'var(--text-primary)', fontWeight: 600, fontSize: '14px' }}
                     />
                 </div>
-                <div className="dept-selector glass-card flex-center gap-10">
+                <div className="dashboard-card-3d flex-center gap-10" style={{ padding: '12px 18px', borderRadius: '8px', display: 'flex', alignItems: 'center' }}>
                     <Filter size={16}/>
                     <select 
                         value={filterDept} 
                         onChange={(e) => setFilterDept(e.target.value)}
                         className="dept-select-clean"
+                        style={{ background: 'transparent', border: 'none', outline: 'none', color: 'var(--text-primary)', fontWeight: 600, fontSize: '14px' }}
                     >
                         {departments.map(d => <option key={d} value={d}>{d}</option>)}
                     </select>
                 </div>
             </div>
 
-            <div className="module-content mt-30">
+            <div className="dashboard-card-3d" style={{ overflow: 'hidden' }}>
                 <DataTable 
                     title="All Employees Attendance"
                     headers={['Employee Name', 'Employee ID', 'Department', 'Today\'s Status', 'Check In Time', 'Check Out Time', 'Total Hours', 'Action/View']}
@@ -245,26 +248,10 @@ const Attendance = () => {
                 .search-bar-sm { display: flex; align-items: center; gap: 10px; padding: 12px 20px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-full, 9999px); box-shadow: var(--shadow-sm); transition: all 0.2s; }
                 .search-bar-sm:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-50); }
                 .search-bar-sm input { background: none; border: none; color: var(--text-primary); width: 100%; outline: none; font-size: 14px; }
-                
                 .tab-btn { display: flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-muted); transition: all 0.2s; }
                 .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-                .tab-btn:hover:not(.active) { background: rgba(255,255,255,0.05); color: var(--text-primary); }
+                .tab-btn:hover:not(.active) { background: var(--bg-hover); color: var(--text-primary); }
 
-                .attendance-controls { display: flex; gap: 15px; flex-wrap: wrap; }
-                .date-selector, .dept-selector { padding: 12px 18px; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 10px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md, 8px); box-shadow: var(--shadow-sm); color: var(--text-primary); transition: all 0.2s; }
-                .date-selector:focus-within, .dept-selector:focus-within { border-color: var(--primary); }
-                
-                .date-input-clean, .dept-select-clean {
-                    background: none;
-                    border: none;
-                    color: var(--text-primary);
-                    font-family: inherit;
-                    font-size: 14px;
-                    font-weight: 600;
-                    outline: none;
-                    cursor: pointer;
-                    width: 100%;
-                }
                 .dept-select-clean { appearance: none; padding-right: 20px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right center; }
                 .dept-select-clean option { background: var(--bg-body); color: var(--text-primary); }
 

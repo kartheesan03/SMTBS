@@ -34,7 +34,7 @@ const SelectCustomer = () => {
     };
 
     return (
-        <div className="erp-workspace">
+        <div className="module-container">
             <div className="breadcrumb-nav">
                 <span className="crumb" onClick={() => navigate('/erp')}>ERP Operations</span>
                 <span className="separator">/</span>
@@ -71,7 +71,7 @@ const SelectCustomer = () => {
                 ) : filteredCustomers.length === 0 ? (
                     <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>No customers found.</div>
                 ) : (
-                    <table className="modern-table">
+                    <table className="enterprise-table">
                         <thead>
                             <tr>
                                 <th>Company Name</th>
@@ -111,7 +111,7 @@ const SelectCustomer = () => {
             </div>
             
             <style jsx="true">{`
-                .erp-workspace { padding: 24px; background-color: var(--bg-body); min-height: 100vh; color: var(--text-primary); }
+                .module-container { padding: 24px; background-color: var(--bg-body); min-height: 100vh; color: var(--text-primary); }
                 .breadcrumb-nav { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 20px; }
                 .crumb { cursor: pointer; }
                 .crumb.active { color: var(--text-primary); cursor: default; }

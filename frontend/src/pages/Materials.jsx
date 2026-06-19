@@ -309,7 +309,7 @@ const MaterialTracking = () => {
     ])).sort();
 
     return (
-        <div className="materials-workspace">
+        <div className="module-container">
             {/* Breadcrumb Header */}
             <div className="breadcrumb-nav">
                 <span className="crumb" onClick={() => navigate('/')}>Dashboard</span>
@@ -317,12 +317,12 @@ const MaterialTracking = () => {
                 <span className="crumb active">Material Tracking</span>
             </div>
 
-            <header className="module-header">
+            <header className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
                 <div>
-                    <h1 className="header-title">Material Tracking</h1>
-                    <p className="header-subtitle">Monitor stock, in-transit items, low stock alerts, and barcode/QR movements.</p>
+                    <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '0 0 4px 0', letterSpacing: '-0.02em' }}>Material Tracking</h1>
+                    <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0, fontWeight: 500 }}>Monitor stock, in-transit items, low stock alerts, and barcode/QR movements.</p>
                 </div>
-                <div className="header-actions">
+                <div style={{ display: 'flex', gap: '12px' }}>
                     <button className="btn-secondary-light flex-center gap-8" onClick={exportToPDF}><Download size={16} /> PDF</button>
                     <button className="btn-secondary-light flex-center gap-8" onClick={exportToExcel}><Download size={16} /> Excel</button>
                     <button className="btn-secondary-light flex-center gap-8" onClick={() => setShowFilters(!showFilters)}>
@@ -336,24 +336,55 @@ const MaterialTracking = () => {
             </header>
 
             {/* Metric Summary Cards */}
-            <section className="mat-metrics-grid">
-                <div className="mat-metric-card">
-                    <span className="mat-metric-label">Total Material Types</span>
-                    <span className="mat-metric-val">{materialStats.totalMaterialTypes.toLocaleString()}</span>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px', marginBottom: '24px' }}>
+                <div className="dashboard-card-3d" style={{ position: 'relative', overflow: 'hidden', padding: '24px', display: 'flex', flexDirection: 'column', minHeight: '130px', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <div style={{ color: 'var(--text-muted)', fontSize: '13px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Material Types</div>
+                        <div className="kpi-icon-3d" style={{ width: '36px', height: '36px', borderRadius: '8px', background: `linear-gradient(135deg, #3b82f615, #3b82f605)`, color: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <Box size={18} strokeWidth={2.5} />
+                        </div>
+                    </div>
+                    <div style={{ marginTop: 'auto' }}>
+                        <h3 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '8px 0 0 0', lineHeight: 1 }}>{materialStats.totalMaterialTypes.toLocaleString()}</h3>
+                    </div>
                 </div>
-                <div className="mat-metric-card">
-                    <span className="mat-metric-label">Total Stock Quantity</span>
-                    <span className="mat-metric-val">{materialStats.totalStockQuantity.toLocaleString()}</span>
+
+                <div className="dashboard-card-3d" style={{ position: 'relative', overflow: 'hidden', padding: '24px', display: 'flex', flexDirection: 'column', minHeight: '130px', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <div style={{ color: 'var(--text-muted)', fontSize: '13px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Stock Quantity</div>
+                        <div className="kpi-icon-3d" style={{ width: '36px', height: '36px', borderRadius: '8px', background: `linear-gradient(135deg, #10b98115, #10b98105)`, color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <Package size={18} strokeWidth={2.5} />
+                        </div>
+                    </div>
+                    <div style={{ marginTop: 'auto' }}>
+                        <h3 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '8px 0 0 0', lineHeight: 1 }}>{materialStats.totalStockQuantity.toLocaleString()}</h3>
+                    </div>
                 </div>
-                <div className="mat-metric-card">
-                    <span className="mat-metric-label">In Transit</span>
-                    <span className="mat-metric-val">{materialStats.inTransitCount}</span>
+
+                <div className="dashboard-card-3d" style={{ position: 'relative', overflow: 'hidden', padding: '24px', display: 'flex', flexDirection: 'column', minHeight: '130px', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <div style={{ color: 'var(--text-muted)', fontSize: '13px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>In Transit</div>
+                        <div className="kpi-icon-3d" style={{ width: '36px', height: '36px', borderRadius: '8px', background: `linear-gradient(135deg, #f59e0b15, #f59e0b05)`, color: '#f59e0b', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <TrendingUp size={18} strokeWidth={2.5} />
+                        </div>
+                    </div>
+                    <div style={{ marginTop: 'auto' }}>
+                        <h3 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '8px 0 0 0', lineHeight: 1 }}>{materialStats.inTransitCount}</h3>
+                    </div>
                 </div>
-                <div className="mat-metric-card border-red">
-                    <span className="mat-metric-label text-red">Low Stock Items</span>
-                    <span className="mat-metric-val text-red">{materialStats.lowStockCount}</span>
+
+                <div className="dashboard-card-3d" style={{ position: 'relative', overflow: 'hidden', padding: '24px', display: 'flex', flexDirection: 'column', minHeight: '130px', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <div style={{ color: 'var(--danger)', fontSize: '13px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Low Stock Items</div>
+                        <div className="kpi-icon-3d" style={{ width: '36px', height: '36px', borderRadius: '8px', background: `linear-gradient(135deg, #ef444415, #ef444405)`, color: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <AlertTriangle size={18} strokeWidth={2.5} />
+                        </div>
+                    </div>
+                    <div style={{ marginTop: 'auto' }}>
+                        <h3 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--danger)', margin: '8px 0 0 0', lineHeight: 1 }}>{materialStats.lowStockCount}</h3>
+                    </div>
                 </div>
-            </section>
+            </div>
 
             {/* Filter group dropdown */}
             {showFilters && (
@@ -384,8 +415,8 @@ const MaterialTracking = () => {
             </div>
 
             {/* Main Materials Table */}
-            <div className="table-card">
-                <table className="modern-table">
+            <div className="dashboard-card-3d" style={{ padding: '24px' }}>
+                <table className="enterprise-table">
                     <thead>
                         <tr>
                             <th>SKU</th>
@@ -423,15 +454,15 @@ const MaterialTracking = () => {
                                 </td>
                                 <td>${item.price}</td>
                                 <td>
-                                    <div className="actions-flex">
-                                        <button className="action-btn code" title="Barcode & QR Code" onClick={() => { setSelectedMaterialForCode(item); setShowGenerator(true); }}><QrCode size={14} /></button>
-                                        <button className="action-btn" title="Movement History" onClick={() => openMovementHistory(item)}><History size={14} /></button>
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                                        <button className="action-btn-sm" style={{ background: 'var(--bg-app)', border: '1px solid var(--border-light)', borderRadius: '6px', padding: '6px 8px', color: 'var(--text-heading)' }} title="Barcode & QR Code" onClick={() => { setSelectedMaterialForCode(item); setShowGenerator(true); }}><QrCode size={14} /></button>
+                                        <button className="action-btn-sm" style={{ background: 'var(--bg-app)', border: '1px solid var(--border-light)', borderRadius: '6px', padding: '6px 8px', color: 'var(--text-heading)' }} title="Movement History" onClick={() => openMovementHistory(item)}><History size={14} /></button>
                                         {(item.quantity <= item.lowStockThreshold) && (
-                                            <button className="action-btn text-indigo" style={{ borderColor: 'var(--primary)', color: 'var(--primary)' }} title="Request Stock" onClick={() => handleRequestStockClick(item)}><Send size={14} /></button>
+                                            <button className="action-btn-sm" style={{ background: 'var(--bg-app)', border: '1px solid var(--primary)', borderRadius: '6px', padding: '6px 8px', color: 'var(--primary)' }} title="Request Stock" onClick={() => handleRequestStockClick(item)}><Send size={14} /></button>
                                         )}
-                                        <button className="action-btn edit" title="Edit Item" onClick={() => handleEditClick(item)}><Edit2 size={14} /></button>
+                                        <button className="action-btn-sm" style={{ background: 'var(--bg-app)', border: '1px solid var(--border-light)', borderRadius: '6px', padding: '6px 8px', color: 'var(--text-heading)' }} title="Edit Item" onClick={() => handleEditClick(item)}><Edit2 size={14} /></button>
                                         {!isEmployee && (
-                                            <button className="action-btn delete" title="Delete Item" onClick={() => handleDeleteClick(item)}><Trash2 size={14} /></button>
+                                            <button className="action-btn-sm" style={{ background: 'var(--danger-bg)', border: '1px solid var(--danger)', borderRadius: '6px', padding: '6px 8px', color: 'var(--danger)' }} title="Delete Item" onClick={() => handleDeleteClick(item)}><Trash2 size={14} /></button>
                                         )}
                                     </div>
                                 </td>
@@ -440,7 +471,8 @@ const MaterialTracking = () => {
                     </tbody>
                 </table>
                 {filteredMaterials.length === 0 && !loading && (
-                    <div className="empty-state">
+                    <div className="flex-center" style={{ padding: '60px 20px', flexDirection: 'column', color: 'var(--text-muted)' }}>
+                        <Package size={48} style={{ opacity: 0.5, marginBottom: '16px' }} />
                         <p>No materials found matching your criteria.</p>
                     </div>
                 )}
@@ -749,7 +781,7 @@ const MaterialTracking = () => {
                             <div style={{ padding: 30, textAlign: 'center', color: 'var(--text-muted)' }}>No movement history recorded for this material yet.</div>
                         ) : (
                             <div style={{ overflowX: 'auto', maxHeight: '400px', overflowY: 'auto' }}>
-                                <table className="modern-table" style={{ fontSize: 13 }}>
+                                <table className="enterprise-table" style={{ fontSize: 13 }}>
                                     <thead><tr><th>Type</th><th>Qty</th><th>Before</th><th>After</th><th>Reason</th><th>By</th><th>Date</th></tr></thead>
                                     <tbody>
                                         {movementHistory.map(mv => (
@@ -780,7 +812,7 @@ const MaterialTracking = () => {
             )}
 
             <style jsx="true">{`
-                .materials-workspace {
+                .module-container {
                     padding: 24px;
                     background-color: var(--bg-body);
                     min-height: 100vh;
@@ -789,6 +821,8 @@ const MaterialTracking = () => {
                     flex-direction: column;
                     gap: 24px;
                 }
+                
+                .materials-card-row { }
                 
                 .breadcrumb-nav {
                     display: flex;

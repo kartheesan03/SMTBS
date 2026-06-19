@@ -220,7 +220,7 @@ const EmployeeDashboard = () => {
     ];
 
     return (
-        <div className="main-content">
+        <div className="module-container">
             <div className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '24px' }}>
                 <div>
                     <h1 style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '0 0 4px 0', letterSpacing: '-0.5px' }}>Employee Workspace</h1>
@@ -259,7 +259,7 @@ const EmployeeDashboard = () => {
                             </div>
                             <div className="bento-card-body">
                                 {myTasks.length > 0 ? (
-                                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+                                    <table className="enterprise-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
                                         <thead>
                                             <tr style={{ borderBottom: '1px solid #f1f5f9', color: '#64748b', textAlign: 'left' }}>
                                                 <th style={{ paddingBottom: '8px', fontWeight: 600 }}>Task Description</th>

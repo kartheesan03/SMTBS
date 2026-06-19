@@ -26,59 +26,58 @@ const VendorDashboard = () => {
     if (loading) return <div className="app-loading">Loading...</div>;
 
     return (
-        <div className="dashboard-container p-30">
-            <div className="header-box" style={{ marginBottom: '20px' }}>
-                <div className="icon-wrapper"><Store size={28} /></div>
-                <h2>Vendor Dashboard</h2>
-                <p>Welcome back, {profile?.name}</p>
+        <div className="module-container">
+            <div className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
+                <div>
+                    <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '0 0 4px 0', letterSpacing: '-0.02em' }}>Vendor Dashboard</h1>
+                    <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0, fontWeight: 500 }}>Welcome back, {profile?.name}</p>
+                </div>
             </div>
 
-            <div className="metrics-grid">
-                <div className="metric-card">
-                    <div className="metric-icon" style={{background: 'rgba(56, 189, 248, 0.1)', color: '#38bdf8'}}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px', marginBottom: '24px' }}>
+                <div className="dashboard-card-3d" style={{ padding: '20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(56, 189, 248, 0.1)', color: '#38bdf8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <Package size={24} />
                     </div>
-                    <div className="metric-info">
-                        <h3>Materials Supplied</h3>
-                        <p className="metric-value">{materials.length}</p>
+                    <div>
+                        <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: 600 }}>Materials Supplied</div>
+                        <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-heading)' }}>{materials.length}</div>
                     </div>
                 </div>
-                <div className="metric-card">
-                    <div className="metric-icon" style={{background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e'}}>
+                <div className="dashboard-card-3d" style={{ padding: '20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <CheckCircle size={24} />
                     </div>
-                    <div className="metric-info">
-                        <h3>Status</h3>
-                        <p className="metric-value" style={{fontSize: '18px'}}>{profile?.status}</p>
+                    <div>
+                        <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: 600 }}>Status</div>
+                        <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-heading)' }}>{profile?.status}</div>
                     </div>
                 </div>
             </div>
 
-            <div className="dashboard-grid" style={{ marginTop: '30px' }}>
-                <div className="dashboard-card" style={{ gridColumn: 'span 8' }}>
-                    <div className="card-header">
-                        <h3>My Materials Catalog</h3>
-                    </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
+                <div className="dashboard-card-3d" style={{ padding: '24px' }}>
+                    <h3 style={{ margin: '0 0 20px 0', fontSize: '16px', fontWeight: 700, color: 'var(--text-heading)' }}>My Materials Catalog</h3>
                     <div className="table-responsive">
-                        <table className="data-table">
+                        <table className="enterprise-table">
                             <thead>
                                 <tr>
                                     <th>Material Name</th>
                                     <th>Category</th>
-                                    <th>Current Stock (Our End)</th>
+                                    <th>Current Stock</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {materials.map(material => (
                                     <tr key={material._id || material.id}>
-                                        <td>{material.name}</td>
-                                        <td><span className="category-badge">{material.category}</span></td>
-                                        <td>{material.quantity} {material.unit}</td>
+                                        <td style={{ fontWeight: 600 }}>{material.name}</td>
+                                        <td><span className="status-badge-inline in-progress">{material.category}</span></td>
+                                        <td style={{ fontWeight: 600 }}>{material.quantity} {material.unit}</td>
                                     </tr>
                                 ))}
                                 {materials.length === 0 && (
                                     <tr>
-                                        <td colSpan="3" style={{ textAlign: 'center' }}>No materials listed.</td>
+                                        <td colSpan="3" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-muted)' }}>No materials listed.</td>
                                     </tr>
                                 )}
                             </tbody>
@@ -86,15 +85,25 @@ const VendorDashboard = () => {
                     </div>
                 </div>
 
-                <div className="dashboard-card" style={{ gridColumn: 'span 4' }}>
-                    <div className="card-header">
-                        <h3>Business Details</h3>
-                    </div>
-                    <div className="profile-details" style={{ padding: '20px' }}>
-                        <p><strong>Contact Person:</strong> {profile?.contactPerson}</p>
-                        <p><strong>Email:</strong> {profile?.email}</p>
-                        <p><strong>Phone:</strong> {profile?.phone}</p>
-                        <p><strong>Address:</strong> {profile?.address}</p>
+                <div className="dashboard-card-3d" style={{ padding: '24px' }}>
+                    <h3 style={{ margin: '0 0 20px 0', fontSize: '16px', fontWeight: 700, color: 'var(--text-heading)' }}>Business Details</h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                        <div>
+                            <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 600 }}>Contact Person</div>
+                            <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-heading)', marginTop: '4px' }}>{profile?.contactPerson || 'N/A'}</div>
+                        </div>
+                        <div>
+                            <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 600 }}>Email</div>
+                            <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-heading)', marginTop: '4px' }}>{profile?.email || 'N/A'}</div>
+                        </div>
+                        <div>
+                            <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 600 }}>Phone</div>
+                            <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-heading)', marginTop: '4px' }}>{profile?.phone || 'N/A'}</div>
+                        </div>
+                        <div>
+                            <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 600 }}>Address</div>
+                            <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-heading)', marginTop: '4px' }}>{profile?.address || 'N/A'}</div>
+                        </div>
                     </div>
                 </div>
             </div>

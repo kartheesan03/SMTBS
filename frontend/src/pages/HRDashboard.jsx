@@ -173,99 +173,102 @@ const HRDashboard = () => {
     };
 
     return (
-        <div className="main-content">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '24px' }}>
+        <div className="module-container">
+            <div className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
                 <div>
-                    <h1 style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '0 0 4px 0', letterSpacing: '-0.5px' }}>HR Overview</h1>
-                    <p style={{ fontSize: '14px', color: '#64748b', margin: 0 }}>Human Resources & Analytics Dashboard</p>
+                    <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '0 0 4px 0', letterSpacing: '-0.02em' }}>HR Overview</h1>
+                    <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0, fontWeight: 500 }}>Human Resources & Analytics Dashboard</p>
                 </div>
                 <div>
-                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#fff', border: '1px solid #e2e8f0', padding: '6px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 600, color: '#475569' }}>
-                        <span style={{ width: '8px', height: '8px', background: '#3b82f6', borderRadius: '50%' }}></span> Live Data
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#ffffff', border: '1px solid var(--border-subtle)', padding: '8px 16px', borderRadius: 'var(--radius-md)', fontSize: '13px', fontWeight: 600, color: 'var(--text-main)', boxShadow: 'var(--shadow-sm)' }}>
+                        <span style={{ width: '8px', height: '8px', background: 'var(--primary)', borderRadius: '50%', boxShadow: '0 0 0 2px var(--primary-light)' }}></span> Live Data System
                     </span>
                 </div>
             </div>
 
             {/* ===== ROW 1: KPI Cards (3 per row) ===== */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '16px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', marginBottom: '24px' }}>
                 {kpiCards.map((kpi, idx) => (
-                    <div key={idx} className="dashboard-card-3d kpi-card-3d" style={{ position: 'relative', overflow: 'hidden', borderRadius: '16px', padding: '18px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                            <div style={{ color: '#64748b', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{kpi.title}</div>
-                            <div className="kpi-icon-3d" style={{ width: '32px', height: '32px', borderRadius: '10px', background: `linear-gradient(135deg, ${kpi.color}22, ${kpi.color}10)`, color: kpi.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                <kpi.icon size={16} strokeWidth={2.5} />
+                    <div key={idx} className="dashboard-card-3d" style={{ position: 'relative', overflow: 'hidden', padding: '20px', display: 'flex', flexDirection: 'column', minHeight: '130px', justifyContent: 'space-between' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                            <div style={{ color: 'var(--text-muted)', fontSize: '13px', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{kpi.title}</div>
+                            <div className="kpi-icon-3d" style={{ width: '36px', height: '36px', borderRadius: '8px', background: `linear-gradient(135deg, ${kpi.color}15, ${kpi.color}05)`, color: kpi.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                <kpi.icon size={18} strokeWidth={2.5} />
                             </div>
                         </div>
-                        <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', margin: '0 0 6px 0', lineHeight: 1 }}>{kpi.value}</h3>
-                        <div style={{ display: 'flex', alignItems: 'center', fontSize: '11px', fontWeight: 600, color: (kpi.trendType === 'down' && kpi.title !== 'Pending Approvals' && kpi.title !== 'On Leave') ? '#ef4444' : '#10b981' }}>
-                            {kpi.trendType === 'up' ? <ArrowUpRight size={12} style={{ marginRight: '4px' }}/> : <ArrowDownRight size={12} style={{ marginRight: '4px' }}/>}
-                            {kpi.trend}
+                        <div style={{ marginTop: 'auto' }}>
+                            <h3 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '8px 0 6px 0', lineHeight: 1 }}>{kpi.value}</h3>
+                            <div style={{ display: 'flex', alignItems: 'center', fontSize: '12px', fontWeight: 600, color: (kpi.trendType === 'down' && kpi.title !== 'Pending Approvals' && kpi.title !== 'On Leave') ? 'var(--danger)' : 'var(--success)' }}>
+                                {kpi.trendType === 'up' ? <ArrowUpRight size={14} style={{ marginRight: '4px' }}/> : <ArrowDownRight size={14} style={{ marginRight: '4px' }}/>}
+                                {kpi.trend} <span style={{ color: 'var(--text-muted)', fontWeight: 500, marginLeft: '4px' }}>vs last month</span>
+                            </div>
                         </div>
                     </div>
                 ))}
             </div>
 
             {/* ===== ROW 2: Employee Distribution (4fr) + Dept Headcount (5fr) + Right Panel (3fr) ===== */}
-            <div style={{ display: 'grid', gridTemplateColumns: '4fr 5fr 3fr', gap: '16px', marginBottom: '16px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '4fr 5fr 3fr', gap: '24px', marginBottom: '24px' }}>
 
                 {/* Employee Distribution */}
-                <div className="dashboard-card-3d" style={{ borderRadius: '14px', display: 'flex', flexDirection: 'column', minHeight: '260px', overflow: 'hidden' }}>
-                    <div style={{ padding: '16px 18px', height: '48px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
-                        <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px', whiteSpace: 'nowrap' }}><PieChartIcon size={16} /> Employee Distribution</h3>
+                <div className="dashboard-card-3d" style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: '340px', overflow: 'hidden', padding: '24px' }}>
+                    <div style={{ paddingBottom: '20px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                        <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: 'var(--text-heading)', display: 'flex', alignItems: 'center', gap: '8px' }}><PieChartIcon size={18} /> Employee Distribution</h3>
                     </div>
-                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '0 24px 24px 24px', overflow: 'hidden' }}>
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                         {employeeDistributionData.length > 0 ? (
                             <>
-                                <div style={{ position: 'relative', flex: 1, minHeight: '160px' }}>
+                                <div style={{ position: 'relative', flex: 1, minHeight: '200px' }}>
                                     <ResponsiveContainer width="100%" height="100%">
-                                        <PieChart margin={{ top: 10, right: 10, bottom: 10, left: 10 }}>
+                                        <PieChart>
                                             <Pie
                                                 data={employeeDistributionData}
                                                 cx="50%" cy="50%"
-                                                innerRadius={50} outerRadius={70}
-                                                paddingAngle={5}
+                                                innerRadius={60} outerRadius={85}
+                                                paddingAngle={2}
                                                 dataKey="value" stroke="none"
                                             >
                                                 {employeeDistributionData.map((entry, index) => (
                                                     <Cell key={`cell-${index}`} fill={entry.color} />
                                                 ))}
                                             </Pie>
-                                            <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }} />
+                                            <RechartsTooltip contentStyle={{ borderRadius: 'var(--radius-md)', border: '1px solid var(--border-light)', boxShadow: 'var(--shadow-md)', fontWeight: 600, fontSize: '13px' }} />
                                         </PieChart>
                                     </ResponsiveContainer>
                                     <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center', pointerEvents: 'none' }}>
-                                        <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', lineHeight: 1 }}>{totalEmployees}</div>
+                                        <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-heading)', lineHeight: 1 }}>{totalEmployees}</div>
+                                        <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 600, marginTop: '4px' }}>Total</div>
                                     </div>
                                 </div>
-                                <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', flexWrap: 'wrap', paddingTop: '12px', flexShrink: 0 }}>
+                                <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap', paddingTop: '16px', flexShrink: 0 }}>
                                     {employeeDistributionData.map((item, idx) => (
-                                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 600, color: '#475569' }}>
-                                            <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: item.color, flexShrink: 0 }}></span>
+                                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 600, color: 'var(--text-main)' }}>
+                                            <span style={{ width: '12px', height: '12px', borderRadius: '4px', background: item.color, flexShrink: 0 }}></span>
                                             {item.name}
                                         </div>
                                     ))}
                                 </div>
                             </>
                         ) : (
-                            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: '13px' }}>No data</div>
+                            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontSize: '14px', fontWeight: 500 }}>No data available</div>
                         )}
                     </div>
                 </div>
 
                 {/* Department Headcount */}
-                <div className="dashboard-card-3d" style={{ borderRadius: '14px', display: 'flex', flexDirection: 'column', minHeight: '260px', overflow: 'hidden' }}>
-                    <div style={{ padding: '16px 18px', height: '48px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
-                        <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px', whiteSpace: 'nowrap' }}><Users size={16} /> Department Headcount</h3>
+                <div className="dashboard-card-3d" style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: '340px', overflow: 'hidden', padding: '24px' }}>
+                    <div style={{ paddingBottom: '20px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                        <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: 'var(--text-heading)', display: 'flex', alignItems: 'center', gap: '8px' }}><Users size={18} /> Department Headcount</h3>
                     </div>
-                    <div style={{ flex: 1, padding: '0 24px 24px 24px', overflow: 'hidden' }}>
+                    <div style={{ flex: 1, overflow: 'hidden', marginLeft: '-24px' }}>
                         {departmentHeadcountData.length > 0 ? (
                             <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={departmentHeadcountData} margin={{ top: 5, right: 5, left: -20, bottom: 25 }} barSize={32}>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b', fontWeight: 500 }} interval={0} angle={-25} textAnchor="end" />
-                                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} />
-                                    <RechartsTooltip cursor={{fill: '#f8fafc'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }} />
-                                    <Bar dataKey="count" radius={[6, 6, 0, 0]}>
+                                <BarChart data={departmentHeadcountData} margin={{ top: 10, right: 10, left: -10, bottom: 25 }} barSize={40}>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-subtle)" />
+                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--text-muted)', fontWeight: 600 }} interval={0} angle={-25} textAnchor="end" dy={10} />
+                                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 13, fill: 'var(--text-muted)', fontWeight: 600 }} />
+                                    <RechartsTooltip cursor={{fill: 'var(--bg-hover)'}} contentStyle={{ borderRadius: 'var(--radius-md)', border: '1px solid var(--border-light)', boxShadow: 'var(--shadow-md)', fontWeight: 600, fontSize: '13px' }} />
+                                    <Bar dataKey="count" radius={[4, 4, 0, 0]}>
                                         {departmentHeadcountData.map((entry, index) => (
                                             <Cell key={`cell-${index}`} fill={entry.fill} />
                                         ))}
@@ -273,59 +276,59 @@ const HRDashboard = () => {
                                 </BarChart>
                             </ResponsiveContainer>
                         ) : (
-                            <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: '13px' }}>No data</div>
+                            <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontSize: '14px', fontWeight: 500 }}>No data available</div>
                         )}
                     </div>
                 </div>
 
                 {/* Right Panel: Birthdays + Activity */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                     {/* Upcoming Birthdays */}
-                    <div className="dashboard-card-3d" style={{ borderRadius: '14px', padding: '18px', overflow: 'hidden' }}>
-                        <div style={{ marginBottom: '14px', display: 'flex', alignItems: 'center' }}>
-                            <h3 style={{ margin: 0, fontSize: '13px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '6px' }}><Cake size={14} /> Upcoming Birthdays</h3>
+                    <div className="dashboard-card-3d" style={{ padding: '24px', overflow: 'hidden' }}>
+                        <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center' }}>
+                            <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: 'var(--text-heading)', display: 'flex', alignItems: 'center', gap: '8px' }}><Cake size={18} /> Upcoming Birthdays</h3>
                         </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                             {upcomingBirthdays.length > 0 ? upcomingBirthdays.map((bday, idx) => (
-                                <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                    <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: '#f8fafc', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: '1px solid #e2e8f0', flexShrink: 0 }}>
-                                        <span style={{ fontSize: '10px', color: '#ef4444', fontWeight: 700, textTransform: 'uppercase', lineHeight: 1 }}>{bday.date.split(' ')[0]}</span>
-                                        <span style={{ fontSize: '12px', color: '#0f172a', fontWeight: 800, lineHeight: 1 }}>{bday.date.split(' ')[1]}</span>
+                                <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                                    <div style={{ width: '40px', height: '40px', borderRadius: '8px', background: 'var(--bg-app)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--border-subtle)', flexShrink: 0 }}>
+                                        <span style={{ fontSize: '11px', color: 'var(--danger)', fontWeight: 700, textTransform: 'uppercase', lineHeight: 1 }}>{bday.date.split(' ')[0]}</span>
+                                        <span style={{ fontSize: '14px', color: 'var(--text-heading)', fontWeight: 800, lineHeight: 1, marginTop: '2px' }}>{bday.date.split(' ')[1]}</span>
                                     </div>
                                     <div>
-                                        <div style={{ fontSize: '13px', fontWeight: 600, color: '#0f172a' }}>{bday.name}</div>
-                                        <div style={{ fontSize: '11px', color: '#64748b' }}>{bday.dept}</div>
+                                        <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-heading)' }}>{bday.name}</div>
+                                        <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{bday.dept}</div>
                                     </div>
                                 </div>
                             )) : (
-                                <div style={{ fontSize: '13px', color: '#94a3b8', textAlign: 'center', padding: '20px 0' }}>No upcoming birthdays</div>
+                                <div style={{ fontSize: '14px', color: 'var(--text-muted)', textAlign: 'center', padding: '20px 0', fontWeight: 500 }}>No upcoming birthdays</div>
                             )}
                         </div>
                     </div>
 
                     {/* Recent HR Activity */}
-                    <div className="dashboard-card-3d" style={{ borderRadius: '14px', padding: '18px', display: 'flex', flexDirection: 'column', minHeight: '120px', flex: 1, overflow: 'hidden' }}>
-                        <div style={{ marginBottom: '14px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
-                            <h3 style={{ margin: 0, fontSize: '13px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '6px' }}><Activity size={14} /> Recent HR Activity</h3>
+                    <div className="dashboard-card-3d" style={{ padding: '24px', display: 'flex', flexDirection: 'column', minHeight: '120px', flex: 1, overflow: 'hidden' }}>
+                        <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                            <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: 'var(--text-heading)', display: 'flex', alignItems: 'center', gap: '8px' }}><Activity size={18} /> Recent Activity</h3>
                         </div>
                         <div style={{ overflowY: 'auto', flex: 1 }}>
                             {recentActivities.length > 0 ? (
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                                     {recentActivities.slice(0, 5).map((act, i) => (
-                                        <div key={act.id || i} style={{ display: 'flex', gap: '10px' }}>
-                                            <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#f1f5f9', border: '1px solid #e2e8f0', color: '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                                <Activity size={12} />
+                                        <div key={act.id || i} style={{ display: 'flex', gap: '12px' }}>
+                                            <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--bg-app)', border: '1px solid var(--border-subtle)', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                                <Activity size={14} />
                                             </div>
-                                            <div style={{ flex: 1, paddingBottom: i < recentActivities.slice(0, 5).length - 1 ? '14px' : '0', borderBottom: i < recentActivities.slice(0, 5).length - 1 ? '1px solid #f1f5f9' : 'none' }}>
-                                                <div style={{ fontSize: '13px', fontWeight: 600, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{act.title}</div>
-                                                <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px', lineHeight: 1.4, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{act.description}</div>
-                                                <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '3px', fontWeight: 500 }}>{formatTime(act.time)}</div>
+                                            <div style={{ flex: 1, paddingBottom: i < recentActivities.slice(0, 5).length - 1 ? '16px' : '0', borderBottom: i < recentActivities.slice(0, 5).length - 1 ? '1px solid var(--border-light)' : 'none' }}>
+                                                <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-heading)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{act.title}</div>
+                                                <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '4px', lineHeight: 1.4, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{act.description}</div>
+                                                <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px', fontWeight: 500 }}>{formatTime(act.time)}</div>
                                             </div>
                                         </div>
                                     ))}
                                 </div>
                             ) : (
-                                <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: '13px' }}>No activity</div>
+                                <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontSize: '14px', fontWeight: 500 }}>No activity</div>
                             )}
                         </div>
                     </div>
@@ -333,36 +336,36 @@ const HRDashboard = () => {
             </div>
 
             {/* ===== ROW 3: Pending Leave Requests (Full Width) ===== */}
-            <div className="dashboard-card-3d" style={{ borderRadius: '14px', padding: '18px', marginBottom: '20px' }}>
-                <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center' }}>
-                    <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}><Calendar size={16} /> Pending Leave Requests</h3>
+            <div className="dashboard-card-3d" style={{ padding: '24px', marginBottom: '24px' }}>
+                <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'center' }}>
+                    <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: 'var(--text-heading)', display: 'flex', alignItems: 'center', gap: '8px' }}><Calendar size={18} /> Pending Leave Requests</h3>
                 </div>
-                <div>
+                <div className="table-responsive">
                     {leavesData.filter(l => l.status === 'Pending').length > 0 ? (
-                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+                        <table className="enterprise-table">
                             <thead>
-                                <tr style={{ borderBottom: '2px solid #f1f5f9', color: '#64748b', textAlign: 'left' }}>
-                                    <th style={{ paddingBottom: '10px', fontWeight: 600 }}>Employee</th>
-                                    <th style={{ paddingBottom: '10px', fontWeight: 600 }}>Type</th>
-                                    <th style={{ paddingBottom: '10px', fontWeight: 600 }}>Duration</th>
-                                    <th style={{ paddingBottom: '10px', fontWeight: 600 }}>Status</th>
+                                <tr>
+                                    <th>Employee</th>
+                                    <th>Type</th>
+                                    <th>Duration</th>
+                                    <th>Status</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {leavesData.filter(l => l.status === 'Pending').slice(0, 5).map((l, i) => (
-                                    <tr key={i} style={{ borderBottom: '1px solid #f8fafc' }}>
-                                        <td style={{ padding: '12px 0', fontWeight: 500, color: '#0f172a' }}>{l.employeeName || 'Unknown'}</td>
-                                        <td style={{ padding: '12px 0', color: '#475569' }}>{l.leaveType}</td>
-                                        <td style={{ padding: '12px 0', color: '#475569' }}>{new Date(l.startDate).toLocaleDateString()} - {new Date(l.endDate).toLocaleDateString()}</td>
-                                        <td style={{ padding: '12px 0' }}>
-                                            <span style={{ padding: '4px 10px', borderRadius: '6px', background: '#fef3c7', color: '#d97706', fontSize: '11px', fontWeight: 600 }}>{l.status}</span>
+                                    <tr key={i}>
+                                        <td style={{ fontWeight: 600, color: 'var(--text-heading)' }}>{l.employeeName || 'Unknown'}</td>
+                                        <td>{l.leaveType}</td>
+                                        <td>{new Date(l.startDate).toLocaleDateString()} - {new Date(l.endDate).toLocaleDateString()}</td>
+                                        <td>
+                                            <span style={{ padding: '4px 10px', borderRadius: '6px', background: 'var(--warning-bg)', color: 'var(--warning)', fontSize: '11px', fontWeight: 600 }}>{l.status}</span>
                                         </td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
                     ) : (
-                        <div style={{ textAlign: 'center', padding: '32px', color: '#94a3b8', fontSize: '13px' }}>No pending leave requests</div>
+                        <div style={{ textAlign: 'center', padding: '32px', color: 'var(--text-muted)', fontSize: '14px', fontWeight: 500 }}>No pending leave requests</div>
                     )}
                 </div>
             </div>

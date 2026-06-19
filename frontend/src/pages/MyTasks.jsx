@@ -148,10 +148,10 @@ const MyTasks = () => {
                 </div>
             )}
 
-            <header className="module-header glass-card">
+            <header className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
                 <div>
-                    <h1 className="title-gradient">{isManager ? '📋 Task Management Center' : 'My Assigned Tasks'}</h1>
-                    <p className="text-muted">{isManager ? 'Assign tasks to employees and sales teams with instant notifications.' : 'Track your daily responsibilities and project milestones.'}</p>
+                    <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '0 0 4px 0', letterSpacing: '-0.02em' }}>{isManager ? '📋 Task Management Center' : 'My Assigned Tasks'}</h1>
+                    <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0, fontWeight: 500 }}>{isManager ? 'Assign tasks to employees and sales teams with instant notifications.' : 'Track your daily responsibilities and project milestones.'}</p>
                 </div>
                 <div className="header-actions">
                     <div className="search-bar-sm glass-card">
@@ -173,32 +173,32 @@ const MyTasks = () => {
 
             {/* Stats Cards for Manager/HR */}
             {isManager && (
-                <div className="task-stats mt-20">
-                    <div className="stat-card glass-card">
+                <div className="task-stats" style={{ marginBottom: '24px' }}>
+                    <div className="dashboard-card-3d stat-card">
                         <div className="stat-icon pending-icon"><Clock size={20} /></div>
                         <div className="stat-info">
-                            <span className="stat-value">{pendingCount}</span>
+                            <span className="stat-value" style={{ color: 'var(--text-heading)' }}>{pendingCount}</span>
                             <span className="stat-label">Pending</span>
                         </div>
                     </div>
-                    <div className="stat-card glass-card">
+                    <div className="dashboard-card-3d stat-card">
                         <div className="stat-icon progress-icon"><PlayCircle size={20} /></div>
                         <div className="stat-info">
-                            <span className="stat-value">{inProgressCount}</span>
+                            <span className="stat-value" style={{ color: 'var(--text-heading)' }}>{inProgressCount}</span>
                             <span className="stat-label">In Progress</span>
                         </div>
                     </div>
-                    <div className="stat-card glass-card">
+                    <div className="dashboard-card-3d stat-card">
                         <div className="stat-icon done-icon"><CheckCircle2 size={20} /></div>
                         <div className="stat-info">
-                            <span className="stat-value">{completedCount}</span>
+                            <span className="stat-value" style={{ color: 'var(--text-heading)' }}>{completedCount}</span>
                             <span className="stat-label">Completed</span>
                         </div>
                     </div>
-                    <div className="stat-card glass-card">
+                    <div className="dashboard-card-3d stat-card">
                         <div className="stat-icon total-icon"><Bell size={20} /></div>
                         <div className="stat-info">
-                            <span className="stat-value">{tasks.length}</span>
+                            <span className="stat-value" style={{ color: 'var(--text-heading)' }}>{tasks.length}</span>
                             <span className="stat-label">Total Tasks</span>
                         </div>
                     </div>
@@ -217,16 +217,17 @@ const MyTasks = () => {
                 ))}
             </div>
 
-            <div className="module-content mt-30">
+            <div className="module-content">
                 {loading ? (
                     <div className="flex-center p-50"><Loader size={30} className="spin-icon"/></div>
                 ) : filteredTasks.length === 0 ? (
-                    <div className="empty-state glass-card">
+                    <div className="dashboard-card-3d empty-state">
                         <AlertCircle size={48} />
-                        <h3>{tasks.length === 0 ? 'No Tasks Assigned' : 'No Tasks Found'}</h3>
+                        <h3 style={{ color: 'var(--text-heading)' }}>{tasks.length === 0 ? 'No Tasks Assigned' : 'No Tasks Found'}</h3>
                         <p>{tasks.length === 0 ? 'No tasks assigned yet.' : 'No tasks match the current filter.'}</p>
                     </div>
                 ) : (
+                    <div className="dashboard-card-3d" style={{ overflow: 'hidden' }}>
                     <DataTable 
                         title="Task Assignments"
                         headers={isManager ? ['Task Details', 'Assigned To', 'Priority', 'Timeline', 'Progress', 'Actions'] : ['Task Details', 'Assigned By', 'Priority', 'Timeline', 'Status', 'Actions']}
@@ -314,6 +315,7 @@ const MyTasks = () => {
                             );
                         }}
                     />
+                    </div>
                 )}
             </div>
 

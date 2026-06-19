@@ -151,99 +151,102 @@ const AdminDashboard = () => {
     }
 
     return (
-        <div className="main-content">
-            <div className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '24px' }}>
+        <div className="module-container">
+            <div className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
                 <div>
-                    <h1 style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '0 0 4px 0', letterSpacing: '-0.5px' }}>Business Overview</h1>
-                    <p style={{ fontSize: '14px', color: '#64748b', margin: 0 }}>Enterprise Resource Planning Dashboard</p>
+                    <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '0 0 4px 0', letterSpacing: '-0.02em' }}>Business Overview</h1>
+                    <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0, fontWeight: 500 }}>Enterprise Resource Planning Dashboard</p>
                 </div>
                 <div>
-                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#fff', border: '1px solid #e2e8f0', padding: '6px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 600, color: '#475569' }}>
-                        <span style={{ width: '8px', height: '8px', background: '#10b981', borderRadius: '50%' }}></span> Live Data
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#ffffff', border: '1px solid var(--border-subtle)', padding: '8px 16px', borderRadius: 'var(--radius-md)', fontSize: '13px', fontWeight: 600, color: 'var(--text-main)', boxShadow: 'var(--shadow-sm)' }}>
+                        <span style={{ width: '8px', height: '8px', background: 'var(--success)', borderRadius: '50%', boxShadow: '0 0 0 2px var(--success-bg)' }}></span> Live Data System
                     </span>
                 </div>
             </div>
 
             {/* ===== KPI ROW ===== */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '16px', marginBottom: '20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '24px', marginBottom: '24px' }}>
                 {kpiCards.map((kpi, idx) => (
-                    <div key={idx} className="dashboard-card-3d" style={{ position: 'relative', overflow: 'hidden', borderRadius: '16px', padding: '18px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
-                            <div style={{ color: '#64748b', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{kpi.title}</div>
-                            <div className="kpi-icon-3d" style={{ width: '32px', height: '32px', borderRadius: '10px', background: `linear-gradient(135deg, ${kpi.color}22, ${kpi.color}10)`, color: kpi.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                <kpi.icon size={16} strokeWidth={2.5} />
+                    <div key={idx} className="dashboard-card-3d" style={{ position: 'relative', overflow: 'hidden', padding: '20px', display: 'flex', flexDirection: 'column', minHeight: '130px', justifyContent: 'space-between' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                            <div style={{ color: 'var(--text-muted)', fontSize: '13px', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{kpi.title}</div>
+                            <div className="kpi-icon-3d" style={{ width: '36px', height: '36px', borderRadius: '8px', background: `linear-gradient(135deg, ${kpi.color}15, ${kpi.color}05)`, color: kpi.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                <kpi.icon size={18} strokeWidth={2.5} />
                             </div>
                         </div>
-                        <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', margin: '0 0 6px 0', lineHeight: 1 }}>{kpi.value}</h3>
-                        <div style={{ display: 'flex', alignItems: 'center', fontSize: '11px', fontWeight: 600, color: kpi.title === 'Low Stock Items' ? (kpi.trendType === 'down' ? '#10b981' : '#ef4444') : (kpi.trendType === 'up' ? '#10b981' : '#ef4444') }}>
-                            {kpi.trendType === 'up' ? <ArrowUpRight size={12} style={{ marginRight: '4px' }}/> : <ArrowDownRight size={12} style={{ marginRight: '4px' }}/>}
-                            {kpi.trend}
+                        <div style={{ marginTop: 'auto' }}>
+                            <h3 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '8px 0 6px 0', lineHeight: 1 }}>{kpi.value}</h3>
+                            <div style={{ display: 'flex', alignItems: 'center', fontSize: '12px', fontWeight: 600, color: kpi.title === 'Low Stock Items' ? (kpi.trendType === 'down' ? 'var(--success)' : 'var(--danger)') : (kpi.trendType === 'up' ? 'var(--success)' : 'var(--danger)') }}>
+                                {kpi.trendType === 'up' ? <ArrowUpRight size={14} style={{ marginRight: '4px' }}/> : <ArrowDownRight size={14} style={{ marginRight: '4px' }}/>}
+                                {kpi.trend} <span style={{ color: 'var(--text-muted)', fontWeight: 500, marginLeft: '4px' }}>vs last month</span>
+                            </div>
                         </div>
                     </div>
                 ))}
             </div>
 
             {/* ===== ROW 1: Material Overview (4) + Stock & Order (5) + Quick Actions (3) ===== */}
-            <div style={{ display: 'grid', gridTemplateColumns: '4fr 5fr 3fr', gap: '20px', marginBottom: '20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '4fr 5fr 3fr', gap: '24px', marginBottom: '24px' }}>
 
                 {/* Material Overview */}
-                <div className="dashboard-card-3d" style={{ borderRadius: '16px', display: 'flex', flexDirection: 'column', minHeight: '260px', overflow: 'hidden' }}>
-                    <div style={{ padding: '16px 18px', height: '48px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
-                        <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px', whiteSpace: 'nowrap' }}><PieChartIcon size={16} /> Material Overview</h3>
+                <div className="dashboard-card-3d" style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: '340px', overflow: 'hidden', padding: '24px' }}>
+                    <div style={{ paddingBottom: '20px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                        <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: 'var(--text-heading)', display: 'flex', alignItems: 'center', gap: '8px' }}><PieChartIcon size={18} /> Material Overview</h3>
                     </div>
-                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '0 24px 24px 24px', overflow: 'hidden' }}>
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                         {inventoryData.length > 0 ? (
                             <>
-                                <div style={{ position: 'relative', flex: 1, minHeight: '160px' }}>
+                                <div style={{ position: 'relative', flex: 1, minHeight: '200px' }}>
                                     <ResponsiveContainer width="100%" height="100%">
-                                        <PieChart margin={{ top: 10, right: 10, bottom: 10, left: 10 }}>
+                                        <PieChart>
                                             <Pie
                                                 data={inventoryData}
                                                 cx="50%" cy="50%"
-                                                innerRadius={50} outerRadius={70}
-                                                paddingAngle={5}
+                                                innerRadius={60} outerRadius={85}
+                                                paddingAngle={2}
                                                 dataKey="value" stroke="none"
                                             >
                                                 {inventoryData.map((entry, index) => (
                                                     <Cell key={`cell-${index}`} fill={entry.color} />
                                                 ))}
                                             </Pie>
-                                            <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }} />
+                                            <RechartsTooltip contentStyle={{ borderRadius: 'var(--radius-md)', border: '1px solid var(--border-light)', boxShadow: 'var(--shadow-md)', fontWeight: 600, fontSize: '13px' }} />
                                         </PieChart>
                                     </ResponsiveContainer>
                                     <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center', pointerEvents: 'none' }}>
-                                        <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', lineHeight: 1 }}>{totalMaterials}</div>
+                                        <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-heading)', lineHeight: 1 }}>{totalMaterials}</div>
+                                        <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 600, marginTop: '4px' }}>Total</div>
                                     </div>
                                 </div>
-                                <div style={{ display: 'flex', justifyContent: 'center', gap: '14px', flexWrap: 'wrap', paddingTop: '12px', flexShrink: 0 }}>
+                                <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap', paddingTop: '16px', flexShrink: 0 }}>
                                     {inventoryData.map((item, idx) => (
-                                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 600, color: '#475569' }}>
-                                            <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: item.color, flexShrink: 0 }}></span>
+                                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 600, color: 'var(--text-main)' }}>
+                                            <span style={{ width: '12px', height: '12px', borderRadius: '4px', background: item.color, flexShrink: 0 }}></span>
                                             {item.name}
                                         </div>
                                     ))}
                                 </div>
                             </>
                         ) : (
-                            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: '13px' }}>No data</div>
+                            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontSize: '14px', fontWeight: 500 }}>No data available</div>
                         )}
                     </div>
                 </div>
 
                 {/* Stock & Order Status */}
-                <div className="dashboard-card-3d" style={{ borderRadius: '16px', display: 'flex', flexDirection: 'column', minHeight: '260px', overflow: 'hidden' }}>
-                    <div style={{ padding: '16px 18px', height: '48px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
-                        <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px', whiteSpace: 'nowrap' }}><BarChart2 size={16} /> Stock & Order Status</h3>
+                <div className="dashboard-card-3d" style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: '340px', overflow: 'hidden', padding: '24px' }}>
+                    <div style={{ paddingBottom: '20px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                        <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: 'var(--text-heading)', display: 'flex', alignItems: 'center', gap: '8px' }}><BarChart2 size={18} /> Stock & Order Status</h3>
                     </div>
-                    <div style={{ flex: 1, padding: '0 24px 24px 24px', overflow: 'hidden' }}>
+                    <div style={{ flex: 1, overflow: 'hidden', marginLeft: '-24px' }}>
                         {ordersStatusData.length > 0 ? (
                             <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={ordersStatusData} margin={{ top: 5, right: 5, left: -20, bottom: 5 }} barSize={36}>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b', fontWeight: 500 }} />
-                                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
-                                    <RechartsTooltip cursor={{fill: '#f8fafc'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }} />
-                                    <Bar dataKey="count" radius={[6, 6, 0, 0]}>
+                                <BarChart data={ordersStatusData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }} barSize={40}>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-subtle)" />
+                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 13, fill: 'var(--text-muted)', fontWeight: 600 }} dy={10} />
+                                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 13, fill: 'var(--text-muted)', fontWeight: 600 }} />
+                                    <RechartsTooltip cursor={{fill: 'var(--bg-hover)'}} contentStyle={{ borderRadius: 'var(--radius-md)', border: '1px solid var(--border-light)', boxShadow: 'var(--shadow-md)', fontWeight: 600, fontSize: '13px' }} />
+                                    <Bar dataKey="count" radius={[4, 4, 0, 0]}>
                                         {ordersStatusData.map((entry, index) => (
                                             <Cell key={`cell-${index}`} fill={entry.color} />
                                         ))}
@@ -251,26 +254,26 @@ const AdminDashboard = () => {
                                 </BarChart>
                             </ResponsiveContainer>
                         ) : (
-                            <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: '13px' }}>No data</div>
+                            <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontSize: '14px', fontWeight: 500 }}>No data available</div>
                         )}
                     </div>
                 </div>
 
-                {/* Quick Actions */}
-                <div className="dashboard-card-3d" style={{ borderRadius: '16px', padding: '20px', minHeight: '260px', overflow: 'hidden' }}>
-                    <h3 style={{ fontSize: '13px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '16px', margin: '0 0 16px 0' }}>Quick Actions</h3>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {/* Quick Actions (App Launcher Style) */}
+                <div className="dashboard-card-3d" style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: '340px', overflow: 'hidden', padding: '24px' }}>
+                    <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-heading)', margin: '0 0 20px 0' }}>Quick Launch</h3>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', flex: 1 }}>
                         {[
-                            { path: '/materials', name: 'Material Tracking', icon: Package, color: '#3b82f6' },
-                            { path: '/hrms', name: 'HR Management', icon: Users, color: '#8b5cf6' },
-                            { path: '/erp', name: 'ERP Operations', icon: ShoppingCart, color: '#10b981' },
-                            { path: '/crm', name: 'CRM Management', icon: Briefcase, color: '#f59e0b' },
-                            { path: '/analytics', name: 'Reports & Analytics', icon: BarChart2, color: '#ec4899' },
-                            { path: '/hrms', name: 'User Management', icon: Shield, color: '#64748b' }
+                            { path: '/materials', name: 'Materials', icon: Package, color: '#3b82f6' },
+                            { path: '/hrms', name: 'HRMS', icon: Users, color: '#8b5cf6' },
+                            { path: '/erp', name: 'ERP', icon: ShoppingCart, color: '#10b981' },
+                            { path: '/crm', name: 'CRM', icon: Briefcase, color: '#f59e0b' },
+                            { path: '/analytics', name: 'Analytics', icon: BarChart2, color: '#ec4899' },
+                            { path: '/settings', name: 'Settings', icon: Settings, color: '#64748b' }
                         ].map((link, idx) => (
-                            <NavLink to={link.path} key={idx} style={{ display: 'flex', alignItems: 'center', padding: '10px 12px', background: '#f8fafc', border: '1px solid #f1f5f9', borderRadius: '8px', textDecoration: 'none', color: '#0f172a', fontWeight: 500, fontSize: '13px', transition: 'all 0.2s' }} className="quick-action-link quick-action-3d">
-                                <div style={{ width: '28px', height: '28px', borderRadius: '6px', background: `${link.color}15`, color: link.color, display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: '12px', flexShrink: 0 }}>
-                                    <link.icon size={14} />
+                            <NavLink to={link.path} key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '16px 12px', background: '#ffffff', border: '1px solid var(--border-light)', borderRadius: 'var(--radius-md)', textDecoration: 'none', color: 'var(--text-heading)', fontWeight: 600, fontSize: '13px', transition: 'all 0.2s', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }} className="quick-action-link ui-card">
+                                <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: `${link.color}15`, color: link.color, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '8px' }}>
+                                    <link.icon size={18} />
                                 </div>
                                 {link.name}
                             </NavLink>
@@ -283,11 +286,11 @@ const AdminDashboard = () => {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', marginBottom: '20px' }}>
 
                 {/* HR Overview */}
-                <div className="dashboard-card-3d" style={{ borderRadius: '16px', display: 'flex', flexDirection: 'column', minHeight: '260px' }}>
-                    <div style={{ padding: '16px 18px', height: '48px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
-                        <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px', whiteSpace: 'nowrap' }}><Users size={16} /> HR Overview</h3>
+                <div className="dashboard-card-3d" style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: '240px' }}>
+                    <div style={{ paddingBottom: '16px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                        <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 600, color: 'var(--text-heading)', display: 'flex', alignItems: 'center', gap: '8px', whiteSpace: 'nowrap' }}><Users size={16} /> HR Overview</h3>
                     </div>
-                    <div style={{ padding: '0 18px 18px 18px', display: 'flex', flexDirection: 'column', gap: '16px', flex: 1, justifyContent: 'center' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', flex: 1, justifyContent: 'center' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>Total Employees</span>
                             <span style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>{dashboard.hrStats?.totalEmployees || 0}</span>
@@ -308,11 +311,11 @@ const AdminDashboard = () => {
                 </div>
 
                 {/* ERP Overview */}
-                <div className="dashboard-card-3d" style={{ borderRadius: '16px', display: 'flex', flexDirection: 'column', minHeight: '260px' }}>
-                    <div style={{ padding: '16px 18px', height: '48px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
-                        <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px', whiteSpace: 'nowrap' }}><ShoppingCart size={16} /> ERP Overview</h3>
+                <div className="dashboard-card-3d" style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: '240px' }}>
+                    <div style={{ paddingBottom: '16px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                        <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 600, color: 'var(--text-heading)', display: 'flex', alignItems: 'center', gap: '8px', whiteSpace: 'nowrap' }}><ShoppingCart size={16} /> ERP Overview</h3>
                     </div>
-                    <div style={{ padding: '0 18px 18px 18px', display: 'flex', flexDirection: 'column', gap: '16px', flex: 1, justifyContent: 'center' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', flex: 1, justifyContent: 'center' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>Open Orders</span>
                             <span style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>{openOrders}</span>
@@ -333,11 +336,11 @@ const AdminDashboard = () => {
                 </div>
 
                 {/* Revenue Quick Stats */}
-                <div className="dashboard-card-3d" style={{ borderRadius: '16px', display: 'flex', flexDirection: 'column', minHeight: '260px' }}>
-                    <div style={{ padding: '16px 18px', height: '48px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
-                        <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px', whiteSpace: 'nowrap' }}><TrendingUp size={16} /> Revenue Quick Stats</h3>
+                <div className="dashboard-card-3d" style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: '240px' }}>
+                    <div style={{ paddingBottom: '16px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                        <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 600, color: 'var(--text-heading)', display: 'flex', alignItems: 'center', gap: '8px', whiteSpace: 'nowrap' }}><TrendingUp size={16} /> Revenue Quick Stats</h3>
                     </div>
-                    <div style={{ padding: '0 18px 18px 18px', display: 'flex', flexDirection: 'column', gap: '16px', flex: 1, justifyContent: 'center' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', flex: 1, justifyContent: 'center' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>YTD Revenue</span>
                             <span style={{ fontSize: '14px', fontWeight: 700, color: '#10b981' }}>{formatYAxis(totalRevenue)}</span>
@@ -359,9 +362,9 @@ const AdminDashboard = () => {
             </div>
 
             {/* ===== ROW 3: Recent Activity (Full Width) ===== */}
-            <div className="dashboard-card-3d" style={{ borderRadius: '16px', padding: '20px', marginBottom: '24px' }}>
+            <div className="dashboard-card-3d" style={{ marginBottom: '24px' }}>
                 <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center' }}>
-                    <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}><Activity size={16} /> Recent Activity</h3>
+                    <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 600, color: 'var(--text-heading)', display: 'flex', alignItems: 'center', gap: '8px' }}><Activity size={16} /> Recent Activity</h3>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '12px' }}>
                     {recentActivities.length > 0 ? (

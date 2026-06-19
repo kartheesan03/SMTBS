@@ -151,10 +151,10 @@ const TeamPerformance = () => {
 
     return (
         <div className="module-container">
-            <header className="module-header">
+            <header className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
                 <div>
-                    <h1 className="title-gradient">Team Performance Metrics</h1>
-                    <p className="text-muted">Analyze workforce efficiency, task completion rates, and individual contributions.</p>
+                    <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '0 0 4px 0', letterSpacing: '-0.02em' }}>Team Performance Metrics</h1>
+                    <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0, fontWeight: 500 }}>Analyze workforce efficiency, task completion rates, and individual contributions.</p>
                 </div>
             </header>
 
@@ -166,10 +166,10 @@ const TeamPerformance = () => {
                 </div>
             ) : (
                 <>
-                    <div className="performance-viz-grid">
-                        <div className="glass-card main-viz">
-                            <h3>Volume of Tasks Completed</h3>
-                            <div style={{ height: 250, width: '100%', marginTop: 20 }}>
+                    <div className="performance-viz-grid" style={{ marginBottom: '24px' }}>
+                        <div className="dashboard-card-3d main-viz" style={{ padding: '24px' }}>
+                            <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: 'var(--text-heading)', marginBottom: '20px' }}>Volume of Tasks Completed</h3>
+                            <div style={{ height: 250, width: '100%' }}>
                                 <ResponsiveContainer>
                                     <BarChart data={chartData}>
                                         <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} axisLine={false} tickLine={false} />
@@ -185,37 +185,37 @@ const TeamPerformance = () => {
                         </div>
 
                         <div className="kpi-column">
-                            <div className="glass-card kpi-box">
+                            <div className="dashboard-card-3d kpi-box">
                                 <Target color="#6366f1" size={24}/>
                                 <div>
-                                    <h4>Team Target</h4>
-                                    <p>{kpiData.teamTarget}% Complete</p>
+                                    <h4 style={{ color: 'var(--text-muted)' }}>Team Target</h4>
+                                    <p style={{ color: 'var(--text-heading)' }}>{kpiData.teamTarget}% Complete</p>
                                 </div>
                             </div>
-                            <div className="glass-card kpi-box">
+                            <div className="dashboard-card-3d kpi-box">
                                 <Zap color="#f59e0b" size={24}/>
                                 <div>
-                                    <h4>Avg. Velocity</h4>
-                                    <p>{kpiData.avgVelocity} Tasks/Person</p>
+                                    <h4 style={{ color: 'var(--text-muted)' }}>Avg. Velocity</h4>
+                                    <p style={{ color: 'var(--text-heading)' }}>{kpiData.avgVelocity} Tasks/Person</p>
                                 </div>
                             </div>
-                            <div className="glass-card kpi-box">
+                            <div className="dashboard-card-3d kpi-box">
                                 <Award color="#10b981" size={24}/>
                                 <div>
-                                    <h4>Tasks Completed</h4>
-                                    <p>{kpiData.totalCompleted} Total</p>
+                                    <h4 style={{ color: 'var(--text-muted)' }}>Tasks Completed</h4>
+                                    <p style={{ color: 'var(--text-heading)' }}>{kpiData.totalCompleted} Total</p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div className="module-content mt-30">
+                    <div className="dashboard-card-3d" style={{ overflow: 'hidden' }}>
                         <DataTable 
                             title="Individual Contribution Breakdown"
                             headers={['Employee Name', 'Tasks Completed', 'Efficiency Score', 'Status']}
                             data={teamData}
                             renderRow={(e) => (
-                                <>
+                                <tr key={e.name}>
                                     <td><strong>{e.name}</strong></td>
                                     <td>{e.tasks} Tasks</td>
                                     <td>
@@ -229,7 +229,7 @@ const TeamPerformance = () => {
                                             <Award size={12}/> {e.status}
                                         </span>
                                     </td>
-                                </>
+                                </tr>
                             )}
                         />
                     </div>

@@ -47,48 +47,56 @@ const CustomerDashboard = () => {
 
     return (
         <div className="module-container">
-            <header className="module-header glass-card">
-                <div className="header-top">
-                    <div>
-                        <h1>Customer Dashboard</h1>
-                        <p style={{ color: 'var(--text-secondary)', marginTop: '8px' }}>
-                            Welcome back, {profile?.name || 'Valued Customer'}. Here's an overview of your account.
-                        </p>
-                    </div>
-                    <Link to="/customer/new-order" className="btn-primary flex-center gap-10" style={{ textDecoration: 'none' }}>
+            <div className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
+                <div>
+                    <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '0 0 4px 0', letterSpacing: '-0.02em' }}>Customer Dashboard</h1>
+                    <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0, fontWeight: 500 }}>
+                        Welcome back, {profile?.name || 'Valued Customer'}. Here's an overview of your account.
+                    </p>
+                </div>
+                <div>
+                    <Link to="/customer/new-order" className="btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
                         <Plus size={18} /> New Order
                     </Link>
                 </div>
-            </header>
+            </div>
 
-            <div className="bento-grid">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '24px' }}>
                 {/* Stats Section */}
-                <div className="bento-card stat-card primary-stat">
-                    <div className="stat-icon"><Package size={28} /></div>
-                    <div className="stat-content">
-                        <h3>Total Orders</h3>
-                        <div className="stat-value">{orders.length}</div>
+                <div style={{ gridColumn: 'span 4', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                    <div className="dashboard-card-3d" style={{ padding: '24px', display: 'flex', alignItems: 'center', gap: '20px' }}>
+                        <div className="kpi-icon-3d" style={{ width: '64px', height: '64px', borderRadius: '16px', background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.1), rgba(56, 189, 248, 0.05))', color: '#0ea5e9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <Package size={28} strokeWidth={2.5} />
+                        </div>
+                        <div>
+                            <div style={{ color: 'var(--text-muted)', fontSize: '13px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Total Orders</div>
+                            <div style={{ fontSize: '32px', fontWeight: 800, color: 'var(--text-heading)', lineHeight: 1 }}>{orders.length}</div>
+                        </div>
                     </div>
-                </div>
-                
-                <div className="bento-card stat-card secondary-stat">
-                    <div className="stat-icon"><Truck size={28} /></div>
-                    <div className="stat-content">
-                        <h3>Active Deliveries</h3>
-                        <div className="stat-value">{activeDeliveries}</div>
+                    
+                    <div className="dashboard-card-3d" style={{ padding: '24px', display: 'flex', alignItems: 'center', gap: '20px' }}>
+                        <div className="kpi-icon-3d" style={{ width: '64px', height: '64px', borderRadius: '16px', background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(168, 85, 247, 0.05))', color: '#9333ea', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <Truck size={28} strokeWidth={2.5} />
+                        </div>
+                        <div>
+                            <div style={{ color: 'var(--text-muted)', fontSize: '13px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Active Deliveries</div>
+                            <div style={{ fontSize: '32px', fontWeight: 800, color: 'var(--text-heading)', lineHeight: 1 }}>{activeDeliveries}</div>
+                        </div>
                     </div>
-                </div>
 
-                <div className="bento-card stat-card success-stat">
-                    <div className="stat-icon"><CheckCircle size={28} /></div>
-                    <div className="stat-content">
-                        <h3>Completed Orders</h3>
-                        <div className="stat-value">{completedOrders}</div>
+                    <div className="dashboard-card-3d" style={{ padding: '24px', display: 'flex', alignItems: 'center', gap: '20px' }}>
+                        <div className="kpi-icon-3d" style={{ width: '64px', height: '64px', borderRadius: '16px', background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(34, 197, 94, 0.05))', color: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <CheckCircle size={28} strokeWidth={2.5} />
+                        </div>
+                        <div>
+                            <div style={{ color: 'var(--text-muted)', fontSize: '13px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Completed Orders</div>
+                            <div style={{ fontSize: '32px', fontWeight: 800, color: 'var(--text-heading)', lineHeight: 1 }}>{completedOrders}</div>
+                        </div>
                     </div>
                 </div>
 
                 {/* Profile Profile Section */}
-                <div className="bento-card profile-card">
+                <div className="dashboard-card-3d" style={{ gridColumn: 'span 8', padding: '24px', display: 'flex', flexDirection: 'column' }}>
                     <div className="card-header">
                         <h3><User size={18} /> My Profile Details</h3>
                     </div>
@@ -120,13 +128,13 @@ const CustomerDashboard = () => {
                 </div>
 
                 {/* Order History Section */}
-                <div className="bento-card orders-card">
-                    <div className="card-header">
-                        <h3><FileText size={18} /> My Order History</h3>
+                <div className="dashboard-card-3d" style={{ gridColumn: 'span 12', padding: '24px', marginTop: '8px' }}>
+                    <div className="card-header" style={{ marginBottom: '20px', paddingBottom: '0', borderBottom: 'none' }}>
+                        <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: 'var(--text-heading)', display: 'flex', alignItems: 'center', gap: '8px' }}><FileText size={18} /> My Order History</h3>
                     </div>
                     <div className="table-responsive">
                         {orders.length > 0 ? (
-                            <table className="data-table">
+                            <table className="enterprise-table">
                                 <thead>
                                     <tr>
                                         <th>Order ID</th>
@@ -139,16 +147,16 @@ const CustomerDashboard = () => {
                                 <tbody>
                                     {orders.map(order => (
                                         <tr key={order._id}>
-                                            <td style={{ fontWeight: 600 }}>{order.orderNumber}</td>
+                                            <td style={{ fontWeight: 600, color: 'var(--text-heading)' }}>{order.orderNumber}</td>
                                             <td>{new Date(order.orderDate).toLocaleDateString()}</td>
                                             <td>
                                                 <span className={`status-badge ${order.status?.toLowerCase().replace(/\s+/g, '-')}`}>
                                                     {order.status}
                                                 </span>
                                             </td>
-                                            <td style={{ fontWeight: 600 }}>${order.totalAmount?.toLocaleString()}</td>
+                                            <td style={{ fontWeight: 600, color: 'var(--text-heading)' }}>${order.totalAmount?.toLocaleString()}</td>
                                             <td style={{ textAlign: 'center' }}>
-                                                <Link to={`/orders/${order._id}/tracking`} className="action-btn-sm" title="Track Order">
+                                                <Link to={`/orders/${order._id}/tracking`} className="action-btn-sm" title="Track Order" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '6px 12px', borderRadius: '6px', border: '1px solid var(--border-light)', background: 'var(--bg-app)', color: 'var(--text-heading)', fontSize: '12px', fontWeight: 600, textDecoration: 'none' }}>
                                                     <Truck size={14} /> Track
                                                 </Link>
                                             </td>
@@ -157,7 +165,7 @@ const CustomerDashboard = () => {
                                 </tbody>
                             </table>
                         ) : (
-                            <div className="empty-state-large">
+                            <div className="flex-center" style={{ padding: '60px 20px', flexDirection: 'column', color: 'var(--text-muted)' }}>
                                 <div className="empty-icon"><ShoppingCart size={48} /></div>
                                 <h3>No orders found</h3>
                                 <p>You haven't placed any orders yet. Create your first order to get started!</p>
@@ -238,46 +246,38 @@ const CustomerDashboard = () => {
                     flex-direction: column;
                 }
 
-                .card-header {
-                    margin-bottom: 20px;
-                    padding-bottom: 15px;
-                    border-bottom: 1px dashed var(--border);
-                }
-                .card-header h3 {
-                    margin: 0;
-                    font-size: 18px;
-                    font-weight: 700;
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    color: var(--text-primary);
-                }
+                    .card-header {
+                        margin-bottom: 20px;
+                        padding-bottom: 15px;
+                        border-bottom: 1px dashed var(--border-light);
+                    }
+                    .card-header h3 {
+                        margin: 0;
+                        font-size: 16px;
+                        font-weight: 700;
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                        color: var(--text-heading);
+                    }
 
-                .profile-details-grid {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 16px;
-                    flex: 1;
-                }
-                .detail-item {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 4px;
-                    background: var(--bg-body);
-                    padding: 12px 16px;
-                    border-radius: 12px;
-                    border: 1px solid var(--border);
-                }
-                .detail-label { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-                .detail-value { font-size: 15px; font-weight: 600; color: var(--text-primary); word-break: break-word; }
-
-                .data-table { width: 100%; border-collapse: separate; border-spacing: 0; }
-                .data-table th { text-align: left; padding: 16px; border-bottom: 1px solid var(--border); color: var(--text-secondary); font-weight: 600; font-size: 14px; background: var(--bg-body); }
-                .data-table th:first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
-                .data-table th:last-child { border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
-                .data-table td { padding: 16px; border-bottom: 1px solid var(--border); font-size: 14px; vertical-align: middle; }
-                .data-table tbody tr:last-child td { border-bottom: none; }
-                .data-table tbody tr:hover td { background: var(--bg-hover); }
+                    .profile-details-grid {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 16px;
+                        flex: 1;
+                    }
+                    .detail-item {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 4px;
+                        background: var(--bg-app);
+                        padding: 12px 16px;
+                        border-radius: var(--radius-md);
+                        border: 1px solid var(--border-light);
+                    }
+                    .detail-label { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+                    .detail-value { font-size: 15px; font-weight: 600; color: var(--text-heading); word-break: break-word; }
 
                 .status-badge { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; }
                 .status-badge.pending { background: #fef3c7; color: #d97706; }

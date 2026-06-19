@@ -415,7 +415,7 @@ const ERP = () => {
     console.log('ERP stats:', erpStats);
 
     return (
-        <div className="erp-workspace">
+        <div className="module-container">
             {/* Breadcrumb */}
             <div className="breadcrumb-nav">
                 <span className="crumb" onClick={() => navigate('/')}>Dashboard</span>
@@ -423,17 +423,17 @@ const ERP = () => {
                 <span className="crumb active">ERP Operations</span>
             </div>
 
-            <header className="module-header">
+            <header className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
                 <div>
-                    <h1 className="header-title">ERP Operations</h1>
-                    <p className="header-subtitle">Handle procurement, inventory, orders, vendors, finances and analytics.</p>
+                    <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '0 0 4px 0', letterSpacing: '-0.02em' }}>ERP Operations</h1>
+                    <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0, fontWeight: 500 }}>Handle procurement, inventory, orders, vendors, finances and analytics.</p>
                 </div>
-                <div className="header-actions">
+                <div style={{ display: 'flex', gap: '12px' }}>
                     <button className="btn-secondary-light flex-center gap-8" onClick={() => setShowFilters(!showFilters)}>
                         <Filter size={16} /> Filters
                     </button>
                     {(userInfo?.role?.toLowerCase() === 'admin' || userInfo?.role?.toLowerCase() === 'super admin' || userInfo?.role?.toLowerCase() === 'manager') && (
-                        <button className="btn-primary-blue flex-center gap-8" onClick={() => navigate('/orders/select-type')}>
+                        <button className="btn-primary flex-center gap-8" onClick={() => navigate('/orders/select-type')}>
                             <Plus size={16} /> Create Order
                         </button>
                     )}
@@ -442,53 +442,53 @@ const ERP = () => {
 
             {/* 6 Stats Cards */}
             <section className="erp-metrics-grid">
-                <div className="erp-metric-card">
-                    <span className="label">Total Orders</span>
-                    <span className="value">{totalOrders}</span>
+                <div className="dashboard-card-3d" style={{ padding: '24px', display: 'flex', flexDirection: 'column' }}>
+                    <span className="label" style={{ fontSize: '14px', color: 'var(--text-secondary)', fontWeight: 600, marginBottom: '8px' }}>Total Orders</span>
+                    <span className="value" style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)' }}>{totalOrders}</span>
                 </div>
-                <div className="erp-metric-card border-green">
-                    <span className="label text-green">Sales Orders</span>
-                    <span className="value text-green">{salesOrders}</span>
+                <div className="dashboard-card-3d" style={{ padding: '24px', display: 'flex', flexDirection: 'column' }}>
+                    <span className="label text-green" style={{ fontSize: '14px', color: 'var(--success)', fontWeight: 600, marginBottom: '8px' }}>Sales Orders</span>
+                    <span className="value text-green" style={{ fontSize: '28px', fontWeight: 800, color: 'var(--success)' }}>{salesOrders}</span>
                 </div>
-                <div className="erp-metric-card border-blue">
-                    <span className="label text-blue">Purchase Orders</span>
-                    <span className="value text-blue">{purchaseOrders}</span>
+                <div className="dashboard-card-3d" style={{ padding: '24px', display: 'flex', flexDirection: 'column' }}>
+                    <span className="label text-blue" style={{ fontSize: '14px', color: 'var(--info)', fontWeight: 600, marginBottom: '8px' }}>Purchase Orders</span>
+                    <span className="value text-blue" style={{ fontSize: '28px', fontWeight: 800, color: 'var(--info)' }}>{purchaseOrders}</span>
                 </div>
-                <div className="erp-metric-card border-orange cursor-pointer" onClick={() => { setShowInvoiceModal(true); setInvoiceTab('Pending'); }}>
-                    <span className="label text-orange">Pending Invoices</span>
-                    <span className="value text-orange">{pendingInvoices}</span>
+                <div className="dashboard-card-3d cursor-pointer" style={{ padding: '24px', display: 'flex', flexDirection: 'column' }} onClick={() => { setShowInvoiceModal(true); setInvoiceTab('Pending'); }}>
+                    <span className="label text-orange" style={{ fontSize: '14px', color: 'var(--warning)', fontWeight: 600, marginBottom: '8px' }}>Pending Invoices</span>
+                    <span className="value text-orange" style={{ fontSize: '28px', fontWeight: 800, color: 'var(--warning)' }}>{pendingInvoices}</span>
                 </div>
-                <div className="erp-metric-card border-green">
-                    <span className="label text-green">Total Revenue</span>
-                    <span className="value text-green">{formatCurrencyLocal(finalTotalRevenueNum)}</span>
+                <div className="dashboard-card-3d" style={{ padding: '24px', display: 'flex', flexDirection: 'column' }}>
+                    <span className="label text-green" style={{ fontSize: '14px', color: 'var(--success)', fontWeight: 600, marginBottom: '8px' }}>Total Revenue</span>
+                    <span className="value text-green" style={{ fontSize: '28px', fontWeight: 800, color: 'var(--success)' }}>{formatCurrencyLocal(finalTotalRevenueNum)}</span>
                 </div>
-                <div className="erp-metric-card border-blue">
-                    <span className="label text-blue">Total Purchase Cost</span>
-                    <span className="value text-blue">{formatCurrencyLocal(totalPurchaseCostNum)}</span>
+                <div className="dashboard-card-3d" style={{ padding: '24px', display: 'flex', flexDirection: 'column' }}>
+                    <span className="label text-blue" style={{ fontSize: '14px', color: 'var(--info)', fontWeight: 600, marginBottom: '8px' }}>Total Purchase Cost</span>
+                    <span className="value text-blue" style={{ fontSize: '28px', fontWeight: 800, color: 'var(--info)' }}>{formatCurrencyLocal(totalPurchaseCostNum)}</span>
                 </div>
-                <div className="erp-metric-card border-purple">
-                    <span className="label text-purple" style={{ color: '#8b5cf6' }}>Orders Due Today</span>
-                    <span className="value text-purple" style={{ color: '#8b5cf6' }}>{dueTodayCount}</span>
+                <div className="dashboard-card-3d" style={{ padding: '24px', display: 'flex', flexDirection: 'column' }}>
+                    <span className="label text-purple" style={{ fontSize: '14px', color: '#8b5cf6', fontWeight: 600, marginBottom: '8px' }}>Orders Due Today</span>
+                    <span className="value text-purple" style={{ fontSize: '28px', fontWeight: 800, color: '#8b5cf6' }}>{dueTodayCount}</span>
                 </div>
-                <div className="erp-metric-card border-blue">
-                    <span className="label text-blue" style={{ color: '#3b82f6' }}>Orders Due This Week</span>
-                    <span className="value text-blue" style={{ color: '#3b82f6' }}>{dueThisWeekCount}</span>
+                <div className="dashboard-card-3d" style={{ padding: '24px', display: 'flex', flexDirection: 'column' }}>
+                    <span className="label text-blue" style={{ fontSize: '14px', color: '#3b82f6', fontWeight: 600, marginBottom: '8px' }}>Orders Due This Week</span>
+                    <span className="value text-blue" style={{ fontSize: '28px', fontWeight: 800, color: '#3b82f6' }}>{dueThisWeekCount}</span>
                 </div>
-                <div className="erp-metric-card border-red">
-                    <span className="label text-red" style={{ color: '#ef4444' }}>Overdue Orders</span>
-                    <span className="value text-red" style={{ color: '#ef4444' }}>{overdueCount}</span>
+                <div className="dashboard-card-3d" style={{ padding: '24px', display: 'flex', flexDirection: 'column' }}>
+                    <span className="label text-red" style={{ fontSize: '14px', color: '#ef4444', fontWeight: 600, marginBottom: '8px' }}>Overdue Orders</span>
+                    <span className="value text-red" style={{ fontSize: '28px', fontWeight: 800, color: '#ef4444' }}>{overdueCount}</span>
                 </div>
-                <div className="erp-metric-card border-green">
-                    <span className="label text-green" style={{ color: '#10b981' }}>Completed Deliveries</span>
-                    <span className="value text-green" style={{ color: '#10b981' }}>{completedDeliveriesCount}</span>
+                <div className="dashboard-card-3d" style={{ padding: '24px', display: 'flex', flexDirection: 'column' }}>
+                    <span className="label text-green" style={{ fontSize: '14px', color: '#10b981', fontWeight: 600, marginBottom: '8px' }}>Completed Deliveries</span>
+                    <span className="value text-green" style={{ fontSize: '28px', fontWeight: 800, color: '#10b981' }}>{completedDeliveriesCount}</span>
                 </div>
             </section>
 
             {/* Charts Row */}
             <div className="charts-grid">
                 {/* Purchase Order Summary */}
-                <div className="chart-card po-summary-card">
-                    <h3 className="card-title">Purchase Order Summary</h3>
+                <div className="dashboard-card-3d po-summary-card" style={{ padding: '24px' }}>
+                    <h3 className="card-title" style={{ fontSize: '18px', fontWeight: 700, marginBottom: '20px' }}>Purchase Order Summary</h3>
                     
                     {/* Summary mini cards */}
                     <div className="po-summary-cards-grid">
@@ -531,8 +531,8 @@ const ERP = () => {
                 </div>
             )}
 
-            <div className="table-card">
-                <div className="erp-tabs p-16">
+            <div className="dashboard-card-3d">
+                <div className="erp-tabs" style={{ display: 'flex', gap: '8px', padding: '16px 24px', borderBottom: '1px solid var(--border)' }}>
                     <button 
                         className={`erp-tab ${activeTab === 'active' ? 'active' : ''}`}
                         onClick={() => setActiveTab('active')}
@@ -546,23 +546,24 @@ const ERP = () => {
                         Order History
                     </button>
                 </div>
-                <table className="modern-table">
-                    <thead>
-                        <tr>
-                            <th>Order ID</th>
-                            <th>Order Type</th>
-                            <th>{customerVendorHeader}</th>
-                            <th>Quantity</th>
-                            <th>Amount</th>
-                            <th>Order Date</th>
-                            <th>Expected Delivery</th>
-                            <th>Manager Approval</th>
-                            <th>Employee Approval</th>
-                            <th>Delivery Status</th>
-                            <th>Final Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
+                <div className="enterprise-table">
+                    <table className="enterprise-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Order Type</th>
+                                <th>{customerVendorHeader}</th>
+                                <th>Quantity</th>
+                                <th>Amount</th>
+                                <th>Order Date</th>
+                                <th>Expected Delivery</th>
+                                <th>Manager Approval</th>
+                                <th>Employee Approval</th>
+                                <th>Delivery Status</th>
+                                <th>Final Status</th>
+                                <th style={{ textAlign: 'right' }}>Actions</th>
+                            </tr>
+                        </thead>
                     <tbody>
                         {filteredOrders.length === 0 ? (
                             <tr>
@@ -679,8 +680,8 @@ const ERP = () => {
                                     <td>
                                         <span className={`status-badge-inline ${statusClass}`}>{ord.finalStatus || ord.status || "-"}</span>
                                     </td>
-                                    <td>
-                                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', maxWidth: '200px' }}>
+                                    <td style={{ textAlign: 'right' }}>
+                                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                                             {/* Manager Action */}
                                             {(isAdmin || userInfo.role === 'Manager' || userInfo.role === 'Super Admin') && ord.orderType === 'sales' && (ord.approvalStatus === 'Pending Manager Approval' || ord.status === 'Created' || ord.status === 'Pending Approval') && (
                                                 <button className="btn-approve" onClick={() => handleStatusChange(ord._id, 'Manager Approved')}>Approve (Manager)</button>
@@ -744,6 +745,7 @@ const ERP = () => {
                         })}
                     </tbody>
                 </table>
+                </div>
             </div>
 
             {/* Order Details Modal */}
@@ -767,7 +769,7 @@ const ERP = () => {
                             </div>
                             
                             <h4 style={{ margin: '0 0 12px 0', paddingBottom: '8px', borderBottom: '1px solid var(--border)' }}>Items Ordered</h4>
-                            <table className="modern-table" style={{ fontSize: '13px' }}>
+                            <table className="enterprise-table" style={{ fontSize: '13px' }}>
                                 <thead>
                                     <tr>
                                         <th>Material</th>
@@ -838,7 +840,7 @@ const ERP = () => {
                             ))}
                         </div>
                         <div className="table-card" style={{ boxShadow: 'none', margin: '0', padding: '0', maxHeight: '500px', overflowY: 'auto' }}>
-                            <table className="modern-table" style={{ fontSize: '13px' }}>
+                            <table className="enterprise-table" style={{ fontSize: '13px' }}>
                                 <thead>
                                     <tr>
                                         <th>Invoice ID</th>
@@ -919,7 +921,7 @@ const ERP = () => {
                 .status-badge.status-overdue { background-color: rgba(239, 68, 68, 0.1); color: var(--danger); }
                 .status-badge.status-partially-paid { background-color: rgba(59, 130, 246, 0.1); color: var(--primary); }
 
-                .erp-workspace {
+                .module-container {
                     padding: 24px;
                     background-color: var(--bg-body);
                     min-height: 100vh;
@@ -1020,10 +1022,12 @@ const ERP = () => {
                 }
 
                 /* Stats Cards styling */
+                /* Dashboard metrics grid */
                 .erp-metrics-grid {
                     display: grid;
-                    grid-template-columns: repeat(3, 1fr);
+                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
                     gap: 20px;
+                    margin-bottom: 24px;
                 }
                 
                 .erp-metric-card {
@@ -1059,9 +1063,6 @@ const ERP = () => {
                     color: var(--text-primary);
                     line-height: 1;
                 }
-                
-                .text-orange { color: var(--warning); }
-                .text-teal { color: var(--success); }
 
                 /* Charts Row */
                 .charts-grid {
@@ -1832,7 +1833,7 @@ const ERP = () => {
                         align-items: flex-start;
                         gap: 8px;
                     }
-                    .erp-workspace { padding: 16px; }
+                    .module-container { padding: 16px; }
                 }
                 
                 @media (max-width: 480px) {

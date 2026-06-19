@@ -152,15 +152,15 @@ const Settings = () => {
     const empIdBadge = employeeData?.employeeId || employeeData?.employeeCode || (user?.id ? `EMP${user.id.toString().padStart(4, '0')}` : 'EMP001');
 
     return (
-        <div className="profile-page-wrapper">
+        <div className="module-container">
             {/* Top Banner Card */}
-            <div className="profile-banner-card">
+            <div className="dashboard-card-3d" style={{ padding: '24px', display: 'flex', alignItems: 'center', gap: '24px', marginBottom: '24px' }}>
                 <div className="banner-avatar">
                     {avatarInitials}
                 </div>
                 <div className="banner-info">
-                    <h2>{fullName}</h2>
-                    <p className="text-email">{displayEmail}</p>
+                    <h2 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '0 0 4px 0', letterSpacing: '-0.02em' }}>{fullName}</h2>
+                    <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0, fontWeight: 500 }}>{displayEmail}</p>
                     <div className="banner-badges">
                         <span className="badge-role">{roleBadge}</span>
                         <span className="badge-emp-id">{empIdBadge}</span>
@@ -173,10 +173,10 @@ const Settings = () => {
                 
                 {/* Left Column: Personal Information */}
                 <div className="profile-col-left">
-                    <div className="ui-card">
+                    <div className="dashboard-card-3d" style={{ padding: '24px' }}>
                         <div className="card-header">
                             <User size={18} className="header-icon purple-icon" />
-                            <h3>Personal Information</h3>
+                            <h3 style={{ fontSize: '18px', fontWeight: 700 }}>Personal Information</h3>
                         </div>
                         <form className="ui-form" onSubmit={handleUpdate}>
                             <div className="form-row-2">
@@ -220,10 +220,10 @@ const Settings = () => {
                 <div className="profile-col-right">
                     
                     {/* Employment Details */}
-                    <div className="ui-card mb-24">
+                    <div className="dashboard-card-3d mb-24" style={{ padding: '24px' }}>
                         <div className="card-header">
                             <Briefcase size={18} className="header-icon purple-icon" />
-                            <h3>Employment Details</h3>
+                            <h3 style={{ fontSize: '18px', fontWeight: 700 }}>Employment Details</h3>
                         </div>
                         <div className="details-list">
                             <div className="detail-row">
@@ -250,10 +250,10 @@ const Settings = () => {
                     </div>
 
                     {/* Change Password */}
-                    <div className="ui-card">
+                    <div className="dashboard-card-3d" style={{ padding: '24px' }}>
                         <div className="card-header">
                             <Key size={18} className="header-icon purple-icon" />
-                            <h3>Change Password</h3>
+                            <h3 style={{ fontSize: '18px', fontWeight: 700 }}>Change Password</h3>
                         </div>
                         <form className="ui-form" onSubmit={handlePasswordUpdate}>
                             <div className="form-group">
@@ -276,10 +276,10 @@ const Settings = () => {
                 
                 {/* Notifications Preferences */}
                 <div className="profile-col-left">
-                    <div className="ui-card h-full">
+                    <div className="dashboard-card-3d h-full" style={{ padding: '24px' }}>
                         <div className="card-header">
                             <Bell size={18} className="header-icon purple-icon" />
-                            <h3>Notifications</h3>
+                            <h3 style={{ fontSize: '18px', fontWeight: 700 }}>Notifications</h3>
                         </div>
                         <div className="toggle-list">
                             {[
@@ -306,10 +306,10 @@ const Settings = () => {
 
                 {/* Recent Activity */}
                 <div className="profile-col-right">
-                    <div className="ui-card h-full">
+                    <div className="dashboard-card-3d h-full" style={{ padding: '24px' }}>
                         <div className="card-header">
                             <Activity size={18} className="header-icon purple-icon" />
-                            <h3>Recent Activity</h3>
+                            <h3 style={{ fontSize: '18px', fontWeight: 700 }}>Recent Activity</h3>
                         </div>
                         <div className="activity-timeline">
                             {recentActivity.map((act, i) => {
@@ -337,29 +337,10 @@ const Settings = () => {
             </div>
 
             <style jsx="true">{`
-                .profile-page-wrapper {
-                    padding: 24px;
-                    background-color: #f8fafc;
-                    min-height: 100vh;
-                    font-family: 'Inter', sans-serif;
-                }
-
-                /* Top Banner Card */
-                .profile-banner-card {
-                    background: #ffffff;
-                    border-radius: 12px;
-                    padding: 24px;
-                    display: flex;
-                    align-items: center;
-                    gap: 24px;
-                    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-                    border: 1px solid #e2e8f0;
-                    margin-bottom: 24px;
-                }
                 .banner-avatar {
                     width: 80px;
                     height: 80px;
-                    background: #8b5cf6;
+                    background: var(--primary);
                     color: white;
                     border-radius: 50%;
                     display: flex;
@@ -416,14 +397,6 @@ const Settings = () => {
                     align-items: start;
                 }
 
-                /* Cards */
-                .ui-card {
-                    background: #ffffff;
-                    border-radius: 12px;
-                    padding: 24px;
-                    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-                    border: 1px solid #e2e8f0;
-                }
                 .mb-24 { margin-bottom: 24px; }
                 
                 .card-header {
@@ -433,13 +406,7 @@ const Settings = () => {
                     margin-bottom: 24px;
                 }
                 .purple-icon {
-                    color: #7c3aed;
-                }
-                .card-header h3 {
-                    margin: 0;
-                    font-size: 18px;
-                    font-weight: 600;
-                    color: #1e293b;
+                    color: var(--primary);
                 }
 
                 /* Forms */
@@ -506,7 +473,7 @@ const Settings = () => {
                 /* Buttons */
                 .btn-save-full {
                     width: 100%;
-                    background: #7c3aed;
+                    background: var(--primary);
                     color: white;
                     border: none;
                     padding: 12px;
@@ -522,12 +489,12 @@ const Settings = () => {
                     margin-top: 8px;
                 }
                 .btn-save-full:hover {
-                    background: #6d28d9;
+                    background: var(--primary-dark, #4f46e5);
                 }
                 .btn-outline-purple {
                     background: transparent;
-                    color: #7c3aed;
-                    border: 1px solid #7c3aed;
+                    color: var(--primary);
+                    border: 1px solid var(--primary);
                     padding: 10px 16px;
                     border-radius: 6px;
                     font-size: 14px;
@@ -538,7 +505,7 @@ const Settings = () => {
                     width: max-content;
                 }
                 .btn-outline-purple:hover {
-                    background: #f5f3ff;
+                    background: var(--primary-50, #eff6ff);
                 }
 
                 /* Details List */
@@ -584,7 +551,7 @@ const Settings = () => {
                 .switch input { opacity: 0; width: 0; height: 0; }
                 .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .4s; border-radius: 24px; }
                 .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-                input:checked + .slider { background-color: #7c3aed; }
+                input:checked + .slider { background-color: var(--primary); }
                 input:checked + .slider:before { transform: translateX(18px); }
 
                 /* Timeline */
@@ -601,9 +568,9 @@ const Settings = () => {
                 }
                 .timeline-item { display: flex; gap: 16px; position: relative; z-index: 1; }
                 .timeline-icon { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #ffffff; border: 2px solid #ffffff; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
-                .timeline-icon.green { background: #ecfeff; color: #0891b2; }
-                .timeline-icon.blue { background: #eff6ff; color: #2563eb; }
-                .timeline-icon.purple { background: #f5f3ff; color: #7c3aed; }
+                .timeline-icon.green { background: var(--success-light, #dcfce7); color: var(--success, #16a34a); }
+                .timeline-icon.blue { background: var(--info-light, #dbeafe); color: var(--info, #2563eb); }
+                .timeline-icon.purple { background: var(--primary-50, #eff6ff); color: var(--primary); }
                 .timeline-content { display: flex; flex-direction: column; gap: 4px; padding-top: 4px; }
                 .timeline-content p { margin: 0; font-size: 14px; font-weight: 500; color: #1e293b; }
                 .timeline-content span { font-size: 12px; color: #64748b; }

@@ -256,16 +256,16 @@ const Customers = ({ directoryOnly }) => {
     if (selectedCustomer) {
         return (
             <div className="module-container">
-                <header className="module-header glass-card">
+                <header className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                        <button className="btn-back" onClick={closeCustomerDetail}><ArrowLeft size={18} /></button>
+                        <button className="btn-secondary-light" onClick={closeCustomerDetail} style={{ padding: '8px 12px' }}><ArrowLeft size={18} /></button>
                         <div>
-                            <h1 className="title-gradient">{selectedCustomer.name}</h1>
-                            <p className="text-muted">{selectedCustomer.industry || 'Customer'} · <span className={`status-pill ${selectedCustomer.status?.toLowerCase().replace(/ /g, '-') || 'active'}`}>{selectedCustomer.status || 'Active'}</span></p>
+                            <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '0 0 4px 0', letterSpacing: '-0.02em' }}>{selectedCustomer.name}</h1>
+                            <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0, fontWeight: 500 }}>{selectedCustomer.industry || 'Customer'} · <span className={`status-pill ${selectedCustomer.status?.toLowerCase().replace(/ /g, '-') || 'active'}`}>{selectedCustomer.status || 'Active'}</span></p>
                         </div>
                     </div>
-                    <div className="header-actions">
-                        <button className="btn-secondary flex-center gap-10" onClick={() => handleEdit(selectedCustomer)}><Edit2 size={16} /> Edit</button>
+                    <div style={{ display: 'flex', gap: '12px' }}>
+                        <button className="btn-secondary-light flex-center gap-8" onClick={() => handleEdit(selectedCustomer)}><Edit2 size={16} /> Edit</button>
                     </div>
                 </header>
 
@@ -289,12 +289,12 @@ const Customers = ({ directoryOnly }) => {
 
                 <div className="module-content">
                     {loadingDetail ? (
-                        <div className="glass-card" style={{ padding: 40, textAlign: 'center', color: 'var(--text-muted)' }}>Loading customer details...</div>
+                        <div className="dashboard-card-3d" style={{ padding: 40, textAlign: 'center', color: 'var(--text-muted)' }}>Loading customer details...</div>
                     ) : (
                         <>
                             {/* PROFILE TAB */}
                             {activeTab === 'profile' && (
-                                <div className="glass-card detail-profile">
+                                <div className="dashboard-card-3d" style={{ padding: '24px' }}>
                                     <h3 style={{ marginBottom: 20, fontWeight: 700, fontSize: 16 }}>Contact Information</h3>
                                     <div className="profile-grid">
                                         <div className="profile-item"><Mail size={16} /><div><span className="profile-label">Email</span><span className="profile-value">{selectedCustomer.email || '—'}</span></div></div>
@@ -332,13 +332,13 @@ const Customers = ({ directoryOnly }) => {
 
                             {/* ORDERS TAB */}
                             {activeTab === 'orders' && (
-                                <div className="glass-card" style={{ padding: 20 }}>
+                                <div className="dashboard-card-3d" style={{ padding: '24px' }}>
                                     <h3 style={{ marginBottom: 16, fontWeight: 700, fontSize: 16 }}>Order History</h3>
                                     {customerOrders.length === 0 ? (
                                         <p className="text-muted" style={{ textAlign: 'center', padding: 30 }}>No orders found for this customer.</p>
                                     ) : (
-                                        <div className="detail-table-wrapper">
-                                            <table className="detail-table">
+                                        <div className="dashboard-card-3d" style={{ overflowX: 'auto', padding: '24px' }}>
+                                            <table className="enterprise-table">
                                                 <thead><tr><th>Order #</th><th>Type</th><th>Items</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
                                                 <tbody>
                                                     {customerOrders.map(o => (
@@ -360,7 +360,7 @@ const Customers = ({ directoryOnly }) => {
 
                             {/* COMMUNICATIONS TAB */}
                             {activeTab === 'communications' && (
-                                <div className="glass-card" style={{ padding: 20 }}>
+                                <div className="dashboard-card-3d" style={{ padding: '24px' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                                         <h3 style={{ fontWeight: 700, fontSize: 16 }}>Communication Log</h3>
                                         <button className="btn-primary flex-center gap-10" onClick={() => setShowCommModal(true)}><Plus size={16} /> Add Entry</button>
@@ -395,13 +395,13 @@ const Customers = ({ directoryOnly }) => {
 
                             {/* TICKETS TAB */}
                             {activeTab === 'tickets' && (
-                                <div className="glass-card" style={{ padding: 20 }}>
+                                <div className="dashboard-card-3d" style={{ padding: '24px' }}>
                                     <h3 style={{ marginBottom: 16, fontWeight: 700, fontSize: 16 }}>Support Tickets</h3>
                                     {customerTickets.length === 0 ? (
                                         <p className="text-muted" style={{ textAlign: 'center', padding: 30 }}>No support tickets found for this customer.</p>
                                     ) : (
-                                        <div className="detail-table-wrapper">
-                                            <table className="detail-table">
+                                        <div className="dashboard-card-3d" style={{ overflowX: 'auto', padding: '24px' }}>
+                                            <table className="enterprise-table">
                                                 <thead><tr><th>Ticket #</th><th>Subject</th><th>Priority</th><th>Status</th><th>Assigned To</th><th>Date</th></tr></thead>
                                                 <tbody>
                                                     {customerTickets.map(t => (
@@ -611,25 +611,25 @@ const Customers = ({ directoryOnly }) => {
     // ── LIST VIEW ──
     return (
         <div className="module-container">
-            <header className="module-header glass-card">
+            <header className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
                 <div>
-                    <h1 className="title-gradient">{directoryOnly ? 'Customer Directory' : 'Customers (CRM)'}</h1>
-                    <p className="text-muted">{directoryOnly ? 'Manage your active customer base.' : 'Manage your customers, leads, and tracking.'}</p>
+                    <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '0 0 4px 0', letterSpacing: '-0.02em' }}>{directoryOnly ? 'Customer Directory' : 'Customers (CRM)'}</h1>
+                    <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0, fontWeight: 500 }}>{directoryOnly ? 'Manage your active customer base.' : 'Manage your customers, leads, and tracking.'}</p>
                 </div>
-                <div className="header-actions">
-                    <div className="search-bar" style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-body)', padding: '8px 16px', borderRadius: '8px', border: '1px solid var(--border)', marginRight: '10px' }}>
+                <div style={{ display: 'flex', gap: '12px' }}>
+                    <div className="search-bar" style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-card)', padding: '8px 16px', borderRadius: '8px', border: '1px solid var(--border-light)', marginRight: '10px' }}>
                         <Search size={16} color="var(--text-muted)" style={{ marginRight: '8px' }} />
                         <input 
                             type="text" 
                             placeholder="Search customers..." 
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            style={{ border: 'none', background: 'transparent', outline: 'none', color: 'var(--text-primary)' }}
+                            style={{ border: 'none', background: 'transparent', outline: 'none', color: 'var(--text-primary)', width: '200px' }}
                         />
                     </div>
-                    <button className="btn-export" onClick={exportToPDF} title="Export PDF"><Download size={16} /> PDF</button>
-                    <button className="btn-export" onClick={exportToExcel} title="Export Excel"><Download size={16} /> Excel</button>
-                    <button className="btn-primary flex-center gap-10" onClick={() => { setEditingId(null); setFormData({ name: '', email: '', phone: '', address: '', industry: '', website: '', notes: '', status: 'Active', customerType: 'Individual', company: '', gstNumber: '' }); setFormErrors({}); setShowModal(true); }}>
+                    <button className="btn-secondary-light flex-center gap-8" onClick={exportToPDF} title="Export PDF"><Download size={16} /> PDF</button>
+                    <button className="btn-secondary-light flex-center gap-8" onClick={exportToExcel} title="Export Excel"><Download size={16} /> Excel</button>
+                    <button className="btn-primary flex-center gap-8" onClick={() => { setEditingId(null); setFormData({ name: '', email: '', phone: '', address: '', industry: '', website: '', notes: '', status: 'Active', customerType: 'Individual', company: '', gstNumber: '' }); setFormErrors({}); setShowModal(true); }}>
                         <Plus size={18} /> Add New Customer
                     </button>
                 </div>
@@ -639,39 +639,41 @@ const Customers = ({ directoryOnly }) => {
                 <div className="modal-overlay">
                     <div className="glass-card modal-content-lg animate-pop">
                         <div className="modal-header">
-                            <h2>Edit Customer</h2>
+                            <h2>{editingId ? 'Edit Customer' : 'Add New Customer'}</h2>
                             <button className="close-btn" onClick={handleCloseModal}>✕</button>
                         </div>
-                            <div style={{ padding: '30px' }}>
-                                <CustomerForm 
-                                    formData={formData}
-                                    setFormData={setFormData}
-                                    formErrors={formErrors}
-                                    setFormErrors={setFormErrors}
-                                    onSubmit={handleSubmit}
-                                    onCancel={handleCloseModal}
-                                    isLoading={false}
-                                    emailDisabled={false}
-                                    statusDisabled={false}
-                                    saveButtonText="Update Customer"
-                                />
-                            </div>
-                    </div>
-                </div>
-            )}
-
+                        <div style={{ padding: '30px' }}>
+                            <CustomerForm 
+                                formData={formData}
+                                setFormData={setFormData}
+                                formErrors={formErrors}
+                                setFormErrors={setFormErrors}
+                                onSubmit={handleSubmit}
+                                onCancel={handleCloseModal}
+                                isLoading={false}
+                                emailDisabled={false}
+                                statusDisabled={false}
+                                saveButtonText={editingId ? 'Update Customer' : 'Save Customer'}
+                            />
+                        </div>
             <div className="module-content">
-                <div className="glass-card table-wrapper">
-                    <DataTable 
-                        title="Customers (CRM) Ledger"
-                        headers={['Full Name', 'Organization Name', 'Contact Details', 'Industry', ...(directoryOnly ? [] : ['Status']), 'Action']}
-                        data={(directoryOnly ? customers.filter(c => c.status === 'Active') : customers).filter(c => 
-                            (c.name || '').toLowerCase().includes(searchTerm.toLowerCase()) || 
-                            (c.company || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            (c.email || '').toLowerCase().includes(searchTerm.toLowerCase())
-                        )}
-                        renderRow={(c) => (
-                            <tr key={c._id} onClick={() => openCustomerDetail(c)} style={{ cursor: 'pointer' }}>
+                {loading ? (
+                    <div className="flex-center" style={{ minHeight: '400px' }}><div className="spinner"></div></div>
+                ) : (
+                    <div className="dashboard-card-3d" style={{ overflow: 'hidden' }}>
+                    <DataTable
+                        title={directoryOnly ? "Directory Listing" : "All Customers"}
+                        headers={directoryOnly 
+                            ? ['Full Name', 'Organization Name', 'Contact Details', 'Industry', 'Action']
+                            : ['Full Name', 'Organization Name', 'Contact Details', 'Industry', 'Status', 'Action']
+                        }
+                        data={directoryOnly ? customers.filter(c => c.status === 'Active') : customers}
+                        renderRow={(c) => {
+                            if (!((c.name || '').toLowerCase().includes(searchTerm.toLowerCase()) || 
+                                (c.company || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                (c.email || '').toLowerCase().includes(searchTerm.toLowerCase()))) return null;
+                            return (
+                                <tr key={c._id} onClick={() => openCustomerDetail(c)} style={{ cursor: 'pointer' }}>
                                 <td><strong>{c.name}</strong></td>
                                 <td>
                                     <div className="org-cell">
@@ -690,16 +692,18 @@ const Customers = ({ directoryOnly }) => {
                                 <td>
                                     <div className="action-btns-row" onClick={e => e.stopPropagation()}>
                                         {isAdmin && c.status === 'Pending Review' && (
-                                            <button className="btn-approve-sm" onClick={() => handleApprove(c._id)} title="Approve Customer"><UserCheck size={16}/></button>
+                                            <button className="action-btn-sm" style={{ background: 'var(--bg-app)', border: '1px solid var(--primary)', color: 'var(--primary)', borderRadius: '6px', padding: '6px 8px' }} onClick={() => handleApprove(c._id)} title="Approve Customer"><UserCheck size={14}/></button>
                                         )}
-                                        <button className="btn-icon-edit" onClick={() => handleEdit(c)}><Edit2 size={16}/></button>
-                                        <button className="btn-icon-del" onClick={() => handleDelete(c._id)}><Trash2 size={16}/></button>
+                                        <button className="action-btn-sm" style={{ background: 'var(--bg-app)', border: '1px solid var(--border-light)', color: 'var(--text-heading)', borderRadius: '6px', padding: '6px 8px' }} onClick={() => handleEdit(c)}><Edit2 size={14}/></button>
+                                        <button className="action-btn-sm" style={{ background: 'var(--danger-bg)', border: '1px solid var(--danger)', color: 'var(--danger)', borderRadius: '6px', padding: '6px 8px' }} onClick={() => handleDelete(c._id)}><Trash2 size={14}/></button>
                                     </div>
                                 </td>
                             </tr>
-                        )}
+                            );
+                        }}
                     />
-                </div>
+                    </div>
+                )}
             </div>
 
             <style jsx="true">{`

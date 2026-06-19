@@ -111,12 +111,12 @@ const CreateOrder = () => {
         }
     };
 
-    if (loading) return <div className="erp-workspace">Loading...</div>;
+    if (loading) return <div className="module-container">Loading...</div>;
 
     const isSales = orderType === 'sales';
 
     return (
-        <div className="erp-workspace">
+        <div className="module-container">
             <div className="breadcrumb-nav">
                 <span className="crumb" onClick={() => navigate('/erp')}>ERP Operations</span>
                 <span className="separator">/</span>
@@ -144,7 +144,7 @@ const CreateOrder = () => {
             <div className="module-content" style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
                 
                 {/* Left Side: Form */}
-                <div className="glass-card" style={{ flex: '1 1 600px', padding: '30px', maxWidth: '800px' }}>
+                <div className="dashboard-card-3d" style={{ flex: '1 1 600px', padding: '30px', maxWidth: '800px' }}>
                     
                     {/* Read-Only Entity Card */}
                     <div style={{ background: 'var(--bg-hover)', border: '1px solid var(--border)', borderRadius: '8px', padding: '16px', marginBottom: '24px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
@@ -308,7 +308,7 @@ const CreateOrder = () => {
             </div>
             
             <style jsx="true">{`
-                .erp-workspace {
+                .module-container {
                     padding: 24px;
                     background-color: var(--bg-body);
                     min-height: 100vh;

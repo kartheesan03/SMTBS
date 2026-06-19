@@ -148,7 +148,7 @@ const PayrollPayment = () => {
                     </div>
                 )}
 
-                <div className="bento-card" style={{ borderRadius: '16px', overflow: 'hidden' }}>
+                <div className="dashboard-card-3d" style={{ borderRadius: '16px', overflow: 'hidden' }}>
                     <div style={{ textAlign: 'center', padding: '40px 20px', background: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)' }}>
                         <div style={{ width: '72px', height: '72px', background: '#10b981', color: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', boxShadow: '0 8px 25px rgba(16,185,129,0.3)' }}>
                             <CheckCircle size={36} />
@@ -211,10 +211,10 @@ const PayrollPayment = () => {
                 {/* LEFT: Employee & Payroll Info */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                     {/* Employee Card */}
-                    <div className="bento-card" style={{ borderRadius: '14px', overflow: 'hidden' }}>
-                        <div style={{ padding: '16px 20px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div className="dashboard-card-3d" style={{ overflow: 'hidden' }}>
+                        <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <User size={16} style={{ color: '#3b82f6' }} />
-                            <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>Employee Details</h3>
+                            <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: 'var(--text-heading)' }}>Employee Details</h3>
                         </div>
                         <div style={{ padding: '20px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '18px' }}>
@@ -243,10 +243,10 @@ const PayrollPayment = () => {
                     </div>
 
                     {/* Salary Breakdown Card */}
-                    <div className="bento-card" style={{ borderRadius: '14px', overflow: 'hidden' }}>
-                        <div style={{ padding: '16px 20px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div className="dashboard-card-3d" style={{ overflow: 'hidden' }}>
+                        <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <DollarSign size={16} style={{ color: '#10b981' }} />
-                            <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>Salary Breakdown</h3>
+                            <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: 'var(--text-heading)' }}>Salary Breakdown</h3>
                         </div>
                         <div style={{ padding: '20px' }}>
                             {[
@@ -268,10 +268,10 @@ const PayrollPayment = () => {
                 </div>
 
                 {/* RIGHT: Payment Form */}
-                <div className="bento-card" style={{ borderRadius: '14px', overflow: 'hidden', alignSelf: 'start' }}>
-                    <div style={{ padding: '16px 20px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div className="dashboard-card-3d" style={{ overflow: 'hidden', alignSelf: 'start' }}>
+                    <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <CreditCard size={16} style={{ color: '#8b5cf6' }} />
-                        <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>Payment Details</h3>
+                        <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: 'var(--text-heading)' }}>Payment Details</h3>
                     </div>
                     <div style={{ padding: '20px' }}>
                         {/* Payment Method Selection */}

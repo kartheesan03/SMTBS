@@ -143,7 +143,7 @@ const NotificationsPage = () => {
 
     // ─── render ──────────────────────────────────────────────────────────────
     return (
-        <div className="main-content" style={{ paddingBottom: '40px' }}>
+        <div className="module-container" style={{ paddingBottom: '40px' }}>
 
             {/* Toast */}
             {toast && (
@@ -184,7 +184,7 @@ const NotificationsPage = () => {
                     { label: 'Read', value: readCount, icon: CheckCircle, iconBg: '#ecfdf5', iconColor: '#10b981' },
                     { label: 'Critical', value: criticalCount, icon: AlertCircle, iconBg: '#fef2f2', iconColor: '#dc2626' },
                 ].map((kpi, idx) => (
-                    <div key={idx} className="bento-card" style={{ borderRadius: '14px', padding: '16px 18px', display: 'flex', alignItems: 'center', gap: '14px' }}>
+                    <div key={idx} className="dashboard-card-3d" style={{ borderRadius: '14px', padding: '16px 18px', display: 'flex', alignItems: 'center', gap: '14px' }}>
                         <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: kpi.iconBg, color: kpi.iconColor, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                             <kpi.icon size={18} />
                         </div>
@@ -247,7 +247,7 @@ const NotificationsPage = () => {
 
             {/* ===== NOTIFICATION LIST ===== */}
             {displayed.length === 0 ? (
-                <div className="bento-card" style={{ borderRadius: '14px', padding: '60px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '16px', color: '#94a3b8', textAlign: 'center' }}>
+                <div className="dashboard-card-3d" style={{ borderRadius: '14px', padding: '60px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '16px', color: '#94a3b8', textAlign: 'center' }}>
                     <BellOff size={36} />
                     <div>
                         <p style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: 600, color: '#64748b' }}>

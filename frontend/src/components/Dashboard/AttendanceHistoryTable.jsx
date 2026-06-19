@@ -198,7 +198,7 @@ const AttendanceHistoryTable = ({ isEmployeeView = false }) => {
                     <div className="empty-state">No attendance records found for this period.</div>
                 ) : (
                     <div className="table-responsive">
-                        <table className="ah-table">
+                        <table className="enterprise-table">
                             <thead>
                                 <tr>
                                     <th>Date</th>

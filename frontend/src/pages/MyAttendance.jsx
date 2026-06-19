@@ -170,10 +170,10 @@ const MyAttendance = () => {
 
     return (
         <div className="module-container">
-            <header className="module-header">
+            <header className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
                 <div>
-                    <h1 className="title-gradient">Attendance & Time Tracking</h1>
-                    <p className="text-muted">Manage your daily presence and monitor work sessions.</p>
+                    <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '0 0 4px 0', letterSpacing: '-0.02em' }}>Attendance & Time Tracking</h1>
+                    <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0, fontWeight: 500 }}>Manage your daily presence and monitor work sessions.</p>
                 </div>
                 <div className="header-actions">
                     {!status?.checkIn ? (
@@ -198,32 +198,32 @@ const MyAttendance = () => {
                 </div>
             </header>
 
-            <div className="attendance-grid">
+            <div className="attendance-grid" style={{ marginBottom: '24px' }}>
                 {/* Real-time Timer Card */}
-                <div className="glass-card active-session-card">
+                <div className="dashboard-card-3d active-session-card">
                     <div className="session-info">
-                        <div className="timer-icon-box">
+                        <div className="timer-icon-box" style={{ background: 'var(--bg-body)' }}>
                             <Timer size={32} className={status?.checkIn && !status?.checkOut ? "pulse" : ""} />
                         </div>
                         <div>
                             <span className="session-label">{status?.checkOut ? "Shift Duration" : status?.checkIn ? "Active Session" : "Ready to Start"}</span>
-                            <h2 className="live-timer">{timer}</h2>
+                            <h2 className="live-timer" style={{ color: 'var(--text-heading)' }}>{timer}</h2>
                         </div>
                     </div>
                     <div className="session-details">
                         <div className="detail">
                             <span className="label">Check In</span>
-                            <span className="value">{formatTime(status?.checkIn, status?.date)}</span>
+                            <span className="value" style={{ color: 'var(--text-primary)' }}>{formatTime(status?.checkIn, status?.date)}</span>
                         </div>
                         <div className="detail">
                             <span className="label">Check Out</span>
-                            <span className="value">{formatTime(status?.checkOut, status?.date)}</span>
+                            <span className="value" style={{ color: 'var(--text-primary)' }}>{formatTime(status?.checkOut, status?.date)}</span>
                         </div>
                     </div>
                 </div>
 
-                <div className="glass-card chart-box">
-                    <h3>Work Hours Trend (Last 7 Days)</h3>
+                <div className="dashboard-card-3d chart-box">
+                    <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: 'var(--text-heading)', display: 'flex', alignItems: 'center', gap: '8px' }}>Work Hours Trend (Last 7 Days)</h3>
                     <div style={{ height: 200, width: '100%', marginTop: 20 }}>
                         <ResponsiveContainer>
                             <AreaChart data={(() => {
@@ -247,8 +247,8 @@ const MyAttendance = () => {
                                         <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
                                     </linearGradient>
                                 </defs>
-                                <XAxis dataKey="n" stroke="#94a3b8" fontSize={12} axisLine={false} tickLine={false} />
-                                <Tooltip contentStyle={{ background: '#0f172a', border: '1px solid #334155' }} />
+                                <XAxis dataKey="n" stroke="var(--text-muted)" fontSize={12} axisLine={false} tickLine={false} />
+                                <Tooltip contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: '8px' }} />
                                 <Area type="monotone" dataKey="h" stroke="#6366f1" fill="url(#colorH)" strokeWidth={3} />
                             </AreaChart>
                         </ResponsiveContainer>
@@ -256,14 +256,14 @@ const MyAttendance = () => {
                 </div>
 
                 <div className="summary-section">
-                    <div className="glass-card s-box">
+                    <div className="dashboard-card-3d s-box">
                         <CheckCircle color="#10b981" size={24} />
                         <div className="s-text">
                             <h4>Avg. Work Hours</h4>
                             <p>{stats.avg} / Day</p>
                         </div>
                     </div>
-                    <div className="glass-card s-box">
+                    <div className="dashboard-card-3d s-box">
                         <Calendar color="#6366f1" size={24} />
                         <div className="s-text">
                             <h4>Days Present</h4>
@@ -273,7 +273,7 @@ const MyAttendance = () => {
                 </div>
             </div>
 
-            <div className="module-content mt-30">
+            <div className="dashboard-card-3d" style={{ overflow: 'hidden' }}>
                 <AttendanceHistoryTable isEmployeeView={true} />
             </div>
 

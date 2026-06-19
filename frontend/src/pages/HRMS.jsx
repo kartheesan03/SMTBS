@@ -141,20 +141,17 @@ const HRMS = () => {
 
     return (
         <div className="module-container">
-            <header className="module-header glass-card">
-                <div className="header-top">
-                    <h1>Employee Management</h1>
-                    <div style={{ display: 'flex', gap: '10px' }}>
-                        <button className="btn-secondary flex-center gap-10" onClick={exportToPDF} style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--bg-body)', cursor: 'pointer' }}>
-                            <Download size={16} /> PDF
-                        </button>
-                        <button className="btn-secondary flex-center gap-10" onClick={exportToExcel} style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--bg-body)', cursor: 'pointer' }}>
-                            <Download size={16} /> Excel
-                        </button>
-                        <button className="btn-primary flex-center gap-10" onClick={() => navigate('/hrms/add-employee')}>
-                            <UserPlus size={18} /> Add Employee
-                        </button>
-                    </div>
+            <header className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
+                <div>
+                    <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '0 0 4px 0', letterSpacing: '-0.02em' }}>Employee Management</h1>
+                    <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0, fontWeight: 500 }}>Manage your organization's workforce and access profiles.</p>
+                </div>
+                <div style={{ display: 'flex', gap: '12px' }}>
+                    <button className="btn-secondary-light flex-center gap-8" onClick={exportToPDF}><Download size={16} /> PDF</button>
+                    <button className="btn-secondary-light flex-center gap-8" onClick={exportToExcel}><Download size={16} /> Excel</button>
+                    <button className="btn-primary flex-center gap-8" onClick={() => navigate('/hrms/add-employee')}>
+                        <UserPlus size={18} /> Add Employee
+                    </button>
                 </div>
             </header>
 
@@ -337,11 +334,11 @@ const HRMS = () => {
 
             <div className="employee-grid">
                 {employees.length > 0 ? employees.map((emp) => (
-                    <div key={emp._id} className="glass-card employee-card">
+                    <div key={emp._id} className="dashboard-card-3d employee-card" style={{ padding: '24px' }}>
                         <div className="emp-avatar">
                             {emp.firstName[0]}{emp.lastName?.[0]}
                         </div>
-                        <h3>{emp.firstName} {emp.lastName}</h3>
+                        <h3 style={{ fontSize: '18px', fontWeight: 700, margin: '0 0 4px 0' }}>{emp.firstName} {emp.lastName}</h3>
                         <p className="designation">{emp.designation}</p>
                         <div className="emp-details">
                             <div className="detail-item">
@@ -357,15 +354,15 @@ const HRMS = () => {
                         <div className="emp-footer">
                             <span className="dept-badge">{emp.department}</span>
                             <div className="emp-footer-actions">
-                                <button className="action-btn-sm" onClick={() => setSelectedEmployee(emp)}>View Profile</button>
-                                <button className="delete-btn-sm" title="Delete Employee" onClick={(e) => { e.stopPropagation(); setDeleteConfirm(emp); }}>
+                                <button className="action-btn-sm" style={{ background: 'var(--bg-app)', border: '1px solid var(--primary)', color: 'var(--primary)', borderRadius: '6px', padding: '6px 8px' }} onClick={() => setSelectedEmployee(emp)}>View Profile</button>
+                                <button className="action-btn-sm" style={{ background: 'var(--danger-bg)', border: '1px solid var(--danger)', color: 'var(--danger)', borderRadius: '6px', padding: '6px 8px', display: 'flex', alignItems: 'center' }} title="Delete Employee" onClick={(e) => { e.stopPropagation(); setDeleteConfirm(emp); }}>
                                     <Trash2 size={14} />
                                 </button>
                             </div>
                         </div>
                     </div>
                 )) : (
-                    <div className="glass-card p-30 text-center w-full">
+                    <div className="dashboard-card-3d p-30 text-center w-full" style={{ padding: '30px' }}>
                         <p className="text-muted">No employees found in the system.</p>
                     </div>
                 )}
@@ -388,9 +385,6 @@ const HRMS = () => {
                 
                 .action-btn-sm { background: var(--bg-body); border: 1px solid var(--border); color: var(--text-primary); padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; transition: 0.2s; cursor: pointer; }
                 .action-btn-sm:hover { background: var(--bg-hover); border-color: var(--primary); color: var(--primary); }
-                
-                .delete-btn-sm { background: var(--bg-body); border: 1px solid var(--border); color: var(--text-muted); padding: 6px 10px; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; cursor: pointer; }
-                .delete-btn-sm:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-light); }
                 
                 .btn-delete { background: var(--danger-light); border: 1px solid transparent; color: var(--danger); padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; font-size: 14px; }
                 .btn-delete:hover { background: color-mix(in srgb, var(--danger) 20%, transparent); border-color: var(--danger); }

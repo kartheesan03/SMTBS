@@ -329,19 +329,15 @@ const Vendors = () => {
 
     return (
         <div className="module-container">
-            <header className="module-header glass-card">
+            <header className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
                 <div>
-                    <h1 className="title-gradient">Vendor Network</h1>
-                    <p className="text-muted">Direct procurement channels and strategic supplier relationships.</p>
+                    <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '0 0 4px 0', letterSpacing: '-0.02em' }}>Vendor Network</h1>
+                    <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0, fontWeight: 500 }}>Direct procurement channels and strategic supplier relationships.</p>
                 </div>
-                <div className="header-actions" style={{ display: 'flex', gap: '10px' }}>
-                    <button className="btn-secondary flex-center gap-10" onClick={exportToPDF} style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--bg-body)', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>
-                        <Download size={16} /> PDF
-                    </button>
-                    <button className="btn-secondary flex-center gap-10" onClick={exportToExcel} style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--bg-body)', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>
-                        <Download size={16} /> Excel
-                    </button>
-                    <button className="btn-primary flex-center gap-10" onClick={() => navigate('/vendors/add-vendor')}>
+                <div style={{ display: 'flex', gap: '12px' }}>
+                    <button className="btn-secondary-light flex-center gap-8" onClick={exportToPDF}><Download size={16} /> PDF</button>
+                    <button className="btn-secondary-light flex-center gap-8" onClick={exportToExcel}><Download size={16} /> Excel</button>
+                    <button className="btn-primary flex-center gap-8" onClick={() => navigate('/vendors/add-vendor')}>
                         <Plus size={18} /> Add New Vendor
                     </button>
                 </div>
@@ -409,7 +405,7 @@ const Vendors = () => {
                                         <p className="text-muted" style={{ fontSize: '13px' }}>No physical stock records linked yet.</p>
                                     ) : (
                                         <div className="table-responsive" style={{ maxHeight: '150px', overflowY: 'auto', border: '1px solid var(--border)', borderRadius: '8px' }}>
-                                            <table className="dt-table" style={{ width: '100%', fontSize: '12px', borderCollapse: 'collapse' }}>
+                                            <table className="enterprise-table" style={{ width: '100%', fontSize: '12px', borderCollapse: 'collapse' }}>
                                                 <thead>
                                                     <tr style={{ textAlign: 'left', background: '#f8fafc', borderBottom: '1px solid var(--border)' }}>
                                                         <th style={{ padding: '8px' }}>SKU</th>
@@ -479,7 +475,7 @@ const Vendors = () => {
                                 {/* Pending New Materials Table */}
                                 {newMaterialsList.length > 0 && (
                                     <div className="table-responsive" style={{ marginTop: '15px', border: '1px solid #c7d2fe', borderRadius: '8px', overflow: 'hidden' }}>
-                                        <table className="dt-table" style={{ width: '100%', fontSize: '12px', borderCollapse: 'collapse', background: '#eef2ff' }}>
+                                        <table className="enterprise-table" style={{ width: '100%', fontSize: '12px', borderCollapse: 'collapse', background: '#eef2ff' }}>
                                             <thead>
                                                 <tr style={{ textAlign: 'left', borderBottom: '1px solid #c7d2fe' }}>
                                                     <th style={{ padding: '8px' }}>SKU</th>
@@ -580,7 +576,7 @@ const Vendors = () => {
                                     </div>
                                 ) : (
                                     <div className="table-responsive" style={{ maxHeight: '250px', overflowY: 'auto' }}>
-                                        <table className="dt-table row-hover" style={{ width: '100%', fontSize: '13px', borderCollapse: 'collapse' }}>
+                                        <table className="enterprise-table" style={{ width: '100%', fontSize: '13px', borderCollapse: 'collapse' }}>
                                             <thead style={{ position: 'sticky', top: 0, background: '#f8fafc', zIndex: 1 }}>
                                                 <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)' }}>
                                                     <th style={{ padding: '10px' }}>SKU</th>
@@ -625,7 +621,7 @@ const Vendors = () => {
                                     <p className="text-muted" style={{ fontSize: '13px' }}>No purchase orders found for this vendor.</p>
                                 ) : (
                                     <div className="table-responsive" style={{ maxHeight: '200px', overflowY: 'auto' }}>
-                                        <table className="dt-table" style={{ width: '100%', fontSize: '13px', borderCollapse: 'collapse' }}>
+                                        <table className="enterprise-table" style={{ width: '100%', fontSize: '13px', borderCollapse: 'collapse' }}>
                                             <thead>
                                                 <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)', background: '#f8fafc' }}>
                                                     <th style={{ padding: '10px' }}>Order No</th>
@@ -738,7 +734,7 @@ const Vendors = () => {
                                 <div style={{ padding: '20px', textAlign: 'center', background: '#f8fafc', borderRadius: '8px', color: 'var(--text-muted)' }}>No movement history recorded yet.</div>
                             ) : (
                                 <div className="table-responsive" style={{ maxHeight: '250px', overflowY: 'auto' }}>
-                                    <table className="dt-table" style={{ width: '100%', fontSize: '12px', borderCollapse: 'collapse' }}>
+                                    <table className="enterprise-table" style={{ width: '100%', fontSize: '12px', borderCollapse: 'collapse' }}>
                                         <thead>
                                             <tr style={{ background: '#f8fafc', borderBottom: '1px solid var(--border)', textAlign: 'left' }}>
                                                 <th style={{ padding: '8px' }}>Type</th>
@@ -764,72 +760,51 @@ const Vendors = () => {
                             )}
                         </div>
 
-                        <div className="modal-actions" style={{ marginTop: '20px', paddingTop: '15px', borderTop: '1px solid var(--border)' }}>
-                            <button type="button" className="btn-cancel" onClick={() => setShowNestedMaterialView(false)}>Close</button>
+                                    <button type="button" className="btn-cancel" onClick={() => setShowNestedMaterialView(false)}>Close</button>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-            )}
+                    )}
 
-            <div className="module-content">
-                <div className="glass-card table-wrapper">
-                    <DataTable 
-                        title="Supplier Directory"
-                        headers={['Vendor Name', 'Category', 'Materials Supplied', 'Status', 'Contact', 'Action']}
-                        data={vendors}
-                        onViewAll={fetchVendors}
-                        renderRow={(v, index) => {
-                            const vId = String(v._id || v.id);
-                            const vMaterials = allMaterials.filter(m => String(m.vendorId) === vId || String(m.vendor?.id || m.vendor?._id || m.vendor) === vId);
-                            
-                            return (
-                                <tr key={v._id || v.id || index}>
-                                    <td>
-                                        <strong>{v.name}</strong>
-                                        <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}><MapPin size={12}/> {v.address}</div>
-                                    </td>
-                                    <td><span className="cat-tag">{v.category}</span></td>
-                                    <td style={{ maxWidth: '250px' }}>
-                                        {vMaterials.length > 0 ? (
-                                            <div className="chips-container-readonly" style={{ flexWrap: 'wrap' }}>
-                                                {vMaterials.slice(0, 2).map((mat, i) => (
-                                                    <span key={i} className="material-chip-readonly small">{mat.name} ({mat.sku})</span>
-                                                ))}
-                                                {vMaterials.length > 2 && (
-                                                    <span className="material-chip-readonly small empty">+{vMaterials.length - 2} items</span>
-                                                )}
-                                            </div>
-                                        ) : (
-                                            <span className="text-muted" style={{ fontSize: '12px' }}>No stock linked</span>
-                                        )}
-                                    </td>
-                                    <td>
-                                        <span className={`status-badge-inline ${v.status?.toLowerCase().replace(/ /g, '-') || 'vendor-created'}`}>
-                                            {v.status || 'Vendor Created'}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div className="info-cell">{v.contactPerson || '-'}</div>
-                                        <div className="info-cell" style={{ fontSize: '11px' }}><Mail size={12}/> {v.email}</div>
-                                        <div className="info-cell" style={{ fontSize: '11px' }}><Phone size={12}/> {v.phone}</div>
-                                    </td>
-                                    <td style={{ textAlign: 'center' }}>
-                                        <div className="action-btns-row" onClick={e => e.stopPropagation()} style={{ justifyContent: 'center' }}>
-                                            <button className="btn-icon-view" title="View Profile Dashboard" onClick={() => handleViewVendor(v)}><ExternalLink size={16}/></button>
-                                            <button className="btn-icon-edit" title="Edit Vendor" onClick={() => openEditModal(v)}><Edit size={16}/></button>
-                                            {user?.role === 'Admin' && (
-                                                <button className="btn-icon-del" title="Delete Vendor" onClick={() => handleDeleteVendor(v)}>
-                                                    <Trash2 size={16}/>
-                                                </button>
-                                            )}
-                                        </div>
-                                    </td>
-                                </tr>
-                            );
-                        }}
-                    />
-                </div>
-            </div>
+                    <div className="module-content">
+                        {loading ? (
+                            <div className="flex-center p-50"><div className="spinner"></div></div>
+                        ) : (
+                            <div className="dashboard-card-3d" style={{ overflow: 'hidden' }}>
+                                <DataTable 
+                                    title="Supplier Directory"
+                                    headers={['Vendor Name', 'Category', 'Contact Details', 'Address', 'Status', 'Actions']}
+                                    data={vendors}
+                                    renderRow={(v) => (
+                                        <tr key={v._id || v.id} onClick={() => handleViewVendor(v)} style={{ cursor: 'pointer' }}>
+                                            <td>
+                                                <div className="org-cell">
+                                                    <strong>{v.name}</strong>
+                                                    {v.website && <a href={v.website} target="_blank" rel="noreferrer" className="web-link" onClick={e => e.stopPropagation()}><ExternalLink size={12}/> Visit Site</a>}
+                                                </div>
+                                            </td>
+                                            <td><span className="cat-tag">{v.category}</span></td>
+                                            <td>
+                                                <div className="contact-info-sm">
+                                                    <span style={{ color: 'var(--text-heading)', fontWeight: 600 }}>{v.contactPerson || '—'}</span>
+                                                    <span><Mail size={12}/> {v.email}</span>
+                                                    <span><Phone size={12}/> {v.phone}</span>
+                                                </div>
+                                            </td>
+                                            <td><div style={{ maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{v.address}</div></td>
+                                            <td><span className={`status-badge-inline ${v.status?.toLowerCase().replace(/ /g, '-') || 'vendor-created'}`}>{v.status || 'Vendor Created'}</span></td>
+                                            <td>
+                                                <div className="action-btns-row" onClick={e => e.stopPropagation()}>
+                                                    <button className="action-btn-sm" style={{ background: 'var(--bg-app)', border: '1px solid var(--border-light)', color: 'var(--text-heading)', borderRadius: '6px', padding: '6px 8px' }} title="Edit Vendor" onClick={() => openEditModal(v)}><Edit size={14} /></button>
+                                                    <button className="action-btn-sm" style={{ background: 'var(--danger-bg)', border: '1px solid var(--danger)', color: 'var(--danger)', borderRadius: '6px', padding: '6px 8px' }} title="Delete Vendor" onClick={() => handleDeleteVendor(v)}><Trash2 size={14} /></button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )}
+                                />
+                            </div>
+                        )}
+                    </div>
 
             <style jsx="true">{`
                 .module-container { padding: 30px; }

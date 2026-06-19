@@ -6,7 +6,7 @@ const SelectOrderType = () => {
     const navigate = useNavigate();
 
     return (
-        <div className="erp-workspace">
+        <div className="module-container">
             <div className="breadcrumb-nav">
                 <span className="crumb" onClick={() => navigate('/erp')}>ERP Operations</span>
                 <span className="separator">/</span>
@@ -56,7 +56,7 @@ const SelectOrderType = () => {
             </div>
 
             <style jsx="true">{`
-                .erp-workspace {
+                .module-container {
                     padding: 24px;
                     background-color: var(--bg-body);
                     min-height: 100vh;
