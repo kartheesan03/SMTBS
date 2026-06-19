@@ -198,11 +198,12 @@ const Topbar = () => {
                     border: none;
                     width: 32px;
                     height: 32px;
+                    padding: 0;
                     border-radius: 50%;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    color: var(--secondary-hover);
+                    color: var(--text-muted);
                     cursor: pointer;
                     transition: all 0.2s ease;
                     position: relative;

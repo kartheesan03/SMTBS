@@ -239,10 +239,10 @@ const AppContent = () => {
                     width: 100%;
                 }
 
-                /* ── Desktop: 2-column (Sidebar 260 + Content) ── */
+                /* ── Desktop: 2-column (Sidebar 220 + Content) ── */
                 .main-content.with-sidebar {
-                    margin-left: 260px;
-                    width: calc(100% - 260px);
+                    margin-left: var(--sidebar-width, 220px);
+                    width: calc(100% - var(--sidebar-width, 220px));
                     background-color: var(--bg-body);
                 }
                 .p-30 { padding: 30px; }

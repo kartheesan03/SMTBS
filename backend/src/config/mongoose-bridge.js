@@ -383,6 +383,10 @@ class MongooseQuery {
         return this;
     }
 
+    lean() {
+        return this;
+    }
+
     async exec() {
         let result;
         if (this.type === 'find') {

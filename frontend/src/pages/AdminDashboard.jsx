@@ -152,7 +152,7 @@ const AdminDashboard = () => {
 
     return (
         <div className="module-container">
-            <div className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
+            <div className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
                 <div>
                     <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '0 0 4px 0', letterSpacing: '-0.02em' }}>Business Overview</h1>
                     <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0, fontWeight: 500 }}>Enterprise Resource Planning Dashboard</p>
@@ -175,7 +175,7 @@ const AdminDashboard = () => {
                             </div>
                         </div>
                         <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
-                            <h3 style={{ fontSize: '32px', fontWeight: 800, color: 'var(--text-heading)', margin: 0, lineHeight: 1, letterSpacing: '-0.03em' }}>{kpi.value}</h3>
+                            <h3 style={{ fontSize: '26px', fontWeight: 700, color: 'var(--text-heading)', margin: 0, lineHeight: 1, letterSpacing: '-0.02em' }}>{kpi.value}</h3>
                             <div style={{ display: 'flex', alignItems: 'center', fontSize: '11px', fontWeight: 700, color: kpi.title === 'Low Stock Items' ? (kpi.trendType === 'down' ? 'var(--success)' : 'var(--danger)') : (kpi.trendType === 'up' ? 'var(--success)' : 'var(--danger)'), padding: '4px 6px', background: kpi.title === 'Low Stock Items' ? (kpi.trendType === 'down' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)') : (kpi.trendType === 'up' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)'), borderRadius: '4px' }}>
                                 {kpi.trendType === 'up' ? <ArrowUpRight size={12} style={{ marginRight: '2px' }}/> : <ArrowDownRight size={12} style={{ marginRight: '2px' }}/>}
                                 {kpi.trend}

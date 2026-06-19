@@ -268,6 +268,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                     justify-content: center;
                     cursor: pointer;
                     transition: all 0.2s ease;
+                    padding: 0;
                 }
                 .collapse-btn {
                     width: 24px;
