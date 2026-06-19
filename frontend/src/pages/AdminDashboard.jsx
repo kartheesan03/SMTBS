@@ -165,20 +165,20 @@ const AdminDashboard = () => {
             </div>
 
             {/* ===== KPI ROW ===== */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '24px', marginBottom: '24px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '24px', marginBottom: '24px' }}>
                 {kpiCards.map((kpi, idx) => (
-                    <div key={idx} className="dashboard-card-3d" style={{ position: 'relative', overflow: 'hidden', padding: '20px', display: 'flex', flexDirection: 'column', minHeight: '130px', justifyContent: 'space-between' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                            <div style={{ color: 'var(--text-muted)', fontSize: '13px', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{kpi.title}</div>
-                            <div className="kpi-icon-3d" style={{ width: '36px', height: '36px', borderRadius: '8px', background: `linear-gradient(135deg, ${kpi.color}15, ${kpi.color}05)`, color: kpi.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                <kpi.icon size={18} strokeWidth={2.5} />
+                    <div key={idx} className="dashboard-card-3d" style={{ position: 'relative', overflow: 'hidden', padding: '16px', display: 'flex', flexDirection: 'column', minHeight: '110px', justifyContent: 'space-between' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                            <div style={{ color: 'var(--text-muted)', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{kpi.title}</div>
+                            <div style={{ color: kpi.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                <kpi.icon size={16} strokeWidth={2.5} />
                             </div>
                         </div>
-                        <div style={{ marginTop: 'auto' }}>
-                            <h3 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '8px 0 6px 0', lineHeight: 1 }}>{kpi.value}</h3>
-                            <div style={{ display: 'flex', alignItems: 'center', fontSize: '12px', fontWeight: 600, color: kpi.title === 'Low Stock Items' ? (kpi.trendType === 'down' ? 'var(--success)' : 'var(--danger)') : (kpi.trendType === 'up' ? 'var(--success)' : 'var(--danger)') }}>
-                                {kpi.trendType === 'up' ? <ArrowUpRight size={14} style={{ marginRight: '4px' }}/> : <ArrowDownRight size={14} style={{ marginRight: '4px' }}/>}
-                                {kpi.trend} <span style={{ color: 'var(--text-muted)', fontWeight: 500, marginLeft: '4px' }}>vs last month</span>
+                        <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+                            <h3 style={{ fontSize: '32px', fontWeight: 800, color: 'var(--text-heading)', margin: 0, lineHeight: 1, letterSpacing: '-0.03em' }}>{kpi.value}</h3>
+                            <div style={{ display: 'flex', alignItems: 'center', fontSize: '11px', fontWeight: 700, color: kpi.title === 'Low Stock Items' ? (kpi.trendType === 'down' ? 'var(--success)' : 'var(--danger)') : (kpi.trendType === 'up' ? 'var(--success)' : 'var(--danger)'), padding: '4px 6px', background: kpi.title === 'Low Stock Items' ? (kpi.trendType === 'down' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)') : (kpi.trendType === 'up' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)'), borderRadius: '4px' }}>
+                                {kpi.trendType === 'up' ? <ArrowUpRight size={12} style={{ marginRight: '2px' }}/> : <ArrowDownRight size={12} style={{ marginRight: '2px' }}/>}
+                                {kpi.trend}
                             </div>
                         </div>
                     </div>
@@ -245,7 +245,7 @@ const AdminDashboard = () => {
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-subtle)" />
                                     <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 13, fill: 'var(--text-muted)', fontWeight: 600 }} dy={10} />
                                     <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 13, fill: 'var(--text-muted)', fontWeight: 600 }} />
-                                    <RechartsTooltip cursor={{fill: 'var(--bg-hover)'}} contentStyle={{ borderRadius: 'var(--radius-md)', border: '1px solid var(--border-light)', boxShadow: 'var(--shadow-md)', fontWeight: 600, fontSize: '13px' }} />
+                                    <RechartsTooltip cursor={{fill: 'var(--bg-hover)'}} formatter={(value) => [value, 'Orders']} contentStyle={{ borderRadius: 'var(--radius-md)', border: '1px solid var(--border-light)', boxShadow: 'var(--shadow-md)', fontWeight: 600, fontSize: '13px' }} labelStyle={{ color: 'var(--text-heading)', marginBottom: '4px', textTransform: 'capitalize' }} />
                                     <Bar dataKey="count" radius={[4, 4, 0, 0]}>
                                         {ordersStatusData.map((entry, index) => (
                                             <Cell key={`cell-${index}`} fill={entry.color} />
@@ -259,10 +259,10 @@ const AdminDashboard = () => {
                     </div>
                 </div>
 
-                {/* Quick Actions (App Launcher Style) */}
-                <div className="dashboard-card-3d" style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: '340px', overflow: 'hidden', padding: '24px' }}>
-                    <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-heading)', margin: '0 0 20px 0' }}>Quick Launch</h3>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', flex: 1 }}>
+                {/* App Launcher */}
+                <div className="dashboard-card-3d" style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: '340px', overflow: 'hidden', padding: '20px' }}>
+                    <h3 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-heading)', margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: '8px' }}><Package size={16} /> Application Launcher</h3>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', flex: 1, alignContent: 'start' }}>
                         {[
                             { path: '/materials', name: 'Materials', icon: Package, color: '#3b82f6' },
                             { path: '/hrms', name: 'HRMS', icon: Users, color: '#8b5cf6' },
@@ -271,9 +271,9 @@ const AdminDashboard = () => {
                             { path: '/analytics', name: 'Analytics', icon: BarChart2, color: '#ec4899' },
                             { path: '/settings', name: 'Settings', icon: Settings, color: '#64748b' }
                         ].map((link, idx) => (
-                            <NavLink to={link.path} key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '16px 12px', background: '#ffffff', border: '1px solid var(--border-light)', borderRadius: 'var(--radius-md)', textDecoration: 'none', color: 'var(--text-heading)', fontWeight: 600, fontSize: '13px', transition: 'all 0.2s', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }} className="quick-action-link ui-card">
-                                <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: `${link.color}15`, color: link.color, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '8px' }}>
-                                    <link.icon size={18} />
+                            <NavLink to={link.path} key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '16px 8px', background: '#ffffff', border: '1px solid var(--border-subtle)', borderRadius: '12px', textDecoration: 'none', color: 'var(--text-heading)', fontWeight: 600, fontSize: '12px', transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)', aspectRatio: '1/1' }} className="quick-action-link dashboard-card-3d">
+                                <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: `${link.color}10`, color: link.color, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '10px' }}>
+                                    <link.icon size={20} strokeWidth={2.5} />
                                 </div>
                                 {link.name}
                             </NavLink>

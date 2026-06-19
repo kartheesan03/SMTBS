@@ -760,8 +760,6 @@ const Vendors = () => {
                             )}
                         </div>
 
-                                    <button type="button" className="btn-cancel" onClick={() => setShowNestedMaterialView(false)}>Close</button>
-                                </div>
                             </div>
                         </div>
                     )}

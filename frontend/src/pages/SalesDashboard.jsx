@@ -407,9 +407,6 @@ const SalesDashboard = () => {
                 </div>
             </div>
 
-
-            </div>
-
             <style jsx="true">{`
                 .quick-action-link:hover {
                     background: #fff !important;

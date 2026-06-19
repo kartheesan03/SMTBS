@@ -167,20 +167,6 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                 </div>
             </div>
 
-            {user && (
-                <div className="sidebar-profile-section" onClick={() => window.location.href='/profile'}>
-                    <div className="user-avatar-wrapper">
-                        <img src={user?.picture || `https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=2563eb&color=fff`} alt="User Avatar" className="user-avatar-circle" />
-                        {isCollapsed && <span className="status-dot-absolute"></span>}
-                    </div>
-                    {!isCollapsed && (
-                        <div className="user-details">
-                            <span className="user-name">{user?.name || 'User'}</span>
-                            <span className="user-role">{designation || user?.role || 'Employee'}</span>
-                        </div>
-                    )}
-                </div>
-            )}
 
             <nav className="sidebar-nav">
                 {menuItems.map((item) => (
@@ -204,8 +190,22 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                 ))}
                 {/* Integrate Logout directly into nav */}
                 <div style={{ marginTop: 'auto', paddingTop: '12px' }}>
+                    {user && (
+                        <div className="sidebar-profile-section" onClick={() => window.location.href='/profile'}>
+                            <div className="user-avatar-wrapper">
+                                <img src={user?.picture || `https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=2563eb&color=fff`} alt="User Avatar" className="user-avatar-circle" />
+                                {isCollapsed && <span className="status-dot-absolute"></span>}
+                            </div>
+                            {!isCollapsed && (
+                                <div className="user-details">
+                                    <span className="user-name">{user?.name || 'User'}</span>
+                                    <span className="user-role">{designation || user?.role || 'Employee'}</span>
+                                </div>
+                            )}
+                        </div>
+                    )}
                     <button onClick={logout} className="nav-item logout-btn" title={isCollapsed ? 'Logout' : ''}>
-                        <span className="item-icon-wrapper"><LogOut size={18} /></span>
+                        <span className="item-icon-wrapper"><LogOut size={16} /></span>
                         {!isCollapsed && <span className="item-name">Logout</span>}
                     </button>
                 </div>
@@ -326,7 +326,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                 .sidebar-nav::-webkit-scrollbar { display: none; }
                 
                 .nav-item {
-                    display: flex; align-items: center; padding: 10px 12px;
+                    display: flex; align-items: center; padding: 10px 12px; height: 44px;
                     color: var(--text-muted); border-radius: var(--radius-sm); transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
                     text-decoration: none; font-weight: 500; font-size: 13px; position: relative; border: none; background: transparent; width: 100%; text-align: left; cursor: pointer;
                 }

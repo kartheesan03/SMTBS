@@ -76,13 +76,8 @@ const Topbar = () => {
                     {unreadCount > 0 && <span className="notification-dot"></span>}
                 </button>
                 
-                <div className="topbar-profile" onClick={() => navigate('/profile')}>
-                    <img src={user?.picture || `https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=2563eb&color=fff`} alt="Profile" className="profile-avatar" />
-                    <div className="profile-info desktop-only">
-                        <span className="profile-name">{user?.name || 'User'}</span>
-                        <span className="profile-role">{designation || user?.role || 'Employee'}</span>
-                    </div>
-                    <ChevronDown size={14} className="text-muted desktop-only" style={{ marginLeft: '4px' }} />
+                <div className="topbar-profile" onClick={() => navigate('/profile')} title="Profile">
+                    <img src={user?.picture || `https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=2563eb&color=fff`} alt="Profile" className="profile-avatar" style={{ width: '32px', height: '32px' }} />
                 </div>
             </div>
 
@@ -91,7 +86,7 @@ const Topbar = () => {
                     display: grid;
                     grid-template-columns: 1fr auto 1fr;
                     align-items: center;
-                    height: var(--header-height, 60px);
+                    height: var(--header-height, 56px);
                     padding: 0 24px;
                     background: rgba(255, 255, 255, 0.98);
                     border-bottom: 1px solid var(--border-subtle);
@@ -138,12 +133,12 @@ const Topbar = () => {
                 .global-search {
                     display: flex;
                     align-items: center;
-                    background: #f8fafc;
-                    border: 1px solid var(--border-light);
+                    background: var(--bg-hover);
+                    border: 1px solid transparent;
                     border-radius: var(--radius-sm);
                     padding: 0 12px;
-                    width: 380px;
-                    height: 34px;
+                    width: 400px;
+                    height: 32px;
                     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
                     position: relative;
                 }
@@ -210,6 +205,7 @@ const Topbar = () => {
                     color: var(--secondary-hover);
                     cursor: pointer;
                     transition: all 0.2s ease;
+                    position: relative;
                 }
                 .topbar-btn:hover {
                     color: var(--primary);

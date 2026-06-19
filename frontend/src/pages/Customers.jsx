@@ -656,6 +656,9 @@ const Customers = ({ directoryOnly }) => {
                                 saveButtonText={editingId ? 'Update Customer' : 'Save Customer'}
                             />
                         </div>
+                    </div>
+                </div>
+            )}
             <div className="module-content">
                 {loading ? (
                     <div className="flex-center" style={{ minHeight: '400px' }}><div className="spinner"></div></div>
