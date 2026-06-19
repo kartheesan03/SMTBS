@@ -162,8 +162,8 @@ const AddVendor = () => {
 
                             {/* Pending New Materials Table */}
                             {newMaterialsList.length > 0 && (
-                                <div className="table-responsive" style={{ marginTop: '15px', border: '1px solid #c7d2fe', borderRadius: '8px', overflow: 'hidden' }}>
-                                    <table className="enterprise-table" style={{ width: '100%', fontSize: '12px', borderCollapse: 'collapse', background: '#eef2ff' }}>
+                                <div className="table-responsive" >
+                                    <table className="enterprise-table" >
                                         <thead>
                                             <tr style={{ textAlign: 'left', borderBottom: '1px solid #c7d2fe' }}>
                                                 <th style={{ padding: '8px' }}>SKU</th>

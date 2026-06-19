@@ -259,7 +259,7 @@ const EmployeeDashboard = () => {
                             </div>
                             <div className="bento-card-body">
                                 {myTasks.length > 0 ? (
-                                    <table className="enterprise-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+                                    <table className="enterprise-table" >
                                         <thead>
                                             <tr style={{ borderBottom: '1px solid #f1f5f9', color: '#64748b', textAlign: 'left' }}>
                                                 <th style={{ paddingBottom: '8px', fontWeight: 600 }}>Task Description</th>

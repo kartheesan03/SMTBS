@@ -769,7 +769,7 @@ const ERP = () => {
                             </div>
                             
                             <h4 style={{ margin: '0 0 12px 0', paddingBottom: '8px', borderBottom: '1px solid var(--border)' }}>Items Ordered</h4>
-                            <table className="enterprise-table" style={{ fontSize: '13px' }}>
+                            <table className="enterprise-table" >
                                 <thead>
                                     <tr>
                                         <th>Material</th>
@@ -840,7 +840,7 @@ const ERP = () => {
                             ))}
                         </div>
                         <div className="table-card" style={{ boxShadow: 'none', margin: '0', padding: '0', maxHeight: '500px', overflowY: 'auto' }}>
-                            <table className="enterprise-table" style={{ fontSize: '13px' }}>
+                            <table className="enterprise-table" >
                                 <thead>
                                     <tr>
                                         <th>Invoice ID</th>

@@ -5,7 +5,7 @@ const API = axios.create({
 });
 
 API.interceptors.request.use((req) => {
-    const userInfo = localStorage.getItem('userInfo');
+    const userInfo = localStorage.getItem('userInfo') || sessionStorage.getItem('userInfo');
     if (userInfo) {
         req.headers.Authorization = `Bearer ${JSON.parse(userInfo).token}`;
     }
@@ -17,6 +17,7 @@ API.interceptors.response.use(
     (error) => {
         if (error.response && error.response.status === 401) {
             localStorage.removeItem('userInfo');
+            sessionStorage.removeItem('userInfo');
             window.location.href = '/login';
         }
         return Promise.reject(error);

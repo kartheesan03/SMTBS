@@ -2,56 +2,65 @@
 
 :root {
   /* ─── Enterprise Color Palette ─── */
-  --primary: #2563eb;       /* Salesforce/Linear blue */
+  --primary: #2563eb;       /* Microsoft/Linear core blue */
   --primary-hover: #1d4ed8;
   --primary-light: #eff6ff;
   --primary-100: #dbeafe;
   
-  --secondary: #f3f4f6;
-  --secondary-hover: #e5e7eb;
-  --secondary-text: #4b5563;
+  --secondary: #f8fafc;
+  --secondary-hover: #f1f5f9;
+  --secondary-text: #64748b;
 
-  /* ─── Status / Semantic Colors ─── */
+  /* ─── Status / Semantic Colors (SAP Fiori inspired clarity) ─── */
   --success: #10b981;
   --success-bg: #d1fae5;
-  --warning: #d97706;
+  --warning: #f59e0b;
   --warning-bg: #fef3c7;
-  --danger: #dc2626;
+  --danger: #ef4444;
   --danger-bg: #fee2e2;
-  --info: #0284c7;
-  --info-bg: #e0f2fe;
+  --info: #3b82f6;
+  --info-bg: #eff6ff;
 
   /* ─── Neutrals & Surfaces ─── */
-  --bg-app: #f9fafb;        /* App background */
-  --bg-surface: #ffffff;    /* Cards, Modals, Sidebar */
-  --bg-hover: #f3f4f6;      /* Row hover, button hover */
+  --bg-app: #f1f5f9; /* Slate 100 for better contrast */
+  --bg-surface: #ffffff;    /* White cards */
+  --bg-hover: #f8fafc;
+  --bg-active: #f1f5f9;   /* Subtle row hover */
   --bg-input: #ffffff;      /* Input background */
 
   /* ─── Borders ─── */
-  --border-light: #f3f4f6;
-  --border-subtle: #e5e7eb; /* Standard borders */
-  --border-strong: #d1d5db;
-  --border-focus: #3b82f6;
+  --border-light: #f1f5f9;
+  --border-subtle: #e2e8f0; /* Standard borders */
+  --border-strong: #cbd5e1;
+  --border-focus: #2563eb;
 
   /* ─── Text Colors ─── */
-  --text-heading: #111827;
-  --text-main: #374151;
-  --text-muted: #6b7280;
-  --text-disabled: #9ca3af;
+  --text-heading: #0f172a;
+  --text-main: #334155;
+  --text-muted: #64748b;
+  --text-disabled: #94a3b8;
 
-  /* ─── Shadows (Enterprise Flat & Soft) ─── */
+  /* ─── Shadows (Linear Flat & Soft) ─── */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 12px -2px rgba(0, 0, 0, 0.04), 0 2px 6px -2px rgba(0, 0, 0, 0.02);
-  --shadow-lg: 0 12px 24px -4px rgba(0, 0, 0, 0.06), 0 4px 10px -2px rgba(0, 0, 0, 0.04);
-  --shadow-xl: 0 20px 30px -5px rgba(0, 0, 0, 0.08), 0 10px 15px -5px rgba(0, 0, 0, 0.04);
-  --ring-focus: 0 0 0 3px rgba(37, 99, 235, 0.2);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --ring-focus: 0 0 0 3px rgba(37, 99, 235, 0.15);
 
-  /* ─── Layout & Sizing ─── */
-  --sidebar-width: 220px;
-  --header-height: 56px;
+  /* ─── Layout & Sizing (Microsoft Dynamics 365) ─── */
+  --sidebar-width: 240px;
+  --header-height: 60px;
+  
+  /* ─── Radii (Salesforce Lightning) ─── */
   --radius-sm: 6px;
   --radius-md: 12px;
   --radius-lg: 16px;
+  
+  /* ─── Base Spacing (8px system) ─── */
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 32px;
   
   /* ─── Backwards Compatibility Aliases ─── */
   --bg-body: var(--bg-app);
@@ -109,7 +118,18 @@ body.logged-in .dashboard-layout {
 }
 
 body.logged-in .main-content {
-  padding: 24px;
+  padding: var(--space-3);
+  min-height: 100vh;
+  transition: margin-left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+body.logged-in .main-content.with-sidebar {
+  margin-left: var(--sidebar-width);
+}
+
+/* Sidebar collapsed state support */
+body.logged-in.sidebar-collapsed .main-content.with-sidebar {
+  margin-left: 72px;
 }
 
 /* ─── SCROLLBAR ─── */
@@ -128,24 +148,23 @@ body.logged-in .main-content {
   background: var(--text-disabled);
 }
 
-/* ─── ENTERPRISE COMPONENTS ─── */
+/* ─── ENTERPRISE COMPONENTS (Salesforce Lightning + Linear) ─── */
 
 /* Cards */
 .ui-card, .glass-card, .bento-card, .dashboard-card-3d, .kpi-card-3d, .chart-card-3d, .quick-action-3d, .table-card-3d, .kpi-card, .chart-card, .bento-panel, .kpi-card-bento {
   background: var(--bg-surface) !important;
   border: 1px solid var(--border-subtle) !important;
   border-radius: var(--radius-md) !important;
-  padding: 16px !important;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.02) !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  transition: box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  padding: 24px !important; /* 8x3 spacing */
+  box-shadow: var(--shadow-sm) !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important; /* Linear smooth curve */
   position: relative;
   overflow: hidden;
 }
 
 .dashboard-card-3d:hover, .ui-card:hover {
-  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03) !important;
+  box-shadow: var(--shadow-md) !important;
+  transform: translateY(-1px);
 }
 
 /* ─── GLOBAL BUTTONS ─── */
@@ -244,7 +263,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* Buttons */
-button, .ui-button, .btn-primary, .btn-secondary, .action-btn, .qa-btn {
+button, .ui-button, .btn-primary, .btn-secondary, .btn-secondary-light, .btn-save, .btn-cancel, .btn-action, .action-btn, .action-btn-sm, .qa-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -253,13 +272,49 @@ button, .ui-button, .btn-primary, .btn-secondary, .action-btn, .qa-btn {
   padding: 0 16px;
   border-radius: var(--radius-sm);
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
   border: none;
   outline: none;
   white-space: nowrap;
   font-family: inherit;
+}
+
+.btn-save {
+  background-color: var(--primary) !important;
+  color: #ffffff !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+.btn-save:hover { background-color: var(--primary-hover) !important; }
+
+.btn-cancel {
+  background-color: transparent !important;
+  color: var(--text-muted) !important;
+  border: 1px solid var(--border-strong) !important;
+}
+.btn-cancel:hover { background-color: var(--bg-hover) !important; color: var(--text-heading) !important; }
+
+.btn-secondary-light {
+  background-color: var(--bg-surface) !important;
+  color: var(--text-heading) !important;
+  border: 1px solid var(--border-subtle) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+.btn-secondary-light:hover { background-color: var(--bg-hover) !important; }
+
+.action-btn-sm {
+  height: 28px !important;
+  padding: 0 8px !important;
+  font-size: 12px !important;
+  border-radius: 6px !important;
+  border: 1px solid var(--border-subtle) !important;
+  background-color: var(--bg-surface) !important;
+  color: var(--text-main) !important;
+}
+.action-btn-sm:hover {
+  background-color: var(--bg-hover) !important;
+  border-color: var(--border-strong) !important;
 }
 
 .btn-primary {
@@ -338,47 +393,59 @@ input::placeholder, textarea::placeholder {
 }
 
 /* ─── TABLES ─── */
-.table-responsive {
+.table-responsive, .table-container, .enterprise-table-container {
   width: 100%;
   overflow-x: auto;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-subtle);
-  background: var(--bg-surface);
+  border-radius: var(--radius-md) !important;
+  border: 1px solid var(--border-subtle) !important;
+  background: var(--bg-surface) !important;
+  box-shadow: var(--shadow-sm) !important;
+  margin-top: 16px;
 }
 
-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
+table, .enterprise-table {
+  width: 100% !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  background-color: var(--bg-surface) !important;
 }
 
-thead th {
-  background-color: #f8fafc;
+thead th, .enterprise-table thead th {
+  background-color: #f8fafc !important;
   padding: 12px 16px !important;
-  color: var(--text-muted);
-  font-weight: 500;
+  color: var(--text-muted) !important;
+  font-weight: 600 !important;
   font-size: 12px !important;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
   border-bottom: 1px solid var(--border-subtle) !important;
-  text-align: left;
-  white-space: nowrap;
+  text-align: left !important;
+  white-space: nowrap !important;
 }
 
-tbody td {
+tbody td, .enterprise-table tbody td {
   padding: 14px 16px !important;
   font-size: 13px !important;
-  color: var(--text-main) !important;
+  color: var(--text-heading) !important;
   border-bottom: 1px solid var(--border-light) !important;
-  vertical-align: middle;
+  vertical-align: middle !important;
 }
 
-tbody tr:last-child td {
+tbody tr:last-child td, .enterprise-table tbody tr:last-child td {
   border-bottom: none !important;
 }
 
-tbody tr:hover td {
+tbody tr:hover td, .enterprise-table tbody tr:hover td {
   background-color: var(--bg-hover) !important;
+}
+
+.table-card {
+  background: var(--bg-surface) !important;
+  border: 1px solid var(--border-subtle) !important;
+  border-radius: var(--radius-md) !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  box-shadow: var(--shadow-sm) !important;
 }
 
 /* Status Badges */
@@ -447,10 +514,10 @@ tbody tr:hover td {
 }
 
 /* ─── MODALS & ANIMATIONS ─── */
-.modal-backdrop {
+.modal-backdrop, .modal-overlay {
   position: fixed;
   inset: 0;
-  background-color: rgba(17, 24, 39, 0.4);
+  background-color: rgba(15, 23, 42, 0.45) !important;
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
@@ -458,6 +525,67 @@ tbody tr:hover td {
   z-index: 9999;
   padding: 20px;
   animation: fadeIn 0.15s ease-out;
+}
+
+.modal-content {
+  background: var(--bg-surface) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-xl) !important;
+  width: 100%;
+  max-width: 500px;
+  padding: 0 !important;
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+}
+
+.modal-header {
+  padding: 20px 24px !important;
+  border-bottom: 1px solid var(--border-light) !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+}
+
+.modal-header h2 {
+  margin: 0 !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+}
+
+.modal-form, .modal-body {
+  padding: 24px !important;
+}
+
+.modal-actions {
+  padding: 16px 24px !important;
+  background: #f8fafc !important;
+  border-top: 1px solid var(--border-light) !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 12px !important;
+}
+
+.close-btn {
+  background: transparent !important;
+  border: none !important;
+  color: var(--text-muted) !important;
+  font-size: 20px !important;
+  cursor: pointer !important;
+  padding: 4px !important;
+}
+.close-btn:hover { color: var(--text-heading) !important; }
+
+.animate-slide-up {
+  animation: slideUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.animate-pop {
+  animation: popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes popIn {
+  0% { opacity: 0; transform: scale(0.95) translateY(10px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
 }
 
 .animate-slide-up {

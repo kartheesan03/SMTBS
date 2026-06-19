@@ -862,9 +862,9 @@ const Payroll = () => {
                                     <div key={s._id} className="bulk-emp-row">
                                         <div className="flex-center gap-10">
                                             <div className="emp-avatar sm" style={{background: '#e2e8f0', width: '20px', height: '20px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center'}}><User size={10}/></div>
-                                            <span style={{fontSize: '13px'}}>{s.employee?.userId?.name || s.employee?.firstName || 'Employee'}</span>
+                                            <span >{s.employee?.userId?.name || s.employee?.firstName || 'Employee'}</span>
                                         </div>
-                                        <strong style={{fontSize: '13px'}}>₹{(s.netSalary || 0).toLocaleString()}</strong>
+                                        <strong >₹{(s.netSalary || 0).toLocaleString()}</strong>
                                     </div>
                                 ))}
                             </div>

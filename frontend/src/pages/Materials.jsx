@@ -455,14 +455,14 @@ const MaterialTracking = () => {
                                 <td>${item.price}</td>
                                 <td>
                                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                                        <button className="action-btn-sm" style={{ background: 'var(--bg-app)', border: '1px solid var(--border-light)', borderRadius: '6px', padding: '6px 8px', color: 'var(--text-heading)' }} title="Barcode & QR Code" onClick={() => { setSelectedMaterialForCode(item); setShowGenerator(true); }}><QrCode size={14} /></button>
-                                        <button className="action-btn-sm" style={{ background: 'var(--bg-app)', border: '1px solid var(--border-light)', borderRadius: '6px', padding: '6px 8px', color: 'var(--text-heading)' }} title="Movement History" onClick={() => openMovementHistory(item)}><History size={14} /></button>
+                                        <button className="action-btn-sm"  title="Barcode & QR Code" onClick={() => { setSelectedMaterialForCode(item); setShowGenerator(true); }}><QrCode size={14} /></button>
+                                        <button className="action-btn-sm"  title="Movement History" onClick={() => openMovementHistory(item)}><History size={14} /></button>
                                         {(item.quantity <= item.lowStockThreshold) && (
-                                            <button className="action-btn-sm" style={{ background: 'var(--bg-app)', border: '1px solid var(--primary)', borderRadius: '6px', padding: '6px 8px', color: 'var(--primary)' }} title="Request Stock" onClick={() => handleRequestStockClick(item)}><Send size={14} /></button>
+                                            <button className="action-btn-sm"  title="Request Stock" onClick={() => handleRequestStockClick(item)}><Send size={14} /></button>
                                         )}
-                                        <button className="action-btn-sm" style={{ background: 'var(--bg-app)', border: '1px solid var(--border-light)', borderRadius: '6px', padding: '6px 8px', color: 'var(--text-heading)' }} title="Edit Item" onClick={() => handleEditClick(item)}><Edit2 size={14} /></button>
+                                        <button className="action-btn-sm"  title="Edit Item" onClick={() => handleEditClick(item)}><Edit2 size={14} /></button>
                                         {!isEmployee && (
-                                            <button className="action-btn-sm" style={{ background: 'var(--danger-bg)', border: '1px solid var(--danger)', borderRadius: '6px', padding: '6px 8px', color: 'var(--danger)' }} title="Delete Item" onClick={() => handleDeleteClick(item)}><Trash2 size={14} /></button>
+                                            <button className="action-btn-sm"  title="Delete Item" onClick={() => handleDeleteClick(item)}><Trash2 size={14} /></button>
                                         )}
                                     </div>
                                 </td>

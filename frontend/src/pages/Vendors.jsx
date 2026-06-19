@@ -402,10 +402,10 @@ const Vendors = () => {
                                 <div className="material-creation-section" style={{ marginTop: '25px', borderColor: '#e2e8f0', background: '#ffffff' }}>
                                     <h3 className="section-title" style={{ marginTop: 0 }}>Existing Materials Supplied</h3>
                                     {vendorMaterials.length === 0 ? (
-                                        <p className="text-muted" style={{ fontSize: '13px' }}>No physical stock records linked yet.</p>
+                                        <p className="text-muted" >No physical stock records linked yet.</p>
                                     ) : (
                                         <div className="table-responsive" style={{ maxHeight: '150px', overflowY: 'auto', border: '1px solid var(--border)', borderRadius: '8px' }}>
-                                            <table className="enterprise-table" style={{ width: '100%', fontSize: '12px', borderCollapse: 'collapse' }}>
+                                            <table className="enterprise-table" >
                                                 <thead>
                                                     <tr style={{ textAlign: 'left', background: '#f8fafc', borderBottom: '1px solid var(--border)' }}>
                                                         <th style={{ padding: '8px' }}>SKU</th>
@@ -474,8 +474,8 @@ const Vendors = () => {
 
                                 {/* Pending New Materials Table */}
                                 {newMaterialsList.length > 0 && (
-                                    <div className="table-responsive" style={{ marginTop: '15px', border: '1px solid #c7d2fe', borderRadius: '8px', overflow: 'hidden' }}>
-                                        <table className="enterprise-table" style={{ width: '100%', fontSize: '12px', borderCollapse: 'collapse', background: '#eef2ff' }}>
+                                    <div className="table-responsive" >
+                                        <table className="enterprise-table" >
                                             <thead>
                                                 <tr style={{ textAlign: 'left', borderBottom: '1px solid #c7d2fe' }}>
                                                     <th style={{ padding: '8px' }}>SKU</th>
@@ -576,7 +576,7 @@ const Vendors = () => {
                                     </div>
                                 ) : (
                                     <div className="table-responsive" style={{ maxHeight: '250px', overflowY: 'auto' }}>
-                                        <table className="enterprise-table" style={{ width: '100%', fontSize: '13px', borderCollapse: 'collapse' }}>
+                                        <table className="enterprise-table" >
                                             <thead style={{ position: 'sticky', top: 0, background: '#f8fafc', zIndex: 1 }}>
                                                 <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)' }}>
                                                     <th style={{ padding: '10px' }}>SKU</th>
@@ -618,10 +618,10 @@ const Vendors = () => {
                             <div className="vendor-orders-section" style={{ marginTop: '25px', background: '#ffffff', border: '1px solid var(--border)', borderRadius: '12px', padding: '20px' }}>
                                 <h3 style={{ fontSize: '16px', marginBottom: '15px', color: 'var(--text-primary)' }}>Linked Purchase Orders ({vendorOrders.length})</h3>
                                 {vendorOrders.length === 0 ? (
-                                    <p className="text-muted" style={{ fontSize: '13px' }}>No purchase orders found for this vendor.</p>
+                                    <p className="text-muted" >No purchase orders found for this vendor.</p>
                                 ) : (
                                     <div className="table-responsive" style={{ maxHeight: '200px', overflowY: 'auto' }}>
-                                        <table className="enterprise-table" style={{ width: '100%', fontSize: '13px', borderCollapse: 'collapse' }}>
+                                        <table className="enterprise-table" >
                                             <thead>
                                                 <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)', background: '#f8fafc' }}>
                                                     <th style={{ padding: '10px' }}>Order No</th>
@@ -734,7 +734,7 @@ const Vendors = () => {
                                 <div style={{ padding: '20px', textAlign: 'center', background: '#f8fafc', borderRadius: '8px', color: 'var(--text-muted)' }}>No movement history recorded yet.</div>
                             ) : (
                                 <div className="table-responsive" style={{ maxHeight: '250px', overflowY: 'auto' }}>
-                                    <table className="enterprise-table" style={{ width: '100%', fontSize: '12px', borderCollapse: 'collapse' }}>
+                                    <table className="enterprise-table" >
                                         <thead>
                                             <tr style={{ background: '#f8fafc', borderBottom: '1px solid var(--border)', textAlign: 'left' }}>
                                                 <th style={{ padding: '8px' }}>Type</th>

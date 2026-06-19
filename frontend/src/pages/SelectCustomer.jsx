@@ -65,7 +65,7 @@ const SelectCustomer = () => {
                 </div>
             </header>
 
-            <div className="table-card" style={{ background: 'var(--bg-card)', borderRadius: '12px', padding: '1px', border: '1px solid var(--border)' }}>
+            <div className="table-card" >
                 {loading ? (
                     <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>Loading customers...</div>
                 ) : filteredCustomers.length === 0 ? (

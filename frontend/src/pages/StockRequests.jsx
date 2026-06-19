@@ -117,7 +117,7 @@ const StockRequests = () => {
 
             {toastMsg && <div className="toast-notification success" style={{ background: '#10b981', color: 'white', padding: '12px 20px', borderRadius: '8px', marginBottom: '20px' }}>{toastMsg}</div>}
 
-            <div className="table-card" style={{ background: 'white', borderRadius: '12px', padding: '1px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)' }}>
+            <div className="table-card" >
                 {loading ? (
                     <div style={{ padding: '40px', textAlign: 'center' }}>Loading...</div>
                 ) : requests.length === 0 ? (

@@ -52,38 +52,41 @@ const loginUser = async (req, res) => {
     const user = await User.findOne({ email });
     console.log(`[LOGIN] User found in DB: ${!!user}`);
 
-    if (user) {
-        const isMatch = await user.matchPassword(password);
-        console.log(`[LOGIN] bcrypt password match: ${isMatch}`);
-
-        if (isMatch) {
-            let role = user.role;
-            if (user.email === 'admin@smtbms.com') {
-                role = 'Super Admin';
-            }
-
-            return res.json({
-                _id: user._id,
-                name: user.name,
-                email: user.email,
-                role: role,
-                picture: user.picture,
-                isProfileComplete: user.isProfileComplete,
-                token: generateToken(user._id),
-                user: {
-                    id: user._id,
-                    name: user.name,
-                    email: user.email,
-                    role: role,
-                    picture: user.picture,
-                    isProfileComplete: user.isProfileComplete
-                }
-            });
-        }
+    if (!user) {
+        console.error(`[LOGIN] Login failed for email: ${email} - Account not found`);
+        return res.status(404).json({ message: 'Account not found. Please contact the administrator or register an account.' });
     }
 
-    console.error(`[LOGIN] Login failed for email: ${email} - Invalid credentials`);
-    res.status(401).json({ message: 'Invalid email or password' });
+    const isMatch = await user.matchPassword(password);
+    console.log(`[LOGIN] bcrypt password match: ${isMatch}`);
+
+    if (!isMatch) {
+        console.error(`[LOGIN] Login failed for email: ${email} - Invalid password`);
+        return res.status(401).json({ message: 'Invalid password. Please try again.' });
+    }
+
+    let role = user.role;
+    if (user.email === 'admin@smtbms.com') {
+        role = 'Super Admin';
+    }
+
+    return res.json({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: role,
+        picture: user.picture,
+        isProfileComplete: user.isProfileComplete,
+        token: generateToken(user._id),
+        user: {
+            id: user._id,
+            name: user.name,
+            email: user.email,
+            role: role,
+            picture: user.picture,
+            isProfileComplete: user.isProfileComplete
+        }
+    });
 };
 
 // @desc    Google Auth (Login / Signup)

@@ -83,15 +83,17 @@ const Topbar = () => {
 
             <style jsx="true">{`
                 .topbar {
-                    display: grid;
-                    grid-template-columns: 1fr auto 1fr;
+                    display: flex;
+                    justify-content: space-between;
                     align-items: center;
-                    height: var(--header-height, 56px);
+                    height: var(--header-height, 60px);
                     padding: 0 24px;
                     background: rgba(255, 255, 255, 0.98);
                     border-bottom: 1px solid var(--border-subtle);
+                    box-shadow: var(--shadow-sm);
                     position: sticky;
                     top: 0;
+                    margin: -24px -24px 24px -24px;
                     z-index: 900;
                     backdrop-filter: blur(8px);
                     -webkit-backdrop-filter: blur(8px);
@@ -100,12 +102,13 @@ const Topbar = () => {
                 .topbar-left {
                     display: flex;
                     align-items: center;
+                    flex: 1;
                 }
 
                 .breadcrumbs {
                     display: flex;
                     align-items: center;
-                    gap: 6px;
+                    gap: 8px;
                     font-size: 13px;
                     font-weight: 500;
                 }
@@ -128,29 +131,31 @@ const Topbar = () => {
                 .topbar-center {
                     display: flex;
                     justify-content: center;
+                    flex: 1;
                 }
                 
                 .global-search {
                     display: flex;
                     align-items: center;
-                    background: var(--bg-hover);
+                    background: var(--bg-app);
                     border: 1px solid transparent;
                     border-radius: var(--radius-sm);
                     padding: 0 12px;
                     width: 400px;
-                    height: 32px;
-                    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+                    height: 38px;
+                    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
                     position: relative;
                 }
                 .global-search:focus-within {
                     background: #ffffff;
                     border-color: var(--primary);
-                    box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+                    box-shadow: var(--ring-focus);
                 }
                 .global-search input {
-                    background: transparent;
-                    border: none;
-                    outline: none;
+                    background: transparent !important;
+                    border: none !important;
+                    box-shadow: none !important;
+                    outline: none !important;
                     width: 100%;
                     padding-left: 10px;
                     font-size: 13px;
@@ -164,11 +169,16 @@ const Topbar = () => {
                 .global-search:focus-within .search-icon { color: var(--primary); }
                 
                 .search-shortcut {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
                     font-size: 11px;
                     color: var(--text-muted);
                     background: #ffffff;
                     border: 1px solid var(--border-subtle);
-                    padding: 2px 6px;
+                    padding: 0 6px;
+                    height: 22px;
+                    line-height: 1;
                     border-radius: 4px;
                     font-weight: 600;
                     margin-left: 8px;
@@ -179,38 +189,40 @@ const Topbar = () => {
                     align-items: center;
                     justify-content: flex-end;
                     gap: 16px;
+                    flex: 1;
                 }
 
                 .date-selector {
                     display: flex;
                     align-items: center;
-                    gap: 8px;
+                    gap: 6px;
                     font-size: 13px;
                     font-weight: 600;
                     color: var(--text-main);
-                    padding: 6px 12px;
-                    border-right: 1px solid var(--border-subtle);
                     padding-right: 16px;
+                    border-right: 1px solid var(--border-subtle);
+                    height: 24px; /* to make border not too tall */
                 }
 
                 .topbar-btn {
                     background: transparent;
-                    border: none;
-                    width: 32px;
-                    height: 32px;
+                    border: 1px solid transparent;
+                    width: 36px;
+                    height: 36px;
                     padding: 0;
-                    border-radius: 50%;
+                    border-radius: var(--radius-sm);
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     color: var(--text-muted);
                     cursor: pointer;
-                    transition: all 0.2s ease;
+                    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
                     position: relative;
                 }
                 .topbar-btn:hover {
                     color: var(--primary);
                     background: var(--primary-light);
+                    border-color: var(--primary-100);
                 }
                 .notification-dot {
                     position: absolute;
@@ -240,22 +252,6 @@ const Topbar = () => {
                     border-radius: 50%;
                     object-fit: cover;
                     border: 1px solid var(--border-subtle);
-                }
-                .profile-info {
-                    display: flex;
-                    flex-direction: column;
-                }
-                .profile-name {
-                    font-size: 13px;
-                    font-weight: 600;
-                    color: var(--text-heading);
-                    line-height: 1.2;
-                }
-                .profile-role {
-                    font-size: 11px;
-                    font-weight: 500;
-                    color: var(--text-muted);
-                    margin-top: 2px;
                 }
 
                 @media (max-width: 768px) {

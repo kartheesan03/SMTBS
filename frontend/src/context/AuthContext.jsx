@@ -9,9 +9,9 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         const fetchUser = async () => {
-            const userInfo = localStorage.getItem('userInfo');
+            const userInfo = localStorage.getItem('userInfo') || sessionStorage.getItem('userInfo');
             if (userInfo) {
-                // Initialize immediately with local storage
+                // Initialize immediately with local or session storage
                 const parsedUser = JSON.parse(userInfo);
                 setUser(parsedUser);
                 
@@ -19,7 +19,11 @@ export const AuthProvider = ({ children }) => {
                 try {
                     const { data } = await API.get('/auth/profile');
                     setUser(data);
-                    localStorage.setItem('userInfo', JSON.stringify(data));
+                    if (localStorage.getItem('userInfo')) {
+                        localStorage.setItem('userInfo', JSON.stringify(data));
+                    } else if (sessionStorage.getItem('userInfo')) {
+                        sessionStorage.setItem('userInfo', JSON.stringify(data));
+                    }
                 } catch (err) {
                     console.error("Failed to fetch latest user profile on reload", err);
                 }
@@ -29,18 +33,29 @@ export const AuthProvider = ({ children }) => {
         fetchUser();
     }, []);
 
-    const login = (data) => {
-        localStorage.setItem('userInfo', JSON.stringify(data));
+    const login = (data, rememberMe = false) => {
+        if (rememberMe) {
+            localStorage.setItem('userInfo', JSON.stringify(data));
+            sessionStorage.removeItem('userInfo');
+        } else {
+            sessionStorage.setItem('userInfo', JSON.stringify(data));
+            localStorage.removeItem('userInfo');
+        }
         setUser(data);
     };
 
     const logout = () => {
         localStorage.removeItem('userInfo');
+        sessionStorage.removeItem('userInfo');
         setUser(null);
     };
 
     const updateUser = (data) => {
-        localStorage.setItem('userInfo', JSON.stringify(data));
+        if (localStorage.getItem('userInfo')) {
+            localStorage.setItem('userInfo', JSON.stringify(data));
+        } else if (sessionStorage.getItem('userInfo')) {
+            sessionStorage.setItem('userInfo', JSON.stringify(data));
+        }
         setUser(data);
     };
 

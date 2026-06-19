@@ -78,7 +78,7 @@ const Settings = () => {
                         firstName: fName || '',
                         lastName: lName || '',
                         email: data.userId?.email || user?.email || '',
-                        phone: data.contact || '',
+                        phone: data.phone || '',
                         address: data.address || ''
                     });
                 }
@@ -461,7 +461,7 @@ const Settings = () => {
                 }
                 .input-with-icon input {
                     width: 100%;
-                    padding-left: 36px;
+                    padding-left: 36px !important;
                 }
                 .input-icon {
                     position: absolute;
