@@ -171,7 +171,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                 <NavLink to="/profile" className="sidebar-user-card" style={{ textDecoration: 'none' }}>
                     <div className="user-avatar-wrapper">
                         <div className="user-avatar-circle">
-                            <img src={`https://ui-avatars.com/api/?name=${user?.name || 'Admin'}&background=2563eb&color=fff`} alt="User Avatar" />
+                            <img src={user?.picture || `https://ui-avatars.com/api/?name=${user?.name || 'Admin'}&background=2563eb&color=fff`} alt="User Avatar" />
                         </div>
                         {isCollapsed && <span className="status-dot-absolute"></span>}
                     </div>

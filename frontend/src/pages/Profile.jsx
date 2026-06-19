@@ -12,7 +12,8 @@ const Profile = () => {
         lastName: '',
         email: user?.email || '',
         phone: '',
-        address: ''
+        address: '',
+        picture: user?.picture || ''
     });
 
     const [preferences, setPreferences] = useState(() => {
@@ -101,7 +102,8 @@ const Profile = () => {
                         lastName: lName || '',
                         email: data.userId?.email || user?.email || '',
                         phone: data.contact || '',
-                        address: data.address || ''
+                        address: data.address || '',
+                        picture: user?.picture || ''
                     });
                 }
             } catch (err) {
@@ -136,7 +138,8 @@ const Profile = () => {
             // Update auth profile if needed
             const authPayload = {
                 name: `${formData.firstName} ${formData.lastName}`.trim(),
-                email: formData.email
+                email: formData.email,
+                picture: formData.picture
             };
             const authRes = await API.put('/auth/profile', authPayload);
             updateUser(authRes.data);
@@ -144,6 +147,17 @@ const Profile = () => {
             alert('Profile Updated Successfully');
         } catch (err) {
             alert(err.response?.data?.message || 'Error updating profile');
+        }
+    };
+
+    const handlePictureUpload = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setFormData(prev => ({ ...prev, picture: reader.result }));
+            };
+            reader.readAsDataURL(file);
         }
     };
 
@@ -182,7 +196,15 @@ const Profile = () => {
             {/* Top Banner Card */}
             <div className="profile-banner-card">
                 <div className="banner-avatar">
-                    {avatarInitials}
+                    {formData.picture ? (
+                        <img src={formData.picture} alt="Profile" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                    ) : (
+                        avatarInitials
+                    )}
+                    <label className="avatar-upload-btn" title="Change Picture">
+                        <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handlePictureUpload} />
+                        📷
+                    </label>
                 </div>
                 <div className="banner-info">
                     <h2>{fullName}</h2>
@@ -445,6 +467,7 @@ const Profile = () => {
                     margin-bottom: 24px;
                 }
                 .banner-avatar {
+                    position: relative;
                     width: 80px;
                     height: 80px;
                     background: #8b5cf6;
@@ -457,6 +480,27 @@ const Profile = () => {
                     font-weight: 700;
                     letter-spacing: 1px;
                     flex-shrink: 0;
+                }
+                .avatar-upload-btn {
+                    position: absolute;
+                    bottom: -4px;
+                    right: -4px;
+                    background: #ffffff;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 50%;
+                    width: 28px;
+                    height: 28px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 14px;
+                    cursor: pointer;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                    transition: all 0.2s;
+                }
+                .avatar-upload-btn:hover {
+                    background: #f8fafc;
+                    transform: scale(1.05);
                 }
                 .banner-info {
                     display: flex;

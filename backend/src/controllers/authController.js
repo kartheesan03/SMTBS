@@ -264,6 +264,9 @@ const updateUserProfile = async (req, res) => {
         if (user) {
             user.name = req.body.name || user.name;
             user.email = req.body.email || user.email;
+            if (req.body.picture) {
+                user.picture = req.body.picture;
+            }
             if (req.body.password) {
                 user.password = req.body.password;
             }
@@ -280,7 +283,17 @@ const updateUserProfile = async (req, res) => {
                 name: updatedUser.name,
                 email: updatedUser.email,
                 role: role,
+                picture: updatedUser.picture,
+                isProfileComplete: updatedUser.isProfileComplete,
                 token: generateToken(updatedUser._id),
+                user: {
+                    id: updatedUser._id,
+                    name: updatedUser.name,
+                    email: updatedUser.email,
+                    role: role,
+                    picture: updatedUser.picture,
+                    isProfileComplete: updatedUser.isProfileComplete
+                }
             });
         } else {
             res.status(404).json({ message: 'User not found' });

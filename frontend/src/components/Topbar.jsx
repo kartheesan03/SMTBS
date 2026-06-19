@@ -45,7 +45,7 @@ const Topbar = () => {
                 </button>
                 
                 <div className="topbar-profile" onClick={() => navigate('/profile')}>
-                    <img src={`https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=2563eb&color=fff`} alt="Profile" className="profile-avatar" />
+                    <img src={user?.picture || `https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=2563eb&color=fff`} alt="Profile" className="profile-avatar" />
                     <div className="profile-info desktop-only">
                         <span className="profile-name">{user?.name || 'User'}</span>
                         <span className="profile-role">{designation || user?.role || 'Employee'}</span>
