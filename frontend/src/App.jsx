@@ -10,54 +10,54 @@ import { Menu, X } from 'lucide-react';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
 // Pages
-import Dashboard from './pages/Dashboard';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Materials from './pages/Materials';
+const Dashboard = React.lazy(() => import('./pages/Dashboard'));
+const Login = React.lazy(() => import('./pages/Login'));
+const Register = React.lazy(() => import('./pages/Register'));
+const Materials = React.lazy(() => import('./pages/Materials'));
 
-import OrderTracking from './pages/OrderTracking';
-import HRMS from './pages/HRMS';
-import AddEmployee from './pages/AddEmployee';
-import AdminDashboard from './pages/AdminDashboard';
-import EmployeeDashboard from './pages/EmployeeDashboard';
-import HRDashboard from './pages/HRDashboard';
-import ManagerDashboard from './pages/ManagerDashboard';
-import SalesDashboard from './pages/SalesDashboard';
-import TeamPerformance from './pages/TeamPerformance';
-import Payroll from './pages/Payroll';
-import Attendance from './pages/Attendance';
-import HRReports from './pages/HRReports';
-import Settings from './pages/Settings';
-import Profile from './pages/Profile';
-import Reports from './pages/Reports';
-import ERP from './pages/ERP';
-import Vendors from './pages/Vendors';
-import NotificationsPage from './pages/Notifications';
-import MyTasks from './pages/MyTasks';
-import MyAttendance from './pages/MyAttendance';
-import GeneratePayroll from './pages/GeneratePayroll';
-import PayrollPayment from './pages/PayrollPayment';
-import Payslips from './pages/Payslips';
-import LeaveManagement from './pages/LeaveManagement';
-import MySalaryPage from './pages/MySalary';
-import Customers from './pages/Customers';
-import AddCustomer from './pages/AddCustomer';
-import AddVendor from './pages/AddVendor';
-import Support from './pages/Support';
-import StockRequests from './pages/StockRequests';
-import CreateOrder from './pages/CreateOrder';
-import SelectOrderType from './pages/SelectOrderType';
-import SelectCustomer from './pages/SelectCustomer';
-import SelectVendor from './pages/SelectVendor';
+const OrderTracking = React.lazy(() => import('./pages/OrderTracking'));
+const HRMS = React.lazy(() => import('./pages/HRMS'));
+const AddEmployee = React.lazy(() => import('./pages/AddEmployee'));
+const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'));
+const EmployeeDashboard = React.lazy(() => import('./pages/EmployeeDashboard'));
+const HRDashboard = React.lazy(() => import('./pages/HRDashboard'));
+const ManagerDashboard = React.lazy(() => import('./pages/ManagerDashboard'));
+const SalesDashboard = React.lazy(() => import('./pages/SalesDashboard'));
+const TeamPerformance = React.lazy(() => import('./pages/TeamPerformance'));
+const Payroll = React.lazy(() => import('./pages/Payroll'));
+const Attendance = React.lazy(() => import('./pages/Attendance'));
+const HRReports = React.lazy(() => import('./pages/HRReports'));
+const Settings = React.lazy(() => import('./pages/Settings'));
+const Profile = React.lazy(() => import('./pages/Profile'));
+const Reports = React.lazy(() => import('./pages/Reports'));
+const ERP = React.lazy(() => import('./pages/ERP'));
+const Vendors = React.lazy(() => import('./pages/Vendors'));
+const NotificationsPage = React.lazy(() => import('./pages/Notifications'));
+const MyTasks = React.lazy(() => import('./pages/MyTasks'));
+const MyAttendance = React.lazy(() => import('./pages/MyAttendance'));
+const GeneratePayroll = React.lazy(() => import('./pages/GeneratePayroll'));
+const PayrollPayment = React.lazy(() => import('./pages/PayrollPayment'));
+const Payslips = React.lazy(() => import('./pages/Payslips'));
+const LeaveManagement = React.lazy(() => import('./pages/LeaveManagement'));
+const MySalaryPage = React.lazy(() => import('./pages/MySalary'));
+const Customers = React.lazy(() => import('./pages/Customers'));
+const AddCustomer = React.lazy(() => import('./pages/AddCustomer'));
+const AddVendor = React.lazy(() => import('./pages/AddVendor'));
+const Support = React.lazy(() => import('./pages/Support'));
+const StockRequests = React.lazy(() => import('./pages/StockRequests'));
+const CreateOrder = React.lazy(() => import('./pages/CreateOrder'));
+const SelectOrderType = React.lazy(() => import('./pages/SelectOrderType'));
+const SelectCustomer = React.lazy(() => import('./pages/SelectCustomer'));
+const SelectVendor = React.lazy(() => import('./pages/SelectVendor'));
 import ErrorBoundary from './components/ErrorBoundary';
 
-import CompleteCustomerProfile from './pages/CompleteCustomerProfile';
-import CompleteVendorProfile from './pages/CompleteVendorProfile';
-import ComingSoonPage from './pages/ComingSoonPage';
-import CustomerDashboard from './pages/CustomerDashboard';
-import VendorDashboard from './pages/VendorDashboard';
-import RevenueDashboard from './pages/RevenueDashboard';
-import CustomerNewOrder from './pages/CustomerNewOrder';
+const CompleteCustomerProfile = React.lazy(() => import('./pages/CompleteCustomerProfile'));
+const CompleteVendorProfile = React.lazy(() => import('./pages/CompleteVendorProfile'));
+const ComingSoonPage = React.lazy(() => import('./pages/ComingSoonPage'));
+const CustomerDashboard = React.lazy(() => import('./pages/CustomerDashboard'));
+const VendorDashboard = React.lazy(() => import('./pages/VendorDashboard'));
+const RevenueDashboard = React.lazy(() => import('./pages/RevenueDashboard'));
+const CustomerNewOrder = React.lazy(() => import('./pages/CustomerNewOrder'));
 
 const AppContent = () => {
     const { user, loading, logout } = useContext(AuthContext);
@@ -98,6 +98,7 @@ const AppContent = () => {
             )}
             <main className={`main-content ${user ? 'with-sidebar' : ''}`}>
                 {user && <Topbar />}
+                <React.Suspense fallback={<div className="app-loading">Loading...</div>}>
                 <Routes>
                     {/* Public Route */}
                     <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
@@ -183,6 +184,7 @@ const AppContent = () => {
                     {/* Fallback */}
                     <Route path="*" element={<Navigate to="/" />} />
                 </Routes>
+                </React.Suspense>
             </main>
 
             <style jsx="true">{`
