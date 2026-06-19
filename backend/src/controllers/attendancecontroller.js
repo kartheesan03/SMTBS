@@ -320,12 +320,15 @@ const autoMarkAbsent = async () => {
         const todayEnd = new Date(now);
         todayEnd.setHours(23,59,59,999);
 
+        // Format to YYYY-MM-DD for DATEONLY string comparison
+        const todayStr = todayStart.getFullYear() + '-' + String(todayStart.getMonth() + 1).padStart(2, '0') + '-' + String(todayStart.getDate()).padStart(2, '0');
+
         // Fetch active employees (all employees in current minimal schema)
         const activeEmployees = await Employee.find({});
 
         // Fetch today's attendance records
         const attendances = await Attendance.find({
-            date: { $gte: todayStart, $lte: todayEnd }
+            date: todayStr
         });
         const attendedEmpIds = attendances.map(a => a.employeeId?.toString());
 
@@ -356,7 +359,7 @@ const autoMarkAbsent = async () => {
             // Bulk insert or avoid duplicates
             for (const record of absentRecords) {
                 await Attendance.updateOne(
-                    { employeeId: record.employeeId, date: { $gte: todayStart, $lte: todayEnd } },
+                    { employeeId: record.employeeId, date: todayStr },
                     { $setOnInsert: record },
                     { upsert: true }
                 );
@@ -384,9 +387,14 @@ const getMonthlySummary = async (req, res) => {
 
         let query = {};
 
+        // Format to YYYY-MM-DD for DATEONLY string comparison
+        const formatYYYYMMDD = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        const startDateStr = formatYYYYMMDD(startDate);
+        const endDateStr = formatYYYYMMDD(endDate);
+
         const employees = await Employee.find(query);
         const attendances = await Attendance.find({
-            date: { $gte: startDate, $lte: endDate }
+            date: { $gte: startDateStr, $lte: endDateStr }
         });
         
         const leaves = await Leave.find({
@@ -465,12 +473,8 @@ const getAttendanceHistory = async (req, res) => {
 
         if (fromDate || toDate) {
             query.date = {};
-            if (fromDate) query.date.$gte = new Date(fromDate);
-            if (toDate) {
-                const endDate = new Date(toDate);
-                endDate.setHours(23, 59, 59, 999);
-                query.date.$lte = endDate;
-            }
+            if (fromDate) query.date.$gte = fromDate.substring(0, 10);
+            if (toDate) query.date.$lte = toDate.substring(0, 10);
         }
 
         if (status && status !== 'All') {
