@@ -50,13 +50,16 @@ const CustomerForm = ({
             <div className="form-grid">
                 <div className="form-group">
                     <label>Lifecycle Status</label>
-                    <input 
-                        type="text" 
-                        value={formData.status || ''} 
+                    <select 
+                        value={formData.status || 'Active'} 
                         onChange={e => setFormData({...formData, status: e.target.value})} 
-                        placeholder="e.g. Active, Prospect, Inactive" 
                         disabled={statusDisabled}
-                    />
+                    >
+                        <option value="Active">Active</option>
+                        <option value="Lead">Lead</option>
+                        <option value="Prospect">Prospect</option>
+                        <option value="Inactive">Inactive</option>
+                    </select>
                 </div>
                 <div className="form-group">
                     <label>Email Address {!emailDisabled && <span className="req">*</span>}</label>

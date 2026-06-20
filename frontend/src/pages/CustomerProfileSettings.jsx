@@ -335,6 +335,12 @@ const CustomerProfileSettings = () => {
                     align-items: start;
                 }
 
+                .profile-read-only { display: flex; flex-direction: column; gap: 16px; }
+                .info-row { display: flex; flex-direction: column; gap: 4px; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px; }
+                .info-row:last-child { border-bottom: none; padding-bottom: 0; }
+                .info-row label { font-size: 13px; font-weight: 600; color: #64748b; }
+                .info-row span { font-size: 15px; font-weight: 500; color: #1e293b; }
+
                 .ui-card {
                     background: #ffffff;
                     border-radius: 12px;

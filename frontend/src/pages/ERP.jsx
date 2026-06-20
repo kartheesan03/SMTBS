@@ -6,7 +6,7 @@ import {
     ResponsiveContainer, PieChart, Pie, Cell, Tooltip
 } from 'recharts';
 import { 
-    ShoppingCart, Search, UserPlus, DollarSign, Calendar, ArrowUpRight, ArrowDownRight, FileText, CheckCircle, Clock, AlertTriangle, Filter, Plus, ChevronRight, Eye, Download, Bell, Truck, Trash2
+    ShoppingCart, Search, UserPlus, DollarSign, Calendar, ArrowUpRight, ArrowDownRight, FileText, CheckCircle, Clock, XCircle, Send, AlertTriangle, Filter, Plus, ChevronRight, Eye, Download, Bell, Truck, Trash2
 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -28,14 +28,19 @@ const ERP = () => {
 
     const [statusFilter, setStatusFilter] = useState('All');
     const [showFilters, setShowFilters] = useState(false);
-    const [erpStats, setErpStats] = useState({
-        openOrders: 0,
-        approvedOrders: 0,
-        pendingInvoices: 0,
-        totalExpenses: '₹0',
-        totalPurchaseOrders: 0,
-        orderSummary: []
-    });
+    const [searchTerm, setSearchTerm] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
+    const [sortConfig, setSortConfig] = useState({ key: 'orderDate', direction: 'desc' });
+    const [erpStats, setErpStats] = useState({});
+
+    const handleSort = (key) => {
+        let direction = 'asc';
+        if (sortConfig.key === key && sortConfig.direction === 'asc') {
+            direction = 'desc';
+        }
+        setSortConfig({ key, direction });
+    };
 
     const fetchOrders = async () => {
         try {
@@ -106,6 +111,11 @@ const ERP = () => {
         
         loadAll();
     }, []);
+
+    // Reset page to 1 when search or filters change
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, statusFilter, activeTab]);
 
     useEffect(() => {
         if (orders.length > 0) {
@@ -316,7 +326,7 @@ const ERP = () => {
 
 
 
-    const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+    const userInfo = JSON.parse(localStorage.getItem('userInfo') || sessionStorage.getItem('userInfo') || '{}');
     const isAdmin = userInfo.role === 'Admin';
 
     const activeOrders = orders.filter(order =>
@@ -329,9 +339,49 @@ const ERP = () => {
 
     const currentTabOrders = activeTab === 'history' ? orderHistory : activeOrders;
     
+    // Apply search
+    const searchedOrders = currentTabOrders.filter(o => {
+        if (!searchTerm) return true;
+        const term = searchTerm.toLowerCase();
+        const oId = (o.orderNumber || '').toLowerCase();
+        const cName = (o.customer?.name || o.customer?.company || o.customerName || '').toLowerCase();
+        const vName = (o.vendor?.name || o.vendor?.companyName || o.vendorName || '').toLowerCase();
+        return oId.includes(term) || cName.includes(term) || vName.includes(term);
+    });
+
     const filteredOrders = statusFilter === 'All' 
-        ? currentTabOrders 
-        : currentTabOrders.filter(o => o.status === statusFilter);
+        ? searchedOrders 
+        : searchedOrders.filter(o => o.status === statusFilter);
+
+    // Sorting logic
+    const sortedOrders = [...filteredOrders].sort((a, b) => {
+        let aVal = a[sortConfig.key];
+        let bVal = b[sortConfig.key];
+
+        if (sortConfig.key === 'customerOrVendor') {
+            aVal = a.orderType === 'sales' ? (a.customer?.company || a.customer?.name || '') : (a.vendor?.companyName || a.vendor?.name || '');
+            bVal = b.orderType === 'sales' ? (b.customer?.company || b.customer?.name || '') : (b.vendor?.companyName || b.vendor?.name || '');
+        } else if (sortConfig.key === 'totalAmount') {
+            aVal = Number(a.totalAmount || a.amount || a.grandTotal || 0);
+            bVal = Number(b.totalAmount || b.amount || b.grandTotal || 0);
+        } else if (sortConfig.key === 'orderDate' || sortConfig.key === 'createdAt') {
+            aVal = new Date(a.orderDate || a.createdAt).getTime();
+            bVal = new Date(b.orderDate || b.createdAt).getTime();
+        } else if (sortConfig.key === 'expectedDeliveryDate') {
+            aVal = a.expectedDeliveryDate ? new Date(a.expectedDeliveryDate).getTime() : 0;
+            bVal = b.expectedDeliveryDate ? new Date(b.expectedDeliveryDate).getTime() : 0;
+        }
+
+        if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
+        if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
+        return 0;
+    });
+
+    // Pagination logic
+    const totalItems = sortedOrders.length;
+    const totalPages = Math.ceil(totalItems / pageSize) || 1;
+    const startIndex = (currentPage - 1) * pageSize;
+    const paginatedOrders = sortedOrders.slice(startIndex, startIndex + pageSize);
 
     console.log("ERP Stats:", erpStats);
     console.log("ERP Orders:", orders);
@@ -396,17 +446,17 @@ const ERP = () => {
     const dashCharts = erpStats?.charts || {};
     const dashMonthlyStats = dashCharts.monthlyStats || [];
 
-    const totalOrders = dashStats.totalOrders ?? 0;
-    const salesOrders = dashStats.totalSalesOrders ?? 0;
-    const purchaseOrders = dashStats.totalPurchaseOrders ?? 0;
+    const totalOrders = orders.length;
+    const salesOrders = orders.filter(o => o.orderType === 'sales').length;
+    const purchaseOrders = orders.filter(o => o.orderType === 'purchase').length;
     
     const chartRevenueSum = dashMonthlyStats.reduce((sum, m) => sum + (Number(m.revenue) || 0), 0) || 0;
     const totalRevenueNum = chartRevenueSum;
     
     // Fallbacks if backend adds totalRevenue later
-    const finalTotalRevenueNum = dashStats.totalRevenue ? dashStats.totalRevenue : totalRevenueNum;
+    const finalTotalRevenueNum = orders.filter(o => o.orderType === 'sales' && !['Cancelled', 'Rejected'].includes(o.status)).reduce((sum, o) => sum + (Number(o.totalAmount || o.amount || 0)), 0);
     
-    const totalPurchaseCostNum = dashStats.purchaseCost || dashStats.totalPurchaseCost || 0;
+    const totalPurchaseCostNum = orders.filter(o => o.orderType === 'purchase' && !['Cancelled', 'Rejected'].includes(o.status)).reduce((sum, o) => sum + (Number(o.totalAmount || o.amount || 0)), 0);
         
     const pendingInvoices = orders.filter(o => ['Pending', 'Overdue', 'Partially Paid'].includes(o.paymentStatus)).length;
 
@@ -428,11 +478,21 @@ const ERP = () => {
                     <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '0 0 4px 0', letterSpacing: '-0.02em' }}>ERP Operations</h1>
                     <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0, fontWeight: 500 }}>Handle procurement, inventory, orders, vendors, finances and analytics.</p>
                 </div>
-                <div style={{ display: 'flex', gap: '12px' }}>
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                    <div className="search-bar" style={{ position: 'relative', width: '250px' }}>
+                        <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                        <input 
+                            type="text" 
+                            placeholder="Search orders..." 
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            style={{ width: '100%', padding: '10px 12px 10px 36px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--bg-body)', color: 'var(--text-primary)' }}
+                        />
+                    </div>
                     <button className="btn-secondary-light flex-center gap-8" onClick={() => setShowFilters(!showFilters)}>
                         <Filter size={16} /> Filters
                     </button>
-                    {(userInfo?.role?.toLowerCase() === 'admin' || userInfo?.role?.toLowerCase() === 'super admin' || userInfo?.role?.toLowerCase() === 'manager') && (
+                    {(userInfo?.role?.toLowerCase() === 'admin' || userInfo?.role?.toLowerCase() === 'super admin' || userInfo?.role?.toLowerCase() === 'manager' || userInfo?.role?.toLowerCase() === 'hr') && (
                         <button className="btn-primary flex-center gap-8" onClick={() => navigate('/orders/select-type')}>
                             <Plus size={16} /> Create Order
                         </button>
@@ -546,31 +606,46 @@ const ERP = () => {
                         Order History
                     </button>
                 </div>
-                <div className="enterprise-table">
+                <div className="enterprise-table-container">
                     <table className="enterprise-table">
                         <thead>
                             <tr>
-                                <th>Order ID</th>
-                                <th>Order Type</th>
-                                <th>{customerVendorHeader}</th>
+                                <th onClick={() => handleSort('orderNumber')} style={{ cursor: 'pointer' }}>Order ID {sortConfig.key === 'orderNumber' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
+                                <th onClick={() => handleSort('orderType')} style={{ cursor: 'pointer' }}>Order Type {sortConfig.key === 'orderType' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
+                                <th onClick={() => handleSort('customerOrVendor')} style={{ cursor: 'pointer' }}>{customerVendorHeader} {sortConfig.key === 'customerOrVendor' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
                                 <th>Quantity</th>
-                                <th>Amount</th>
-                                <th>Order Date</th>
-                                <th>Expected Delivery</th>
-                                <th>Manager Approval</th>
-                                <th>Employee Approval</th>
+                                <th onClick={() => handleSort('totalAmount')} style={{ cursor: 'pointer' }}>Amount {sortConfig.key === 'totalAmount' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
+                                <th onClick={() => handleSort('orderDate')} style={{ cursor: 'pointer' }}>Order Date {sortConfig.key === 'orderDate' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
+                                <th onClick={() => handleSort('expectedDeliveryDate')} style={{ cursor: 'pointer' }}>Expected Delivery {sortConfig.key === 'expectedDeliveryDate' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
+                                <th>Approvals (Mgr / Emp / Sales)</th>
                                 <th>Delivery Status</th>
-                                <th>Final Status</th>
+                                <th onClick={() => handleSort('status')} style={{ cursor: 'pointer' }}>Final Status {sortConfig.key === 'status' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
                                 <th style={{ textAlign: 'right' }}>Actions</th>
                             </tr>
                         </thead>
                     <tbody>
                         {filteredOrders.length === 0 ? (
                             <tr>
-                                <td colSpan="12" style={{ textAlign: 'center', padding: '30px', color: 'var(--text-muted)' }}>No Orders Available</td>
+                                <td colSpan="11" style={{ padding: '60px 20px', borderBottom: 'none' }}>
+                                    <div style={{ position: 'sticky', left: '50%', transform: 'translateX(-50%)', display: 'inline-flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '16px', width: 'max-content' }}>
+                                        <div style={{ background: 'var(--bg-hover)', padding: '20px', borderRadius: '50%', color: 'var(--text-muted)' }}>
+                                            <ShoppingCart size={48} strokeWidth={1.5} />
+                                        </div>
+                                        <div style={{ textAlign: 'center' }}>
+                                            <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)' }}>No Orders Available</h3>
+                                            <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-muted)', maxWidth: '300px', lineHeight: '1.5' }}>There are currently no orders to display.</p>
+                                        </div>
+                                    </div>
+                                </td>
                             </tr>
-                        ) : filteredOrders.map((ord) => {
+                        ) : paginatedOrders.map((ord) => {
                             const isEmp = userInfo.role === 'Employee';
+                            const isSales = userInfo.role === 'Sales';
+                            const hideActions = isEmp || isSales;
+                            
+                            const customerOrVendor = ord.orderType === 'sales' 
+                                ? (ord.customer?.company || ord.customer?.name || 'Walk-in')
+                                : (ord.vendor?.companyName || ord.vendor?.name || 'Walk-in');
                             const isSalesRole = userInfo.role === 'Sales';
                             
                             const displayStatus = (status) => {
@@ -602,6 +677,49 @@ const ERP = () => {
                             
                             const currentStatusText = displayStatus(ord.status);
                             const statusClass = currentStatusText.toLowerCase().replace(/ /g, '-');
+                            
+                            const renderApprovalBadge = (label, status, approverObj, fallbackDate) => {
+                                const isApproved = status === 'Approved' || status === 'Submitted';
+                                const isRejected = status === 'Rejected';
+                                const badgeClass = isApproved ? 'approved' : (isRejected ? 'rejected' : 'pending');
+                                const Icon = isApproved ? CheckCircle : (isRejected ? XCircle : Clock);
+                                
+                                const approverName = approverObj?.name || (status === 'N/A' ? 'N/A' : 'Awaiting Action');
+                                const actionDate = approverObj?.date ? new Date(approverObj.date).toLocaleString() : (fallbackDate ? new Date(fallbackDate).toLocaleString() : 'N/A');
+                                const notes = ord.notes || 'N/A';
+
+                                return (
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
+                                        <span className="text-muted" style={{ fontSize: '11px', fontWeight: '600', width: '36px' }}>{label}:</span>
+                                        <div className="approval-tooltip-wrapper">
+                                            <span className={`status-badge-inline ${badgeClass}`} style={{ padding: '2px 6px', fontSize: '10px', minWidth: '75px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', cursor: 'help' }}>
+                                                <Icon size={12} /> {status}
+                                            </span>
+                                            <div className="approval-tooltip-content">
+                                                <div style={{ fontWeight: '600', marginBottom: '4px', fontSize: '13px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                    <Icon size={14} /> {label} Details
+                                                </div>
+                                                <div style={{ display: 'grid', gridTemplateColumns: '50px 1fr', gap: '6px', marginTop: '8px' }}>
+                                                    <span style={{ color: '#94a3b8' }}>User:</span>
+                                                    <span>{approverName}</span>
+                                                    
+                                                    <span style={{ color: '#94a3b8' }}>Role:</span>
+                                                    <span>{approverObj?.role || (label === 'MGR' ? 'Manager' : (label === 'HR' ? 'Employee' : 'Sales'))}</span>
+
+                                                    <span style={{ color: '#94a3b8' }}>Status:</span>
+                                                    <span className={isApproved ? 'text-success' : (isRejected ? 'text-danger' : 'text-warning')} style={{ fontWeight: '600' }}>{status}</span>
+
+                                                    <span style={{ color: '#94a3b8' }}>Date:</span>
+                                                    <span>{actionDate}</span>
+                                                    
+                                                    <span style={{ color: '#94a3b8' }}>Notes:</span>
+                                                    <span style={{ fontStyle: 'italic', color: '#cbd5e1' }}>{notes}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            };
                             
                             const renderQuantity = (order) => {
                                 if (!order.items || order.items.length === 0) return '-';
@@ -660,19 +778,26 @@ const ERP = () => {
                                         )}
                                     </td>
                                     <td>
-                                        <span className={`status-badge-inline ${(ord.approvalStatus === 'Manager Approved' || ord.approvalStatus === 'Employee Approved' || ord.managerApproval === 'Approved' || (ord.orderType === 'purchase' && ord.status === 'Approved')) ? 'approved' : 'pending'}`}>
-                                            {ord.managerApproval === 'Approved' || ord.approvalStatus === 'Manager Approved' || ord.approvalStatus === 'Employee Approved' || (ord.orderType === 'purchase' && ord.status === 'Approved') ? 'Approved' : 'Pending'}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span className={`status-badge-inline ${ord.employeeApproval === 'Approved' || ord.approvalStatus === 'Employee Approved' ? 'approved' : 'not-started'}`}>
-                                            {ord.employeeApproval === 'Approved' || ord.approvalStatus === 'Employee Approved' ? 'Approved' : (ord.employeeApproval === 'Rejected' ? 'Rejected' : 'Not Started')}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span className={`status-badge-inline ${ord.deliveryStatus?.toLowerCase().replace(/ /g, '-') || 'not-started'}`}>
-                                            {ord.deliveryStatus || "-"}
-                                        </span>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                            {renderApprovalBadge(
+                                                'MGR', 
+                                                (ord.managerApproval === 'Approved' || ord.approvalStatus === 'Manager Approved' || ord.approvalStatus === 'Employee Approved' || (ord.orderType === 'purchase' && ord.status === 'Approved')) ? 'Approved' : 'Pending',
+                                                ord._approvers?.manager || null,
+                                                ord.approvedDate
+                                            )}
+                                            {renderApprovalBadge(
+                                                'HR', 
+                                                (ord.employeeApproval === 'Approved' || ord.approvalStatus === 'Employee Approved') ? 'Approved' : (ord.employeeApproval === 'Rejected' ? 'Rejected' : 'Pending'),
+                                                ord._approvers?.employee || null,
+                                                ord.updatedAt // fallback since employee doesn't have explicit date
+                                            )}
+                                            {renderApprovalBadge(
+                                                'SALES', 
+                                                ord.orderType === 'sales' ? 'Submitted' : 'N/A',
+                                                ord._approvers?.creator || null,
+                                                ord.orderDate || ord.createdAt
+                                            )}
+                                        </div>
                                     </td>
                                     <td>
                                         <span className={`status-badge-inline ${String(ord.deliveryStatus || 'Not Started').toLowerCase().replace(/ /g, '-')}`}>{ord.deliveryStatus || "-"}</span>
@@ -688,8 +813,8 @@ const ERP = () => {
                                             )}
 
                                             {/* Employee Action */}
-                                            {(isAdmin || userInfo.role === 'Employee' || userInfo.role === 'Super Admin') && ord.orderType === 'sales' && ord.approvalStatus === 'Manager Approved' && (
-                                                <button className="btn-workflow-confirm" style={{ background: '#3b82f6', color: 'white', padding: '6px 12px', borderRadius: '6px', fontSize: '11px', fontWeight: '700', border: 'none', cursor: 'pointer' }} onClick={() => handleStatusChange(ord._id, 'Employee Approved')}>Approve Stock (Employee)</button>
+                                            {(isAdmin || ['Manager', 'HR', 'Super Admin'].includes(userInfo?.role)) && ord.orderType === 'sales' && ord.approvalStatus === 'Manager Approved' && (
+                                                <button className="btn-workflow-confirm" style={{ background: '#3b82f6', color: 'white', padding: '6px 12px', borderRadius: '6px', fontSize: '11px', fontWeight: '700', border: 'none', cursor: 'pointer' }} onClick={() => handleStatusChange(ord._id, 'Employee Approved')}>Approve Stock</button>
                                             )}
 
                                             {/* Sales Actions */}
@@ -711,7 +836,7 @@ const ERP = () => {
                                             )}
 
                                             {/* Employee Purchase Order Approval Action */}
-                                            {ord.orderType === 'purchase' && (ord.managerApproval === 'Approved' || ord.status === 'Approved') && (!ord.employeeApproval || ord.employeeApproval === 'Not Started' || ord.employeeApproval === 'Pending') && (isAdmin || userInfo.role === 'Employee' || userInfo.role === 'Super Admin') && (
+                                            {ord.orderType === 'purchase' && (ord.managerApproval === 'Approved' || ord.status === 'Approved') && (!ord.employeeApproval || ord.employeeApproval === 'Not Started' || ord.employeeApproval === 'Pending') && (isAdmin || ['Manager', 'HR', 'Super Admin'].includes(userInfo?.role)) && (
                                                 <>
                                                     <button className="btn-workflow-confirm" style={{ background: '#10b981', color: 'white', padding: '6px 12px', borderRadius: '6px', fontSize: '11px', fontWeight: '700', border: 'none', cursor: 'pointer' }} onClick={() => handleEmployeePurchaseApproval(ord._id || ord.id, 'Approve')}>Approve (Emp)</button>
                                                     <button className="btn-workflow-confirm" style={{ background: '#ef4444', color: 'white', padding: '6px 12px', borderRadius: '6px', fontSize: '11px', fontWeight: '700', border: 'none', cursor: 'pointer' }} onClick={() => handleEmployeePurchaseApproval(ord._id || ord.id, 'Reject')}>Reject (Emp)</button>
@@ -746,6 +871,47 @@ const ERP = () => {
                     </tbody>
                 </table>
                 </div>
+                {/* Pagination Controls */}
+                {totalPages > 0 && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 24px', borderTop: '1px solid var(--border)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>
+                                Showing {totalItems === 0 ? 0 : startIndex + 1} to {Math.min(startIndex + pageSize, totalItems)} of {totalItems} orders
+                            </span>
+                            <select 
+                                value={pageSize} 
+                                onChange={e => { setPageSize(Number(e.target.value)); setCurrentPage(1); }}
+                                style={{ padding: '4px 8px', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--bg-body)', color: 'var(--text-primary)', fontSize: '13px', cursor: 'pointer' }}
+                            >
+                                <option value={10}>10 per page</option>
+                                <option value={25}>25 per page</option>
+                                <option value={50}>50 per page</option>
+                                <option value={100}>100 per page</option>
+                            </select>
+                        </div>
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                            <button 
+                                className="btn-secondary-light" 
+                                disabled={currentPage === 1}
+                                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                style={{ opacity: currentPage === 1 ? 0.5 : 1, cursor: currentPage === 1 ? 'not-allowed' : 'pointer' }}
+                            >
+                                Previous
+                            </button>
+                            <span style={{ padding: '0 8px', fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)' }}>
+                                Page {currentPage} of {totalPages}
+                            </span>
+                            <button 
+                                className="btn-secondary-light" 
+                                disabled={currentPage === totalPages}
+                                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                style={{ opacity: currentPage === totalPages ? 0.5 : 1, cursor: currentPage === totalPages ? 'not-allowed' : 'pointer' }}
+                            >
+                                Next
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Order Details Modal */}

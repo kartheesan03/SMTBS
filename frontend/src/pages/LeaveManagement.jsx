@@ -12,7 +12,7 @@ const LeaveManagement = () => {
     const [form, setForm] = useState({ type: 'Annual', startDate: '', endDate: '', reason: '' });
     const [reviewModal, setReviewModal] = useState(null); // stores leave object being reviewed
 
-    const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+    const userInfo = JSON.parse(localStorage.getItem('userInfo') || sessionStorage.getItem('userInfo') || '{}');
     const isHR = userInfo.role === 'HR' || userInfo.role === 'Admin';
 
     // ── helpers ────────────────────────────────────────────────────────────

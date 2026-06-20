@@ -134,8 +134,8 @@ body.logged-in.sidebar-collapsed .main-content.with-sidebar {
 
 /* ─── SCROLLBAR ─── */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 14px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
@@ -412,7 +412,7 @@ table, .enterprise-table {
 
 thead th, .enterprise-table thead th {
   background-color: #f8fafc !important;
-  padding: 12px 16px !important;
+  padding: 12px 12px !important;
   color: var(--text-muted) !important;
   font-weight: 600 !important;
   font-size: 12px !important;
@@ -420,11 +420,10 @@ thead th, .enterprise-table thead th {
   letter-spacing: 0.05em !important;
   border-bottom: 1px solid var(--border-subtle) !important;
   text-align: left !important;
-  white-space: nowrap !important;
 }
 
 tbody td, .enterprise-table tbody td {
-  padding: 14px 16px !important;
+  padding: 12px 12px !important;
   font-size: 13px !important;
   color: var(--text-heading) !important;
   border-bottom: 1px solid var(--border-light) !important;
@@ -665,4 +664,46 @@ tbody tr:hover td, .enterprise-table tbody tr:hover td {
   background-color: var(--primary-light);
   color: var(--primary);
   font-weight: 500;
+}
+
+/* ─── Custom Approval Tooltip ─── */
+.approval-tooltip-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+.approval-tooltip-wrapper .approval-tooltip-content {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 0;
+  background: #1e293b;
+  color: #f8fafc;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.4;
+  width: 240px;
+  white-space: normal;
+  box-shadow: var(--shadow-xl);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(4px);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1000;
+  pointer-events: none;
+  text-align: left;
+}
+.approval-tooltip-wrapper:hover .approval-tooltip-content {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+.approval-tooltip-content::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  right: 18px;
+  border-width: 6px;
+  border-style: solid;
+  border-color: #1e293b transparent transparent transparent;
 }

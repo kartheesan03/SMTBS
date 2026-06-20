@@ -23,7 +23,7 @@ const Support = () => {
         category: 'General'
     });
 
-    const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+    const userInfo = JSON.parse(localStorage.getItem('userInfo') || sessionStorage.getItem('userInfo') || '{}');
 
     const faqs = [
         {

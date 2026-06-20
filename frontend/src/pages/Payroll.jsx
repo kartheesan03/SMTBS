@@ -29,7 +29,7 @@ const Payroll = () => {
     const [downloading, setDownloading] = useState(false);
     const [toast, setToast] = useState(null);
 
-    const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+    const userInfo = JSON.parse(localStorage.getItem('userInfo') || sessionStorage.getItem('userInfo') || '{}');
     const isAdmin = userInfo.role === 'Admin';
     const isHR = userInfo.role === 'HR';
     const isManager = userInfo.role === 'Manager';

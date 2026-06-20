@@ -11,7 +11,7 @@ const MySalaryPage = () => {
     const [showModal, setShowModal] = useState(false);
     const [downloading, setDownloading] = useState(false);
 
-    const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+    const userInfo = JSON.parse(localStorage.getItem('userInfo') || sessionStorage.getItem('userInfo') || '{}');
 
     const fetchHistory = useCallback(async () => {
         try {

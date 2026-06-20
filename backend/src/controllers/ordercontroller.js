@@ -31,13 +31,61 @@ const getOrderPayload = (order, reqUser) => {
 
 const getOrders = async (req, res) => {
     try {
-        const orders = await Order.find({})
+        let query = {};
+        const role = req.user?.role?.toLowerCase();
+        
+        if (role === 'admin' || role === 'super admin' || role === 'manager' || role === 'hr' || role === 'employee') {
+            // Full access to view orders (frontend restricts actions for Employee)
+        } else if (role === 'sales') {
+            query.orderType = 'sales';
+        } else if (role === 'vendor') {
+            const Vendor = require('../models/Vendor');
+            const vendorProfile = await Vendor.findOne({ userId: req.user._id });
+            if (!vendorProfile) return res.status(403).json({ message: 'Vendor profile not found' });
+            query.vendor = vendorProfile._id || vendorProfile.id;
+            query.orderType = 'purchase';
+        } else if (role === 'customer') {
+            const Customer = require('../models/Customer');
+            const customerProfile = await Customer.findOne({ userId: req.user._id });
+            if (!customerProfile) return res.status(403).json({ message: 'Customer profile not found' });
+            query.customer = customerProfile._id || customerProfile.id;
+            query.orderType = 'sales';
+        } else {
+            return res.status(403).json({ message: 'Access Denied. Unauthorized role.' });
+        }
+
+        const orders = await Order.find(query)
             .populate('customer', 'name email phone company address')
             .populate('vendor', 'name email phone address contactPerson')
             .populate('items.material', 'name price quantity')
             .sort({ createdAt: -1 });
+
+        // Collect unique user IDs for approvers and creators
+        const userIds = new Set();
+        orders.forEach(ord => {
+            if (ord.createdById) userIds.add(String(ord.createdById));
+            if (ord.approvedById) userIds.add(String(ord.approvedById));
+            if (ord.employeeId) userIds.add(String(ord.employeeId));
+        });
+
+        const users = await User.find({ _id: { $in: Array.from(userIds) } }).select('name email role');
+        const userMap = {};
+        users.forEach(u => userMap[String(u._id)] = { name: u.name, email: u.email, role: u.role });
+
+        const enrichedOrders = orders.map(ord => {
+            const orderObj = ord.toJSON ? ord.toJSON() : (ord.toObject ? ord.toObject() : ord);
+            return {
+                ...orderObj,
+                _approvers: {
+                    creator: ord.createdById ? userMap[String(ord.createdById)] : null,
+                    manager: ord.approvedById ? userMap[String(ord.approvedById)] : null,
+                    employee: ord.employeeId ? userMap[String(ord.employeeId)] : null
+                }
+            };
+        });
+
         console.log(`[API /orders] Fetched ${orders.length} orders.`);
-        res.json(orders);
+        res.json(enrichedOrders);
     } catch (error) {
         console.error('[API /orders] Error:', error);
         res.status(500).json({ message: error.message });
@@ -51,6 +99,11 @@ const getOrders = async (req, res) => {
 // @access  Private
 const createOrder = async (req, res) => {
     try {
+        const allowedRoles = ['admin', 'super admin', 'manager', 'hr'];
+        if (!req.user || !allowedRoles.includes(req.user.role?.toLowerCase())) {
+            return res.status(403).json({ message: 'Access Denied. You do not have permission to create orders.' });
+        }
+
         const { customer, customerModel, vendor, items, totalAmount, status, orderNumber, orderType, orderDate, expectedDeliveryDate, notes } = req.body;
         
         if ((!customer && !vendor) || !items || items.length === 0) {
@@ -217,8 +270,10 @@ const updateOrderStatus = async (req, res) => {
         if (order.orderType === 'sales') {
             const customerName = order.customer ? (order.customer.name || 'Walk-in') : 'Walk-in';
             const payload = getOrderPayload(order, req.user);
+            const isSalesUser = req.user?.role?.toLowerCase() === 'sales';
 
             if (status === 'Manager Approved') {
+                if (isSalesUser) return res.status(403).json({ message: 'Sales cannot approve orders.' });
                 order.approvalStatus = 'Manager Approved';
                 order.approvedById = req.user._id;
                 order.approvedDate = new Date();
@@ -233,6 +288,7 @@ const updateOrderStatus = async (req, res) => {
                 });
             } 
             else if (status === 'Employee Approved') {
+                if (isSalesUser) return res.status(403).json({ message: 'Sales cannot approve orders.' });
                 // Stock Validation
                 for (const item of order.items) {
                     const material = await Material.findById(item.material);
@@ -264,6 +320,7 @@ const updateOrderStatus = async (req, res) => {
                 });
             }
             else if (status === 'Rejected') {
+                if (isSalesUser) return res.status(403).json({ message: 'Sales cannot reject orders.' });
                 order.approvalStatus = 'Rejected';
             } 
             else if (status === 'Processing') {

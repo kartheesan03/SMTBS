@@ -143,7 +143,7 @@ const googleAuth = async (req, res) => {
         let user = await User.findOne({ email });
 
         if (mode === 'login' && !user) {
-            return res.status(404).json({ message: 'Account not found. Please sign up first.' });
+            return res.status(404).json({ message: 'No account found. Please sign up with Google first.' });
         }
 
         if (user) {

@@ -15,7 +15,7 @@ const MyTasks = () => {
     const [submitting, setSubmitting] = useState(false);
     const [successMsg, setSuccessMsg] = useState('');
 
-    const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+    const userInfo = JSON.parse(localStorage.getItem('userInfo') || sessionStorage.getItem('userInfo') || '{}');
     const isManager = ['Manager', 'Admin', 'HR'].includes(userInfo.role);
 
     const [formData, setFormData] = useState({

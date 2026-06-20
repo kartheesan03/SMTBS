@@ -34,7 +34,7 @@ const Customers = ({ directoryOnly }) => {
         type: 'Call', subject: '', notes: '', contactDate: new Date().toISOString().split('T')[0]
     });
 
-    const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+    const userInfo = JSON.parse(localStorage.getItem('userInfo') || sessionStorage.getItem('userInfo') || '{}');
     const isAdmin = userInfo.role === 'Admin';
 
     const fetchCustomers = async () => {

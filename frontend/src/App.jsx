@@ -5,6 +5,7 @@ import { NotificationProvider } from './context/NotificationContext';
 import Sidebar from './components/Sidebar';
 import Topbar from './components/Topbar';
 import ProtectedRoute from './components/ProtectedRoute';
+import OrderCreationRoute from './components/OrderCreationRoute';
 import { Menu, X } from 'lucide-react';
 
 import { GoogleOAuthProvider } from '@react-oauth/google';
@@ -145,10 +146,10 @@ const AppContent = () => {
                     <Route path="/team-performance" element={<ProtectedRoute allowedRoles={['Admin', 'Manager']}><TeamPerformance /></ProtectedRoute>} />
                     <Route path="/erp" element={<ProtectedRoute allowedRoles={['Admin', 'Manager', 'Sales', 'HR', 'Employee']}><ERP /></ProtectedRoute>} />
                     <Route path="/orders" element={<Navigate to="/erp" replace />} />
-                    <Route path="/orders/select-type" element={<ProtectedRoute allowedRoles={['Admin', 'Manager']}><SelectOrderType /></ProtectedRoute>} />
-                    <Route path="/erp/customers/select" element={<ProtectedRoute allowedRoles={['Admin', 'Manager']}><SelectCustomer /></ProtectedRoute>} />
-                    <Route path="/erp/vendors/select" element={<ProtectedRoute allowedRoles={['Admin', 'Manager']}><SelectVendor /></ProtectedRoute>} />
-                    <Route path="/orders/create/:orderType" element={<ProtectedRoute allowedRoles={['Admin', 'Manager']}><CreateOrder /></ProtectedRoute>} />
+                    <Route path="/orders/select-type" element={<OrderCreationRoute><SelectOrderType /></OrderCreationRoute>} />
+                    <Route path="/erp/customers/select" element={<OrderCreationRoute><SelectCustomer /></OrderCreationRoute>} />
+                    <Route path="/erp/vendors/select" element={<OrderCreationRoute><SelectVendor /></OrderCreationRoute>} />
+                    <Route path="/orders/create/:orderType" element={<OrderCreationRoute><CreateOrder /></OrderCreationRoute>} />
                     <Route path="/orders/:orderId/tracking" element={<ProtectedRoute allowedRoles={['Admin', 'Manager', 'Sales', 'HR', 'Employee', 'Customer']}><OrderTracking /></ProtectedRoute>} />
                     <Route path="/crm" element={<ProtectedRoute allowedRoles={['Admin', 'Sales', 'Manager']}><Customers /></ProtectedRoute>} />
                     <Route path="/crm/add-customer" element={<ProtectedRoute allowedRoles={['Admin', 'Sales', 'Manager']}><AddCustomer /></ProtectedRoute>} />
