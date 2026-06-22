@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import API from '../api/axios';
-import { User, Building2, Key, MapPin, Globe, Phone, Mail, FileText, Activity, AlertTriangle, X, Calendar, Edit2, Save } from 'lucide-react';
+import { User, Building2, Key, MapPin, Globe, Phone, Mail, FileText, Activity, AlertTriangle, X, Calendar, Edit2, Save, ShieldCheck } from 'lucide-react';
 import CustomerForm from '../components/CustomerForm';
 
 const CustomerProfileSettings = () => {
@@ -14,6 +14,11 @@ const CustomerProfileSettings = () => {
     const [deleteConfirmText, setDeleteConfirmText] = useState('');
     const [deletePassword, setDeletePassword] = useState('');
     const [isDeleting, setIsDeleting] = useState(false);
+    const [imgError, setImgError] = useState(false);
+
+    useEffect(() => {
+        setImgError(false);
+    }, [user?.picture]);
 
     const [formData, setFormData] = useState({
         name: '',
@@ -25,7 +30,8 @@ const CustomerProfileSettings = () => {
         website: '',
         address: '',
         gstNumber: '',
-        notes: ''
+        notes: '',
+        picture: ''
     });
 
     useEffect(() => {
@@ -44,7 +50,8 @@ const CustomerProfileSettings = () => {
                         website: data.website || '',
                         address: data.address || '',
                         gstNumber: data.gstNumber || '',
-                        notes: data.notes || ''
+                        notes: data.notes || '',
+                        picture: user?.picture || ''
                     });
                 }
             } catch (err) {
@@ -72,8 +79,8 @@ const CustomerProfileSettings = () => {
             setCustomerData(data);
             
             // Update auth context name or email if changed
-            if (formData.name !== user.name || formData.email !== user.email) {
-                const authRes = await API.put('/auth/profile', { name: formData.name, email: formData.email });
+            if (formData.name !== user.name || formData.email !== user.email || formData.picture !== user.picture) {
+                const authRes = await API.put('/auth/profile', { name: formData.name, email: formData.email, picture: formData.picture });
                 updateUser(authRes.data);
             }
             
@@ -81,6 +88,17 @@ const CustomerProfileSettings = () => {
             alert('Profile updated and synced with CRM successfully.');
         } catch (err) {
             alert(err.response?.data?.message || 'Error updating profile');
+        }
+    };
+
+    const handlePictureUpload = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setFormData(prev => ({ ...prev, picture: reader.result }));
+            };
+            reader.readAsDataURL(file);
         }
     };
 
@@ -127,20 +145,43 @@ const CustomerProfileSettings = () => {
     return (
         <div className="profile-page-wrapper">
             {/* Top Banner Card */}
-            <div className="profile-banner-card">
-                <div className="banner-avatar">
-                    {user?.picture ? <img src={user.picture} alt="Avatar" style={{width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover'}} /> : initials}
+            <div className="premium-profile-banner" style={{ marginBottom: '24px' }}>
+                <div className="premium-banner-avatar-wrapper">
+                    <div className="premium-banner-avatar">
+                        {formData.picture && !imgError ? (
+                            <img 
+                                src={formData.picture} 
+                                alt="Profile" 
+                                className="premium-banner-avatar-img" 
+                                onError={() => setImgError(true)}
+                            />
+                        ) : (
+                            <span className="premium-banner-avatar-initial">
+                                {initials}
+                            </span>
+                        )}
+                    </div>
+                    <label className="avatar-upload-btn-premium" title="Change Picture">
+                        <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handlePictureUpload} />
+                        📷
+                    </label>
+                    <span className="status-dot-online-banner"></span>
                 </div>
-                <div className="banner-info">
-                    <h2>{formData.name || user?.name}</h2>
-                    <p className="text-email">{user?.email}</p>
-                    <div className="banner-badges">
-                        <span className="badge-role">Customer</span>
-                        <span className="badge-company"><Building2 size={12} style={{marginRight: '4px'}}/> {formData.company || 'Individual Customer'}</span>
-                        <span className="badge-date" style={{ background: '#f1f5f9', color: '#475569', padding: '4px 10px', borderRadius: '4px', fontSize: '12px', fontWeight: '600', display: 'flex', alignItems: 'center' }}>
+                <div className="premium-banner-details">
+                    <div className="user-name-row-banner">
+                        <span className="primary-title-banner">{formData.name || user?.name}</span>
+                        <ShieldCheck size={20} className="verified-icon-banner" />
+                    </div>
+                    <div className="banner-badges-premium">
+                        <span className="premium-badge-banner">Customer</span>
+                        <span className="premium-badge-banner secondary-badge" style={{ display: 'flex', alignItems: 'center' }}>
+                            <Building2 size={12} style={{marginRight: '4px'}}/> {formData.company || 'Individual Customer'}
+                        </span>
+                        <span className="premium-badge-banner secondary-badge" style={{ display: 'flex', alignItems: 'center' }}>
                             <Calendar size={12} style={{marginRight: '4px'}}/> Joined: {new Date(user?.createdAt || Date.now()).toLocaleDateString()}
                         </span>
                     </div>
+                    <span className="last-login-banner">{user?.email}</span>
                 </div>
                 {!isEditing && (
                     <button className="btn-outline-purple" onClick={() => setIsEditing(true)} style={{marginLeft: 'auto', marginTop: 0}}>
@@ -264,68 +305,134 @@ const CustomerProfileSettings = () => {
                 .loader { width: 40px; height: 40px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 16px; }
                 @keyframes spin { to { transform: rotate(360deg); } }
 
-                .profile-banner-card {
-                    background: #ffffff;
-                    border-radius: 12px;
-                    padding: 24px;
+                .premium-profile-banner {
                     display: flex;
                     align-items: center;
                     gap: 24px;
-                    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-                    border: 1px solid #e2e8f0;
+                    background: var(--bg-surface, #ffffff);
+                    padding: 24px;
+                    border-radius: 16px;
+                    box-shadow: var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.1));
+                    border: 1px solid var(--border-subtle, #e2e8f0);
                     margin-bottom: 24px;
                 }
-                .banner-avatar {
-                    width: 80px;
-                    height: 80px;
-                    background: #2563eb;
-                    color: white;
-                    border-radius: 50%;
+                .premium-banner-avatar-wrapper {
+                    position: relative;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    font-size: 28px;
-                    font-weight: 700;
                     flex-shrink: 0;
+                    width: 80px;
+                    height: 80px;
                 }
-                .banner-info {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 6px;
-                }
-                .banner-info h2 {
-                    margin: 0;
-                    font-size: 22px;
-                    font-weight: 600;
-                    color: #1e293b;
-                }
-                .text-email {
-                    margin: 0;
-                    font-size: 14px;
-                    color: #64748b;
-                }
-                .banner-badges {
-                    display: flex;
-                    gap: 12px;
-                    margin-top: 4px;
-                }
-                .badge-role {
-                    background: #dcfce7;
-                    color: #166534;
-                    padding: 4px 10px;
-                    border-radius: 4px;
-                    font-size: 12px;
-                    font-weight: 600;
-                }
-                .badge-company {
-                    background: #eff6ff;
-                    color: #1d4ed8;
-                    padding: 4px 10px;
-                    border-radius: 4px;
-                    font-size: 12px;
-                    font-weight: 600;
+                .premium-banner-avatar {
+                    width: 80px;
+                    height: 80px;
+                    border-radius: 50%;
+                    background: linear-gradient(135deg, #2563eb 0%, #9333ea 100%);
                     display: flex;
                     align-items: center;
+                    justify-content: center;
+                    color: white;
+                    box-shadow: 0 4px 12px rgba(147, 51, 234, 0.2);
+                    transition: box-shadow 0.3s ease;
+                    position: relative;
+                }
+                .premium-banner-avatar-img {
+                    width: 100%;
+                    height: 100%;
+                    border-radius: 50%;
+                    object-fit: cover;
+                    border: 2px solid var(--bg-surface, #ffffff);
+                }
+                .premium-banner-avatar-initial {
+                    font-size: 28px;
+                    font-weight: 600;
+                    letter-spacing: 0.05em;
+                }
+                
+                .avatar-upload-btn-premium {
+                    position: absolute;
+                    bottom: -2px;
+                    right: -2px;
+                    background: var(--bg-surface, #ffffff);
+                    border: 1px solid var(--border-subtle, #e2e8f0);
+                    border-radius: 50%;
+                    width: 28px;
+                    height: 28px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    font-size: 14px;
+                    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+                    transition: transform 0.2s;
+                }
+                .avatar-upload-btn-premium:hover {
+                    transform: scale(1.1);
+                }
+
+                .status-dot-online-banner {
+                    position: absolute;
+                    bottom: 2px;
+                    left: 2px;
+                    width: 18px;
+                    height: 18px;
+                    background: #10b981;
+                    border: 3px solid var(--bg-surface, #ffffff);
+                    border-radius: 50%;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                }
+
+                .premium-banner-details {
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    gap: 6px;
+                    flex: 1;
+                }
+                .user-name-row-banner {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                }
+                .primary-title-banner {
+                    font-size: 24px;
+                    font-weight: 700;
+                    color: var(--text-heading, #0f172a);
+                    letter-spacing: -0.02em;
+                }
+                .verified-icon-banner {
+                    color: var(--primary, #2563eb);
+                }
+                
+                .banner-badges-premium {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    margin-bottom: 8px;
+                }
+                .premium-badge-banner {
+                    display: inline-block;
+                    background: linear-gradient(135deg, #eff6ff 0%, #f3e8ff 100%);
+                    color: #4338ca;
+                    border: 1px solid rgba(99, 102, 241, 0.2);
+                    font-size: 12px;
+                    font-weight: 700;
+                    padding: 4px 12px;
+                    border-radius: 12px;
+                    text-transform: capitalize;
+                }
+                .premium-badge-banner.secondary-badge {
+                    background: var(--bg-hover, #f1f5f9);
+                    color: var(--text-main, #475569);
+                    border: 1px solid var(--border-subtle, #e2e8f0);
+                }
+
+                .last-login-banner {
+                    color: var(--text-muted, #64748b);
+                    font-size: 13px;
+                    font-weight: 500;
                 }
 
                 .profile-grid {

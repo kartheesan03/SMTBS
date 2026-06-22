@@ -25,7 +25,8 @@ import {
     Activity,
     ClipboardList,
     FolderKanban,
-    FileText
+    FileText,
+    ShieldCheck
 } from 'lucide-react';
 
 const Sidebar = ({ logout, isOpen, onClose }) => {
@@ -34,6 +35,12 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
     const location = useLocation();
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [designation, setDesignation] = useState('');
+    const [empId, setEmpId] = useState('');
+    const [imgError, setImgError] = useState(false);
+
+    useEffect(() => {
+        setImgError(false);
+    }, [user?.picture]);
 
     useEffect(() => {
         if (window.innerWidth <= 768) {
@@ -55,11 +62,12 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
             if (user && user.role !== 'Customer' && user.role !== 'Vendor') {
                 try {
                     const { data } = await API.get('/employees/me');
-                    if (data && data.designation) {
-                        setDesignation(data.designation);
+                    if (data) {
+                        if (data.designation) setDesignation(data.designation);
+                        if (data.employeeId || data.employeeCode) setEmpId(data.employeeId || data.employeeCode);
                     }
                 } catch (err) {
-                    console.error("Failed to fetch designation in Sidebar", err);
+                    console.error("Failed to fetch employee details in Sidebar", err);
                 }
             }
         };
@@ -199,15 +207,27 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                 {/* Integrate Logout directly into nav */}
                 <div style={{ marginTop: 'auto', paddingTop: '12px' }}>
                     {user && (
-                        <div className="sidebar-profile-section" onClick={() => window.location.href='/profile'}>
-                            <div className="user-avatar-wrapper">
-                                <img src={user?.picture || `https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=2563eb&color=fff`} alt="User Avatar" className="user-avatar-circle" />
-                                {isCollapsed && <span className="status-dot-absolute"></span>}
+                        <div className="simple-profile-card" onClick={() => window.location.href='/profile'}>
+                            <div className="simple-avatar">
+                                {user?.picture && !imgError ? (
+                                    <img 
+                                        src={user.picture} 
+                                        alt="User Avatar" 
+                                        className="simple-avatar-img" 
+                                        onError={() => setImgError(true)}
+                                    />
+                                ) : (
+                                    <span className="simple-avatar-initial">
+                                        {(user?.name || 'User').charAt(0).toUpperCase()}
+                                    </span>
+                                )}
                             </div>
                             {!isCollapsed && (
-                                <div className="user-details">
-                                    <span className="user-name">{user?.name || 'User'}</span>
-                                    <span className="user-role">{designation || user?.role || 'Employee'}</span>
+                                <div className="simple-details">
+                                    <span className="simple-name">{user?.name || 'User'}</span>
+                                    <span className="simple-role">
+                                        {userRole === 'admin' || userRole === 'super admin' || user?.email === 'admin@smtbms.com' ? 'System Administrator' : (designation || 'Employee')}
+                                    </span>
                                 </div>
                             )}
                         </div>
@@ -265,24 +285,77 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                     box-shadow: var(--shadow-sm); z-index: 10;
                 }
                 
-                .sidebar-profile-section {
-                    display: flex; align-items: center; gap: 12px;
-                    padding: 12px 16px; margin-bottom: 16px; cursor: pointer;
-                    transition: all 0.2s; border-radius: 8px; margin: 0 8px 16px;
+                .simple-profile-card {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    padding: 10px 12px;
+                    margin: 0 12px 16px;
+                    background: transparent;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    transition: background 0.2s;
+                    text-decoration: none;
+                    border: 1px solid transparent;
                 }
-                .sidebar-profile-section:hover { background: var(--bg-hover); }
-                .sidebar.collapsed .sidebar-profile-section { padding: 12px 0; justify-content: center; margin: 0 0 16px; }
-                
-                .user-avatar-wrapper { position: relative; display: flex; align-items: center; justify-content: center; }
-                .user-avatar-circle { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border-light); }
-                .sidebar.collapsed .user-avatar-circle { width: 32px; height: 32px; }
-                
-                .user-details { display: flex; flex-direction: column; justify-content: center; overflow: hidden; }
-                .user-name { color: var(--text-heading); font-size: 13px; font-weight: 600; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-                .user-role { color: var(--text-muted); font-size: 11px; font-weight: 500; margin-top: 2px; text-transform: capitalize; }
-                .status-dot-absolute {
-                    position: absolute; bottom: 0; right: 0; width: 8px; height: 8px;
-                    background: var(--success); border-radius: 50%; border: 2px solid var(--bg-surface);
+                .simple-profile-card:hover {
+                    background: var(--bg-hover, #f1f5f9);
+                }
+                .sidebar.collapsed .simple-profile-card {
+                    padding: 10px;
+                    margin: 0 8px 16px;
+                    justify-content: center;
+                }
+
+                .simple-avatar {
+                    width: 36px;
+                    height: 36px;
+                    border-radius: 50%;
+                    background: var(--primary, #2563eb);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: white;
+                    flex-shrink: 0;
+                }
+                .sidebar.collapsed .simple-avatar {
+                    width: 32px;
+                    height: 32px;
+                }
+                .simple-avatar-img { 
+                    width: 100%; 
+                    height: 100%; 
+                    border-radius: 50%; 
+                    object-fit: cover; 
+                }
+                .simple-avatar-initial { 
+                    font-size: 14px; 
+                    font-weight: 600; 
+                }
+
+                .simple-details {
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    flex: 1;
+                    min-width: 0;
+                }
+                .simple-name {
+                    color: var(--text-heading, #0f172a);
+                    font-size: 14px;
+                    font-weight: 600;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+                .simple-role {
+                    color: var(--text-muted, #64748b);
+                    font-size: 12px;
+                    font-weight: 400;
+                    margin-top: 2px;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
                 }
 
                 .sidebar-nav {

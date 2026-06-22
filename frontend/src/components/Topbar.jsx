@@ -11,6 +11,11 @@ const Topbar = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const [designation, setDesignation] = React.useState('');
+    const [imgError, setImgError] = React.useState(false);
+
+    React.useEffect(() => {
+        setImgError(false);
+    }, [user?.picture]);
 
     React.useEffect(() => {
         const fetchMe = async () => {
@@ -77,7 +82,13 @@ const Topbar = () => {
                 </button>
                 
                 <div className="topbar-profile" onClick={() => navigate('/profile')} title="Profile">
-                    <img src={user?.picture || `https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=2563eb&color=fff`} alt="Profile" className="profile-avatar" style={{ width: '32px', height: '32px' }} />
+                    <img 
+                        src={(!imgError && user?.picture) ? user.picture : `https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=2563eb&color=fff`} 
+                        alt="Profile" 
+                        className="profile-avatar" 
+                        style={{ width: '32px', height: '32px' }} 
+                        onError={() => setImgError(true)}
+                    />
                 </div>
             </div>
 

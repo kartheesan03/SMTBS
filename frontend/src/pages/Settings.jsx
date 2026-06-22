@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import API from '../api/axios';
-import { User, Briefcase, Key, Bell, Activity, Settings as SettingsIcon, Shield } from 'lucide-react';
+import { User, Briefcase, Key, Bell, Activity, Settings as SettingsIcon, Shield, ShieldCheck } from 'lucide-react';
 
 const Settings = () => {
     const { user, updateUser } = useContext(AuthContext);
@@ -11,7 +11,8 @@ const Settings = () => {
         lastName: '',
         email: user?.email || '',
         phone: '',
-        address: ''
+        address: '',
+        picture: user?.picture || ''
     });
 
     const [preferences, setPreferences] = useState(() => {
@@ -26,6 +27,11 @@ const Settings = () => {
     });
 
     const [recentActivity, setRecentActivity] = useState([]);
+    const [imgError, setImgError] = useState(false);
+
+    useEffect(() => {
+        setImgError(false);
+    }, [user?.picture]);
 
     const handlePreferenceChange = (key) => {
         const newPrefs = { ...preferences, [key]: !preferences[key] };
@@ -79,7 +85,8 @@ const Settings = () => {
                         lastName: lName || '',
                         email: data.userId?.email || user?.email || '',
                         phone: data.phone || '',
-                        address: data.address || ''
+                        address: data.address || '',
+                        picture: user?.picture || ''
                     });
                 }
             } catch (err) {
@@ -114,7 +121,8 @@ const Settings = () => {
             // Update auth profile if needed
             const authPayload = {
                 name: `${formData.firstName} ${formData.lastName}`.trim(),
-                email: formData.email
+                email: formData.email,
+                picture: formData.picture
             };
             const authRes = await API.put('/auth/profile', authPayload);
             updateUser(authRes.data);
@@ -122,6 +130,17 @@ const Settings = () => {
             alert('Profile Updated Successfully');
         } catch (err) {
             alert(err.response?.data?.message || 'Error updating profile');
+        }
+    };
+
+    const handlePictureUpload = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setFormData(prev => ({ ...prev, picture: reader.result }));
+            };
+            reader.readAsDataURL(file);
         }
     };
 
@@ -154,17 +173,38 @@ const Settings = () => {
     return (
         <div className="module-container">
             {/* Top Banner Card */}
-            <div className="dashboard-card-3d" style={{ padding: '24px', display: 'flex', alignItems: 'center', gap: '24px', marginBottom: '24px' }}>
-                <div className="banner-avatar">
-                    {avatarInitials}
-                </div>
-                <div className="banner-info">
-                    <h2 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '0 0 4px 0', letterSpacing: '-0.02em' }}>{fullName}</h2>
-                    <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0, fontWeight: 500 }}>{displayEmail}</p>
-                    <div className="banner-badges">
-                        <span className="badge-role">{roleBadge}</span>
-                        <span className="badge-emp-id">{empIdBadge}</span>
+            <div className="premium-profile-banner">
+                <div className="premium-banner-avatar-wrapper">
+                    <div className="premium-banner-avatar">
+                        {formData.picture && !imgError ? (
+                            <img 
+                                src={formData.picture} 
+                                alt="Profile" 
+                                className="premium-banner-avatar-img" 
+                                onError={() => setImgError(true)}
+                            />
+                        ) : (
+                            <span className="premium-banner-avatar-initial">
+                                {avatarInitials}
+                            </span>
+                        )}
                     </div>
+                    <label className="avatar-upload-btn-premium" title="Change Picture">
+                        <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handlePictureUpload} />
+                        📷
+                    </label>
+                    <span className="status-dot-online-banner"></span>
+                </div>
+                <div className="premium-banner-details">
+                    <div className="user-name-row-banner">
+                        <span className="primary-title-banner">{fullName}</span>
+                        {(user?.role === 'Admin' || user?.role?.toLowerCase() === 'super admin' || user?.email === 'admin@smtbms.com') && <ShieldCheck size={20} className="verified-icon-banner" />}
+                    </div>
+                    <div className="banner-badges-premium">
+                        <span className="premium-badge-banner">{roleBadge}</span>
+                        <span className="premium-badge-banner secondary-badge">{empIdBadge}</span>
+                    </div>
+                    <span className="last-login-banner">{displayEmail} &bull; Last Login: Just now</span>
                 </div>
             </div>
 
@@ -337,56 +377,134 @@ const Settings = () => {
             </div>
 
             <style jsx="true">{`
-                .banner-avatar {
-                    width: 80px;
-                    height: 80px;
-                    background: var(--primary);
-                    color: white;
-                    border-radius: 50%;
+                .premium-profile-banner {
+                    display: flex;
+                    align-items: center;
+                    gap: 24px;
+                    background: var(--bg-surface, #ffffff);
+                    padding: 24px;
+                    border-radius: 16px;
+                    box-shadow: var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.1));
+                    border: 1px solid var(--border-subtle, #e2e8f0);
+                    margin-bottom: 24px;
+                }
+                .premium-banner-avatar-wrapper {
+                    position: relative;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    font-size: 28px;
-                    font-weight: 700;
-                    letter-spacing: 1px;
                     flex-shrink: 0;
+                    width: 80px;
+                    height: 80px;
                 }
-                .banner-info {
+                .premium-banner-avatar {
+                    width: 80px;
+                    height: 80px;
+                    border-radius: 50%;
+                    background: linear-gradient(135deg, #2563eb 0%, #9333ea 100%);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: white;
+                    box-shadow: 0 4px 12px rgba(147, 51, 234, 0.2);
+                    transition: box-shadow 0.3s ease;
+                    position: relative;
+                }
+                .premium-banner-avatar-img {
+                    width: 100%;
+                    height: 100%;
+                    border-radius: 50%;
+                    object-fit: cover;
+                    border: 2px solid var(--bg-surface, #ffffff);
+                }
+                .premium-banner-avatar-initial {
+                    font-size: 28px;
+                    font-weight: 600;
+                    letter-spacing: 0.05em;
+                }
+                
+                .avatar-upload-btn-premium {
+                    position: absolute;
+                    bottom: -2px;
+                    right: -2px;
+                    background: var(--bg-surface, #ffffff);
+                    border: 1px solid var(--border-subtle, #e2e8f0);
+                    border-radius: 50%;
+                    width: 28px;
+                    height: 28px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    font-size: 14px;
+                    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+                    transition: transform 0.2s;
+                }
+                .avatar-upload-btn-premium:hover {
+                    transform: scale(1.1);
+                }
+
+                .status-dot-online-banner {
+                    position: absolute;
+                    bottom: 2px;
+                    left: 2px;
+                    width: 18px;
+                    height: 18px;
+                    background: #10b981;
+                    border: 3px solid var(--bg-surface, #ffffff);
+                    border-radius: 50%;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                }
+
+                .premium-banner-details {
                     display: flex;
                     flex-direction: column;
+                    justify-content: center;
                     gap: 6px;
+                    flex: 1;
                 }
-                .banner-info h2 {
-                    margin: 0;
-                    font-size: 22px;
-                    font-weight: 600;
-                    color: #1e293b;
-                }
-                .text-email {
-                    margin: 0;
-                    font-size: 14px;
-                    color: #64748b;
-                }
-                .banner-badges {
+                .user-name-row-banner {
                     display: flex;
+                    align-items: center;
+                    gap: 8px;
+                }
+                .primary-title-banner {
+                    font-size: 24px;
+                    font-weight: 700;
+                    color: var(--text-heading, #0f172a);
+                    letter-spacing: -0.02em;
+                }
+                .verified-icon-banner {
+                    color: var(--primary, #2563eb);
+                }
+                
+                .banner-badges-premium {
+                    display: flex;
+                    align-items: center;
                     gap: 12px;
-                    margin-top: 4px;
+                    margin-bottom: 8px;
                 }
-                .badge-role {
-                    background: #dcfce7;
-                    color: #166534;
-                    padding: 4px 10px;
-                    border-radius: 4px;
+                .premium-badge-banner {
+                    display: inline-block;
+                    background: linear-gradient(135deg, #eff6ff 0%, #f3e8ff 100%);
+                    color: #4338ca;
+                    border: 1px solid rgba(99, 102, 241, 0.2);
                     font-size: 12px;
-                    font-weight: 600;
+                    font-weight: 700;
+                    padding: 4px 12px;
+                    border-radius: 12px;
+                    text-transform: capitalize;
                 }
-                .badge-emp-id {
-                    background: #f1f5f9;
-                    color: #475569;
-                    padding: 4px 10px;
-                    border-radius: 4px;
-                    font-size: 12px;
-                    font-weight: 600;
+                .premium-badge-banner.secondary-badge {
+                    background: var(--bg-hover, #f1f5f9);
+                    color: var(--text-main, #475569);
+                    border: 1px solid var(--border-subtle, #e2e8f0);
+                }
+
+                .last-login-banner {
+                    color: var(--text-muted, #64748b);
+                    font-size: 13px;
+                    font-weight: 500;
                 }
 
                 /* Grid Layout */
