@@ -99,7 +99,7 @@ const getOrders = async (req, res) => {
 // @access  Private
 const createOrder = async (req, res) => {
     try {
-        const allowedRoles = ['admin', 'super admin', 'manager', 'hr'];
+        const allowedRoles = ['admin', 'super admin', 'manager', 'hr', 'customer'];
         if (!req.user || !allowedRoles.includes(req.user.role?.toLowerCase())) {
             return res.status(403).json({ message: 'Access Denied. You do not have permission to create orders.' });
         }
@@ -579,7 +579,39 @@ const getMyCustomerOrders = async (req, res) => {
             .populate('vendor', 'name email category contactPerson')
             .populate('createdBy', 'name role')
             .sort({ createdAt: -1 });
-        res.json(orders);
+
+        // Manually populate material details for JSON field
+        const Material = require('../models/Material');
+        const allMaterials = await Material.find({});
+        const matMap = {};
+        allMaterials.forEach(m => matMap[String(m._id || m.id)] = m);
+
+        const enrichedOrders = orders.map(ord => {
+            const orderObj = ord.toJSON ? ord.toJSON() : (ord.toObject ? ord.toObject() : { ...ord });
+            if (orderObj.items && Array.isArray(orderObj.items)) {
+                orderObj.items = orderObj.items.map(item => {
+                    const matId = typeof item.material === 'object' ? String(item.material._id || item.material.id || item.material) : String(item.material);
+                    const mat = matMap[matId];
+                    if (mat) {
+                        return {
+                            ...item,
+                            material: {
+                                _id: mat._id,
+                                id: mat.id,
+                                name: mat.name,
+                                price: mat.price,
+                                sku: mat.sku,
+                                unit: mat.unit
+                            }
+                        };
+                    }
+                    return item;
+                });
+            }
+            return orderObj;
+        });
+
+        res.json(enrichedOrders);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -711,6 +743,58 @@ const employeeApprovePurchaseOrder = async (req, res) => {
     }
 };
 
+// @desc    Cancel a customer order
+// @route   PUT /api/orders/:id/cancel
+// @access  Private (Customer)
+const cancelCustomerOrder = async (req, res) => {
+    try {
+        const order = await Order.findById(req.params.id);
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+        
+        // Verify customer
+        const Customer = require('../models/Customer');
+        const customerProfile = await Customer.findOne({ userId: req.user._id });
+        if (!customerProfile) {
+            return res.status(403).json({ message: 'Customer profile not found' });
+        }
+        
+        const customerId = String(customerProfile._id || customerProfile.id);
+        const orderCustomerId = String(order.customerId || order.customer);
+        
+        if (orderCustomerId !== customerId) {
+            return res.status(403).json({ message: 'Not authorized to cancel this order' });
+        }
+        
+        const nonCancellableStatuses = ['Processing', 'Shipped', 'Delivered', 'Cancelled', 'Rejected'];
+        if (nonCancellableStatuses.includes(order.status)) {
+            return res.status(400).json({ message: `Cannot cancel order with status: ${order.status}` });
+        }
+        
+        order.status = 'Cancelled';
+        
+        const currentTimeline = order.trackingTimeline || [];
+        order.trackingTimeline = [
+            ...currentTimeline,
+            {
+                id: Date.now().toString(),
+                status: 'Cancelled',
+                location: 'System Update',
+                date: new Date().toISOString(),
+                remarks: 'Order was cancelled by the customer.',
+                updatedBy: req.user.name,
+                updatedById: req.user.id
+            }
+        ];
+        
+        await order.save();
+        res.json({ message: 'Order cancelled successfully', order });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 module.exports = {
     getOrders,
     createOrder,
@@ -720,5 +804,6 @@ module.exports = {
     getMyCustomerOrders,
     createCustomerOrder,
     deleteOrder,
-    employeeApprovePurchaseOrder
+    employeeApprovePurchaseOrder,
+    cancelCustomerOrder
 };

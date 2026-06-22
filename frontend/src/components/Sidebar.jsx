@@ -226,7 +226,13 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                                 <div className="simple-details">
                                     <span className="simple-name">{user?.name || 'User'}</span>
                                     <span className="simple-role">
-                                        {userRole === 'admin' || userRole === 'super admin' || user?.email === 'admin@smtbms.com' ? 'System Administrator' : (designation || 'Employee')}
+                                        {userRole === 'admin' || userRole === 'super admin' || user?.email === 'admin@smtbms.com' 
+                                            ? 'System Administrator' 
+                                            : userRole === 'customer' 
+                                                ? 'Customer' 
+                                                : userRole === 'vendor' 
+                                                    ? 'Vendor' 
+                                                    : (designation || 'Employee')}
                                     </span>
                                 </div>
                             )}
