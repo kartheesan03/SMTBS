@@ -88,7 +88,7 @@ const Register = () => {
             }
         },
         onError: () => setError('Google Sign-up failed. Please try again.'),
-        prompt: 'select_account'
+        prompt: 'select_account login'
     });
 
     return (

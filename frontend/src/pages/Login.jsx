@@ -39,7 +39,7 @@ const Login = () => {
             const { data } = await API.post('/auth/login', { email, password });
             login(data, rememberMe);
             setError('');
-            if (data.isProfileComplete === false) {
+            if (data.isProfileComplete === false && (data.role === 'Customer' || data.role === 'Vendor')) {
                 navigate(data.role === 'Customer' ? '/complete-customer-profile' : '/complete-vendor-profile');
             } else {
                 navigate('/');
@@ -64,7 +64,7 @@ const Login = () => {
                 
                 login(data, rememberMe);
                 
-                if (data.isProfileComplete === false) {
+                if (data.isProfileComplete === false && (data.role === 'Customer' || data.role === 'Vendor')) {
                     navigate(data.role === 'Customer' ? '/complete-customer-profile' : '/complete-vendor-profile');
                 } else {
                     navigate('/');
@@ -77,7 +77,7 @@ const Login = () => {
             }
         },
         onError: () => setError('Google Sign-In failed. Please try again.'),
-        prompt: 'select_account'
+        prompt: 'select_account login'
     });
 
     return (
