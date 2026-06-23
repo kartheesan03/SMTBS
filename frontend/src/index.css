@@ -12,7 +12,7 @@
   --secondary-text: #64748b;
 
   /* ─── Status / Semantic Colors (SAP Fiori inspired clarity) ─── */
-  --success: #10b981;
+  --success: #059669; /* Softer enterprise green */
   --success-bg: #d1fae5;
   --warning: #f59e0b;
   --warning-bg: #fef3c7;
@@ -22,7 +22,7 @@
   --info-bg: #eff6ff;
 
   /* ─── Neutrals & Surfaces ─── */
-  --bg-app: #f1f5f9; /* Slate 100 for better contrast */
+  --bg-app: #f8fafc; /* Lighter background for cleaner appearance */
   --bg-surface: #ffffff;    /* White cards */
   --bg-hover: #f8fafc;
   --bg-active: #f1f5f9;   /* Subtle row hover */
@@ -42,17 +42,17 @@
 
   /* ─── Shadows (Linear Flat & Soft) ─── */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 2px 8px rgba(15, 23, 42, 0.06);
+  --shadow-lg: 0 4px 12px rgba(15, 23, 42, 0.08);
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   --ring-focus: 0 0 0 3px rgba(37, 99, 235, 0.15);
 
   /* ─── Layout & Sizing (Microsoft Dynamics 365) ─── */
-  --sidebar-width: 240px;
+  --sidebar-width: 256px;
   --header-height: 60px;
   
   /* ─── Radii (Salesforce Lightning) ─── */
-  --radius-sm: 6px;
+  --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
   
@@ -118,9 +118,18 @@ body.logged-in .dashboard-layout {
 }
 
 body.logged-in .main-content {
-  padding: var(--space-3);
   min-height: 100vh;
-  transition: margin-left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: margin-left 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+.page-container {
+  padding: 20px;
+  max-width: 1750px;
+  width: 100%;
+  margin: 0 auto;
+  flex: 1;
 }
 
 body.logged-in .main-content.with-sidebar {
@@ -157,7 +166,7 @@ body.logged-in.sidebar-collapsed .main-content.with-sidebar {
   border-radius: var(--radius-md) !important;
   padding: 24px !important; /* 8x3 spacing */
   box-shadow: var(--shadow-sm) !important;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important; /* Linear smooth curve */
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important; /* Linear smooth curve */
   position: relative;
   overflow: hidden;
 }
@@ -274,7 +283,7 @@ button, .ui-button, .btn-primary, .btn-secondary, .btn-secondary-light, .btn-sav
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   border: none;
   outline: none;
   white-space: nowrap;
@@ -452,7 +461,7 @@ tbody tr:hover td, .enterprise-table tbody tr:hover td {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 4px 10px;
+  padding: 4px 12px;
   border-radius: 12px;
   font-size: 11px;
   font-weight: 600;

@@ -22,7 +22,7 @@ const StatCard = ({ title, value, icon, color, trend, onClick }) => {
                     background: var(--bg-surface);
                     border: 1px solid var(--border-subtle);
                     border-radius: var(--radius-md);
-                    padding: 22px;
+                    padding: 24px;
                     box-shadow: var(--shadow-sm);
                     transition: all 0.2s ease;
                     position: relative;
@@ -63,16 +63,16 @@ const StatCard = ({ title, value, icon, color, trend, onClick }) => {
                     margin: 0;
                 }
                 .stat-value-text {
-                    font-size: 24px;
+                    font-size: 28px;
                     font-weight: 700;
-                    margin: 2px 0 4px;
+                    margin: 4px 0 6px;
                     color: var(--text-heading);
                     line-height: 1.1;
                 }
                 .trend {
-                    font-size: 12px;
-                    font-weight: 500;
-                    display: flex;
+                    font-size: 11px;
+                    font-weight: 600;
+                    display: inline-flex;
                     align-items: center;
                     gap: 4px;
                 }

@@ -55,16 +55,20 @@ const QuickActions = ({ actions }) => {
                     background: var(--primary-light, #eef2ff);
                     border-color: var(--primary-100, #e0e7ff);
                     transform: translateY(-2px);
-                    box-shadow: var(--shadow-sm);
+                    box-shadow: var(--shadow-md);
                 }
                 .qa-icon {
-                    width: 40px;
-                    height: 40px;
-                    border-radius: 10px;
+                    width: 48px;
+                    height: 48px;
+                    border-radius: 12px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     transition: transform 0.2s ease;
+                }
+                .qa-icon svg {
+                    width: 24px !important;
+                    height: 24px !important;
                 }
                 .qa-tile:hover .qa-icon {
                     transform: scale(1.08);

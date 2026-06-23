@@ -135,24 +135,42 @@ const OrderTracking = () => {
         );
     }
 
-    let timeline = order.trackingTimeline || [];
+    let timeline = [...(order.trackingTimeline || [])];
+    
+    // Ensure "Order Created" is the first event if it's missing
+    const hasCreatedEvent = timeline.some(t => t.status.includes('Created'));
+    if (!hasCreatedEvent) {
+        timeline.unshift({
+            id: 'created-event',
+            status: 'Order Created',
+            location: 'System',
+            date: order.createdAt || order.orderDate,
+            remarks: 'Order successfully created in the system'
+        });
+    }
     
     // Synthesize a timeline event for older orders that missed the timeline sync
-    if (timeline.length === 0 && order.status && order.status !== 'Pending') {
-        timeline = [{
+    if (timeline.length === 1 && order.status && order.status !== 'Pending') {
+        timeline.push({
             id: 'legacy-sync',
             status: order.deliveryStatus || order.status,
             location: 'System Update',
             date: order.deliveredAt || order.deliveryDate || order.updatedAt,
             remarks: 'Legacy order status migrated'
-        }];
+        });
     }
 
-    const latestStatus = timeline.length > 0 ? timeline[timeline.length - 1].status : order.deliveryStatus || order.status;
+    let latestStatus = timeline.length > 0 ? timeline[timeline.length - 1].status : order.deliveryStatus || order.status;
+    const isCancelled = order.status === 'Cancelled' || order.status === 'Rejected';
+    if (isCancelled) {
+        latestStatus = order.status; // Override with Cancelled if the main order is cancelled
+    }
+    
     const isDelivered = latestStatus === 'Delivered';
 
     const getStatusIcon = (st) => {
         if (!st) return <Package size={18} />;
+        if (isCancelled) return <CheckCircle size={18} />; // Or another icon like XCircle if imported, but let's just use Package or check
         if (st.includes('Delivered')) return <CheckCircle size={18} />;
         if (st.includes('Shipped') || st.includes('Transit') || st.includes('Delivery')) return <Truck size={18} />;
         return <Package size={18} />;
@@ -172,7 +190,7 @@ const OrderTracking = () => {
                 <div className="tracking-summary-card">
                     <div className="card-header">
                         <h2>Order Tracking</h2>
-                        <span className={`status-badge ${isDelivered ? 'success' : 'processing'}`}>
+                        <span className={`status-badge ${isCancelled ? 'danger' : (isDelivered ? 'success' : 'processing')}`}>
                             {latestStatus}
                         </span>
                     </div>
@@ -182,11 +200,11 @@ const OrderTracking = () => {
                             <span className="value">#{order.orderNumber || order.id}</span>
                         </div>
                         <div className="summary-item">
-                            <span className="label">Customer</span>
+                            <span className="label">Organization / Company</span>
                             <span className="value">
-                                {order.customerModel === 'Customer' && order.customer ? 
-                                    (order.customer.name || order.customer.companyName || 'Unknown Customer') 
-                                    : 'Customer'}
+                                {order.orderType === 'purchase' ? 
+                                    (order.vendor?.company || order.vendor?.companyName || order.companyName || order.vendor?.name || 'Unknown Vendor') :
+                                    (order.customer?.company || order.customer?.companyName || order.companyName || order.customer?.name || 'Unknown Customer')}
                             </span>
                         </div>
                         <div className="summary-item">
@@ -196,17 +214,17 @@ const OrderTracking = () => {
                         <div className="summary-item">
                             <span className="label">Delivery Date</span>
                             <span className="value">
-                                {order.deliveredAt ? formatDateOnly(order.deliveredAt) : 
+                                {isCancelled ? 'Cancelled' : (order.deliveredAt ? formatDateOnly(order.deliveredAt) : 
                                  isDelivered ? formatDateOnly(order.deliveryDate || order.updatedAt) : 
-                                 'Pending Delivery'}
+                                 'Pending Delivery')}
                             </span>
                         </div>
                         <div className="summary-item">
                             <span className="label">Delivery Time</span>
                             <span className="value">
-                                {order.deliveredAt ? formatTimeOnly(order.deliveredAt) : 
+                                {isCancelled ? '-' : (order.deliveredAt ? formatTimeOnly(order.deliveredAt) : 
                                  isDelivered ? formatTimeOnly(order.deliveryDate || order.updatedAt) : 
-                                 'Pending Delivery'}
+                                 'Pending Delivery')}
                             </span>
                         </div>
                         <div className="summary-item">
@@ -215,13 +233,13 @@ const OrderTracking = () => {
                         </div>
                     </div>
                     
-                    <div className="latest-status-banner">
+                    <div className={`latest-status-banner ${isCancelled ? 'cancelled-banner' : ''}`}>
                         <div className="icon-wrap">
                             {getStatusIcon(latestStatus)}
                         </div>
                         <div className="status-text">
-                            <h3>{isDelivered ? 'Your order has been delivered' : `Your order is ${latestStatus.toLowerCase()}`}</h3>
-                            <p>Last updated: {timeline.length > 0 ? formatDateTime(timeline[timeline.length - 1].date) : 'Just now'}</p>
+                            <h3 style={{ color: isCancelled ? '#ef4444' : '#0f172a' }}>{isCancelled ? `Your order has been ${latestStatus.toLowerCase()}` : (isDelivered ? 'Your order has been delivered' : `Your order is ${latestStatus.toLowerCase()}`)}</h3>
+                            <p>Last updated: {timeline.length > 0 ? formatDateTime(timeline[timeline.length - 1].date) : formatDateTime(order.updatedAt)}</p>
                         </div>
                     </div>
                 </div>
@@ -338,6 +356,7 @@ const OrderTracking = () => {
                 }
                 .status-badge.success { background: #ecfdf5; color: #059669; }
                 .status-badge.processing { background: #eff6ff; color: #2563eb; }
+                .status-badge.danger { background: #fee2e2; color: #ef4444; }
                 
                 .summary-grid {
                     display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px;
@@ -351,10 +370,12 @@ const OrderTracking = () => {
                     display: flex; align-items: center; gap: 16px;
                     background: #f8fafc; padding: 16px; border-radius: 8px; border: 1px solid #f1f5f9;
                 }
+                .latest-status-banner.cancelled-banner { background: #fef2f2; border-color: #fee2e2; }
                 .icon-wrap {
                     width: 40px; height: 40px; border-radius: 50%; background: #e0e7ff; color: #4f46e5;
                     display: flex; align-items: center; justify-content: center;
                 }
+                .cancelled-banner .icon-wrap { background: #fee2e2; color: #ef4444; }
                 .status-text h3 { margin: 0 0 4px 0; font-size: 16px; color: #0f172a; }
                 .status-text p { margin: 0; font-size: 13px; color: #64748b; }
                 

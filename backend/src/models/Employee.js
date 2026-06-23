@@ -13,6 +13,10 @@ const EmployeeSequelize = sequelize.define('Employee', {
         allowNull: false,
         unique: true
     },
+    userIdField: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+    },
     firstName: {
         type: DataTypes.STRING,
         allowNull: false

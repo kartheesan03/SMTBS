@@ -83,7 +83,6 @@ const MyAttendance = () => {
                 API.get('/attendance/my-history')
             ]);
             setStatus(statusRes.data);
-            setStatus(statusRes.data);
             
             let finalHistory = historyRes.data;
             const today = new Date().toISOString().split('T')[0];
@@ -97,7 +96,7 @@ const MyAttendance = () => {
             
             // Calculate real stats from history
             if (historyRes.data.length > 0) {
-                const presentDays = historyRes.data.filter(h => h.status === 'Present').length;
+                const presentDays = historyRes.data.filter(h => h.status === 'Present' || h.status === 'Late').length;
                 // Real avg hours from records that have both checkIn and checkOut
                 const withHours = historyRes.data.filter(h => h.checkIn && h.checkOut);
                 const totalHours = withHours.reduce((sum, h) => {

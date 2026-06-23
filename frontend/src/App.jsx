@@ -100,6 +100,7 @@ const AppContent = () => {
             <main className={`main-content ${user ? 'with-sidebar' : ''}`}>
                 {user && <Topbar />}
                 <React.Suspense fallback={<div className="app-loading">Loading...</div>}>
+                <div className="page-container">
                 <Routes>
                     {/* Public Route */}
                     <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
@@ -185,6 +186,7 @@ const AppContent = () => {
                     {/* Fallback */}
                     <Route path="*" element={<Navigate to="/" />} />
                 </Routes>
+                </div>
                 </React.Suspense>
             </main>
 

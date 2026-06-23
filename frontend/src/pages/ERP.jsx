@@ -432,6 +432,7 @@ const ERP = () => {
     }).length;
 
     const completedDeliveriesCount = orders.filter(o => ['Delivered', 'Completed'].includes(o.status)).length;
+    const cancelledOrdersCount = orders.filter(o => ['Cancelled', 'Rejected'].includes(o.status)).length;
 
     // --- KPI CALCULATION USING DASHBOARD STATS EXACTLY LIKE REPORTS ---
     const formatCurrencyLocal = (num) => {
@@ -446,9 +447,10 @@ const ERP = () => {
     const dashCharts = erpStats?.charts || {};
     const dashMonthlyStats = dashCharts.monthlyStats || [];
 
-    const totalOrders = orders.length;
-    const salesOrders = orders.filter(o => o.orderType === 'sales').length;
-    const purchaseOrders = orders.filter(o => o.orderType === 'purchase').length;
+    const validOrders = orders.filter(o => !['Cancelled', 'Rejected'].includes(o.status));
+    const totalOrders = validOrders.length;
+    const salesOrders = validOrders.filter(o => o.orderType === 'sales').length;
+    const purchaseOrders = validOrders.filter(o => o.orderType === 'purchase').length;
     
     const chartRevenueSum = dashMonthlyStats.reduce((sum, m) => sum + (Number(m.revenue) || 0), 0) || 0;
     const totalRevenueNum = chartRevenueSum;
@@ -458,7 +460,7 @@ const ERP = () => {
     
     const totalPurchaseCostNum = orders.filter(o => o.orderType === 'purchase' && !['Cancelled', 'Rejected'].includes(o.status)).reduce((sum, o) => sum + (Number(o.totalAmount || o.amount || 0)), 0);
         
-    const pendingInvoices = orders.filter(o => ['Pending', 'Overdue', 'Partially Paid'].includes(o.paymentStatus)).length;
+    const pendingInvoices = validOrders.filter(o => !o.paymentStatus || ['Pending', 'Overdue', 'Partially Paid'].includes(o.paymentStatus)).length;
 
     console.log('--- ERP KPI DATA LOGS ---');
     console.log('ERP orders response:', orders);
@@ -541,6 +543,10 @@ const ERP = () => {
                 <div className="dashboard-card-3d" style={{ padding: '24px', display: 'flex', flexDirection: 'column' }}>
                     <span className="label text-green" style={{ fontSize: '14px', color: '#10b981', fontWeight: 600, marginBottom: '8px' }}>Completed Deliveries</span>
                     <span className="value text-green" style={{ fontSize: '28px', fontWeight: 800, color: '#10b981' }}>{completedDeliveriesCount}</span>
+                </div>
+                <div className="dashboard-card-3d" style={{ padding: '24px', display: 'flex', flexDirection: 'column' }}>
+                    <span className="label text-red" style={{ fontSize: '14px', color: '#ef4444', fontWeight: 600, marginBottom: '8px' }}>Cancelled Orders</span>
+                    <span className="value text-red" style={{ fontSize: '28px', fontWeight: 800, color: '#ef4444' }}>{cancelledOrdersCount}</span>
                 </div>
             </section>
 
@@ -704,7 +710,7 @@ const ERP = () => {
                                                     <span>{approverName}</span>
                                                     
                                                     <span style={{ color: '#94a3b8' }}>Role:</span>
-                                                    <span>{approverObj?.role || (label === 'MGR' ? 'Manager' : (label === 'HR' ? 'Employee' : 'Sales'))}</span>
+                                                    <span>{approverObj?.role || (label === 'MGR' ? 'Manager' : (label === 'EMP' ? 'Employee' : 'Sales'))}</span>
 
                                                     <span style={{ color: '#94a3b8' }}>Status:</span>
                                                     <span className={isApproved ? 'text-success' : (isRejected ? 'text-danger' : 'text-warning')} style={{ fontWeight: '600' }}>{status}</span>
@@ -786,7 +792,7 @@ const ERP = () => {
                                                 ord.approvedDate
                                             )}
                                             {renderApprovalBadge(
-                                                'HR', 
+                                                'EMP', 
                                                 (ord.employeeApproval === 'Approved' || ord.approvalStatus === 'Employee Approved') ? 'Approved' : (ord.employeeApproval === 'Rejected' ? 'Rejected' : 'Pending'),
                                                 ord._approvers?.employee || null,
                                                 ord.updatedAt // fallback since employee doesn't have explicit date
@@ -844,14 +850,14 @@ const ERP = () => {
                                             )}
 
                                             {/* Track Order Button */}
-                                            {ord.deliveryStatus && !['Not Started'].includes(ord.deliveryStatus) && (
+                                            {((ord.deliveryStatus && !['Not Started'].includes(ord.deliveryStatus)) || ['Cancelled', 'Rejected'].includes(ord.status)) && (
                                                 <button className="btn-secondary-light" style={{ padding: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4f46e5' }} onClick={() => navigate(`/orders/${ord.id || ord._id}/tracking`)} title="Track Order">
                                                     <Truck size={14} />
                                                 </button>
                                             )}
 
                                             {/* Download Invoice Button */}
-                                            {(['Confirmed', 'Processing', 'Shipped', 'Delivered'].includes(ord.status) || ord.invoiceGenerated) && (
+                                            {(['Confirmed', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Rejected'].includes(ord.status) || ord.invoiceGenerated) && (
                                                 <button className="btn-secondary-light" style={{ padding: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => handleDownloadInvoice(ord)} title="Download Invoice">
                                                     <Download size={14} />
                                                 </button>
@@ -914,9 +920,97 @@ const ERP = () => {
                 )}
             </div>
 
+            {/* Invoice List Modal */}
+            {showInvoiceModal && (
+                <div className="modal-overlay">
+                    <div className="modal-content animate-pop" style={{ maxWidth: '1000px' }}>
+                        <div className="modal-header">
+                            <h2>Invoices</h2>
+                            <button className="close-btn" onClick={() => setShowInvoiceModal(false)}>✕</button>
+                        </div>
+                        <div className="erp-tabs" style={{ paddingBottom: '16px' }}>
+                            {['All', 'Pending', 'Paid', 'Overdue', 'Partially Paid'].map(tab => (
+                                <button 
+                                    key={tab}
+                                    className={`erp-tab ${invoiceTab === tab ? 'active' : ''}`}
+                                    onClick={() => setInvoiceTab(tab)}
+                                >
+                                    {tab}
+                                </button>
+                            ))}
+                        </div>
+                        <div className="table-card" style={{ boxShadow: 'none', margin: '0', padding: '0', maxHeight: '500px', overflowY: 'auto' }}>
+                            <table className="enterprise-table" >
+                                <thead>
+                                    <tr>
+                                        <th>Invoice ID</th>
+                                        <th>Order ID</th>
+                                        <th>Organization / Company</th>
+                                        <th>Type</th>
+                                        <th>Amount</th>
+                                        <th>Invoice Date</th>
+                                        <th>Due Date</th>
+                                        <th>Payment Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {validOrders
+                                        .filter(o => invoiceTab === 'All' || o.paymentStatus === invoiceTab || (invoiceTab === 'Pending' && !o.paymentStatus))
+                                        .sort((a, b) => new Date(b.invoiceDate || b.createdAt) - new Date(a.invoiceDate || a.createdAt))
+                                        .map(o => (
+                                        <tr key={o._id}>
+                                            <td><strong>{o.invoiceNumber || `INV-${o.orderNumber}`}</strong></td>
+                                            <td>{o.orderNumber}</td>
+                                            <td>{o.orderType === 'sales' ? (o.customer?.company || o.customer?.companyName || o.customer?.name || 'Unassigned') : (o.vendor?.companyName || o.vendor?.name || 'Unassigned')}</td>
+                                            <td>{o.orderType === 'sales' ? 'Receivable' : 'Payable'}</td>
+                                            <td>${(o.totalAmount || 0).toLocaleString()}</td>
+                                            <td>{o.invoiceDate ? new Date(o.invoiceDate).toLocaleDateString() : new Date(o.createdAt).toLocaleDateString()}</td>
+                                            <td>
+                                                {o.invoiceDueDate ? new Date(o.invoiceDueDate).toLocaleDateString() : (o.expectedDeliveryDate ? new Date(o.expectedDeliveryDate).toLocaleDateString() : 'N/A')}
+                                            </td>
+                                            <td>
+                                                <span className={`status-badge status-${(o.paymentStatus || 'Pending').replace(/\s+/g, '-').toLowerCase()}`}>
+                                                    {o.paymentStatus || 'Pending'}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div className="action-buttons" style={{ display: 'flex', gap: '8px' }}>
+                                                    <button className="btn-icon" onClick={() => { setShowOrderDetailsModal(true); setSelectedOrderDetails(o); }} title="View Invoice">
+                                                        <Eye size={14} />
+                                                    </button>
+                                                    <button className="btn-icon" onClick={() => handleDownloadInvoice(o._id)} title="Download PDF">
+                                                        <Download size={14} />
+                                                    </button>
+                                                    {o.paymentStatus !== 'Paid' && (
+                                                        <>
+                                                            <button className="btn-icon" style={{ color: 'var(--success)' }} onClick={() => handlePaymentStatusChange(o._id, 'Paid')} title="Mark as Paid">
+                                                                <CheckCircle size={14} />
+                                                            </button>
+                                                            <button className="btn-icon" style={{ color: 'var(--warning)' }} onClick={() => handleSendReminder(o._id)} title="Send Reminder">
+                                                                <Bell size={14} />
+                                                            </button>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                    {validOrders.filter(o => invoiceTab === 'All' || o.paymentStatus === invoiceTab || (invoiceTab === 'Pending' && !o.paymentStatus)).length === 0 && (
+                                        <tr>
+                                            <td colSpan="9" style={{ textAlign: 'center', padding: '24px' }}>No invoices found.</td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Order Details Modal */}
             {showOrderDetailsModal && selectedOrderDetails && (
-                <div className="modal-overlay">
+                <div className="modal-overlay" style={{ zIndex: 2100 }}>
                     <div className="modal-content animate-pop" style={{ maxWidth: '600px' }}>
                         <div className="modal-header">
                             <h2>Order Details: {selectedOrderDetails.orderNumber}</h2>
@@ -925,8 +1019,8 @@ const ERP = () => {
                         <div style={{ padding: '20px' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', fontSize: '14px' }}>
                                 <div>
-                                    <p style={{ margin: '0 0 8px 0', color: 'var(--text-muted)' }}>{selectedOrderDetails.orderType === 'purchase' ? 'Vendor' : 'Customer'}</p>
-                                    <h3 style={{ margin: 0 }}>{selectedOrderDetails.orderType === 'purchase' ? (selectedOrderDetails.vendor?.name || 'Unassigned') : (selectedOrderDetails.customer?.name || 'Unassigned')}</h3>
+                                    <p style={{ margin: '0 0 8px 0', color: 'var(--text-muted)' }}>Organization / Company</p>
+                                    <h3 style={{ margin: 0 }}>{selectedOrderDetails.orderType === 'purchase' ? (selectedOrderDetails.vendor?.company || selectedOrderDetails.vendor?.companyName || selectedOrderDetails.vendor?.name || 'Unassigned') : (selectedOrderDetails.customer?.company || selectedOrderDetails.customer?.companyName || selectedOrderDetails.customer?.name || 'Unassigned')}</h3>
                                 </div>
                                 <div style={{ textAlign: 'right' }}>
                                     <p style={{ margin: '0 0 8px 0', color: 'var(--text-muted)' }}>Status</p>
@@ -981,94 +1075,6 @@ const ERP = () => {
                                     <strong style={{ fontSize: '14px' }}>{selectedOrderDetails.deliveryStatus || 'Not Started'}</strong>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Invoice List Modal */}
-            {showInvoiceModal && (
-                <div className="modal-overlay">
-                    <div className="modal-content animate-pop" style={{ maxWidth: '1000px' }}>
-                        <div className="modal-header">
-                            <h2>Invoices</h2>
-                            <button className="close-btn" onClick={() => setShowInvoiceModal(false)}>✕</button>
-                        </div>
-                        <div className="erp-tabs" style={{ paddingBottom: '16px' }}>
-                            {['All', 'Pending', 'Paid', 'Overdue', 'Partially Paid'].map(tab => (
-                                <button 
-                                    key={tab}
-                                    className={`erp-tab ${invoiceTab === tab ? 'active' : ''}`}
-                                    onClick={() => setInvoiceTab(tab)}
-                                >
-                                    {tab}
-                                </button>
-                            ))}
-                        </div>
-                        <div className="table-card" style={{ boxShadow: 'none', margin: '0', padding: '0', maxHeight: '500px', overflowY: 'auto' }}>
-                            <table className="enterprise-table" >
-                                <thead>
-                                    <tr>
-                                        <th>Invoice ID</th>
-                                        <th>Order ID</th>
-                                        <th>Customer / Vendor</th>
-                                        <th>Type</th>
-                                        <th>Amount</th>
-                                        <th>Invoice Date</th>
-                                        <th>Due Date</th>
-                                        <th>Payment Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {orders
-                                        .filter(o => invoiceTab === 'All' || o.paymentStatus === invoiceTab || (invoiceTab === 'Pending' && !o.paymentStatus))
-                                        .sort((a, b) => new Date(b.invoiceDate || b.createdAt) - new Date(a.invoiceDate || a.createdAt))
-                                        .map(o => (
-                                        <tr key={o._id}>
-                                            <td><strong>{o.invoiceNumber || `INV-${o.orderNumber}`}</strong></td>
-                                            <td>{o.orderNumber}</td>
-                                            <td>{o.customer?.name || o.vendor?.name || 'Unassigned'}</td>
-                                            <td>{o.orderType === 'sales' ? 'Receivable' : 'Payable'}</td>
-                                            <td>${(o.totalAmount || 0).toLocaleString()}</td>
-                                            <td>{o.invoiceDate ? new Date(o.invoiceDate).toLocaleDateString() : new Date(o.createdAt).toLocaleDateString()}</td>
-                                            <td>
-                                                {o.invoiceDueDate ? new Date(o.invoiceDueDate).toLocaleDateString() : (o.expectedDeliveryDate ? new Date(o.expectedDeliveryDate).toLocaleDateString() : 'N/A')}
-                                            </td>
-                                            <td>
-                                                <span className={`status-badge status-${(o.paymentStatus || 'Pending').replace(/\s+/g, '-').toLowerCase()}`}>
-                                                    {o.paymentStatus || 'Pending'}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <div className="action-buttons" style={{ display: 'flex', gap: '8px' }}>
-                                                    <button className="btn-icon" onClick={() => { setShowOrderDetailsModal(true); setSelectedOrderDetails(o); }} title="View Invoice">
-                                                        <Eye size={14} />
-                                                    </button>
-                                                    <button className="btn-icon" onClick={() => handleDownloadInvoice(o._id)} title="Download PDF">
-                                                        <Download size={14} />
-                                                    </button>
-                                                    {o.paymentStatus !== 'Paid' && (
-                                                        <>
-                                                            <button className="btn-icon" style={{ color: 'var(--success)' }} onClick={() => handlePaymentStatusChange(o._id, 'Paid')} title="Mark as Paid">
-                                                                <CheckCircle size={14} />
-                                                            </button>
-                                                            <button className="btn-icon" style={{ color: 'var(--warning)' }} onClick={() => handleSendReminder(o._id)} title="Send Reminder">
-                                                                <Bell size={14} />
-                                                            </button>
-                                                        </>
-                                                    )}
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                    {orders.filter(o => invoiceTab === 'All' || o.paymentStatus === invoiceTab || (invoiceTab === 'Pending' && !o.paymentStatus)).length === 0 && (
-                                        <tr>
-                                            <td colSpan="9" style={{ textAlign: 'center', padding: '24px' }}>No invoices found.</td>
-                                        </tr>
-                                    )}
-                                </tbody>
-                            </table>
                         </div>
                     </div>
                 </div>

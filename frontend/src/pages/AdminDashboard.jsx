@@ -6,7 +6,7 @@ import {
     TrendingUp, BarChart2, PieChart as PieChartIcon, Activity,
     ArrowUpRight, ArrowDownRight, Package, Truck, Clock, Users,
     Briefcase, FileText, Settings, Bell, Shield, LifeBuoy,
-    ChevronRight
+    ChevronRight, CheckCircle
 } from 'lucide-react';
 import { 
     LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, 
@@ -90,6 +90,25 @@ const AdminDashboard = () => {
         return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     };
 
+    const getRelativeTime = (isoString) => {
+        if (!isoString) return 'Just now';
+        const date = new Date(isoString);
+        const now = new Date();
+        const diffInSeconds = Math.floor((now - date) / 1000);
+        
+        if (diffInSeconds < 60) return 'Just now';
+        if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} min ago`;
+        if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+        return `${Math.floor(diffInSeconds / 86400)} days ago`;
+    };
+
+    const getInitials = (name) => {
+        if (!name) return 'S';
+        const parts = name.split(' ').filter(Boolean);
+        if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+        return name.substring(0, 2).toUpperCase();
+    };
+
     const kpiCards = [
         { 
             title: 'Total Revenue', value: `₹${Number(totalRevenue || 0).toLocaleString('en-IN')}`, 
@@ -149,19 +168,22 @@ const AdminDashboard = () => {
                     <h1>Enterprise Overview</h1>
                     <p>Live business metrics and operational status</p>
                 </div>
-                <div className="status-badge">
-                    <span className="pulse-dot"></span> System Operational
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px' }}>
+                    <div className="status-badge">
+                        <span className="pulse-dot"></span> System Operational
+                    </div>
+                    <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 500 }}>Last Updated: {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                 </div>
             </div>
 
             {/* KPI ROW */}
             <div className="kpi-grid">
                 {kpiCards.map((kpi, idx) => (
-                    <div key={idx} className="kpi-card">
+                    <div key={idx} className="kpi-card" style={{ borderTop: `3px solid ${kpi.color}` }}>
                         <div className="kpi-header">
                             <span className="kpi-title">{kpi.title}</span>
                             <div className="icon-wrapper" style={{ color: kpi.color, backgroundColor: `${kpi.color}15` }}>
-                                <kpi.icon size={18} strokeWidth={2.5} />
+                                <kpi.icon size={28} strokeWidth={2.5} />
                             </div>
                         </div>
                         <div className="kpi-body">
@@ -182,7 +204,10 @@ const AdminDashboard = () => {
                 <div className="charts-column">
                     <div className="chart-card">
                         <div className="card-header">
-                            <h2>Inventory Health</h2>
+                            <div>
+                                <h2>Inventory Health</h2>
+                                <span className="last-updated" style={{ fontSize: '11px', color: 'var(--text-disabled)', display: 'block', marginTop: '4px' }}>Last updated: Just now</span>
+                            </div>
                             <button className="icon-btn"><Activity size={16}/></button>
                         </div>
                         <div className="chart-body">
@@ -194,7 +219,7 @@ const AdminDashboard = () => {
                                                 <Pie
                                                     data={inventoryData}
                                                     cx="50%" cy="50%"
-                                                    innerRadius={70} outerRadius={90}
+                                                    innerRadius={80} outerRadius={105}
                                                     paddingAngle={4}
                                                     dataKey="value" stroke="none"
                                                 >
@@ -211,13 +236,16 @@ const AdminDashboard = () => {
                                         </div>
                                     </div>
                                     <div className="chart-legend">
-                                        {inventoryData.map((item, idx) => (
-                                            <div key={idx} className="legend-item">
-                                                <span className="legend-dot" style={{ backgroundColor: item.color }}></span>
-                                                {item.name}
-                                                <span className="legend-value">{item.value}</span>
-                                            </div>
-                                        ))}
+                                        {inventoryData.map((item, idx) => {
+                                            const percentage = totalMaterials > 0 ? Math.round((item.value / totalMaterials) * 100) : 0;
+                                            return (
+                                                <div key={idx} className="legend-item">
+                                                    <span className="legend-dot" style={{ backgroundColor: item.color }}></span>
+                                                    {item.name}
+                                                    <span className="legend-value">{item.value} <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 500, marginLeft: '6px' }}>({percentage}%)</span></span>
+                                                </div>
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             ) : (
@@ -228,12 +256,15 @@ const AdminDashboard = () => {
 
                     <div className="chart-card">
                         <div className="card-header">
-                            <h2>Order Fulfillment Pipeline</h2>
+                            <div>
+                                <h2>Order Fulfillment Pipeline</h2>
+                                <span className="last-updated" style={{ fontSize: '11px', color: 'var(--text-disabled)', display: 'block', marginTop: '4px' }}>Last updated: Just now</span>
+                            </div>
                             <button className="icon-btn"><BarChart2 size={16}/></button>
                         </div>
                         <div className="chart-body">
-                            {ordersStatusData.length > 0 ? (
-                                <ResponsiveContainer width="100%" height={240}>
+                            {ordersStatusData.length > 0 && ordersStatusData.some(d => d.count > 0) ? (
+                                <ResponsiveContainer width="100%" height={260}>
                                     <BarChart data={ordersStatusData} margin={{ top: 20, right: 0, left: -20, bottom: 0 }} barSize={36}>
                                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                                         <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dy={10} />
@@ -247,7 +278,10 @@ const AdminDashboard = () => {
                                     </BarChart>
                                 </ResponsiveContainer>
                             ) : (
-                                <div className="empty-state">No order data available</div>
+                                <div className="empty-state" style={{ height: '260px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#94a3b8' }}>
+                                    <BarChart2 size={32} style={{ marginBottom: '12px', opacity: 0.5 }} />
+                                    <span>No active orders in the pipeline</span>
+                                </div>
                             )}
                         </div>
                     </div>
@@ -269,7 +303,7 @@ const AdminDashboard = () => {
                             ].map((link, idx) => (
                                 <NavLink to={link.path} key={idx} className="launcher-btn">
                                     <div className="launcher-icon" style={{ color: link.color, backgroundColor: `${link.color}15` }}>
-                                        <link.icon size={20} strokeWidth={2.5} />
+                                        <link.icon size={24} strokeWidth={2.5} />
                                     </div>
                                     <span>{link.name}</span>
                                 </NavLink>
@@ -283,24 +317,38 @@ const AdminDashboard = () => {
                         </div>
                         <div className="stat-list">
                             <div className="stat-row">
-                                <span className="stat-label">Total Employees</span>
+                                <div className="stat-label-container">
+                                    <Users size={16} color="#64748b" />
+                                    <span className="stat-label">Total Employees</span>
+                                </div>
                                 <span className="stat-value">{dashboard.hrStats?.totalEmployees || 0}</span>
                             </div>
                             <div className="stat-row">
-                                <span className="stat-label">Present Today</span>
+                                <div className="stat-label-container">
+                                    <CheckCircle size={16} color="#10b981" />
+                                    <span className="stat-label">Present Today</span>
+                                </div>
                                 <span className="stat-value success">{dashboard.hrStats?.presentToday || 0}</span>
                             </div>
                             <div className="stat-row">
-                                <span className="stat-label">On Leave</span>
+                                <div className="stat-label-container">
+                                    <Clock size={16} color="#f59e0b" />
+                                    <span className="stat-label">On Leave</span>
+                                </div>
                                 <span className="stat-value warning">{dashboard.hrStats?.onLeave || 0}</span>
                             </div>
-                            <div className="stat-divider"></div>
                             <div className="stat-row">
-                                <span className="stat-label">Avg Order Value</span>
+                                <div className="stat-label-container">
+                                    <DollarSign size={16} color="#3b82f6" />
+                                    <span className="stat-label">Avg Order Value</span>
+                                </div>
                                 <span className="stat-value">{formatYAxis(orders.length ? totalRevenue / orders.length : 0)}</span>
                             </div>
                             <div className="stat-row">
-                                <span className="stat-label">Active Projects</span>
+                                <div className="stat-label-container">
+                                    <Briefcase size={16} color="#8b5cf6" />
+                                    <span className="stat-label">Active Projects</span>
+                                </div>
                                 <span className="stat-value primary">{dashboard.managerStats?.activeProjects || 0}</span>
                             </div>
                         </div>
@@ -314,16 +362,18 @@ const AdminDashboard = () => {
                         <div className="activity-list">
                             {recentActivities.slice(0, 4).map((act, i) => (
                                 <div key={act.id || i} className="activity-item">
-                                    <div className="activity-icon">
-                                        {act.type === 'order' ? <ShoppingCart size={14} /> : 
-                                         act.type === 'material' ? <Package size={14} /> :
-                                         <Activity size={14} />}
+                                    <div className="activity-avatar" style={{ 
+                                        backgroundColor: act.type === 'order' ? '#10b98115' : act.type === 'material' ? '#3b82f615' : '#f59e0b15',
+                                        color: act.type === 'order' ? '#10b981' : act.type === 'material' ? '#3b82f6' : '#f59e0b',
+                                        border: `1px solid ${act.type === 'order' ? '#10b98130' : act.type === 'material' ? '#3b82f630' : '#f59e0b30'}`
+                                    }}>
+                                        {getInitials(act.userName || act.title)}
                                     </div>
                                     <div className="activity-content">
                                         <h4>{act.title}</h4>
                                         <p>{act.description}</p>
                                     </div>
-                                    <div className="activity-time">{formatTime(act.time).split(' ')[0]}</div>
+                                    <div className="activity-time">{getRelativeTime(act.time)}</div>
                                 </div>
                             ))}
                         </div>
@@ -342,7 +392,7 @@ const AdminDashboard = () => {
                 .page-header {
                     display: flex;
                     justify-content: space-between;
-                    align-items: flex-end;
+                    align-items: center;
                     margin-bottom: 32px;
                 }
 
@@ -363,23 +413,28 @@ const AdminDashboard = () => {
                 .status-badge {
                     display: inline-flex;
                     align-items: center;
-                    gap: 8px;
-                    padding: 8px 16px;
+                    gap: 6px;
+                    padding: 6px 12px;
                     background: #ffffff;
                     border: 1px solid #e2e8f0;
                     border-radius: 999px;
-                    font-size: 13px;
+                    font-size: 12px;
                     font-weight: 600;
                     color: #334155;
                     box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+                    transition: transform 0.2s ease, box-shadow 0.2s ease;
+                }
+                .status-badge:hover {
+                    transform: translateY(-1px);
+                    box-shadow: var(--shadow-md);
                 }
 
                 .pulse-dot {
                     width: 8px;
                     height: 8px;
-                    background-color: #10b981;
+                    background-color: #059669;
                     border-radius: 50%;
-                    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+                    box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.2);
                 }
 
                 /* KPI Grid */
@@ -399,7 +454,7 @@ const AdminDashboard = () => {
                     display: flex;
                     flex-direction: column;
                     gap: var(--space-2);
-                    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+                    transition: transform 0.2s ease, box-shadow 0.2s ease;
                 }
 
                 .kpi-card:hover {
@@ -456,9 +511,9 @@ const AdminDashboard = () => {
                     display: inline-flex;
                     align-items: center;
                     gap: 2px;
-                    padding: 4px 8px;
+                    padding: 2px 6px;
                     border-radius: 6px;
-                    font-size: 12px;
+                    font-size: 11px;
                     font-weight: 600;
                 }
 
@@ -579,6 +634,7 @@ const AdminDashboard = () => {
                     min-width: 160px;
                     display: flex;
                     flex-direction: column;
+                    justify-content: center;
                     gap: 16px;
                     padding-left: 24px;
                 }
@@ -616,20 +672,21 @@ const AdminDashboard = () => {
                     align-items: center;
                     gap: var(--space-2);
                     padding: 12px 16px;
-                    background: var(--bg-hover);
-                    border: 1px solid transparent;
+                    background: var(--bg-surface);
+                    border: 1px solid #e2e8f0;
                     border-radius: var(--radius-sm);
                     text-decoration: none;
                     color: var(--text-heading);
                     font-weight: 600;
                     font-size: 14px;
-                    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+                    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
                 }
 
                 .launcher-btn:hover {
-                    background: var(--bg-surface);
-                    border-color: var(--border-strong);
-                    box-shadow: var(--shadow-sm);
+                    transform: translateY(-2px);
+                    background: #ffffff;
+                    border-color: #cbd5e1;
+                    box-shadow: var(--shadow-md);
                 }
 
                 .launcher-icon {
@@ -645,13 +702,24 @@ const AdminDashboard = () => {
                 .stat-list {
                     display: flex;
                     flex-direction: column;
-                    gap: 16px;
                 }
 
                 .stat-row {
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
+                    padding: 12px 0;
+                    border-bottom: 1px solid #f1f5f9;
+                }
+
+                .stat-row:last-child {
+                    border-bottom: none;
+                }
+
+                .stat-label-container {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
                 }
 
                 .stat-label {
@@ -670,12 +738,6 @@ const AdminDashboard = () => {
                 .stat-value.warning { color: #f59e0b; }
                 .stat-value.primary { color: #3b82f6; }
 
-                .stat-divider {
-                    height: 1px;
-                    background: #f1f5f9;
-                    margin: 4px 0;
-                }
-
                 /* Activity List */
                 .activity-list {
                     display: flex;
@@ -689,16 +751,15 @@ const AdminDashboard = () => {
                     gap: 16px;
                 }
 
-                .activity-icon {
-                    width: 32px;
-                    height: 32px;
+                .activity-avatar {
+                    width: 36px;
+                    height: 36px;
                     border-radius: 50%;
-                    background: #f8fafc;
-                    border: 1px solid #e2e8f0;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    color: #64748b;
+                    font-size: 13px;
+                    font-weight: 600;
                     flex-shrink: 0;
                 }
 

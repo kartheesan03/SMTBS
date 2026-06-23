@@ -1089,12 +1089,6 @@ const Payroll = () => {
                     background: #f8fafc;
                 }
 
-                .main-content {
-                    padding: 20px 24px;
-                    height: 100vh;
-                    overflow-y: auto;
-                }
-
                 /* Top Nav Bar */
                 .top-nav-bar {
                     display: flex; align-items: center; justify-content: space-between;

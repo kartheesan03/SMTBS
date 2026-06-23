@@ -76,85 +76,85 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
     
     // Core icons upgraded
     const adminMenu = [
-        { path: '/', name: 'Dashboard', icon: <LayoutDashboard size={18} /> },
-        { path: '/my-attendance', name: 'My Attendance', icon: <CheckCircle size={18} /> },
-        { path: '/attendance', name: 'Master Attendance', icon: <Users size={18} /> },
-        { path: '/hrms', name: 'HRMS', icon: <Briefcase size={18} /> },
-        { path: '/leave-management', name: 'Leave Mgmt', icon: <Calendar size={18} /> },
-        { path: '/payroll', name: 'Payroll', icon: <DollarSign size={18} /> },
-        { path: '/payslips', name: 'Payslips', icon: <FileText size={18} /> },
-        { path: '/erp', name: 'ERP System', icon: <FolderKanban size={18} /> },
-        { path: '/materials', name: 'Material Tracking', icon: <Package size={18} /> },
-        { path: '/vendors', name: 'Suppliers', icon: <Truck size={18} /> },
-        { path: '/crm', name: 'CRM', icon: <Users size={18} /> },
-        { path: '/analytics', name: 'Analytics', icon: <TrendingUp size={18} /> },
-        { path: '/notifications', name: 'Notifications', icon: <Bell size={18} /> },
+        { path: '/', name: 'Dashboard', icon: <LayoutDashboard size={20} /> },
+        { path: '/my-attendance', name: 'My Attendance', icon: <CheckCircle size={20} /> },
+        { path: '/attendance', name: 'Master Attendance', icon: <Users size={20} /> },
+        { path: '/hrms', name: 'HRMS', icon: <Briefcase size={20} /> },
+        { path: '/leave-management', name: 'Leave Mgmt', icon: <Calendar size={20} /> },
+        { path: '/payroll', name: 'Payroll', icon: <DollarSign size={20} /> },
+        { path: '/payslips', name: 'Payslips', icon: <FileText size={20} /> },
+        { path: '/erp', name: 'ERP System', icon: <FolderKanban size={20} /> },
+        { path: '/materials', name: 'Material Tracking', icon: <Package size={20} /> },
+        { path: '/vendors', name: 'Suppliers', icon: <Truck size={20} /> },
+        { path: '/crm', name: 'CRM', icon: <Users size={20} /> },
+        { path: '/analytics', name: 'Analytics', icon: <TrendingUp size={20} /> },
+        { path: '/notifications', name: 'Notifications', icon: <Bell size={20} /> },
     ];
 
     const employeeMenu = [
-        { path: '/', name: 'Dashboard', icon: <LayoutDashboard size={18} /> },
-        { path: '/my-tasks', name: 'My Tasks', icon: <ClipboardList size={18} /> },
-        { path: '/materials', name: 'Materials', icon: <Package size={18} /> },
-        { path: '/my-attendance', name: 'My Attendance', icon: <CheckCircle size={18} /> },
-        { path: '/my-salary', name: 'Payslips', icon: <DollarSign size={18} /> },
-        { path: '/leave-management', name: 'Leaves', icon: <Calendar size={18} /> },
-        { path: '/erp', name: 'ERP Orders', icon: <ShoppingCart size={18} /> },
-        { path: '/stock-requests', name: 'Stock Requests', icon: <Box size={18} /> },
-        { path: '/notifications', name: 'Notifications', icon: <Bell size={18} /> },
+        { path: '/', name: 'Dashboard', icon: <LayoutDashboard size={20} /> },
+        { path: '/my-tasks', name: 'My Tasks', icon: <ClipboardList size={20} /> },
+        { path: '/materials', name: 'Materials', icon: <Package size={20} /> },
+        { path: '/my-attendance', name: 'My Attendance', icon: <CheckCircle size={20} /> },
+        { path: '/my-salary', name: 'Payslips', icon: <DollarSign size={20} /> },
+        { path: '/leave-management', name: 'Leaves', icon: <Calendar size={20} /> },
+        { path: '/erp', name: 'ERP Orders', icon: <ShoppingCart size={20} /> },
+        { path: '/stock-requests', name: 'Stock Requests', icon: <Box size={20} /> },
+        { path: '/notifications', name: 'Notifications', icon: <Bell size={20} /> },
     ];
 
     const hrMenu = [
-        { path: '/', name: 'Dashboard', icon: <LayoutDashboard size={18} /> },
-        { path: '/hrms', name: 'Directory', icon: <Users size={18} /> },
-        { path: '/my-tasks', name: 'Tasks', icon: <ClipboardList size={18} /> },
-        { path: '/my-attendance', name: 'My Attendance', icon: <CheckCircle size={18} /> },
-        { path: '/attendance', name: 'Master Attendance', icon: <Activity size={18} /> },
-        { path: '/leave-management', name: 'Leave Mgmt', icon: <Calendar size={18} /> },
-        { path: '/payroll', name: 'Payroll', icon: <DollarSign size={18} /> },
-        { path: '/payslips', name: 'Payslips', icon: <FileText size={18} /> },
-        { path: '/erp', name: 'ERP Orders', icon: <ShoppingCart size={18} /> },
-        { path: '/notifications', name: 'Notifications', icon: <Bell size={18} /> },
-        { path: '/hr-reports', name: 'Reports', icon: <BarChart3 size={18} /> },
+        { path: '/', name: 'Dashboard', icon: <LayoutDashboard size={20} /> },
+        { path: '/hrms', name: 'Directory', icon: <Users size={20} /> },
+        { path: '/my-tasks', name: 'Tasks', icon: <ClipboardList size={20} /> },
+        { path: '/my-attendance', name: 'My Attendance', icon: <CheckCircle size={20} /> },
+        { path: '/attendance', name: 'Master Attendance', icon: <Activity size={20} /> },
+        { path: '/leave-management', name: 'Leave Mgmt', icon: <Calendar size={20} /> },
+        { path: '/payroll', name: 'Payroll', icon: <DollarSign size={20} /> },
+        { path: '/payslips', name: 'Payslips', icon: <FileText size={20} /> },
+        { path: '/erp', name: 'ERP Orders', icon: <ShoppingCart size={20} /> },
+        { path: '/notifications', name: 'Notifications', icon: <Bell size={20} /> },
+        { path: '/hr-reports', name: 'Reports', icon: <BarChart3 size={20} /> },
     ];
 
     const managerMenu = [
-        { path: '/', name: 'Dashboard', icon: <LayoutDashboard size={18} /> },
-        { path: '/hrms', name: 'HRMS', icon: <Briefcase size={18} /> },
-        { path: '/my-attendance', name: 'My Attendance', icon: <CheckCircle size={18} /> },
-        { path: '/attendance', name: 'Master Attendance', icon: <Users size={18} /> },
-        { path: '/payroll', name: 'Payroll', icon: <DollarSign size={18} /> },
-        { path: '/payslips', name: 'Payslips', icon: <FileText size={18} /> },
-        { path: '/erp', name: 'Projects / ERP', icon: <FolderKanban size={18} /> },
-        { path: '/my-tasks', name: 'Tasks', icon: <ClipboardList size={18} /> },
-        { path: '/team-performance', name: 'Team Performance', icon: <TrendingUp size={18} /> },
-        { path: '/materials', name: 'Materials', icon: <Package size={18} /> },
-        { path: '/vendors', name: 'Suppliers', icon: <Truck size={18} /> },
-        { path: '/crm', name: 'CRM', icon: <Briefcase size={18} /> },
-        { path: '/stock-requests', name: 'Stock', icon: <Box size={18} /> },
-        { path: '/analytics', name: 'Reports', icon: <BarChart3 size={18} /> },
-        { path: '/notifications', name: 'Notifications', icon: <Bell size={18} /> },
+        { path: '/', name: 'Dashboard', icon: <LayoutDashboard size={20} /> },
+        { path: '/hrms', name: 'HRMS', icon: <Briefcase size={20} /> },
+        { path: '/my-attendance', name: 'My Attendance', icon: <CheckCircle size={20} /> },
+        { path: '/attendance', name: 'Master Attendance', icon: <Users size={20} /> },
+        { path: '/payroll', name: 'Payroll', icon: <DollarSign size={20} /> },
+        { path: '/payslips', name: 'Payslips', icon: <FileText size={20} /> },
+        { path: '/erp', name: 'Projects / ERP', icon: <FolderKanban size={20} /> },
+        { path: '/my-tasks', name: 'Tasks', icon: <ClipboardList size={20} /> },
+        { path: '/team-performance', name: 'Team Performance', icon: <TrendingUp size={20} /> },
+        { path: '/materials', name: 'Materials', icon: <Package size={20} /> },
+        { path: '/vendors', name: 'Suppliers', icon: <Truck size={20} /> },
+        { path: '/crm', name: 'CRM', icon: <Briefcase size={20} /> },
+        { path: '/stock-requests', name: 'Stock', icon: <Box size={20} /> },
+        { path: '/analytics', name: 'Reports', icon: <BarChart3 size={20} /> },
+        { path: '/notifications', name: 'Notifications', icon: <Bell size={20} /> },
     ];
 
     const salesMenu = [
-        { path: '/', name: 'Dashboard', icon: <LayoutDashboard size={18} /> },
-        { path: '/my-tasks', name: 'My Tasks', icon: <ClipboardList size={18} /> },
-        { path: '/my-attendance', name: 'My Attendance', icon: <CheckCircle size={18} /> },
-        { path: '/crm', name: 'CRM', icon: <Users size={18} /> },
-        { path: '/erp', name: 'ERP Orders', icon: <ShoppingCart size={18} /> },
-        { path: '/stock-requests', name: 'Deliveries', icon: <Truck size={18} /> },
-        { path: '/notifications', name: 'Notifications', icon: <Bell size={18} /> },
-        { path: '/analytics', name: 'Reports', icon: <BarChart3 size={18} /> },
+        { path: '/', name: 'Dashboard', icon: <LayoutDashboard size={20} /> },
+        { path: '/my-tasks', name: 'My Tasks', icon: <ClipboardList size={20} /> },
+        { path: '/my-attendance', name: 'My Attendance', icon: <CheckCircle size={20} /> },
+        { path: '/crm', name: 'CRM', icon: <Users size={20} /> },
+        { path: '/erp', name: 'ERP Orders', icon: <ShoppingCart size={20} /> },
+        { path: '/stock-requests', name: 'Deliveries', icon: <Truck size={20} /> },
+        { path: '/notifications', name: 'Notifications', icon: <Bell size={20} /> },
+        { path: '/analytics', name: 'Reports', icon: <BarChart3 size={20} /> },
     ];
 
     const customerMenu = [
-        { path: '/', name: 'Dashboard', icon: <LayoutDashboard size={18} /> },
-        { path: '/orders/create-order', name: 'New Order', icon: <ShoppingCart size={18} /> },
-        { path: '/support', name: 'Support', icon: <HelpCircle size={18} /> }
+        { path: '/', name: 'Dashboard', icon: <LayoutDashboard size={20} /> },
+        { path: '/orders/create-order', name: 'New Order', icon: <ShoppingCart size={20} /> },
+        { path: '/support', name: 'Support', icon: <HelpCircle size={20} /> }
     ];
 
     const vendorMenu = [
-        { path: '/', name: 'Dashboard', icon: <LayoutDashboard size={18} /> },
-        { path: '/support', name: 'Support', icon: <HelpCircle size={18} /> }
+        { path: '/', name: 'Dashboard', icon: <LayoutDashboard size={20} /> },
+        { path: '/support', name: 'Support', icon: <HelpCircle size={20} /> }
     ];
 
     const userRole = user?.role ? user.role.toLowerCase() : '';
@@ -239,7 +239,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                         </div>
                     )}
                     <button onClick={logout} className="nav-item logout-btn" title={isCollapsed ? 'Logout' : ''}>
-                        <span className="item-icon-wrapper"><LogOut size={16} /></span>
+                        <span className="item-icon-wrapper"><LogOut size={20} /></span>
                         {!isCollapsed && <span className="item-name">Logout</span>}
                     </button>
                 </div>
@@ -370,13 +370,14 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                 }
                 
                 .nav-item {
-                    display: flex; align-items: center; padding: 10px 12px; height: 40px;
-                    color: var(--text-muted); border-radius: 8px; transition: all 0.15s ease;
-                    text-decoration: none; font-weight: 500; font-size: 13px; border: none; background: transparent; width: 100%; text-align: left; cursor: pointer;
+                    display: flex; align-items: center; padding: 10px 12px; height: 44px;
+                    color: var(--text-muted); border-radius: 8px; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+                    text-decoration: none; font-weight: 500; font-size: 14px; border: none; background: transparent; width: 100%; text-align: left; cursor: pointer;
+                    border-left: 3px solid transparent;
                 }
-                .sidebar.collapsed .nav-item { padding: 10px; justify-content: center; }
+                .sidebar.collapsed .nav-item { padding: 10px; justify-content: center; border-left: none; }
                 
-                .item-icon-wrapper { display: flex; align-items: center; margin-right: 12px; transition: color 0.15s ease; }
+                .item-icon-wrapper { display: flex; align-items: center; margin-right: 14px; transition: color 0.2s ease; }
                 .sidebar.collapsed .item-icon-wrapper { margin-right: 0; }
                 .item-name { flex: 1; overflow: hidden; text-overflow: ellipsis; }
                 
@@ -389,13 +390,14 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                     background: var(--primary); border-radius: 50%;
                 }
                 
-                .nav-item:hover { background: var(--bg-hover); color: var(--text-heading); }
+                .nav-item:hover { background: var(--bg-hover); color: var(--text-heading); border-left-color: var(--border-strong); }
                 .nav-item:hover .item-icon-wrapper { color: var(--text-heading); }
                 
                 .nav-item.active { 
-                    background: var(--primary-light); 
+                    background: var(--primary-100); 
                     color: var(--primary) !important; 
                     font-weight: 600; 
+                    border-left-color: var(--primary);
                 }
                 .nav-item.active .item-icon-wrapper { color: var(--primary) !important; }
                 
