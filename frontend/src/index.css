@@ -1,66 +1,60 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 :root {
-  /* ─── Enterprise Color Palette ─── */
-  --primary: #2563eb;       /* Microsoft/Linear core blue */
-  --primary-hover: #1d4ed8;
-  --primary-light: #eff6ff;
-  --primary-100: #dbeafe;
+  /* ─── Enterprise Color Palette (Vercel/Linear Inspired) ─── */
+  --primary: #000000;       /* High-contrast black for primary actions */
+  --primary-hover: #333333;
+  --primary-light: #f5f5f5;
+  --primary-100: #ededed;
   
-  --secondary: #f8fafc;
-  --secondary-hover: #f1f5f9;
-  --secondary-text: #64748b;
+  --secondary: #ffffff;
+  --secondary-hover: #fafafa;
+  --secondary-text: #666666;
 
-  /* ─── Status / Semantic Colors (SAP Fiori inspired clarity) ─── */
-  --success: #059669; /* Softer enterprise green */
-  --success-bg: #d1fae5;
-  --warning: #f59e0b;
-  --warning-bg: #fef3c7;
-  --danger: #ef4444;
-  --danger-bg: #fee2e2;
-  --info: #3b82f6;
-  --info-bg: #eff6ff;
+  /* ─── Status / Semantic Colors ─── */
+  --success: #0070f3; /* Vercel Blue for positive actions / success */
+  --success-bg: #e6f1fe;
+  --warning: #f5a623;
+  --warning-bg: #fff6e9;
+  --danger: #e00;
+  --danger-bg: #ffe6e6;
+  --info: #0070f3;
+  --info-bg: #e6f1fe;
 
   /* ─── Neutrals & Surfaces ─── */
-  --bg-app: #f8fafc; /* Lighter background for cleaner appearance */
-  --bg-surface: #ffffff;    /* White cards */
-  --bg-hover: #f8fafc;
-  --bg-active: #f1f5f9;   /* Subtle row hover */
-  --bg-input: #ffffff;      /* Input background */
+  --bg-app: #fafafa; /* Very subtle off-white background */
+  --bg-surface: #ffffff;    /* Pure white cards */
+  --bg-hover: #f5f5f5;
+  --bg-active: #ebebeb;   
+  --bg-input: #ffffff;      
 
   /* ─── Borders ─── */
-  --border-light: #f1f5f9;
-  --border-subtle: #e2e8f0; /* Standard borders */
-  --border-strong: #cbd5e1;
-  --border-focus: #2563eb;
+  --border-light: #eaeaea;
+  --border-subtle: #eaeaea; /* Standard crisp borders */
+  --border-strong: #888888;
+  --border-focus: #000000;
 
   /* ─── Text Colors ─── */
-  --text-heading: #0f172a;
-  --text-main: #334155;
-  --text-muted: #64748b;
-  --text-disabled: #94a3b8;
+  --text-heading: #000000;
+  --text-main: #111111;
+  --text-muted: #666666;
+  --text-disabled: #999999;
 
   /* ─── Shadows (Linear Flat & Soft) ─── */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 2px 8px rgba(15, 23, 42, 0.06);
-  --shadow-lg: 0 4px 12px rgba(15, 23, 42, 0.08);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  --ring-focus: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+  --ring-focus: 0 0 0 2px rgba(0, 0, 0, 0.2);
 
-  /* ─── Layout & Sizing (Microsoft Dynamics 365) ─── */
-  --sidebar-width: 256px;
-  --header-height: 60px;
+  /* ─── Layout & Sizing ─── */
+  --sidebar-width: 260px;
+  --header-height: 64px;
   
-  /* ─── Radii (Salesforce Lightning) ─── */
-  --radius-sm: 8px;
+  /* ─── Radii ─── */
+  --radius-sm: 6px;
   --radius-md: 12px;
   --radius-lg: 16px;
-  
-  /* ─── Base Spacing (8px system) ─── */
-  --space-1: 8px;
-  --space-2: 16px;
-  --space-3: 24px;
-  --space-4: 32px;
   
   /* ─── Backwards Compatibility Aliases ─── */
   --bg-body: var(--bg-app);
@@ -70,12 +64,12 @@
   --border: var(--border-subtle);
   --border-hover: var(--border-strong);
   
-  --bg-sidebar: var(--bg-surface);
-  --text-sidebar: var(--text-main);
+  --bg-sidebar: var(--bg-app);
+  --text-sidebar: var(--text-muted);
   --text-sidebar-hover: var(--text-heading);
-  --bg-sidebar-hover: var(--bg-hover);
-  --bg-sidebar-active: var(--primary-light);
-  --text-sidebar-active: var(--primary);
+  --bg-sidebar-hover: var(--border-light);
+  --bg-sidebar-active: #ffffff;
+  --text-sidebar-active: var(--text-heading);
 }
 
 /* ─── Base Styles ─── */
@@ -86,13 +80,13 @@
 }
 
 body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   background-color: var(--bg-app) !important;
   color: var(--text-main) !important;
   min-height: 100vh;
   overflow-x: hidden;
   font-size: 14px;
-  line-height: 1.5;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -119,14 +113,14 @@ body.logged-in .dashboard-layout {
 
 body.logged-in .main-content {
   min-height: 100vh;
-  transition: margin-left 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: margin-left 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
   display: flex;
   flex-direction: column;
 }
 
 .page-container {
-  padding: 20px;
-  max-width: 1750px;
+  padding: 32px;
+  max-width: 1600px;
   width: 100%;
   margin: 0 auto;
   flex: 1;
@@ -136,120 +130,147 @@ body.logged-in .main-content.with-sidebar {
   margin-left: var(--sidebar-width);
 }
 
-/* Sidebar collapsed state support */
 body.logged-in.sidebar-collapsed .main-content.with-sidebar {
-  margin-left: 72px;
+  margin-left: 80px;
 }
 
 /* ─── SCROLLBAR ─── */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 14px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--border-strong);
-  border-radius: 8px;
+  background: #d4d4d4;
+  border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--text-disabled);
+  background: #a3a3a3;
 }
 
-/* ─── ENTERPRISE COMPONENTS (Salesforce Lightning + Linear) ─── */
+/* ─── ENTERPRISE COMPONENTS ─── */
 
 /* Cards */
 .ui-card, .glass-card, .bento-card, .dashboard-card-3d, .kpi-card-3d, .chart-card-3d, .quick-action-3d, .table-card-3d, .kpi-card, .chart-card, .bento-panel, .kpi-card-bento {
   background: var(--bg-surface) !important;
   border: 1px solid var(--border-subtle) !important;
   border-radius: var(--radius-md) !important;
-  padding: 24px !important; /* 8x3 spacing */
+  padding: 24px !important;
   box-shadow: var(--shadow-sm) !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important; /* Linear smooth curve */
+  transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
   position: relative;
   overflow: hidden;
 }
 
 .dashboard-card-3d:hover, .ui-card:hover {
   box-shadow: var(--shadow-md) !important;
-  transform: translateY(-1px);
+  border-color: #dcdcdc !important;
 }
 
 /* ─── GLOBAL BUTTONS ─── */
-.btn-primary, .btn-secondary, .btn-outline {
+.btn-primary, .btn-secondary, .btn-outline, button, .ui-button, .btn-secondary-light, .btn-save, .btn-cancel, .btn-action, .action-btn, .action-btn-sm, .qa-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 8px 16px;
+  height: 36px;
+  padding: 0 16px;
   font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 13.5px;
+  font-weight: 500;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
   outline: none;
+  border: none;
+  white-space: nowrap;
 }
 
-.btn-primary {
-  background-color: var(--primary);
-  color: white;
-  border: 1px solid var(--primary);
-  box-shadow: 0 1px 2px rgba(37, 99, 235, 0.2);
+.btn-primary, .btn-save {
+  background-color: var(--primary) !important;
+  color: white !important;
+  border: 1px solid var(--primary) !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.1) !important;
 }
 
-.btn-primary:hover:not(:disabled) {
-  background-color: var(--primary-hover);
-  border-color: var(--primary-hover);
-  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.3);
+.btn-primary:hover:not(:disabled), .btn-save:hover {
+  background-color: var(--primary-hover) !important;
+  border-color: var(--primary-hover) !important;
 }
 
 .btn-primary:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
+.btn-secondary, .btn-secondary-light, .btn-cancel, .action-btn-sm {
+  background-color: var(--bg-surface) !important;
+  color: var(--text-heading) !important;
+  border: 1px solid var(--border-light) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+.btn-secondary:hover, .btn-secondary-light:hover, .btn-cancel:hover, .action-btn-sm:hover {
+  background-color: var(--bg-hover) !important;
+  border-color: var(--border-strong) !important;
+}
+
+.action-btn-sm {
+  height: 28px !important;
+  padding: 0 10px !important;
+  font-size: 12px !important;
+  border-radius: var(--radius-sm) !important;
+}
+
 /* ─── GLOBAL INPUTS ─── */
-.input-field, .form-control, input[type="text"]:not(.dt-search), input[type="email"], input[type="password"], input[type="number"], select, textarea {
+.input-field, .form-control, input[type="text"]:not(.dt-search), input[type="email"], input[type="password"], input[type="number"], select, textarea, .ui-input {
   width: 100%;
-  padding: 10px 14px;
+  padding: 10px 12px;
   font-family: 'Inter', sans-serif;
   font-size: 14px;
   color: var(--text-heading);
-  background-color: #ffffff;
+  background-color: var(--bg-surface);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-sm);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: var(--shadow-sm);
+  min-height: 40px;
+}
+
+.input-field:hover, .form-control:hover, input:hover, select:hover, textarea:hover {
+  border-color: #cccccc;
 }
 
 .input-field:focus, .form-control:focus, input[type="text"]:focus, input[type="email"]:focus, select:focus, textarea:focus {
   outline: none;
-  border-color: var(--primary);
+  border-color: var(--border-focus);
   box-shadow: var(--ring-focus);
+  background: var(--bg-surface);
 }
 
-.form-label {
+.form-label, .form-group label {
   display: block;
   font-size: 13px;
-  font-weight: 600;
-  color: var(--text-muted);
-  margin-bottom: 6px;
+  font-weight: 500;
+  color: var(--text-main);
+  margin-bottom: 8px;
 }
 
-/* Subtle Hover for interactive cards */
-.dashboard-card-3d:hover, .kpi-card-3d:hover, .quick-action-3d:hover, .bento-card:hover {
-  transform: translateY(-2px) !important;
-  box-shadow: var(--shadow-md) !important;
-  border-color: var(--border-strong) !important;
+input::placeholder, textarea::placeholder {
+  color: #a1a1aa;
+}
+
+.form-group {
+  margin-bottom: 24px;
 }
 
 /* Headings */
 h1, h2, h3, h4, h5, h6 {
   color: var(--text-heading);
   font-weight: 600;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
 }
 
 .title-gradient, .bento-card-title {
@@ -257,8 +278,8 @@ h1, h2, h3, h4, h5, h6 {
   background: none;
   -webkit-text-fill-color: var(--text-heading);
   font-weight: 600;
-  font-size: 15px;
-  letter-spacing: 0;
+  font-size: 16px;
+  letter-spacing: -0.01em;
   text-transform: none;
 }
 

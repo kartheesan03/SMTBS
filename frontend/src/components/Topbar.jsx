@@ -106,8 +106,8 @@ const Topbar = () => {
                     top: 0;
                     margin: 0;
                     z-index: 900;
-                    backdrop-filter: blur(8px);
-                    -webkit-backdrop-filter: blur(8px);
+                    backdrop-filter: blur(12px);
+                    -webkit-backdrop-filter: blur(12px);
                 }
 
                 .topbar-left {
@@ -146,23 +146,23 @@ const Topbar = () => {
                 .global-search {
                     display: flex;
                     align-items: center;
-                    background: var(--bg-app);
-                    border: 1px solid var(--border-subtle);
-                    border-radius: var(--radius-md);
+                    background: var(--bg-hover);
+                    border: 1px solid transparent;
+                    border-radius: 8px;
                     padding: 0 12px;
                     width: 480px;
                     max-width: 40vw;
-                    height: 40px;
-                    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+                    height: 36px;
+                    transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
                     position: relative;
                 }
                 .global-search:focus-within {
-                    background: #ffffff;
-                    border-color: var(--primary);
-                    box-shadow: var(--ring-focus);
-                }
-                .global-search:hover {
+                    background: var(--bg-surface);
                     border-color: var(--border-strong);
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+                }
+                .global-search:hover:not(:focus-within) {
+                    background: var(--bg-active);
                 }
                 .global-search input {
                     background: transparent !important;
@@ -187,13 +187,13 @@ const Topbar = () => {
                     justify-content: center;
                     font-size: 11px;
                     color: var(--text-muted);
-                    background: #ffffff;
-                    border: 1px solid var(--border-subtle);
+                    background: transparent;
+                    border: 1px solid var(--border-strong);
                     padding: 0 6px;
-                    height: 22px;
+                    height: 20px;
                     line-height: 1;
                     border-radius: 4px;
-                    font-weight: 600;
+                    font-weight: 500;
                     margin-left: 8px;
                 }
 
@@ -220,24 +220,22 @@ const Topbar = () => {
                 .topbar-btn {
                     background: transparent;
                     border: 1px solid transparent;
-                    width: 36px;
-                    height: 36px;
+                    width: 32px;
+                    height: 32px;
                     padding: 0;
-                    border-radius: var(--radius-sm);
+                    border-radius: 50%;
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     color: var(--text-muted);
                     cursor: pointer;
-                    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+                    transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
                     position: relative;
-                    margin-left: 8px;
+                    margin-left: 4px;
                 }
                 .topbar-btn:hover {
-                    color: var(--primary);
-                    background: var(--primary-light);
-                    transform: translateY(-1px);
-                    box-shadow: var(--shadow-sm);
+                    color: var(--text-heading);
+                    background: var(--bg-hover);
                 }
                 .notification-dot {
                     position: absolute;

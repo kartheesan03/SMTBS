@@ -502,51 +502,79 @@ const ERP = () => {
                 </div>
             </header>
 
-            {/* 6 Stats Cards */}
+            {/* KPI Cards Grid */}
             <section className="erp-metrics-grid">
-                <div className="dashboard-card-3d" style={{ padding: '24px', display: 'flex', flexDirection: 'column' }}>
-                    <span className="label" style={{ fontSize: '14px', color: 'var(--text-secondary)', fontWeight: 600, marginBottom: '8px' }}>Total Orders</span>
-                    <span className="value" style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)' }}>{totalOrders}</span>
+                <div className="kpi-bento-card">
+                    <div className="kpi-header">
+                        <span className="kpi-label">Total Orders</span>
+                        <div className="kpi-icon-wrapper"><ShoppingCart size={16} /></div>
+                    </div>
+                    <span className="kpi-value">{totalOrders}</span>
                 </div>
-                <div className="dashboard-card-3d" style={{ padding: '24px', display: 'flex', flexDirection: 'column' }}>
-                    <span className="label text-green" style={{ fontSize: '14px', color: 'var(--success)', fontWeight: 600, marginBottom: '8px' }}>Sales Orders</span>
-                    <span className="value text-green" style={{ fontSize: '28px', fontWeight: 800, color: 'var(--success)' }}>{salesOrders}</span>
+                <div className="kpi-bento-card">
+                    <div className="kpi-header">
+                        <span className="kpi-label">Sales Orders</span>
+                        <div className="kpi-icon-wrapper text-success"><ArrowUpRight size={16} /></div>
+                    </div>
+                    <span className="kpi-value">{salesOrders}</span>
                 </div>
-                <div className="dashboard-card-3d" style={{ padding: '24px', display: 'flex', flexDirection: 'column' }}>
-                    <span className="label text-blue" style={{ fontSize: '14px', color: 'var(--info)', fontWeight: 600, marginBottom: '8px' }}>Purchase Orders</span>
-                    <span className="value text-blue" style={{ fontSize: '28px', fontWeight: 800, color: 'var(--info)' }}>{purchaseOrders}</span>
+                <div className="kpi-bento-card">
+                    <div className="kpi-header">
+                        <span className="kpi-label">Purchase Orders</span>
+                        <div className="kpi-icon-wrapper text-info"><ArrowDownRight size={16} /></div>
+                    </div>
+                    <span className="kpi-value">{purchaseOrders}</span>
                 </div>
-                <div className="dashboard-card-3d cursor-pointer" style={{ padding: '24px', display: 'flex', flexDirection: 'column' }} onClick={() => { setShowInvoiceModal(true); setInvoiceTab('Pending'); }}>
-                    <span className="label text-orange" style={{ fontSize: '14px', color: 'var(--warning)', fontWeight: 600, marginBottom: '8px' }}>Pending Invoices</span>
-                    <span className="value text-orange" style={{ fontSize: '28px', fontWeight: 800, color: 'var(--warning)' }}>{pendingInvoices}</span>
+                <div className="kpi-bento-card cursor-pointer highlight-hover" onClick={() => { setShowInvoiceModal(true); setInvoiceTab('Pending'); }}>
+                    <div className="kpi-header">
+                        <span className="kpi-label">Pending Invoices</span>
+                        <div className="kpi-icon-wrapper text-warning"><AlertTriangle size={16} /></div>
+                    </div>
+                    <span className="kpi-value">{pendingInvoices}</span>
                 </div>
-                <div className="dashboard-card-3d" style={{ padding: '24px', display: 'flex', flexDirection: 'column' }}>
-                    <span className="label text-green" style={{ fontSize: '14px', color: 'var(--success)', fontWeight: 600, marginBottom: '8px' }}>Total Revenue</span>
-                    <span className="value text-green" style={{ fontSize: '28px', fontWeight: 800, color: 'var(--success)' }}>{formatCurrencyLocal(finalTotalRevenueNum)}</span>
+                
+                <div className="kpi-bento-card span-2">
+                    <div className="kpi-header">
+                        <span className="kpi-label">Total Revenue</span>
+                        <div className="kpi-icon-wrapper text-success"><DollarSign size={16} /></div>
+                    </div>
+                    <span className="kpi-value">{formatCurrencyLocal(finalTotalRevenueNum)}</span>
                 </div>
-                <div className="dashboard-card-3d" style={{ padding: '24px', display: 'flex', flexDirection: 'column' }}>
-                    <span className="label text-blue" style={{ fontSize: '14px', color: 'var(--info)', fontWeight: 600, marginBottom: '8px' }}>Total Purchase Cost</span>
-                    <span className="value text-blue" style={{ fontSize: '28px', fontWeight: 800, color: 'var(--info)' }}>{formatCurrencyLocal(totalPurchaseCostNum)}</span>
+                <div className="kpi-bento-card span-2">
+                    <div className="kpi-header">
+                        <span className="kpi-label">Total Purchase Cost</span>
+                        <div className="kpi-icon-wrapper text-info"><DollarSign size={16} /></div>
+                    </div>
+                    <span className="kpi-value">{formatCurrencyLocal(totalPurchaseCostNum)}</span>
                 </div>
-                <div className="dashboard-card-3d" style={{ padding: '24px', display: 'flex', flexDirection: 'column' }}>
-                    <span className="label text-purple" style={{ fontSize: '14px', color: '#8b5cf6', fontWeight: 600, marginBottom: '8px' }}>Orders Due Today</span>
-                    <span className="value text-purple" style={{ fontSize: '28px', fontWeight: 800, color: '#8b5cf6' }}>{dueTodayCount}</span>
+
+                <div className="kpi-bento-card">
+                    <div className="kpi-header">
+                        <span className="kpi-label">Due Today</span>
+                        <div className="kpi-icon-wrapper" style={{ color: '#8b5cf6' }}><Clock size={16} /></div>
+                    </div>
+                    <span className="kpi-value">{dueTodayCount}</span>
                 </div>
-                <div className="dashboard-card-3d" style={{ padding: '24px', display: 'flex', flexDirection: 'column' }}>
-                    <span className="label text-blue" style={{ fontSize: '14px', color: '#3b82f6', fontWeight: 600, marginBottom: '8px' }}>Orders Due This Week</span>
-                    <span className="value text-blue" style={{ fontSize: '28px', fontWeight: 800, color: '#3b82f6' }}>{dueThisWeekCount}</span>
+                <div className="kpi-bento-card">
+                    <div className="kpi-header">
+                        <span className="kpi-label">Due This Week</span>
+                        <div className="kpi-icon-wrapper text-info"><Calendar size={16} /></div>
+                    </div>
+                    <span className="kpi-value">{dueThisWeekCount}</span>
                 </div>
-                <div className="dashboard-card-3d" style={{ padding: '24px', display: 'flex', flexDirection: 'column' }}>
-                    <span className="label text-red" style={{ fontSize: '14px', color: '#ef4444', fontWeight: 600, marginBottom: '8px' }}>Overdue Orders</span>
-                    <span className="value text-red" style={{ fontSize: '28px', fontWeight: 800, color: '#ef4444' }}>{overdueCount}</span>
+                <div className="kpi-bento-card alert-card">
+                    <div className="kpi-header">
+                        <span className="kpi-label text-danger">Overdue Orders</span>
+                        <div className="kpi-icon-wrapper text-danger"><AlertTriangle size={16} /></div>
+                    </div>
+                    <span className="kpi-value text-danger">{overdueCount}</span>
                 </div>
-                <div className="dashboard-card-3d" style={{ padding: '24px', display: 'flex', flexDirection: 'column' }}>
-                    <span className="label text-green" style={{ fontSize: '14px', color: '#10b981', fontWeight: 600, marginBottom: '8px' }}>Completed Deliveries</span>
-                    <span className="value text-green" style={{ fontSize: '28px', fontWeight: 800, color: '#10b981' }}>{completedDeliveriesCount}</span>
-                </div>
-                <div className="dashboard-card-3d" style={{ padding: '24px', display: 'flex', flexDirection: 'column' }}>
-                    <span className="label text-red" style={{ fontSize: '14px', color: '#ef4444', fontWeight: 600, marginBottom: '8px' }}>Cancelled Orders</span>
-                    <span className="value text-red" style={{ fontSize: '28px', fontWeight: 800, color: '#ef4444' }}>{cancelledOrdersCount}</span>
+                <div className="kpi-bento-card">
+                    <div className="kpi-header">
+                        <span className="kpi-label">Completed</span>
+                        <div className="kpi-icon-wrapper text-success"><CheckCircle size={16} /></div>
+                    </div>
+                    <span className="kpi-value">{completedDeliveriesCount}</span>
                 </div>
             </section>
 
@@ -1194,46 +1222,84 @@ const ERP = () => {
                 }
 
                 /* Stats Cards styling */
-                /* Dashboard metrics grid */
+                /* Dashboard metrics grid (Modern Bento) */
                 .erp-metrics-grid {
                     display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                    gap: 20px;
+                    grid-template-columns: repeat(4, 1fr);
+                    gap: 16px;
                     margin-bottom: 24px;
                 }
                 
-                .erp-metric-card {
-                    background: var(--bg-card);
-                    border: 1px solid var(--border);
-                    border-radius: var(--radius-lg, 16px);
-                    padding: 24px;
+                @media (max-width: 1200px) {
+                    .erp-metrics-grid { grid-template-columns: repeat(3, 1fr); }
+                }
+                @media (max-width: 768px) {
+                    .erp-metrics-grid { grid-template-columns: repeat(2, 1fr); }
+                }
+                @media (max-width: 480px) {
+                    .erp-metrics-grid { grid-template-columns: 1fr; }
+                }
+
+                .kpi-bento-card {
+                    background: var(--bg-surface);
+                    border: 1px solid var(--border-subtle);
+                    border-radius: var(--radius-md);
+                    padding: 20px;
                     display: flex;
                     flex-direction: column;
-                    gap: 8px;
+                    gap: 12px;
                     box-shadow: var(--shadow-sm);
-                    transition: transform 0.2s, box-shadow 0.2s;
+                    transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
                 }
-                .erp-metric-card:hover {
-                    transform: translateY(-2px);
+                .kpi-bento-card.span-2 {
+                    grid-column: span 2;
+                }
+                
+                .kpi-bento-card.highlight-hover:hover {
                     box-shadow: var(--shadow-md);
+                    border-color: var(--border-strong);
+                    transform: translateY(-2px);
                 }
                 
-                .border-orange { border-bottom: 3px solid var(--warning); }
-                .border-teal { border-bottom: 3px solid var(--success); }
+                .kpi-bento-card.alert-card {
+                    background: var(--danger-bg);
+                    border-color: rgba(255,0,0,0.1);
+                }
                 
-                .erp-metric-card .label {
-                    font-size: 12px;
-                    font-weight: 700;
+                .kpi-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+                
+                .kpi-label {
+                    font-size: 13.5px;
+                    font-weight: 500;
                     color: var(--text-muted);
-                    text-transform: uppercase;
-                    letter-spacing: 0.5px;
                 }
                 
-                .erp-metric-card .value {
+                .kpi-icon-wrapper {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 32px;
+                    height: 32px;
+                    border-radius: 8px;
+                    background: var(--bg-hover);
+                    color: var(--text-main);
+                }
+                
+                .kpi-icon-wrapper.text-success { color: var(--success); background: var(--success-bg); }
+                .kpi-icon-wrapper.text-info { color: var(--info); background: var(--info-bg); }
+                .kpi-icon-wrapper.text-warning { color: var(--warning); background: var(--warning-bg); }
+                .kpi-icon-wrapper.text-danger { color: var(--danger); background: transparent; }
+                
+                .kpi-value {
                     font-size: 28px;
-                    font-weight: 800;
-                    color: var(--text-primary);
-                    line-height: 1;
+                    font-weight: 600;
+                    color: var(--text-heading);
+                    line-height: 1.1;
+                    letter-spacing: -0.02em;
                 }
 
                 /* Charts Row */
@@ -1276,44 +1342,39 @@ const ERP = () => {
                 }
                 
                 .po-summary-mini-card {
-                    background: var(--bg-body);
-                    border: 1px solid var(--border);
-                    border-radius: 12px;
-                    padding: 12px 14px;
+                    background: var(--bg-hover);
+                    border: 1px solid transparent;
+                    border-radius: 8px;
+                    padding: 16px;
                     display: flex;
                     flex-direction: column;
                     gap: 4px;
-                    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), var(--shadow-sm);
-                    transition: transform 0.2s;
+                    transition: transform 0.2s, background 0.2s;
                 }
                 
                 .po-summary-mini-card:hover {
+                    background: var(--bg-surface);
+                    border-color: var(--border-subtle);
                     transform: translateY(-1px);
-                    border-color: var(--border-hover);
+                    box-shadow: var(--shadow-sm);
                 }
                 
-                .po-summary-mini-card.approved {
-                    border-left: 3px solid #10b981;
-                }
-                .po-summary-mini-card.pending {
-                    border-left: 3px solid #2563eb;
-                }
-                .po-summary-mini-card.completed {
-                    border-left: 3px solid #f59e0b;
-                }
+                .po-summary-mini-card.approved { border-left: 3px solid var(--success); }
+                .po-summary-mini-card.pending { border-left: 3px solid var(--info); }
+                .po-summary-mini-card.completed { border-left: 3px solid var(--warning); }
                 
                 .mini-card-label {
-                    font-size: 10px;
-                    font-weight: 700;
+                    font-size: 11px;
+                    font-weight: 600;
                     color: var(--text-muted);
                     text-transform: uppercase;
                     letter-spacing: 0.5px;
                 }
                 
                 .mini-card-value {
-                    font-size: 18px;
-                    font-weight: 800;
-                    color: var(--text-primary);
+                    font-size: 22px;
+                    font-weight: 700;
+                    color: var(--text-heading);
                     line-height: 1.2;
                 }
 
@@ -1514,20 +1575,18 @@ const ERP = () => {
                 
                 .po-table th {
                     text-align: left;
-                    font-size: 11px;
+                    font-size: 12px;
                     color: var(--text-muted);
-                    font-weight: 700;
-                    text-transform: uppercase;
+                    font-weight: 600;
                     padding: 12px 16px;
-                    border-bottom: 2px solid var(--border);
-                    letter-spacing: 0.5px;
+                    border-bottom: 1px solid var(--border-subtle);
                 }
                 
                 .po-table td {
                     padding: 12px 16px;
-                    font-size: 14px;
+                    font-size: 13.5px;
                     color: var(--text-primary);
-                    border-bottom: 1px dashed var(--border);
+                    border-bottom: 1px solid var(--border-subtle);
                 }
                 
                 .po-code {
@@ -1617,21 +1676,18 @@ const ERP = () => {
                 
                 .modern-table th {
                     text-align: left;
-                    padding: 16px 20px;
+                    padding: 12px 16px;
                     color: var(--text-muted);
-                    font-weight: 700;
-                    font-size: 11px;
-                    text-transform: uppercase;
-                    border-bottom: 2px solid var(--border);
-                    letter-spacing: 0.5px;
+                    font-weight: 600;
+                    font-size: 12px;
+                    border-bottom: 1px solid var(--border-subtle);
                 }
                 
                 .modern-table td {
-                    padding: 16px 20px;
-                    border-bottom: 1px solid var(--border);
-                    font-size: 14px;
+                    padding: 12px 16px;
+                    border-bottom: 1px solid var(--border-subtle);
+                    font-size: 13.5px;
                     color: var(--text-primary);
-                    font-weight: 500;
                 }
                 
                 .modern-table tbody tr:hover td {

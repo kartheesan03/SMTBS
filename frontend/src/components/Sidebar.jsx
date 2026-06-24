@@ -370,12 +370,11 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                 }
                 
                 .nav-item {
-                    display: flex; align-items: center; padding: 10px 12px; height: 44px;
-                    color: var(--text-muted); border-radius: 8px; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-                    text-decoration: none; font-weight: 500; font-size: 14px; border: none; background: transparent; width: 100%; text-align: left; cursor: pointer;
-                    border-left: 3px solid transparent;
+                    display: flex; align-items: center; padding: 8px 12px; height: 38px;
+                    color: var(--text-muted); border-radius: 6px; transition: all 0.15s ease;
+                    text-decoration: none; font-weight: 500; font-size: 13.5px; border: none; background: transparent; width: 100%; text-align: left; cursor: pointer;
                 }
-                .sidebar.collapsed .nav-item { padding: 10px; justify-content: center; border-left: none; }
+                .sidebar.collapsed .nav-item { padding: 10px; justify-content: center; height: 42px; }
                 
                 .item-icon-wrapper { display: flex; align-items: center; margin-right: 14px; transition: color 0.2s ease; }
                 .sidebar.collapsed .item-icon-wrapper { margin-right: 0; }
@@ -390,14 +389,13 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                     background: var(--primary); border-radius: 50%;
                 }
                 
-                .nav-item:hover { background: var(--bg-hover); color: var(--text-heading); border-left-color: var(--border-strong); }
+                .nav-item:hover { background: var(--bg-hover); color: var(--text-heading); }
                 .nav-item:hover .item-icon-wrapper { color: var(--text-heading); }
                 
                 .nav-item.active { 
-                    background: var(--primary-100); 
+                    background: var(--bg-active); 
                     color: var(--primary) !important; 
                     font-weight: 600; 
-                    border-left-color: var(--primary);
                 }
                 .nav-item.active .item-icon-wrapper { color: var(--primary) !important; }
                 

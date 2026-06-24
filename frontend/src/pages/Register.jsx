@@ -3,14 +3,27 @@ import { useNavigate, Link } from 'react-router-dom';
 import API from '../api/axios';
 import { AuthContext } from '../context/AuthContext';
 import { useGoogleLogin } from '@react-oauth/google';
+import { 
+    Shield, Users, Monitor, User, TrendingUp, 
+    Box, BarChart2, Settings, ShieldCheck, CheckCircle2,
+    Layers, Activity, Globe, Fingerprint
+} from 'lucide-react';
 
 const Register = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [phone, setPhone] = useState('');
-    const [role, setRole] = useState('Customer');
+    const [role, setRole] = useState('Admin');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    
+    const roles = [
+        { id: 'Admin', icon: Shield },
+        { id: 'HR', icon: Users },
+        { id: 'Manager', icon: Monitor },
+        { id: 'Employee', icon: User },
+        { id: 'Sales', icon: TrendingUp }
+    ];
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     
@@ -25,7 +38,7 @@ const Register = () => {
         body.style.overflow = 'hidden';
         body.style.height = '100%';
         body.style.minHeight = 'unset';
-        body.style.backgroundColor = '#ffffff';
+        body.style.backgroundColor = '#081028';
         return () => {
             html.style.overflow = '';
             html.style.height = '';
@@ -95,24 +108,58 @@ const Register = () => {
         <div className="login-wrapper">
             <div className="login-split">
                 
-                {/* Left Side: Clean Artwork without overlapping text */}
+                {/* Left Side: Dark Hero Section */}
                 <div className="login-banner">
+                    <div className="banner-content">
+                        <div className="brand">
+                            <div className="brand-logo">
+                                <div className="orbital-core"></div>
+                                <div className="orbital-ring ring-1"></div>
+                                <div className="orbital-ring ring-2"></div>
+                                <div className="orbital-ring ring-3"></div>
+                            </div>
+                            <div className="brand-text">
+                                <h2>Smart Material Tracking &</h2>
+                                <h2>Business Management System</h2>
+                            </div>
+                        </div>
+
+                        <div className="hero-text">
+                            <h1>Manage.<br/>Track.<br/>Optimize. <span className="highlight">Grow.</span></h1>
+                            <p>A smart platform to streamline your materials, operations, and business in one place.</p>
+                        </div>
+
+                        <div className="features-grid">
+                            <div className="feature-item">
+                                <div className="feature-icon"><Layers size={22} /></div>
+                                <h3>Smart Inventory</h3>
+                                <p>AI-driven stock optimization and real-time tracking.</p>
+                            </div>
+                            <div className="feature-item">
+                                <div className="feature-icon"><Activity size={22} /></div>
+                                <h3>Live Operations</h3>
+                                <p>Monitor workflows and operational bottlenecks instantly.</p>
+                            </div>
+                            <div className="feature-item">
+                                <div className="feature-icon"><Globe size={22} /></div>
+                                <h3>Global Supply</h3>
+                                <p>Seamlessly connect vendors, suppliers, and fulfillment.</p>
+                            </div>
+                            <div className="feature-item">
+                                <div className="feature-icon"><Fingerprint size={22} /></div>
+                                <h3>Bank-Grade Security</h3>
+                                <p>Enterprise-level encryption and role-based access.</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Right Side: Form */}
                 <div className="login-form-wrapper">
                     <div className="form-card">
                         <div className="form-header">
-                            <div className="logo-container">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-box">
-                                    <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/>
-                                    <path d="m3.3 7 8.7 5 8.7-5"/>
-                                    <path d="M12 22V12"/>
-                                </svg>
-                                <span>SMTBMS</span>
-                            </div>
                             <h2>Create Account</h2>
-                            <p>Register to access the enterprise platform</p>
+                            <p>Register with your role to get started</p>
                         </div>
 
                         {error && (
@@ -159,22 +206,19 @@ const Register = () => {
                                 </div>
                             </div>
 
-                            <div className="input-group">
-                                <label>Account Type</label>
-                                <div className="select-wrapper">
-                                    <select 
-                                        value={role}
-                                        onChange={(e) => setRole(e.target.value)}
-                                        required
-                                    >
-                                        <option value="Customer">Customer (Buyer)</option>
-                                        <option value="Vendor">Vendor/Supplier</option>
-                                        <option value="Employee">Employee</option>
-                                        <option value="HR">HR</option>
-                                        <option value="Manager">Manager</option>
-                                        <option value="Sales">Sales</option>
-                                        <option value="Admin">Admin</option>
-                                    </select>
+                            <div className="role-selection" style={{ marginBottom: '24px' }}>
+                                <label className="section-label" style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', marginBottom: '8px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>SELECT YOUR ROLE</label>
+                                <div className="roles-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '6px' }}>
+                                    {roles.map((r) => (
+                                        <div 
+                                            key={r.id} 
+                                            className={`role-item ${role === r.id ? 'active' : ''}`}
+                                            onClick={() => setRole(r.id)}
+                                        >
+                                            <r.icon size={20} className="role-icon" />
+                                            <span>{r.id}</span>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
 
@@ -240,132 +284,400 @@ const Register = () => {
             </div>
 
             <style jsx="true">{`
+                :root {
+                    --bg-app: #f8fafc;
+                    --bg-body: #f1f5f9;
+                    --border-subtle: #e2e8f0;
+                    --border-strong: #cbd5e1;
+                    --text-primary: #0f172a;
+                    --text-secondary: #334155;
+                    --text-muted: #64748b;
+                    --danger: #ef4444;
+                    --danger-bg: #fef2f2;
+                }
+
                 .login-wrapper {
                     width: 100vw;
                     height: 100vh;
                     margin: 0;
                     padding: 0;
                     display: flex;
-                    font-family: 'Segoe UI', 'Inter', -apple-system, Roboto, sans-serif;
+                    align-items: center;
+                    justify-content: center;
+                    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
                     position: fixed;
                     top: 0;
                     left: 0;
-                    background-color: #ffffff;
+                }
+
+                .login-wrapper::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background-image: url('/login_bg_new.png');
+                    background-size: cover;
+                    background-position: center;
+                    background-repeat: no-repeat;
+                    overflow: hidden;
+                }
+
+                .login-wrapper::after {
+                    content: '';
+                    position: absolute;
+                    inset: 0;
+                    background: linear-gradient(90deg, rgba(8, 16, 40, 0.9) 0%, rgba(8, 16, 40, 0.3) 100%);
+                    z-index: 1;
                 }
 
                 .login-split {
                     display: flex;
-                    width: 100%;
-                    height: 100%;
+                    width: 100vw;
+                    height: 100vh;
+                    position: relative;
+                    z-index: 2;
                 }
 
                 .login-banner {
-                    flex: 1.1;
-                    display: none;
-                    background-color: #f3f4f6;
-                    background-image: url('/enterprise_background.png');
-                    background-size: cover;
-                    background-position: center;
-                    border-right: 1px solid #e5e7eb;
-                }
-
-                .login-form-wrapper {
-                    flex: 1;
+                    flex: 1.2;
+                    position: relative;
                     display: flex;
                     flex-direction: column;
-                    background-color: #ffffff;
-                    position: relative;
-                    height: 100%;
-                    overflow-y: auto;
-                }
-                
-                .form-card {
-                    margin: auto;
-                    width: 100%;
-                    max-width: 480px;
-                    padding: 40px 20px;
+                    padding: clamp(20px, 4vh, 40px) 60px;
+                    color: #ffffff;
+                    overflow: hidden;
                 }
 
-                .logo-container {
+                .login-banner::-webkit-scrollbar {
+                    display: none;
+                }
+
+                .banner-content {
+                    position: relative;
+                    z-index: 10;
+                    max-width: 800px;
+                    margin: auto 0;
+                }
+
+                .brand {
                     display: flex;
                     align-items: center;
-                    gap: 12px;
-                    color: #0067b8;
-                    margin-bottom: 24px;
+                    gap: 16px;
+                    margin-bottom: clamp(20px, 4vh, 40px);
+                }
+
+                .brand-logo {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 56px;
+                    height: 56px;
+                    background: rgba(255, 255, 255, 0.05);
+                    backdrop-filter: blur(12px);
+                    border: 1px solid rgba(255, 255, 255, 0.15);
+                    border-radius: 16px;
+                    position: relative;
+                    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+                    perspective: 200px;
+                }
+
+                .orbital-core {
+                    width: 10px;
+                    height: 10px;
+                    background: #60A5FA;
+                    border-radius: 50%;
+                    box-shadow: 0 0 10px #60A5FA, 0 0 20px #3B82F6;
+                    animation: pulseCore 2s infinite alternate;
+                }
+
+                .orbital-ring {
+                    position: absolute;
+                    width: 32px;
+                    height: 32px;
+                    border-radius: 50%;
+                    border: 1.5px solid transparent;
+                    border-top-color: #93C5FD;
+                    border-bottom-color: #3B82F6;
+                    top: 50%;
+                    left: 50%;
+                    transform-origin: 50% 50%;
+                }
+
+                .ring-1 {
+                    animation: spin1 3s linear infinite;
                 }
                 
-                .logo-container span {
+                .ring-2 {
+                    width: 40px;
+                    height: 40px;
+                    border-left-color: #60A5FA;
+                    border-right-color: #2563EB;
+                    border-top-color: transparent;
+                    border-bottom-color: transparent;
+                    animation: spin2 4s linear infinite;
+                }
+                
+                .ring-3 {
+                    width: 48px;
+                    height: 48px;
+                    border-top-color: #DBEAFE;
+                    border-bottom-color: #1D4ED8;
+                    animation: spin3 5s linear infinite;
+                }
+
+                @keyframes pulseCore {
+                    0% { transform: scale(1); opacity: 0.8; }
+                    100% { transform: scale(1.4); opacity: 1; box-shadow: 0 0 20px #93C5FD, 0 0 35px #3B82F6; }
+                }
+
+                @keyframes spin1 {
+                    0% { transform: translate(-50%, -50%) rotateX(65deg) rotateY(35deg) rotateZ(0deg); }
+                    100% { transform: translate(-50%, -50%) rotateX(65deg) rotateY(35deg) rotateZ(360deg); }
+                }
+                
+                @keyframes spin2 {
+                    0% { transform: translate(-50%, -50%) rotateX(45deg) rotateY(-45deg) rotateZ(0deg); }
+                    100% { transform: translate(-50%, -50%) rotateX(45deg) rotateY(-45deg) rotateZ(-360deg); }
+                }
+                
+                @keyframes spin3 {
+                    0% { transform: translate(-50%, -50%) rotateX(-55deg) rotateY(25deg) rotateZ(0deg); }
+                    100% { transform: translate(-50%, -50%) rotateX(-55deg) rotateY(25deg) rotateZ(360deg); }
+                }
+
+                .brand-text h2 {
                     font-size: 20px;
                     font-weight: 700;
-                    color: #111827;
-                    letter-spacing: -0.5px;
+                    margin: 0;
+                    color: #ffffff;
+                    line-height: 1.2;
+                    letter-spacing: -0.2px;
+                }
+
+                .hero-text {
+                    margin-bottom: clamp(20px, 5vh, 50px);
+                }
+
+                .hero-text h1 {
+                    font-size: clamp(48px, 5vw, 72px);
+                    font-weight: 800;
+                    line-height: 1.25;
+                    margin: 0 0 clamp(16px, 2vh, 24px) 0;
+                    color: #ffffff;
+                    letter-spacing: -1px;
+                }
+
+                .hero-text .highlight {
+                    color: #3b82f6;
+                }
+
+                .hero-text p {
+                    font-size: 18px;
+                    color: #94a3b8;
+                    line-height: 1.6;
+                    margin: 0;
+                    max-width: 480px;
+                }
+
+                .features-grid {
+                    display: grid;
+                    grid-template-columns: repeat(4, 1fr);
+                    gap: 16px;
+                }
+
+                .feature-item {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 8px;
+                }
+
+                .feature-icon {
+                    width: 36px;
+                    height: 36px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: #60a5fa;
+                    border: 1px solid rgba(59, 130, 246, 0.3);
+                    border-radius: 8px;
+                }
+
+                .feature-item h3 {
+                    font-size: 14px;
+                    font-weight: 600;
+                    color: #ffffff;
+                    margin: 0;
+                }
+
+                .feature-item p {
+                    font-size: 12px;
+                    color: #94a3b8;
+                    margin: 0;
+                    line-height: 1.5;
+                }
+
+                /* --- RIGHT SIDE: FORM --- */
+                .login-form-wrapper {
+                    flex: 1;
+                    min-width: 450px;
+                    max-width: 600px;
+                    height: 100%;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    position: relative;
+                    z-index: 20;
+                    padding: clamp(16px, 3vh, 20px);
+                    background: transparent;
+                    overflow: hidden;
+                }
+
+                .login-form-wrapper::-webkit-scrollbar {
+                    display: none;
+                }
+
+                .form-card {
+                    background: #ffffff;
+                    width: 100%;
+                    max-width: 440px;
+                    border-radius: 16px;
+                    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.1);
+                    padding: clamp(20px, 3vh, 24px);
+                    color: var(--text-primary);
+                    position: relative;
+                    margin: auto 0;
+                }
+
+                .form-header {
+                    text-align: center;
+                    margin-bottom: clamp(12px, 2vh, 16px);
                 }
 
                 .form-header h2 {
-                    font-size: 26px;
-                    font-weight: 600;
-                    color: #111827;
-                    margin: 0 0 6px 0;
+                    font-size: 24px;
+                    font-weight: 800;
+                    color: #ea580c;
+                    margin: 0 0 4px 0;
+                    letter-spacing: -0.5px;
                 }
 
                 .form-header p {
-                    font-size: 15px;
-                    color: #6b7280;
-                    margin: 0 0 24px 0;
+                    font-size: 13px;
+                    color: var(--text-muted);
+                    margin: 0;
+                    font-weight: 500;
                 }
 
+                /* Role Selection */
+                .role-item {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 6px;
+                    padding: 10px 4px;
+                    border: 1.5px solid var(--border-subtle);
+                    border-radius: 8px;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                    position: relative;
+                    background: #ffffff;
+                }
+
+                .role-item:hover {
+                    border-color: #ea580c;
+                    background: rgba(234, 88, 12, 0.02);
+                }
+
+                .role-item.active {
+                    border-color: #ea580c;
+                    background: #ea580c;
+                    color: #ffffff;
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 12px rgba(234, 88, 12, 0.25);
+                }
+
+                .role-icon {
+                    color: var(--text-muted);
+                    transition: color 0.2s ease;
+                }
+
+                .role-item.active .role-icon {
+                    color: #ffffff;
+                }
+
+                .role-item span {
+                    font-size: 11px;
+                    font-weight: 600;
+                    color: var(--text-muted);
+                    transition: color 0.2s ease;
+                }
+
+                .role-item.active span {
+                    color: #ffffff;
+                }
+
+                /* Error Alert */
                 .error-alert {
                     display: flex;
                     align-items: center;
                     gap: 10px;
-                    background: #fef2f2;
-                    border: 1px solid #fecaca;
-                    color: #b91c1c;
-                    padding: 12px 16px;
-                    border-radius: 6px;
-                    font-size: 14px;
+                    background: var(--danger-bg);
+                    border: 1px solid rgba(255,0,0,0.1);
+                    color: var(--danger);
+                    padding: 10px 14px;
+                    border-radius: 8px;
+                    font-size: 12px;
                     font-weight: 500;
-                    margin-bottom: 24px;
+                    margin-bottom: 20px;
                 }
 
                 .input-row {
                     display: grid;
                     grid-template-columns: 1fr 1fr;
-                    gap: 16px;
+                    gap: 10px;
                 }
 
+                /* Inputs */
                 .input-group {
-                    margin-bottom: 16px;
+                    margin-bottom: 10px;
                 }
 
                 .input-group label {
                     display: block;
-                    font-size: 14px;
-                    font-weight: 600;
-                    color: #374151;
-                    margin-bottom: 8px;
+                    font-size: 10px;
+                    font-weight: 700;
+                    color: var(--text-secondary);
+                    margin-bottom: 3px;
+                    letter-spacing: 0.5px;
+                    text-transform: uppercase;
                 }
 
                 .input-group input, .select-wrapper select {
                     width: 100%;
-                    background: #ffffff;
-                    border: 1px solid #d1d5db;
-                    border-radius: 6px;
-                    padding: 10px 14px;
-                    font-size: 15px;
-                    color: #111827;
+                    padding: 9px 12px;
+                    border: 1px solid var(--border-subtle);
+                    border-radius: 8px;
+                    font-size: 13px;
+                    font-weight: 400;
+                    color: var(--text-primary);
+                    background: var(--bg-body);
                     transition: all 0.2s ease;
+                    outline: none;
                     box-sizing: border-box;
                 }
 
                 .input-group input:focus, .select-wrapper select:focus {
-                    outline: none;
-                    border-color: #0067b8;
-                    box-shadow: 0 0 0 2px rgba(0, 103, 184, 0.2);
+                    background: #ffffff;
+                    border-color: #000000;
+                    box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
                 }
 
                 .input-group input::placeholder {
-                    color: #9ca3af;
+                    color: var(--text-muted);
+                    font-weight: 400;
                 }
 
                 .select-wrapper select {
@@ -378,86 +690,93 @@ const Register = () => {
                     padding-right: 32px;
                 }
 
+                /* Submit Button */
                 .submit-btn {
                     width: 100%;
-                    background: #0067b8;
-                    color: #ffffff;
-                    border: none;
                     padding: 12px;
-                    border-radius: 6px;
-                    font-size: 16px;
+                    background: #000000;
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                    font-size: 14px;
                     font-weight: 600;
                     cursor: pointer;
-                    transition: background 0.2s, box-shadow 0.2s;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 8px;
+                    transition: all 0.2s ease;
+                    margin-top: 12px;
                 }
 
                 .submit-btn:hover {
-                    background: #005a9e;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                }
-
-                .submit-btn:active {
-                    transform: translateY(1px);
+                    background: #333333;
                 }
 
                 .submit-btn:disabled {
                     opacity: 0.7;
                     cursor: not-allowed;
+                    background: #666666;
                 }
 
+                /* Social Logins */
                 .divider {
                     display: flex;
                     align-items: center;
                     text-align: center;
-                    margin: 20px 0;
-                    color: #6b7280;
-                    font-size: 13px;
+                    margin: 24px 0;
                 }
 
                 .divider::before, .divider::after {
                     content: '';
                     flex: 1;
-                    border-bottom: 1px solid #e5e7eb;
+                    border-bottom: 1px solid var(--border-subtle);
                 }
 
                 .divider span {
                     padding: 0 16px;
+                    font-size: 11px;
+                    font-weight: 600;
+                    color: var(--text-muted);
+                    letter-spacing: 0.5px;
                 }
 
                 .google-btn {
                     width: 100%;
-                    background: #ffffff;
-                    color: #374151;
-                    border: 1px solid #d1d5db;
+                    background: var(--bg-body);
+                    border: 1px solid var(--border-subtle);
+                    color: var(--text-primary);
                     padding: 12px;
-                    border-radius: 6px;
-                    font-size: 15px;
-                    font-weight: 500;
+                    border-radius: 8px;
+                    font-size: 13px;
+                    font-weight: 600;
                     cursor: pointer;
-                    transition: all 0.2s;
+                    transition: all 0.2s ease;
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     gap: 12px;
-                    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
                 }
 
                 .google-btn:hover {
-                    background: #f9fafb;
-                    border-color: #9ca3af;
+                    background: #e2e8f0;
+                    border-color: var(--border-strong);
                 }
 
+                /* Footer link */
                 .signup-link-wrapper {
                     text-align: center;
+                    font-size: 13px;
+                    color: var(--text-secondary);
+                    font-weight: 500;
                     margin-top: 24px;
-                    font-size: 14px;
-                    color: #4b5563;
                 }
 
                 .signup-link {
-                    color: #0067b8;
+                    color: #000000;
+                    font-weight: 700;
                     text-decoration: none;
-                    font-weight: 600;
+                    margin-left: 6px;
                 }
 
                 .signup-link:hover {
@@ -465,50 +784,49 @@ const Register = () => {
                 }
                 
                 .login-footer {
-                    padding: 24px;
-                    display: flex;
-                    justify-content: center;
-                    gap: 12px;
-                    font-size: 12px;
-                    color: #6b7280;
-                    background-color: #ffffff;
-                }
-                
-                .footer-dot {
-                    color: #d1d5db;
-                }
-                
-                .login-footer a {
-                    color: #6b7280;
-                    text-decoration: none;
-                    transition: color 0.2s;
-                }
-                
-                .login-footer a:hover {
-                    color: #374151;
-                    text-decoration: underline;
+                    display: none;
                 }
 
-                @media (min-width: 992px) {
+                @media (max-width: 1200px) {
                     .login-banner {
-                        display: block;
+                        padding: 40px;
                     }
                 }
-                
-                @media (max-width: 991px) {
+
+                @media (max-width: 1024px) {
+                    .login-split {
+                        flex-direction: column;
+                        height: auto;
+                        overflow-y: auto;
+                    }
+                    .login-banner {
+                        padding: 40px;
+                    }
+                    .hero-text h1 {
+                        font-size: 36px;
+                    }
                     .login-form-wrapper {
-                        justify-content: center;
+                        min-width: 100%;
+                        padding: 20px;
+                    }
+                    .form-card {
+                        max-height: none;
                     }
                 }
-                
-                /* Fix Chrome Autofill white background in light mode */
-                input:-webkit-autofill,
-                input:-webkit-autofill:hover, 
-                input:-webkit-autofill:focus, 
-                input:-webkit-autofill:active {
-                    -webkit-box-shadow: 0 0 0 30px #ffffff inset !important;
-                    -webkit-text-fill-color: #111827 !important;
+
+                @media (max-width: 600px) {
+                    .input-row {
+                        grid-template-columns: 1fr;
+                    }
                 }
+            /* Fix Chrome Autofill white background in light mode */
+            input:-webkit-autofill,
+            input:-webkit-autofill:hover, 
+            input:-webkit-autofill:focus, 
+            input:-webkit-autofill:active {
+                -webkit-box-shadow: 0 0 0 30px #ffffff inset !important;
+                -webkit-text-fill-color: #111827 !important;
+            }
             `}</style>
         </div>
     );
