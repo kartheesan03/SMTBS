@@ -46,8 +46,8 @@ const registerUser = async (req, res) => {
 // @route   POST /api/auth/login
 // @access  Public
 const loginUser = async (req, res) => {
-    const { email, password } = req.body;
-    console.log(`[LOGIN] Received login request for email: ${email}`);
+    const { email, password, role: requestedRole } = req.body;
+    console.log(`[LOGIN] Received login request for email: ${email}, requestedRole: ${requestedRole}`);
 
     const user = await User.findOne({ email });
     console.log(`[LOGIN] User found in DB: ${!!user}`);
@@ -66,6 +66,24 @@ const loginUser = async (req, res) => {
     }
 
     let role = user.role;
+    if (user.email === 'admin@smtbms.com') {
+        role = 'Super Admin';
+    }
+
+    // Validate role if requested
+    if (requestedRole) {
+        let isRoleValid = false;
+        if (requestedRole === role) {
+            isRoleValid = true;
+        } else if (requestedRole === 'Admin' && role === 'Super Admin') {
+            isRoleValid = true;
+        }
+        
+        if (!isRoleValid) {
+            console.error(`[LOGIN] Login failed for email: ${email} - Role mismatch. Expected ${role}, got ${requestedRole}`);
+            return res.status(403).json({ message: `Role mismatch. This account is registered as ${role}.` });
+        }
+    }
     if (user.email === 'admin@smtbms.com') {
         role = 'Super Admin';
     }
@@ -164,6 +182,20 @@ const googleAuth = async (req, res) => {
             let role = user.role;
             if (user.email === 'admin@smtbms.com') {
                 role = 'Super Admin';
+            }
+
+            if (mode === 'login' && reqRole) {
+                let isRoleValid = false;
+                if (reqRole === role) {
+                    isRoleValid = true;
+                } else if (reqRole === 'Admin' && role === 'Super Admin') {
+                    isRoleValid = true;
+                }
+                
+                if (!isRoleValid) {
+                    console.error(`[LOGIN] Google Login failed for email: ${email} - Role mismatch. Expected ${role}, got ${reqRole}`);
+                    return res.status(403).json({ message: `Role mismatch. This account is registered as ${role}.` });
+                }
             }
 
             return res.json({

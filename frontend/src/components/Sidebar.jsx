@@ -171,7 +171,8 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
         <aside className={`sidebar ${isOpen ? 'open' : ''} ${isCollapsed ? 'collapsed' : ''}`}>
             <div className="sidebar-header">
                 <div className="sidebar-logo">
-                    {!isCollapsed ? <h2>SMTBMS</h2> : <h2>SM</h2>}
+                    <Box size={28} color="#4318FF" fill="rgba(67, 24, 255, 0.2)" strokeWidth={2}/>
+                    {!isCollapsed && <h2>SMTBMS</h2>}
                 </div>
                 <div className="sidebar-controls">
                     <button className="collapse-btn desktop-only" onClick={() => setIsCollapsed(!isCollapsed)}>
@@ -183,6 +184,44 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                 </div>
             </div>
 
+            {/* Profile Section moved to top */}
+            {user && (
+                <div className="sidebar-profile" onClick={() => window.location.href='/profile'}>
+                    <div className="profile-avatar-wrapper">
+                        <div className="simple-avatar">
+                            {user?.picture && !imgError ? (
+                                <img 
+                                    src={user.picture} 
+                                    alt="User Avatar" 
+                                    className="simple-avatar-img" 
+                                    onError={() => setImgError(true)}
+                                />
+                            ) : (
+                                <span className="simple-avatar-initial">
+                                    {(user?.name || 'User').charAt(0).toUpperCase()}
+                                </span>
+                            )}
+                        </div>
+                        <span className="online-indicator"></span>
+                    </div>
+                    {!isCollapsed && (
+                        <div className="simple-details">
+                            <span className="simple-name">{user?.name || 'User'}</span>
+                            <span className="simple-role">
+                                {userRole === 'admin' || userRole === 'super admin' || user?.email === 'admin@smtbms.com' 
+                                    ? 'Super Admin' 
+                                    : userRole === 'customer' 
+                                        ? 'Customer' 
+                                        : userRole === 'vendor' 
+                                            ? 'Vendor' 
+                                            : (designation || 'Employee')}
+                            </span>
+                        </div>
+                    )}
+                </div>
+            )}
+
+
 
             <nav className="sidebar-nav">
                 {menuItems.map((item) => (
@@ -193,51 +232,25 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                         className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
                         title={isCollapsed ? item.name : ''}
                     >
-                        <span className="item-icon-wrapper">{item.icon}</span>
-                        {!isCollapsed && <span className="item-name">{item.name}</span>}
-                        
-                        {!isCollapsed && item.name === 'Notifications' && unreadCount > 0 && (
-                            <span className="sidebar-badge">{unreadCount}</span>
-                        )}
-                        {isCollapsed && item.name === 'Notifications' && unreadCount > 0 && (
-                            <span className="sidebar-badge-dot"></span>
+                        {({ isActive }) => (
+                            <>
+                                <span className="item-icon-wrapper">{item.icon}</span>
+                                {!isCollapsed && <span className="item-name">{item.name}</span>}
+                                
+                                {!isCollapsed && isActive && <ChevronRight size={16} className="active-arrow" />}
+
+                                {!isCollapsed && item.name === 'Notifications' && unreadCount > 0 && (
+                                    <span className="sidebar-badge">{unreadCount}</span>
+                                )}
+                                {isCollapsed && item.name === 'Notifications' && unreadCount > 0 && (
+                                    <span className="sidebar-badge-dot"></span>
+                                )}
+                            </>
                         )}
                     </NavLink>
                 ))}
                 {/* Integrate Logout directly into nav */}
                 <div style={{ marginTop: 'auto', paddingTop: '12px' }}>
-                    {user && (
-                        <div className="simple-profile-card" onClick={() => window.location.href='/profile'}>
-                            <div className="simple-avatar">
-                                {user?.picture && !imgError ? (
-                                    <img 
-                                        src={user.picture} 
-                                        alt="User Avatar" 
-                                        className="simple-avatar-img" 
-                                        onError={() => setImgError(true)}
-                                    />
-                                ) : (
-                                    <span className="simple-avatar-initial">
-                                        {(user?.name || 'User').charAt(0).toUpperCase()}
-                                    </span>
-                                )}
-                            </div>
-                            {!isCollapsed && (
-                                <div className="simple-details">
-                                    <span className="simple-name">{user?.name || 'User'}</span>
-                                    <span className="simple-role">
-                                        {userRole === 'admin' || userRole === 'super admin' || user?.email === 'admin@smtbms.com' 
-                                            ? 'System Administrator' 
-                                            : userRole === 'customer' 
-                                                ? 'Customer' 
-                                                : userRole === 'vendor' 
-                                                    ? 'Vendor' 
-                                                    : (designation || 'Employee')}
-                                    </span>
-                                </div>
-                            )}
-                        </div>
-                    )}
                     <button onClick={logout} className="nav-item logout-btn" title={isCollapsed ? 'Logout' : ''}>
                         <span className="item-icon-wrapper"><LogOut size={20} /></span>
                         {!isCollapsed && <span className="item-name">Logout</span>}
@@ -249,8 +262,8 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                 .sidebar {
                     width: var(--sidebar-width);
                     height: 100vh;
-                    background: var(--bg-surface);
-                    border-right: 1px solid var(--border-subtle);
+                    background: var(--bg-sidebar);
+                    border-right: none;
                     display: flex;
                     flex-direction: column;
                     position: fixed;
@@ -262,71 +275,75 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                 }
                 .sidebar::-webkit-scrollbar { display: none; }
                 .sidebar { -ms-overflow-style: none; scrollbar-width: none; }
-                .sidebar.collapsed { width: 72px; }
+                .sidebar.collapsed { width: 80px; }
                 
                 .sidebar-header {
                     display: flex; align-items: center; justify-content: space-between;
-                    padding: 0 16px 16px; margin-bottom: 8px;
+                    padding: 0 24px 20px; margin-bottom: 0px;
                 }
                 .sidebar.collapsed .sidebar-header {
-                    justify-content: center; padding: 0 10px 16px;
+                    justify-content: center; padding: 0 10px 20px;
                 }
                 
                 .sidebar-logo h2 {
-                    font-size: 20px; font-weight: 700; color: var(--text-heading);
-                    letter-spacing: -0.02em; margin: 0;
+                    font-size: 24px; font-weight: 800; color: #ffffff;
+                    letter-spacing: -0.02em; margin: 0; display: flex; align-items: center; gap: 8px;
                 }
                 
                 .collapse-btn, .close-sidebar {
-                    background: var(--bg-surface); border: 1px solid var(--border-subtle);
-                    color: var(--text-muted); border-radius: 6px;
+                    background: transparent; border: none;
+                    color: var(--text-sidebar); border-radius: 6px;
                     display: flex; align-items: center; justify-content: center;
-                    cursor: pointer; transition: all 0.2s; padding: 0;
+                    cursor: pointer; transition: all 0.2s; padding: 4px;
                 }
-                .collapse-btn { width: 24px; height: 24px; }
-                .collapse-btn:hover { background: var(--bg-hover); color: var(--text-heading); }
+                .collapse-btn { width: 28px; height: 28px; }
+                .collapse-btn:hover { background: rgba(255,255,255,0.1); color: #ffffff; }
                 .sidebar.collapsed .collapse-btn {
-                    position: absolute; right: -12px; top: 24px;
-                    background: var(--bg-surface); border: 1px solid var(--border-subtle);
+                    position: absolute; right: -14px; top: 24px;
+                    background: var(--primary); color: white; border: none;
+                    border-radius: 50%; width: 28px; height: 28px;
                     box-shadow: var(--shadow-sm); z-index: 10;
                 }
                 
-                .simple-profile-card {
+                .sidebar-profile {
                     display: flex;
                     align-items: center;
-                    gap: 12px;
-                    padding: 10px 12px;
-                    margin: 0 12px 16px;
+                    gap: 14px;
+                    padding: 16px 24px;
+                    margin: 0 0 24px 0;
                     background: transparent;
-                    border-radius: 8px;
                     cursor: pointer;
                     transition: background 0.2s;
                     text-decoration: none;
-                    border: 1px solid transparent;
+                    border-bottom: 1px solid rgba(255,255,255,0.05);
                 }
-                .simple-profile-card:hover {
-                    background: var(--bg-hover, #f1f5f9);
+                .sidebar-profile:hover {
+                    background: rgba(255,255,255,0.02);
                 }
-                .sidebar.collapsed .simple-profile-card {
-                    padding: 10px;
-                    margin: 0 8px 16px;
+                .sidebar.collapsed .sidebar-profile {
+                    padding: 16px 10px;
                     justify-content: center;
                 }
 
+                .profile-avatar-wrapper {
+                    position: relative;
+                }
+
                 .simple-avatar {
-                    width: 36px;
-                    height: 36px;
+                    width: 48px;
+                    height: 48px;
                     border-radius: 50%;
-                    background: var(--primary, #2563eb);
+                    background: #EE5D50;
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     color: white;
                     flex-shrink: 0;
+                    border: 2px solid rgba(255,255,255,0.1);
                 }
                 .sidebar.collapsed .simple-avatar {
-                    width: 32px;
-                    height: 32px;
+                    width: 36px;
+                    height: 36px;
                 }
                 .simple-avatar-img { 
                     width: 100%; 
@@ -335,8 +352,19 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                     object-fit: cover; 
                 }
                 .simple-avatar-initial { 
-                    font-size: 14px; 
-                    font-weight: 600; 
+                    font-size: 16px; 
+                    font-weight: 700; 
+                }
+
+                .online-indicator {
+                    position: absolute;
+                    bottom: 2px;
+                    right: 2px;
+                    width: 10px;
+                    height: 10px;
+                    background-color: var(--success);
+                    border-radius: 50%;
+                    border: 2px solid var(--bg-sidebar);
                 }
 
                 .simple-details {
@@ -347,17 +375,17 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                     min-width: 0;
                 }
                 .simple-name {
-                    color: var(--text-heading, #0f172a);
-                    font-size: 14px;
-                    font-weight: 600;
+                    color: #ffffff;
+                    font-size: 16px;
+                    font-weight: 700;
                     white-space: nowrap;
                     overflow: hidden;
                     text-overflow: ellipsis;
                 }
                 .simple-role {
-                    color: var(--text-muted, #64748b);
-                    font-size: 12px;
-                    font-weight: 400;
+                    color: var(--text-sidebar);
+                    font-size: 13px;
+                    font-weight: 500;
                     margin-top: 2px;
                     white-space: nowrap;
                     overflow: hidden;
@@ -366,41 +394,43 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
 
                 .sidebar-nav {
                     flex: 1; padding: 0 16px 16px; overflow-y: auto; overflow-x: hidden;
-                    display: flex; flex-direction: column; gap: 4px;
+                    display: flex; flex-direction: column; gap: 8px;
                 }
                 
                 .nav-item {
-                    display: flex; align-items: center; padding: 8px 12px; height: 38px;
-                    color: var(--text-muted); border-radius: 6px; transition: all 0.15s ease;
-                    text-decoration: none; font-weight: 500; font-size: 13.5px; border: none; background: transparent; width: 100%; text-align: left; cursor: pointer;
+                    display: flex; align-items: center; padding: 12px 16px; min-height: 44px;
+                    color: var(--text-sidebar); border-radius: var(--radius-sm); transition: all 0.2s ease;
+                    text-decoration: none; font-weight: 600; font-size: 14px; border: none; background: transparent; width: 100%; text-align: left; cursor: pointer;
                 }
-                .sidebar.collapsed .nav-item { padding: 10px; justify-content: center; height: 42px; }
+                .sidebar.collapsed .nav-item { padding: 12px; justify-content: center; min-height: 44px; }
                 
-                .item-icon-wrapper { display: flex; align-items: center; margin-right: 14px; transition: color 0.2s ease; }
+                .item-icon-wrapper { display: flex; align-items: center; margin-right: 16px; transition: color 0.2s ease; }
                 .sidebar.collapsed .item-icon-wrapper { margin-right: 0; }
                 .item-name { flex: 1; overflow: hidden; text-overflow: ellipsis; }
                 
                 .sidebar-badge {
-                    background: var(--primary); color: white; font-size: 10px; font-weight: 700;
-                    padding: 2px 6px; border-radius: 10px; margin-left: auto;
+                    background: var(--danger); color: white; font-size: 11px; font-weight: 700;
+                    padding: 2px 8px; border-radius: 12px; margin-left: auto;
                 }
                 .sidebar-badge-dot {
-                    position: absolute; top: 8px; right: 8px; width: 6px; height: 6px;
-                    background: var(--primary); border-radius: 50%;
+                    position: absolute; top: 10px; right: 10px; width: 8px; height: 8px;
+                    background: var(--danger); border-radius: 50%;
                 }
                 
-                .nav-item:hover { background: var(--bg-hover); color: var(--text-heading); }
-                .nav-item:hover .item-icon-wrapper { color: var(--text-heading); }
+                .nav-item:hover { background: rgba(255,255,255,0.05); color: var(--text-sidebar-hover); }
+                .nav-item:hover .item-icon-wrapper { color: var(--text-sidebar-hover); }
                 
                 .nav-item.active { 
-                    background: var(--bg-active); 
-                    color: var(--primary) !important; 
-                    font-weight: 600; 
+                    background: var(--primary); 
+                    color: #ffffff !important; 
+                    font-weight: 700; 
+                    box-shadow: var(--shadow-md);
                 }
-                .nav-item.active .item-icon-wrapper { color: var(--primary) !important; }
+                .nav-item.active .item-icon-wrapper { color: #ffffff !important; }
+                .active-arrow { margin-left: auto; color: #ffffff; opacity: 0.8; }
                 
-                .logout-btn { color: var(--text-muted); margin-top: auto; }
-                .logout-btn:hover { color: var(--danger); background: var(--danger-bg); }
+                .logout-btn { color: var(--text-sidebar); margin-top: auto; }
+                .logout-btn:hover { color: #ffffff; background: rgba(238, 93, 80, 0.2); }
                 .logout-btn:hover .item-icon-wrapper { color: var(--danger); }
 
                 @media (max-width: 768px) {

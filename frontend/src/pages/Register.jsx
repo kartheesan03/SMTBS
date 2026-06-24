@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import API from '../api/axios';
 import { AuthContext } from '../context/AuthContext';
@@ -6,7 +6,7 @@ import { useGoogleLogin } from '@react-oauth/google';
 import { 
     Shield, Users, Monitor, User, TrendingUp, 
     Box, BarChart2, Settings, ShieldCheck, CheckCircle2,
-    Layers, Activity, Globe, Fingerprint
+    Layers, Activity, Globe, Fingerprint, ChevronDown
 } from 'lucide-react';
 
 const Register = () => {
@@ -26,9 +26,21 @@ const Register = () => {
     ];
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [isRoleDropdownOpen, setIsRoleDropdownOpen] = useState(false);
+    const dropdownRef = useRef(null);
     
     const { login } = useContext(AuthContext);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsRoleDropdownOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     useEffect(() => {
         const html = document.documentElement;
@@ -206,20 +218,37 @@ const Register = () => {
                                 </div>
                             </div>
 
-                            <div className="role-selection" style={{ marginBottom: '24px' }}>
+                            <div className="input-group role-dropdown-container" ref={dropdownRef} style={{ marginBottom: '24px' }}>
                                 <label className="section-label" style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', marginBottom: '8px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>SELECT YOUR ROLE</label>
-                                <div className="roles-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '6px' }}>
-                                    {roles.map((r) => (
-                                        <div 
-                                            key={r.id} 
-                                            className={`role-item ${role === r.id ? 'active' : ''}`}
-                                            onClick={() => setRole(r.id)}
-                                        >
-                                            <r.icon size={20} className="role-icon" />
-                                            <span>{r.id}</span>
-                                        </div>
-                                    ))}
+                                <div 
+                                    className={`custom-dropdown-header ${isRoleDropdownOpen ? 'open' : ''}`}
+                                    onClick={() => setIsRoleDropdownOpen(!isRoleDropdownOpen)}
+                                >
+                                    <div className="selected-role-display">
+                                        {roles.find(r => r.id === role)?.icon && React.createElement(roles.find(r => r.id === role).icon, { size: 18, className: "selected-role-icon" })}
+                                        <span>{role}</span>
+                                    </div>
+                                    <ChevronDown size={18} className="dropdown-arrow" />
                                 </div>
+                                
+                                {isRoleDropdownOpen && (
+                                    <div className="custom-dropdown-list">
+                                        {roles.map((r) => (
+                                            <div 
+                                                key={r.id} 
+                                                className={`custom-dropdown-item ${role === r.id ? 'active' : ''}`}
+                                                onClick={() => {
+                                                    setRole(r.id);
+                                                    setIsRoleDropdownOpen(false);
+                                                }}
+                                            >
+                                                <r.icon size={16} className="dropdown-item-icon" />
+                                                <span>{r.id}</span>
+                                                {role === r.id && <CheckCircle2 size={16} className="dropdown-check" />}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
 
                             <div className="input-row">
@@ -541,13 +570,16 @@ const Register = () => {
                 .form-card {
                     background: #ffffff;
                     width: 100%;
-                    max-width: 440px;
-                    border-radius: 16px;
+                    max-width: 400px;
+                    min-height: 580px;
+                    border-radius: 20px;
                     box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.1);
-                    padding: clamp(20px, 3vh, 24px);
+                    padding: clamp(20px, 3vh, 28px);
                     color: var(--text-primary);
                     position: relative;
                     margin: auto 0;
+                    display: flex;
+                    flex-direction: column;
                 }
 
                 .form-header {
@@ -570,53 +602,100 @@ const Register = () => {
                     font-weight: 500;
                 }
 
-                /* Role Selection */
-                .role-item {
+                /* Custom Dropdown */
+                .role-dropdown-container {
+                    position: relative;
+                    margin-bottom: 14px;
+                }
+
+                .custom-dropdown-header {
                     display: flex;
-                    flex-direction: column;
                     align-items: center;
-                    justify-content: center;
-                    gap: 6px;
-                    padding: 10px 4px;
-                    border: 1.5px solid var(--border-subtle);
+                    justify-content: space-between;
+                    padding: 10px 14px;
+                    border: 1px solid var(--border-subtle);
                     border-radius: 8px;
+                    background: var(--bg-body);
                     cursor: pointer;
                     transition: all 0.2s ease;
-                    position: relative;
+                }
+
+                .custom-dropdown-header:hover, .custom-dropdown-header.open {
                     background: #ffffff;
+                    border-color: #000000;
                 }
 
-                .role-item:hover {
-                    border-color: #ea580c;
-                    background: rgba(234, 88, 12, 0.02);
+                .custom-dropdown-header.open {
+                    box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
                 }
 
-                .role-item.active {
-                    border-color: #ea580c;
-                    background: #ea580c;
-                    color: #ffffff;
-                    transform: translateY(-2px);
-                    box-shadow: 0 4px 12px rgba(234, 88, 12, 0.25);
+                .selected-role-display {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    font-size: 14px;
+                    font-weight: 500;
+                    color: var(--text-primary);
                 }
 
-                .role-icon {
+                .selected-role-icon {
+                    color: #ea580c;
+                }
+
+                .dropdown-arrow {
                     color: var(--text-muted);
-                    transition: color 0.2s ease;
+                    transition: transform 0.2s ease;
                 }
 
-                .role-item.active .role-icon {
-                    color: #ffffff;
+                .custom-dropdown-header.open .dropdown-arrow {
+                    transform: rotate(180deg);
                 }
 
-                .role-item span {
-                    font-size: 11px;
+                .custom-dropdown-list {
+                    position: absolute;
+                    top: calc(100% + 4px);
+                    left: 0;
+                    right: 0;
+                    background: #ffffff;
+                    border: 1px solid var(--border-subtle);
+                    border-radius: 8px;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                    z-index: 50;
+                    overflow: hidden;
+                }
+
+                .custom-dropdown-item {
+                    display: flex;
+                    align-items: center;
+                    padding: 10px 14px;
+                    gap: 10px;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                    font-size: 14px;
+                    color: var(--text-primary);
+                }
+
+                .custom-dropdown-item:hover {
+                    background: var(--bg-body);
+                }
+
+                .custom-dropdown-item.active {
+                    background: rgba(234, 88, 12, 0.05);
+                    color: #ea580c;
                     font-weight: 600;
-                    color: var(--text-muted);
-                    transition: color 0.2s ease;
                 }
 
-                .role-item.active span {
-                    color: #ffffff;
+                .dropdown-item-icon {
+                    color: var(--text-muted);
+                }
+
+                .custom-dropdown-item.active .dropdown-item-icon {
+                    color: #ea580c;
+                }
+
+                .dropdown-check {
+                    margin-left: auto;
+                    color: #ea580c;
                 }
 
                 /* Error Alert */

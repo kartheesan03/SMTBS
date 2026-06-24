@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import API from '../api/axios';
 import { AuthContext } from '../context/AuthContext';
@@ -7,7 +7,7 @@ import {
     Shield, Users, Monitor, User, TrendingUp, 
     Mail, Lock, Eye, EyeOff, Box, ArrowRight, 
     Package, BarChart2, Settings, ShieldCheck, CheckCircle2,
-    Layers, Activity, Globe, Fingerprint, Hexagon
+    Layers, Activity, Globe, Fingerprint, Hexagon, ChevronDown
 } from 'lucide-react';
 
 const Login = () => {
@@ -18,8 +18,20 @@ const Login = () => {
     const [selectedRole, setSelectedRole] = useState('Admin');
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [isRoleDropdownOpen, setIsRoleDropdownOpen] = useState(false);
+    const dropdownRef = useRef(null);
     const { login } = useContext(AuthContext);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsRoleDropdownOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     const roles = [
         { id: 'Admin', icon: Shield },
@@ -52,8 +64,8 @@ const Login = () => {
         e.preventDefault();
         setIsLoading(true);
         try {
-            // Note: role could be passed if API supports it, currently using existing login endpoint
-            const { data } = await API.post('/auth/login', { email, password });
+            // Send the selected role to validate against the backend
+            const { data } = await API.post('/auth/login', { email, password, role: selectedRole });
             login(data, rememberMe);
             setError('');
             if (data.isProfileComplete === false && (data.role === 'Customer' || data.role === 'Vendor')) {
@@ -76,7 +88,8 @@ const Login = () => {
             try {
                 const { data } = await API.post('/auth/google', {
                     access_token: tokenResponse.access_token,
-                    mode: 'login'
+                    mode: 'login',
+                    role: selectedRole
                 });
                 
                 login(data, rememberMe);
@@ -164,20 +177,37 @@ const Login = () => {
                         )}
 
                         <form onSubmit={handleSubmit} className="auth-form">
-                            <div className="role-selection">
+                            <div className="input-group role-dropdown-container" ref={dropdownRef}>
                                 <label className="section-label">SELECT YOUR ROLE</label>
-                                <div className="roles-grid">
-                                    {roles.map((role) => (
-                                        <div 
-                                            key={role.id} 
-                                            className={`role-item ${selectedRole === role.id ? 'active' : ''}`}
-                                            onClick={() => setSelectedRole(role.id)}
-                                        >
-                                            <role.icon size={20} className="role-icon" />
-                                            <span>{role.id}</span>
-                                        </div>
-                                    ))}
+                                <div 
+                                    className={`custom-dropdown-header ${isRoleDropdownOpen ? 'open' : ''}`}
+                                    onClick={() => setIsRoleDropdownOpen(!isRoleDropdownOpen)}
+                                >
+                                    <div className="selected-role-display">
+                                        {roles.find(r => r.id === selectedRole)?.icon && React.createElement(roles.find(r => r.id === selectedRole).icon, { size: 18, className: "selected-role-icon" })}
+                                        <span>{selectedRole}</span>
+                                    </div>
+                                    <ChevronDown size={18} className="dropdown-arrow" />
                                 </div>
+                                
+                                {isRoleDropdownOpen && (
+                                    <div className="custom-dropdown-list">
+                                        {roles.map((role) => (
+                                            <div 
+                                                key={role.id} 
+                                                className={`custom-dropdown-item ${selectedRole === role.id ? 'active' : ''}`}
+                                                onClick={() => {
+                                                    setSelectedRole(role.id);
+                                                    setIsRoleDropdownOpen(false);
+                                                }}
+                                            >
+                                                <role.icon size={16} className="dropdown-item-icon" />
+                                                <span>{role.id}</span>
+                                                {selectedRole === role.id && <CheckCircle2 size={16} className="dropdown-check" />}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
 
                             <div className="input-group">
@@ -522,13 +552,16 @@ const Login = () => {
                 .form-card {
                     background: #ffffff;
                     width: 100%;
-                    max-width: 480px;
+                    max-width: 400px;
+                    min-height: 580px;
                     border-radius: 20px;
                     box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.1);
-                    padding: clamp(24px, 4vh, 32px);
+                    padding: clamp(20px, 3vh, 28px);
                     color: var(--text-primary);
                     position: relative;
                     margin: auto 0;
+                    display: flex;
+                    flex-direction: column;
                 }
 
                 /* Custom Scrollbar for Form Card */
@@ -577,63 +610,100 @@ const Login = () => {
                     text-transform: uppercase;
                 }
 
-                /* Role Selection */
-                .role-selection {
-                    margin-bottom: clamp(12px, 2.5vh, 20px);
+                /* Custom Dropdown */
+                .role-dropdown-container {
+                    position: relative;
+                    margin-bottom: 14px;
                 }
 
-                .roles-grid {
-                    display: grid;
-                    grid-template-columns: repeat(5, 1fr);
-                    gap: 6px;
-                }
-
-                .role-item {
+                .custom-dropdown-header {
                     display: flex;
-                    flex-direction: column;
                     align-items: center;
-                    justify-content: center;
-                    gap: 6px;
-                    padding: 12px 6px;
-                    border: 1.5px solid var(--border-subtle);
-                    border-radius: 10px;
+                    justify-content: space-between;
+                    padding: 10px 14px;
+                    border: 1px solid var(--border-subtle);
+                    border-radius: 8px;
+                    background: var(--bg-body);
                     cursor: pointer;
                     transition: all 0.2s ease;
-                    position: relative;
+                }
+
+                .custom-dropdown-header:hover, .custom-dropdown-header.open {
                     background: #ffffff;
+                    border-color: #000000;
                 }
 
-                .role-item:hover {
-                    border-color: #ea580c;
-                    background: rgba(234, 88, 12, 0.02);
+                .custom-dropdown-header.open {
+                    box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
                 }
 
-                .role-item.active {
-                    border-color: #ea580c;
-                    background: #ea580c;
-                    color: #ffffff;
-                    transform: translateY(-2px);
-                    box-shadow: 0 4px 12px rgba(234, 88, 12, 0.25);
+                .selected-role-display {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    font-size: 14px;
+                    font-weight: 500;
+                    color: var(--text-primary);
                 }
 
-                .role-icon {
+                .selected-role-icon {
+                    color: #ea580c;
+                }
+
+                .dropdown-arrow {
                     color: var(--text-muted);
-                    transition: color 0.2s ease;
+                    transition: transform 0.2s ease;
                 }
 
-                .role-item.active .role-icon {
-                    color: #ffffff;
+                .custom-dropdown-header.open .dropdown-arrow {
+                    transform: rotate(180deg);
                 }
 
-                .role-item span {
-                    font-size: 11px;
+                .custom-dropdown-list {
+                    position: absolute;
+                    top: calc(100% + 4px);
+                    left: 0;
+                    right: 0;
+                    background: #ffffff;
+                    border: 1px solid var(--border-subtle);
+                    border-radius: 8px;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                    z-index: 50;
+                    overflow: hidden;
+                }
+
+                .custom-dropdown-item {
+                    display: flex;
+                    align-items: center;
+                    padding: 10px 14px;
+                    gap: 10px;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                    font-size: 14px;
+                    color: var(--text-primary);
+                }
+
+                .custom-dropdown-item:hover {
+                    background: var(--bg-body);
+                }
+
+                .custom-dropdown-item.active {
+                    background: rgba(234, 88, 12, 0.05);
+                    color: #ea580c;
                     font-weight: 600;
-                    color: var(--text-muted);
-                    transition: color 0.2s ease;
                 }
 
-                .role-item.active span {
-                    color: #ffffff;
+                .dropdown-item-icon {
+                    color: var(--text-muted);
+                }
+
+                .custom-dropdown-item.active .dropdown-item-icon {
+                    color: #ea580c;
+                }
+
+                .dropdown-check {
+                    margin-left: auto;
+                    color: #ea580c;
                 }
 
                 /* Inputs */
@@ -872,6 +942,26 @@ const Login = () => {
                     margin-bottom: 24px;
                 }
 
+                /* Footer link */
+                .signup-link-wrapper {
+                    text-align: center;
+                    font-size: 13px;
+                    color: var(--text-secondary);
+                    font-weight: 500;
+                    margin-top: 24px;
+                }
+
+                .signup-link {
+                    color: #000000;
+                    font-weight: 700;
+                    text-decoration: none;
+                    margin-left: 6px;
+                }
+
+                .signup-link:hover {
+                    text-decoration: underline;
+                }
+
                 @media (max-width: 1200px) {
                     .features-grid {
                         grid-template-columns: repeat(2, 1fr);
@@ -903,9 +993,7 @@ const Login = () => {
                 }
 
                 @media (max-width: 600px) {
-                    .roles-grid {
-                        grid-template-columns: repeat(3, 1fr);
-                    }
+                    /* Dropdown works fine in mobile without extra css */
                     .social-logins {
                         flex-direction: column;
                     }
