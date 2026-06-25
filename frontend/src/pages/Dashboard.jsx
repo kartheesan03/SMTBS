@@ -68,7 +68,8 @@ const Dashboard = () => {
                         { label: 'Add Employee', icon: <Users size={20}/>, onClick: () => {} },
                         { label: 'Add Customer', icon: <Briefcase size={20}/>, onClick: () => {} },
                     ],
-                    <div className="premium-card chart-container">
+                    charts: (
+                        <div className="premium-card chart-container">
                             <h3>Revenue & Sales Growth</h3>
                             <div style={{ height: 300, marginTop: 20 }}>
                                 {data?.charts?.monthlyStats?.length > 0 ? (

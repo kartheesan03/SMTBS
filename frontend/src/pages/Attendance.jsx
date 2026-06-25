@@ -239,6 +239,7 @@ const Attendance = () => {
             </>
             )}
 
+            <style jsx="true">{`
                 .tab-btn { display: flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; cursor: pointer; border: 1px solid var(--border-subtle); background: var(--bg-surface); color: var(--text-muted); transition: all 0.2s; }
                 .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
                 .tab-btn:hover:not(.active) { background: var(--bg-hover); color: var(--text-primary); }
