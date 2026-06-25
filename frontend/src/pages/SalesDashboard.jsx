@@ -222,192 +222,143 @@ const SalesDashboard = () => {
     };
 
     return (
-        <div className="page-container">
-            <div className="page-header">
-                <div>
-                    <h1 className="page-title">Sales Overview</h1>
-                    <p className="page-subtitle">Pipeline & Revenue Dashboard</p>
+        <div className="unified-dashboard">
+            {/* Header Row */}
+            <div className="dashboard-header-row">
+                <div className="welcome-area">
+                    <div className="welcome-text-block">
+                        <h1>Welcome to Sales Dashboard</h1>
+                        <p className="subtitle">
+                            <span className="role-text">Sales & CRM</span>
+                            <span className="dot-sep">&bull;</span>
+                            <span>{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                        </p>
+                    </div>
+                    
+                    <div className="welcome-stats">
+                        <div className="stat-pill blue">
+                            <div className="stat-pill-header">
+                                <Users size={16} /> Total Leads
+                            </div>
+                            <div className="stat-big-val">{totalLeads}</div>
+                            <div className="stat-desc">Prospective Clients</div>
+                        </div>
+                        <div className="stat-pill green">
+                            <div className="stat-pill-header">
+                                <Target size={16} /> Achievement
+                            </div>
+                            <div className="stat-big-val">{targetAchievement}%</div>
+                            <div className="stat-desc">Monthly Target</div>
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#ffffff', border: '1px solid var(--border-subtle)', padding: '8px 16px', borderRadius: 'var(--radius-md)', fontSize: '13px', fontWeight: 600, color: 'var(--text-main)', boxShadow: 'var(--shadow-sm)' }}>
-                        <span style={{ width: '8px', height: '8px', background: 'var(--success)', borderRadius: '50%', boxShadow: '0 0 0 2px var(--success-bg)' }}></span> Live Data System
-                    </span>
+
+                <div style={{ flex: '0 0 320px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                    <div style={{ background: 'white', borderRadius: '20px', padding: '24px', flex: 1, border: '1px solid #f1f5f9', boxShadow: '0 4px 15px rgba(0,0,0,0.03)' }}>
+                        <h3 style={{ fontSize: '14px', fontWeight: 700, margin: '0 0 16px 0', color: '#0f172a' }}>Sales Actions</h3>
+                        <div className="action-buttons">
+                            <NavLink to="/crm/leads" style={{ textDecoration: 'none' }}>
+                                <div className="qa-btn blue">
+                                    <div className="qa-icon"><Filter size={18} /></div>
+                                    <span>Manage Leads</span>
+                                </div>
+                            </NavLink>
+                            <NavLink to="/sales/revenue" style={{ textDecoration: 'none' }}>
+                                <div className="qa-btn green">
+                                    <div className="qa-icon"><DollarSign size={18} /></div>
+                                    <span>Record Sale</span>
+                                </div>
+                            </NavLink>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            {/* ===== KPI ROW ===== */}
-            <div className="responsive-grid-6">
-                {kpiCards.map((kpi, idx) => (
-                    <div key={idx} className="premium-card" style={{ position: 'relative', overflow: 'hidden', padding: '20px', display: 'flex', flexDirection: 'column', minHeight: '130px', justifyContent: 'space-between' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                            <div style={{ color: 'var(--text-muted)', fontSize: '13px', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{kpi.title}</div>
-                            <div className="kpi-icon-3d" style={{ width: '36px', height: '36px', borderRadius: '8px', background: `linear-gradient(135deg, ${kpi.color}15, ${kpi.color}05)`, color: kpi.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                <kpi.icon size={18} strokeWidth={2.5} />
+            {/* Action Center - Workflow integration */}
+            <div className="action-center-row">
+                <h3 className="section-title">Sales Pipeline Center</h3>
+                <div className="action-cards">
+                    <NavLink to="/crm/pipeline" style={{ textDecoration: 'none' }}>
+                        <div className="action-card ac-orange">
+                            <div className="ac-icon"><Layers size={24} /></div>
+                            <div className="ac-info">
+                                <h4>{openOpportunities} Open Opportunities</h4>
+                                <p>Deals in progress</p>
                             </div>
                         </div>
-                        <div style={{ marginTop: 'auto' }}>
-                            <h3 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '8px 0 6px 0', lineHeight: 1 }}>{kpi.value}</h3>
-                            <div style={{ display: 'flex', alignItems: 'center', fontSize: '12px', fontWeight: 600, color: kpi.trendType === 'down' ? 'var(--danger)' : 'var(--success)' }}>
-                                {kpi.trendType === 'up' ? <ArrowUpRight size={14} style={{ marginRight: '4px' }}/> : <ArrowDownRight size={14} style={{ marginRight: '4px' }}/>}
-                                {kpi.trend} <span style={{ color: 'var(--text-muted)', fontWeight: 500, marginLeft: '4px' }}>vs last month</span>
+                    </NavLink>
+                    <NavLink to="/crm/customers" style={{ textDecoration: 'none' }}>
+                        <div className="action-card ac-blue">
+                            <div className="ac-icon"><Users size={24} /></div>
+                            <div className="ac-info">
+                                <h4>{qualifiedLeads} Qualified Leads</h4>
+                                <p>Ready to close</p>
                             </div>
+                        </div>
+                    </NavLink>
+                    <div className="action-card ac-green">
+                        <div className="ac-icon"><CheckCircle size={24} /></div>
+                        <div className="ac-info">
+                            <h4>{closedDeals} Closed Deals</h4>
+                            <p>Successfully delivered</p>
                         </div>
                     </div>
-                ))}
+                </div>
             </div>
 
-            {/* ===== ROW 2: Charts and Quick Actions ===== */}
-            <div className="responsive-grid-4-5-3">
-                {/* Lead Sources */}
-                <div className="premium-card" style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: '340px', overflow: 'hidden', padding: '24px' }}>
-                    <div style={{ paddingBottom: '20px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
-                        <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: 'var(--text-heading)', display: 'flex', alignItems: 'center', gap: '8px' }}><Activity size={18} /> Lead Sources</h3>
+            {/* Summary Cards */}
+            <div className="summary-cards-row">
+                <div className="summary-card card-blue">
+                    <h3 className="sc-header-center">Revenue Status</h3>
+                    <div className="donut-chart-container">
+                        <DollarSign size={64} style={{ color: '#3b82f6', opacity: 0.2, margin: '20px 0' }} />
+                        <div style={{ textAlign: 'center' }}>
+                            <div className="donut-total">${(monthlyRevenue / 1000).toFixed(1)}k</div>
+                            <div className="donut-label">This Month</div>
+                        </div>
                     </div>
-                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-                        {leadSourceData.length > 0 ? (
-                            <>
-                                <div style={{ position: 'relative', flex: 1, minHeight: '200px' }}>
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <PieChart>
-                                            <Pie data={leadSourceData} cx="50%" cy="50%" innerRadius={60} outerRadius={85} paddingAngle={2} dataKey="value" stroke="none">
-                                                {leadSourceData.map((entry, index) => (
-                                                    <Cell key={`cell-${index}`} fill={entry.color} />
-                                                ))}
-                                            </Pie>
-                                            <RechartsTooltip contentStyle={{ borderRadius: 'var(--radius-md)', border: '1px solid var(--border-light)', boxShadow: 'var(--shadow-md)', fontWeight: 600, fontSize: '13px' }} />
-                                        </PieChart>
-                                    </ResponsiveContainer>
-                                    <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center', pointerEvents: 'none' }}>
-                                        <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-heading)', lineHeight: 1 }}>{totalLeads}</div>
-                                        <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 600, marginTop: '4px' }}>Leads</div>
-                                    </div>
+                </div>
+                <div className="summary-card card-orange">
+                    <h3 className="sc-header-center">Growth Trend</h3>
+                    <div className="donut-chart-container">
+                        <TrendingUp size={64} style={{ color: '#f59e0b', opacity: 0.2, margin: '20px 0' }} />
+                        <div style={{ textAlign: 'center' }}>
+                            <div className="donut-total">{growthTrend}</div>
+                            <div className="donut-label">vs Last Month</div>
+                        </div>
+                    </div>
+                </div>
+                <div className="summary-card card-green">
+                    <h3 className="sc-header-center">Top Executive</h3>
+                    <div className="donut-chart-container">
+                        <Award size={64} style={{ color: '#10b981', opacity: 0.2, margin: '20px 0' }} />
+                        <div style={{ textAlign: 'center' }}>
+                            <div className="donut-total" style={{ fontSize: '20px' }}>
+                                {topExecutives.length > 0 ? topExecutives[0].name.split(' ')[0] : 'N/A'}
+                            </div>
+                            <div className="donut-label">Highest Revenue</div>
+                        </div>
+                    </div>
+                </div>
+                <div className="summary-card card-purple">
+                    <h3 className="sc-header-center">Leaderboard</h3>
+                    <div className="activity-list" style={{ marginTop: '16px' }}>
+                        {topExecutives.length > 0 ? topExecutives.slice(0, 3).map((exec, i) => (
+                            <div key={i} className="activity-item">
+                                <div className="act-icon purple"><Award size={16} /></div>
+                                <div className="act-content">
+                                    <h4>{exec.name}</h4>
+                                    <span>Rev: {exec.revenue}</span>
                                 </div>
-                                <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap', paddingTop: '16px', flexShrink: 0 }}>
-                                    {leadSourceData.map((item, idx) => (
-                                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 600, color: 'var(--text-main)' }}>
-                                            <span style={{ width: '10px', height: '10px', borderRadius: '4px', background: item.color }}></span>
-                                            {item.name} ({item.percentage}%)
-                                        </div>
-                                    ))}
-                                </div>
-                            </>
-                        ) : (
-                            <div className="flex-center" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px', justifyContent: 'center', alignItems: 'center', color: 'var(--text-muted)', fontSize: '14px' }}>
-                                <Filter size={24} style={{ opacity: 0.5 }} />
-                                <span style={{ fontWeight: 500 }}>No Lead Data Available</span>
+                            </div>
+                        )) : (
+                            <div className="activity-item">
+                                <div className="act-content"><span>No performance data</span></div>
                             </div>
                         )}
                     </div>
                 </div>
-
-                {/* Revenue Trend */}
-                <div className="premium-card" style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: '340px', overflow: 'hidden', padding: '24px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '20px', flexShrink: 0 }}>
-                        <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: 'var(--text-heading)', display: 'flex', alignItems: 'center', gap: '8px' }}><TrendingUp size={18} /> Revenue Trend</h3>
-                        <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-                            <div style={{ textAlign: 'right' }}>
-                                <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>6-Month Total</div>
-                                <div style={{ fontSize: '16px', fontWeight: 800, color: 'var(--success)' }}>{formatIndianCurrency(trendTotalRevenue)}</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div style={{ flex: 1, overflow: 'hidden', marginLeft: '-24px' }}>
-                        {monthsWithRevenue >= 2 ? (
-                            <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={revenueTrendData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
-                                    <defs>
-                                        <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="var(--success)" stopOpacity={0.3}/>
-                                            <stop offset="95%" stopColor="var(--success)" stopOpacity={0}/>
-                                        </linearGradient>
-                                    </defs>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-subtle)" />
-                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 13, fill: 'var(--text-muted)', fontWeight: 600 }} dy={10} />
-                                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 13, fill: 'var(--text-muted)', fontWeight: 600 }} tickFormatter={formatYAxis} width={60} />
-                                    <RechartsTooltip content={<CustomTooltip />} cursor={{fill: 'transparent'}} />
-                                    <Area type="monotone" dataKey="revenue" stroke="var(--success)" strokeWidth={2} fillOpacity={1} fill="url(#colorRevenue)" dot={{ r: 4, strokeWidth: 2, fill: '#fff' }} activeDot={{ r: 6 }} label={{ position: 'top', formatter: formatIndianCurrency, fill: 'var(--text-heading)', fontSize: 12, fontWeight: 600, dy: -5 }} />
-                                </AreaChart>
-                            </ResponsiveContainer>
-                        ) : monthsWithRevenue === 1 ? (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '0 24px', height: '100%', justifyContent: 'center' }}>
-                                <div style={{ padding: '16px', background: 'var(--bg-app)', borderRadius: 'var(--radius-md)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Current Revenue</div>
-                                    <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--success)' }}>{formatIndianCurrency(thisMonthRevenue)}</div>
-                                </div>
-                                <div style={{ padding: '16px', background: 'var(--bg-app)', borderRadius: 'var(--radius-md)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Growth Trend</div>
-                                    <div style={{ fontSize: '20px', fontWeight: 800, color: revGrowth >= 0 ? 'var(--success)' : 'var(--danger)' }}>{growthTrend}</div>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="flex-center" style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: '8px', justifyContent: 'center', alignItems: 'center', color: 'var(--text-muted)', fontSize: '14px' }}>
-                                <TrendingUp size={24} style={{ opacity: 0.5 }} />
-                                <span style={{ fontWeight: 500 }}>No Revenue Data</span>
-                            </div>
-                        )}
-                    </div>
-                </div>
-
-                {/* Quick Actions (App Launcher Style) */}
-                <div className="premium-card" style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: '340px', overflow: 'hidden', padding: '24px' }}>
-                    <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-heading)', margin: '0 0 20px 0' }}>Sales Actions</h3>
-                    <div className="responsive-grid-2" style={{ flex: 1, margin: 0, gap: '12px' }}>
-                        {[
-                            { path: '/crm/leads', name: 'Leads', icon: Filter, color: '#3b82f6' },
-                            { path: '/crm/pipeline', name: 'Pipeline', icon: Layers, color: '#8b5cf6' },
-                            { path: '/crm/customers', name: 'Customers', icon: Users, color: '#10b981' },
-                            { path: '/sales/revenue', name: 'Revenue', icon: DollarSign, color: '#f59e0b' },
-                            { path: '/sales/goals', name: 'Goals', icon: Target, color: '#ec4899' },
-                            { path: '/quotations', name: 'Quotes', icon: FileText, color: '#64748b' }
-                        ].map((link, idx) => (
-                            <div onClick={() => navigate(link.path)} key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '16px 12px', background: '#ffffff', border: '1px solid var(--border-light)', borderRadius: 'var(--radius-md)', cursor: 'pointer', color: 'var(--text-heading)', fontWeight: 600, fontSize: '13px', transition: 'all 0.2s', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }} className="quick-action-link ui-card">
-                                <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: `${link.color}15`, color: link.color, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '8px' }}>
-                                    <link.icon size={18} />
-                                </div>
-                                {link.name}
-                            </div>
-                        ))}
-                    </div>
-                </div>
             </div>
-
-            {/* ===== ROW 3: Top Executives (Full Width) ===== */}
-            <div className="premium-card" style={{ padding: '24px', marginBottom: '24px' }}>
-                <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'center' }}>
-                    <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: 'var(--text-heading)', display: 'flex', alignItems: 'center', gap: '8px' }}><Award size={18} /> Top Sales Executives</h3>
-                </div>
-                <div className="table-responsive">
-                    {topExecutives.length > 0 ? (
-                        <table className="enterprise-table">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Orders</th>
-                                    <th>Revenue</th>
-                                    <th>Rank</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {topExecutives.map((exec, i) => (
-                                    <tr key={i}>
-                                        <td style={{ fontWeight: 600, color: 'var(--text-heading)' }}>{exec.name}</td>
-                                        <td>{exec.deliveries}</td>
-                                        <td style={{ fontWeight: 700, color: 'var(--success)' }}>{exec.revenue}</td>
-                                        <td>
-                                            <span style={{ display: 'inline-block', padding: '4px 10px', borderRadius: '12px', background: exec.rank === 1 ? 'var(--warning-bg)' : 'var(--bg-app)', color: exec.rank === 1 ? 'var(--warning)' : 'var(--text-muted)', fontSize: '11px', fontWeight: 700 }}>
-                                                #{exec.rank}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    ) : (
-                        <div style={{ textAlign: 'center', padding: '32px', color: 'var(--text-muted)', fontSize: '14px', fontWeight: 500 }}>No Sales Performance Data Available</div>
-                    )}
-                </div>
-            </div>
-
             
         </div>
     );

@@ -220,147 +220,141 @@ const EmployeeDashboard = () => {
     ];
 
     return (
-        <div className="page-container">
-            <div className="page-header">
-                <div>
-                    <h1 style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '0 0 4px 0', letterSpacing: '-0.5px' }}>Employee Workspace</h1>
-                    <p style={{ fontSize: '14px', color: '#64748b', margin: 0 }}>Welcome back, {user?.firstName || 'User'}!</p>
-                </div>
-                <div>
-                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#fff', border: '1px solid #e2e8f0', padding: '6px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 600, color: '#475569' }}>
-                        <Clock size={12} /> {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
-                    </span>
-                </div>
-            </div>
-
-            <div className="bento-grid">
-                {/* Left Side: KPIs and Charts (Span 9) */}
-                <div className="bento-col-9 bento-grid" style={{ alignContent: 'start' }}>
+        <div className="unified-dashboard">
+            {/* Header Row */}
+            <div className="dashboard-header-row">
+                <div className="welcome-area">
+                    <div className="welcome-text-block">
+                        <h1>Welcome to Employee Workspace</h1>
+                        <p className="subtitle">
+                            <span className="role-text">{user?.department || 'Employee'}</span>
+                            <span className="dot-sep">&bull;</span>
+                            <span>{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                        </p>
+                    </div>
                     
-                    {/* Top KPIs (2 rows of 3) */}
-                    {kpiCards.map((kpi, idx) => (
-                        <div className="bento-col-4" key={idx}>
-                            <div className="premium-card kpi-card-3d" style={{ position: 'relative', overflow: 'hidden' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                                    <div style={{ color: '#64748b', fontSize: '12px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{kpi.title}</div>
-                                    <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: `${kpi.color}15`, color: kpi.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                        <kpi.icon size={16} strokeWidth={2.5} />
-                                    </div>
+                    <div className="welcome-stats">
+                        <div className="stat-pill blue">
+                            <div className="stat-pill-header">
+                                <ListTodo size={16} /> Pending Tasks
+                            </div>
+                            <div className="stat-big-val">{pendingTasks}</div>
+                            <div className="stat-desc">To be completed</div>
+                        </div>
+                        <div className="stat-pill green">
+                            <div className="stat-pill-header">
+                                <Fingerprint size={16} /> Attendance
+                            </div>
+                            <div className="stat-big-val" style={{ fontSize: '18px' }}>{attendanceStatus}</div>
+                            <div className="stat-desc">Status Today</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style={{ flex: '0 0 320px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                    <div style={{ background: 'white', borderRadius: '20px', padding: '24px', flex: 1, border: '1px solid #f1f5f9', boxShadow: '0 4px 15px rgba(0,0,0,0.03)' }}>
+                        <h3 style={{ fontSize: '14px', fontWeight: 700, margin: '0 0 16px 0', color: '#0f172a' }}>Quick Actions</h3>
+                        <div className="action-buttons">
+                            <NavLink to="/my-tasks" style={{ textDecoration: 'none' }}>
+                                <div className="qa-btn blue">
+                                    <div className="qa-icon"><ListTodo size={18} /></div>
+                                    <span>My Tasks</span>
                                 </div>
-                                <h3 style={{ fontSize: kpi.isStatus ? '20px' : '24px', fontWeight: 800, color: kpi.isStatus ? kpi.color : '#0f172a', margin: '0 0 8px 0', lineHeight: 1 }}>{kpi.value}</h3>
-                            </div>
-                        </div>
-                    ))}
-
-                    <div className="bento-col-12">
-                        <div className="premium-card">
-                            <div className="bento-card-header">
-                                <h3 className="bento-card-title"><ListTodo size={16} /> My Tasks</h3>
-                            </div>
-                            <div className="bento-card-body">
-                                {myTasks.length > 0 ? (
-                                    <table className="enterprise-table" >
-                                        <thead>
-                                            <tr style={{ borderBottom: '1px solid #f1f5f9', color: '#64748b', textAlign: 'left' }}>
-                                                <th style={{ paddingBottom: '8px', fontWeight: 600 }}>Task Description</th>
-                                                <th style={{ paddingBottom: '8px', fontWeight: 600 }}>Priority</th>
-                                                <th style={{ paddingBottom: '8px', fontWeight: 600 }}>Due Date</th>
-                                                <th style={{ paddingBottom: '8px', fontWeight: 600 }}>Status</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {myTasks.map((task, i) => (
-                                                <tr key={i} style={{ borderBottom: '1px solid #f8fafc' }}>
-                                                    <td style={{ padding: '12px 0', fontWeight: 600, color: '#0f172a' }}>{task.title}</td>
-                                                    <td style={{ padding: '12px 0' }}>
-                                                        <span style={{ 
-                                                            padding: '4px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 600,
-                                                            background: task.priority === 'High' ? '#fee2e2' : task.priority === 'Medium' ? '#fef3c7' : '#f1f5f9',
-                                                            color: task.priority === 'High' ? '#ef4444' : task.priority === 'Medium' ? '#d97706' : '#64748b'
-                                                        }}>{task.priority}</span>
-                                                    </td>
-                                                    <td style={{ padding: '12px 0', color: '#64748b', fontWeight: 500 }}>{task.due}</td>
-                                                    <td style={{ padding: '12px 0' }}>
-                                                        <span style={{ 
-                                                            padding: '4px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 600,
-                                                            background: task.status === 'Completed' ? '#ecfdf5' : task.status === 'In Progress' ? '#eff6ff' : '#f8fafc',
-                                                            color: task.status === 'Completed' ? '#059669' : task.status === 'In Progress' ? '#3b82f6' : '#64748b'
-                                                        }}>{task.status}</span>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                ) : (
-                                    <div className="flex-center" style={{ height: '60px', color: '#94a3b8', fontSize: '13px' }}>No pending tasks</div>
-                                )}
-                            </div>
+                            </NavLink>
+                            <NavLink to="/leave-management" style={{ textDecoration: 'none' }}>
+                                <div className="qa-btn orange">
+                                    <div className="qa-icon"><Calendar size={18} /></div>
+                                    <span>Apply Leave</span>
+                                </div>
+                            </NavLink>
                         </div>
                     </div>
-
-                </div>
-
-                {/* Right Side: Feature Panel & Activity (Span 3) */}
-                <div className="bento-col-3 bento-grid" style={{ alignContent: 'start' }}>
-                    
-                    <div className="bento-col-12">
-                        <div className="premium-card" style={{ padding: '16px' }}>
-                            <h3 style={{ fontSize: '13px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '16px' }}>Quick Actions</h3>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                {[
-                                    { path: '/my-tasks', name: 'My Tasks', icon: ListTodo, color: '#3b82f6' },
-                                    { path: '/leave-management', name: 'Apply Leave', icon: Calendar, color: '#8b5cf6' },
-                                    { path: '/my-attendance', name: 'Mark Attendance', icon: Fingerprint, color: '#10b981' },
-                                    { path: '/my-salary', name: 'Salary Slips', icon: FileText, color: '#f59e0b' }
-                                ].map((link, idx) => (
-                                    <div onClick={() => navigate(link.path)} key={idx} style={{ display: 'flex', alignItems: 'center', padding: '10px 12px', background: '#f8fafc', border: '1px solid #f1f5f9', borderRadius: '8px', cursor: 'pointer', color: '#0f172a', fontWeight: 500, fontSize: '13px', transition: 'all 0.2s' }} className="quick-action-link quick-action-3d">
-                                        <div style={{ width: '28px', height: '28px', borderRadius: '6px', background: `${link.color}15`, color: link.color, display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: '12px' }}>
-                                            <link.icon size={14} />
-                                        </div>
-                                        {link.name}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="bento-col-12">
-                        <div className="premium-card chart-card-3d" style={{ height: '340px' }}>
-                            <div className="bento-card-header">
-                                <h3 className="bento-card-title"><Clock size={16} /> My Attendance</h3>
-                            </div>
-                            <div className="bento-card-body" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '10px 10px 20px 10px' }}>
-                                {myAttendanceData.length > 0 ? (
-                                    <ResponsiveContainer width="100%" height={260}>
-                                        <PieChart margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
-                                            <RechartsTooltip cursor={{fill: 'transparent'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
-                                            <Pie
-                                                data={myAttendanceData}
-                                                dataKey="value"
-                                                nameKey="name"
-                                                cx="50%"
-                                                cy="50%"
-                                                innerRadius={60}
-                                                outerRadius={90}
-                                                paddingAngle={5}
-                                                labelLine={false}
-                                            >
-                                                {myAttendanceData.map((entry, index) => (
-                                                    <Cell key={`cell-${index}`} fill={entry.fill} />
-                                                ))}
-                                            </Pie>
-                                        </PieChart>
-                                    </ResponsiveContainer>
-                                ) : (
-                                    <div className="flex-center" style={{ height: '100%', color: '#94a3b8', fontSize: '13px' }}>No attendance data available</div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-
                 </div>
             </div>
 
+            {/* Action Center - Workflow integration */}
+            <div className="action-center-row">
+                <h3 className="section-title">My Action Center</h3>
+                <div className="action-cards">
+                    <NavLink to="/my-tasks" style={{ textDecoration: 'none' }}>
+                        <div className="action-card ac-blue">
+                            <div className="ac-icon"><Briefcase size={24} /></div>
+                            <div className="ac-info">
+                                <h4>{assignedProjects} Total Tasks</h4>
+                                <p>Assigned to you</p>
+                            </div>
+                        </div>
+                    </NavLink>
+                    <NavLink to="/leave-management" style={{ textDecoration: 'none' }}>
+                        <div className="action-card ac-orange">
+                            <div className="ac-icon"><Calendar size={24} /></div>
+                            <div className="ac-info">
+                                <h4>{leaveBalance} Pending Leaves</h4>
+                                <p>Awaiting manager approval</p>
+                            </div>
+                        </div>
+                    </NavLink>
+                    <div className="action-card ac-red">
+                        <div className="ac-icon"><Bell size={24} /></div>
+                        <div className="ac-info">
+                            <h4>{unreadNotifications} Notifications</h4>
+                            <p>Unread alerts & messages</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Summary Cards */}
+            <div className="summary-cards-row">
+                <div className="summary-card card-blue">
+                    <h3 className="sc-header-center">Attendance Summary</h3>
+                    <div className="donut-chart-container">
+                        <Clock size={64} style={{ color: '#3b82f6', opacity: 0.2, margin: '20px 0' }} />
+                        <div style={{ textAlign: 'center' }}>
+                            <div className="donut-total">{presentCount}</div>
+                            <div className="donut-label">Days Present This Month</div>
+                        </div>
+                    </div>
+                </div>
+                <div className="summary-card card-orange">
+                    <h3 className="sc-header-center">Leave Status</h3>
+                    <div className="donut-chart-container">
+                        <Calendar size={64} style={{ color: '#f59e0b', opacity: 0.2, margin: '20px 0' }} />
+                        <div style={{ textAlign: 'center' }}>
+                            <div className="donut-total">{leaveCount}</div>
+                            <div className="donut-label">Days on Leave</div>
+                        </div>
+                    </div>
+                </div>
+                <div className="summary-card card-green">
+                    <h3 className="sc-header-center">Salary Status</h3>
+                    <div className="donut-chart-container">
+                        <FileText size={64} style={{ color: '#10b981', opacity: 0.2, margin: '20px 0' }} />
+                        <div style={{ textAlign: 'center' }}>
+                            <div className="donut-total" style={{ fontSize: '24px' }}>{salarySlip}</div>
+                            <div className="donut-label">{currentMonth} Salary</div>
+                        </div>
+                    </div>
+                </div>
+                <div className="summary-card card-purple">
+                    <h3 className="sc-header-center">Recent Tasks</h3>
+                    <div className="activity-list" style={{ marginTop: '16px' }}>
+                        {myTasks.length > 0 ? myTasks.slice(0, 3).map((task, i) => (
+                            <div key={i} className="activity-item">
+                                <div className="act-icon purple"><ListTodo size={16} /></div>
+                                <div className="act-content">
+                                    <h4>{task.title}</h4>
+                                    <span>Due: {task.due}</span>
+                                </div>
+                            </div>
+                        )) : (
+                            <div className="activity-item">
+                                <div className="act-content"><span>No recent tasks</span></div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
             
         </div>
     );

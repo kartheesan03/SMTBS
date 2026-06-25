@@ -40,18 +40,18 @@ const Profile = () => {
     const [deletePassword, setDeletePassword] = useState('');
 
     const handleDeleteAccount = async () => {
-        if (deleteConfirmation !== 'DELETE') return alert('Please type DELETE to confirm.');
-        if (!deletePassword) return alert('Password is required.');
+        if (deleteConfirmation !== 'DELETE') return toast.success('Please type DELETE to confirm.');
+        if (!deletePassword) return toast.error('Password is required.');
 
         try {
             await API.delete('/auth/delete-account', {
                 data: { password: deletePassword }
             });
-            alert('Account has been permanently deleted.');
+            toast.success('Account has been permanently deleted.');
             localStorage.clear();
             window.location.href = '/login';
         } catch (err) {
-            alert(err.response?.data?.message || 'Error deleting account');
+            toast.error(err.response?.data?.message || 'Error deleting account');
         }
     };
 
@@ -149,9 +149,9 @@ const Profile = () => {
             const authRes = await API.put('/auth/profile', authPayload);
             updateUser(authRes.data);
             
-            alert('Profile Updated Successfully');
+            toast.success('Profile Updated Successfully');
         } catch (err) {
-            alert(err.response?.data?.message || 'Error updating profile');
+            toast.error(err.response?.data?.message || 'Error updating profile');
         }
     };
 
@@ -171,14 +171,14 @@ const Profile = () => {
         try {
             const currentPass = e.target.currentPass.value;
             const newPass = e.target.newPass.value;
-            if (!newPass || newPass.length < 6) return alert('Password must be at least 6 characters');
+            if (!newPass || newPass.length < 6) return toast.error('Password must be at least 6 characters');
             
             // Assume the backend supports updating password through auth/profile
             await API.put('/auth/profile', { password: newPass, currentPassword: currentPass });
-            alert('Password Updated Successfully');
+            toast.success('Password Updated Successfully');
             e.target.reset();
         } catch (err) { 
-            alert('Password Update Failed. Please check current password if required.'); 
+            toast.error('Password Update Failed. Please check current password if required.'); 
         }
     };
 

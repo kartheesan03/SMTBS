@@ -69,7 +69,7 @@ const MyTasks = () => {
             setTimeout(() => setSuccessMsg(''), 4000);
             fetchData();
         } catch (err) {
-            alert(err.response?.data?.message || 'Error creating task');
+            toast.error(err.response?.data?.message || 'Error creating task');
         } finally {
             setSubmitting(false);
         }
@@ -83,7 +83,7 @@ const MyTasks = () => {
             await API.put(`/tasks/${id}/status`, { status: nextStatus });
             fetchData();
         } catch (err) {
-            alert(err.response?.data?.message || 'Error updating status');
+            toast.error(err.response?.data?.message || 'Error updating status');
         }
     };
 
@@ -93,7 +93,7 @@ const MyTasks = () => {
             await API.delete(`/tasks/${id}`);
             fetchData();
         } catch (err) {
-            alert(err.response?.data?.message || 'Error deleting task');
+            toast.error(err.response?.data?.message || 'Error deleting task');
         }
     };
 

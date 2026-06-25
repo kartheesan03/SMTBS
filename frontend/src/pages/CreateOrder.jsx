@@ -58,7 +58,7 @@ const CreateOrder = () => {
             }
         } catch (error) {
             console.error("Error fetching data:", error);
-            alert("Failed to load details. Redirecting...");
+            toast.error("Failed to load details. Redirecting...");
             navigate('/orders/select-type');
         } finally {
             setLoading(false);
@@ -79,11 +79,11 @@ const CreateOrder = () => {
             for (const item of formData.items) {
                 const matExists = materials.find(m => String(m.id || m._id) === String(item.material));
                 if (!matExists) {
-                    alert("Selected material does not exist.");
+                    toast.error("Selected material does not exist.");
                     return;
                 }
                 if (!item.quantity || item.quantity <= 0) {
-                    alert("Invalid quantity.");
+                    toast.success("Invalid quantity.");
                     return;
                 }
             }
@@ -107,7 +107,7 @@ const CreateOrder = () => {
             await API.post('/orders', payload);
             navigate('/erp');
         } catch (err) {
-            alert(err.response?.data?.message || 'Error creating order');
+            toast.error(err.response?.data?.message || 'Error creating order');
         }
     };
 

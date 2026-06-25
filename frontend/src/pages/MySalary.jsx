@@ -42,7 +42,7 @@ const MySalaryPage = () => {
             await generatePayslipPDF(record, employeeName);
         } catch (error) {
             console.error('Error downloading payslip:', error);
-            alert('Failed to generate payslip PDF');
+            toast.error('Failed to generate payslip PDF');
         } finally {
             setDownloading(false);
         }

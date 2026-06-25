@@ -34,7 +34,7 @@ const AddCustomer = () => {
             await API.post('/customers', formData);
             navigate('/crm');
         } catch (err) {
-            alert(err.response?.data?.message || 'Error creating customer');
+            toast.error(err.response?.data?.message || 'Error creating customer');
         } finally {
             setIsLoading(false);
         }

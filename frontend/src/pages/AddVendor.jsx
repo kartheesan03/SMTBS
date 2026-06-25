@@ -20,11 +20,11 @@ const AddVendor = () => {
 
     const handleAddNewMaterialToList = () => {
         if (!newMaterial.name || !newMaterial.sku) {
-            alert("Material Name and SKU are required!");
+            toast.error("Material Name and SKU are required!");
             return;
         }
         if (newMaterialsList.some(m => m.sku === newMaterial.sku)) {
-            alert("SKU already exists in the list! Please use a unique SKU.");
+            toast.error("SKU already exists in the list! Please use a unique SKU.");
             return;
         }
         setNewMaterialsList([...newMaterialsList, { ...newMaterial }]);
@@ -53,7 +53,7 @@ const AddVendor = () => {
 
             navigate('/vendors');
         } catch (err) {
-            alert(err.response?.data?.message || 'Error saving vendor or materials');
+            toast.error(err.response?.data?.message || 'Error saving vendor or materials');
         } finally {
             setIsLoading(false);
         }

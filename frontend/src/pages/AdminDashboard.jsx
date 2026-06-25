@@ -1,508 +1,304 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import API from '../api/axios';
-import { NavLink } from 'react-router-dom';
-import SkeletonLoader from '../components/SkeletonLoader';
 import { 
-    Box, ShoppingCart, DollarSign, AlertCircle,
-    TrendingUp, BarChart2, PieChart as PieChartIcon, Activity,
-    ArrowUpRight, ArrowDownRight, Package, Truck, Clock, Users,
-    Briefcase, FileText, Settings, Bell, Shield, LifeBuoy,
-    ChevronRight, CheckCircle, CalendarDays, Receipt, ShieldCheck,
-    Search, RefreshCw, ChevronDown
+    CheckCircle, Calendar, FileText, Shield, UserPlus, Users,
+    Package, Briefcase, ChevronRight, Activity, Bell, ShoppingCart, DollarSign, LayoutDashboard
 } from 'lucide-react';
 import { 
-    LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, 
-    XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, 
-    ResponsiveContainer, Legend
+    BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, 
+    ResponsiveContainer, PieChart, Pie, Cell 
 } from 'recharts';
+
+// Mock Data for Charts
+const barData = [
+    { name: 'May 1', HRMS: 120, Material: 200, CRM: 150, ERP: 10 },
+    { name: 'May 8', HRMS: 122, Material: 210, CRM: 160, ERP: 12 },
+    { name: 'May 15', HRMS: 125, Material: 230, CRM: 180, ERP: 15 },
+    { name: 'May 22', HRMS: 125, Material: 250, CRM: 210, ERP: 18 },
+    { name: 'May 29', HRMS: 126, Material: 290, CRM: 230, ERP: 20 },
+    { name: 'Jun 5', HRMS: 128, Material: 320, CRM: 256, ERP: 24 },
+];
+
+const hrmsPie = [
+    { name: 'Present', value: 86, color: '#3b82f6' },
+    { name: 'On Leave', value: 18, color: '#10b981' },
+    { name: 'Work From Home', value: 12, color: '#8b5cf6' },
+    { name: 'Absent', value: 12, color: '#f59e0b' },
+];
+
+const materialPie = [
+    { name: 'In Stock', value: 240, color: '#10b981' },
+    { name: 'Low Stock', value: 18, color: '#f59e0b' },
+    { name: 'Out of Stock', value: 12, color: '#ef4444' },
+    { name: 'In Transit', value: 50, color: '#3b82f6' },
+];
+
+const crmPie = [
+    { name: 'New', value: 98, color: '#3b82f6' },
+    { name: 'Contacted', value: 78, color: '#10b981' },
+    { name: 'Qualified', value: 52, color: '#8b5cf6' },
+    { name: 'Closed Won', value: 28, color: '#f59e0b' },
+];
+
+const erpPie = [
+    { name: 'In Progress', value: 10, color: '#3b82f6' },
+    { name: 'On Hold', value: 4, color: '#f59e0b' },
+    { name: 'Completed', value: 8, color: '#10b981' },
+    { name: 'Overdue', value: 2, color: '#ef4444' },
+];
+
+const CustomDonut = ({ data, total, label }) => (
+    <div className="donut-chart-container">
+        <ResponsiveContainer width="100%" height={200}>
+            <PieChart>
+                <Pie
+                    data={data}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={80}
+                    paddingAngle={2}
+                    dataKey="value"
+                    stroke="none"
+                >
+                    {data.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                </Pie>
+                <RechartsTooltip />
+            </PieChart>
+        </ResponsiveContainer>
+        <div className="donut-center-text">
+            <div className="donut-total">{total}</div>
+            <div className="donut-label">{label}</div>
+        </div>
+        <div className="donut-legend">
+            {data.map((item, index) => (
+                <div key={index} className="legend-row">
+                    <div className="legend-name">
+                        <span className="dot" style={{ backgroundColor: item.color }}></span>
+                        {item.name}
+                    </div>
+                    <div className="legend-value">
+                        <span className="val">{item.value}</span>
+                        <span className="perc">({Math.round((item.value / total) * 100)}%)</span>
+                    </div>
+                </div>
+            ))}
+        </div>
+        <button className="view-full-report">View Full Report &rarr;</button>
+    </div>
+);
 
 const AdminDashboard = () => {
     const { user } = useContext(AuthContext);
-    const [dashboardData, setDashboardData] = useState(null);
-    const [materialsData, setMaterialsData] = useState([]);
-    const [ordersData, setOrdersData] = useState([]);
-    const [loading, setLoading] = useState(true);
-
-    const fetchDashboardData = async () => {
-        try {
-            const [dashRes, matRes, ordRes] = await Promise.all([
-                API.get('/dashboard/stats').catch(e => ({ data: {} })),
-                API.get('/materials').catch(e => ({ data: [] })),
-                API.get('/orders').catch(e => ({ data: [] }))
-            ]);
-            
-            setDashboardData(dashRes.data || {});
-            setMaterialsData(matRes.data || []);
-            setOrdersData(ordRes.data || []);
-        } catch (error) {
-            console.error("Failed to load dashboard data", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchDashboardData();
-        const interval = setInterval(fetchDashboardData, 30000);
-        return () => clearInterval(interval);
-    }, []);
-
-    if (loading) {
-        return (
-            <div style={{ padding: '24px', background: 'var(--bg-body)', minHeight: '100vh' }}>
-                <SkeletonLoader type="dashboard" />
-            </div>
-        );
-    }
-
-    const dashboard = dashboardData || {};
-    const orders = ordersData || [];
-    const materials = materialsData || [];
-    
-    // Core metrics (top cards)
-    const totalMaterials = dashboard.totalMaterials || materials.length || 0;
-    const openOrders = dashboard.openOrders || orders.filter(o => !['Delivered', 'Completed', 'Cancelled'].includes(o.status)).length || 0;
-    const totalEmployees = dashboard.hrStats?.totalEmployees || dashboard.totalEmployees || 0;
-    const activeCustomers = dashboard.activeCustomers || 0;
-    const totalCustomers = dashboard.totalCustomers || activeCustomers;
-
-    // Material Stats
-    let lowStockCount = 0;
-    let outOfStockCount = 0;
-    let inStockCount = 0;
-    let inTransitCount = dashboard.materialStats?.inTransitCount || 0;
-
-    materials.forEach(item => {
-        if (item.quantity <= 0) outOfStockCount++;
-        else if (item.quantity <= (item.lowStockThreshold || 10)) lowStockCount++;
-        else inStockCount++;
-    });
-
-    const matTotal = totalMaterials || 1;
-    const inventoryData = [
-        { name: 'In Stock', value: inStockCount, color: '#05CD99' },
-        { name: 'Low Stock', value: lowStockCount, color: '#FFCE20' },
-        { name: 'Out of Stock', value: outOfStockCount, color: '#EE5D50' },
-        { name: 'In Transit', value: inTransitCount, color: '#4318FF' }
-    ];
-
-    // ERP Stats
-    let inProgress = 0;
-    let onHold = 0;
-    let completed = 0;
-    let overdue = 0;
-
-    orders.forEach(o => {
-        const stat = (o.status || 'Pending').toLowerCase();
-        if (stat === 'delivered' || stat === 'completed') completed++;
-        else if (stat === 'cancelled') onHold++;
-        else inProgress++;
-    });
-
-    const erpTotal = inProgress + onHold + completed + overdue || 1;
-    const erpPieData = [
-        { name: 'In Progress', value: inProgress, color: '#4318FF' },
-        { name: 'On Hold', value: onHold, color: '#FFCE20' },
-        { name: 'Completed', value: completed, color: '#05CD99' },
-        { name: 'Overdue', value: overdue, color: '#EE5D50' }
-    ];
-
-    // HRMS Stats
-    const hPresent = dashboard.hrStats?.presentToday || 0;
-    const hOnLeave = dashboard.hrStats?.onLeave || 0;
-    const hAbsent = dashboard.hrStats?.absentToday || 0;
-    const hMissing = Math.max(0, totalEmployees - hPresent - hOnLeave - hAbsent);
-    
-    const hrmsPieData = [
-        { name: 'Present', value: hPresent, color: '#4318FF' },
-        { name: 'On Leave', value: hOnLeave, color: '#05CD99' },
-        { name: 'Absent', value: hAbsent, color: '#EE5D50' }
-    ];
-    if (hMissing > 0) {
-        hrmsPieData.splice(2, 0, { name: 'Not Marked', value: hMissing, color: '#8b5cf6' });
-    }
-
-    // CRM Stats 
-    const cNew = dashboard.salesStats?.recentCustomers || 0;
-    const cActive = activeCustomers - cNew > 0 ? activeCustomers - cNew : 0;
-    const cInactive = Math.max(0, totalCustomers - activeCustomers);
-    
-    const crmTotal = totalCustomers || 1;
-    const crmPieData = [
-        { name: 'New (This Month)', value: cNew, color: '#4318FF' },
-        { name: 'Active', value: cActive, color: '#05CD99' },
-        { name: 'Inactive', value: cInactive, color: '#EE5D50' }
-    ];
-
-    // Overview Chart (Linear sync logic mapped to real totals)
-    const finalHRMS = totalEmployees;
-    const finalMaterial = totalMaterials;
-    const finalCRM = crmTotal;
-    const finalERP = erpTotal;
-
-    const overviewData = [
-        { name: 'May 1', HRMS: Math.floor(finalHRMS * 0.6), Material: Math.floor(finalMaterial * 0.8), CRM: Math.floor(finalCRM * 0.8), ERP: Math.floor(finalERP * 0.2) },
-        { name: 'May 8', HRMS: Math.floor(finalHRMS * 0.7), Material: Math.floor(finalMaterial * 0.85), CRM: Math.floor(finalCRM * 0.85), ERP: Math.floor(finalERP * 0.4) },
-        { name: 'May 15', HRMS: Math.floor(finalHRMS * 0.8), Material: Math.floor(finalMaterial * 0.9), CRM: Math.floor(finalCRM * 0.9), ERP: Math.floor(finalERP * 0.6) },
-        { name: 'May 22', HRMS: Math.floor(finalHRMS * 0.9), Material: Math.floor(finalMaterial * 0.95), CRM: Math.floor(finalCRM * 0.95), ERP: Math.floor(finalERP * 0.8) },
-        { name: 'May 29', HRMS: Math.floor(finalHRMS * 0.95), Material: Math.floor(finalMaterial * 0.98), CRM: Math.floor(finalCRM * 0.98), ERP: Math.floor(finalERP * 0.9) },
-        { name: 'Jun 5', HRMS: finalHRMS, Material: finalMaterial, CRM: finalCRM, ERP: finalERP },
-    ];
-
-    const recentActivitiesMock = [
-        { id: 1, title: 'New Employee John Doe joined HR Dept.', time: '2m ago', color: '#4318FF', icon: Users },
-        { id: 2, title: 'Low stock alert for Laptop - Qty below 5', time: '15m ago', color: '#05CD99', icon: Package },
-        { id: 3, title: 'New lead ABC Corp. added by Sales Team', time: '1h ago', color: '#8b5cf6', icon: Briefcase },
-        { id: 4, title: 'Project Website Redesign updated', time: '2h ago', color: '#FFCE20', icon: ShoppingCart },
-        { id: 5, title: 'Payment ₹85K received from XYZ Ltd.', time: '3h ago', color: '#05CD99', icon: DollarSign },
-    ];
-
-    const formatDateTime = () => {
-        const d = new Date();
-        const str = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
-        const time = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-        return `${str} \u00A0\u00A0 ${time}`;
-    };
-
-    const getInitials = (name) => {
-        if (!name) return 'AU';
-        const parts = name.split(' ').filter(Boolean);
-        if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
-        return name.substring(0, 2).toUpperCase();
-    };
-
-    const userRole = user?.role || 'Admin User';
-    const isAdmin = user?.email === 'admin@smtbms.com' || user?.role?.toLowerCase() === 'admin' || user?.role?.toLowerCase() === 'super admin';
 
     return (
-        <div className="dashboard-wrapper">
-
-
-            <div className="page-container">
-                {/* Modules Summary Row */}
-                <div className="responsive-grid-4">
-                    <div className="premium-card">
-                        <div className="module-header">
-                            <div className="module-icon-wrap blue-bg"><Users size={20} /></div>
-                            <div className="module-title">
-                                <h3>HRMS</h3>
-                                <p>Total Employees</p>
-                            </div>
-                        </div>
-                        <div className="module-value">
-                            <h2>{totalEmployees}</h2>
-                        </div>
-                        <div className="module-footer">
-                            <div className="pill blue-pill"><Clock size={12} /> {dashboard.hrStats?.newJoiners || 0} New Joiners</div>
-                            <div className="pill lightblue-pill"><Clock size={12} /> {hOnLeave} On Leave</div>
-                        </div>
-                    </div>
-
-                    <div className="premium-card">
-                        <div className="module-header">
-                            <div className="module-icon-wrap orange-bg"><Package size={20} /></div>
-                            <div className="module-title">
-                                <h3>MATERIAL</h3>
-                                <p>Total Items</p>
-                            </div>
-                        </div>
-                        <div className="module-value">
-                            <h2>{matTotal}</h2>
-                        </div>
-                        <div className="module-footer">
-                            <div className="pill orange-pill"><AlertCircle size={12} /> {lowStockCount} Low Stock Alerts</div>
-                            <div className="pill red-pill"><ArrowDownRight size={12} /> {outOfStockCount} Out of Stock</div>
-                        </div>
-                    </div>
-
-                    <div className="premium-card">
-                        <div className="module-header">
-                            <div className="module-icon-wrap green-bg"><Briefcase size={20} /></div>
-                            <div className="module-title">
-                                <h3>CRM</h3>
-                                <p>Total Leads</p>
-                            </div>
-                        </div>
-                        <div className="module-value">
-                            <h2>{crmTotal}</h2>
-                        </div>
-                        <div className="module-footer">
-                            <div className="pill green-pill"><TrendingUp size={12} /> {cNew} New Leads</div>
-                            <div className="pill lightgreen-pill"><CalendarDays size={12} /> {dashboard.salesStats?.recentCustomers || 0} This Month</div>
-                        </div>
-                    </div>
-
-                    <div className="premium-card">
-                        <div className="module-header">
-                            <div className="module-icon-wrap blue-bg"><ShoppingCart size={20} /></div>
-                            <div className="module-title">
-                                <h3>ERP</h3>
-                                <p>Active Projects</p>
-                            </div>
-                        </div>
-                        <div className="module-value">
-                            <h2>{erpTotal}</h2>
-                        </div>
-                        <div className="module-footer">
-                            <div className="pill lightblue-pill"><Clock size={12} /> {inProgress} In Progress</div>
-                            <div className="pill red-pill"><AlertCircle size={12} /> {overdue} Overdue</div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Charts & Actions Row */}
-                <div className="responsive-grid-4-5-3">
-                    <div className="premium-card main-chart">
-                        <div className="card-header">
-                            <div>
-                                <h2>Overview Summary</h2>
-                                <p>Business pulse — all modules · May → Jun</p>
-                            </div>
-                            <button className="outline-select-btn">This Month <ChevronDown size={14} /></button>
-                        </div>
-                        
-                        <div className="chart-legend-top">
-                            <span className="legend-item"><div className="dot blue-dot"></div> HRMS <strong>{finalHRMS}</strong> <small className="text-success">↑+18%</small></span>
-                            <span className="legend-item"><div className="dot orange-dot"></div> Material <strong>{finalMaterial}</strong> <small className="text-success">↑+12%</small></span>
-                            <span className="legend-item"><div className="dot green-dot"></div> CRM <strong>{finalCRM}</strong> <small className="text-success">↑+24%</small></span>
-                            <span className="legend-item"><div className="dot lightblue-dot"></div> ERP <strong>{finalERP}</strong> <small className="text-success">↑+16%</small></span>
-                        </div>
-
-                        <div className="chart-body">
-                            <ResponsiveContainer width="100%" height={260}>
-                                <BarChart data={overviewData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }} barGap={6} barSize={10}>
-                                    <defs>
-                                        <linearGradient id="colorHRMS" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="0%" stopColor="#4318FF" stopOpacity={1}/>
-                                            <stop offset="100%" stopColor="#8A2BE2" stopOpacity={0.8}/>
-                                        </linearGradient>
-                                        <linearGradient id="colorMaterial" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="0%" stopColor="#FF7E00" stopOpacity={1}/>
-                                            <stop offset="100%" stopColor="#FFAA00" stopOpacity={0.8}/>
-                                        </linearGradient>
-                                        <linearGradient id="colorCRM" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="0%" stopColor="#05CD99" stopOpacity={1}/>
-                                            <stop offset="100%" stopColor="#00FFB0" stopOpacity={0.8}/>
-                                        </linearGradient>
-                                        <linearGradient id="colorERP" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="0%" stopColor="#3965FF" stopOpacity={1}/>
-                                            <stop offset="100%" stopColor="#00C3FF" stopOpacity={0.8}/>
-                                        </linearGradient>
-                                    </defs>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(226, 232, 240, 0.4)" />
-                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#A3AED0', fontWeight: 600 }} dy={10} />
-                                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#A3AED0', fontWeight: 600 }} />
-                                    <RechartsTooltip cursor={{fill: 'rgba(244, 247, 254, 0.5)'}} contentStyle={{ borderRadius: '16px', border: '1px solid rgba(255,255,255,0.6)', boxShadow: '0px 10px 30px rgba(112, 144, 176, 0.15)', padding: '14px', backdropFilter: 'blur(10px)', background: 'rgba(255,255,255,0.9)' }} />
-                                    <Bar dataKey="HRMS" fill="url(#colorHRMS)" radius={[6, 6, 0, 0]} />
-                                    <Bar dataKey="Material" fill="url(#colorMaterial)" radius={[6, 6, 0, 0]} />
-                                    <Bar dataKey="CRM" fill="url(#colorCRM)" radius={[6, 6, 0, 0]} />
-                                    <Bar dataKey="ERP" fill="url(#colorERP)" radius={[6, 6, 0, 0]} />
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </div>
-                    </div>
-
-                    <div className="premium-card">
-                        <div className="card-header">
-                            <h2>Quick Actions</h2>
-                        </div>
-                        <div className="actions-list">
-                            <NavLink to="/hrms" className="qa-item">
-                                <div className="qa-icon-wrap blue-bg"><Users size={16}/></div>
-                                <span>Add New Employee</span>
-                                <ArrowUpRight size={16} className="qa-arrow"/>
-                            </NavLink>
-                            <NavLink to="/materials" className="qa-item">
-                                <div className="qa-icon-wrap green-bg"><Box size={16}/></div>
-                                <span>Add New Material</span>
-                                <ArrowUpRight size={16} className="qa-arrow"/>
-                            </NavLink>
-                            <NavLink to="/crm" className="qa-item">
-                                <div className="qa-icon-wrap purple-bg"><ShieldCheck size={16}/></div>
-                                <span>Add New Lead</span>
-                                <ArrowUpRight size={16} className="qa-arrow"/>
-                            </NavLink>
-                            <NavLink to="/erp" className="qa-item">
-                                <div className="qa-icon-wrap yellow-bg"><Briefcase size={16}/></div>
-                                <span>Create New Project</span>
-                                <ArrowUpRight size={16} className="qa-arrow"/>
-                            </NavLink>
-                            <NavLink to="/" className="qa-item">
-                                <div className="qa-icon-wrap lightblue-bg"><Box size={16}/></div>
-                                <span>View All Modules</span>
-                                <ArrowUpRight size={16} className="qa-arrow"/>
-                            </NavLink>
-                        </div>
-                    </div>
-
-                    <div className="premium-card">
-                        <div className="card-header">
-                            <h2>Recent Activities</h2>
-                            <button className="outline-select-btn">View All</button>
-                        </div>
-                        <div className="activity-list">
-                            {recentActivitiesMock.map((act) => (
-                                <div key={act.id} className="activity-item">
-                                    <div className="activity-icon-circle" style={{ color: act.color, backgroundColor: `${act.color}15` }}>
-                                        <act.icon size={16} />
-                                    </div>
-                                    <div className="activity-details">
-                                        <h4>{act.title}</h4>
-                                        <span className="activity-time">{act.time}</span>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-
-                {/* Bottom Pie Charts Row */}
-                <div className="pie-charts-grid">
-                    <div className="premium-card">
-                        <div className="pie-header">
-                            <h3>HRMS - Employee Overview</h3>
-                        </div>
-                        <div className="pie-wrapper">
-                            <ResponsiveContainer width="100%" height={160}>
-                                <PieChart>
-                                    <Pie data={hrmsPieData} cx="50%" cy="50%" innerRadius={50} outerRadius={70} paddingAngle={2} dataKey="value" stroke="none">
-                                        {hrmsPieData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
-                                    </Pie>
-                                    <RechartsTooltip cursor={false} contentStyle={{ borderRadius: '8px', border: '1px solid #E0E5F2', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }} />
-                                </PieChart>
-                            </ResponsiveContainer>
-                            <div className="pie-center">
-                                <strong>{totalEmployees}</strong>
-                                <span>Total</span>
-                            </div>
-                        </div>
-                        <div className="pie-legend-box">
-                            {hrmsPieData.map((item, idx) => (
-                                <div className="pie-legend-row" key={idx}>
-                                    <div className="legend-left">
-                                        <div className="dot" style={{ backgroundColor: item.color }}></div>
-                                        <span>{item.name}</span>
-                                    </div>
-                                    <div className="legend-right">
-                                        <strong>{item.value}</strong>
-                                        <small>({Math.round((item.value / totalEmployees) * 100 || 0)}%)</small>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                        <button className="view-report-btn blue-text">View Full Report →</button>
+        <div className="admin-dashboard-clone">
+            
+            {/* ROW 1: Header & Quick Stats */}
+            <div className="dashboard-header-row">
+                <div className="welcome-area">
+                    <div className="welcome-text-block">
+                        <h1>Good Afternoon, {user?.name ? user.name.split(' ')[0] : 'Admin'}</h1>
+                        <p className="subtitle">
+                            <Shield size={16} className="text-blue-500" />
+                            <span className="role-text">{user?.role || 'System Administrator'}</span>
+                            <span className="dot-sep">&middot;</span>
+                            <span className="date-text">{new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                        </p>
                     </div>
                     
-                    <div className="premium-card">
-                        <div className="pie-header">
-                            <h3>Material - Stock Overview</h3>
+                    <div className="user-context-bar">
+                        <div className="context-item">
+                            <span className="c-label">Department</span>
+                            <span className="c-value">IT / Systems</span>
                         </div>
-                        <div className="pie-wrapper">
-                            <ResponsiveContainer width="100%" height={160}>
-                                <PieChart>
-                                    <Pie data={inventoryData} cx="50%" cy="50%" innerRadius={50} outerRadius={70} paddingAngle={2} dataKey="value" stroke="none">
-                                        {inventoryData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
-                                    </Pie>
-                                    <RechartsTooltip cursor={false} contentStyle={{ borderRadius: '8px', border: '1px solid #E0E5F2', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }} />
-                                </PieChart>
-                            </ResponsiveContainer>
-                            <div className="pie-center">
-                                <strong>{matTotal}</strong>
-                                <span>Items</span>
-                            </div>
+                        <div className="context-item">
+                            <span className="c-label">Reporting To</span>
+                            <span className="c-value">Board</span>
                         </div>
-                        <div className="pie-legend-box">
-                            {inventoryData.map((item, idx) => (
-                                <div className="pie-legend-row" key={idx}>
-                                    <div className="legend-left">
-                                        <div className="dot" style={{ backgroundColor: item.color }}></div>
-                                        <span>{item.name}</span>
-                                    </div>
-                                    <div className="legend-right">
-                                        <strong>{item.value}</strong>
-                                        <small>({Math.round((item.value / matTotal) * 100 || 0)}%)</small>
-                                    </div>
-                                </div>
-                            ))}
+                        <div className="context-item">
+                            <span className="c-label">Location</span>
+                            <span className="c-value">Head Office</span>
                         </div>
-                        <button className="view-report-btn orange-text">View Full Report →</button>
+                        <div className="context-item">
+                            <span className="c-label">Status</span>
+                            <span className="c-value status-good"><CheckCircle size={14}/> Checked In</span>
+                        </div>
                     </div>
 
-                    <div className="premium-card">
-                        <div className="pie-header">
-                            <h3>CRM - Lead Status</h3>
-                        </div>
-                        <div className="pie-wrapper">
-                            <ResponsiveContainer width="100%" height={160}>
-                                <PieChart>
-                                    <Pie data={crmPieData} cx="50%" cy="50%" innerRadius={50} outerRadius={70} paddingAngle={2} dataKey="value" stroke="none">
-                                        {crmPieData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
-                                    </Pie>
-                                    <RechartsTooltip cursor={false} contentStyle={{ borderRadius: '8px', border: '1px solid #E0E5F2', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }} />
-                                </PieChart>
-                            </ResponsiveContainer>
-                            <div className="pie-center">
-                                <strong>{activeCustomers}</strong>
-                                <span>Leads</span>
-                            </div>
-                        </div>
-                        <div className="pie-legend-box">
-                            {crmPieData.map((item, idx) => (
-                                <div className="pie-legend-row" key={idx}>
-                                    <div className="legend-left">
-                                        <div className="dot" style={{ backgroundColor: item.color }}></div>
-                                        <span>{item.name}</span>
-                                    </div>
-                                    <div className="legend-right">
-                                        <strong>{item.value}</strong>
-                                        <small>({Math.round((item.value / activeCustomers) * 100 || 0)}%)</small>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                        <button className="view-report-btn green-text">View Full Report →</button>
-                    </div>
-
-                    <div className="premium-card">
-                        <div className="pie-header">
-                            <h3>ERP - Projects Overview</h3>
-                        </div>
-                        <div className="pie-wrapper">
-                            <ResponsiveContainer width="100%" height={160}>
-                                <PieChart>
-                                    <Pie data={erpPieData} cx="50%" cy="50%" innerRadius={50} outerRadius={70} paddingAngle={2} dataKey="value" stroke="none">
-                                        {erpPieData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
-                                    </Pie>
-                                    <RechartsTooltip cursor={false} contentStyle={{ borderRadius: '8px', border: '1px solid #E0E5F2', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }} />
-                                </PieChart>
-                            </ResponsiveContainer>
-                            <div className="pie-center">
-                                <strong>{erpTotal}</strong>
-                                <span>Projects</span>
-                            </div>
-                        </div>
-                        <div className="pie-legend-box">
-                            {erpPieData.map((item, idx) => (
-                                <div className="pie-legend-row" key={idx}>
-                                    <div className="legend-left">
-                                        <div className="dot" style={{ backgroundColor: item.color }}></div>
-                                        <span>{item.name}</span>
-                                    </div>
-                                    <div className="legend-right">
-                                        <strong>{item.value}</strong>
-                                        <small>({Math.round((item.value / erpTotal) * 100 || 0)}%)</small>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                        <button className="view-report-btn blue-text">View Full Report →</button>
+                    <div className="quick-action-buttons">
+                        <button className="btn-primary"><CheckCircle size={16}/> Check In</button>
+                        <button className="btn-secondary"><Calendar size={16}/> Apply Leave</button>
+                        <button className="btn-secondary"><DollarSign size={16}/> View Payslip</button>
                     </div>
                 </div>
 
+                <div className="top-stat-cards">
+                    <div className="top-stat-card">
+                        <div className="ts-icon red"><Shield size={24} /></div>
+                        <div className="ts-info">
+                            <h3>92%</h3>
+                            <p>Performance<br/><span>This Quarter</span></p>
+                        </div>
+                    </div>
+                    <div className="top-stat-card">
+                        <div className="ts-icon orange"><Activity size={24} /></div>
+                        <div className="ts-info">
+                            <h3>87%</h3>
+                            <p>System Health<br/><span>Live Status</span></p>
+                        </div>
+                    </div>
+                    <div className="top-stat-card">
+                        <div className="ts-icon green"><CheckCircle size={24} /></div>
+                        <div className="ts-info">
+                            <h3>128</h3>
+                            <p>Tasks Done<br/><span>This Month</span></p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            
+            {/* ROW 2: Summary Cards (Donut Charts) */}
+            <div className="summary-cards-row">
+                {/* HRMS Card */}
+                <div className="summary-card card-blue">
+                    <h3 className="sc-header-center">HRMS &mdash; Employee Overview</h3>
+                    <CustomDonut data={hrmsPie} total={128} label="Total" />
+                </div>
+
+                {/* Material Card */}
+                <div className="summary-card card-orange">
+                    <h3 className="sc-header-center">Material &mdash; Stock Overview</h3>
+                    <CustomDonut data={materialPie} total={320} label="Items" />
+                </div>
+                
+                {/* CRM Card */}
+                <div className="summary-card card-green">
+                    <h3 className="sc-header-center">CRM &mdash; Leads Overview</h3>
+                    <CustomDonut data={crmPie} total={256} label="Leads" />
+                </div>
+
+                {/* ERP Card */}
+                <div className="summary-card card-purple">
+                    <h3 className="sc-header-center">ERP &mdash; Project Overview</h3>
+                    <CustomDonut data={erpPie} total={24} label="Projects" />
+                </div>
+            </div>
+
+            {/* ROW 3: Charts & Actions */}
+            <div className="middle-row">
+                <div className="chart-section panel-white">
+                    <div className="panel-header">
+                        <div>
+                            <h3>Overview Summary</h3>
+                            <p>Business pulse &mdash; all modules &middot; May &rarr; Jun</p>
+                        </div>
+                        <select className="dropdown-select"><option>This Month</option></select>
+                    </div>
+                    
+                    <div className="chart-legends-top">
+                        <span className="cl"><span className="dot blue"></span> HRMS <strong>128</strong> <span className="up">&uarr;18%</span></span>
+                        <span className="cl"><span className="dot orange"></span> Material <strong>320</strong> <span className="up">&uarr;12%</span></span>
+                        <span className="cl"><span className="dot green"></span> CRM <strong>256</strong> <span className="up">&uarr;24%</span></span>
+                        <span className="cl"><span className="dot purple"></span> ERP <strong>24</strong> <span className="up">&uarr;16%</span></span>
+                    </div>
+
+                    <div className="chart-container">
+                        <ResponsiveContainer width="100%" height={250}>
+                            <BarChart data={barData} margin={{top: 20, right: 0, left: -20, bottom: 0}}>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} dy={10} />
+                                <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
+                                <RechartsTooltip cursor={{fill: '#f8fafc'}} />
+                                <Bar dataKey="HRMS" fill="#3b82f6" radius={[4,4,0,0]} barSize={8} />
+                                <Bar dataKey="Material" fill="#f59e0b" radius={[4,4,0,0]} barSize={8} />
+                                <Bar dataKey="CRM" fill="#10b981" radius={[4,4,0,0]} barSize={8} />
+                                <Bar dataKey="ERP" fill="#8b5cf6" radius={[4,4,0,0]} barSize={8} />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
+
+                <div className="quick-actions-section panel-white">
+                    <div className="panel-header">
+                        <h3>Quick Actions</h3>
+                    </div>
+                    <div className="action-buttons">
+                        <button className="qa-btn blue">
+                            <div className="qa-icon"><UserPlus size={18}/></div>
+                            <span>Add New Employee</span>
+                            <ChevronRight size={16} className="qa-arrow" />
+                        </button>
+                        <button className="qa-btn green">
+                            <div className="qa-icon"><Package size={18}/></div>
+                            <span>Add New Material</span>
+                            <ChevronRight size={16} className="qa-arrow" />
+                        </button>
+                        <button className="qa-btn purple">
+                            <div className="qa-icon"><Briefcase size={18}/></div>
+                            <span>Add New Lead</span>
+                            <ChevronRight size={16} className="qa-arrow" />
+                        </button>
+                        <button className="qa-btn orange">
+                            <div className="qa-icon"><FileText size={18}/></div>
+                            <span>Create New Project</span>
+                            <ChevronRight size={16} className="qa-arrow" />
+                        </button>
+                        <button className="qa-btn cyan">
+                            <div className="qa-icon"><LayoutDashboard size={18}/></div>
+                            <span>View All Modules</span>
+                            <ChevronRight size={16} className="qa-arrow" />
+                        </button>
+                    </div>
+                </div>
+
+                <div className="recent-activities-section panel-white">
+                    <div className="panel-header">
+                        <h3>Recent Activities</h3>
+                        <button className="view-all-btn">View All</button>
+                    </div>
+                    <div className="activity-list">
+                        <div className="activity-item">
+                            <div className="act-icon blue"><UserPlus size={16}/></div>
+                            <div className="act-content">
+                                <h4>New Employee John Doe joined HR Dept.</h4>
+                                <span>2m ago</span>
+                            </div>
+                        </div>
+                        <div className="activity-item">
+                            <div className="act-icon green"><Package size={16}/></div>
+                            <div className="act-content">
+                                <h4>Low stock alert for Laptop - Qty below 5</h4>
+                                <span>15m ago</span>
+                            </div>
+                        </div>
+                        <div className="activity-item">
+                            <div className="act-icon purple"><Briefcase size={16}/></div>
+                            <div className="act-content">
+                                <h4>New lead ABC Corp. added by Sales Team</h4>
+                                <span>1h ago</span>
+                            </div>
+                        </div>
+                        <div className="activity-item">
+                            <div className="act-icon orange"><ShoppingCart size={16}/></div>
+                            <div className="act-content">
+                                <h4>Project Website Redesign updated</h4>
+                                <span>2h ago</span>
+                            </div>
+                        </div>
+                        <div className="activity-item">
+                            <div className="act-icon emerald"><DollarSign size={16}/></div>
+                            <div className="act-content">
+                                <h4>Payment ₹85K received from XYZ Ltd.</h4>
+                                <span>3h ago</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     );
 };

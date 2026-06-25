@@ -467,836 +467,204 @@ const ERP = () => {
     console.log('ERP stats:', erpStats);
 
     return (
-        <div className="page-container">
-            {/* Breadcrumb */}
-            <div className="breadcrumb-nav">
-                <span className="crumb" onClick={() => navigate('/')}>Dashboard</span>
-                <ChevronRight size={14} className="separator" />
-                <span className="crumb active">ERP Operations</span>
+        <div className="module-container">
+            {/* KPI Section */}
+            <div className="module-kpi-section">
+                <div className="kpi-card">
+                    <div className="kpi-header">
+                        <span className="kpi-title">Total Orders</span>
+                        <div className="kpi-icon-wrapper" style={{background: 'rgba(59,130,246,0.1)', color: '#3B82F6'}}>
+                            <ShoppingCart size={20} />
+                        </div>
+                    </div>
+                    <div className="kpi-value">{totalOrders}</div>
+                </div>
+
+                <div className="kpi-card">
+                    <div className="kpi-header">
+                        <span className="kpi-title">Sales Orders</span>
+                        <div className="kpi-icon-wrapper" style={{background: 'rgba(16,185,129,0.1)', color: '#10B981'}}>
+                            <ArrowUpRight size={20} />
+                        </div>
+                    </div>
+                    <div className="kpi-value">{salesOrders}</div>
+                </div>
+
+                <div className="kpi-card">
+                    <div className="kpi-header">
+                        <span className="kpi-title">Purchase Orders</span>
+                        <div className="kpi-icon-wrapper" style={{background: 'rgba(245,158,11,0.1)', color: '#F59E0B'}}>
+                            <ArrowDownRight size={20} />
+                        </div>
+                    </div>
+                    <div className="kpi-value">{purchaseOrders}</div>
+                </div>
+
+                <div className="kpi-card">
+                    <div className="kpi-header">
+                        <span className="kpi-title">Pending Invoices</span>
+                        <div className="kpi-icon-wrapper" style={{background: 'rgba(239,68,68,0.1)', color: '#EF4444'}}>
+                            <AlertTriangle size={20} />
+                        </div>
+                    </div>
+                    <div className="kpi-value">{pendingInvoices}</div>
+                </div>
             </div>
 
-            <header className="page-header">
-                <div>
-                    <h1 className="page-title">ERP Operations</h1>
-                    <p className="page-subtitle">Handle procurement, inventory, orders, vendors, finances and analytics.</p>
+            {/* Actions Section */}
+            <div className="module-actions-section">
+                <div className="module-title-block">
+                    <h1>ERP Operations</h1>
+                    <p>Manage procurement, sales orders, and invoices.</p>
                 </div>
-                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                    <div className="search-bar" style={{ position: 'relative', width: '250px' }}>
-                        <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                <div className="action-buttons">
+                    <button className="btn-secondary" onClick={() => setShowFilters(!showFilters)}>
+                        <Filter size={16} /> Filters
+                    </button>
+                    {(userInfo?.role?.toLowerCase() === 'admin' || userInfo?.role?.toLowerCase() === 'super admin' || userInfo?.role?.toLowerCase() === 'manager' || userInfo?.role?.toLowerCase() === 'hr') && (
+                        <button className="btn-primary" onClick={() => navigate('/orders/select-type')}>
+                            <Plus size={16} /> Create Order
+                        </button>
+                    )}
+                </div>
+            </div>
+
+            {/* Filters Section */}
+            {showFilters && (
+                <div className="module-actions-section" style={{background: 'var(--bg-surface-hover)', padding: '16px', marginTop: '-12px', borderTop: 'none', borderTopLeftRadius: 0, borderTopRightRadius: 0}}>
+                    <div className="global-search" style={{width: '300px', background: 'var(--bg-body)'}}>
+                        <Search size={16} className="search-icon" />
                         <input 
                             type="text" 
                             placeholder="Search orders..." 
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            style={{ width: '100%', padding: '10px 12px 10px 36px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--bg-body)', color: 'var(--text-primary)' }}
                         />
                     </div>
-                    <button className="btn-secondary-light flex-center gap-8" onClick={() => setShowFilters(!showFilters)}>
-                        <Filter size={16} /> Filters
-                    </button>
-                    {(userInfo?.role?.toLowerCase() === 'admin' || userInfo?.role?.toLowerCase() === 'super admin' || userInfo?.role?.toLowerCase() === 'manager' || userInfo?.role?.toLowerCase() === 'hr') && (
-                        <button className="btn-primary flex-center gap-8" onClick={() => navigate('/orders/select-type')}>
-                            <Plus size={16} /> Create Order
-                        </button>
-                    )}
-                </div>
-            </header>
-
-            {/* KPI Cards Grid */}
-            {/* KPI Cards Grid */}
-            <section className="erp-metrics-grid">
-                {/* 1. Total Orders (Blue) */}
-                <div className="kpi-gradient-card bg-blue">
-                    <div className="card-top-row">
-                        <div className="kpi-glass-icon"><ShoppingCart size={20} strokeWidth={2.5}/></div>
-                        <div className="kpi-top-right">
-                            <span className="kpi-trend-pill">▲ +12%</span>
-                            <span className="kpi-dots">•••</span>
-                        </div>
-                    </div>
-                    <div className="card-middle">
-                        <h2 className="kpi-val">{totalOrders}</h2>
-                        <span className="kpi-label-text">Total Orders</span>
-                    </div>
-                    <div className="card-bottom-row">
-                        <svg className="kpi-mini-chart" viewBox="0 0 100 30" preserveAspectRatio="none">
-                            <path d="M0,25 C20,20 30,30 50,15 C65,5 80,25 100,5" stroke="rgba(255,255,255,0.5)" strokeWidth="2" fill="none" />
-                            <circle cx="100" cy="5" r="3" fill="white" />
-                        </svg>
-                        <div className="kpi-trend-footer">
-                            <span className="kpi-vs">VS LAST MO.</span>
-                            <span className="kpi-pct">+12%</span>
-                        </div>
-                    </div>
-                    <div className="kpi-deco-circle"></div>
-                </div>
-
-                {/* 2. Sales Orders (Green) */}
-                <div className="kpi-gradient-card bg-green">
-                    <div className="card-top-row">
-                        <div className="kpi-glass-icon"><ArrowUpRight size={20} strokeWidth={2.5}/></div>
-                        <div className="kpi-top-right">
-                            <span className="kpi-trend-pill">▲ +21%</span>
-                            <span className="kpi-dots">•••</span>
-                        </div>
-                    </div>
-                    <div className="card-middle">
-                        <h2 className="kpi-val">{salesOrders}</h2>
-                        <span className="kpi-label-text">Sales Orders</span>
-                    </div>
-                    <div className="card-bottom-row">
-                        <svg className="kpi-mini-chart" viewBox="0 0 100 30" preserveAspectRatio="none">
-                            <path d="M0,25 C15,25 25,15 40,20 C60,25 70,10 100,5" stroke="rgba(255,255,255,0.5)" strokeWidth="2" fill="none" />
-                            <circle cx="100" cy="5" r="3" fill="white" />
-                        </svg>
-                        <div className="kpi-trend-footer">
-                            <span className="kpi-vs">VS LAST MO.</span>
-                            <span className="kpi-pct">+21%</span>
-                        </div>
-                    </div>
-                    <div className="kpi-deco-circle"></div>
-                </div>
-
-                {/* 3. Purchase Orders (Orange) */}
-                <div className="kpi-gradient-card bg-orange">
-                    <div className="card-top-row">
-                        <div className="kpi-glass-icon"><ArrowDownRight size={20} strokeWidth={2.5}/></div>
-                        <div className="kpi-top-right">
-                            <span className="kpi-trend-pill">▼ 8%</span>
-                            <span className="kpi-dots">•••</span>
-                        </div>
-                    </div>
-                    <div className="card-middle">
-                        <h2 className="kpi-val">{purchaseOrders}</h2>
-                        <span className="kpi-label-text">Purchase Orders</span>
-                    </div>
-                    <div className="card-bottom-row">
-                        <svg className="kpi-mini-chart" viewBox="0 0 100 30" preserveAspectRatio="none">
-                            <path d="M0,5 C20,10 30,5 50,15 C70,25 80,20 100,28" stroke="rgba(255,255,255,0.5)" strokeWidth="2" fill="none" />
-                            <circle cx="100" cy="28" r="3" fill="white" />
-                        </svg>
-                        <div className="kpi-trend-footer">
-                            <span className="kpi-vs">VS LAST MO.</span>
-                            <span className="kpi-pct">-8%</span>
-                        </div>
-                    </div>
-                    <div className="kpi-deco-circle"></div>
-                </div>
-
-                {/* 4. Pending Invoices (Red) */}
-                <div className="kpi-gradient-card bg-red cursor-pointer highlight-hover" onClick={() => { setShowInvoiceModal(true); setInvoiceTab('Pending'); }}>
-                    <div className="card-top-row">
-                        <div className="kpi-glass-icon"><AlertTriangle size={20} strokeWidth={2.5}/></div>
-                        <div className="kpi-top-right">
-                            <span className="kpi-trend-pill">▼ 15%</span>
-                            <span className="kpi-dots">•••</span>
-                        </div>
-                    </div>
-                    <div className="card-middle">
-                        <h2 className="kpi-val">{pendingInvoices}</h2>
-                        <span className="kpi-label-text">Pending Invoices</span>
-                    </div>
-                    <div className="card-bottom-row">
-                        <svg className="kpi-mini-chart" viewBox="0 0 100 30" preserveAspectRatio="none">
-                            <path d="M0,10 C20,15 30,15 50,25 C70,35 80,25 100,28" stroke="rgba(255,255,255,0.5)" strokeWidth="2" fill="none" />
-                            <circle cx="100" cy="28" r="3" fill="white" />
-                        </svg>
-                        <div className="kpi-trend-footer">
-                            <span className="kpi-vs">VS LAST MO.</span>
-                            <span className="kpi-pct">-15%</span>
-                        </div>
-                    </div>
-                    <div className="kpi-deco-circle"></div>
-                </div>
-
-                {/* 5. Total Revenue (Span 2, Blue) */}
-                <div className="kpi-gradient-card bg-blue span-2">
-                    <div className="card-top-row">
-                        <div className="kpi-glass-icon"><DollarSign size={20} strokeWidth={2.5}/></div>
-                        <div className="kpi-top-right">
-                            <span className="kpi-trend-pill">▲ +18%</span>
-                            <span className="kpi-dots">•••</span>
-                        </div>
-                    </div>
-                    <div className="card-middle">
-                        <h2 className="kpi-val">{formatCurrencyLocal(finalTotalRevenueNum)}</h2>
-                        <span className="kpi-label-text">Total Revenue</span>
-                    </div>
-                    <div className="card-bottom-row">
-                        <svg className="kpi-mini-chart" viewBox="0 0 100 30" preserveAspectRatio="none">
-                            <path d="M0,30 C30,20 50,25 70,10 C85,0 95,15 100,5" stroke="rgba(255,255,255,0.5)" strokeWidth="2" fill="none" />
-                            <circle cx="100" cy="5" r="3" fill="white" />
-                        </svg>
-                        <div className="kpi-trend-footer">
-                            <span className="kpi-vs">VS LAST MO.</span>
-                            <span className="kpi-pct">+18%</span>
-                        </div>
-                    </div>
-                    <div className="kpi-deco-circle"></div>
-                </div>
-
-                {/* 6. Total Purchase Cost (Span 2, Orange) */}
-                <div className="kpi-gradient-card bg-orange span-2">
-                    <div className="card-top-row">
-                        <div className="kpi-glass-icon"><DollarSign size={20} strokeWidth={2.5}/></div>
-                        <div className="kpi-top-right">
-                            <span className="kpi-trend-pill">▼ 4%</span>
-                            <span className="kpi-dots">•••</span>
-                        </div>
-                    </div>
-                    <div className="card-middle">
-                        <h2 className="kpi-val">{formatCurrencyLocal(totalPurchaseCostNum)}</h2>
-                        <span className="kpi-label-text">Total Purchase Cost</span>
-                    </div>
-                    <div className="card-bottom-row">
-                        <svg className="kpi-mini-chart" viewBox="0 0 100 30" preserveAspectRatio="none">
-                            <path d="M0,5 C30,15 50,5 70,20 C85,30 95,15 100,25" stroke="rgba(255,255,255,0.5)" strokeWidth="2" fill="none" />
-                            <circle cx="100" cy="25" r="3" fill="white" />
-                        </svg>
-                        <div className="kpi-trend-footer">
-                            <span className="kpi-vs">VS LAST MO.</span>
-                            <span className="kpi-pct">-4%</span>
-                        </div>
-                    </div>
-                    <div className="kpi-deco-circle"></div>
-                </div>
-
-                {/* 7. Due Today */}
-                <div className="kpi-gradient-card bg-green">
-                    <div className="card-top-row">
-                        <div className="kpi-glass-icon"><Clock size={20} strokeWidth={2.5}/></div>
-                        <div className="kpi-top-right">
-                            <span className="kpi-trend-pill">▲ +2%</span>
-                            <span className="kpi-dots">•••</span>
-                        </div>
-                    </div>
-                    <div className="card-middle">
-                        <h2 className="kpi-val">{dueTodayCount}</h2>
-                        <span className="kpi-label-text">Due Today</span>
-                    </div>
-                    <div className="card-bottom-row">
-                        <svg className="kpi-mini-chart" viewBox="0 0 100 30" preserveAspectRatio="none">
-                            <path d="M0,25 C20,25 30,15 50,20 C70,25 80,10 100,5" stroke="rgba(255,255,255,0.5)" strokeWidth="2" fill="none" />
-                            <circle cx="100" cy="5" r="3" fill="white" />
-                        </svg>
-                        <div className="kpi-trend-footer">
-                            <span className="kpi-vs">VS LAST MO.</span>
-                            <span className="kpi-pct">+2%</span>
-                        </div>
-                    </div>
-                    <div className="kpi-deco-circle"></div>
-                </div>
-
-                {/* 8. Due This Week */}
-                <div className="kpi-gradient-card bg-blue">
-                    <div className="card-top-row">
-                        <div className="kpi-glass-icon"><Calendar size={20} strokeWidth={2.5}/></div>
-                        <div className="kpi-top-right">
-                            <span className="kpi-trend-pill">▲ +5%</span>
-                            <span className="kpi-dots">•••</span>
-                        </div>
-                    </div>
-                    <div className="card-middle">
-                        <h2 className="kpi-val">{dueThisWeekCount}</h2>
-                        <span className="kpi-label-text">Due This Week</span>
-                    </div>
-                    <div className="card-bottom-row">
-                        <svg className="kpi-mini-chart" viewBox="0 0 100 30" preserveAspectRatio="none">
-                            <path d="M0,20 C20,15 30,25 50,15 C70,5 80,15 100,5" stroke="rgba(255,255,255,0.5)" strokeWidth="2" fill="none" />
-                            <circle cx="100" cy="5" r="3" fill="white" />
-                        </svg>
-                        <div className="kpi-trend-footer">
-                            <span className="kpi-vs">VS LAST MO.</span>
-                            <span className="kpi-pct">+5%</span>
-                        </div>
-                    </div>
-                    <div className="kpi-deco-circle"></div>
-                </div>
-
-                {/* 9. Overdue Orders */}
-                <div className="kpi-gradient-card bg-red">
-                    <div className="card-top-row">
-                        <div className="kpi-glass-icon"><AlertTriangle size={20} strokeWidth={2.5}/></div>
-                        <div className="kpi-top-right">
-                            <span className="kpi-trend-pill">▲ +8%</span>
-                            <span className="kpi-dots">•••</span>
-                        </div>
-                    </div>
-                    <div className="card-middle">
-                        <h2 className="kpi-val">{overdueCount}</h2>
-                        <span className="kpi-label-text">Overdue Orders</span>
-                    </div>
-                    <div className="card-bottom-row">
-                        <svg className="kpi-mini-chart" viewBox="0 0 100 30" preserveAspectRatio="none">
-                            <path d="M0,25 C20,20 30,30 50,15 C70,0 80,20 100,5" stroke="rgba(255,255,255,0.5)" strokeWidth="2" fill="none" />
-                            <circle cx="100" cy="5" r="3" fill="white" />
-                        </svg>
-                        <div className="kpi-trend-footer">
-                            <span className="kpi-vs">VS LAST MO.</span>
-                            <span className="kpi-pct">+8%</span>
-                        </div>
-                    </div>
-                    <div className="kpi-deco-circle"></div>
-                </div>
-
-                {/* 10. Completed */}
-                <div className="kpi-gradient-card bg-green">
-                    <div className="card-top-row">
-                        <div className="kpi-glass-icon"><CheckCircle size={20} strokeWidth={2.5}/></div>
-                        <div className="kpi-top-right">
-                            <span className="kpi-trend-pill">▲ +14%</span>
-                            <span className="kpi-dots">•••</span>
-                        </div>
-                    </div>
-                    <div className="card-middle">
-                        <h2 className="kpi-val">{completedDeliveriesCount}</h2>
-                        <span className="kpi-label-text">Completed</span>
-                    </div>
-                    <div className="card-bottom-row">
-                        <svg className="kpi-mini-chart" viewBox="0 0 100 30" preserveAspectRatio="none">
-                            <path d="M0,25 C20,20 30,30 50,15 C65,5 80,25 100,5" stroke="rgba(255,255,255,0.5)" strokeWidth="2" fill="none" />
-                            <circle cx="100" cy="5" r="3" fill="white" />
-                        </svg>
-                        <div className="kpi-trend-footer">
-                            <span className="kpi-vs">VS LAST MO.</span>
-                            <span className="kpi-pct">+14%</span>
-                        </div>
-                    </div>
-                    <div className="kpi-deco-circle"></div>
-                </div>
-            </section>
-
-            {/* Charts Row */}
-            <div className="charts-grid">
-                {/* Purchase Order Summary */}
-                <div className="premium-card po-summary-card" style={{ padding: '24px' }}>
-                    <h3 className="card-title" style={{ fontSize: '18px', fontWeight: 700, marginBottom: '20px' }}>Purchase Order Summary</h3>
-                    
-                    {/* Summary mini cards */}
-                    <div className="po-summary-cards-grid">
-                        <div className="po-summary-mini-card">
-                            <span className="mini-card-label">Total Orders</span>
-                            <span className="mini-card-value">{totalPo}</span>
-                        </div>
-                        <div className="po-summary-mini-card approved">
-                            <span className="mini-card-label">Approved Orders</span>
-                            <span className="mini-card-value">{poApprovedCount}</span>
-                        </div>
-                        <div className="po-summary-mini-card pending">
-                            <span className="mini-card-label">Pending Orders</span>
-                            <span className="mini-card-value">{poDraftCount}</span>
-                        </div>
-                        <div className="po-summary-mini-card completed">
-                            <span className="mini-card-label">Completed Orders</span>
-                            <span className="mini-card-value">{poReceivedCount}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Active Orders List */}
-            {showFilters && (
-                <div className="filter-panel animate-slide-down">
-                    <div className="filter-group">
-                        <label>Order Status:</label>
-                        <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
-                            <option value="All">All Orders</option>
-                            <option value="Awaiting Approval">Awaiting Approval</option>
-                            <option value="Approved">Approved</option>
-                            <option value="Pending">Pending</option>
-                            <option value="Confirmed">Confirmed</option>
-                            <option value="Shipped">Shipped</option>
-                            <option value="Delivered">Delivered</option>
-                            <option value="Cancelled">Cancelled</option>
-                        </select>
-                    </div>
+                    <select 
+                        style={{padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--border-light)', background: 'var(--bg-body)', outline: 'none', color: 'var(--text-main)'}}
+                        value={statusFilter} 
+                        onChange={e => setStatusFilter(e.target.value)}
+                    >
+                        <option value="All">All Orders</option>
+                        <option value="Awaiting Approval">Awaiting Approval</option>
+                        <option value="Approved">Approved</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Confirmed">Confirmed</option>
+                        <option value="Shipped">Shipped</option>
+                        <option value="Delivered">Delivered</option>
+                        <option value="Cancelled">Cancelled</option>
+                    </select>
                 </div>
             )}
 
-            <div className="premium-card">
-                <div className="erp-tabs" style={{ display: 'flex', gap: '8px', padding: '16px 24px', borderBottom: '1px solid var(--border)' }}>
-                    <button 
-                        className={`erp-tab ${activeTab === 'active' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('active')}
-                    >
-                        Active Orders
-                    </button>
-                    <button 
-                        className={`erp-tab ${activeTab === 'history' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('history')}
-                    >
-                        Order History
-                    </button>
+            {/* Data Table Section */}
+            <div className="module-data-section">
+                <div style={{display: 'flex', gap: '12px', marginBottom: '16px'}}>
+                    <button className={`btn-secondary ${activeTab === 'active' ? 'btn-primary' : ''}`} onClick={() => setActiveTab('active')} style={activeTab === 'active' ? {background: 'var(--primary)', color: 'white', borderColor: 'var(--primary)'} : {}}>Active Orders</button>
+                    <button className={`btn-secondary ${activeTab === 'history' ? 'btn-primary' : ''}`} onClick={() => setActiveTab('history')} style={activeTab === 'history' ? {background: 'var(--primary)', color: 'white', borderColor: 'var(--primary)'} : {}}>Order History</button>
                 </div>
-                <div className="enterprise-table-container">
+                <div className="table-container">
                     <table className="enterprise-table">
                         <thead>
                             <tr>
                                 <th onClick={() => handleSort('orderNumber')} style={{ cursor: 'pointer' }}>Order ID {sortConfig.key === 'orderNumber' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
-                                <th onClick={() => handleSort('orderType')} style={{ cursor: 'pointer' }}>Order Type {sortConfig.key === 'orderType' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
-                                <th onClick={() => handleSort('customerOrVendor')} style={{ cursor: 'pointer' }}>{customerVendorHeader} {sortConfig.key === 'customerOrVendor' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
-                                <th>Quantity</th>
-                                <th onClick={() => handleSort('totalAmount')} style={{ cursor: 'pointer' }}>Amount {sortConfig.key === 'totalAmount' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
-                                <th onClick={() => handleSort('orderDate')} style={{ cursor: 'pointer' }}>Order Date {sortConfig.key === 'orderDate' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
-                                <th onClick={() => handleSort('expectedDeliveryDate')} style={{ cursor: 'pointer' }}>Expected Delivery {sortConfig.key === 'expectedDeliveryDate' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
-                                <th>Approvals (Mgr / Emp / Sales)</th>
-                                <th>Delivery Status</th>
-                                <th onClick={() => handleSort('status')} style={{ cursor: 'pointer' }}>Final Status {sortConfig.key === 'status' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
+                                <th onClick={() => handleSort('orderType')} style={{ cursor: 'pointer' }}>Type</th>
+                                <th onClick={() => handleSort('customerOrVendor')} style={{ cursor: 'pointer' }}>Organization</th>
+                                <th>Amount</th>
+                                <th onClick={() => handleSort('orderDate')} style={{ cursor: 'pointer' }}>Order Date</th>
+                                <th onClick={() => handleSort('status')} style={{ cursor: 'pointer' }}>Status</th>
                                 <th style={{ textAlign: 'right' }}>Actions</th>
                             </tr>
                         </thead>
-                    <tbody>
-                        {filteredOrders.length === 0 ? (
-                            <tr>
-                                <td colSpan="11" style={{ padding: '60px 20px', borderBottom: 'none' }}>
-                                    <div style={{ position: 'sticky', left: '50%', transform: 'translateX(-50%)', display: 'inline-flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '16px', width: 'max-content' }}>
-                                        <div style={{ background: 'var(--bg-hover)', padding: '20px', borderRadius: '50%', color: 'var(--text-muted)' }}>
-                                            <ShoppingCart size={48} strokeWidth={1.5} />
-                                        </div>
-                                        <div style={{ textAlign: 'center' }}>
-                                            <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)' }}>No Orders Available</h3>
-                                            <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-muted)', maxWidth: '300px', lineHeight: '1.5' }}>There are currently no orders to display.</p>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        ) : paginatedOrders.map((ord) => {
-                            const isEmp = userInfo.role === 'Employee';
-                            const isSales = userInfo.role === 'Sales';
-                            const hideActions = isEmp || isSales;
-                            
-                            const customerOrVendor = ord.orderType === 'sales' 
-                                ? (ord.customer?.company || ord.customer?.name || 'Walk-in')
-                                : (ord.vendor?.companyName || ord.vendor?.name || 'Walk-in');
-                            const isSalesRole = userInfo.role === 'Sales';
-                            
-                            const displayStatus = (status) => {
-                                const pendingStates = ['Pending', 'Awaiting Approval', 'Awaiting Stock Check'];
-                                if (pendingStates.includes(status)) {
-                                    return 'Pending';
-                                }
-                                return status;
-                            };
-                            
-                            const getCustomerName = (order) => {
-                                const cId = order.customerId || (order.customer && (order.customer.id || order.customer._id)) || order.customer;
-                                const cMatch = customers.find(c => String(c.id || c._id) === String(cId)) || (typeof order.customer === 'object' ? order.customer : null);
-                                if (cMatch && cMatch.company) return cMatch.company;
-                                if (order.customerName) return order.customerName;
-                                if (order.customer && order.customer.name) return order.customer.name;
-                                return cMatch && cMatch.name ? cMatch.name : 'Unassigned';
-                            };
-
-                            const getVendorName = (order) => {
-                                if (order.vendor && order.vendor.name) return order.vendor.name;
-                                const vId = order.vendorId || order.vendor;
-                                const vMatch = vendors.find(v => String(v.id || v._id) === String(vId));
-                                return vMatch ? vMatch.name : 'Unassigned';
-                            };
-                            
-                            const ordType = String(ord.orderType || ord.type || '').toLowerCase();
-                            const amount = ord.totalAmount || ord.amount || ord.grandTotal || 0;
-                            
-                            const currentStatusText = displayStatus(ord.status);
-                            const statusClass = currentStatusText.toLowerCase().replace(/ /g, '-');
-                            
-                            const renderApprovalBadge = (label, status, approverObj, fallbackDate) => {
-                                const isApproved = status === 'Approved' || status === 'Submitted';
-                                const isRejected = status === 'Rejected';
-                                const badgeClass = isApproved ? 'approved' : (isRejected ? 'rejected' : 'pending');
-                                const Icon = isApproved ? CheckCircle : (isRejected ? XCircle : Clock);
+                        <tbody>
+                            {paginatedOrders.map((ord) => {
+                                const customerOrVendor = ord.orderType === 'sales' 
+                                    ? (ord.customer?.company || ord.customer?.name || 'Walk-in')
+                                    : (ord.vendor?.companyName || ord.vendor?.name || 'Walk-in');
                                 
-                                const approverName = approverObj?.name || (status === 'N/A' ? 'N/A' : 'Awaiting Action');
-                                const actionDate = approverObj?.date ? new Date(approverObj.date).toLocaleString() : (fallbackDate ? new Date(fallbackDate).toLocaleString() : 'N/A');
-                                const notes = ord.notes || 'N/A';
-
+                                const amount = ord.totalAmount || ord.amount || ord.grandTotal || 0;
+                                
                                 return (
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
-                                        <span className="text-muted" style={{ fontSize: '11px', fontWeight: '600', width: '36px' }}>{label}:</span>
-                                        <div className="approval-tooltip-wrapper">
-                                            <span className={`status-badge-inline ${badgeClass}`} style={{ padding: '2px 6px', fontSize: '10px', minWidth: '75px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', cursor: 'help' }}>
-                                                <Icon size={12} /> {status}
+                                    <tr key={ord._id || ord.id}>
+                                        <td><span style={{fontWeight: 600, color: 'var(--primary)', cursor: 'pointer'}} onClick={() => handleOrderClick(ord)}>{ord.orderNumber || ord.id}</span></td>
+                                        <td>
+                                            <span style={{padding: '4px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 600, background: ord.orderType === 'sales' ? 'rgba(16,185,129,0.1)' : 'rgba(59,130,246,0.1)', color: ord.orderType === 'sales' ? '#10B981' : '#3B82F6'}}>
+                                                {ord.orderType === 'sales' ? 'SALES' : 'PURCHASE'}
                                             </span>
-                                            <div className="approval-tooltip-content">
-                                                <div style={{ fontWeight: '600', marginBottom: '4px', fontSize: '13px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                                    <Icon size={14} /> {label} Details
-                                                </div>
-                                                <div style={{ display: 'grid', gridTemplateColumns: '50px 1fr', gap: '6px', marginTop: '8px' }}>
-                                                    <span style={{ color: '#94a3b8' }}>User:</span>
-                                                    <span>{approverName}</span>
-                                                    
-                                                    <span style={{ color: '#94a3b8' }}>Role:</span>
-                                                    <span>{approverObj?.role || (label === 'MGR' ? 'Manager' : (label === 'EMP' ? 'Employee' : 'Sales'))}</span>
+                                        </td>
+                                        <td>{customerOrVendor}</td>
+                                        <td><strong>{formatCurrencyLocal(amount)}</strong></td>
+                                        <td>{ord.orderDate ? new Date(ord.orderDate).toLocaleDateString() : new Date(ord.createdAt).toLocaleDateString()}</td>
+                                        <td>
+                                            <span style={{padding: '4px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 600, background: 'var(--bg-hover)', color: 'var(--text-main)'}}>
+                                                {ord.finalStatus || ord.status || "-"}
+                                            </span>
+                                        </td>
+                                        <td style={{ textAlign: 'right' }}>
+                                            <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
+                                                {/* Track Order Button */}
+                                                {((ord.deliveryStatus && !['Not Started'].includes(ord.deliveryStatus)) || ['Cancelled', 'Rejected'].includes(ord.status)) && (
+                                                    <button className="icon-btn" onClick={() => navigate(`/orders/${ord.id || ord._id}/tracking`)} title="Track Order">
+                                                        <Truck size={14} />
+                                                    </button>
+                                                )}
 
-                                                    <span style={{ color: '#94a3b8' }}>Status:</span>
-                                                    <span className={isApproved ? 'text-success' : (isRejected ? 'text-danger' : 'text-warning')} style={{ fontWeight: '600' }}>{status}</span>
+                                                {/* Download Invoice Button */}
+                                                {(['Confirmed', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Rejected'].includes(ord.status) || ord.invoiceGenerated) && (
+                                                    <button className="icon-btn" onClick={() => handleDownloadInvoice(ord)} title="Download Invoice">
+                                                        <Download size={14} />
+                                                    </button>
+                                                )}
 
-                                                    <span style={{ color: '#94a3b8' }}>Date:</span>
-                                                    <span>{actionDate}</span>
-                                                    
-                                                    <span style={{ color: '#94a3b8' }}>Notes:</span>
-                                                    <span style={{ fontStyle: 'italic', color: '#cbd5e1' }}>{notes}</span>
-                                                </div>
+                                                {/* Delete Action (Admin/Manager) */}
+                                                {(isAdmin || userInfo.role === 'Manager' || userInfo.role === 'Super Admin') && (
+                                                    <button className="icon-btn" style={{color: 'var(--danger)'}} onClick={() => handleDeleteOrder(ord._id || ord.id)} title="Delete Order">
+                                                        <Trash2 size={14} />
+                                                    </button>
+                                                )}
                                             </div>
-                                        </div>
-                                    </div>
+                                        </td>
+                                    </tr>
                                 );
-                            };
-                            
-                            const renderQuantity = (order) => {
-                                if (!order.items || order.items.length === 0) return '-';
-                                if (order.items.length === 1) {
-                                    const item = order.items[0];
-                                    const mat = materials.find(m => String(m.id || m._id) === String(item.material));
-                                    return `${item.quantity} ${mat?.unit || 'pcs'}`;
-                                }
-                                const totalQty = order.items.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
-                                return (
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                                        <span style={{ cursor: 'pointer', color: 'var(--primary)', fontWeight: '600' }} onClick={() => handleOrderClick(order)}>{order.items.length} Items</span>
-                                        <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Total: {totalQty}</span>
-                                    </div>
-                                );
-                            };
-
-                            let rowClass = "";
-                            if (ord.expectedDeliveryDate && !['Delivered', 'Completed', 'Cancelled', 'Rejected'].includes(ord.status)) {
-                                const edd = new Date(ord.expectedDeliveryDate);
-                                const todayDate = new Date();
-                                todayDate.setHours(0,0,0,0);
-                                const diffTime = edd - todayDate;
-                                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                                
-                                if (diffDays < 0) {
-                                    rowClass = "row-overdue";
-                                } else if (diffDays <= 3) {
-                                    rowClass = "row-due-soon";
-                                } else {
-                                    rowClass = "row-on-schedule";
-                                }
-                            }
-
-                            return (
-                                <tr key={ord._id || ord.id} id={`order-row-${ord._id || ord.id}`} className={rowClass}>
-                                    <td><code className="po-code" style={{ cursor: 'pointer', color: 'var(--primary)' }} onClick={() => handleOrderClick(ord)}>{ord.orderNumber || ord.id}</code></td>
-                                    <td>
-                                        {ordType === 'purchase' ? (
-                                            <span className="order-type-badge purchase">Purchase Order</span>
-                                        ) : (
-                                            <span className="order-type-badge sales">Sales Order</span>
-                                        )}
-                                    </td>
-                                    <td className="vendor-name-cell">
-                                        {ordType === 'purchase' ? getVendorName(ord) : getCustomerName(ord)}
-                                    </td>
-                                    <td>{renderQuantity(ord)}</td>
-                                    <td><strong>{formatCurrencyLocal(amount)}</strong></td>
-                                    <td>{ord.orderDate ? new Date(ord.orderDate).toLocaleDateString() : new Date(ord.createdAt).toLocaleDateString()}</td>
-                                    <td>
-                                        {ord.expectedDeliveryDate ? (
-                                            <span style={{ fontWeight: 600 }}>{new Date(ord.expectedDeliveryDate).toLocaleDateString()}</span>
-                                        ) : (
-                                            <span className="text-muted small">N/A</span>
-                                        )}
-                                    </td>
-                                    <td>
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                            {renderApprovalBadge(
-                                                'MGR', 
-                                                (ord.managerApproval === 'Approved' || ord.approvalStatus === 'Manager Approved' || ord.approvalStatus === 'Employee Approved' || (ord.orderType === 'purchase' && ord.status === 'Approved')) ? 'Approved' : 'Pending',
-                                                ord._approvers?.manager || null,
-                                                ord.approvedDate
-                                            )}
-                                            {renderApprovalBadge(
-                                                'EMP', 
-                                                (ord.employeeApproval === 'Approved' || ord.approvalStatus === 'Employee Approved') ? 'Approved' : (ord.employeeApproval === 'Rejected' ? 'Rejected' : 'Pending'),
-                                                ord._approvers?.employee || null,
-                                                ord.updatedAt // fallback since employee doesn't have explicit date
-                                            )}
-                                            {renderApprovalBadge(
-                                                'SALES', 
-                                                ord.orderType === 'sales' ? 'Submitted' : 'N/A',
-                                                ord._approvers?.creator || null,
-                                                ord.orderDate || ord.createdAt
-                                            )}
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span className={`status-badge-inline ${String(ord.deliveryStatus || 'Not Started').toLowerCase().replace(/ /g, '-')}`}>{ord.deliveryStatus || "-"}</span>
-                                    </td>
-                                    <td>
-                                        <span className={`status-badge-inline ${statusClass}`}>{ord.finalStatus || ord.status || "-"}</span>
-                                    </td>
-                                    <td style={{ textAlign: 'right' }}>
-                                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-                                            {/* Manager Action */}
-                                            {(isAdmin || userInfo.role === 'Manager' || userInfo.role === 'Super Admin') && ord.orderType === 'sales' && (ord.approvalStatus === 'Pending Manager Approval' || ord.status === 'Created' || ord.status === 'Pending Approval') && (
-                                                <button className="btn-approve" onClick={() => handleStatusChange(ord._id, 'Manager Approved')}>Approve (Manager)</button>
-                                            )}
-
-                                            {/* Employee Action */}
-                                            {(isAdmin || ['Manager', 'HR', 'Super Admin'].includes(userInfo?.role)) && ord.orderType === 'sales' && ord.approvalStatus === 'Manager Approved' && (
-                                                <button className="btn-workflow-confirm" style={{ background: '#3b82f6', color: 'white', padding: '6px 12px', borderRadius: '6px', fontSize: '11px', fontWeight: '700', border: 'none', cursor: 'pointer' }} onClick={() => handleStatusChange(ord._id, 'Employee Approved')}>Approve Stock</button>
-                                            )}
-
-                                            {/* Sales Actions */}
-                                            {(isAdmin || isSalesRole || userInfo.role === 'Super Admin') && ord.orderType === 'sales' && ord.approvalStatus === 'Employee Approved' && ord.deliveryStatus === 'Not Started' && (
-                                                <button className="btn-workflow-confirm" style={{ background: '#8b5cf6', color: 'white', padding: '6px 12px', borderRadius: '6px', fontSize: '11px', fontWeight: '700', border: 'none', cursor: 'pointer' }} onClick={() => handleStatusChange(ord._id, 'Processing')}>Start Processing</button>
-                                            )}
-
-                                            {(isAdmin || isSalesRole || userInfo.role === 'Super Admin') && ord.orderType === 'sales' && ord.deliveryStatus === 'Processing' && (
-                                                <button className="btn-workflow-deliver" style={{ background: '#f59e0b', color: 'white', padding: '6px 12px', borderRadius: '6px', fontSize: '11px', fontWeight: '700', border: 'none', cursor: 'pointer' }} onClick={() => handleStatusChange(ord._id, 'Shipped')}>Mark Shipped</button>
-                                            )}
-
-                                            {(isAdmin || isSalesRole || userInfo.role === 'Super Admin') && ord.orderType === 'sales' && ord.deliveryStatus === 'Shipped' && (
-                                                <button className="btn-workflow-deliver" style={{ background: '#10b981', color: 'white', padding: '6px 12px', borderRadius: '6px', fontSize: '11px', fontWeight: '700', border: 'none', cursor: 'pointer' }} onClick={() => handleStatusChange(ord._id, 'Delivered')}>Mark Delivered</button>
-                                            )}
-
-                                            {/* Legacy non-sales logic */}
-                                            {ord.orderType === 'purchase' && (ord.status === 'Pending' || ord.status === 'Awaiting Approval') && (isAdmin || userInfo.role === 'Super Admin' || userInfo.role === 'Manager') && (
-                                                <button className="btn-approve" onClick={() => handleStatusChange(ord._id, 'Approved')}>Approve</button>
-                                            )}
-
-                                            {/* Employee Purchase Order Approval Action */}
-                                            {ord.orderType === 'purchase' && (ord.managerApproval === 'Approved' || ord.status === 'Approved') && (!ord.employeeApproval || ord.employeeApproval === 'Not Started' || ord.employeeApproval === 'Pending') && (isAdmin || ['Manager', 'HR', 'Super Admin'].includes(userInfo?.role)) && (
-                                                <>
-                                                    <button className="btn-workflow-confirm" style={{ background: '#10b981', color: 'white', padding: '6px 12px', borderRadius: '6px', fontSize: '11px', fontWeight: '700', border: 'none', cursor: 'pointer' }} onClick={() => handleEmployeePurchaseApproval(ord._id || ord.id, 'Approve')}>Approve (Emp)</button>
-                                                    <button className="btn-workflow-confirm" style={{ background: '#ef4444', color: 'white', padding: '6px 12px', borderRadius: '6px', fontSize: '11px', fontWeight: '700', border: 'none', cursor: 'pointer' }} onClick={() => handleEmployeePurchaseApproval(ord._id || ord.id, 'Reject')}>Reject (Emp)</button>
-                                                </>
-                                            )}
-
-                                            {/* Track Order Button */}
-                                            {((ord.deliveryStatus && !['Not Started'].includes(ord.deliveryStatus)) || ['Cancelled', 'Rejected'].includes(ord.status)) && (
-                                                <button className="btn-secondary-light" style={{ padding: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4f46e5' }} onClick={() => navigate(`/orders/${ord.id || ord._id}/tracking`)} title="Track Order">
-                                                    <Truck size={14} />
-                                                </button>
-                                            )}
-
-                                            {/* Download Invoice Button */}
-                                            {(['Confirmed', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Rejected'].includes(ord.status) || ord.invoiceGenerated) && (
-                                                <button className="btn-secondary-light" style={{ padding: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => handleDownloadInvoice(ord)} title="Download Invoice">
-                                                    <Download size={14} />
-                                                </button>
-                                            )}
-
-                                            {/* Delete Action (Admin/Manager) */}
-                                            {(isAdmin || userInfo.role === 'Manager' || userInfo.role === 'Super Admin') && (
-                                                <button className="btn-secondary-light" style={{ padding: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--danger)' }} onClick={() => handleDeleteOrder(ord._id || ord.id)} title="Delete Order">
-                                                    <Trash2 size={14} />
-                                                </button>
-                                            )}
-                                        </div>
+                            })}
+                            {paginatedOrders.length === 0 && (
+                                <tr>
+                                    <td colSpan="7" style={{textAlign: 'center', padding: '40px', color: 'var(--text-muted)'}}>
+                                        No orders found matching the current criteria.
                                     </td>
                                 </tr>
-                            );
-                        })}
-                    </tbody>
-                </table>
+                            )}
+                        </tbody>
+                    </table>
                 </div>
-                {/* Pagination Controls */}
+                {/* Pagination */}
                 {totalPages > 0 && (
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 24px', borderTop: '1px solid var(--border)' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                            <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>
-                                Showing {totalItems === 0 ? 0 : startIndex + 1} to {Math.min(startIndex + pageSize, totalItems)} of {totalItems} orders
-                            </span>
-                            <select 
-                                value={pageSize} 
-                                onChange={e => { setPageSize(Number(e.target.value)); setCurrentPage(1); }}
-                                style={{ padding: '4px 8px', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--bg-body)', color: 'var(--text-primary)', fontSize: '13px', cursor: 'pointer' }}
-                            >
-                                <option value={10}>10 per page</option>
-                                <option value={25}>25 per page</option>
-                                <option value={50}>50 per page</option>
-                                <option value={100}>100 per page</option>
-                            </select>
-                        </div>
-                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                            <button 
-                                className="btn-secondary-light" 
-                                disabled={currentPage === 1}
-                                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                                style={{ opacity: currentPage === 1 ? 0.5 : 1, cursor: currentPage === 1 ? 'not-allowed' : 'pointer' }}
-                            >
-                                Previous
-                            </button>
-                            <span style={{ padding: '0 8px', fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)' }}>
-                                Page {currentPage} of {totalPages}
-                            </span>
-                            <button 
-                                className="btn-secondary-light" 
-                                disabled={currentPage === totalPages}
-                                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                                style={{ opacity: currentPage === totalPages ? 0.5 : 1, cursor: currentPage === totalPages ? 'not-allowed' : 'pointer' }}
-                            >
-                                Next
-                            </button>
+                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px'}}>
+                        <span style={{fontSize: '13px', color: 'var(--text-muted)'}}>Showing {startIndex + 1} to {Math.min(startIndex + pageSize, totalItems)} of {totalItems}</span>
+                        <div style={{display: 'flex', gap: '8px', alignItems: 'center'}}>
+                            <button className="btn-secondary" disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)}>Prev</button>
+                            <span style={{fontSize: '13px', fontWeight: 600}}>Page {currentPage} of {totalPages}</span>
+                            <button className="btn-secondary" disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => p + 1)}>Next</button>
                         </div>
                     </div>
                 )}
             </div>
 
-            {/* Invoice List Modal */}
-            {showInvoiceModal && (
-                <div className="modal-overlay">
-                    <div className="modal-content animate-pop" style={{ maxWidth: '1000px' }}>
-                        <div className="modal-header">
-                            <h2>Invoices</h2>
-                            <button className="close-btn" onClick={() => setShowInvoiceModal(false)}>✕</button>
-                        </div>
-                        <div className="erp-tabs" style={{ paddingBottom: '16px' }}>
-                            {['All', 'Pending', 'Paid', 'Overdue', 'Partially Paid'].map(tab => (
-                                <button 
-                                    key={tab}
-                                    className={`erp-tab ${invoiceTab === tab ? 'active' : ''}`}
-                                    onClick={() => setInvoiceTab(tab)}
-                                >
-                                    {tab}
-                                </button>
-                            ))}
-                        </div>
-                        <div className="table-card" style={{ boxShadow: 'none', margin: '0', padding: '0', maxHeight: '500px', overflowY: 'auto' }}>
-                            <table className="enterprise-table" >
-                                <thead>
-                                    <tr>
-                                        <th>Invoice ID</th>
-                                        <th>Order ID</th>
-                                        <th>Organization / Company</th>
-                                        <th>Type</th>
-                                        <th>Amount</th>
-                                        <th>Invoice Date</th>
-                                        <th>Due Date</th>
-                                        <th>Payment Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {validOrders
-                                        .filter(o => invoiceTab === 'All' || o.paymentStatus === invoiceTab || (invoiceTab === 'Pending' && !o.paymentStatus))
-                                        .sort((a, b) => new Date(b.invoiceDate || b.createdAt) - new Date(a.invoiceDate || a.createdAt))
-                                        .map(o => (
-                                        <tr key={o._id}>
-                                            <td><strong>{o.invoiceNumber || `INV-${o.orderNumber}`}</strong></td>
-                                            <td>{o.orderNumber}</td>
-                                            <td>{o.orderType === 'sales' ? (o.customer?.company || o.customer?.companyName || o.customer?.name || 'Unassigned') : (o.vendor?.companyName || o.vendor?.name || 'Unassigned')}</td>
-                                            <td>{o.orderType === 'sales' ? 'Receivable' : 'Payable'}</td>
-                                            <td>${(o.totalAmount || 0).toLocaleString()}</td>
-                                            <td>{o.invoiceDate ? new Date(o.invoiceDate).toLocaleDateString() : new Date(o.createdAt).toLocaleDateString()}</td>
-                                            <td>
-                                                {o.invoiceDueDate ? new Date(o.invoiceDueDate).toLocaleDateString() : (o.expectedDeliveryDate ? new Date(o.expectedDeliveryDate).toLocaleDateString() : 'N/A')}
-                                            </td>
-                                            <td>
-                                                <span className={`status-badge status-${(o.paymentStatus || 'Pending').replace(/\s+/g, '-').toLowerCase()}`}>
-                                                    {o.paymentStatus || 'Pending'}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <div className="action-buttons" style={{ display: 'flex', gap: '8px' }}>
-                                                    <button className="btn-icon" onClick={() => { setShowOrderDetailsModal(true); setSelectedOrderDetails(o); }} title="View Invoice">
-                                                        <Eye size={14} />
-                                                    </button>
-                                                    <button className="btn-icon" onClick={() => handleDownloadInvoice(o._id)} title="Download PDF">
-                                                        <Download size={14} />
-                                                    </button>
-                                                    {o.paymentStatus !== 'Paid' && (
-                                                        <>
-                                                            <button className="btn-icon" style={{ color: 'var(--success)' }} onClick={() => handlePaymentStatusChange(o._id, 'Paid')} title="Mark as Paid">
-                                                                <CheckCircle size={14} />
-                                                            </button>
-                                                            <button className="btn-icon" style={{ color: 'var(--warning)' }} onClick={() => handleSendReminder(o._id)} title="Send Reminder">
-                                                                <Bell size={14} />
-                                                            </button>
-                                                        </>
-                                                    )}
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                    {validOrders.filter(o => invoiceTab === 'All' || o.paymentStatus === invoiceTab || (invoiceTab === 'Pending' && !o.paymentStatus)).length === 0 && (
-                                        <tr>
-                                            <td colSpan="9" style={{ textAlign: 'center', padding: '24px' }}>No invoices found.</td>
-                                        </tr>
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Order Details Modal */}
+            {/* Modals */}
             {showOrderDetailsModal && selectedOrderDetails && (
-                <div className="modal-overlay" style={{ zIndex: 2100 }}>
-                    <div className="modal-content animate-pop" style={{ maxWidth: '600px' }}>
-                        <div className="modal-header">
-                            <h2>Order Details: {selectedOrderDetails.orderNumber}</h2>
-                            <button className="close-btn" onClick={() => setShowOrderDetailsModal(false)}>✕</button>
+                <div style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyItems: 'center', justifyContent: 'center'}}>
+                    <div style={{background: 'var(--bg-surface)', padding: '24px', borderRadius: '12px', width: '500px', maxWidth: '90%'}}>
+                        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px'}}>
+                            <h2 style={{margin: 0}}>Order Details</h2>
+                            <button className="icon-btn" onClick={() => setShowOrderDetailsModal(false)}><XCircle size={20}/></button>
                         </div>
-                        <div style={{ padding: '20px' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', fontSize: '14px' }}>
-                                <div>
-                                    <p style={{ margin: '0 0 8px 0', color: 'var(--text-muted)' }}>Organization / Company</p>
-                                    <h3 style={{ margin: 0 }}>{selectedOrderDetails.orderType === 'purchase' ? (selectedOrderDetails.vendor?.company || selectedOrderDetails.vendor?.companyName || selectedOrderDetails.vendor?.name || 'Unassigned') : (selectedOrderDetails.customer?.company || selectedOrderDetails.customer?.companyName || selectedOrderDetails.customer?.name || 'Unassigned')}</h3>
-                                </div>
-                                <div style={{ textAlign: 'right' }}>
-                                    <p style={{ margin: '0 0 8px 0', color: 'var(--text-muted)' }}>Status</p>
-                                    <span className={`status-badge-inline ${selectedOrderDetails.status.toLowerCase().replace(/ /g, '-')}`}>{selectedOrderDetails.status}</span>
-                                </div>
-                            </div>
-                            
-                            <h4 style={{ margin: '0 0 12px 0', paddingBottom: '8px', borderBottom: '1px solid var(--border)' }}>Items Ordered</h4>
-                            <table className="enterprise-table" >
-                                <thead>
-                                    <tr>
-                                        <th>Material</th>
-                                        <th>SKU</th>
-                                        <th style={{ textAlign: 'right' }}>Qty</th>
-                                        <th style={{ textAlign: 'right' }}>Unit Price</th>
-                                        <th style={{ textAlign: 'right' }}>Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {selectedOrderDetails.items && selectedOrderDetails.items.map((item, idx) => {
-                                        const mat = materials.find(m => String(m.id || m._id) === String(item.material));
-                                        return (
-                                            <tr key={idx}>
-                                                <td>{mat?.name || 'Unknown Item'}</td>
-                                                <td><code style={{ fontSize: '11px', background: 'var(--bg-hover)', padding: '2px 4px', borderRadius: '4px' }}>{mat?.sku || '-'}</code></td>
-                                                <td style={{ textAlign: 'right' }}><strong>{item.quantity}</strong> {mat?.unit || 'pcs'}</td>
-                                                <td style={{ textAlign: 'right' }}>${item.price}</td>
-                                                <td style={{ textAlign: 'right' }}><strong>${(item.quantity * item.price).toLocaleString()}</strong></td>
-                                            </tr>
-                                        );
-                                    })}
-                                </tbody>
-                                <tfoot>
-                                    <tr>
-                                        <td colSpan="4" style={{ textAlign: 'right', fontWeight: 'bold', paddingTop: '16px' }}>Grand Total</td>
-                                        <td style={{ textAlign: 'right', fontWeight: 'bold', paddingTop: '16px', fontSize: '15px' }}>${selectedOrderDetails.totalAmount?.toLocaleString()}</td>
-                                    </tr>
-                                </tfoot>
-                            </table>
-
-                            <div style={{ display: 'flex', gap: '12px', marginTop: '24px', flexWrap: 'wrap' }}>
-                                <div style={{ flex: 1, minWidth: '120px', background: 'var(--bg-hover)', padding: '12px', borderRadius: '8px' }}>
-                                    <p style={{ margin: '0 0 4px 0', fontSize: '12px', color: 'var(--text-muted)' }}>Order Date</p>
-                                    <strong style={{ fontSize: '14px' }}>{selectedOrderDetails.orderDate ? new Date(selectedOrderDetails.orderDate).toLocaleDateString() : new Date(selectedOrderDetails.createdAt).toLocaleDateString()}</strong>
-                                </div>
-                                <div style={{ flex: 1, minWidth: '120px', background: 'var(--bg-hover)', padding: '12px', borderRadius: '8px' }}>
-                                    <p style={{ margin: '0 0 4px 0', fontSize: '12px', color: 'var(--text-muted)' }}>Expected Delivery</p>
-                                    <strong style={{ fontSize: '14px' }}>{selectedOrderDetails.expectedDeliveryDate ? new Date(selectedOrderDetails.expectedDeliveryDate).toLocaleDateString() : 'N/A'}</strong>
-                                </div>
-                                <div style={{ flex: 1, minWidth: '120px', background: 'var(--bg-hover)', padding: '12px', borderRadius: '8px' }}>
-                                    <p style={{ margin: '0 0 4px 0', fontSize: '12px', color: 'var(--text-muted)' }}>Delivery Status</p>
-                                    <strong style={{ fontSize: '14px' }}>{selectedOrderDetails.deliveryStatus || 'Not Started'}</strong>
-                                </div>
-                            </div>
-                        </div>
+                        <p><strong>Order ID:</strong> {selectedOrderDetails.orderNumber}</p>
+                        <p><strong>Status:</strong> {selectedOrderDetails.status}</p>
+                        <p><strong>Total Amount:</strong> {formatCurrencyLocal(selectedOrderDetails.totalAmount)}</p>
                     </div>
                 </div>
             )}
-
-            
         </div>
     );
 };

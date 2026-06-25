@@ -127,7 +127,7 @@ const MyAttendance = () => {
             setStatus(data);
             fetchData();
         } catch (error) {
-            alert(error.response?.data?.message || 'Check-in failed');
+            toast.error(error.response?.data?.message || 'Check-in failed');
         } finally {
             setActionLoading(false);
         }
@@ -141,7 +141,7 @@ const MyAttendance = () => {
             setStatus(data);
             fetchData();
         } catch (error) {
-            alert(error.response?.data?.message || 'Check-out failed');
+            toast.error(error.response?.data?.message || 'Check-out failed');
         } finally {
             setActionLoading(false);
         }

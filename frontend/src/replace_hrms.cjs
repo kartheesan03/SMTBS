@@ -1,145 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import API from '../api/axios';
-import { Plus, Search, UserPlus, Mail, Phone, Calendar, Trash2, Download } from 'lucide-react';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
-import ExcelJS from 'exceljs';
+const fs = require('fs');
+const file = 'c:/Users/Admin/Documents/project/frontend/src/pages/HRMS.jsx';
+let content = fs.readFileSync(file, 'utf8');
 
-const HRMS = () => {
-    const [employees, setEmployees] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [showModal, setShowModal] = useState(false);
-    const [formData, setFormData] = useState({
-        employeeId: '', firstName: '', lastName: '', 
-        department: 'Employee', designation: '', contact: '', phone: '',
-        address: '', password: '', joinDate: new Date().toISOString().split('T')[0]
-    });
-
-    const [selectedEmployee, setSelectedEmployee] = useState(null);
-    const [editingId, setEditingId] = useState(null);
-    const [isEditing, setIsEditing] = useState(false);
-    const [deleteConfirm, setDeleteConfirm] = useState(null);
-
-    const fetchEmployees = async () => {
-        try {
-            const { data } = await API.get('/employees');
-            setEmployees(data);
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const location = useLocation();
-    const navigate = useNavigate();
-
-    useEffect(() => {
-        fetchEmployees();
-        if (location.state?.openModal) {
-            setShowModal(true);
-            window.history.replaceState({}, document.title);
-        }
-    }, []);
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            if (isEditing) {
-                await API.put(`/employees/${editingId}`, formData);
-            } else {
-                await API.post('/employees', formData);
-            }
-            setShowModal(false);
-            setIsEditing(false);
-            setEditingId(null);
-            setFormData({
-                employeeId: '', firstName: '', lastName: '', 
-                department: 'Employee', designation: '', contact: '', phone: '',
-                address: '', password: '', joinDate: new Date().toISOString().split('T')[0]
-            });
-            fetchEmployees();
-        } catch (error) {
-            alert(error.response?.data?.message || 'Error saving employee');
-        }
-    };
-
-    const handleDelete = async (employee) => {
-        try {
-            await API.delete(`/employees/${employee._id}`);
-            setDeleteConfirm(null);
-            setSelectedEmployee(null);
-            fetchEmployees();
-        } catch (error) {
-            alert(error.response?.data?.message || 'Error deleting employee');
-        }
-    };
-
-    const exportToPDF = () => {
-        const doc = new jsPDF();
-        doc.setFontSize(18);
-        doc.text('Employee Directory', 14, 22);
-        doc.setFontSize(10);
-        doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 30);
-        const tableData = employees.map(e => [
-            e.employeeId, `${e.firstName} ${e.lastName || ''}`, e.department, e.designation, e.contact || 'N/A', new Date(e.joinDate).toLocaleDateString()
-        ]);
-        doc.autoTable({
-            head: [['Emp ID', 'Name', 'Department', 'Designation', 'Contact', 'Join Date']],
-            body: tableData,
-            startY: 36,
-            styles: { fontSize: 9 },
-            headStyles: { fillColor: [37, 99, 235] }
-        });
-        doc.save('employees_report.pdf');
-    };
-
-    const exportToExcel = async () => {
-        const workbook = new ExcelJS.Workbook();
-        const sheet = workbook.addWorksheet('Employees');
-        sheet.columns = [
-            { header: 'Emp ID', key: 'employeeId', width: 15 },
-            { header: 'First Name', key: 'firstName', width: 20 },
-            { header: 'Last Name', key: 'lastName', width: 20 },
-            { header: 'Department', key: 'department', width: 15 },
-            { header: 'Designation', key: 'designation', width: 25 },
-            { header: 'Contact', key: 'contact', width: 25 },
-            { header: 'Join Date', key: 'joinDate', width: 15 },
-            { header: 'Address', key: 'address', width: 30 }
-        ];
-        employees.forEach(e => {
-            sheet.addRow({
-                employeeId: e.employeeId,
-                firstName: e.firstName,
-                lastName: e.lastName || '',
-                department: e.department,
-                designation: e.designation,
-                contact: e.contact || '',
-                joinDate: new Date(e.joinDate).toLocaleDateString(),
-                address: e.address || ''
-            });
-        });
-        sheet.getRow(1).font = { bold: true };
-        const buffer = await workbook.xlsx.writeBuffer();
-        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url; a.download = 'employees_report.xlsx'; a.click();
-        URL.revokeObjectURL(url);
-    };
-
-    if (loading) {
-        return (
-            <div className="loading-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', color: 'var(--text-secondary)' }}>
-                <div className="loader" style={{ width: '40px', height: '40px', border: '4px solid var(--border)', borderTopColor: 'var(--primary)', borderRadius: '50%', animation: 'spin 1s linear infinite', marginBottom: '16px' }}></div>
-                <p style={{ fontWeight: 600 }}>Loading Employee Data...</p>
-                <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-            </div>
-        );
-    }
-
-    return (
+const returnIndex = content.search(/return \([\s\S]{0,100}<div className="page-container">/);
+if(returnIndex !== -1) {
+   const beforeReturn = content.slice(0, returnIndex);
+   const newReturn = `return (
         <div className="module-container">
             {/* KPI Section */}
             <div className="module-kpi-section">
@@ -397,3 +263,9 @@ const HRMS = () => {
 };
 
 export default HRMS;
+`;
+   fs.writeFileSync(file, beforeReturn + newReturn);
+   console.log('HRMS.jsx successfully replaced');
+} else {
+    console.log('Could not find return statement');
+}

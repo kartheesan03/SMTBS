@@ -1,283 +1,597 @@
-import React, { useContext } from 'react';
-import { Bell, Calendar as CalendarIcon, ChevronDown, Search, ChevronRight } from 'lucide-react';
+import React, { useContext, useState, useEffect, useRef } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { NotificationContext } from '../context/NotificationContext';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
-import API from '../api/axios';
+import { Bell, RefreshCw, Search, Grid, Plus, LogOut, User, Settings as SettingsIcon } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-const Topbar = () => {
-    const { user } = useContext(AuthContext);
-    const { unreadCount } = useContext(NotificationContext);
+const Topbar = ({ onOpenModuleLauncher, onOpenCommandCenter }) => {
+    const { user, logout } = useContext(AuthContext);
     const navigate = useNavigate();
-    const location = useLocation();
-    const [designation, setDesignation] = React.useState('');
-    const [imgError, setImgError] = React.useState(false);
+    const [currentTime, setCurrentTime] = useState(new Date());
+    const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+    const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+    const profileRef = useRef(null);
 
-    React.useEffect(() => {
-        setImgError(false);
-    }, [user?.picture]);
+    useEffect(() => {
+        const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+        return () => clearInterval(timer);
+    }, []);
 
-    React.useEffect(() => {
-        const fetchMe = async () => {
-            if (user && user.role !== 'Customer' && user.role !== 'Vendor') {
-                try {
-                    const { data } = await API.get('/employees/me');
-                    if (data && data.designation) {
-                        setDesignation(data.designation);
-                    }
-                } catch (err) {
-                    console.error("Failed to fetch designation in Topbar", err);
-                }
+    // Close profile menu if clicked outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (profileRef.current && !profileRef.current.contains(event.target)) {
+                setIsProfileMenuOpen(false);
             }
         };
-        fetchMe();
-    }, [user]);
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
-    const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    const formattedDate = currentTime.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+    const formattedTime = currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
 
-    // Generate Breadcrumbs
-    const pathnames = location.pathname.split('/').filter(x => x);
-    
+    const handleConfirmLogout = () => {
+        logout();
+        navigate('/login');
+    };
+
     return (
         <header className="topbar">
-            
-            <div className="topbar-left desktop-only">
-                <nav className="breadcrumbs">
-                    <Link to="/" className="breadcrumb-link">Home</Link>
-                    {pathnames.map((value, index) => {
-                        const to = `/${pathnames.slice(0, index + 1).join('/')}`;
-                        const isLast = index === pathnames.length - 1;
-                        const formattedValue = value.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                        return (
-                            <React.Fragment key={to}>
-                                <ChevronRight size={14} className="breadcrumb-separator" />
-                                {isLast ? (
-                                    <span className="breadcrumb-current">{formattedValue}</span>
-                                ) : (
-                                    <Link to={to} className="breadcrumb-link">{formattedValue}</Link>
-                                )}
-                            </React.Fragment>
-                        );
-                    })}
-                </nav>
-            </div>
-            
-            <div className="topbar-center desktop-only">
-                <div className="global-search">
-                    <Search size={14} className="search-icon" />
-                    <input type="text" placeholder="Search across app..." />
-                    <span className="search-shortcut">⌘K</span>
-                </div>
-            </div>
-            
-            <div className="topbar-actions">
-                <div className="date-selector desktop-only">
-                    <CalendarIcon size={14} className="text-muted" />
-                    <span>{today}</span>
+            <div className="topbar-left">
+                <div className="topbar-brand" onClick={() => navigate('/')}>
+                    <div className="brand-logo-tb">
+                        <span>S</span>
+                    </div>
+                    <h2>SMTBMS</h2>
                 </div>
                 
-                <button className="topbar-btn relative" onClick={() => navigate('/notifications')}>
-                    <Bell size={18} />
-                    {unreadCount > 0 && <span className="notification-dot"></span>}
+                <button className="apps-toggle-btn" onClick={onOpenModuleLauncher} title="Modules">
+                    <Grid size={20} />
                 </button>
-                
-                <div className="topbar-profile" onClick={() => navigate('/profile')} title="Profile">
-                    <img 
-                        src={(!imgError && user?.picture) ? user.picture : `https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=2563eb&color=fff`} 
-                        alt="Profile" 
-                        className="profile-avatar" 
-                        style={{ width: '36px', height: '36px' }} 
-                        onError={() => setImgError(true)}
-                    />
+            </div>
+
+            <div className="topbar-center">
+                <div className="search-bar" onClick={onOpenCommandCenter}>
+                    <Search size={18} className="search-icon" />
+                    <span className="search-placeholder">Search materials, PO, vendors...</span>
+                    <span className="shortcut">⌘K</span>
                 </div>
             </div>
+
+            <div className="topbar-right">
+                <div className="datetime-pill">
+                    <span className="calendar-icon">📅</span>
+                    <span className="date-text">{formattedDate}</span>
+                    <span className="time-text">{formattedTime}</span>
+                </div>
+
+                <button className="quick-create-btn" onClick={() => navigate('/orders/select-type')}>
+                    <Plus size={16} /> New
+                </button>
+
+                <div className="topbar-divider"></div>
+
+                <button className="icon-btn" title="Refresh">
+                    <RefreshCw size={18} />
+                </button>
+
+                <button className="icon-btn notification-btn" onClick={() => navigate('/notifications')}>
+                    <Bell size={18} />
+                    <span className="badge">4</span>
+                </button>
+
+                <div className="profile-container" ref={profileRef}>
+                    <div className="profile-dropdown" onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}>
+                        <div className="profile-avatar">
+                            <img src={user?.avatar || "https://i.pravatar.cc/150?img=11"} alt={user?.name || 'System Admin'} style={{width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover'}} />
+                        </div>
+                        <div className="profile-info">
+                            <span className="name">{user?.name || 'System Admin'}</span>
+                            <span className="role">{user?.role || 'Super Admin'} <span className="status-dot"></span></span>
+                        </div>
+                    </div>
+
+                    {isProfileMenuOpen && (
+                        <div className="profile-menu">
+                            <div className="pm-header">
+                                <img src={user?.avatar || "https://i.pravatar.cc/150?img=11"} alt="Avatar" />
+                                <div className="pm-header-info">
+                                    <span className="pm-name">{user?.name || 'System Admin'}</span>
+                                    <span className="pm-email">{user?.email || 'admin@smtbms.com'}</span>
+                                </div>
+                            </div>
+                            <div className="pm-body">
+                                <button onClick={() => { setIsProfileMenuOpen(false); navigate('/profile'); }}>
+                                    <User size={16} /> My Profile
+                                </button>
+                                <button onClick={() => { setIsProfileMenuOpen(false); navigate('/settings'); }}>
+                                    <SettingsIcon size={16} /> Account Settings
+                                </button>
+                            </div>
+                            <div className="pm-footer">
+                                <button className="logout-btn" onClick={() => { setIsProfileMenuOpen(false); setIsLogoutModalOpen(true); }}>
+                                    <LogOut size={16} /> Logout
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Logout Confirmation Modal */}
+            {isLogoutModalOpen && (
+                <>
+                    <div className="logout-overlay" onClick={() => setIsLogoutModalOpen(false)}></div>
+                    <div className="logout-modal">
+                        <div className="logout-icon-circle">
+                            <LogOut size={24} color="#e11d48" />
+                        </div>
+                        <h3>Sign Out</h3>
+                        <p>Are you sure you want to sign out of your account? You will need to log back in to access the system.</p>
+                        <div className="logout-actions">
+                            <button className="btn-cancel" onClick={() => setIsLogoutModalOpen(false)}>Cancel</button>
+                            <button className="btn-confirm" onClick={handleConfirmLogout}>Sign Out</button>
+                        </div>
+                    </div>
+                </>
+            )}
 
             <style jsx="true">{`
                 .topbar {
-                    display: grid;
-                    grid-template-columns: 1fr auto 1fr;
+                    height: 72px;
+                    background: #ffffff;
+                    border-bottom: 1px solid #f1f5f9;
+                    display: flex;
                     align-items: center;
-                    height: var(--header-height);
-                    padding: 0 40px;
-                    background: rgba(255, 255, 255, 0.85);
-                    border-bottom: 1px solid var(--border-subtle);
+                    justify-content: space-between;
+                    padding: 0 32px;
                     position: sticky;
                     top: 0;
-                    margin: 0;
-                    z-index: 900;
-                    backdrop-filter: blur(16px);
-                    -webkit-backdrop-filter: blur(16px);
+                    z-index: 40;
                 }
 
                 .topbar-left {
                     display: flex;
                     align-items: center;
+                    gap: 24px;
                 }
 
-                .breadcrumbs {
+                .topbar-brand {
                     display: flex;
                     align-items: center;
-                    gap: 8px;
-                    font-size: 13px;
-                    font-weight: 500;
+                    gap: 12px;
+                    cursor: pointer;
                 }
-                .breadcrumb-link {
-                    color: var(--text-muted);
-                    text-decoration: none;
-                    transition: color 0.2s;
+
+                .brand-logo-tb {
+                    width: 32px;
+                    height: 32px;
+                    background: linear-gradient(135deg, #e11d48, #be123c);
+                    border-radius: 8px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: white;
+                    font-weight: 800;
+                    font-size: 16px;
                 }
-                .breadcrumb-link:hover {
-                    color: var(--primary);
+
+                .topbar-brand h2 {
+                    margin: 0;
+                    font-size: 18px;
+                    font-weight: 800;
+                    letter-spacing: 0.5px;
+                    color: #0f172a;
                 }
-                .breadcrumb-separator {
-                    color: var(--border-strong);
+
+                .apps-toggle-btn {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 40px;
+                    height: 40px;
+                    border: none;
+                    background: #f1f5f9;
+                    color: #475569;
+                    border-radius: 10px;
+                    cursor: pointer;
+                    transition: all 0.2s;
                 }
-                .breadcrumb-current {
-                    color: var(--text-heading);
-                    font-weight: 600;
+
+                .apps-toggle-btn:hover {
+                    background: #e2e8f0;
+                    color: #0f172a;
                 }
 
                 .topbar-center {
+                    flex: 1;
                     display: flex;
                     justify-content: center;
-                }
-                
-                .global-search {
-                    display: flex;
-                    align-items: center;
-                    background: var(--bg-hover);
-                    border: 1px solid transparent;
-                    border-radius: 8px;
-                    padding: 0 12px;
-                    width: 480px;
-                    max-width: 40vw;
-                    height: 36px;
-                    transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
-                    position: relative;
-                }
-                .global-search:focus-within {
-                    background: var(--bg-surface);
-                    border-color: var(--border-strong);
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-                }
-                .global-search:hover:not(:focus-within) {
-                    background: var(--bg-active);
-                }
-                .global-search input {
-                    background: transparent !important;
-                    border: none !important;
-                    box-shadow: none !important;
-                    outline: none !important;
-                    width: 100%;
-                    padding-left: 12px;
-                    font-size: 14px;
-                    color: var(--text-primary);
-                    font-family: 'Inter', sans-serif;
-                }
-                .global-search input::placeholder {
-                    color: var(--text-muted);
-                }
-                .search-icon { color: var(--text-muted); }
-                .global-search:focus-within .search-icon { color: var(--primary); }
-                
-                .search-shortcut {
-                    display: inline-flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 11px;
-                    color: var(--text-muted);
-                    background: transparent;
-                    border: 1px solid var(--border-strong);
-                    padding: 0 6px;
-                    height: 20px;
-                    line-height: 1;
-                    border-radius: 4px;
-                    font-weight: 500;
-                    margin-left: 8px;
                 }
 
-                .topbar-actions {
+                .search-bar {
                     display: flex;
                     align-items: center;
-                    justify-content: flex-end;
+                    background: #f8fafc;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 8px;
+                    padding: 0 16px;
+                    width: 400px;
+                    height: 40px;
+                    position: relative;
+                    cursor: text;
+                    transition: all 0.2s;
+                }
+
+                .search-bar:hover {
+                    border-color: #cbd5e1;
+                    background: #ffffff;
+                }
+
+                .search-icon {
+                    color: #94a3b8;
+                    margin-right: 12px;
+                }
+
+                .search-placeholder {
+                    flex: 1;
+                    font-size: 14px;
+                    color: #94a3b8;
+                }
+
+                .shortcut {
+                    background: #ffffff;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 4px;
+                    padding: 2px 6px;
+                    font-size: 12px;
+                    color: #ef4444;
+                    font-weight: 600;
+                    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+                }
+
+                .topbar-right {
+                    display: flex;
+                    align-items: center;
                     gap: 16px;
                 }
 
-                .topbar-actions > .date-selector {
-                    position: relative;
-                }
-                .topbar-actions > .date-selector::after {
-                    content: '';
-                    position: absolute;
-                    right: -8px;
-                    top: 10%;
-                    height: 80%;
+                .topbar-divider {
                     width: 1px;
-                    background: var(--border-subtle);
+                    height: 24px;
+                    background: #e2e8f0;
+                    margin: 0 8px;
                 }
 
-                .topbar-btn {
-                    background: transparent;
-                    border: 1px solid transparent;
-                    width: 32px;
-                    height: 32px;
-                    padding: 0;
+                .quick-create-btn {
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    background: #e11d48;
+                    color: white;
+                    border: none;
+                    height: 40px;
+                    padding: 0 16px;
+                    border-radius: 8px;
+                    font-weight: 600;
+                    font-size: 14px;
+                    cursor: pointer;
+                    transition: background 0.2s;
+                }
+
+                .quick-create-btn:hover {
+                    background: #be123c;
+                }
+
+                .datetime-pill {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    background: rgba(244, 63, 94, 0.08);
+                    padding: 8px 16px;
+                    border-radius: 20px;
+                    color: #e11d48;
+                    font-weight: 600;
+                    font-size: 13px;
+                }
+
+                .date-text {
+                    color: #475569;
+                }
+
+                .icon-btn {
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 50%;
+                    border: 1px solid #e2e8f0;
+                    background: #ffffff;
+                    color: #64748b;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    position: relative;
+                    transition: all 0.2s;
+                }
+                .icon-btn:hover {
+                    background: #f8fafc;
+                    color: #0f172a;
+                }
+
+                .notification-btn .badge {
+                    position: absolute;
+                    top: -2px;
+                    right: -2px;
+                    background: #ef4444;
+                    color: white;
+                    font-size: 10px;
+                    font-weight: bold;
+                    width: 16px;
+                    height: 16px;
                     border-radius: 50%;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    color: var(--text-muted);
-                    cursor: pointer;
-                    transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
-                    position: relative;
-                    margin-left: 4px;
-                }
-                .topbar-btn:hover {
-                    color: var(--text-heading);
-                    background: var(--bg-hover);
-                }
-                .notification-dot {
-                    position: absolute;
-                    top: 6px;
-                    right: 6px;
-                    width: 8px;
-                    height: 8px;
-                    background: var(--danger);
-                    border-radius: 50%;
                     border: 2px solid #ffffff;
                 }
 
-                .topbar-profile {
+                .profile-container {
+                    position: relative;
+                }
+
+                .profile-dropdown {
                     display: flex;
                     align-items: center;
-                    gap: 10px;
+                    gap: 12px;
+                    padding: 4px 12px 4px 4px;
+                    border: 1px solid #fecdd3;
+                    border-radius: 30px;
                     cursor: pointer;
-                    padding: 4px;
-                    border-radius: 20px;
+                    background: #fff1f2;
                     transition: all 0.2s;
                 }
-                .topbar-profile:hover {
-                    background: var(--bg-hover);
-                    box-shadow: 0 0 0 4px var(--bg-hover);
+                .profile-dropdown:hover {
+                    background: #ffe4e6;
                 }
+
                 .profile-avatar {
                     width: 36px;
                     height: 36px;
                     border-radius: 50%;
+                    background: #e11d48;
+                    color: white;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-weight: bold;
+                    font-size: 14px;
+                }
+
+                .profile-info {
+                    display: flex;
+                    flex-direction: column;
+                }
+
+                .profile-info .name {
+                    font-size: 13px;
+                    font-weight: 700;
+                    color: #0f172a;
+                    line-height: 1.2;
+                }
+
+                .profile-info .role {
+                    font-size: 11px;
+                    font-weight: 700;
+                    color: #e11d48;
+                    text-transform: uppercase;
+                    display: flex;
+                    align-items: center;
+                    gap: 4px;
+                }
+
+                .status-dot {
+                    width: 6px;
+                    height: 6px;
+                    background: #10b981;
+                    border-radius: 50%;
+                }
+
+                /* Profile Menu Dropdown */
+                .profile-menu {
+                    position: absolute;
+                    top: calc(100% + 12px);
+                    right: 0;
+                    width: 260px;
+                    background: #ffffff;
+                    border-radius: 16px;
+                    box-shadow: 0 10px 40px -10px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05);
+                    z-index: 50;
+                    overflow: hidden;
+                    animation: slideUpFade 0.2s ease;
+                }
+
+                .pm-header {
+                    display: flex;
+                    align-items: center;
+                    gap: 16px;
+                    padding: 20px;
+                    background: #f8fafc;
+                    border-bottom: 1px solid #f1f5f9;
+                }
+
+                .pm-header img {
+                    width: 48px;
+                    height: 48px;
+                    border-radius: 50%;
                     object-fit: cover;
-                    border: 2px solid #ffffff;
-                    box-shadow: var(--shadow-sm);
+                }
+
+                .pm-header-info {
+                    display: flex;
+                    flex-direction: column;
+                }
+
+                .pm-name {
+                    font-weight: 700;
+                    font-size: 15px;
+                    color: #0f172a;
+                }
+
+                .pm-email {
+                    font-size: 13px;
+                    color: #64748b;
+                }
+
+                .pm-body {
+                    padding: 8px 0;
+                }
+
+                .pm-body button {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    width: 100%;
+                    padding: 12px 20px;
+                    background: transparent;
+                    border: none;
+                    font-size: 14px;
+                    color: #475569;
+                    font-weight: 500;
+                    cursor: pointer;
+                    transition: background 0.2s;
+                    text-align: left;
+                }
+
+                .pm-body button:hover {
+                    background: #f1f5f9;
+                    color: #0f172a;
+                }
+
+                .pm-footer {
+                    padding: 8px 0;
+                    border-top: 1px solid #f1f5f9;
+                }
+
+                .logout-btn {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    width: 100%;
+                    padding: 12px 20px;
+                    background: transparent;
+                    border: none;
+                    font-size: 14px;
+                    color: #e11d48;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: background 0.2s;
+                    text-align: left;
+                }
+
+                .logout-btn:hover {
+                    background: #fff1f2;
+                }
+
+                /* Logout Modal */
+                .logout-overlay {
+                    position: fixed;
+                    inset: 0;
+                    background: rgba(15, 23, 42, 0.4);
+                    backdrop-filter: blur(4px);
+                    z-index: 1000;
+                    animation: fadeIn 0.15s ease-out;
+                }
+
+                .logout-modal {
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    width: 90%;
+                    max-width: 400px;
+                    background: #ffffff;
+                    border-radius: 20px;
+                    padding: 32px;
+                    z-index: 1001;
+                    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+                    text-align: center;
+                    animation: scaleUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+                }
+
+                .logout-icon-circle {
+                    width: 64px;
+                    height: 64px;
+                    background: #fff1f2;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin: 0 auto 24px auto;
+                }
+
+                .logout-modal h3 {
+                    margin: 0 0 12px 0;
+                    font-size: 20px;
+                    color: #0f172a;
+                    font-weight: 700;
+                }
+
+                .logout-modal p {
+                    margin: 0 0 32px 0;
+                    color: #64748b;
+                    font-size: 14px;
+                    line-height: 1.5;
+                }
+
+                .logout-actions {
+                    display: flex;
+                    gap: 12px;
+                }
+
+                .btn-cancel, .btn-confirm {
+                    flex: 1;
+                    height: 44px;
+                    border-radius: 12px;
+                    font-weight: 600;
+                    font-size: 14px;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                }
+
+                .btn-cancel {
+                    background: #f1f5f9;
+                    border: none;
+                    color: #475569;
+                }
+
+                .btn-cancel:hover {
+                    background: #e2e8f0;
+                    color: #0f172a;
+                }
+
+                .btn-confirm {
+                    background: #e11d48;
+                    border: none;
+                    color: white;
+                }
+
+                .btn-confirm:hover {
+                    background: #be123c;
+                }
+
+                @keyframes slideUpFade {
+                    from { opacity: 0; transform: translateY(10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+
+                @keyframes scaleUp {
+                    from { opacity: 0; transform: translate(-50%, -48%) scale(0.96); }
+                    to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
                 }
 
                 @media (max-width: 768px) {
-                    .topbar {
-                        display: flex;
-                        justify-content: space-between;
-                        padding: 0 16px;
-                    }
-                    .topbar-actions {
-                        width: 100%;
-                        justify-content: flex-end;
+                    .search-bar, .datetime-pill {
+                        display: none;
                     }
                 }
             `}</style>

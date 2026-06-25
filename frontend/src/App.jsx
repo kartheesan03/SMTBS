@@ -1,14 +1,14 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthContext, AuthProvider } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
-import Sidebar from './components/Sidebar';
 import Topbar from './components/Topbar';
 import ProtectedRoute from './components/ProtectedRoute';
 import OrderCreationRoute from './components/OrderCreationRoute';
-import { Menu, X } from 'lucide-react';
-
 import { GoogleOAuthProvider } from '@react-oauth/google';
+
+import ModuleLauncher from './components/ModuleLauncher';
+import CommandCenter from './components/CommandCenter';
 
 // Pages
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
@@ -63,9 +63,12 @@ const CustomerNewOrder = React.lazy(() => import('./pages/CustomerNewOrder'));
 
 const AppContent = () => {
     const { user, loading, logout } = useContext(AuthContext);
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    
+    // New Navigation States
+    const [isModuleLauncherOpen, setIsModuleLauncherOpen] = useState(false);
+    const [isCommandCenterOpen, setIsCommandCenterOpen] = useState(false);
 
-    React.useEffect(() => {
+    useEffect(() => {
         if (user) {
             document.body.classList.add('logged-in');
         } else {
@@ -76,32 +79,41 @@ const AppContent = () => {
         };
     }, [user]);
 
+    // Global keyboard shortcut for Command Center
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault();
+                setIsCommandCenterOpen(true);
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []);
+
     if (loading) return <div className="app-loading">Loading...</div>;
 
-    const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
-
     return (
-        <div className={`app-layout`}>
-            {user && (
-                <>
-                    <header className="mobile-header">
-                        <button onClick={toggleSidebar} className="menu-toggle">
-                            {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
-                        </button>
-                        <h2>SMTBMS</h2>
-                    </header>
-                    <Sidebar 
-                        logout={logout} 
-                        isOpen={isSidebarOpen} 
-                        onClose={() => setIsSidebarOpen(false)} 
-                    />
-                    {isSidebarOpen && <div className="sidebar-overlay" onClick={() => setIsSidebarOpen(false)}></div>}
-                </>
-            )}
-            <main className={`main-content ${user ? 'with-sidebar' : ''}`}>
-                {user && <Topbar />}
-                <React.Suspense fallback={<div className="app-loading">Loading...</div>}>
-                <div className="page-container">
+        <div className="app-layout">
+            <main className="app-main">
+                {user && (
+                    <>
+                        <Topbar 
+                            onOpenModuleLauncher={() => setIsModuleLauncherOpen(true)}
+                            onOpenCommandCenter={() => setIsCommandCenterOpen(true)}
+                        />
+                        <ModuleLauncher 
+                            isOpen={isModuleLauncherOpen} 
+                            onClose={() => setIsModuleLauncherOpen(false)} 
+                        />
+                        <CommandCenter 
+                            isOpen={isCommandCenterOpen} 
+                            onClose={() => setIsCommandCenterOpen(false)} 
+                        />
+                    </>
+                )}
+                <React.Suspense fallback={<div className="flex-center" style={{height:'100vh'}}><div className="loader"></div></div>}>
+                <div className="app-content">
                 <Routes>
                     {/* Public Route */}
                     <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
@@ -191,88 +203,11 @@ const AppContent = () => {
                 </div>
                 </React.Suspense>
             </main>
-
-            <style jsx="true">{`
-                .app-layout {
-                    display: flex;
-                    min-height: 100vh;
-                    flex-direction: column;
-                }
-
-                .mobile-header {
-                    display: none;
-                    height: 60px;
-                    background: var(--bg-card);
-                    border-bottom: 1px solid var(--border);
-                    position: sticky;
-                    top: 0;
-                    z-index: 900;
-                    padding: 0 20px;
-                    align-items: center;
-                    justify-content: space-between;
-                }
-                .mobile-header h2 {
-                    font-size: 20px;
-                    font-weight: 800;
-                    color: var(--primary);
-                    margin: 0;
-                    letter-spacing: 0.5px;
-                }
-                .menu-toggle {
-                    background: transparent;
-                    color: var(--text-primary);
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    border: none;
-                    cursor: pointer;
-                }
-                .sidebar-overlay {
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    bottom: 0;
-                    background: rgba(15, 23, 42, 0.4);
-                    z-index: 950;
-                    backdrop-filter: blur(2px);
-                }
-                
-                .main-content {
-                    flex: 1;
-                    transition: all 0.3s ease;
-                    width: 100%;
-                }
-
-                /* ── Desktop: 2-column (Sidebar 220 + Content) ── */
-                .main-content.with-sidebar {
-                    margin-left: var(--sidebar-width, 220px);
-                    width: calc(100% - var(--sidebar-width, 220px));
-                    background-color: var(--bg-body);
-                }
-                .p-30 { padding: 30px; }
-
-                /* ── Mobile: Sidebar hidden ── */
-                @media (max-width: 768px) {
-                    .app-layout {
-                        flex-direction: column;
-                    }
-                    .mobile-header {
-                        display: flex;
-                    }
-                    .main-content.with-sidebar {
-                        margin-left: 0;
-                        width: 100%;
-                        padding-top: 0;
-                    }
-                    .p-30 {
-                        padding: 16px;
-                    }
-                }
-            `}</style>
         </div>
     );
 };
+
+import { Toaster } from 'react-hot-toast';
 
 const App = () => {
     return (
@@ -281,6 +216,7 @@ const App = () => {
                 <AuthProvider>
                     <NotificationProvider>
                         <Router>
+                            <Toaster position="top-right" />
                             <AppContent />
                         </Router>
                     </NotificationProvider>

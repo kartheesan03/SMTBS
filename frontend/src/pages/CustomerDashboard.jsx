@@ -48,11 +48,11 @@ const CustomerDashboard = () => {
         
         try {
             const res = await API.put(`/orders/${orderId}/cancel`);
-            alert(res.data.message || "Order cancelled successfully");
+            toast.success(res.data.message || "Order cancelled successfully");
             setOrders(orders.map(o => o._id === orderId ? { ...o, status: 'Cancelled' } : o));
         } catch (error) {
             console.error("Error cancelling order:", error);
-            alert(error.response?.data?.message || "Failed to cancel order");
+            toast.error(error.response?.data?.message || "Failed to cancel order");
         }
     };
 

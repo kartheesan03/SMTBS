@@ -1,333 +1,11 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
-import API from '../api/axios';
-import { AuthContext } from '../context/AuthContext';
-import DataTable from '../components/Dashboard/DataTable';
-import { Truck, Plus, Star, MapPin, Mail, Phone, ExternalLink, Download, Edit, X, PackagePlus, AlertTriangle, Trash2, History } from 'lucide-react';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
-import ExcelJS from 'exceljs';
+const fs = require('fs');
+const file = 'c:/Users/Admin/Documents/project/frontend/src/pages/Vendors.jsx';
+let content = fs.readFileSync(file, 'utf8');
 
-const Vendors = () => {
-    const navigate = useNavigate();
-    const { user } = useContext(AuthContext);
-    const [vendors, setVendors] = useState([]);
-    const [allMaterials, setAllMaterials] = useState([]);
-    const [loading, setLoading] = useState(true);
-    
-    // Vendor Form Modals
-    const [showModal, setShowModal] = useState(false);
-    const [isEditMode, setIsEditMode] = useState(false);
-    const [showViewModal, setShowViewModal] = useState(false);
-    
-    const [selectedVendor, setSelectedVendor] = useState(null);
-    const [vendorOrders, setVendorOrders] = useState([]);
-    const [vendorMaterials, setVendorMaterials] = useState([]);
-    
-    // Vendor Form Data
-    const [formData, setFormData] = useState({
-        name: '', category: '', contactPerson: '', email: '', phone: '', address: '', gstNumber: '', website: ''
-    });
-    
-    // New Materials Logic (Used for Vendor Form)
-    const [newMaterialsList, setNewMaterialsList] = useState([]);
-    const [newMaterial, setNewMaterial] = useState({
-        name: '', sku: '', category: '', quantity: 0, unit: 'pcs', price: 0
-    });
-
-    // Nested Material Modals for View Vendor Profile
-    const [showNestedMaterialForm, setShowNestedMaterialForm] = useState(false);
-    const [isNestedMaterialEdit, setIsNestedMaterialEdit] = useState(false);
-    const [nestedMaterialFormData, setNestedMaterialFormData] = useState({
-        id: null, name: '', sku: '', category: '', quantity: 0, unit: 'pcs', price: 0
-    });
-    const [showNestedMaterialView, setShowNestedMaterialView] = useState(false);
-    const [nestedSelectedMaterial, setNestedSelectedMaterial] = useState(null);
-    const [nestedMovementHistory, setNestedMovementHistory] = useState([]);
-    const [loadingNestedMovements, setLoadingNestedMovements] = useState(false);
-
-    const fetchVendors = async () => {
-        try {
-            const { data } = await API.get('/vendors');
-            setVendors(data);
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const fetchMaterials = async () => {
-        try {
-            const { data } = await API.get('/materials');
-            setAllMaterials(data || []);
-            
-            // If view modal is open, refresh vendor materials
-            if (showViewModal && selectedVendor) {
-                const filteredMaterials = data.filter(m => 
-                    String(m.vendorId) === String(selectedVendor.id || selectedVendor._id) || 
-                    String(m.vendor?.id || m.vendor?._id || m.vendor) === String(selectedVendor.id || selectedVendor._id)
-                );
-                setVendorMaterials(filteredMaterials);
-            }
-        } catch (err) {
-            console.error("Error fetching materials", err);
-        }
-    };
-
-    useEffect(() => {
-        fetchVendors();
-        fetchMaterials();
-    }, []);
-
-    const handleViewVendor = async (vendor) => {
-        setSelectedVendor(vendor);
-        setShowViewModal(true);
-        setVendorOrders([]);
-        setVendorMaterials([]);
-        try {
-            const vId = String(vendor.id || vendor._id);
-            const { data: orders } = await API.get('/orders');
-            
-            const filteredOrders = orders.filter(o => String(o.vendorId) === vId || String(o.vendor?.id || o.vendor?._id || o.vendor) === vId);
-            setVendorOrders(filteredOrders);
-            
-            // Match Vendor Directory logic exactly
-            const vMaterials = allMaterials.filter(m => String(m.vendorId) === vId || String(m.vendor?.id || m.vendor?._id || m.vendor) === vId);
-            setVendorMaterials(vMaterials);
-            
-        } catch (err) {
-            console.error("Error fetching vendor data", err);
-        }
-    };
-
-    // VENDOR CRUD
-    const openAddModal = () => {
-        setIsEditMode(false);
-        setFormData({ name: '', category: '', contactPerson: '', email: '', phone: '', address: '', gstNumber: '', website: '' });
-        setNewMaterialsList([]);
-        setNewMaterial({ name: '', sku: '', category: '', quantity: 0, unit: 'pcs', price: 0 });
-        setVendorMaterials([]);
-        setShowModal(true);
-    };
-
-    const openEditModal = (vendor) => {
-        setIsEditMode(true);
-        setSelectedVendor(vendor);
-        setFormData({
-            name: vendor.name || '',
-            category: vendor.category || '',
-            contactPerson: vendor.contactPerson || '',
-            email: vendor.email || '',
-            phone: vendor.phone || '',
-            address: vendor.address || '',
-            gstNumber: vendor.gstNumber || '',
-            website: vendor.website || ''
-        });
-        
-        const existingMaterials = allMaterials.filter(m => 
-            String(m.vendorId) === String(vendor.id || vendor._id) || 
-            String(m.vendor?.id || m.vendor?._id || m.vendor) === String(vendor.id || vendor._id)
-        );
-        setVendorMaterials(existingMaterials);
-        
-        setNewMaterialsList([]);
-        setNewMaterial({ name: '', sku: '', category: '', quantity: 0, unit: 'pcs', price: 0 });
-        setShowModal(true);
-    };
-
-    const handleAddNewMaterialToList = () => {
-        if (!newMaterial.name || !newMaterial.sku) {
-            toast.error("Material Name and SKU are required!");
-            return;
-        }
-        if (allMaterials.some(m => m.sku === newMaterial.sku) || newMaterialsList.some(m => m.sku === newMaterial.sku)) {
-            toast.error("SKU already exists! Please use a unique SKU.");
-            return;
-        }
-        setNewMaterialsList([...newMaterialsList, { ...newMaterial }]);
-        setNewMaterial({ name: '', sku: '', category: '', quantity: 0, unit: 'pcs', price: 0 });
-    };
-
-    const removeNewMaterialFromList = (index) => {
-        const list = [...newMaterialsList];
-        list.splice(index, 1);
-        setNewMaterialsList(list);
-    };
-
-    const handleSaveVendor = async (e) => {
-        e.preventDefault();
-        try {
-            let finalVendorId = null;
-            if (isEditMode && selectedVendor) {
-                finalVendorId = selectedVendor._id || selectedVendor.id;
-                await API.put(`/vendors/${finalVendorId}`, formData);
-            } else {
-                const { data: createdVendor } = await API.post('/vendors', formData);
-                finalVendorId = createdVendor._id || createdVendor.id;
-            }
-
-            if (newMaterialsList.length > 0 && finalVendorId) {
-                const materialPromises = newMaterialsList.map(mat => 
-                    API.post('/materials', { ...mat, vendorId: finalVendorId })
-                );
-                await Promise.all(materialPromises);
-            }
-
-            setShowModal(false);
-            fetchVendors();
-            fetchMaterials();
-        } catch (err) {
-            toast.error(err.response?.data?.message || 'Error saving vendor or materials');
-        }
-    };
-
-    const handleDeleteVendor = async (vendor) => {
-        if (window.confirm('Are you sure you want to delete this vendor? This action cannot be undone.')) {
-            try {
-                await API.delete(`/vendors/${vendor._id || vendor.id}`);
-                toast.success('Vendor deleted successfully.');
-                fetchVendors();
-            } catch (err) {
-                toast.error(err.response?.data?.message || 'Error deleting vendor');
-            }
-        }
-    };
-
-    // NESTED MATERIAL CRUD (Inside View Modal)
-    const openNestedMaterialAdd = () => {
-        setIsNestedMaterialEdit(false);
-        setNestedMaterialFormData({
-            id: null, name: '', sku: '', category: '', quantity: 0, unit: 'pcs', price: 0
-        });
-        setShowNestedMaterialForm(true);
-    };
-
-    const openNestedMaterialEdit = (mat) => {
-        setIsNestedMaterialEdit(true);
-        setNestedMaterialFormData({
-            id: mat._id || mat.id,
-            name: mat.name,
-            sku: mat.sku,
-            category: mat.category || '',
-            quantity: mat.quantity,
-            unit: mat.unit || 'pcs',
-            price: mat.price || 0
-        });
-        setShowNestedMaterialForm(true);
-    };
-
-    const handleNestedMaterialSave = async (e) => {
-        e.preventDefault();
-        try {
-            const vId = selectedVendor._id || selectedVendor.id;
-            const payload = { ...nestedMaterialFormData, vendorId: vId };
-            
-            if (isNestedMaterialEdit) {
-                await API.put(`/materials/${nestedMaterialFormData.id}`, payload);
-            } else {
-                await API.post('/materials', payload);
-            }
-            setShowNestedMaterialForm(false);
-            fetchMaterials(); // Global fetch will also update the view modal's materials automatically via useEffect/view logic.
-        } catch (err) {
-            toast.error(err.response?.data?.message || 'Error saving material');
-        }
-    };
-
-    const handleNestedMaterialArchive = async (mat) => {
-        if (!window.confirm(`Are you sure you want to archive ${mat.name}? It will be hidden from the active list but historical data will remain intact.`)) return;
-        try {
-            await API.put(`/materials/${mat._id || mat.id}/archive`);
-            fetchMaterials();
-        } catch (error) {
-            toast.error(error.response?.data?.message || 'Error archiving material');
-        }
-    };
-
-    const openNestedMaterialView = async (mat) => {
-        setNestedSelectedMaterial(mat);
-        setShowNestedMaterialView(true);
-        setLoadingNestedMovements(true);
-        try {
-            const { data } = await API.get(`/materials/${mat._id || mat.id}/movements`);
-            setNestedMovementHistory(Array.isArray(data) ? data : []);
-        } catch (err) {
-            console.error(err);
-            setNestedMovementHistory([]);
-        } finally {
-            setLoadingNestedMovements(false);
-        }
-    };
-
-    // Exports
-    const exportToPDF = () => {
-        const doc = new jsPDF();
-        doc.setFontSize(18);
-        doc.text('Vendor Network', 14, 22);
-        doc.setFontSize(10);
-        doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 30);
-        const tableData = vendors.map(v => [
-            v.name, v.category, v.status || 'Vendor Created', v.contactPerson || 'N/A', v.phone || 'N/A', v.email || 'N/A'
-        ]);
-        doc.autoTable({
-            head: [['Vendor Name', 'Category', 'Status', 'Contact Person', 'Phone', 'Email']],
-            body: tableData,
-            startY: 36,
-            styles: { fontSize: 9 },
-            headStyles: { fillColor: [37, 99, 235] }
-        });
-        doc.save('vendors_report.pdf');
-    };
-
-    const exportToExcel = async () => {
-        const workbook = new ExcelJS.Workbook();
-        const sheet = workbook.addWorksheet('Vendors');
-        sheet.columns = [
-            { header: 'Vendor Name', key: 'name', width: 25 },
-            { header: 'Category', key: 'category', width: 20 },
-            { header: 'Status', key: 'status', width: 15 },
-            { header: 'Contact Person', key: 'contactPerson', width: 20 },
-            { header: 'Phone', key: 'phone', width: 15 },
-            { header: 'Email', key: 'email', width: 25 },
-            { header: 'Address', key: 'address', width: 35 }
-        ];
-        vendors.forEach(v => {
-            sheet.addRow({
-                name: v.name,
-                category: v.category,
-                status: v.status || 'Vendor Created',
-                contactPerson: v.contactPerson || '',
-                phone: v.phone || '',
-                email: v.email || '',
-                address: v.address || ''
-            });
-        });
-        sheet.getRow(1).font = { bold: true };
-        const buffer = await workbook.xlsx.writeBuffer();
-        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url; a.download = 'vendors_report.xlsx'; a.click();
-        URL.revokeObjectURL(url);
-    };
-
-    // Vendor Mini-Dashboard Stats
-    const linkedMaterials = selectedVendor ? allMaterials.filter((m) => {
-        const mVendorIdStr = String(m.vendorId || (m.vendor && (m.vendor.id || m.vendor._id)) || '');
-        const sVendorIdStr = String(selectedVendor.id || selectedVendor._id || '');
-        
-        return mVendorIdStr === sVendorIdStr ||
-               m.vendorName === selectedVendor.name ||
-               m.supplierName === selectedVendor.name ||
-               (m.vendor && m.vendor.name === selectedVendor.name);
-    }) : [];
-
-    const totalVendorMaterials = linkedMaterials.length;
-    const totalVendorStock = linkedMaterials.reduce((sum, m) => sum + (Number(m.stockQty || m.quantity || m.stock || 0)), 0);
-    const totalVendorValue = linkedMaterials.reduce((sum, m) => sum + (Number(m.stockQty || m.quantity || m.stock || 0) * Number(m.price || m.unitPrice || 0)), 0);
-
-    return (
+const returnIndex = content.indexOf('return (');
+if(returnIndex !== -1) {
+   const beforeReturn = content.slice(0, returnIndex);
+   const newReturn = `return (
         <div className="module-container">
             {/* KPI Section */}
             <div className="module-kpi-section">
@@ -555,7 +233,7 @@ const Vendors = () => {
                                                         <td>{m.name}</td>
                                                         <td>{m.category}</td>
                                                         <td>{m.quantity} {m.unit}</td>
-                                                        <td>${m.price}</td>
+                                                        <td>\${m.price}</td>
                                                         <td style={{ textAlign: 'center' }}>
                                                             <button type="button" onClick={() => removeNewMaterialFromList(idx)} style={{ background: 'none', border: 'none', color: 'var(--danger)', cursor: 'pointer' }}><X size={14}/></button>
                                                         </td>
@@ -606,7 +284,7 @@ const Vendors = () => {
                                 </div>
                                 <div style={{ background: 'var(--bg-body)', padding: '16px', borderRadius: '8px', border: '1px solid var(--border)' }}>
                                     <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Inventory Value</div>
-                                    <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--success)', marginTop: '4px' }}>${totalVendorValue.toLocaleString()}</div>
+                                    <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--success)', marginTop: '4px' }}>\${totalVendorValue.toLocaleString()}</div>
                                 </div>
                             </div>
 
@@ -663,7 +341,7 @@ const Vendors = () => {
                                                         <td><strong>{m.name}</strong></td>
                                                         <td>{m.category}</td>
                                                         <td>{m.quantity} {m.unit}</td>
-                                                        <td>${m.price}</td>
+                                                        <td>\${m.price}</td>
                                                         <td style={{ textAlign: 'right' }}>
                                                             <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
                                                                 <button className="icon-btn" title="View History" onClick={() => openNestedMaterialView(m)}><History size={14}/></button>
@@ -701,7 +379,7 @@ const Vendors = () => {
                                                 {vendorOrders.map(order => (
                                                     <tr key={order.id || order._id}>
                                                         <td><strong>{order.orderNumber}</strong></td>
-                                                        <td>${(order.totalAmount || 0).toLocaleString()}</td>
+                                                        <td>\${(order.totalAmount || 0).toLocaleString()}</td>
                                                         <td>
                                                             <span style={{
                                                                 padding: '4px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 600,
@@ -734,3 +412,9 @@ const Vendors = () => {
 };
 
 export default Vendors;
+`;
+   fs.writeFileSync(file, beforeReturn + newReturn);
+   console.log('Vendors.jsx successfully replaced');
+} else {
+    console.log('Could not find return statement');
+}

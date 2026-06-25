@@ -1,258 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import API from '../api/axios';
-import DataTable from '../components/Dashboard/DataTable';
-import { Users, Plus, Mail, Phone, ExternalLink, UserCheck, Edit2, Trash2, Globe, Building2, FileText, ArrowLeft, ShoppingCart, MessageSquare, LifeBuoy, Calendar, Clock, PhoneCall, Send, StickyNote, X, Download, Search } from 'lucide-react';
-import CustomerForm from '../components/CustomerForm';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
-import ExcelJS from 'exceljs';
+const fs = require('fs');
+const file = 'c:/Users/Admin/Documents/project/frontend/src/pages/Customers.jsx';
+let content = fs.readFileSync(file, 'utf8');
 
-const Customers = ({ directoryOnly }) => {
-    const navigate = useNavigate();
-    const [customers, setCustomers] = useState([]);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [loading, setLoading] = useState(true);
-    const [showModal, setShowModal] = useState(false);
-    const [editingId, setEditingId] = useState(null);
-    const [formData, setFormData] = useState({
-        name: '', email: '', phone: '', address: '', industry: '', website: '', notes: '', status: '', customerType: 'Individual'
-    });
-    const [formErrors, setFormErrors] = useState({});
-
-    // Detail view state
-    const [selectedCustomer, setSelectedCustomer] = useState(null);
-    const [activeTab, setActiveTab] = useState('profile');
-    const [customerOrders, setCustomerOrders] = useState([]);
-    const [customerTickets, setCustomerTickets] = useState([]);
-    const [customerComms, setCustomerComms] = useState([]);
-    const [loadingDetail, setLoadingDetail] = useState(false);
-
-    // Communication form state
-    const [showCommModal, setShowCommModal] = useState(false);
-    const [commForm, setCommForm] = useState({
-        type: 'Call', subject: '', notes: '', contactDate: new Date().toISOString().split('T')[0]
-    });
-
-    const userInfo = JSON.parse(localStorage.getItem('userInfo') || sessionStorage.getItem('userInfo') || '{}');
-    const isAdmin = userInfo.role === 'Admin';
-
-    const fetchCustomers = async () => {
-        try {
-            setLoading(true);
-            const { data } = await API.get('/customers');
-            let fetchedData = Array.isArray(data) ? data : [];
-            if (directoryOnly) {
-                fetchedData = fetchedData.filter(c => c.status !== 'Lead' && c.customerType !== 'Lead');
-            }
-            setCustomers(fetchedData);
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchCustomers();
-    }, []);
-
-    const openCustomerDetail = async (customer) => {
-        setSelectedCustomer(customer);
-        setActiveTab('profile');
-        setLoadingDetail(true);
-        try {
-            const [ordersRes, ticketsRes, commsRes] = await Promise.all([
-                API.get(`/customers/${customer._id}/orders`),
-                API.get(`/customers/${customer._id}/tickets`),
-                API.get(`/communications/customer/${customer._id}`)
-            ]);
-            setCustomerOrders(Array.isArray(ordersRes.data) ? ordersRes.data : []);
-            setCustomerTickets(Array.isArray(ticketsRes.data) ? ticketsRes.data : []);
-            setCustomerComms(Array.isArray(commsRes.data) ? commsRes.data : []);
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setLoadingDetail(false);
-        }
-    };
-
-    const closeCustomerDetail = () => {
-        setSelectedCustomer(null);
-        setCustomerOrders([]);
-        setCustomerTickets([]);
-        setCustomerComms([]);
-    };
-
-    const validateForm = () => {
-        const errors = {};
-        if (!formData.name || formData.name.trim().length < 2) errors.name = 'Organization name must be at least 2 characters.';
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!formData.email || !emailRegex.test(formData.email)) errors.email = 'Please enter a valid email address.';
-        const phoneRegex = /^\+?[\d\s-]{10,}$/;
-        if (!formData.phone || !phoneRegex.test(formData.phone)) errors.phone = 'Please enter a valid phone number (at least 10 digits).';
-        if (!formData.industry || formData.industry.trim().length === 0) errors.industry = 'Industry is required.';
-        if (!formData.address || formData.address.trim().length === 0) errors.address = 'Primary address is required.';
-        
-        setFormErrors(errors);
-        return Object.keys(errors).length === 0;
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (!validateForm()) return;
-        try {
-            if (editingId) {
-                await API.put(`/customers/${editingId}`, formData);
-                toast.success("Customer profile updated and synchronized successfully.");
-            } else {
-                await API.post('/customers', formData);
-                toast.success("Customer created successfully.");
-            }
-            handleCloseModal();
-            fetchCustomers();
-            if (editingId && selectedCustomer && editingId === selectedCustomer._id) {
-                const updatedRes = await API.get(`/customers/${editingId}`);
-                setSelectedCustomer(updatedRes.data);
-            }
-        } catch (err) {
-            toast.error(err.response?.data?.message || 'Error processing request');
-        }
-    };
-
-    const handleEdit = (customer) => {
-        setEditingId(customer._id || customer.id);
-        setFormData({
-            name: customer.name || '',
-            email: customer.email || '',
-            phone: customer.phone || '',
-            address: customer.address || '',
-            industry: customer.industry || '',
-            website: customer.website || '',
-            notes: customer.notes || '',
-            status: customer.status || '',
-            customerType: customer.customerType || 'Individual',
-            company: customer.company || '',
-            gstNumber: customer.gstNumber || ''
-        });
-        setFormErrors({});
-        setShowModal(true);
-    };
-
-    const handleDelete = async (id) => {
-        if (window.confirm('Are you sure you want to delete this customer?')) {
-            try {
-                await API.delete(`/customers/${id}`);
-                fetchCustomers();
-                if (selectedCustomer?._id === id) closeCustomerDetail();
-            } catch (err) {
-                toast.error(err.response?.data?.message || 'Error deleting customer');
-            }
-        }
-    };
-    const handleApprove = async (id) => {
-        try {
-            await API.put(`/customers/${id}/approve`);
-            fetchCustomers();
-        } catch (err) {
-            toast.error(err.response?.data?.message || 'Error approving customer');
-        }
-    };
-    const handleCloseModal = () => {
-        setShowModal(false);
-        setEditingId(null);
-        setFormData({ name: '', email: '', phone: '', address: '', industry: '', website: '', notes: '', status: '', customerType: 'Individual' });
-        setFormErrors({});
-    };
-
-    // Communication handlers
-    const handleAddComm = async (e) => {
-        e.preventDefault();
-        try {
-            await API.post('/communications', {
-                customerId: selectedCustomer._id,
-                ...commForm
-            });
-            const { data } = await API.get(`/communications/customer/${selectedCustomer._id}`);
-            setCustomerComms(Array.isArray(data) ? data : []);
-            setShowCommModal(false);
-            setCommForm({ type: 'Call', subject: '', notes: '', contactDate: new Date().toISOString().split('T')[0] });
-        } catch (err) {
-            toast.error(err.response?.data?.message || 'Error adding communication');
-        }
-    };
-
-    const handleDeleteComm = async (id) => {
-        if (window.confirm('Delete this communication log?')) {
-            try {
-                await API.delete(`/communications/${id}`);
-                setCustomerComms(prev => prev.filter(c => (c._id || c.id) !== id));
-            } catch (err) {
-                toast.error(err.response?.data?.message || 'Error deleting communication');
-            }
-        }
-    };
-
-    // Export functions
-    const exportToPDF = () => {
-        const doc = new jsPDF();
-        doc.setFontSize(18);
-        doc.text('Customers (CRM) Report', 14, 22);
-        doc.setFontSize(10);
-        doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 30);
-
-        const tableData = customers.map(c => [
-            c.name, c.company || 'Individual Customer', c.email, c.phone || '—', c.industry || '—', c.status || 'Active'
-        ]);
-        doc.autoTable({
-            head: [['Full Name', 'Organization Name', 'Email', 'Phone', 'Industry', 'Status']],
-            body: tableData,
-            startY: 36,
-            styles: { fontSize: 9 },
-            headStyles: { fillColor: [37, 99, 235] }
-        });
-        doc.save('customers_report.pdf');
-    };
-
-    const exportToExcel = async () => {
-        const workbook = new ExcelJS.Workbook();
-        const sheet = workbook.addWorksheet('Customers');
-        sheet.columns = [
-            { header: 'Full Name', key: 'name', width: 25 },
-            { header: 'Organization Name', key: 'company', width: 30 },
-            { header: 'Email', key: 'email', width: 30 },
-            { header: 'Phone', key: 'phone', width: 18 },
-            { header: 'Industry', key: 'industry', width: 22 },
-            { header: 'Address', key: 'address', width: 40 },
-            { header: 'Website', key: 'website', width: 25 },
-            { header: 'Status', key: 'status', width: 15 },
-        ];
-        customers.forEach(c => {
-            sheet.addRow({
-                name: c.name, company: c.company || 'Individual Customer', email: c.email, phone: c.phone || '', industry: c.industry || '',
-                address: c.address || '', website: c.website || '', status: c.status || 'Active'
-            });
-        });
-        sheet.getRow(1).font = { bold: true };
-        const buffer = await workbook.xlsx.writeBuffer();
-        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url; a.download = 'customers_report.xlsx'; a.click();
-        URL.revokeObjectURL(url);
-    };
-
-    const getCommIcon = (type) => {
-        switch (type) {
-            case 'Call': return <PhoneCall size={14} />;
-            case 'Email': return <Send size={14} />;
-            case 'Meeting': return <Users size={14} />;
-            case 'Note': return <StickyNote size={14} />;
-            default: return <MessageSquare size={14} />;
-        }
-    };
-
-    // ── DETAIL VIEW ──
+const returnIndex = content.indexOf('    // ── DETAIL VIEW ──');
+if (returnIndex !== -1) {
+    const beforeReturn = content.slice(0, returnIndex);
+    const newReturn = `    // ── DETAIL VIEW ──
     if (selectedCustomer) {
         return (
             <div className="module-container">
@@ -261,7 +14,7 @@ const Customers = ({ directoryOnly }) => {
                         <button className="btn-secondary" onClick={closeCustomerDetail}><ArrowLeft size={16} /> Back</button>
                         <div>
                             <h1 style={{margin: '0 0 4px 0'}}>{selectedCustomer.name}</h1>
-                            <p style={{margin: 0, color: 'var(--text-muted)'}}>{selectedCustomer.industry || 'Customer'} · <span className={`status-pill ${selectedCustomer.status?.toLowerCase().replace(/ /g, '-') || 'active'}`}>{selectedCustomer.status || 'Active'}</span></p>
+                            <p style={{margin: 0, color: 'var(--text-muted)'}}>{selectedCustomer.industry || 'Customer'} · <span className={\`status-pill \${selectedCustomer.status?.toLowerCase().replace(/ /g, '-') || 'active'}\`}>{selectedCustomer.status || 'Active'}</span></p>
                         </div>
                     </div>
                     <div>
@@ -273,13 +26,13 @@ const Customers = ({ directoryOnly }) => {
                     <div className="detail-tabs" style={{display: 'flex', gap: '12px', marginBottom: '24px'}}>
                         {[
                             { key: 'profile', label: 'Profile', icon: <Building2 size={16} /> },
-                            { key: 'orders', label: `Orders (${customerOrders.length})`, icon: <ShoppingCart size={16} /> },
-                            { key: 'communications', label: `Communications (${customerComms.length})`, icon: <MessageSquare size={16} /> },
-                            { key: 'tickets', label: `Tickets (${customerTickets.length})`, icon: <LifeBuoy size={16} /> }
+                            { key: 'orders', label: \`Orders (\${customerOrders.length})\`, icon: <ShoppingCart size={16} /> },
+                            { key: 'communications', label: \`Communications (\${customerComms.length})\`, icon: <MessageSquare size={16} /> },
+                            { key: 'tickets', label: \`Tickets (\${customerTickets.length})\`, icon: <LifeBuoy size={16} /> }
                         ].map(tab => (
                             <button
                                 key={tab.key}
-                                className={`btn-secondary ${activeTab === tab.key ? 'btn-primary' : ''}`}
+                                className={\`btn-secondary \${activeTab === tab.key ? 'btn-primary' : ''}\`}
                                 onClick={() => setActiveTab(tab.key)}
                                 style={activeTab === tab.key ? {background: 'var(--primary)', color: 'white', borderColor: 'var(--primary)'} : {}}
                             >
@@ -603,3 +356,9 @@ const Customers = ({ directoryOnly }) => {
 };
 
 export default Customers;
+`;
+    fs.writeFileSync(file, beforeReturn + newReturn);
+    console.log('Customers.jsx successfully replaced');
+} else {
+    console.log('Could not find detail view comment');
+}

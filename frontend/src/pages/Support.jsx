@@ -91,9 +91,9 @@ const Support = () => {
             await API.post('/tickets', ticketPayload);
             setFormData({ customer: '', subject: '', description: '', priority: 'Low', category: 'General' });
             fetchTicketsAndCustomers();
-            alert('Support Ticket submitted successfully!');
+            toast.success('Support Ticket submitted successfully!');
         } catch (err) {
-            alert(err.response?.data?.message || 'Error creating ticket');
+            toast.error(err.response?.data?.message || 'Error creating ticket');
         } finally {
             setSubmitting(false);
         }
@@ -104,7 +104,7 @@ const Support = () => {
             await API.put(`/tickets/${id}/status`, { status: newStatus });
             fetchTicketsAndCustomers();
         } catch (err) {
-            alert(err.response?.data?.message || 'Error updating status');
+            toast.error(err.response?.data?.message || 'Error updating status');
         }
     };
 
