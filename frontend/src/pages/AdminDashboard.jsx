@@ -482,10 +482,6 @@ const AdminDashboard = () => {
                     </div>
                 </div>
 
-                <div className="footer-copyright">
-                    <span>© 2026 SMTBMS · All rights reserved</span>
-                    <span>Made with ♥ for smarter management</span>
-                </div>
             </div>
 
             <style jsx="true">{`
@@ -531,7 +527,7 @@ const AdminDashboard = () => {
                     content: '';
                     position: absolute;
                     top: 0; left: 0; right: 0; height: 4px;
-                    background: linear-gradient(90deg, #4318FF, #8b5cf6);
+                    background: var(--primary);
                     opacity: 0; transition: opacity 0.3s ease;
                 }
                 .module-card:hover::before { opacity: 1; }
@@ -549,9 +545,9 @@ const AdminDashboard = () => {
                     color: #ffffff;
                     box-shadow: 0 8px 16px rgba(0,0,0,0.1);
                 }
-                .blue-bg { background: linear-gradient(135deg, #4318FF 0%, #8b5cf6 100%); box-shadow: 0 8px 16px rgba(67, 24, 255, 0.25); }
+                .blue-bg { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%); box-shadow: 0 8px 16px var(--primary-glow); }
                 .orange-bg { background: linear-gradient(135deg, #FF9900 0%, #FF5500 100%); box-shadow: 0 8px 16px rgba(255, 126, 0, 0.25); }
-                .green-bg { background: linear-gradient(135deg, #05CD99 0%, #03A77C 100%); box-shadow: 0 8px 16px rgba(5, 205, 153, 0.25); }
+                .green-bg { background: linear-gradient(135deg, var(--success) 0%, #03A77C 100%); box-shadow: 0 8px 16px rgba(5, 205, 153, 0.25); }
                 .purple-bg { background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); box-shadow: 0 8px 16px rgba(139, 92, 246, 0.25); }
                 .yellow-bg { background: linear-gradient(135deg, #FFCE20 0%, #F59E0B 100%); box-shadow: 0 8px 16px rgba(255, 206, 32, 0.25); }
                 .lightblue-bg { background: linear-gradient(135deg, #3965FF 0%, #1A4BFF 100%); box-shadow: 0 8px 16px rgba(57, 101, 255, 0.25); }
@@ -597,11 +593,11 @@ const AdminDashboard = () => {
                 }
 
                 .chart-card, .quick-actions-card, .recent-activity-card {
-                    background: #ffffff;
-                    border-radius: 20px;
+                    background: var(--bg-surface);
+                    border-radius: var(--radius-xl);
                     padding: 28px;
-                    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.05);
-                    border: 1px solid rgba(226, 232, 240, 0.6);
+                    box-shadow: var(--shadow-md);
+                    border: 1px solid var(--border-subtle);
                     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                 }
                 .chart-card:hover, .quick-actions-card:hover, .recent-activity-card:hover {
@@ -633,10 +629,10 @@ const AdminDashboard = () => {
                 .legend-item strong { color: var(--text-heading); font-size: 14px; }
                 .text-success { color: #05CD99; }
                 .dot { width: 8px; height: 8px; border-radius: 50%; }
-                .blue-dot { background: #4318FF; }
+                .blue-dot { background: var(--primary); }
                 .orange-dot { background: #FF7E00; }
-                .green-dot { background: #05CD99; }
-                .lightblue-dot { background: #3965FF; }
+                .green-dot { background: var(--success); }
+                .lightblue-dot { background: var(--info); }
 
                 /* Quick Actions */
                 .actions-list {
@@ -745,13 +741,6 @@ const AdminDashboard = () => {
                 .blue-text { color: #4318FF; }
                 .orange-text { color: #FF7E00; }
                 .green-text { color: #05CD99; }
-
-                /* Footer */
-                .footer-copyright {
-                    display: flex; justify-content: space-between;
-                    padding: 16px 0;
-                    color: var(--text-muted); font-size: 13px; font-weight: 500;
-                }
 
                 /* RESPONSIVE */
                 @media (max-width: 1400px) {

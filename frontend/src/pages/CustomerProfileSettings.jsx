@@ -193,7 +193,7 @@ const CustomerProfileSettings = () => {
             <div className="profile-grid">
                 {/* Left Column: Customer Details */}
                 <div className="profile-col-left">
-                    <div className="dashboard-card-3d">
+                    <div className="premium-card">
                         <div className="card-header">
                             <Building2 size={18} className="header-icon purple-icon" />
                             <h3>Organization Profile</h3>
@@ -225,7 +225,7 @@ const CustomerProfileSettings = () => {
 
                 {/* Right Column: Password Settings */}
                 <div className="profile-col-right">
-                    <div className="dashboard-card-3d">
+                    <div className="premium-card">
                         <div className="card-header">
                             <Key size={18} className="header-icon purple-icon" />
                             <h3>Password Settings</h3>

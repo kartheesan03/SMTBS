@@ -222,11 +222,11 @@ const SalesDashboard = () => {
     };
 
     return (
-        <div className="module-container">
-            <div className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
+        <div className="page-container">
+            <div className="page-header">
                 <div>
-                    <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '0 0 4px 0', letterSpacing: '-0.02em' }}>Sales Overview</h1>
-                    <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0, fontWeight: 500 }}>Pipeline & Revenue Dashboard</p>
+                    <h1 className="page-title">Sales Overview</h1>
+                    <p className="page-subtitle">Pipeline & Revenue Dashboard</p>
                 </div>
                 <div>
                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#ffffff', border: '1px solid var(--border-subtle)', padding: '8px 16px', borderRadius: 'var(--radius-md)', fontSize: '13px', fontWeight: 600, color: 'var(--text-main)', boxShadow: 'var(--shadow-sm)' }}>
@@ -238,7 +238,7 @@ const SalesDashboard = () => {
             {/* ===== KPI ROW ===== */}
             <div className="responsive-grid-6">
                 {kpiCards.map((kpi, idx) => (
-                    <div key={idx} className="dashboard-card-3d" style={{ position: 'relative', overflow: 'hidden', padding: '20px', display: 'flex', flexDirection: 'column', minHeight: '130px', justifyContent: 'space-between' }}>
+                    <div key={idx} className="premium-card" style={{ position: 'relative', overflow: 'hidden', padding: '20px', display: 'flex', flexDirection: 'column', minHeight: '130px', justifyContent: 'space-between' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                             <div style={{ color: 'var(--text-muted)', fontSize: '13px', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{kpi.title}</div>
                             <div className="kpi-icon-3d" style={{ width: '36px', height: '36px', borderRadius: '8px', background: `linear-gradient(135deg, ${kpi.color}15, ${kpi.color}05)`, color: kpi.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -259,7 +259,7 @@ const SalesDashboard = () => {
             {/* ===== ROW 2: Charts and Quick Actions ===== */}
             <div className="responsive-grid-4-5-3">
                 {/* Lead Sources */}
-                <div className="dashboard-card-3d" style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: '340px', overflow: 'hidden', padding: '24px' }}>
+                <div className="premium-card" style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: '340px', overflow: 'hidden', padding: '24px' }}>
                     <div style={{ paddingBottom: '20px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
                         <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: 'var(--text-heading)', display: 'flex', alignItems: 'center', gap: '8px' }}><Activity size={18} /> Lead Sources</h3>
                     </div>
@@ -301,7 +301,7 @@ const SalesDashboard = () => {
                 </div>
 
                 {/* Revenue Trend */}
-                <div className="dashboard-card-3d" style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: '340px', overflow: 'hidden', padding: '24px' }}>
+                <div className="premium-card" style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: '340px', overflow: 'hidden', padding: '24px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '20px', flexShrink: 0 }}>
                         <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: 'var(--text-heading)', display: 'flex', alignItems: 'center', gap: '8px' }}><TrendingUp size={18} /> Revenue Trend</h3>
                         <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
@@ -349,7 +349,7 @@ const SalesDashboard = () => {
                 </div>
 
                 {/* Quick Actions (App Launcher Style) */}
-                <div className="dashboard-card-3d" style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: '340px', overflow: 'hidden', padding: '24px' }}>
+                <div className="premium-card" style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: '340px', overflow: 'hidden', padding: '24px' }}>
                     <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-heading)', margin: '0 0 20px 0' }}>Sales Actions</h3>
                     <div className="responsive-grid-2" style={{ flex: 1, margin: 0, gap: '12px' }}>
                         {[
@@ -372,7 +372,7 @@ const SalesDashboard = () => {
             </div>
 
             {/* ===== ROW 3: Top Executives (Full Width) ===== */}
-            <div className="dashboard-card-3d" style={{ padding: '24px', marginBottom: '24px' }}>
+            <div className="premium-card" style={{ padding: '24px', marginBottom: '24px' }}>
                 <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'center' }}>
                     <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: 'var(--text-heading)', display: 'flex', alignItems: 'center', gap: '8px' }}><Award size={18} /> Top Sales Executives</h3>
                 </div>

@@ -220,8 +220,8 @@ const EmployeeDashboard = () => {
     ];
 
     return (
-        <div className="module-container">
-            <div className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '24px' }}>
+        <div className="page-container">
+            <div className="page-header">
                 <div>
                     <h1 style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '0 0 4px 0', letterSpacing: '-0.5px' }}>Employee Workspace</h1>
                     <p style={{ fontSize: '14px', color: '#64748b', margin: 0 }}>Welcome back, {user?.firstName || 'User'}!</p>
@@ -240,7 +240,7 @@ const EmployeeDashboard = () => {
                     {/* Top KPIs (2 rows of 3) */}
                     {kpiCards.map((kpi, idx) => (
                         <div className="bento-col-4" key={idx}>
-                            <div className="dashboard-card-3d kpi-card-3d" style={{ position: 'relative', overflow: 'hidden' }}>
+                            <div className="premium-card kpi-card-3d" style={{ position: 'relative', overflow: 'hidden' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
                                     <div style={{ color: '#64748b', fontSize: '12px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{kpi.title}</div>
                                     <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: `${kpi.color}15`, color: kpi.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -253,7 +253,7 @@ const EmployeeDashboard = () => {
                     ))}
 
                     <div className="bento-col-12">
-                        <div className="dashboard-card-3d">
+                        <div className="premium-card">
                             <div className="bento-card-header">
                                 <h3 className="bento-card-title"><ListTodo size={16} /> My Tasks</h3>
                             </div>
@@ -304,7 +304,7 @@ const EmployeeDashboard = () => {
                 <div className="bento-col-3 bento-grid" style={{ alignContent: 'start' }}>
                     
                     <div className="bento-col-12">
-                        <div className="dashboard-card-3d" style={{ padding: '16px' }}>
+                        <div className="premium-card" style={{ padding: '16px' }}>
                             <h3 style={{ fontSize: '13px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '16px' }}>Quick Actions</h3>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                 {[
@@ -325,7 +325,7 @@ const EmployeeDashboard = () => {
                     </div>
 
                     <div className="bento-col-12">
-                        <div className="dashboard-card-3d chart-card-3d" style={{ height: '340px' }}>
+                        <div className="premium-card chart-card-3d" style={{ height: '340px' }}>
                             <div className="bento-card-header">
                                 <h3 className="bento-card-title"><Clock size={16} /> My Attendance</h3>
                             </div>

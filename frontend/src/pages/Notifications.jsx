@@ -143,7 +143,7 @@ const NotificationsPage = () => {
 
     // ─── render ──────────────────────────────────────────────────────────────
     return (
-        <div className="module-container" style={{ paddingBottom: '40px' }}>
+        <div className="page-container" style={{ paddingBottom: '40px' }}>
 
             {/* Toast */}
             {toast && (
@@ -154,22 +154,20 @@ const NotificationsPage = () => {
             )}
 
             {/* ===== HEADER ===== */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '16px' }}>
+            <div className="page-header">
                 <div>
-                    <h1 style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '0 0 4px 0', letterSpacing: '-0.5px' }}>Notification Center</h1>
-                    <p style={{ fontSize: '14px', color: '#64748b', margin: 0 }}>Manage alerts, updates, and system notifications</p>
+                    <h1 className="page-title">Notification Center</h1>
+                    <p className="page-subtitle">Manage alerts, updates, and system notifications</p>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     {canAdmin && (
-                        <button onClick={handleSeed} disabled={seeding}
-                            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: '10px', border: '1px solid #e2e8f0', background: '#fff', fontSize: '13px', fontWeight: 600, color: '#475569', cursor: seeding ? 'not-allowed' : 'pointer', opacity: seeding ? 0.6 : 1, transition: 'all 0.2s' }}>
+                        <button className="btn-secondary" onClick={handleSeed} disabled={seeding}>
                             {seeding ? <Loader size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <RefreshCw size={14} />}
                             Sync
                         </button>
                     )}
                     {unreadCount > 0 && (
-                        <button onClick={handleMarkAll}
-                            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: '10px', border: '1px solid #3b82f6', background: '#eff6ff', fontSize: '13px', fontWeight: 600, color: '#3b82f6', cursor: 'pointer', transition: 'all 0.2s' }}>
+                        <button className="btn-primary" onClick={handleMarkAll}>
                             <CheckCircle size={14} /> Mark All Read
                         </button>
                     )}
@@ -184,7 +182,7 @@ const NotificationsPage = () => {
                     { label: 'Read', value: readCount, icon: CheckCircle, iconBg: '#ecfdf5', iconColor: '#10b981' },
                     { label: 'Critical', value: criticalCount, icon: AlertCircle, iconBg: '#fef2f2', iconColor: '#dc2626' },
                 ].map((kpi, idx) => (
-                    <div key={idx} className="dashboard-card-3d" style={{ borderRadius: '14px', padding: '16px 18px', display: 'flex', alignItems: 'center', gap: '14px' }}>
+                    <div key={idx} className="premium-card" style={{ borderRadius: '14px', padding: '16px 18px', display: 'flex', alignItems: 'center', gap: '14px' }}>
                         <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: kpi.iconBg, color: kpi.iconColor, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                             <kpi.icon size={18} />
                         </div>
@@ -247,7 +245,7 @@ const NotificationsPage = () => {
 
             {/* ===== NOTIFICATION LIST ===== */}
             {displayed.length === 0 ? (
-                <div className="dashboard-card-3d" style={{ borderRadius: '14px', padding: '60px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '16px', color: '#94a3b8', textAlign: 'center' }}>
+                <div className="premium-card" style={{ borderRadius: '14px', padding: '60px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '16px', color: '#94a3b8', textAlign: 'center' }}>
                     <BellOff size={36} />
                     <div>
                         <p style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: 600, color: '#64748b' }}>

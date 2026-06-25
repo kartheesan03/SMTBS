@@ -60,11 +60,11 @@ const CustomerDashboard = () => {
     const completedOrders = orders.filter(o => o.status === 'Delivered').length;
 
     return (
-        <div className="module-container">
-            <div className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
+        <div className="page-container">
+            <div className="page-header">
                 <div>
-                    <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '0 0 4px 0', letterSpacing: '-0.02em' }}>Customer Dashboard</h1>
-                    <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0, fontWeight: 500 }}>
+                    <h1 className="page-title">Customer Dashboard</h1>
+                    <p className="page-subtitle">
                         Welcome back, {profile?.name || 'Valued Customer'}. Here's an overview of your account.
                     </p>
                 </div>
@@ -78,7 +78,7 @@ const CustomerDashboard = () => {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '24px' }}>
                 {/* Stats Section */}
                 <div style={{ gridColumn: 'span 4', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                    <div className="dashboard-card-3d" style={{ padding: '24px', display: 'flex', alignItems: 'center', gap: '20px' }}>
+                    <div className="premium-card" style={{ padding: '24px', display: 'flex', alignItems: 'center', gap: '20px' }}>
                         <div className="kpi-icon-3d" style={{ width: '64px', height: '64px', borderRadius: '16px', background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.1), rgba(56, 189, 248, 0.05))', color: '#0ea5e9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                             <Package size={28} strokeWidth={2.5} />
                         </div>
@@ -88,7 +88,7 @@ const CustomerDashboard = () => {
                         </div>
                     </div>
                     
-                    <div className="dashboard-card-3d" style={{ padding: '24px', display: 'flex', alignItems: 'center', gap: '20px' }}>
+                    <div className="premium-card" style={{ padding: '24px', display: 'flex', alignItems: 'center', gap: '20px' }}>
                         <div className="kpi-icon-3d" style={{ width: '64px', height: '64px', borderRadius: '16px', background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(168, 85, 247, 0.05))', color: '#9333ea', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                             <Truck size={28} strokeWidth={2.5} />
                         </div>
@@ -98,7 +98,7 @@ const CustomerDashboard = () => {
                         </div>
                     </div>
 
-                    <div className="dashboard-card-3d" style={{ padding: '24px', display: 'flex', alignItems: 'center', gap: '20px' }}>
+                    <div className="premium-card" style={{ padding: '24px', display: 'flex', alignItems: 'center', gap: '20px' }}>
                         <div className="kpi-icon-3d" style={{ width: '64px', height: '64px', borderRadius: '16px', background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(34, 197, 94, 0.05))', color: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                             <CheckCircle size={28} strokeWidth={2.5} />
                         </div>
@@ -110,7 +110,7 @@ const CustomerDashboard = () => {
                 </div>
 
                 {/* Profile Profile Section */}
-                <div className="dashboard-card-3d" style={{ gridColumn: 'span 8', padding: '24px', display: 'flex', flexDirection: 'column' }}>
+                <div className="premium-card" style={{ gridColumn: 'span 8', padding: '24px', display: 'flex', flexDirection: 'column' }}>
                     <div className="card-header">
                         <h3><User size={18} /> My Profile Details</h3>
                     </div>
@@ -142,7 +142,7 @@ const CustomerDashboard = () => {
                 </div>
 
                 {/* Order History Section */}
-                <div className="dashboard-card-3d" style={{ gridColumn: 'span 12', padding: '24px', marginTop: '8px' }}>
+                <div className="premium-card" style={{ gridColumn: 'span 12', padding: '24px', marginTop: '8px' }}>
                     <div className="card-header" style={{ marginBottom: '20px', paddingBottom: '0', borderBottom: 'none' }}>
                         <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: 'var(--text-heading)', display: 'flex', alignItems: 'center', gap: '8px' }}><FileText size={18} /> My Order History</h3>
                     </div>

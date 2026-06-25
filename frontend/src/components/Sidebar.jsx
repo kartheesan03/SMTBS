@@ -262,7 +262,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                 .sidebar {
                     width: var(--sidebar-width);
                     height: 100vh;
-                    background: linear-gradient(180deg, #0B1120 0%, #171032 100%);
+                    background: var(--secondary);
                     border-right: 1px solid rgba(255, 255, 255, 0.05);
                     display: flex;
                     flex-direction: column;
@@ -304,7 +304,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                 .collapse-btn:hover { background: rgba(255,255,255,0.1); color: #ffffff; }
                 .sidebar.collapsed .collapse-btn {
                     position: absolute; right: -14px; top: 24px;
-                    background: linear-gradient(135deg, #4318FF 0%, #8b5cf6 100%); 
+                    background: var(--primary); 
                     color: white; border: none;
                     border-radius: 50%; width: 28px; height: 28px;
                     box-shadow: 0 4px 12px rgba(67, 24, 255, 0.4); z-index: 10;
@@ -443,7 +443,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                 .nav-item:hover .item-icon-wrapper { color: #ffffff; }
                 
                 .nav-item.active { 
-                    background: linear-gradient(90deg, rgba(67, 24, 255, 0.8) 0%, rgba(139, 92, 246, 0.8) 100%);
+                    background: var(--primary);
                     color: #ffffff !important; 
                     font-weight: 700; 
                     box-shadow: 0 6px 16px rgba(67, 24, 255, 0.3);

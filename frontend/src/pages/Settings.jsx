@@ -171,7 +171,7 @@ const Settings = () => {
     const empIdBadge = employeeData?.employeeId || employeeData?.employeeCode || (user?.id ? `EMP${user.id.toString().padStart(4, '0')}` : 'EMP001');
 
     return (
-        <div className="module-container">
+        <div className="page-container">
             {/* Top Banner Card */}
             <div className="premium-profile-banner">
                 <div className="premium-banner-avatar-wrapper">
@@ -213,7 +213,7 @@ const Settings = () => {
                 
                 {/* Left Column: Personal Information */}
                 <div className="profile-col-left">
-                    <div className="dashboard-card-3d" style={{ padding: '24px' }}>
+                    <div className="premium-card" style={{ padding: '24px' }}>
                         <div className="card-header">
                             <User size={18} className="header-icon purple-icon" />
                             <h3 style={{ fontSize: '18px', fontWeight: 700 }}>Personal Information</h3>
@@ -260,7 +260,7 @@ const Settings = () => {
                 <div className="profile-col-right">
                     
                     {/* Employment Details */}
-                    <div className="dashboard-card-3d mb-24" style={{ padding: '24px' }}>
+                    <div className="premium-card mb-24" style={{ padding: '24px' }}>
                         <div className="card-header">
                             <Briefcase size={18} className="header-icon purple-icon" />
                             <h3 style={{ fontSize: '18px', fontWeight: 700 }}>Employment Details</h3>
@@ -290,7 +290,7 @@ const Settings = () => {
                     </div>
 
                     {/* Change Password */}
-                    <div className="dashboard-card-3d" style={{ padding: '24px' }}>
+                    <div className="premium-card" style={{ padding: '24px' }}>
                         <div className="card-header">
                             <Key size={18} className="header-icon purple-icon" />
                             <h3 style={{ fontSize: '18px', fontWeight: 700 }}>Change Password</h3>
@@ -316,7 +316,7 @@ const Settings = () => {
                 
                 {/* Notifications Preferences */}
                 <div className="profile-col-left">
-                    <div className="dashboard-card-3d h-full" style={{ padding: '24px' }}>
+                    <div className="premium-card h-full" style={{ padding: '24px' }}>
                         <div className="card-header">
                             <Bell size={18} className="header-icon purple-icon" />
                             <h3 style={{ fontSize: '18px', fontWeight: 700 }}>Notifications</h3>
@@ -346,7 +346,7 @@ const Settings = () => {
 
                 {/* Recent Activity */}
                 <div className="profile-col-right">
-                    <div className="dashboard-card-3d h-full" style={{ padding: '24px' }}>
+                    <div className="premium-card h-full" style={{ padding: '24px' }}>
                         <div className="card-header">
                             <Activity size={18} className="header-icon purple-icon" />
                             <h3 style={{ fontSize: '18px', fontWeight: 700 }}>Recent Activity</h3>

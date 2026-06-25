@@ -140,11 +140,11 @@ const HRMS = () => {
     }
 
     return (
-        <div className="module-container">
-            <header className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
+        <div className="page-container">
+            <header className="page-header">
                 <div>
-                    <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '0 0 4px 0', letterSpacing: '-0.02em' }}>Employee Management</h1>
-                    <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0, fontWeight: 500 }}>Manage your organization's workforce and access profiles.</p>
+                    <h1 className="page-title">Employee Management</h1>
+                    <p className="page-subtitle">Manage your organization's workforce and access profiles.</p>
                 </div>
                 <div style={{ display: 'flex', gap: '12px' }}>
                     <button className="btn-secondary-light flex-center gap-8" onClick={exportToPDF}><Download size={16} /> PDF</button>
@@ -157,7 +157,7 @@ const HRMS = () => {
 
             {showModal && (
                 <div className="modal-overlay">
-                    <div className="glass-card modal-content animate-pop">
+                    <div className="premium-card modal-content animate-pop">
                         <div className="modal-header">
                             <h2>Edit Employee Profile</h2>
                             <button className="close-btn" onClick={() => {
@@ -334,7 +334,7 @@ const HRMS = () => {
 
             <div className="employee-grid">
                 {employees.length > 0 ? employees.map((emp) => (
-                    <div key={emp._id} className="dashboard-card-3d employee-card" style={{ padding: '24px' }}>
+                    <div key={emp._id} className="premium-card employee-card">
                         <div className="emp-avatar">
                             {emp.firstName[0]}{emp.lastName?.[0]}
                         </div>
@@ -362,7 +362,7 @@ const HRMS = () => {
                         </div>
                     </div>
                 )) : (
-                    <div className="dashboard-card-3d p-30 text-center w-full" style={{ padding: '30px' }}>
+                    <div className="premium-card p-30 text-center w-full" style={{ padding: '30px' }}>
                         <p className="text-muted">No employees found in the system.</p>
                     </div>
                 )}
@@ -442,7 +442,7 @@ const HRMS = () => {
                 .gap-10 { gap: 10px; }
                 
                 @media (max-width: 768px) {
-                    .module-container { padding: 20px; }
+                    .page-container { padding: 20px; }
                     .employee-grid { grid-template-columns: 1fr; }
                     .form-grid, .profile-grid { grid-template-columns: 1fr; }
                     .profile-top { flex-direction: column; text-align: center; }

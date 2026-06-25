@@ -61,23 +61,23 @@ const MySalaryPage = () => {
     );
 
     return (
-        <div className="module-container">
-            <header className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
+        <div className="page-container">
+            <header className="page-header">
                 <div>
-                    <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '0 0 4px 0', letterSpacing: '-0.02em' }}>My Payslips</h1>
-                    <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0, fontWeight: 500 }}>Review your payment history and download official payslips.</p>
+                    <h1 className="page-title">My Payslips</h1>
+                    <p className="page-subtitle">Review your payment history and download official payslips.</p>
                 </div>
             </header>
 
             <div className="module-content">
                 {history.length === 0 ? (
-                    <div className="dashboard-card-3d no-salary-card">
+                    <div className="premium-card no-salary-card">
                         <DollarSign size={48} className="no-salary-icon" />
                         <h3>No Salary Generated</h3>
                         <p>Your payroll has not been generated yet. Please contact HR or your administrator.</p>
                     </div>
                 ) : (
-                <div className="dashboard-card-3d" style={{ overflow: 'hidden' }}>
+                <div className="premium-card" style={{ overflow: 'hidden' }}>
                 <DataTable 
                     title="Payment Ledger"
                     headers={['Month', 'Net Amount', 'Status', 'Date Paid', 'Actions']}
@@ -175,7 +175,7 @@ const MySalaryPage = () => {
             )}
 
             <style jsx="true">{`
-                .module-container { padding: 30px; }
+                /* layout handled by .page-container */
                 .status-badge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap; }
                 .status-badge.paid { background: rgba(16, 185, 129, 0.1); color: #10b981; }
                 .status-badge.approved { background: rgba(99, 102, 241, 0.1); color: var(--primary); }
@@ -245,7 +245,7 @@ const MySalaryPage = () => {
                 }
 
                 @media (max-width: 768px) {
-                    .module-container { padding: 15px; }
+                    .page-container { padding: 16px 12px; }
                     .info-grid { grid-template-columns: 1fr; }
                     .payslip-footer-total { font-size: 18px; padding: 15px; }
                     .modal-actions button { width: 100%; }

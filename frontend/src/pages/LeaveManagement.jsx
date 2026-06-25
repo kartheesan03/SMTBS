@@ -76,7 +76,7 @@ const LeaveManagement = () => {
 
     // ── render ─────────────────────────────────────────────────────────────
     return (
-        <div className="module-container">
+        <div className="page-container">
 
             {/* ── Toast ── */}
             {toast && (
@@ -87,10 +87,10 @@ const LeaveManagement = () => {
             )}
 
             {/* ── Header ── */}
-            <header className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
+            <header className="page-header">
                 <div>
-                    <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '0 0 4px 0', letterSpacing: '-0.02em' }}>{isHR ? 'Leave Administration' : 'Leave Management'}</h1>
-                    <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0, fontWeight: 500 }}>
+                    <h1 className="page-title">{isHR ? 'Leave Administration' : 'Leave Management'}</h1>
+                    <p className="page-subtitle">
                         {isHR ? 'Review employee leave requests and manage organization-wide attendance.' : 'Manage your time-off requests and track your leave balance.'}
                     </p>
                 </div>
@@ -109,7 +109,7 @@ const LeaveManagement = () => {
                     const b = balance[type];
                     const pct = Math.round((b.remaining / b.total) * 100);
                     return (
-                        <div key={type} className="dashboard-card-3d lv-bal-card" style={{ padding: '22px' }}>
+                        <div key={type} className="premium-card" style={{ padding: '22px' }}>
                             <div className="lv-bal-top">
                                 <span className="lv-bal-type">{type} Leave</span>
                                 <span className="lv-bal-pct">{pct}%</span>
@@ -139,7 +139,7 @@ const LeaveManagement = () => {
             {/* ── Review Modal (HR) ── */}
             {reviewModal && (
                 <div className="modal-overlay">
-                    <div className="dashboard-card-3d lv-form-card animate-pop" style={{ padding: '32px' }}>
+                    <div className="premium-card animate-pop" style={{ padding: '32px', maxWidth: '500px' }}>
                         <div className="lv-form-head">
                             <h3>Review Leave Request</h3>
                             <button className="close-btn" onClick={() => setReviewModal(null)}>✕</button>
@@ -173,7 +173,7 @@ const LeaveManagement = () => {
             )}
 
             {/* ── Leave History Table ── */}
-            <div className="dashboard-card-3d lv-table-card" style={{ padding: '0', overflow: 'hidden' }}>
+            <div className="premium-card" style={{ padding: '0', overflow: 'hidden' }}>
                 <div className="lv-table-header" style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)' }}>
                     <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: 'var(--text-heading)' }}>{isHR ? 'All Leave Requests' : 'Leave History'}</h3>
                     <span className="text-muted" style={{ fontSize: 13 }}>{leaves.length} request{leaves.length !== 1 ? 's' : ''}</span>
@@ -375,7 +375,7 @@ const LeaveManagement = () => {
                 .gap-10 { gap: 10px; }
 
                 @media (max-width: 768px) {
-                    .module-container { padding: 16px; }
+                    .page-container { padding: 16px 12px; }
                     .module-header { flex-direction: column; align-items: flex-start; gap: 16px; }
                     .module-header button { width: 100%; justify-content: center; }
                     .lv-balance-grid { grid-template-columns: 1fr; }

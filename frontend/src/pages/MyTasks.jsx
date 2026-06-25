@@ -141,17 +141,17 @@ const MyTasks = () => {
     const completedCount = allCompletions.filter(c => c.status === 'Completed').length;
 
     return (
-        <div className="module-container">
+        <div className="page-container">
             {successMsg && (
                 <div className="toast-success animate-slide-down">
                     <CheckCircle2 size={18} /> {successMsg}
                 </div>
             )}
 
-            <header className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
+            <header className="page-header">
                 <div>
-                    <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '0 0 4px 0', letterSpacing: '-0.02em' }}>{isManager ? '📋 Task Management Center' : 'My Assigned Tasks'}</h1>
-                    <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0, fontWeight: 500 }}>{isManager ? 'Assign tasks to employees and sales teams with instant notifications.' : 'Track your daily responsibilities and project milestones.'}</p>
+                    <h1 className="page-title">{isManager ? '📋 Task Management Center' : 'My Assigned Tasks'}</h1>
+                    <p className="page-subtitle">{isManager ? 'Assign tasks to employees and sales teams with instant notifications.' : 'Track your daily responsibilities and project milestones.'}</p>
                 </div>
                 <div className="header-actions">
                     <div className="search-bar-sm glass-card">
@@ -174,28 +174,28 @@ const MyTasks = () => {
             {/* Stats Cards for Manager/HR */}
             {isManager && (
                 <div className="task-stats" style={{ marginBottom: '24px' }}>
-                    <div className="dashboard-card-3d stat-card">
+                    <div className="premium-card stat-card">
                         <div className="stat-icon pending-icon"><Clock size={20} /></div>
                         <div className="stat-info">
                             <span className="stat-value" style={{ color: 'var(--text-heading)' }}>{pendingCount}</span>
                             <span className="stat-label">Pending</span>
                         </div>
                     </div>
-                    <div className="dashboard-card-3d stat-card">
+                    <div className="premium-card stat-card">
                         <div className="stat-icon progress-icon"><PlayCircle size={20} /></div>
                         <div className="stat-info">
                             <span className="stat-value" style={{ color: 'var(--text-heading)' }}>{inProgressCount}</span>
                             <span className="stat-label">In Progress</span>
                         </div>
                     </div>
-                    <div className="dashboard-card-3d stat-card">
+                    <div className="premium-card stat-card">
                         <div className="stat-icon done-icon"><CheckCircle2 size={20} /></div>
                         <div className="stat-info">
                             <span className="stat-value" style={{ color: 'var(--text-heading)' }}>{completedCount}</span>
                             <span className="stat-label">Completed</span>
                         </div>
                     </div>
-                    <div className="dashboard-card-3d stat-card">
+                    <div className="premium-card stat-card">
                         <div className="stat-icon total-icon"><Bell size={20} /></div>
                         <div className="stat-info">
                             <span className="stat-value" style={{ color: 'var(--text-heading)' }}>{tasks.length}</span>
@@ -221,13 +221,13 @@ const MyTasks = () => {
                 {loading ? (
                     <div className="flex-center p-50"><Loader size={30} className="spin-icon"/></div>
                 ) : filteredTasks.length === 0 ? (
-                    <div className="dashboard-card-3d empty-state">
+                    <div className="premium-card empty-state">
                         <AlertCircle size={48} />
                         <h3 style={{ color: 'var(--text-heading)' }}>{tasks.length === 0 ? 'No Tasks Assigned' : 'No Tasks Found'}</h3>
                         <p>{tasks.length === 0 ? 'No tasks assigned yet.' : 'No tasks match the current filter.'}</p>
                     </div>
                 ) : (
-                    <div className="dashboard-card-3d" style={{ overflow: 'hidden' }}>
+                    <div className="premium-card" style={{ overflow: 'hidden' }}>
                     <DataTable 
                         title="Task Assignments"
                         headers={isManager ? ['Task Details', 'Assigned To', 'Priority', 'Timeline', 'Progress', 'Actions'] : ['Task Details', 'Assigned By', 'Priority', 'Timeline', 'Status', 'Actions']}
@@ -322,7 +322,7 @@ const MyTasks = () => {
             {/* Create Task Modal */}
             {showModal && (
                 <div className="modal-overlay">
-                    <div className="glass-card modal-content-lg animate-pop">
+                    <div className="premium-card modal-content-lg animate-pop">
                         <div className="modal-header">
                             <h2>📋 Assign New Task</h2>
                             <button className="close-btn" onClick={() => setShowModal(false)}>✕</button>
@@ -433,7 +433,7 @@ const MyTasks = () => {
             )}
 
             <style jsx="true">{`
-                .module-container { padding: 30px; }
+                /* layout handled by .page-container */
                 .module-header { display: flex; justify-content: space-between; align-items: flex-end; padding: 25px; gap: 20px; }
                 .header-actions { display: flex; gap: 15px; align-items: center; }
                 .search-bar-sm { display: flex; align-items: center; gap: 10px; padding: 10px 15px; min-width: 250px; }
@@ -569,7 +569,7 @@ const MyTasks = () => {
                 .p-50 { padding: 50px; }
 
                 @media (max-width: 768px) {
-                    .module-container { padding: 15px; }
+                    .page-container { padding: 16px 12px; }
                     .module-header { flex-direction: column; align-items: flex-start; gap: 15px; }
                     .header-actions { width: 100%; flex-direction: column; }
                     .search-bar-sm { width: 100%; min-width: unset; }

@@ -68,8 +68,7 @@ const Dashboard = () => {
                         { label: 'Add Employee', icon: <Users size={20}/>, onClick: () => {} },
                         { label: 'Add Customer', icon: <Briefcase size={20}/>, onClick: () => {} },
                     ],
-                    charts: (
-                        <div className="glass-card chart-container">
+                    <div className="premium-card chart-container">
                             <h3>Revenue & Sales Growth</h3>
                             <div style={{ height: 300, marginTop: 20 }}>
                                 {data?.charts?.monthlyStats?.length > 0 ? (
@@ -77,19 +76,19 @@ const Dashboard = () => {
                                         <AreaChart data={data.charts.monthlyStats}>
                                             <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} />
                                             <YAxis stroke="#94a3b8" fontSize={12} />
-                                            <Tooltip contentStyle={{ background: '#0f172a', border: '1px solid #334155' }} />
-                                            <Area type="monotone" dataKey="revenue" stroke="#6366f1" fill="rgba(99, 102, 241, 0.2)" />
-                                            <Area type="monotone" dataKey="sales" stroke="#14b8a6" fill="rgba(20, 184, 166, 0.1)" />
+                                            <Tooltip contentStyle={{ background: '#fff', border: '1px solid var(--border-subtle)', borderRadius: '8px', boxShadow: 'var(--shadow-md)' }} />
+                                            <Area type="monotone" dataKey="revenue" stroke="var(--primary)" fill="rgba(79, 70, 229, 0.15)" />
+                                            <Area type="monotone" dataKey="sales" stroke="var(--success)" fill="rgba(16, 185, 129, 0.1)" />
                                         </AreaChart>
                                     </ResponsiveContainer>
                                 ) : (
-                                    <div className="flex-center" style={{ height: '100%', color: '#94a3b8', fontSize: '14px' }}>No revenue data available</div>
+                                    <div className="empty-state" style={{ height: '100%' }}>No revenue data available</div>
                                 )}
                             </div>
                         </div>
                     ),
                     tables: (
-                        <div className="dashboard-card-3d" style={{ overflow: 'hidden' }}>
+                        <div className="premium-card">
                         <DataTable 
                             title="Critical Stock Alerts" 
                             headers={['Item', 'SKU', 'Level', 'Status']} 
@@ -97,9 +96,9 @@ const Dashboard = () => {
                             renderRow={(item) => (
                                 <>
                                     <td>{item.name}</td>
-                                    <td><code>{item.sku}</code></td>
-                                    <td style={{ color: '#ef4444', fontWeight: 600 }}>{item.quantity} {item.unit}</td>
-                                    <td><span className="status-badge low-stock">Low Stock</span></td>
+                                    <td><code className="sku-code">{item.sku}</code></td>
+                                    <td style={{ color: 'var(--danger)', fontWeight: 600 }}>{item.quantity} {item.unit}</td>
+                                    <td><span className="status-badge status-danger">Low Stock</span></td>
                                 </>
                             )}
                         />
@@ -121,7 +120,7 @@ const Dashboard = () => {
                         { label: 'Update Payroll', icon: <DollarSign size={20}/>, onClick: () => navigate('/hrms') },
                     ],
                     charts: (
-                        <div className="glass-card chart-container">
+                        <div className="premium-card chart-container">
                             <h3>Workforce Attendance Trends</h3>
                             <div style={{ height: 300, marginTop: 20 }}>
                                 {data?.charts?.attendanceHistory?.length > 0 ? (
@@ -129,18 +128,18 @@ const Dashboard = () => {
                                         <BarChart data={data.charts.attendanceHistory}>
                                             <XAxis dataKey="name" stroke="#94a3b8" />
                                             <YAxis stroke="#94a3b8" />
-                                            <Tooltip cursor={{fill: '#1e293b'}} contentStyle={{ background: '#0f172a', border: '1px solid #334155' }} />
-                                            <Bar dataKey="employees" fill="#6366f1" radius={[4, 4, 0, 0]} />
+                                            <Tooltip cursor={{fill: 'var(--bg-hover)'}} contentStyle={{ background: '#fff', border: '1px solid var(--border-subtle)', borderRadius: '8px', boxShadow: 'var(--shadow-md)' }} />
+                                            <Bar dataKey="employees" fill="var(--primary)" radius={[4, 4, 0, 0]} />
                                         </BarChart>
                                     </ResponsiveContainer>
                                 ) : (
-                                    <div className="flex-center" style={{ height: '100%', color: '#94a3b8', fontSize: '14px' }}>No attendance data available</div>
+                                    <div className="empty-state" style={{ height: '100%' }}>No attendance data available</div>
                                 )}
                             </div>
                         </div>
                     ),
                     tables: (
-                        <div className="dashboard-card-3d" style={{ overflow: 'hidden' }}>
+                        <div className="premium-card">
                         <DataTable 
                             title="Employees" 
                             headers={['Name', 'Designation', 'Department', 'Status']} 
@@ -150,7 +149,7 @@ const Dashboard = () => {
                                     <td>{item.firstName} {item.lastName}</td>
                                     <td>{item.designation}</td>
                                     <td>{item.department}</td>
-                                    <td><span className="status-badge in-stock">Active</span></td>
+                                    <td><span className="status-badge status-success">Active</span></td>
                                 </>
                             )}
                         />
@@ -170,27 +169,27 @@ const Dashboard = () => {
                         { label: 'Add Customer', icon: <PlusCircle size={20}/>, onClick: () => navigate('/crm') },
                     ],
                     charts: (
-                        <div className="glass-card chart-container flex-col-center">
+                        <div className="premium-card chart-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                             <h3>Lead Conversion Rate</h3>
                             <div style={{ height: 250, width: '100%', marginTop: 20 }}>
                                 {data?.charts?.conversionRate?.length > 0 ? (
                                     <ResponsiveContainer>
                                         <PieChart>
                                             <Pie data={data.charts.conversionRate} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
-                                                <Cell fill="#6366f1" />
-                                                <Cell fill="#1e293b" />
+                                                <Cell fill="var(--primary)" />
+                                                <Cell fill="var(--border-subtle)" />
                                             </Pie>
-                                            <Tooltip />
+                                            <Tooltip contentStyle={{ background: '#fff', border: '1px solid var(--border-subtle)', borderRadius: '8px' }} />
                                         </PieChart>
                                     </ResponsiveContainer>
                                 ) : (
-                                    <div className="flex-center" style={{ height: '100%', color: '#94a3b8', fontSize: '14px' }}>No conversion data available</div>
+                                    <div className="empty-state" style={{ height: '100%' }}>No conversion data available</div>
                                 )}
                             </div>
                         </div>
                     ),
                     tables: (
-                        <div className="dashboard-card-3d" style={{ overflow: 'hidden' }}>
+                        <div className="premium-card">
                         <DataTable 
                             title="Recent Orders" 
                             headers={['Order #', 'Customer', 'Amount', 'Status']} 
@@ -220,7 +219,7 @@ const Dashboard = () => {
                         { label: 'Update Task', icon: <CheckCircle2 size={20}/>, onClick: () => navigate('/analytics') },
                     ],
                     charts: (
-                        <div className="glass-card chart-container">
+                        <div className="premium-card chart-container">
                             <h3>Performance Score</h3>
                             <div style={{ height: 300, marginTop: 20 }}>
                                 <ResponsiveContainer>
@@ -231,7 +230,7 @@ const Dashboard = () => {
                             </div>
                         </div>
                     ),
-                    tables: <div className="dashboard-card-3d" style={{ overflow: 'hidden' }}><p className="text-muted" style={{padding: '20px'}}>No recent activity found.</p></div>
+                    tables: <div className="premium-card"><p style={{padding: '20px', color: 'var(--text-muted)'}}>No recent activity found.</p></div>
                 };
         }
     };
@@ -239,15 +238,15 @@ const Dashboard = () => {
     const content = getRoleContent();
 
     return (
-        <div className="dashboard-layout">
+        <div className="page-container">
             {/* Header / Notifications */}
-            <header className="dashboard-top">
-                <div className="header-info">
-                    <h1>{content.title}</h1>
-                    <p className="text-muted">Welcome back, {user?.role} {user?.name}</p>
+            <header className="page-header">
+                <div>
+                    <h1 className="page-title">{content.title}</h1>
+                    <p className="page-subtitle">Welcome back, {user?.role} {user?.name}</p>
                 </div>
                 
-                <div className="dashboard-controls">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                     <div className="dashboard-search">
                         <Search size={18} />
                         <input type="text" placeholder="Global system search..." />
@@ -255,10 +254,10 @@ const Dashboard = () => {
                     <div className="notifications-dropdown">
                         <div className="bell-box">
                             <Bell size={20} />
-                            <span className="badge">{notifications.length}</span>
+                            <span className="notif-badge">{notifications.length}</span>
                         </div>
                     </div>
-                    <div className="date-picker glass-card">
+                    <div className="premium-card" style={{ padding: '10px 18px', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>
                         <Calendar size={16} />
                         <span>{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                     </div>
@@ -293,39 +292,20 @@ const Dashboard = () => {
             </section>
 
             <style jsx="true">{`
-                .dashboard-layout { 
-                    padding: 30px; 
-                    display: flex; 
-                    flex-direction: column; 
-                    gap: 30px; 
-                    background-color: var(--bg-body); 
-                    min-height: 100vh; 
-                    color: var(--text-primary); 
-                }
-                .dashboard-top { display: flex; justify-content: space-between; align-items: center; }
-                .header-info h1 { font-size: 28px; font-weight: 800; color: var(--text-primary); margin: 0 0 6px 0; letter-spacing: -0.5px; }
-                .header-info p { margin: 0; }
-                
-                .dashboard-controls { display: flex; align-items: center; gap: 20px; }
-                .dashboard-search { position: relative; display: flex; align-items: center; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md, 12px); padding: 6px 15px; box-shadow: var(--shadow-sm); transition: all 0.2s ease; }
-                .dashboard-search:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-50); }
-                .dashboard-search input { background: none; border: none; padding: 6px; width: 220px; color: var(--text-primary); outline: none; font-size: 14px; }
+                .dashboard-search { position: relative; display: flex; align-items: center; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 6px 15px; box-shadow: var(--shadow-sm); transition: all 0.2s ease; }
+                .dashboard-search:focus-within { border-color: var(--primary); box-shadow: var(--ring-focus); }
+                .dashboard-search input { background: none; border: none; padding: 6px; width: 220px; color: var(--text-heading); outline: none; font-size: 14px; }
                 .dashboard-search input::placeholder { color: var(--text-muted); }
                 .dashboard-search svg { color: var(--text-muted); }
                 
-                .bell-box { position: relative; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: var(--bg-card); border: 1px solid var(--border); box-shadow: var(--shadow-sm); transition: all 0.2s; }
-                .bell-box:hover { background: var(--bg-hover); color: var(--text-primary); }
-                .bell-box .badge { position: absolute; top: -4px; right: -4px; background: var(--danger); color: white; font-size: 10px; font-weight: 800; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3); }
+                .bell-box { position: relative; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: var(--bg-surface); border: 1px solid var(--border-subtle); box-shadow: var(--shadow-sm); transition: all 0.2s; }
+                .bell-box:hover { background: var(--bg-hover); color: var(--text-heading); }
+                .notif-badge { position: absolute; top: -4px; right: -4px; background: var(--danger); color: white; font-size: 10px; font-weight: 800; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3); }
                 
-                .date-picker { padding: 10px 18px; display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600; color: var(--text-secondary); background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md, 12px); box-shadow: var(--shadow-sm); }
-                
-                .glass-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg, 16px); box-shadow: var(--shadow-sm); padding: 24px; }
-                .glass-card h3 { font-size: 16px; font-weight: 800; color: var(--text-primary); margin: 0; }
-
                 .notifications-bar { display: flex; flex-direction: column; gap: 12px; }
-                .notif-item { display: flex; align-items: center; gap: 12px; padding: 14px 20px; border-radius: var(--radius-md, 12px); font-size: 14px; font-weight: 500; }
-                .notif-item.warning { background: var(--warning-light); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.2); }
-                .notif-item.info { background: var(--primary-50); color: var(--primary); border: 1px solid rgba(99, 102, 241, 0.2); }
+                .notif-item { display: flex; align-items: center; gap: 12px; padding: 14px 20px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 500; }
+                .notif-item.warning { background: var(--warning-bg); color: #92400E; border: 1px solid rgba(245, 158, 11, 0.2); }
+                .notif-item.info { background: var(--info-bg); color: #1E40AF; border: 1px solid rgba(59, 130, 246, 0.2); }
                 .notif-item button { margin-left: auto; background: none; border: none; color: inherit; font-size: 16px; cursor: pointer; opacity: 0.7; transition: opacity 0.2s; }
                 .notif-item button:hover { opacity: 1; }
 
@@ -334,26 +314,17 @@ const Dashboard = () => {
                 .middle-grid { grid-template-columns: 2fr 1fr; }
                 .bottom-grid { grid-template-columns: 1fr; }
 
-                .flex-col-center { display: flex; flex-direction: column; align-items: center; }
-                
-                .status-badge { padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; display: inline-block; }
-                .status-badge.low-stock { background: var(--danger-light); color: var(--danger); }
-                .status-badge.in-stock { background: var(--success-light); color: var(--success); }
-                .status-badge.new { background: var(--primary-50); color: var(--primary); }
-                
-                .text-muted { color: var(--text-muted); }
+                .chart-container h3 { font-size: 16px; font-weight: 700; color: var(--text-heading); margin: 0; }
+
+                .loading-container { height: 70vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+                .loader { width: 48px; height: 48px; border: 3px solid var(--primary-light); border-top: 3px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+                @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
                 @media (max-width: 1024px) {
                     .middle-grid { grid-template-columns: 1fr; }
-                    .dashboard-top { flex-direction: column; align-items: flex-start; gap: 20px; }
-                    .dashboard-controls { width: 100%; justify-content: space-between; flex-wrap: wrap; }
-                    .dashboard-search { flex: 1; min-width: 200px; }
+                    .page-header { flex-direction: column; align-items: flex-start; gap: 20px; }
                     .dashboard-search input { width: 100%; }
                 }
-
-                .loading-container { height: 70vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; color: var(--text-muted); font-size: 14px; font-weight: 500; }
-                .loader { width: 48px; height: 48px; border: 3px solid var(--primary-100); border-top: 3px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
-                @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
             `}</style>
         </div>
     );

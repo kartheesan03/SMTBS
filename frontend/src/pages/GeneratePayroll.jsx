@@ -79,7 +79,7 @@ const GeneratePayroll = () => {
 
     if (loading) {
         return (
-            <div className="module-container flex-center" style={{ height: '80vh' }}>
+            <div className="page-container flex-center" style={{ height: '80vh' }}>
                 <Loader size={30} className="spin-icon" color="#3b82f6" />
             </div>
         );
@@ -95,7 +95,7 @@ const GeneratePayroll = () => {
                 </div>
             )}
 
-            <div className="module-container" style={{ maxWidth: '800px', margin: '0 auto' }}>
+            <div className="page-container" style={{ maxWidth: '800px', margin: '0 auto' }}>
                 <button 
                     onClick={() => navigate('/payroll')} 
                     className="btn-secondary flex-center" 
@@ -104,7 +104,7 @@ const GeneratePayroll = () => {
                     <ArrowLeft size={16} /> Back to Payroll
                 </button>
 
-                <div className="dashboard-card-3d" style={{ padding: '32px' }}>
+                <div className="premium-card" style={{ padding: '32px' }}>
                     <div style={{ marginBottom: '24px' }}>
                         <h1 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-heading)', margin: '0 0 8px 0', letterSpacing: '-0.5px' }}>
                             Generate New Payroll Entry

@@ -123,7 +123,7 @@ const CustomerNewOrder = () => {
     }
 
     return (
-        <div className="module-container">
+        <div className="page-container">
             {/* Header */}
             <header className="module-header glass-card">
                 <div className="header-top">

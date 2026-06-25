@@ -309,7 +309,7 @@ const MaterialTracking = () => {
     ])).sort();
 
     return (
-        <div className="module-container">
+        <div className="page-container">
             {/* Breadcrumb Header */}
             <div className="breadcrumb-nav">
                 <span className="crumb" onClick={() => navigate('/')}>Dashboard</span>
@@ -317,10 +317,10 @@ const MaterialTracking = () => {
                 <span className="crumb active">Material Tracking</span>
             </div>
 
-            <header className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
+            <header className="page-header" style={{ marginBottom: '32px' }}>
                 <div>
-                    <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '0 0 4px 0', letterSpacing: '-0.02em' }}>Material Tracking</h1>
-                    <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0, fontWeight: 500 }}>Monitor stock, in-transit items, low stock alerts, and barcode/QR movements.</p>
+                    <h1 className="page-title">Material Tracking</h1>
+                    <p className="page-subtitle">Monitor stock, in-transit items, low stock alerts, and barcode/QR movements.</p>
                 </div>
                 <div style={{ display: 'flex', gap: '12px' }}>
                     <button className="btn-secondary-light flex-center gap-8" onClick={exportToPDF}><Download size={16} /> PDF</button>
@@ -337,7 +337,7 @@ const MaterialTracking = () => {
 
             {/* Metric Summary Cards */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px', marginBottom: '24px' }}>
-                <div className="dashboard-card-3d" style={{ position: 'relative', overflow: 'hidden', padding: '24px', display: 'flex', flexDirection: 'column', minHeight: '130px', justifyContent: 'space-between' }}>
+                <div className="premium-card" style={{ position: 'relative', overflow: 'hidden', padding: '24px', display: 'flex', flexDirection: 'column', minHeight: '130px', justifyContent: 'space-between' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <div style={{ color: 'var(--text-muted)', fontSize: '13px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Material Types</div>
                         <div className="kpi-icon-3d" style={{ width: '36px', height: '36px', borderRadius: '8px', background: `linear-gradient(135deg, #3b82f615, #3b82f605)`, color: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -349,7 +349,7 @@ const MaterialTracking = () => {
                     </div>
                 </div>
 
-                <div className="dashboard-card-3d" style={{ position: 'relative', overflow: 'hidden', padding: '24px', display: 'flex', flexDirection: 'column', minHeight: '130px', justifyContent: 'space-between' }}>
+                <div className="premium-card" style={{ position: 'relative', overflow: 'hidden', padding: '24px', display: 'flex', flexDirection: 'column', minHeight: '130px', justifyContent: 'space-between' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <div style={{ color: 'var(--text-muted)', fontSize: '13px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Stock Quantity</div>
                         <div className="kpi-icon-3d" style={{ width: '36px', height: '36px', borderRadius: '8px', background: `linear-gradient(135deg, #10b98115, #10b98105)`, color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -361,7 +361,7 @@ const MaterialTracking = () => {
                     </div>
                 </div>
 
-                <div className="dashboard-card-3d" style={{ position: 'relative', overflow: 'hidden', padding: '24px', display: 'flex', flexDirection: 'column', minHeight: '130px', justifyContent: 'space-between' }}>
+                <div className="premium-card" style={{ position: 'relative', overflow: 'hidden', padding: '24px', display: 'flex', flexDirection: 'column', minHeight: '130px', justifyContent: 'space-between' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <div style={{ color: 'var(--text-muted)', fontSize: '13px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>In Transit</div>
                         <div className="kpi-icon-3d" style={{ width: '36px', height: '36px', borderRadius: '8px', background: `linear-gradient(135deg, #f59e0b15, #f59e0b05)`, color: '#f59e0b', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -373,7 +373,7 @@ const MaterialTracking = () => {
                     </div>
                 </div>
 
-                <div className="dashboard-card-3d" style={{ position: 'relative', overflow: 'hidden', padding: '24px', display: 'flex', flexDirection: 'column', minHeight: '130px', justifyContent: 'space-between' }}>
+                <div className="premium-card" style={{ position: 'relative', overflow: 'hidden', padding: '24px', display: 'flex', flexDirection: 'column', minHeight: '130px', justifyContent: 'space-between' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <div style={{ color: 'var(--danger)', fontSize: '13px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Low Stock Items</div>
                         <div className="kpi-icon-3d" style={{ width: '36px', height: '36px', borderRadius: '8px', background: `linear-gradient(135deg, #ef444415, #ef444405)`, color: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -415,20 +415,30 @@ const MaterialTracking = () => {
             </div>
 
             {/* Main Materials Table */}
-            <div className="dashboard-card-3d" style={{ padding: '24px' }}>
-                <table className="enterprise-table">
-                    <thead>
-                        <tr>
-                            <th>SKU</th>
-                            <th>Material Name</th>
-                            <th>Category</th>
-                            <th>Vendor/Supplier</th>
-                            <th>Stock Level</th>
-                            <th>Status</th>
-                            <th>Unit Price</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
+            <div className="premium-card">
+                {filteredMaterials.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-muted)' }}>
+                        <div style={{ marginBottom: '16px', opacity: 0.5 }}>
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                        </div>
+                        <p style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-heading)', margin: '0 0 4px 0' }}>No Materials Found</p>
+                        <p style={{ fontSize: '13px', margin: 0 }}>Adjust filters or add a new material.</p>
+                    </div>
+                ) : (
+                    <div className="enterprise-table-container">
+                        <table className="enterprise-table">
+                            <thead>
+                                <tr>
+                                    <th>SKU</th>
+                                    <th>Material Name</th>
+                                    <th>Category</th>
+                                    <th>Vendor/Supplier</th>
+                                    <th>Stock Level</th>
+                                    <th>Status</th>
+                                    <th>Unit Price</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
                     <tbody>
                         {filteredMaterials.map((item) => (
                             <tr key={item._id}>
@@ -470,11 +480,7 @@ const MaterialTracking = () => {
                         ))}
                     </tbody>
                 </table>
-                {filteredMaterials.length === 0 && !loading && (
-                    <div className="flex-center" style={{ padding: '60px 20px', flexDirection: 'column', color: 'var(--text-muted)' }}>
-                        <Package size={48} style={{ opacity: 0.5, marginBottom: '16px' }} />
-                        <p>No materials found matching your criteria.</p>
-                    </div>
+                </div>
                 )}
             </div>
 

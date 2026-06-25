@@ -41,14 +41,18 @@ const DataTable = ({ title, headers, data, renderRow, onViewAll, emptyText, sear
                 </div>
             </div>
             
-            <div className="dt-body" style={{ flex: 1, overflowX: 'auto', overflowY: 'auto', maxHeight: '400px' }}>
+            <div className="dt-body" style={{ flex: 1, overflowX: 'auto', overflowY: 'auto', maxHeight: 'calc(100vh - 250px)' }}>
                 {filteredData.length === 0 ? (
-                    <div style={{ padding: '40px 20px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
-                        {emptyText || 'No records found'}
+                    <div style={{ padding: '60px 20px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                        <div style={{ marginBottom: '16px', opacity: 0.5 }}>
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                        </div>
+                        <p style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-heading)', margin: '0 0 4px 0' }}>No records found</p>
+                        <p style={{ fontSize: '13px', margin: 0 }}>{emptyText || 'Try adjusting your search criteria.'}</p>
                     </div>
                 ) : (
-                    <div className="modern-table-wrapper">
-                        <table className="modern-table">
+                    <div className="enterprise-table-container">
+                        <table className="enterprise-table">
                             <thead>
                                 <tr>
                                     {headers.map((h, i) => (
@@ -88,28 +92,14 @@ const DataTable = ({ title, headers, data, renderRow, onViewAll, emptyText, sear
                 </div>
             )}
             <style jsx="true">{`
-                .dt-table tbody tr {
-                    transition: background 0.15s ease;
-                }
-                .dt-table tbody tr:nth-child(even) {
-                    background-color: #fafafa;
-                }
-                .dt-table tbody tr:hover {
-                    background-color: var(--primary-light) !important;
-                }
-                .dt-table td {
-                    padding: 14px 20px;
-                    font-size: 13px;
-                    border-bottom: 1px solid var(--border-light);
-                    color: var(--text-main);
-                    vertical-align: middle;
-                }
-                .dt-table tbody tr:last-child td {
-                    border-bottom: none;
+                .enterprise-table-container {
+                    width: 100%;
+                    overflow-x: auto;
+                    border-radius: var(--radius-md);
                 }
                 .dt-search:focus {
                     border-color: var(--primary) !important;
-                    box-shadow: var(--ring-focus);
+                    box-shadow: 0 0 0 3px var(--primary-glow);
                 }
             `}</style>
         </div>

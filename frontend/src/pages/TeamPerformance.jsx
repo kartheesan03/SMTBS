@@ -133,7 +133,7 @@ const TeamPerformance = () => {
 
     if (loading) {
         return (
-            <div className="module-container flex-center" style={{ height: '80vh' }}>
+            <div className="page-container flex-center" style={{ height: '80vh' }}>
                 <Loader size={40} className="spin-icon" color="#6366f1" />
             </div>
         );
@@ -141,7 +141,7 @@ const TeamPerformance = () => {
 
     if (error) {
         return (
-            <div className="module-container flex-center" style={{ height: '80vh' }}>
+            <div className="page-container flex-center" style={{ height: '80vh' }}>
                 <p className="text-danger">{error}</p>
             </div>
         );
@@ -150,11 +150,11 @@ const TeamPerformance = () => {
     const hasData = teamData.length > 0;
 
     return (
-        <div className="module-container">
-            <header className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
+        <div className="page-container">
+            <header className="page-header">
                 <div>
-                    <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '0 0 4px 0', letterSpacing: '-0.02em' }}>Team Performance Metrics</h1>
-                    <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0, fontWeight: 500 }}>Analyze workforce efficiency, task completion rates, and individual contributions.</p>
+                    <h1 className="page-title">Team Performance Metrics</h1>
+                    <p className="page-subtitle">Analyze workforce efficiency, task completion rates, and individual contributions.</p>
                 </div>
             </header>
 
@@ -167,7 +167,7 @@ const TeamPerformance = () => {
             ) : (
                 <>
                     <div className="performance-viz-grid" style={{ marginBottom: '24px' }}>
-                        <div className="dashboard-card-3d main-viz" style={{ padding: '24px' }}>
+                        <div className="premium-card main-viz" style={{ padding: '24px' }}>
                             <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: 'var(--text-heading)', marginBottom: '20px' }}>Volume of Tasks Completed</h3>
                             <div style={{ height: 250, width: '100%' }}>
                                 <ResponsiveContainer>
@@ -185,21 +185,21 @@ const TeamPerformance = () => {
                         </div>
 
                         <div className="kpi-column">
-                            <div className="dashboard-card-3d kpi-box">
+                            <div className="premium-card kpi-box">
                                 <Target color="#6366f1" size={24}/>
                                 <div>
                                     <h4 style={{ color: 'var(--text-muted)' }}>Team Target</h4>
                                     <p style={{ color: 'var(--text-heading)' }}>{kpiData.teamTarget}% Complete</p>
                                 </div>
                             </div>
-                            <div className="dashboard-card-3d kpi-box">
+                            <div className="premium-card kpi-box">
                                 <Zap color="#f59e0b" size={24}/>
                                 <div>
                                     <h4 style={{ color: 'var(--text-muted)' }}>Avg. Velocity</h4>
                                     <p style={{ color: 'var(--text-heading)' }}>{kpiData.avgVelocity} Tasks/Person</p>
                                 </div>
                             </div>
-                            <div className="dashboard-card-3d kpi-box">
+                            <div className="premium-card kpi-box">
                                 <Award color="#10b981" size={24}/>
                                 <div>
                                     <h4 style={{ color: 'var(--text-muted)' }}>Tasks Completed</h4>
@@ -209,7 +209,7 @@ const TeamPerformance = () => {
                         </div>
                     </div>
 
-                    <div className="dashboard-card-3d" style={{ overflow: 'hidden' }}>
+                    <div className="premium-card" style={{ overflow: 'hidden' }}>
                         <DataTable 
                             title="Individual Contribution Breakdown"
                             headers={['Employee Name', 'Tasks Completed', 'Efficiency Score', 'Status']}
@@ -237,7 +237,7 @@ const TeamPerformance = () => {
             )}
 
             <style jsx="true">{`
-                .module-container { padding: 30px; }
+                /* layout handled by .page-container */
                 .module-header { margin-bottom: 30px; }
                 
                 .performance-viz-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
@@ -260,7 +260,7 @@ const TeamPerformance = () => {
                 .flex-center { display: flex; align-items: center; justify-content: center; }
 
                 @media (max-width: 768px) {
-                    .module-container { padding: 15px; }
+                    .page-container { padding: 16px 12px; }
                     .performance-viz-grid { grid-template-columns: 1fr; }
                     .kpi-column { flex-direction: column; }
                     .main-viz { padding: 15px; }

@@ -467,7 +467,7 @@ const ERP = () => {
     console.log('ERP stats:', erpStats);
 
     return (
-        <div className="module-container">
+        <div className="page-container">
             {/* Breadcrumb */}
             <div className="breadcrumb-nav">
                 <span className="crumb" onClick={() => navigate('/')}>Dashboard</span>
@@ -475,10 +475,10 @@ const ERP = () => {
                 <span className="crumb active">ERP Operations</span>
             </div>
 
-            <header className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
+            <header className="page-header">
                 <div>
-                    <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '0 0 4px 0', letterSpacing: '-0.02em' }}>ERP Operations</h1>
-                    <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0, fontWeight: 500 }}>Handle procurement, inventory, orders, vendors, finances and analytics.</p>
+                    <h1 className="page-title">ERP Operations</h1>
+                    <p className="page-subtitle">Handle procurement, inventory, orders, vendors, finances and analytics.</p>
                 </div>
                 <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                     <div className="search-bar" style={{ position: 'relative', width: '250px' }}>
@@ -769,7 +769,7 @@ const ERP = () => {
             {/* Charts Row */}
             <div className="charts-grid">
                 {/* Purchase Order Summary */}
-                <div className="dashboard-card-3d po-summary-card" style={{ padding: '24px' }}>
+                <div className="premium-card po-summary-card" style={{ padding: '24px' }}>
                     <h3 className="card-title" style={{ fontSize: '18px', fontWeight: 700, marginBottom: '20px' }}>Purchase Order Summary</h3>
                     
                     {/* Summary mini cards */}
@@ -813,7 +813,7 @@ const ERP = () => {
                 </div>
             )}
 
-            <div className="dashboard-card-3d">
+            <div className="premium-card">
                 <div className="erp-tabs" style={{ display: 'flex', gap: '8px', padding: '16px 24px', borderBottom: '1px solid var(--border)' }}>
                     <button 
                         className={`erp-tab ${activeTab === 'active' ? 'active' : ''}`}
@@ -2329,7 +2329,7 @@ const ERP = () => {
                         align-items: flex-start;
                         gap: 8px;
                     }
-                    .module-container { padding: 16px; }
+                    .page-container { padding: 16px 12px; }
                 }
                 
                 @media (max-width: 480px) {

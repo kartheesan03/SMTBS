@@ -107,7 +107,7 @@ const StockRequests = () => {
     };
 
     return (
-        <div className="module-container" style={{ padding: '24px', background: 'var(--bg-body)', minHeight: '100vh' }}>
+        <div className="page-container" style={{ padding: '24px', background: 'var(--bg-body)', minHeight: '100vh' }}>
             <header className="module-header" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px' }}>
                 <div>
                     <h1 style={{ margin: '0 0 6px 0', fontSize: '26px' }}>Stock Requests Pipeline</h1>

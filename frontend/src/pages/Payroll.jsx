@@ -298,12 +298,12 @@ const Payroll = () => {
                 </div>
             )}
 
-            <div className="module-container">
+            <div className="page-container">
                 {/* Header */}
-                <div className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', flexWrap: 'wrap', gap: '16px' }}>
+                <div className="page-header">
                     <div>
-                        <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '0 0 4px 0', letterSpacing: '-0.02em' }}>Payroll Management</h1>
-                        <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0, fontWeight: 500 }}>Process salaries, approvals, and payment tracking</p>
+                        <h1 className="page-title">Payroll Management</h1>
+                        <p className="page-subtitle">Process salaries, approvals, and payment tracking</p>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
                         <div style={{ display: 'flex', alignItems: 'center', background: '#fff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '8px 14px', gap: '8px' }}>
@@ -340,7 +340,7 @@ const Payroll = () => {
                         { label: 'Current Month Payroll', value: `₹${stats.thisMonth.toLocaleString()}`, sub: 'Current period', icon: Activity, iconBg: '#f0fdf4', iconColor: '#16a34a' },
                         { label: 'Average Salary', value: `₹${Math.round(averageSalary).toLocaleString()}`, sub: 'Per employee', icon: DollarSign, iconBg: '#f8fafc', iconColor: '#64748b' },
                     ].map((kpi, idx) => (
-                        <div key={idx} className="dashboard-card-3d" style={{ padding: '16px 18px', display: 'flex', alignItems: 'center', gap: '14px' }}>
+                        <div key={idx} className="premium-card" style={{ padding: '16px 18px', display: 'flex', alignItems: 'center', gap: '14px' }}>
                             <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: kpi.iconBg, color: kpi.iconColor, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                                 <kpi.icon size={18} />
                             </div>
@@ -357,7 +357,7 @@ const Payroll = () => {
                 <div style={{ display: 'grid', gridTemplateColumns: '5fr 3fr 4fr', gap: '16px', marginBottom: '24px' }}>
 
                     {/* Monthly Payroll Trend */}
-                    <div className="dashboard-card-3d" style={{ display: 'flex', flexDirection: 'column', minHeight: '280px', overflow: 'hidden' }}>
+                    <div className="premium-card" style={{ display: 'flex', flexDirection: 'column', minHeight: '280px', overflow: 'hidden' }}>
                         <div style={{ padding: '16px 18px', height: '48px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
                             <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: 'var(--text-heading)', display: 'flex', alignItems: 'center', gap: '8px' }}><TrendingUp size={16} /> Monthly Payroll Trend</h3>
                         </div>
@@ -375,7 +375,7 @@ const Payroll = () => {
                     </div>
 
                     {/* Salary Distribution by Department */}
-                    <div className="dashboard-card-3d" style={{ display: 'flex', flexDirection: 'column', minHeight: '280px', overflow: 'hidden' }}>
+                    <div className="premium-card" style={{ display: 'flex', flexDirection: 'column', minHeight: '280px', overflow: 'hidden' }}>
                         <div style={{ padding: '14px 18px', height: '44px', display: 'flex', alignItems: 'center', flexShrink: 0, borderBottom: '1px solid var(--border)' }}>
                             <h3 style={{ margin: 0, fontSize: '13px', fontWeight: 700, color: 'var(--text-heading)', display: 'flex', alignItems: 'center', gap: '8px' }}><Layers size={15} /> Salary Distribution by Department</h3>
                         </div>
@@ -439,7 +439,7 @@ const Payroll = () => {
                     </div>
 
                     {/* Payroll Status Overview */}
-                    <div className="dashboard-card-3d" style={{ display: 'flex', flexDirection: 'column', minHeight: '280px', overflow: 'hidden' }}>
+                    <div className="premium-card" style={{ display: 'flex', flexDirection: 'column', minHeight: '280px', overflow: 'hidden' }}>
                         <div style={{ padding: '16px 18px', height: '48px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
                             <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: 'var(--text-heading)', display: 'flex', alignItems: 'center', gap: '8px' }}><Activity size={16} /> Payroll Status Overview</h3>
                         </div>
@@ -462,7 +462,7 @@ const Payroll = () => {
                 </div>
 
                 {/* ===== TABLE: Employee Salary Ledger ===== */}
-                <div className="dashboard-card-3d" style={{ overflow: 'hidden', marginBottom: '16px' }}>
+                <div className="premium-card" style={{ overflow: 'hidden', marginBottom: '16px' }}>
                     <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         <h3 style={{ margin: 0, fontSize: '13px', fontWeight: 700, color: 'var(--text-heading)', display: 'flex', alignItems: 'center', gap: '8px' }}><FileText size={15} /> Employee Salary Ledger</h3>
                         <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 500 }}>{salaries.length} record{salaries.length !== 1 ? 's' : ''}</span>
@@ -628,7 +628,7 @@ const Payroll = () => {
                 {/* ===== BOTTOM ROW: Recent Activity + Upcoming Payments ===== */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px', marginBottom: '20px' }}>
                     {/* Recent Payroll Activities */}
-                    <div className="dashboard-card-3d" style={{ borderRadius: '14px', overflow: 'hidden' }}>
+                    <div className="premium-card" style={{ borderRadius: '14px', overflow: 'hidden' }}>
                         <div style={{ padding: '16px 18px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center' }}>
                             <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}><Activity size={16} /> Recent Payroll Activities</h3>
                         </div>
@@ -654,7 +654,7 @@ const Payroll = () => {
                     </div>
 
                     {/* Upcoming Salary Payments */}
-                    <div className="dashboard-card-3d" style={{ borderRadius: '14px', overflow: 'hidden' }}>
+                    <div className="premium-card" style={{ borderRadius: '14px', overflow: 'hidden' }}>
                         <div style={{ padding: '16px 18px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center' }}>
                             <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}><Calendar size={16} /> Upcoming Salary Payments</h3>
                         </div>

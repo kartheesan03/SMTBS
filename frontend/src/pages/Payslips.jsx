@@ -60,17 +60,17 @@ const Payslips = () => {
     );
 
     return (
-        <div className="module-container">
-            <header className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
+        <div className="page-container">
+            <header className="page-header">
                 <div>
-                    <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '0 0 4px 0', letterSpacing: '-0.02em' }}>Payslips</h1>
-                    <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0, fontWeight: 500 }}>Review employee payment history and download official payslips.</p>
+                    <h1 className="page-title">Payslips</h1>
+                    <p className="page-subtitle">Review employee payment history and download official payslips.</p>
                 </div>
             </header>
 
             <div className="module-content">
                 {history.length === 0 ? (
-                    <div className="dashboard-card-3d no-salary-card">
+                    <div className="premium-card no-salary-card">
                         <div className="no-salary-icon-wrapper">
                             <DollarSign size={32} className="no-salary-icon" />
                         </div>
@@ -78,7 +78,7 @@ const Payslips = () => {
                         <p>Payroll has not been generated for any employees yet.</p>
                     </div>
                 ) : (
-                    <div className="dashboard-card-3d" style={{ overflow: 'hidden' }}>
+                    <div className="premium-card" style={{ overflow: 'hidden' }}>
                         <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--bg-surface)' }}>
                             <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 700, color: 'var(--text-heading)', display: 'flex', alignItems: 'center', gap: '8px' }}>
                                 <FileText size={18} className="text-primary" /> Employee Payslips
@@ -325,7 +325,7 @@ const Payslips = () => {
                 .mt-12 { margin-top: 12px; }
                 
                 @media (max-width: 768px) {
-                    .module-container { padding: 20px; }
+                    .page-container { padding: 20px; }
                     .info-grid { grid-template-columns: 1fr; }
                     .modal-actions button { width: 100%; }
                 }

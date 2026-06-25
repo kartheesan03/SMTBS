@@ -254,12 +254,12 @@ const HRReports = () => {
             )}
 
             {/* Premium Light Header */}
-            <header className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
+            <header className="page-header">
                 <div>
-                    <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '0 0 4px 0', letterSpacing: '-0.02em' }}>
+                    <h1 className="page-title">
                         HR Reports & Analytics
                     </h1>
-                    <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0, fontWeight: 500 }}>Export comprehensive workforce data, compliance audits, and deep demographic insights.</p>
+                    <p className="page-subtitle">Export comprehensive workforce data, compliance audits, and deep demographic insights.</p>
                 </div>
                 <div style={{ display: 'flex', gap: '12px' }}>
                     <button 
@@ -287,7 +287,7 @@ const HRReports = () => {
 
             {/* Premium light KPI Row */}
             <section className="cyber-kpi-row">
-                <div className="dashboard-card-3d blue-edge">
+                <div className="premium-card blue-edge">
                     <div className="kpi-head">
                         <span>Total Active Staff</span>
                         <Users className="icon-blue" size={18} />
@@ -295,7 +295,7 @@ const HRReports = () => {
                     <h3>{loading ? '...' : mockKPIs.totalEmployees}</h3>
                     <p className="kpi-sub"><TrendingUp size={12} /> Live Headcount</p>
                 </div>
-                <div className="dashboard-card-3d green-edge">
+                <div className="premium-card green-edge">
                     <div className="kpi-head">
                         <span>Attendance Rate</span>
                         <CheckCircle className="icon-green" size={18} />
@@ -303,7 +303,7 @@ const HRReports = () => {
                     <h3>{mockKPIs.attendanceRate}</h3>
                     <p className="kpi-sub">Weekly Average</p>
                 </div>
-                <div className="dashboard-card-3d yellow-edge">
+                <div className="premium-card yellow-edge">
                     <div className="kpi-head">
                         <span>Active Absences</span>
                         <Clock className="icon-yellow" size={18} />
@@ -311,7 +311,7 @@ const HRReports = () => {
                     <h3>{loading ? '...' : mockKPIs.onLeave}</h3>
                     <p className="kpi-sub">Approved Leaves</p>
                 </div>
-                <div className="dashboard-card-3d pink-edge">
+                <div className="premium-card pink-edge">
                     <div className="kpi-head">
                         <span>Monthly Hires</span>
                         <Award className="icon-pink" size={18} />
@@ -325,7 +325,7 @@ const HRReports = () => {
                 <h2 className="section-title">Core Document Exports</h2>
                 <div className="reports-export-grid">
                     {hrReportsList.map((report, i) => (
-                        <div key={i} className="dashboard-card-3d hr-report-card" style={{ padding: '24px' }}>
+                        <div key={i} className="premium-card hr-report-card" style={{ padding: '24px' }}>
                             <div className="card-top-accent" style={{ background: report.color }}></div>
                             <div className="report-icon-box" style={{ borderColor: report.color + '33', background: report.color + '0d' }}>
                                 {report.icon}
@@ -363,7 +363,7 @@ const HRReports = () => {
 
                 <div className="analytics-charts-grid">
                     {/* Workforce Attendance Area Chart */}
-                    <div className="dashboard-card-3d chart-box" style={{ padding: '24px' }}>
+                    <div className="premium-card chart-box" style={{ padding: '24px' }}>
                         <div className="chart-info-header">
                             <h3>Workforce Presence Trend</h3>
                             <span className="badge-glow-blue">Weekly Log</span>
@@ -394,7 +394,7 @@ const HRReports = () => {
                     </div>
 
                     {/* Department Distribution Bar Chart */}
-                    <div className="dashboard-card-3d chart-box" style={{ padding: '24px' }}>
+                    <div className="premium-card chart-box" style={{ padding: '24px' }}>
                         <div className="chart-info-header">
                             <h3>Departmental Spread</h3>
                             <span className="badge-glow-purple">Active Roles</span>
@@ -427,7 +427,7 @@ const HRReports = () => {
             {/* Custom Report Compilation Modal */}
             {showCustomModal && (
                 <div className="cyber-modal-overlay">
-                    <div className="dashboard-card-3d cyber-modal-box animate-pop" style={{ background: 'var(--bg-card)', padding: '32px' }}>
+                    <div className="premium-card cyber-modal-box animate-pop" style={{ background: 'var(--bg-card)', padding: '32px' }}>
                         <header className="modal-header-cyber">
                             <h3>Compile Custom HR Audit</h3>
                             <button className="btn-close-modal" onClick={() => setShowCustomModal(false)}><X size={16} /></button>

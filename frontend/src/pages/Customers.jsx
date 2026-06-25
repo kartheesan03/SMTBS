@@ -255,13 +255,13 @@ const Customers = ({ directoryOnly }) => {
     // ── DETAIL VIEW ──
     if (selectedCustomer) {
         return (
-            <div className="module-container">
-                <header className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
+            <div className="page-container">
+                <header className="page-header">
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                         <button className="btn-secondary-light" onClick={closeCustomerDetail} style={{ padding: '8px 12px' }}><ArrowLeft size={18} /></button>
                         <div>
-                            <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '0 0 4px 0', letterSpacing: '-0.02em' }}>{selectedCustomer.name}</h1>
-                            <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0, fontWeight: 500 }}>{selectedCustomer.industry || 'Customer'} · <span className={`status-pill ${selectedCustomer.status?.toLowerCase().replace(/ /g, '-') || 'active'}`}>{selectedCustomer.status || 'Active'}</span></p>
+                            <h1 className="page-title">{selectedCustomer.name}</h1>
+                            <p className="page-subtitle">{selectedCustomer.industry || 'Customer'} · <span className={`status-pill ${selectedCustomer.status?.toLowerCase().replace(/ /g, '-') || 'active'}`}>{selectedCustomer.status || 'Active'}</span></p>
                         </div>
                     </div>
                     <div style={{ display: 'flex', gap: '12px' }}>
@@ -289,12 +289,12 @@ const Customers = ({ directoryOnly }) => {
 
                 <div className="module-content">
                     {loadingDetail ? (
-                        <div className="dashboard-card-3d" style={{ padding: 40, textAlign: 'center', color: 'var(--text-muted)' }}>Loading customer details...</div>
+                        <div className="premium-card" style={{ padding: 40, textAlign: 'center', color: 'var(--text-muted)' }}>Loading customer details...</div>
                     ) : (
                         <>
                             {/* PROFILE TAB */}
                             {activeTab === 'profile' && (
-                                <div className="dashboard-card-3d" style={{ padding: '24px' }}>
+                                <div className="premium-card" style={{ padding: '24px' }}>
                                     <h3 style={{ marginBottom: 20, fontWeight: 700, fontSize: 16 }}>Contact Information</h3>
                                     <div className="profile-grid">
                                         <div className="profile-item"><Mail size={16} /><div><span className="profile-label">Email</span><span className="profile-value">{selectedCustomer.email || '—'}</span></div></div>
@@ -332,12 +332,12 @@ const Customers = ({ directoryOnly }) => {
 
                             {/* ORDERS TAB */}
                             {activeTab === 'orders' && (
-                                <div className="dashboard-card-3d" style={{ padding: '24px' }}>
+                                <div className="premium-card" style={{ padding: '24px' }}>
                                     <h3 style={{ marginBottom: 16, fontWeight: 700, fontSize: 16 }}>Order History</h3>
                                     {customerOrders.length === 0 ? (
                                         <p className="text-muted" style={{ textAlign: 'center', padding: 30 }}>No orders found for this customer.</p>
                                     ) : (
-                                        <div className="dashboard-card-3d" style={{ overflowX: 'auto', padding: '24px' }}>
+                                        <div className="premium-card" style={{ overflowX: 'auto', padding: '24px' }}>
                                             <table className="enterprise-table">
                                                 <thead><tr><th>Order #</th><th>Type</th><th>Items</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
                                                 <tbody>
@@ -360,7 +360,7 @@ const Customers = ({ directoryOnly }) => {
 
                             {/* COMMUNICATIONS TAB */}
                             {activeTab === 'communications' && (
-                                <div className="dashboard-card-3d" style={{ padding: '24px' }}>
+                                <div className="premium-card" style={{ padding: '24px' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                                         <h3 style={{ fontWeight: 700, fontSize: 16 }}>Communication Log</h3>
                                         <button className="btn-primary flex-center gap-10" onClick={() => setShowCommModal(true)}><Plus size={16} /> Add Entry</button>
@@ -395,12 +395,12 @@ const Customers = ({ directoryOnly }) => {
 
                             {/* TICKETS TAB */}
                             {activeTab === 'tickets' && (
-                                <div className="dashboard-card-3d" style={{ padding: '24px' }}>
+                                <div className="premium-card" style={{ padding: '24px' }}>
                                     <h3 style={{ marginBottom: 16, fontWeight: 700, fontSize: 16 }}>Support Tickets</h3>
                                     {customerTickets.length === 0 ? (
                                         <p className="text-muted" style={{ textAlign: 'center', padding: 30 }}>No support tickets found for this customer.</p>
                                     ) : (
-                                        <div className="dashboard-card-3d" style={{ overflowX: 'auto', padding: '24px' }}>
+                                        <div className="premium-card" style={{ overflowX: 'auto', padding: '24px' }}>
                                             <table className="enterprise-table">
                                                 <thead><tr><th>Ticket #</th><th>Subject</th><th>Priority</th><th>Status</th><th>Assigned To</th><th>Date</th></tr></thead>
                                                 <tbody>
@@ -427,7 +427,7 @@ const Customers = ({ directoryOnly }) => {
                 {/* Add Communication Modal */}
                 {showCommModal && (
                     <div className="modal-overlay">
-                        <div className="glass-card modal-content-lg animate-pop">
+                        <div className="premium-card modal-content-lg animate-pop">
                             <div className="modal-header">
                                 <h2>Add Communication Log</h2>
                                 <button className="close-btn" onClick={() => setShowCommModal(false)}>✕</button>
@@ -468,7 +468,7 @@ const Customers = ({ directoryOnly }) => {
                 {/* Edit Customer Modal (reused in Detail View) */}
                 {showModal && (
                     <div className="modal-overlay">
-                        <div className="glass-card modal-content-lg animate-pop">
+                        <div className="premium-card modal-content-lg animate-pop">
                             <div className="modal-header">
                                 <h2>{editingId ? 'Edit Customer' : 'Add New Customer'}</h2>
                                 <button className="close-btn" onClick={handleCloseModal}>✕</button>
@@ -492,7 +492,7 @@ const Customers = ({ directoryOnly }) => {
                 )}
 
                 <style jsx="true">{`
-                    .module-container { padding: 30px; }
+                    /* layout handled by .page-container */
                     .module-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; padding: 25px; }
                     .btn-back { background: var(--bg-hover, #f1f5f9); color: var(--text-primary); padding: 10px; border-radius: 10px; display: flex; align-items: center; transition: all 0.2s; }
                     .btn-back:hover { background: var(--primary-50, #eef2ff); color: var(--primary); }
@@ -610,11 +610,11 @@ const Customers = ({ directoryOnly }) => {
 
     // ── LIST VIEW ──
     return (
-        <div className="module-container">
-            <header className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
+        <div className="page-container">
+            <header className="page-header" style={{ marginBottom: '32px' }}>
                 <div>
-                    <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '0 0 4px 0', letterSpacing: '-0.02em' }}>{directoryOnly ? 'Customer Directory' : 'Customers (CRM)'}</h1>
-                    <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0, fontWeight: 500 }}>{directoryOnly ? 'Manage your active customer base.' : 'Manage your customers, leads, and tracking.'}</p>
+                    <h1 className="page-title">{directoryOnly ? 'Customer Directory' : 'Customers (CRM)'}</h1>
+                    <p className="page-subtitle">{directoryOnly ? 'Manage your active customer base.' : 'Manage your customers, leads, and tracking.'}</p>
                 </div>
                 <div style={{ display: 'flex', gap: '12px' }}>
                     <div className="search-bar" style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-card)', padding: '8px 16px', borderRadius: '8px', border: '1px solid var(--border-light)', marginRight: '10px' }}>
@@ -637,7 +637,7 @@ const Customers = ({ directoryOnly }) => {
 
             {showModal && (
                 <div className="modal-overlay">
-                    <div className="glass-card modal-content-lg animate-pop">
+                    <div className="premium-card modal-content-lg animate-pop">
                         <div className="modal-header">
                             <h2>{editingId ? 'Edit Customer' : 'Add New Customer'}</h2>
                             <button className="close-btn" onClick={handleCloseModal}>✕</button>
@@ -663,7 +663,7 @@ const Customers = ({ directoryOnly }) => {
                 {loading ? (
                     <div className="flex-center" style={{ minHeight: '400px' }}><div className="spinner"></div></div>
                 ) : (
-                    <div className="dashboard-card-3d" style={{ overflow: 'hidden' }}>
+                    <div className="premium-card">
                     <DataTable
                         title={directoryOnly ? "Directory Listing" : "All Customers"}
                         headers={directoryOnly 
@@ -710,7 +710,7 @@ const Customers = ({ directoryOnly }) => {
             </div>
 
             <style jsx="true">{`
-                .module-container { padding: 30px; }
+                /* layout handled by .page-container */
                 .module-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px; padding: 25px; }
                 .header-actions { display: flex; align-items: center; gap: 10px; }
                 .table-wrapper { padding: 10px; }

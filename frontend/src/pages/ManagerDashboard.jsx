@@ -134,11 +134,11 @@ const ManagerDashboard = () => {
     ];
 
     return (
-        <div className="module-container">
-            <div className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
+        <div className="page-container">
+            <div className="page-header">
                 <div>
-                    <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '0 0 4px 0', letterSpacing: '-0.02em' }}>Manager Overview</h1>
-                    <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0, fontWeight: 500 }}>Team & Project Command Center</p>
+                    <h1 className="page-title">Manager Overview</h1>
+                    <p className="page-subtitle">Team & Project Command Center</p>
                 </div>
                 <div>
                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#ffffff', border: '1px solid var(--border-subtle)', padding: '8px 16px', borderRadius: 'var(--radius-md)', fontSize: '13px', fontWeight: 600, color: 'var(--text-main)', boxShadow: 'var(--shadow-sm)' }}>
@@ -150,7 +150,7 @@ const ManagerDashboard = () => {
             {/* ===== KPI ROW ===== */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '24px', marginBottom: '24px' }}>
                 {kpiCards.map((kpi, idx) => (
-                    <div key={idx} className="dashboard-card-3d" style={{ position: 'relative', overflow: 'hidden', padding: '20px', display: 'flex', flexDirection: 'column', minHeight: '130px', justifyContent: 'space-between' }}>
+                    <div key={idx} className="premium-card" style={{ position: 'relative', overflow: 'hidden', padding: '20px', display: 'flex', flexDirection: 'column', minHeight: '130px', justifyContent: 'space-between' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                             <div style={{ color: 'var(--text-muted)', fontSize: '13px', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{kpi.title}</div>
                             <div className="kpi-icon-3d" style={{ width: '36px', height: '36px', borderRadius: '8px', background: `linear-gradient(135deg, ${kpi.color}15, ${kpi.color}05)`, color: kpi.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -171,7 +171,7 @@ const ManagerDashboard = () => {
             {/* ===== ROW 2: Charts and Quick Actions ===== */}
             <div style={{ display: 'grid', gridTemplateColumns: '5fr 4fr 3fr', gap: '24px', marginBottom: '24px' }}>
                 {/* Team Performance */}
-                <div className="dashboard-card-3d" style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: '340px', overflow: 'hidden', padding: '24px' }}>
+                <div className="premium-card" style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: '340px', overflow: 'hidden', padding: '24px' }}>
                     <div style={{ paddingBottom: '20px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
                         <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: 'var(--text-heading)', display: 'flex', alignItems: 'center', gap: '8px' }}><Activity size={18} /> Team Performance</h3>
                     </div>
@@ -195,7 +195,7 @@ const ManagerDashboard = () => {
                 </div>
 
                 {/* Team Attendance */}
-                <div className="dashboard-card-3d" style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: '340px', overflow: 'hidden', padding: '24px' }}>
+                <div className="premium-card" style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: '340px', overflow: 'hidden', padding: '24px' }}>
                     <div style={{ paddingBottom: '20px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
                         <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: 'var(--text-heading)', display: 'flex', alignItems: 'center', gap: '8px' }}><Users size={18} /> Team Attendance</h3>
                     </div>
@@ -247,7 +247,7 @@ const ManagerDashboard = () => {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', height: '100%' }}>
                     
                     {/* Quick Actions */}
-                    <div className="dashboard-card-3d" style={{ padding: '24px', display: 'flex', flexDirection: 'column' }}>
+                    <div className="premium-card" style={{ padding: '24px', display: 'flex', flexDirection: 'column' }}>
                         <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: 700, color: 'var(--text-heading)' }}>Quick Actions</h3>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                             {[
@@ -267,7 +267,7 @@ const ManagerDashboard = () => {
                     </div>
 
                     {/* Project Status */}
-                    <div className="dashboard-card-3d" style={{ padding: '24px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                    <div className="premium-card" style={{ padding: '24px', flex: 1, display: 'flex', flexDirection: 'column' }}>
                         <div style={{ paddingBottom: '20px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
                             <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: 'var(--text-heading)', display: 'flex', alignItems: 'center', gap: '8px' }}><Briefcase size={18} /> Project Status</h3>
                         </div>

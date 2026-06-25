@@ -174,11 +174,11 @@ const HRDashboard = () => {
     };
 
     return (
-        <div className="module-container">
-            <div className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
+        <div className="page-container">
+            <div className="page-header">
                 <div>
-                    <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '0 0 4px 0', letterSpacing: '-0.02em' }}>HR Overview</h1>
-                    <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0, fontWeight: 500 }}>Human Resources & Analytics Dashboard</p>
+                    <h1 className="page-title">HR Overview</h1>
+                    <p className="page-subtitle">Human Resources & Analytics Dashboard</p>
                 </div>
                 <div>
                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#ffffff', border: '1px solid var(--border-subtle)', padding: '8px 16px', borderRadius: 'var(--radius-md)', fontSize: '13px', fontWeight: 600, color: 'var(--text-main)', boxShadow: 'var(--shadow-sm)' }}>
@@ -190,7 +190,7 @@ const HRDashboard = () => {
             {/* ===== ROW 1: KPI Cards (3 per row) ===== */}
             <div className="responsive-grid-3">
                 {kpiCards.map((kpi, idx) => (
-                    <div key={idx} className="dashboard-card-3d" style={{ position: 'relative', overflow: 'hidden', padding: '20px', display: 'flex', flexDirection: 'column', minHeight: '130px', justifyContent: 'space-between' }}>
+                    <div key={idx} className="premium-card" style={{ position: 'relative', overflow: 'hidden', padding: '20px', display: 'flex', flexDirection: 'column', minHeight: '130px', justifyContent: 'space-between' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                             <div style={{ color: 'var(--text-muted)', fontSize: '13px', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{kpi.title}</div>
                             <div className="kpi-icon-3d" style={{ width: '36px', height: '36px', borderRadius: '8px', background: `linear-gradient(135deg, ${kpi.color}15, ${kpi.color}05)`, color: kpi.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -212,7 +212,7 @@ const HRDashboard = () => {
             <div className="responsive-grid-4-5-3">
 
                 {/* Employee Distribution */}
-                <div className="dashboard-card-3d" style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: '340px', overflow: 'hidden', padding: '24px' }}>
+                <div className="premium-card" style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: '340px', overflow: 'hidden', padding: '24px' }}>
                     <div style={{ paddingBottom: '20px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
                         <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: 'var(--text-heading)', display: 'flex', alignItems: 'center', gap: '8px' }}><PieChartIcon size={18} /> Employee Distribution</h3>
                     </div>
@@ -257,7 +257,7 @@ const HRDashboard = () => {
                 </div>
 
                 {/* Department Headcount */}
-                <div className="dashboard-card-3d" style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: '340px', overflow: 'hidden', padding: '24px' }}>
+                <div className="premium-card" style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: '340px', overflow: 'hidden', padding: '24px' }}>
                     <div style={{ paddingBottom: '20px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
                         <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: 'var(--text-heading)', display: 'flex', alignItems: 'center', gap: '8px' }}><Users size={18} /> Department Headcount</h3>
                     </div>
@@ -285,7 +285,7 @@ const HRDashboard = () => {
                 {/* Right Panel: Birthdays + Activity */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                     {/* Upcoming Birthdays */}
-                    <div className="dashboard-card-3d" style={{ padding: '24px', overflow: 'hidden' }}>
+                    <div className="premium-card" style={{ padding: '24px', overflow: 'hidden' }}>
                         <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center' }}>
                             <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: 'var(--text-heading)', display: 'flex', alignItems: 'center', gap: '8px' }}><Cake size={18} /> Upcoming Birthdays</h3>
                         </div>
@@ -308,7 +308,7 @@ const HRDashboard = () => {
                     </div>
 
                     {/* Recent HR Activity */}
-                    <div className="dashboard-card-3d" style={{ padding: '24px', display: 'flex', flexDirection: 'column', minHeight: '120px', flex: 1, overflow: 'hidden' }}>
+                    <div className="premium-card" style={{ padding: '24px', display: 'flex', flexDirection: 'column', minHeight: '120px', flex: 1, overflow: 'hidden' }}>
                         <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
                             <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: 'var(--text-heading)', display: 'flex', alignItems: 'center', gap: '8px' }}><Activity size={18} /> Recent Activity</h3>
                         </div>
@@ -337,7 +337,7 @@ const HRDashboard = () => {
             </div>
 
             {/* ===== ROW 3: Pending Leave Requests (Full Width) ===== */}
-            <div className="dashboard-card-3d" style={{ padding: '24px', marginBottom: '24px' }}>
+            <div className="premium-card" style={{ padding: '24px', marginBottom: '24px' }}>
                 <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'center' }}>
                     <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: 'var(--text-heading)', display: 'flex', alignItems: 'center', gap: '8px' }}><Calendar size={18} /> Pending Leave Requests</h3>
                 </div>

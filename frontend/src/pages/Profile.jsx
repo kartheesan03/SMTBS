@@ -241,7 +241,7 @@ const Profile = () => {
                 
                 {/* Left Column: Personal Information */}
                 <div className="profile-col-left">
-                    <div className="dashboard-card-3d">
+                    <div className="premium-card">
                         <div className="card-header">
                             <User size={18} className="header-icon purple-icon" />
                             <h3>Personal Information</h3>
@@ -320,7 +320,7 @@ const Profile = () => {
                     )}
 
                     {/* Change Password */}
-                    <div className="dashboard-card-3d">
+                    <div className="premium-card">
                         <div className="card-header">
                             <Key size={18} className="header-icon purple-icon" />
                             <h3>Change Password</h3>

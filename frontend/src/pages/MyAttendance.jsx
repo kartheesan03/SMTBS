@@ -168,11 +168,11 @@ const MyAttendance = () => {
     if (loading) return <div className="p-30">Loading attendance data...</div>;
 
     return (
-        <div className="module-container">
-            <header className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
+        <div className="page-container">
+            <header className="page-header">
                 <div>
-                    <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '0 0 4px 0', letterSpacing: '-0.02em' }}>Attendance & Time Tracking</h1>
-                    <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0, fontWeight: 500 }}>Manage your daily presence and monitor work sessions.</p>
+                    <h1 className="page-title">Attendance & Time Tracking</h1>
+                    <p className="page-subtitle">Manage your daily presence and monitor work sessions.</p>
                 </div>
                 <div className="header-actions">
                     {!status?.checkIn ? (
@@ -199,7 +199,7 @@ const MyAttendance = () => {
 
             <div className="attendance-grid" style={{ marginBottom: '24px' }}>
                 {/* Real-time Timer Card */}
-                <div className="dashboard-card-3d active-session-card">
+                <div className="premium-card active-session-card">
                     <div className="session-info">
                         <div className="timer-icon-box" style={{ background: 'var(--bg-body)' }}>
                             <Timer size={32} className={status?.checkIn && !status?.checkOut ? "pulse" : ""} />
@@ -221,7 +221,7 @@ const MyAttendance = () => {
                     </div>
                 </div>
 
-                <div className="dashboard-card-3d chart-box">
+                <div className="premium-card chart-box">
                     <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: 'var(--text-heading)', display: 'flex', alignItems: 'center', gap: '8px' }}>Work Hours Trend (Last 7 Days)</h3>
                     <div style={{ height: 200, width: '100%', marginTop: 20 }}>
                         <ResponsiveContainer>
@@ -255,14 +255,14 @@ const MyAttendance = () => {
                 </div>
 
                 <div className="summary-section">
-                    <div className="dashboard-card-3d s-box">
+                    <div className="premium-card s-box">
                         <CheckCircle color="#10b981" size={24} />
                         <div className="s-text">
                             <h4>Avg. Work Hours</h4>
                             <p>{stats.avg} / Day</p>
                         </div>
                     </div>
-                    <div className="dashboard-card-3d s-box">
+                    <div className="premium-card s-box">
                         <Calendar color="#6366f1" size={24} />
                         <div className="s-text">
                             <h4>Days Present</h4>
@@ -272,12 +272,12 @@ const MyAttendance = () => {
                 </div>
             </div>
 
-            <div className="dashboard-card-3d" style={{ overflow: 'hidden' }}>
+            <div className="premium-card" style={{ overflow: 'hidden' }}>
                 <AttendanceHistoryTable isEmployeeView={true} />
             </div>
 
             <style jsx="true">{`
-                .module-container { padding: 30px; }
+                /* layout handled by .page-container */
                 .module-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px; gap: 20px; }
                 
                 .attendance-grid { display: grid; grid-template-columns: 1fr 1.5fr 1fr; gap: 20px; }
@@ -318,7 +318,7 @@ const MyAttendance = () => {
                 }
 
                 @media (max-width: 768px) {
-                    .module-container { padding: 15px; }
+                    .page-container { padding: 16px 12px; }
                     .module-header { flex-direction: column; align-items: flex-start; gap: 15px; }
                     .header-actions { width: 100%; }
                     .header-actions button { width: 100%; }

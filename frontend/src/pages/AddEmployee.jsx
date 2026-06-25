@@ -27,7 +27,7 @@ const AddEmployee = () => {
     };
 
     return (
-        <div className="module-container">
+        <div className="page-container">
             <header className="module-header glass-card">
                 <div className="header-top">
                     <div>
@@ -145,7 +145,7 @@ const AddEmployee = () => {
                 @keyframes pop { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
                 @media (max-width: 768px) {
-                    .module-container { padding: 16px; }
+                    .page-container { padding: 16px 12px; }
                     .form-container { padding: 24px; }
                     .form-grid { grid-template-columns: 1fr; }
                     .form-actions { flex-direction: column-reverse; }

@@ -41,7 +41,7 @@ const AddCustomer = () => {
     };
 
     return (
-        <div className="module-container">
+        <div className="page-container">
             <header className="module-header glass-card">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                     <button className="btn-back" onClick={() => navigate('/crm')}>
@@ -72,7 +72,7 @@ const AddCustomer = () => {
             </div>
 
             <style jsx="true">{`
-                .module-container { padding: 30px; }
+                /* layout handled by .page-container */
                 .module-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px; padding: 25px; }
                 
                 .form-wrapper { padding: 30px; max-width: 800px; margin: 0 auto; background: #ffffff; border-radius: 12px; }
@@ -81,7 +81,7 @@ const AddCustomer = () => {
                 .btn-back:hover { background: #e2e8f0; color: #0f172a; }
 
                 @media (max-width: 768px) {
-                    .module-container { padding: 15px; }
+                    .page-container { padding: 16px 12px; }
                     .form-wrapper { padding: 20px; }
                 }
             `}</style>

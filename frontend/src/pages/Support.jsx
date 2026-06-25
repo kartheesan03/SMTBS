@@ -113,7 +113,7 @@ const Support = () => {
     const resolvedCount = tickets.filter(t => t.status === 'Resolved' || t.status === 'Closed').length;
 
     return (
-        <div className="module-container">
+        <div className="page-container">
             {/* Breadcrumb */}
             <div className="breadcrumb-nav">
                 <span className="crumb" onClick={() => navigate('/')}>Dashboard</span>
@@ -305,7 +305,7 @@ const Support = () => {
             </section>
 
             {/* Active Tickets List (Wide Span Ledger) */}
-            <div className="dashboard-card-3d" style={{ overflow: 'hidden' }}>
+            <div className="premium-card" style={{ overflow: 'hidden' }}>
                 {loading ? (
                     <div className="loading-state flex-center">
                         <RefreshCw className="animate-spin text-primary" size={28} />
@@ -377,7 +377,7 @@ const Support = () => {
             </div>
 
             <style jsx="true">{`
-                .module-container { padding: 30px; }
+                /* layout handled by .page-container */
                 
                 .breadcrumb-nav {
                     display: flex;
@@ -726,7 +726,7 @@ const Support = () => {
                 }
 
                 @media (max-width: 768px) {
-                    .module-container { padding: 16px; }
+                    .page-container { padding: 16px 12px; }
                     .module-header { flex-direction: column; align-items: flex-start; gap: 16px; }
                     .support-metrics-grid { grid-template-columns: 1fr; }
                     .form-row-2 { grid-template-columns: 1fr; }

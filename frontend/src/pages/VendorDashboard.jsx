@@ -26,16 +26,16 @@ const VendorDashboard = () => {
     if (loading) return <div className="app-loading">Loading...</div>;
 
     return (
-        <div className="module-container">
-            <div className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
+        <div className="page-container">
+            <div className="page-header">
                 <div>
-                    <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '0 0 4px 0', letterSpacing: '-0.02em' }}>Vendor Dashboard</h1>
-                    <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0, fontWeight: 500 }}>Welcome back, {profile?.name}</p>
+                    <h1 className="page-title">Vendor Dashboard</h1>
+                    <p className="page-subtitle">Welcome back, {profile?.name}</p>
                 </div>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px', marginBottom: '24px' }}>
-                <div className="dashboard-card-3d" style={{ padding: '20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <div className="premium-card" style={{ padding: '20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
                     <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(56, 189, 248, 0.1)', color: '#38bdf8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <Package size={24} />
                     </div>
@@ -44,7 +44,7 @@ const VendorDashboard = () => {
                         <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-heading)' }}>{materials.length}</div>
                     </div>
                 </div>
-                <div className="dashboard-card-3d" style={{ padding: '20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <div className="premium-card" style={{ padding: '20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
                     <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <CheckCircle size={24} />
                     </div>
@@ -56,7 +56,7 @@ const VendorDashboard = () => {
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
-                <div className="dashboard-card-3d" style={{ padding: '24px' }}>
+                <div className="premium-card" style={{ padding: '24px' }}>
                     <h3 style={{ margin: '0 0 20px 0', fontSize: '16px', fontWeight: 700, color: 'var(--text-heading)' }}>My Materials Catalog</h3>
                     <div className="table-responsive">
                         <table className="enterprise-table">
@@ -85,7 +85,7 @@ const VendorDashboard = () => {
                     </div>
                 </div>
 
-                <div className="dashboard-card-3d" style={{ padding: '24px' }}>
+                <div className="premium-card" style={{ padding: '24px' }}>
                     <h3 style={{ margin: '0 0 20px 0', fontSize: '16px', fontWeight: 700, color: 'var(--text-heading)' }}>Business Details</h3>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                         <div>

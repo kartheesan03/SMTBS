@@ -60,7 +60,7 @@ const AddVendor = () => {
     };
 
     return (
-        <div className="module-container">
+        <div className="page-container">
             <header className="module-header glass-card">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                     <button className="btn-back" onClick={() => navigate('/vendors')}>
@@ -206,7 +206,7 @@ const AddVendor = () => {
             </div>
 
             <style jsx="true">{`
-                .module-container { padding: 30px; }
+                /* layout handled by .page-container */
                 .module-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px; padding: 25px; }
                 
                 .section-title { font-size: 16px; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 20px; }
@@ -239,7 +239,7 @@ const AddVendor = () => {
                 @media (max-width: 768px) {
                     .form-grid { grid-template-columns: 1fr; }
                     .sub-form-row { flex-direction: column; }
-                    .module-container { padding: 15px; }
+                    .page-container { padding: 16px 12px; }
                     .form-wrapper { padding: 20px !important; }
                 }
             `}</style>

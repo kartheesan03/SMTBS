@@ -7,7 +7,7 @@ const ComingSoonPage = ({ title, subtitle }) => {
 
     return (
         <div className="main-content flex-center" style={{ minHeight: '80vh', flexDirection: 'column', gap: '20px' }}>
-            <div className="dashboard-card-3d" style={{ padding: '40px', textAlign: 'center', maxWidth: '500px', width: '100%' }}>
+            <div className="premium-card" style={{ padding: '40px', textAlign: 'center', maxWidth: '500px', width: '100%' }}>
                 <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px', color: '#3b82f6' }}>
                     <Clock size={48} />
                 </div>

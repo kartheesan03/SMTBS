@@ -288,7 +288,7 @@ const Reports = () => {
     ];
 
     return (
-        <div className="module-container">
+        <div className="page-container">
 
             {/* Toast */}
             {toast && (
@@ -420,20 +420,20 @@ const Reports = () => {
                     <>
                         {/* Summary Cards */}
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginBottom: '24px' }}>
-                            <div className="dashboard-card-3d" style={{ padding: '20px', borderRadius: '12px' }}>
+                            <div className="premium-card" style={{ padding: '20px', borderRadius: '12px' }}>
                                 <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: '0 0 8px 0' }}>Total Revenue</p>
                                 <h3 style={{ fontSize: '24px', fontWeight: 'bold', margin: 0, color: '#10b981' }}>{formatCurrency(chartRevenueSum)}</h3>
                             </div>
-                            <div className="dashboard-card-3d" style={{ padding: '20px', borderRadius: '12px' }}>
+                            <div className="premium-card" style={{ padding: '20px', borderRadius: '12px' }}>
                                 <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: '0 0 8px 0' }}>Avg Monthly Revenue</p>
                                 <h3 style={{ fontSize: '24px', fontWeight: 'bold', margin: 0, color: '#6366f1' }}>{formatCurrency(avgMonthlyRevenue)}</h3>
                             </div>
-                            <div className="dashboard-card-3d" style={{ padding: '20px', borderRadius: '12px' }}>
+                            <div className="premium-card" style={{ padding: '20px', borderRadius: '12px' }}>
                                 <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: '0 0 8px 0' }}>Highest Revenue Month</p>
                                 <h3 style={{ fontSize: '24px', fontWeight: 'bold', margin: 0, color: '#f59e0b' }}>{highestRevenueMonth.name}</h3>
                                 <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{formatCurrency(highestRevenueMonth.revenue)}</span>
                             </div>
-                            <div className="dashboard-card-3d" style={{ padding: '20px', borderRadius: '12px' }}>
+                            <div className="premium-card" style={{ padding: '20px', borderRadius: '12px' }}>
                                 <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: '0 0 8px 0' }}>Total Orders</p>
                                 <h3 style={{ fontSize: '24px', fontWeight: 'bold', margin: 0, color: '#3b82f6' }}>{totalOrdersCount}</h3>
                             </div>
@@ -442,7 +442,7 @@ const Reports = () => {
                         {/* Charts Grid */}
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px' }}>
                             {/* Revenue Trend Area Chart */}
-                            <div className="dashboard-card-3d" style={{ padding: '20px', borderRadius: '12px', gridColumn: '1 / -1' }}>
+                            <div className="premium-card" style={{ padding: '20px', borderRadius: '12px', gridColumn: '1 / -1' }}>
                                 <h4 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: 'var(--text-primary)' }}>Revenue Trend</h4>
                                 <div style={{ height: '300px' }}>
                                     <ResponsiveContainer width="100%" height="100%">
@@ -464,7 +464,7 @@ const Reports = () => {
                             </div>
 
                             {/* Orders Trend Line Chart */}
-                            <div className="dashboard-card-3d" style={{ padding: '20px', borderRadius: '12px' }}>
+                            <div className="premium-card" style={{ padding: '20px', borderRadius: '12px' }}>
                                 <h4 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: 'var(--text-primary)' }}>Monthly Orders</h4>
                                 <div style={{ height: '250px' }}>
                                     <ResponsiveContainer width="100%" height="100%">
@@ -480,7 +480,7 @@ const Reports = () => {
                             </div>
 
                             {/* Inventory Usage Donut Chart */}
-                            <div className="dashboard-card-3d" style={{ padding: '20px', borderRadius: '12px' }}>
+                            <div className="premium-card" style={{ padding: '20px', borderRadius: '12px' }}>
                                 <h4 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: 'var(--text-primary)' }}>Inventory by Category</h4>
                                 <div style={{ height: '250px' }}>
                                     <ResponsiveContainer width="100%" height="100%">
@@ -854,7 +854,7 @@ const Reports = () => {
                     .reports-grid { grid-template-columns: 1fr; }
                 }
                 @media (max-width: 768px) {
-                    .module-container { padding: 16px; }
+                    .page-container { padding: 16px 12px; }
                     .report-header { flex-direction: column; align-items: flex-start; }
                     .header-actions { width: 100%; flex-direction: column; }
                     .header-actions button, .date-range-wrapper { width: 100%; }

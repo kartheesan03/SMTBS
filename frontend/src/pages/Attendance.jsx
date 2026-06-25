@@ -101,12 +101,12 @@ const Attendance = () => {
     const leaveCount = attendanceData?.onLeaveToday || 0;
 
     return (
-        <div className="module-container">
-            <header className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
+        <div className="page-container">
+            <header className="page-header">
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                     <div>
-                        <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '0 0 4px 0', letterSpacing: '-0.02em' }}>Master Attendance Log</h1>
-                        <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0, fontWeight: 500 }}>Review and oversee daily check-ins across all departments.</p>
+                        <h1 className="page-title">Master Attendance Log</h1>
+                        <p className="page-subtitle">Review and oversee daily check-ins across all departments.</p>
                     </div>
                     <div className="tab-group" style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
                         <button 
@@ -125,14 +125,14 @@ const Attendance = () => {
                 </div>
                 {viewMode === 'today' && (
                     <div style={{ display: 'flex', gap: '12px' }}>
-                        <div className="search-bar-sm glass-card" style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--bg-card)' }}>
-                            <Search size={16}/>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-subtle)', background: 'var(--bg-surface)' }}>
+                            <Search size={16} color="var(--text-muted)" />
                             <input 
                                 type="text" 
                                 placeholder="Search employee..." 
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                style={{ background: 'transparent', border: 'none', outline: 'none', color: 'var(--text-primary)', marginLeft: '8px' }}
+                                style={{ background: 'transparent', border: 'none', outline: 'none', color: 'var(--text-heading)', marginLeft: '4px', width: '180px' }}
                             />
                         </div>
                     </div>
@@ -172,7 +172,7 @@ const Attendance = () => {
             </div>
 
             <div className="attendance-controls mt-30" style={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>
-                <div className="dashboard-card-3d flex-center gap-10" style={{ padding: '12px 18px', borderRadius: '8px', display: 'flex', alignItems: 'center' }}>
+                <div className="premium-card flex-center gap-10" style={{ padding: '12px 18px', borderRadius: '8px', display: 'flex', alignItems: 'center' }}>
                     <Calendar size={16}/>
                     <input 
                         type="date" 
@@ -182,7 +182,7 @@ const Attendance = () => {
                         style={{ background: 'transparent', border: 'none', outline: 'none', color: 'var(--text-primary)', fontWeight: 600, fontSize: '14px' }}
                     />
                 </div>
-                <div className="dashboard-card-3d flex-center gap-10" style={{ padding: '12px 18px', borderRadius: '8px', display: 'flex', alignItems: 'center' }}>
+                <div className="premium-card flex-center gap-10" style={{ padding: '12px 18px', borderRadius: '8px', display: 'flex', alignItems: 'center' }}>
                     <Filter size={16}/>
                     <select 
                         value={filterDept} 
@@ -195,7 +195,7 @@ const Attendance = () => {
                 </div>
             </div>
 
-            <div className="dashboard-card-3d" style={{ overflow: 'hidden' }}>
+            <div className="premium-card">
                 <DataTable 
                     title="All Employees Attendance"
                     headers={['Employee Name', 'Employee ID', 'Department', 'Today\'s Status', 'Check In Time', 'Check Out Time', 'Total Hours', 'Action/View']}
@@ -239,16 +239,7 @@ const Attendance = () => {
             </>
             )}
 
-            <style jsx="true">{`
-                .module-container { padding: 30px; background-color: var(--bg-body); min-height: 100vh; font-family: 'Outfit', sans-serif; color: var(--text-primary); }
-                .title-gradient { font-size: 26px; font-weight: 800; color: var(--text-primary); margin: 0 0 4px 0; }
-                .text-muted { color: var(--text-muted); }
-                .module-header { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; }
-                .header-actions { width: 100%; max-width: 300px; }
-                .search-bar-sm { display: flex; align-items: center; gap: 10px; padding: 12px 20px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-full, 9999px); box-shadow: var(--shadow-sm); transition: all 0.2s; }
-                .search-bar-sm:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-50); }
-                .search-bar-sm input { background: none; border: none; color: var(--text-primary); width: 100%; outline: none; font-size: 14px; }
-                .tab-btn { display: flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-muted); transition: all 0.2s; }
+                .tab-btn { display: flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; cursor: pointer; border: 1px solid var(--border-subtle); background: var(--bg-surface); color: var(--text-muted); transition: all 0.2s; }
                 .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
                 .tab-btn:hover:not(.active) { background: var(--bg-hover); color: var(--text-primary); }
 
@@ -291,7 +282,7 @@ const Attendance = () => {
                 .gap-10 { gap: 10px; }
 
                 @media (max-width: 768px) {
-                    .module-container { padding: 16px; }
+                    .page-container { padding: 16px 12px; }
                     .module-header { flex-direction: column; align-items: flex-start; gap: 16px; }
                     .header-actions { max-width: 100%; }
                     .attendance-controls { flex-direction: column; width: 100%; }

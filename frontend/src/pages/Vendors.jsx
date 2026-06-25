@@ -328,13 +328,13 @@ const Vendors = () => {
     const totalVendorValue = linkedMaterials.reduce((sum, m) => sum + (Number(m.stockQty || m.quantity || m.stock || 0) * Number(m.price || m.unitPrice || 0)), 0);
 
     return (
-        <div className="module-container">
-            <header className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
+        <div className="page-container">
+            <header className="page-header">
                 <div>
-                    <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-heading)', margin: '0 0 4px 0', letterSpacing: '-0.02em' }}>Vendor Network</h1>
-                    <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0, fontWeight: 500 }}>Direct procurement channels and strategic supplier relationships.</p>
+                    <h1 className="page-title">Vendors Directory</h1>
+                    <p className="page-subtitle">Manage supplier profiles, contact details, and procurement links.</p>
                 </div>
-                <div style={{ display: 'flex', gap: '12px' }}>
+                <div className="header-actions">
                     <button className="btn-secondary-light flex-center gap-8" onClick={exportToPDF}><Download size={16} /> PDF</button>
                     <button className="btn-secondary-light flex-center gap-8" onClick={exportToExcel}><Download size={16} /> Excel</button>
                     <button className="btn-primary flex-center gap-8" onClick={() => navigate('/vendors/add-vendor')}>
@@ -768,7 +768,7 @@ const Vendors = () => {
                         {loading ? (
                             <div className="flex-center p-50"><div className="spinner"></div></div>
                         ) : (
-                            <div className="dashboard-card-3d" style={{ overflow: 'hidden' }}>
+                            <div className="premium-card" style={{ overflow: 'hidden' }}>
                                 <DataTable 
                                     title="Supplier Directory"
                                     headers={['Vendor Name', 'Category', 'Contact Details', 'Address', 'Status', 'Actions']}
@@ -805,7 +805,7 @@ const Vendors = () => {
                     </div>
 
             <style jsx="true">{`
-                .module-container { padding: 30px; }
+                /* layout handled by .page-container */
                 .module-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px; padding: 25px; gap: 20px; }
                 .table-wrapper { padding: 10px; }
                 .cat-tag { background: rgba(99, 102, 241, 0.1); color: var(--primary); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; white-space: nowrap; }
@@ -875,7 +875,7 @@ const Vendors = () => {
                 .gap-10 { gap: 10px; }
 
                 @media (max-width: 768px) {
-                    .module-container { padding: 15px; }
+                    .page-container { padding: 16px 12px; }
                     .module-header { flex-direction: column; align-items: flex-start; padding: 20px; }
                     .header-actions { width: 100%; flex-wrap: wrap; }
                     .header-actions button { flex: 1; }

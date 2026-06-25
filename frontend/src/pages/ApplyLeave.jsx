@@ -45,7 +45,7 @@ const ApplyLeave = () => {
     };
 
     return (
-        <div className="module-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <div className="page-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             {toast && (
                 <div className={`lv-toast ${toast.ok ? 'ok' : 'err'}`}>
                     {toast.ok ? <Check size={15} /> : <AlertTriangle size={15} />}
@@ -66,7 +66,7 @@ const ApplyLeave = () => {
                 </button>
             </div>
 
-            <div className="dashboard-card-3d lv-form-card" style={{ padding: '32px', width: '100%', maxWidth: '600px', margin: '0 auto' }}>
+            <div className="premium-card lv-form-card" style={{ padding: '32px', width: '100%', maxWidth: '600px', margin: '0 auto' }}>
                 <div className="lv-form-head">
                     <h3>New Leave Application</h3>
                 </div>
@@ -175,7 +175,7 @@ const ApplyLeave = () => {
                 .gap-10 { gap: 10px; }
 
                 @media (max-width: 768px) {
-                    .module-container { padding: 16px; }
+                    .page-container { padding: 16px 12px; }
                     .lv-form-grid { grid-template-columns: 1fr; }
                     .lv-form-actions { flex-direction: column; }
                     .lv-form-actions button { width: 100%; }
