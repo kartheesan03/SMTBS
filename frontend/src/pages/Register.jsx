@@ -560,7 +560,7 @@ const Register = () => {
                     z-index: 20;
                     padding: clamp(16px, 3vh, 20px);
                     background: transparent;
-                    overflow: hidden;
+                    overflow-y: auto;
                 }
 
                 .login-form-wrapper::-webkit-scrollbar {
@@ -577,7 +577,7 @@ const Register = () => {
                     padding: clamp(20px, 3vh, 28px);
                     color: var(--text-primary);
                     position: relative;
-                    margin: auto 0;
+                    margin: clamp(20px, 5vh, 60px) 0 40px 0;
                     display: flex;
                     flex-direction: column;
                 }

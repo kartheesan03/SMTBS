@@ -1,15 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 import { Calendar, Plus, Trash2, CheckCircle, Clock, XCircle, Loader, AlertTriangle, Check } from 'lucide-react';
 
 const LeaveManagement = () => {
+    const navigate = useNavigate();
     const [leaves,       setLeaves]       = useState([]);
     const [balance,      setBalance]      = useState(null);
     const [loading,      setLoading]      = useState(true);
-    const [formOpen,     setFormOpen]     = useState(false);
-    const [submitting,   setSubmitting]   = useState(false);
     const [toast, setToast] = useState(null);
-    const [form, setForm] = useState({ type: 'Annual', startDate: '', endDate: '', reason: '' });
     const [reviewModal, setReviewModal] = useState(null); // stores leave object being reviewed
 
     const userInfo = JSON.parse(localStorage.getItem('userInfo') || sessionStorage.getItem('userInfo') || '{}');
@@ -50,30 +49,7 @@ const LeaveManagement = () => {
 
     useEffect(() => { fetchAll(); }, [fetchAll]);
 
-    // ── submit ─────────────────────────────────────────────────────────────
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (!form.startDate || !form.endDate) {
-            showToast('Please select both start and end dates.', false);
-            return;
-        }
-        if (new Date(form.endDate) < new Date(form.startDate)) {
-            showToast('End date must be on or after start date.', false);
-            return;
-        }
-        setSubmitting(true);
-        try {
-            await API.post('/leaves', form);
-            showToast(`Leave application submitted for ${calcDays(form.startDate, form.endDate)} day(s).`);
-            setFormOpen(false);
-            setForm({ type: 'Annual', startDate: '', endDate: '', reason: '' });
-            fetchAll();
-        } catch (err) {
-            showToast(err.response?.data?.message || 'Submission failed.', false);
-        } finally {
-            setSubmitting(false);
-        }
-    };
+
 
     // ── cancel ─────────────────────────────────────────────────────────────
     const handleCancel = async (id) => {
@@ -121,7 +97,7 @@ const LeaveManagement = () => {
                 <button
                     id="btn-apply-leave"
                     className="btn-primary flex-center gap-10"
-                    onClick={() => setFormOpen(true)}
+                    onClick={() => navigate('/leave-management/apply')}
                 >
                     <Plus size={18} /> Apply for Leave
                 </button>
@@ -159,80 +135,7 @@ const LeaveManagement = () => {
                 })}
             </div>
 
-            {/* ── Application Form Modal ── */}
-            {formOpen && (
-                <div className="modal-overlay">
-                    <div className="dashboard-card-3d lv-form-card animate-pop" style={{ padding: '32px' }}>
-                        <div className="lv-form-head">
-                            <h3>New Leave Application</h3>
-                            <button className="close-btn" onClick={() => setFormOpen(false)}>✕</button>
-                        </div>
-                        <form onSubmit={handleSubmit} className="lv-form">
-                            <div className="lv-form-grid">
-                                <div className="form-group">
-                                    <label>Leave Type</label>
-                                    <select
-                                        value={form.type}
-                                        onChange={e => setForm({ ...form, type: e.target.value })}
-                                    >
-                                        <option value="Annual">Annual Leave</option>
-                                        <option value="Sick">Sick Leave</option>
-                                        <option value="Casual">Casual Leave</option>
-                                        <option value="Unpaid">Unpaid Leave</option>
-                                    </select>
-                                </div>
-                                <div className="form-group" style={{ alignItems: 'center' }}>
-                                    <label>Days Requested</label>
-                                    <div className="days-preview">
-                                        {calcDays(form.startDate, form.endDate) || '—'} days
-                                    </div>
-                                </div>
-                                <div className="form-group">
-                                    <label>Start Date</label>
-                                    <input
-                                        type="date"
-                                        min={today}
-                                        required
-                                        value={form.startDate}
-                                        onChange={e => setForm({ ...form, startDate: e.target.value })}
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label>End Date</label>
-                                    <input
-                                        type="date"
-                                        min={form.startDate || today}
-                                        required
-                                        value={form.endDate}
-                                        onChange={e => setForm({ ...form, endDate: e.target.value })}
-                                    />
-                                </div>
-                            </div>
-                            <div className="form-group">
-                                <label>Reason / Remarks</label>
-                                <textarea
-                                    rows={3}
-                                    placeholder="Briefly explain the reason for your leave request..."
-                                    value={form.reason}
-                                    onChange={e => setForm({ ...form, reason: e.target.value })}
-                                />
-                            </div>
-                            <div className="lv-form-actions">
-                                <button type="button" className="btn-secondary" onClick={() => setFormOpen(false)}>
-                                    Cancel
-                                </button>
-                                <button type="submit" className="btn-primary flex-center gap-10" disabled={submitting}>
-                                    {submitting
-                                        ? <><Loader size={16} className="spin-icon" /> Submitting…</>
-                                        : <><Check size={16} /> Submit Application</>
-                                    }
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
-            
+
             {/* ── Review Modal (HR) ── */}
             {reviewModal && (
                 <div className="modal-overlay">
@@ -349,10 +252,13 @@ const LeaveManagement = () => {
                                                     <button className="btn-reject-sm" onClick={() => setReviewModal({ ...l, reviewStatus: 'Rejected', note: '' })}>Reject</button>
                                                 </div>
                                             )}
-                                            {l.reviewNote && (
+                                            {l.status !== 'Pending' && l.reviewNote && (
                                                 <span className="lv-note text-muted" title={l.reviewNote}>
                                                     📝 Note
                                                 </span>
+                                            )}
+                                            {l.status !== 'Pending' && !l.reviewNote && (
+                                                <span className="text-muted" style={{ opacity: 0.5 }}>—</span>
                                             )}
                                         </td>
                                     </tr>
@@ -365,98 +271,98 @@ const LeaveManagement = () => {
             </div>
 
             <style jsx="true">{`
-                .module-container { padding: 30px; position: relative; background-color: var(--bg-body); min-height: 100vh; font-family: 'Outfit', sans-serif; color: var(--text-primary); }
+                .module-container { padding: 30px; position: relative; background-color: var(--bg-app); min-height: 100vh; font-family: 'Outfit', sans-serif; color: var(--text-main); }
                 .module-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 28px; gap: 20px; }
 
                 /* ── Toast ── */
-                .lv-toast { position: fixed; bottom: 28px; right: 28px; display: flex; align-items: center; gap: 8px; padding: 12px 20px; border-radius: var(--radius-md, 10px); font-size: 13px; font-weight: 600; z-index: 9999; animation: slideUp 0.3s ease; box-shadow: var(--shadow-lg); }
-                .lv-toast.ok  { background: var(--success-light); border: 1px solid var(--success); color: var(--success); }
-                .lv-toast.err { background: var(--danger-light);  border: 1px solid var(--danger); color: var(--danger); }
+                .lv-toast { position: fixed; bottom: 28px; right: 28px; display: flex; align-items: center; gap: 8px; padding: 12px 20px; border-radius: var(--radius-md); font-size: 13px; font-weight: 600; z-index: 9999; animation: slideUp 0.3s ease; box-shadow: var(--shadow-lg); }
+                .lv-toast.ok  { background: var(--success-bg); border: 1px solid var(--success); color: var(--success); }
+                .lv-toast.err { background: var(--danger-bg);  border: 1px solid var(--danger); color: var(--danger); }
 
                 /* ── Balance grid ── */
                 .lv-balance-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-bottom: 28px; }
-                .lv-bal-card { padding: 22px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg, 16px); box-shadow: var(--shadow-sm); transition: transform 0.2s, box-shadow 0.2s; }
+                .lv-bal-card { padding: 22px; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); transition: transform 0.2s, box-shadow 0.2s; }
                 .lv-bal-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
                 .lv-bal-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
                 .lv-bal-type { font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-                .lv-bal-pct { font-size: 13px; font-weight: 800; color: var(--primary); background: var(--primary-50); padding: 2px 8px; border-radius: 6px; }
+                .lv-bal-pct { font-size: 13px; font-weight: 800; color: var(--primary); background: var(--primary-light); padding: 2px 8px; border-radius: 6px; }
                 .lv-bal-nums { margin-bottom: 12px; }
-                .lv-bal-remain { font-size: 32px; font-weight: 800; color: var(--text-primary); }
+                .lv-bal-remain { font-size: 32px; font-weight: 800; color: var(--text-heading); }
                 .lv-bal-total { font-size: 14px; font-weight: 600; color: var(--text-muted); }
                 .lv-progress-bar { width: 100%; height: 8px; background: var(--bg-hover); border-radius: 10px; overflow: hidden; }
                 .lv-progress-fill { height: 100%; border-radius: 10px; transition: width 0.6s ease; }
 
                 /* ── Modal ── */
                 .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 2000; padding: 20px; }
-                .lv-form-card { width: 100%; max-width: 600px; padding: 32px; max-height: 90vh; overflow-y: auto; background: var(--bg-card) !important; border: 1px solid var(--border) !important; border-radius: var(--radius-lg, 16px) !important; box-shadow: var(--shadow-lg) !important; }
-                .lv-form-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
-                .lv-form-head h3 { font-size: 20px; font-weight: 800; color: var(--text-primary); margin: 0; }
+                .lv-form-card { width: 100%; max-width: 600px; padding: 32px; max-height: 90vh; overflow-y: auto; background: var(--bg-surface) !important; border: 1px solid var(--border-subtle) !important; border-radius: var(--radius-lg) !important; box-shadow: var(--shadow-lg) !important; }
+                .lv-form-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border-subtle); }
+                .lv-form-head h3 { font-size: 20px; font-weight: 800; color: var(--text-heading); margin: 0; }
                 .lv-form { display: flex; flex-direction: column; gap: 20px; }
                 .lv-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
                 .form-group { display: flex; flex-direction: column; gap: 8px; }
-                .form-group label { font-size: 12px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+                .form-group label { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
                 .form-group input, .form-group select, .form-group textarea {
-                    padding: 12px 16px; background: var(--bg-body) !important;
-                    border: 1px solid var(--border) !important; border-radius: var(--radius-md, 8px) !important; color: var(--text-primary) !important; font-size: 14px !important;
+                    padding: 12px 16px; background: var(--bg-app) !important;
+                    border: 1px solid var(--border-subtle) !important; border-radius: var(--radius-md) !important; color: var(--text-heading) !important; font-size: 14px !important;
                     transition: border-color 0.2s; width: 100%; box-shadow: none !important;
                 }
                 .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-                    outline: none; border-color: var(--primary) !important; box-shadow: 0 0 0 3px var(--primary-50) !important;
+                    outline: none; border-color: var(--primary) !important; box-shadow: 0 0 0 3px var(--primary-light) !important;
                 }
                 .form-group select { appearance: none; padding-right: 40px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
-                .form-group select option { background: var(--bg-body) !important; color: var(--text-primary) !important; }
+                .form-group select option { background: var(--bg-app) !important; color: var(--text-heading) !important; }
                 .days-preview { font-size: 26px; font-weight: 800; color: var(--primary); padding-top: 4px; }
-                .lv-form-actions { display: flex; justify-content: flex-end; gap: 14px; margin-top: 8px; border-top: 1px solid var(--border); padding-top: 24px; }
-                .btn-secondary { background: var(--bg-body); color: var(--text-secondary); border: 1px solid var(--border); padding: 12px 24px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
-                .btn-secondary:hover { background: var(--bg-hover); color: var(--text-primary); border-color: var(--border-hover); }
-                .btn-primary { background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: var(--radius-full, 9999px); font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2); }
-                .btn-primary:hover { background: #1d4ed8; transform: translateY(-1px); box-shadow: 0 6px 12px -1px rgba(37, 99, 235, 0.3); }
+                .lv-form-actions { display: flex; justify-content: flex-end; gap: 14px; margin-top: 8px; border-top: 1px solid var(--border-subtle); padding-top: 24px; }
+                .btn-secondary { background: var(--bg-app); color: var(--text-muted); border: 1px solid var(--border-subtle); padding: 12px 24px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+                .btn-secondary:hover { background: var(--bg-hover); color: var(--text-heading); border-color: var(--border-strong); }
+                .btn-primary { background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: var(--radius-xl); font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2); }
+                .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 6px 12px -1px rgba(37, 99, 235, 0.3); }
                 .close-btn { background: none; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; padding: 4px; border-radius: 6px; transition: background 0.2s; }
-                .close-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+                .close-btn:hover { background: var(--bg-hover); color: var(--text-heading); }
                 .animate-pop { animation: pop 0.25s cubic-bezier(0.34,1.56,0.64,1); }
                 @keyframes pop { from { opacity:0; transform:scale(0.9); } to { opacity:1; transform:scale(1); } }
 
                 /* ── Table card ── */
-                .lv-table-card { padding: 8px; overflow-x: auto; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg, 16px); box-shadow: var(--shadow-sm); }
+                .lv-table-card { padding: 8px; overflow-x: auto; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); }
                 .lv-table-header { display: flex; justify-content: space-between; align-items: center; padding: 18px 20px 12px; }
-                .lv-table-header h3 { font-size: 18px; font-weight: 800; color: var(--text-primary); margin: 0; }
+                .lv-table-header h3 { font-size: 18px; font-weight: 800; color: var(--text-heading); margin: 0; }
                 .lv-table { width: 100%; border-collapse: collapse; min-width: 700px; }
-                .lv-table th { text-align: left; padding: 12px 16px; font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--border); letter-spacing: 0.5px; }
-                .lv-table td { padding: 16px; font-size: 14px; border-bottom: 1px solid var(--border); color: var(--text-primary); }
+                .lv-table th { text-align: left; padding: 12px 16px; font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--border-subtle); letter-spacing: 0.5px; }
+                .lv-table td { padding: 16px; font-size: 14px; border-bottom: 1px solid var(--border-subtle); color: var(--text-main); }
                 .lv-table tbody tr:hover { background: var(--bg-hover); }
-                .lv-reason { max-width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-secondary); }
+                .lv-reason { max-width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-muted); }
 
                 /* ── Type tags ── */
                 .lv-type-tag { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; white-space: nowrap; display: inline-block; }
                 .lv-type-tag.annual  { background: rgba(99,102,241,0.1); color: #6366f1; }
                 .lv-type-tag.sick    { background: rgba(16,185,129,0.1); color: #10b981; }
                 .lv-type-tag.casual  { background: rgba(245,158,11,0.1); color: var(--warning); }
-                .lv-type-tag.unpaid  { background: rgba(100,116,139,0.1); color: var(--text-secondary); }
+                .lv-type-tag.unpaid  { background: rgba(100,116,139,0.1); color: var(--text-muted); }
 
                 /* ── Status pills ── */
                 .lv-status-pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; white-space: nowrap; }
-                .lv-status-pill.approved  { background: var(--success-light); color: var(--success); }
+                .lv-status-pill.approved  { background: var(--success-bg); color: var(--success); }
                 .lv-status-pill.pending   { background: rgba(245,158,11,0.1); color: var(--warning); }
-                .lv-status-pill.rejected  { background: var(--danger-light);  color: var(--danger); }
-                .lv-status-pill.cancelled { background: var(--bg-hover); color: var(--text-secondary); }
+                .lv-status-pill.rejected  { background: var(--danger-bg);  color: var(--danger); }
+                .lv-status-pill.cancelled { background: var(--bg-hover); color: var(--text-muted); }
 
                 /* ── Cancel button ── */
                 .lv-cancel-btn { display: flex; align-items: center; gap: 5px; background: none; color: var(--danger); font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; border: none; padding: 4px 8px; border-radius: 6px; transition: background 0.2s; }
-                .lv-cancel-btn:hover { background: var(--danger-light); }
+                .lv-cancel-btn:hover { background: var(--danger-bg); }
                 .lv-note { font-size: 12px; cursor: help; color: var(--text-muted); }
                 
                 .lv-review-actions { display: flex; gap: 8px; }
-                .btn-approve-sm { background: var(--success-light); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.2); padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
-                .btn-reject-sm { background: var(--danger-light); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2); padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+                .btn-approve-sm { background: var(--success-bg); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.2); padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+                .btn-reject-sm { background: var(--danger-bg); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2); padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
                 .btn-approve-sm:hover { background: var(--success); color: white; }
                 .btn-reject-sm:hover { background: var(--danger); color: white; }
                 .btn-danger { background: var(--danger) !important; border-color: var(--danger) !important; }
                 
-                .lv-review-details { background: var(--bg-body); padding: 16px; border-radius: var(--radius-md, 8px); border: 1px solid var(--border); display: flex; flex-direction: column; gap: 10px; }
-                .lv-review-details p { font-size: 14px; margin: 0; color: var(--text-secondary); }
-                .lv-review-details strong { color: var(--text-primary); }
+                .lv-review-details { background: var(--bg-app); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 10px; }
+                .lv-review-details p { font-size: 14px; margin: 0; color: var(--text-muted); }
+                .lv-review-details strong { color: var(--text-heading); }
                 .lv-emp-info { display: flex; flex-direction: column; min-width: 120px; }
-                .title-gradient { font-size: 26px; font-weight: 800; color: var(--text-primary); margin: 0 0 4px 0; }
+                .title-gradient { font-size: 26px; font-weight: 800; color: var(--text-heading); margin: 0 0 4px 0; }
                 .text-muted { color: var(--text-muted); }
 
                 /* ── Loading / empty ── */

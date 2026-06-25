@@ -47,20 +47,20 @@ const DataTable = ({ title, headers, data, renderRow, onViewAll, emptyText, sear
                         {emptyText || 'No records found'}
                     </div>
                 ) : (
-                    <table className="enterprise-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-                        <thead style={{ position: 'sticky', top: 0, background: '#f8fafc', zIndex: 10, boxShadow: '0 1px 0 var(--border-subtle)' }}>
-                            <tr>
-                                {headers.map((h, i) => (
-                                    <th key={i} style={{ padding: '12px 20px', fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>
-                                        {h}
-                                    </th>
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {paginatedData.map((item, i) => renderRow(item, startIndex + i))}
-                        </tbody>
-                    </table>
+                    <div className="modern-table-wrapper">
+                        <table className="modern-table">
+                            <thead>
+                                <tr>
+                                    {headers.map((h, i) => (
+                                        <th key={i}>{h}</th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {paginatedData.map((item, i) => renderRow(item, startIndex + i))}
+                            </tbody>
+                        </table>
+                    </div>
                 )}
             </div>
 

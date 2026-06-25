@@ -40,6 +40,7 @@ const GeneratePayroll = React.lazy(() => import('./pages/GeneratePayroll'));
 const PayrollPayment = React.lazy(() => import('./pages/PayrollPayment'));
 const Payslips = React.lazy(() => import('./pages/Payslips'));
 const LeaveManagement = React.lazy(() => import('./pages/LeaveManagement'));
+const ApplyLeave = React.lazy(() => import('./pages/ApplyLeave'));
 const MySalaryPage = React.lazy(() => import('./pages/MySalary'));
 const Customers = React.lazy(() => import('./pages/Customers'));
 const AddCustomer = React.lazy(() => import('./pages/AddCustomer'));
@@ -177,6 +178,7 @@ const AppContent = () => {
                     <Route path="/my-attendance" element={<ProtectedRoute><MyAttendance /></ProtectedRoute>} />
                     <Route path="/my-salary" element={<ProtectedRoute><MySalaryPage /></ProtectedRoute>} />
                     <Route path="/leave-management" element={<ProtectedRoute><LeaveManagement /></ProtectedRoute>} />
+                    <Route path="/leave-management/apply" element={<ProtectedRoute><ApplyLeave /></ProtectedRoute>} />
                     <Route path="/stock-requests" element={<ProtectedRoute><StockRequests /></ProtectedRoute>} />
 
                     <Route path="/complete-customer-profile" element={<ProtectedRoute allowedRoles={['Customer']}><CompleteCustomerProfile /></ProtectedRoute>} />

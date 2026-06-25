@@ -10,6 +10,7 @@ import {
     PieChart, Pie, Cell, BarChart, Bar, LineChart, Line, AreaChart, Area,
     XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer
 } from 'recharts';
+import SkeletonLoader from '../components/SkeletonLoader';
 
 const SalesDashboard = () => {
     const navigate = useNavigate();
@@ -47,8 +48,8 @@ const SalesDashboard = () => {
 
     if (loading) {
         return (
-            <div className="flex-center" style={{ minHeight: '100vh', background: '#f8fafc' }}>
-                <div className="loader"></div>
+            <div style={{ padding: '24px', background: 'var(--bg-body)', minHeight: '100vh' }}>
+                <SkeletonLoader type="dashboard" />
             </div>
         );
     }
@@ -235,7 +236,7 @@ const SalesDashboard = () => {
             </div>
 
             {/* ===== KPI ROW ===== */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '24px', marginBottom: '24px' }}>
+            <div className="responsive-grid-6">
                 {kpiCards.map((kpi, idx) => (
                     <div key={idx} className="dashboard-card-3d" style={{ position: 'relative', overflow: 'hidden', padding: '20px', display: 'flex', flexDirection: 'column', minHeight: '130px', justifyContent: 'space-between' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -256,7 +257,7 @@ const SalesDashboard = () => {
             </div>
 
             {/* ===== ROW 2: Charts and Quick Actions ===== */}
-            <div style={{ display: 'grid', gridTemplateColumns: '4fr 5fr 3fr', gap: '24px', marginBottom: '24px' }}>
+            <div className="responsive-grid-4-5-3">
                 {/* Lead Sources */}
                 <div className="dashboard-card-3d" style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: '340px', overflow: 'hidden', padding: '24px' }}>
                     <div style={{ paddingBottom: '20px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
@@ -350,7 +351,7 @@ const SalesDashboard = () => {
                 {/* Quick Actions (App Launcher Style) */}
                 <div className="dashboard-card-3d" style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: '340px', overflow: 'hidden', padding: '24px' }}>
                     <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-heading)', margin: '0 0 20px 0' }}>Sales Actions</h3>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', flex: 1 }}>
+                    <div className="responsive-grid-2" style={{ flex: 1, margin: 0, gap: '12px' }}>
                         {[
                             { path: '/crm/leads', name: 'Leads', icon: Filter, color: '#3b82f6' },
                             { path: '/crm/pipeline', name: 'Pipeline', icon: Layers, color: '#8b5cf6' },

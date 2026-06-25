@@ -11,6 +11,7 @@ import {
     PieChart, Pie, Cell, BarChart, Bar, 
     XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend
 } from 'recharts';
+import SkeletonLoader from '../components/SkeletonLoader';
 
 const HRDashboard = () => {
     const [dashboardData, setDashboardData] = useState(null);
@@ -52,8 +53,8 @@ const HRDashboard = () => {
 
     if (loading) {
         return (
-            <div className="flex-center" style={{ minHeight: '100vh', background: '#f8fafc' }}>
-                <div className="loader"></div>
+            <div style={{ padding: '24px', background: 'var(--bg-body)', minHeight: '100vh' }}>
+                <SkeletonLoader type="dashboard" />
             </div>
         );
     }
@@ -187,7 +188,7 @@ const HRDashboard = () => {
             </div>
 
             {/* ===== ROW 1: KPI Cards (3 per row) ===== */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', marginBottom: '24px' }}>
+            <div className="responsive-grid-3">
                 {kpiCards.map((kpi, idx) => (
                     <div key={idx} className="dashboard-card-3d" style={{ position: 'relative', overflow: 'hidden', padding: '20px', display: 'flex', flexDirection: 'column', minHeight: '130px', justifyContent: 'space-between' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -208,7 +209,7 @@ const HRDashboard = () => {
             </div>
 
             {/* ===== ROW 2: Employee Distribution (4fr) + Dept Headcount (5fr) + Right Panel (3fr) ===== */}
-            <div style={{ display: 'grid', gridTemplateColumns: '4fr 5fr 3fr', gap: '24px', marginBottom: '24px' }}>
+            <div className="responsive-grid-4-5-3">
 
                 {/* Employee Distribution */}
                 <div className="dashboard-card-3d" style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: '340px', overflow: 'hidden', padding: '24px' }}>

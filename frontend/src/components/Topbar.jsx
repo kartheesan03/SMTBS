@@ -97,17 +97,16 @@ const Topbar = () => {
                     display: grid;
                     grid-template-columns: 1fr auto 1fr;
                     align-items: center;
-                    height: 48px;
-                    padding: 0 20px;
-                    background: rgba(255, 255, 255, 0.98);
+                    height: var(--header-height);
+                    padding: 0 40px;
+                    background: rgba(255, 255, 255, 0.85);
                     border-bottom: 1px solid var(--border-subtle);
-                    box-shadow: var(--shadow-sm);
                     position: sticky;
                     top: 0;
                     margin: 0;
                     z-index: 900;
-                    backdrop-filter: blur(12px);
-                    -webkit-backdrop-filter: blur(12px);
+                    backdrop-filter: blur(16px);
+                    -webkit-backdrop-filter: blur(16px);
                 }
 
                 .topbar-left {

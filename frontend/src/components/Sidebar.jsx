@@ -262,8 +262,8 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                 .sidebar {
                     width: var(--sidebar-width);
                     height: 100vh;
-                    background: var(--bg-sidebar);
-                    border-right: none;
+                    background: linear-gradient(180deg, #0B1120 0%, #171032 100%);
+                    border-right: 1px solid rgba(255, 255, 255, 0.05);
                     display: flex;
                     flex-direction: column;
                     position: fixed;
@@ -272,6 +272,7 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                     padding: 16px 0;
                     z-index: 1000;
                     transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+                    box-shadow: 4px 0 24px rgba(0,0,0,0.2);
                 }
                 .sidebar::-webkit-scrollbar { display: none; }
                 .sidebar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -285,14 +286,17 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                     justify-content: center; padding: 0 10px 20px;
                 }
                 
+                .sidebar-logo {
+                    display: flex; align-items: center; gap: 10px;
+                }
                 .sidebar-logo h2 {
                     font-size: 24px; font-weight: 800; color: #ffffff;
-                    letter-spacing: -0.02em; margin: 0; display: flex; align-items: center; gap: 8px;
+                    letter-spacing: -0.02em; margin: 0;
                 }
                 
                 .collapse-btn, .close-sidebar {
                     background: transparent; border: none;
-                    color: var(--text-sidebar); border-radius: 6px;
+                    color: rgba(255, 255, 255, 0.6); border-radius: 6px;
                     display: flex; align-items: center; justify-content: center;
                     cursor: pointer; transition: all 0.2s; padding: 4px;
                 }
@@ -300,29 +304,35 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                 .collapse-btn:hover { background: rgba(255,255,255,0.1); color: #ffffff; }
                 .sidebar.collapsed .collapse-btn {
                     position: absolute; right: -14px; top: 24px;
-                    background: var(--primary); color: white; border: none;
+                    background: linear-gradient(135deg, #4318FF 0%, #8b5cf6 100%); 
+                    color: white; border: none;
                     border-radius: 50%; width: 28px; height: 28px;
-                    box-shadow: var(--shadow-sm); z-index: 10;
+                    box-shadow: 0 4px 12px rgba(67, 24, 255, 0.4); z-index: 10;
                 }
                 
                 .sidebar-profile {
                     display: flex;
                     align-items: center;
                     gap: 14px;
-                    padding: 16px 24px;
-                    margin: 0 0 24px 0;
-                    background: transparent;
+                    padding: 14px 18px;
+                    margin: 0 16px 24px 16px;
+                    background: rgba(255, 255, 255, 0.03);
+                    border-radius: 16px;
                     cursor: pointer;
-                    transition: background 0.2s;
+                    transition: all 0.3s ease;
                     text-decoration: none;
-                    border-bottom: 1px solid rgba(255,255,255,0.05);
+                    border: 1px solid rgba(255, 255, 255, 0.05);
                 }
                 .sidebar-profile:hover {
-                    background: rgba(255,255,255,0.02);
+                    background: rgba(255, 255, 255, 0.08);
+                    border-color: rgba(255, 255, 255, 0.12);
+                    transform: translateY(-2px);
+                    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
                 }
                 .sidebar.collapsed .sidebar-profile {
-                    padding: 16px 10px;
+                    padding: 14px 8px;
                     justify-content: center;
+                    border-radius: 12px;
                 }
 
                 .profile-avatar-wrapper {
@@ -330,41 +340,44 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                 }
 
                 .simple-avatar {
-                    width: 48px;
-                    height: 48px;
-                    border-radius: 50%;
-                    background: #EE5D50;
+                    width: 44px;
+                    height: 44px;
+                    border-radius: 14px;
+                    background: linear-gradient(135deg, #EE5D50 0%, #FF3D00 100%);
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     color: white;
                     flex-shrink: 0;
-                    border: 2px solid rgba(255,255,255,0.1);
+                    box-shadow: 0 4px 10px rgba(238, 93, 80, 0.3);
                 }
                 .sidebar.collapsed .simple-avatar {
                     width: 36px;
                     height: 36px;
+                    border-radius: 10px;
                 }
                 .simple-avatar-img { 
                     width: 100%; 
                     height: 100%; 
-                    border-radius: 50%; 
+                    border-radius: 14px; 
                     object-fit: cover; 
                 }
+                .sidebar.collapsed .simple-avatar-img { border-radius: 10px; }
                 .simple-avatar-initial { 
                     font-size: 16px; 
-                    font-weight: 700; 
+                    font-weight: 800; 
                 }
 
                 .online-indicator {
                     position: absolute;
-                    bottom: 2px;
-                    right: 2px;
-                    width: 10px;
-                    height: 10px;
-                    background-color: var(--success);
+                    bottom: -2px;
+                    right: -2px;
+                    width: 12px;
+                    height: 12px;
+                    background-color: #05CD99;
                     border-radius: 50%;
-                    border: 2px solid var(--bg-sidebar);
+                    border: 2px solid #0B1120;
+                    box-shadow: 0 0 6px rgba(5, 205, 153, 0.5);
                 }
 
                 .simple-details {
@@ -376,15 +389,16 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
                 }
                 .simple-name {
                     color: #ffffff;
-                    font-size: 16px;
+                    font-size: 15px;
                     font-weight: 700;
                     white-space: nowrap;
                     overflow: hidden;
                     text-overflow: ellipsis;
+                    letter-spacing: 0.2px;
                 }
                 .simple-role {
-                    color: var(--text-sidebar);
-                    font-size: 13px;
+                    color: rgba(255, 255, 255, 0.5);
+                    font-size: 12px;
                     font-weight: 500;
                     margin-top: 2px;
                     white-space: nowrap;
@@ -394,44 +408,52 @@ const Sidebar = ({ logout, isOpen, onClose }) => {
 
                 .sidebar-nav {
                     flex: 1; padding: 0 16px 16px; overflow-y: auto; overflow-x: hidden;
-                    display: flex; flex-direction: column; gap: 8px;
+                    display: flex; flex-direction: column; gap: 4px;
                 }
                 
                 .nav-item {
-                    display: flex; align-items: center; padding: 12px 16px; min-height: 44px;
-                    color: var(--text-sidebar); border-radius: var(--radius-sm); transition: all 0.2s ease;
+                    display: flex; align-items: center; padding: 12px 16px; min-height: 48px;
+                    color: rgba(255, 255, 255, 0.65); border-radius: 12px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                     text-decoration: none; font-weight: 600; font-size: 14px; border: none; background: transparent; width: 100%; text-align: left; cursor: pointer;
                 }
-                .sidebar.collapsed .nav-item { padding: 12px; justify-content: center; min-height: 44px; }
+                .sidebar.collapsed .nav-item { padding: 12px; justify-content: center; }
                 
-                .item-icon-wrapper { display: flex; align-items: center; margin-right: 16px; transition: color 0.2s ease; }
+                .item-icon-wrapper { display: flex; align-items: center; margin-right: 14px; transition: color 0.3s ease; }
                 .sidebar.collapsed .item-icon-wrapper { margin-right: 0; }
-                .item-name { flex: 1; overflow: hidden; text-overflow: ellipsis; }
+                .item-name { flex: 1; overflow: hidden; text-overflow: ellipsis; letter-spacing: 0.3px; }
                 
                 .sidebar-badge {
-                    background: var(--danger); color: white; font-size: 11px; font-weight: 700;
-                    padding: 2px 8px; border-radius: 12px; margin-left: auto;
+                    background: linear-gradient(135deg, #EE5D50 0%, #FF3D00 100%); 
+                    color: white; font-size: 11px; font-weight: 800;
+                    padding: 4px 8px; border-radius: 20px; margin-left: auto;
+                    box-shadow: 0 4px 10px rgba(238, 93, 80, 0.3);
                 }
                 .sidebar-badge-dot {
                     position: absolute; top: 10px; right: 10px; width: 8px; height: 8px;
-                    background: var(--danger); border-radius: 50%;
+                    background: #EE5D50; border-radius: 50%;
+                    box-shadow: 0 2px 6px rgba(238, 93, 80, 0.4);
                 }
                 
-                .nav-item:hover { background: rgba(255,255,255,0.05); color: var(--text-sidebar-hover); }
-                .nav-item:hover .item-icon-wrapper { color: var(--text-sidebar-hover); }
+                .nav-item:hover { 
+                    background: rgba(255,255,255,0.06); 
+                    color: #ffffff; 
+                    transform: translateX(4px);
+                }
+                .sidebar.collapsed .nav-item:hover { transform: translateY(-2px); }
+                .nav-item:hover .item-icon-wrapper { color: #ffffff; }
                 
                 .nav-item.active { 
-                    background: var(--primary); 
+                    background: linear-gradient(90deg, rgba(67, 24, 255, 0.8) 0%, rgba(139, 92, 246, 0.8) 100%);
                     color: #ffffff !important; 
                     font-weight: 700; 
-                    box-shadow: var(--shadow-md);
+                    box-shadow: 0 6px 16px rgba(67, 24, 255, 0.3);
                 }
                 .nav-item.active .item-icon-wrapper { color: #ffffff !important; }
-                .active-arrow { margin-left: auto; color: #ffffff; opacity: 0.8; }
+                .active-arrow { margin-left: auto; color: #ffffff; opacity: 0.9; }
                 
-                .logout-btn { color: var(--text-sidebar); margin-top: auto; }
-                .logout-btn:hover { color: #ffffff; background: rgba(238, 93, 80, 0.2); }
-                .logout-btn:hover .item-icon-wrapper { color: var(--danger); }
+                .logout-btn { color: rgba(255, 255, 255, 0.65); margin-top: auto; }
+                .logout-btn:hover { color: #ffffff; background: rgba(238, 93, 80, 0.15); box-shadow: none; }
+                .logout-btn:hover .item-icon-wrapper { color: #EE5D50; }
 
                 @media (max-width: 768px) {
                     .sidebar { transform: translateX(-100%); }

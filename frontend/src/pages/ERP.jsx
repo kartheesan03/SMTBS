@@ -503,78 +503,266 @@ const ERP = () => {
             </header>
 
             {/* KPI Cards Grid */}
+            {/* KPI Cards Grid */}
             <section className="erp-metrics-grid">
-                <div className="kpi-bento-card">
-                    <div className="kpi-header">
-                        <span className="kpi-label">Total Orders</span>
-                        <div className="kpi-icon-wrapper"><ShoppingCart size={16} /></div>
+                {/* 1. Total Orders (Blue) */}
+                <div className="kpi-gradient-card bg-blue">
+                    <div className="card-top-row">
+                        <div className="kpi-glass-icon"><ShoppingCart size={20} strokeWidth={2.5}/></div>
+                        <div className="kpi-top-right">
+                            <span className="kpi-trend-pill">▲ +12%</span>
+                            <span className="kpi-dots">•••</span>
+                        </div>
                     </div>
-                    <span className="kpi-value">{totalOrders}</span>
-                </div>
-                <div className="kpi-bento-card">
-                    <div className="kpi-header">
-                        <span className="kpi-label">Sales Orders</span>
-                        <div className="kpi-icon-wrapper text-success"><ArrowUpRight size={16} /></div>
+                    <div className="card-middle">
+                        <h2 className="kpi-val">{totalOrders}</h2>
+                        <span className="kpi-label-text">Total Orders</span>
                     </div>
-                    <span className="kpi-value">{salesOrders}</span>
-                </div>
-                <div className="kpi-bento-card">
-                    <div className="kpi-header">
-                        <span className="kpi-label">Purchase Orders</span>
-                        <div className="kpi-icon-wrapper text-info"><ArrowDownRight size={16} /></div>
+                    <div className="card-bottom-row">
+                        <svg className="kpi-mini-chart" viewBox="0 0 100 30" preserveAspectRatio="none">
+                            <path d="M0,25 C20,20 30,30 50,15 C65,5 80,25 100,5" stroke="rgba(255,255,255,0.5)" strokeWidth="2" fill="none" />
+                            <circle cx="100" cy="5" r="3" fill="white" />
+                        </svg>
+                        <div className="kpi-trend-footer">
+                            <span className="kpi-vs">VS LAST MO.</span>
+                            <span className="kpi-pct">+12%</span>
+                        </div>
                     </div>
-                    <span className="kpi-value">{purchaseOrders}</span>
-                </div>
-                <div className="kpi-bento-card cursor-pointer highlight-hover" onClick={() => { setShowInvoiceModal(true); setInvoiceTab('Pending'); }}>
-                    <div className="kpi-header">
-                        <span className="kpi-label">Pending Invoices</span>
-                        <div className="kpi-icon-wrapper text-warning"><AlertTriangle size={16} /></div>
-                    </div>
-                    <span className="kpi-value">{pendingInvoices}</span>
-                </div>
-                
-                <div className="kpi-bento-card span-2">
-                    <div className="kpi-header">
-                        <span className="kpi-label">Total Revenue</span>
-                        <div className="kpi-icon-wrapper text-success"><DollarSign size={16} /></div>
-                    </div>
-                    <span className="kpi-value">{formatCurrencyLocal(finalTotalRevenueNum)}</span>
-                </div>
-                <div className="kpi-bento-card span-2">
-                    <div className="kpi-header">
-                        <span className="kpi-label">Total Purchase Cost</span>
-                        <div className="kpi-icon-wrapper text-info"><DollarSign size={16} /></div>
-                    </div>
-                    <span className="kpi-value">{formatCurrencyLocal(totalPurchaseCostNum)}</span>
+                    <div className="kpi-deco-circle"></div>
                 </div>
 
-                <div className="kpi-bento-card">
-                    <div className="kpi-header">
-                        <span className="kpi-label">Due Today</span>
-                        <div className="kpi-icon-wrapper" style={{ color: '#8b5cf6' }}><Clock size={16} /></div>
+                {/* 2. Sales Orders (Green) */}
+                <div className="kpi-gradient-card bg-green">
+                    <div className="card-top-row">
+                        <div className="kpi-glass-icon"><ArrowUpRight size={20} strokeWidth={2.5}/></div>
+                        <div className="kpi-top-right">
+                            <span className="kpi-trend-pill">▲ +21%</span>
+                            <span className="kpi-dots">•••</span>
+                        </div>
                     </div>
-                    <span className="kpi-value">{dueTodayCount}</span>
+                    <div className="card-middle">
+                        <h2 className="kpi-val">{salesOrders}</h2>
+                        <span className="kpi-label-text">Sales Orders</span>
+                    </div>
+                    <div className="card-bottom-row">
+                        <svg className="kpi-mini-chart" viewBox="0 0 100 30" preserveAspectRatio="none">
+                            <path d="M0,25 C15,25 25,15 40,20 C60,25 70,10 100,5" stroke="rgba(255,255,255,0.5)" strokeWidth="2" fill="none" />
+                            <circle cx="100" cy="5" r="3" fill="white" />
+                        </svg>
+                        <div className="kpi-trend-footer">
+                            <span className="kpi-vs">VS LAST MO.</span>
+                            <span className="kpi-pct">+21%</span>
+                        </div>
+                    </div>
+                    <div className="kpi-deco-circle"></div>
                 </div>
-                <div className="kpi-bento-card">
-                    <div className="kpi-header">
-                        <span className="kpi-label">Due This Week</span>
-                        <div className="kpi-icon-wrapper text-info"><Calendar size={16} /></div>
+
+                {/* 3. Purchase Orders (Orange) */}
+                <div className="kpi-gradient-card bg-orange">
+                    <div className="card-top-row">
+                        <div className="kpi-glass-icon"><ArrowDownRight size={20} strokeWidth={2.5}/></div>
+                        <div className="kpi-top-right">
+                            <span className="kpi-trend-pill">▼ 8%</span>
+                            <span className="kpi-dots">•••</span>
+                        </div>
                     </div>
-                    <span className="kpi-value">{dueThisWeekCount}</span>
+                    <div className="card-middle">
+                        <h2 className="kpi-val">{purchaseOrders}</h2>
+                        <span className="kpi-label-text">Purchase Orders</span>
+                    </div>
+                    <div className="card-bottom-row">
+                        <svg className="kpi-mini-chart" viewBox="0 0 100 30" preserveAspectRatio="none">
+                            <path d="M0,5 C20,10 30,5 50,15 C70,25 80,20 100,28" stroke="rgba(255,255,255,0.5)" strokeWidth="2" fill="none" />
+                            <circle cx="100" cy="28" r="3" fill="white" />
+                        </svg>
+                        <div className="kpi-trend-footer">
+                            <span className="kpi-vs">VS LAST MO.</span>
+                            <span className="kpi-pct">-8%</span>
+                        </div>
+                    </div>
+                    <div className="kpi-deco-circle"></div>
                 </div>
-                <div className="kpi-bento-card alert-card">
-                    <div className="kpi-header">
-                        <span className="kpi-label text-danger">Overdue Orders</span>
-                        <div className="kpi-icon-wrapper text-danger"><AlertTriangle size={16} /></div>
+
+                {/* 4. Pending Invoices (Red) */}
+                <div className="kpi-gradient-card bg-red cursor-pointer highlight-hover" onClick={() => { setShowInvoiceModal(true); setInvoiceTab('Pending'); }}>
+                    <div className="card-top-row">
+                        <div className="kpi-glass-icon"><AlertTriangle size={20} strokeWidth={2.5}/></div>
+                        <div className="kpi-top-right">
+                            <span className="kpi-trend-pill">▼ 15%</span>
+                            <span className="kpi-dots">•••</span>
+                        </div>
                     </div>
-                    <span className="kpi-value text-danger">{overdueCount}</span>
+                    <div className="card-middle">
+                        <h2 className="kpi-val">{pendingInvoices}</h2>
+                        <span className="kpi-label-text">Pending Invoices</span>
+                    </div>
+                    <div className="card-bottom-row">
+                        <svg className="kpi-mini-chart" viewBox="0 0 100 30" preserveAspectRatio="none">
+                            <path d="M0,10 C20,15 30,15 50,25 C70,35 80,25 100,28" stroke="rgba(255,255,255,0.5)" strokeWidth="2" fill="none" />
+                            <circle cx="100" cy="28" r="3" fill="white" />
+                        </svg>
+                        <div className="kpi-trend-footer">
+                            <span className="kpi-vs">VS LAST MO.</span>
+                            <span className="kpi-pct">-15%</span>
+                        </div>
+                    </div>
+                    <div className="kpi-deco-circle"></div>
                 </div>
-                <div className="kpi-bento-card">
-                    <div className="kpi-header">
-                        <span className="kpi-label">Completed</span>
-                        <div className="kpi-icon-wrapper text-success"><CheckCircle size={16} /></div>
+
+                {/* 5. Total Revenue (Span 2, Blue) */}
+                <div className="kpi-gradient-card bg-blue span-2">
+                    <div className="card-top-row">
+                        <div className="kpi-glass-icon"><DollarSign size={20} strokeWidth={2.5}/></div>
+                        <div className="kpi-top-right">
+                            <span className="kpi-trend-pill">▲ +18%</span>
+                            <span className="kpi-dots">•••</span>
+                        </div>
                     </div>
-                    <span className="kpi-value">{completedDeliveriesCount}</span>
+                    <div className="card-middle">
+                        <h2 className="kpi-val">{formatCurrencyLocal(finalTotalRevenueNum)}</h2>
+                        <span className="kpi-label-text">Total Revenue</span>
+                    </div>
+                    <div className="card-bottom-row">
+                        <svg className="kpi-mini-chart" viewBox="0 0 100 30" preserveAspectRatio="none">
+                            <path d="M0,30 C30,20 50,25 70,10 C85,0 95,15 100,5" stroke="rgba(255,255,255,0.5)" strokeWidth="2" fill="none" />
+                            <circle cx="100" cy="5" r="3" fill="white" />
+                        </svg>
+                        <div className="kpi-trend-footer">
+                            <span className="kpi-vs">VS LAST MO.</span>
+                            <span className="kpi-pct">+18%</span>
+                        </div>
+                    </div>
+                    <div className="kpi-deco-circle"></div>
+                </div>
+
+                {/* 6. Total Purchase Cost (Span 2, Orange) */}
+                <div className="kpi-gradient-card bg-orange span-2">
+                    <div className="card-top-row">
+                        <div className="kpi-glass-icon"><DollarSign size={20} strokeWidth={2.5}/></div>
+                        <div className="kpi-top-right">
+                            <span className="kpi-trend-pill">▼ 4%</span>
+                            <span className="kpi-dots">•••</span>
+                        </div>
+                    </div>
+                    <div className="card-middle">
+                        <h2 className="kpi-val">{formatCurrencyLocal(totalPurchaseCostNum)}</h2>
+                        <span className="kpi-label-text">Total Purchase Cost</span>
+                    </div>
+                    <div className="card-bottom-row">
+                        <svg className="kpi-mini-chart" viewBox="0 0 100 30" preserveAspectRatio="none">
+                            <path d="M0,5 C30,15 50,5 70,20 C85,30 95,15 100,25" stroke="rgba(255,255,255,0.5)" strokeWidth="2" fill="none" />
+                            <circle cx="100" cy="25" r="3" fill="white" />
+                        </svg>
+                        <div className="kpi-trend-footer">
+                            <span className="kpi-vs">VS LAST MO.</span>
+                            <span className="kpi-pct">-4%</span>
+                        </div>
+                    </div>
+                    <div className="kpi-deco-circle"></div>
+                </div>
+
+                {/* 7. Due Today */}
+                <div className="kpi-gradient-card bg-green">
+                    <div className="card-top-row">
+                        <div className="kpi-glass-icon"><Clock size={20} strokeWidth={2.5}/></div>
+                        <div className="kpi-top-right">
+                            <span className="kpi-trend-pill">▲ +2%</span>
+                            <span className="kpi-dots">•••</span>
+                        </div>
+                    </div>
+                    <div className="card-middle">
+                        <h2 className="kpi-val">{dueTodayCount}</h2>
+                        <span className="kpi-label-text">Due Today</span>
+                    </div>
+                    <div className="card-bottom-row">
+                        <svg className="kpi-mini-chart" viewBox="0 0 100 30" preserveAspectRatio="none">
+                            <path d="M0,25 C20,25 30,15 50,20 C70,25 80,10 100,5" stroke="rgba(255,255,255,0.5)" strokeWidth="2" fill="none" />
+                            <circle cx="100" cy="5" r="3" fill="white" />
+                        </svg>
+                        <div className="kpi-trend-footer">
+                            <span className="kpi-vs">VS LAST MO.</span>
+                            <span className="kpi-pct">+2%</span>
+                        </div>
+                    </div>
+                    <div className="kpi-deco-circle"></div>
+                </div>
+
+                {/* 8. Due This Week */}
+                <div className="kpi-gradient-card bg-blue">
+                    <div className="card-top-row">
+                        <div className="kpi-glass-icon"><Calendar size={20} strokeWidth={2.5}/></div>
+                        <div className="kpi-top-right">
+                            <span className="kpi-trend-pill">▲ +5%</span>
+                            <span className="kpi-dots">•••</span>
+                        </div>
+                    </div>
+                    <div className="card-middle">
+                        <h2 className="kpi-val">{dueThisWeekCount}</h2>
+                        <span className="kpi-label-text">Due This Week</span>
+                    </div>
+                    <div className="card-bottom-row">
+                        <svg className="kpi-mini-chart" viewBox="0 0 100 30" preserveAspectRatio="none">
+                            <path d="M0,20 C20,15 30,25 50,15 C70,5 80,15 100,5" stroke="rgba(255,255,255,0.5)" strokeWidth="2" fill="none" />
+                            <circle cx="100" cy="5" r="3" fill="white" />
+                        </svg>
+                        <div className="kpi-trend-footer">
+                            <span className="kpi-vs">VS LAST MO.</span>
+                            <span className="kpi-pct">+5%</span>
+                        </div>
+                    </div>
+                    <div className="kpi-deco-circle"></div>
+                </div>
+
+                {/* 9. Overdue Orders */}
+                <div className="kpi-gradient-card bg-red">
+                    <div className="card-top-row">
+                        <div className="kpi-glass-icon"><AlertTriangle size={20} strokeWidth={2.5}/></div>
+                        <div className="kpi-top-right">
+                            <span className="kpi-trend-pill">▲ +8%</span>
+                            <span className="kpi-dots">•••</span>
+                        </div>
+                    </div>
+                    <div className="card-middle">
+                        <h2 className="kpi-val">{overdueCount}</h2>
+                        <span className="kpi-label-text">Overdue Orders</span>
+                    </div>
+                    <div className="card-bottom-row">
+                        <svg className="kpi-mini-chart" viewBox="0 0 100 30" preserveAspectRatio="none">
+                            <path d="M0,25 C20,20 30,30 50,15 C70,0 80,20 100,5" stroke="rgba(255,255,255,0.5)" strokeWidth="2" fill="none" />
+                            <circle cx="100" cy="5" r="3" fill="white" />
+                        </svg>
+                        <div className="kpi-trend-footer">
+                            <span className="kpi-vs">VS LAST MO.</span>
+                            <span className="kpi-pct">+8%</span>
+                        </div>
+                    </div>
+                    <div className="kpi-deco-circle"></div>
+                </div>
+
+                {/* 10. Completed */}
+                <div className="kpi-gradient-card bg-green">
+                    <div className="card-top-row">
+                        <div className="kpi-glass-icon"><CheckCircle size={20} strokeWidth={2.5}/></div>
+                        <div className="kpi-top-right">
+                            <span className="kpi-trend-pill">▲ +14%</span>
+                            <span className="kpi-dots">•••</span>
+                        </div>
+                    </div>
+                    <div className="card-middle">
+                        <h2 className="kpi-val">{completedDeliveriesCount}</h2>
+                        <span className="kpi-label-text">Completed</span>
+                    </div>
+                    <div className="card-bottom-row">
+                        <svg className="kpi-mini-chart" viewBox="0 0 100 30" preserveAspectRatio="none">
+                            <path d="M0,25 C20,20 30,30 50,15 C65,5 80,25 100,5" stroke="rgba(255,255,255,0.5)" strokeWidth="2" fill="none" />
+                            <circle cx="100" cy="5" r="3" fill="white" />
+                        </svg>
+                        <div className="kpi-trend-footer">
+                            <span className="kpi-vs">VS LAST MO.</span>
+                            <span className="kpi-pct">+14%</span>
+                        </div>
+                    </div>
+                    <div className="kpi-deco-circle"></div>
                 </div>
             </section>
 
@@ -1240,56 +1428,136 @@ const ERP = () => {
                     .erp-metrics-grid { grid-template-columns: 1fr; }
                 }
 
-                .kpi-bento-card {
-                    background: var(--bg-surface);
-                    border: 1px solid var(--border-subtle);
-                    border-radius: var(--radius-md);
-                    padding: 20px;
+                .kpi-gradient-card {
+                    border-radius: var(--radius-xl);
+                    padding: 24px;
                     display: flex;
                     flex-direction: column;
-                    gap: 12px;
-                    box-shadow: var(--shadow-sm);
-                    transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+                    justify-content: space-between;
+                    box-shadow: var(--shadow-lg);
+                    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s;
+                    position: relative;
+                    overflow: hidden;
+                    min-height: 180px;
+                    color: white;
                 }
-                .kpi-bento-card.span-2 {
-                    grid-column: span 2;
+                .kpi-gradient-card:hover {
+                    transform: translateY(-4px);
+                    box-shadow: 0 20px 40px -10px rgba(0,0,0,0.2);
                 }
+                .kpi-gradient-card.span-2 { grid-column: span 2; }
                 
-                .kpi-bento-card.highlight-hover:hover {
-                    box-shadow: var(--shadow-md);
-                    border-color: var(--border-strong);
-                    transform: translateY(-2px);
-                }
+                /* Gradient Backgrounds */
+                .bg-blue { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
+                .bg-green { background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); }
+                .bg-orange { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+                .bg-red { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
                 
-                .kpi-bento-card.alert-card {
-                    background: var(--danger-bg);
-                    border-color: rgba(255,0,0,0.1);
+                /* Glassmorphic Decor */
+                .kpi-deco-circle {
+                    position: absolute;
+                    top: -40px;
+                    right: -40px;
+                    width: 150px;
+                    height: 150px;
+                    background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 70%);
+                    border-radius: 50%;
+                    pointer-events: none;
                 }
-                
-                .kpi-header {
+
+                .card-top-row {
                     display: flex;
                     justify-content: space-between;
-                    align-items: center;
+                    align-items: flex-start;
+                    position: relative;
+                    z-index: 2;
                 }
-                
-                .kpi-label {
-                    font-size: 13.5px;
-                    font-weight: 500;
-                    color: var(--text-muted);
-                }
-                
-                .kpi-icon-wrapper {
+                .kpi-glass-icon {
+                    background: rgba(255, 255, 255, 0.2);
+                    backdrop-filter: blur(8px);
+                    -webkit-backdrop-filter: blur(8px);
+                    padding: 12px;
+                    border-radius: 14px;
+                    border: 1px solid rgba(255, 255, 255, 0.3);
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    width: 32px;
-                    height: 32px;
-                    border-radius: 8px;
-                    background: var(--bg-hover);
-                    color: var(--text-main);
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                }
+                .kpi-top-right {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                }
+                .kpi-trend-pill {
+                    background: rgba(255, 255, 255, 0.25);
+                    backdrop-filter: blur(4px);
+                    padding: 4px 10px;
+                    border-radius: 20px;
+                    font-size: 11.5px;
+                    font-weight: 700;
+                    letter-spacing: 0.5px;
+                }
+                .kpi-dots {
+                    font-size: 16px;
+                    letter-spacing: 2px;
+                    opacity: 0.8;
+                    cursor: pointer;
                 }
                 
-                .kpi-icon-wrapper.text-success { color: var(--success); background: var(--success-bg); }
+                .card-middle {
+                    margin-top: 16px;
+                    margin-bottom: 24px;
+                    position: relative;
+                    z-index: 2;
+                }
+                .kpi-val {
+                    font-size: 36px;
+                    font-weight: 800;
+                    margin: 0;
+                    line-height: 1.1;
+                    letter-spacing: -0.5px;
+                }
+                .kpi-label-text {
+                    font-size: 14px;
+                    font-weight: 600;
+                    opacity: 0.9;
+                    display: block;
+                    margin-top: 4px;
+                }
+
+                .card-bottom-row {
+                    display: flex;
+                    align-items: flex-end;
+                    justify-content: space-between;
+                    position: relative;
+                    z-index: 2;
+                    margin-top: auto;
+                    border-top: 1px solid rgba(255, 255, 255, 0.15);
+                    padding-top: 12px;
+                }
+                .kpi-mini-chart {
+                    height: 30px;
+                    width: 90px;
+                    overflow: visible;
+                }
+                .kpi-trend-footer {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: flex-end;
+                }
+                .kpi-vs {
+                    font-size: 9.5px;
+                    font-weight: 700;
+                    opacity: 0.8;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                }
+                .kpi-pct {
+                    font-size: 14px;
+                    font-weight: 800;
+                }
+                
                 .kpi-icon-wrapper.text-info { color: var(--info); background: var(--info-bg); }
                 .kpi-icon-wrapper.text-warning { color: var(--warning); background: var(--warning-bg); }
                 .kpi-icon-wrapper.text-danger { color: var(--danger); background: transparent; }
@@ -2068,6 +2336,7 @@ const ERP = () => {
                     .erp-metrics-grid {
                         grid-template-columns: 1fr;
                     }
+                    .kpi-gradient-card.span-2 { grid-column: span 1; }
                     .modal-actions { flex-direction: column; }
                     .modal-actions button { width: 100%; justify-content: center; }
                 }

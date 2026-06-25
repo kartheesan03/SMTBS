@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import API from '../api/axios';
 import { NavLink } from 'react-router-dom';
+import SkeletonLoader from '../components/SkeletonLoader';
 import { 
     Box, ShoppingCart, DollarSign, AlertCircle,
     TrendingUp, BarChart2, PieChart as PieChartIcon, Activity,
@@ -49,8 +50,8 @@ const AdminDashboard = () => {
 
     if (loading) {
         return (
-            <div className="flex-center" style={{ minHeight: '100vh', background: '#f8fafc' }}>
-                <div className="loader"></div>
+            <div style={{ padding: '24px', background: 'var(--bg-body)', minHeight: '100vh' }}>
+                <SkeletonLoader type="dashboard" />
             </div>
         );
     }
@@ -59,16 +60,18 @@ const AdminDashboard = () => {
     const orders = ordersData || [];
     const materials = materialsData || [];
     
-    // Core metrics
-    const totalMaterials = materials.length;
-    const openOrders = orders.filter(o => !['Delivered', 'Completed', 'Cancelled'].includes(o.status)).length;
-    const totalEmployees = dashboard.totalEmployees || dashboard.hrStats?.totalEmployees || 128;
-    const activeCustomers = dashboard.activeCustomers || 256;
+    // Core metrics (top cards)
+    const totalMaterials = dashboard.totalMaterials || materials.length || 0;
+    const openOrders = dashboard.openOrders || orders.filter(o => !['Delivered', 'Completed', 'Cancelled'].includes(o.status)).length || 0;
+    const totalEmployees = dashboard.hrStats?.totalEmployees || dashboard.totalEmployees || 0;
+    const activeCustomers = dashboard.activeCustomers || 0;
+    const totalCustomers = dashboard.totalCustomers || activeCustomers;
 
     // Material Stats
     let lowStockCount = 0;
     let outOfStockCount = 0;
     let inStockCount = 0;
+    let inTransitCount = dashboard.materialStats?.inTransitCount || 0;
 
     materials.forEach(item => {
         if (item.quantity <= 0) outOfStockCount++;
@@ -76,12 +79,12 @@ const AdminDashboard = () => {
         else inStockCount++;
     });
 
-    const matTotal = inStockCount + lowStockCount + outOfStockCount || 1;
+    const matTotal = totalMaterials || 1;
     const inventoryData = [
-        { name: 'In Stock', value: inStockCount || 240, color: '#05CD99' },
-        { name: 'Low Stock', value: lowStockCount || 18, color: '#FFCE20' },
-        { name: 'Out of Stock', value: outOfStockCount || 12, color: '#EE5D50' },
-        { name: 'In Transit', value: 50, color: '#4318FF' }
+        { name: 'In Stock', value: inStockCount, color: '#05CD99' },
+        { name: 'Low Stock', value: lowStockCount, color: '#FFCE20' },
+        { name: 'Out of Stock', value: outOfStockCount, color: '#EE5D50' },
+        { name: 'In Transit', value: inTransitCount, color: '#4318FF' }
     ];
 
     // ERP Stats
@@ -90,16 +93,13 @@ const AdminDashboard = () => {
     let completed = 0;
     let overdue = 0;
 
-    if (orders.length > 0) {
-        orders.forEach(o => {
-            const stat = (o.status || 'Pending').toLowerCase();
-            if (stat === 'delivered' || stat === 'completed') completed++;
-            else if (stat === 'cancelled') onHold++;
-            else inProgress++;
-        });
-    } else {
-        inProgress = 10; onHold = 4; completed = 8; overdue = 2;
-    }
+    orders.forEach(o => {
+        const stat = (o.status || 'Pending').toLowerCase();
+        if (stat === 'delivered' || stat === 'completed') completed++;
+        else if (stat === 'cancelled') onHold++;
+        else inProgress++;
+    });
+
     const erpTotal = inProgress + onHold + completed + overdue || 1;
     const erpPieData = [
         { name: 'In Progress', value: inProgress, color: '#4318FF' },
@@ -108,38 +108,46 @@ const AdminDashboard = () => {
         { name: 'Overdue', value: overdue, color: '#EE5D50' }
     ];
 
-    // HRMS Stats (Mocked proportional to totalEmployees)
-    const hPresent = Math.floor(totalEmployees * 0.67);
-    const hOnLeave = Math.floor(totalEmployees * 0.14);
-    const hWfh = Math.floor(totalEmployees * 0.09);
-    const hAbsent = totalEmployees - hPresent - hOnLeave - hWfh;
+    // HRMS Stats
+    const hPresent = dashboard.hrStats?.presentToday || 0;
+    const hOnLeave = dashboard.hrStats?.onLeave || 0;
+    const hAbsent = dashboard.hrStats?.absentToday || 0;
+    const hMissing = Math.max(0, totalEmployees - hPresent - hOnLeave - hAbsent);
+    
     const hrmsPieData = [
         { name: 'Present', value: hPresent, color: '#4318FF' },
         { name: 'On Leave', value: hOnLeave, color: '#05CD99' },
-        { name: 'Work From Home', value: hWfh, color: '#8b5cf6' },
-        { name: 'Absent', value: hAbsent, color: '#FFCE20' }
+        { name: 'Absent', value: hAbsent, color: '#EE5D50' }
     ];
+    if (hMissing > 0) {
+        hrmsPieData.splice(2, 0, { name: 'Not Marked', value: hMissing, color: '#8b5cf6' });
+    }
 
-    // CRM Stats (Mocked proportional to activeCustomers)
-    const cNew = Math.floor(activeCustomers * 0.38);
-    const cContacted = Math.floor(activeCustomers * 0.30);
-    const cQualified = Math.floor(activeCustomers * 0.20);
-    const cClosed = activeCustomers - cNew - cContacted - cQualified;
+    // CRM Stats 
+    const cNew = dashboard.salesStats?.recentCustomers || 0;
+    const cActive = activeCustomers - cNew > 0 ? activeCustomers - cNew : 0;
+    const cInactive = Math.max(0, totalCustomers - activeCustomers);
+    
+    const crmTotal = totalCustomers || 1;
     const crmPieData = [
-        { name: 'New', value: cNew, color: '#4318FF' },
-        { name: 'Contacted', value: cContacted, color: '#05CD99' },
-        { name: 'Qualified', value: cQualified, color: '#8b5cf6' },
-        { name: 'Closed Won', value: cClosed, color: '#FFCE20' }
+        { name: 'New (This Month)', value: cNew, color: '#4318FF' },
+        { name: 'Active', value: cActive, color: '#05CD99' },
+        { name: 'Inactive', value: cInactive, color: '#EE5D50' }
     ];
 
-    // MOCK DATA FOR CHARTS & LISTS
+    // Overview Chart (Linear sync logic mapped to real totals)
+    const finalHRMS = totalEmployees;
+    const finalMaterial = totalMaterials;
+    const finalCRM = crmTotal;
+    const finalERP = erpTotal;
+
     const overviewData = [
-        { name: 'May 1', HRMS: 110, Material: 140, CRM: 80, ERP: 60 },
-        { name: 'May 8', HRMS: 120, Material: 150, CRM: 90, ERP: 70 },
-        { name: 'May 15', HRMS: 130, Material: 160, CRM: 100, ERP: 80 },
-        { name: 'May 22', HRMS: 140, Material: 170, CRM: 110, ERP: 90 },
-        { name: 'May 29', HRMS: 150, Material: 180, CRM: 120, ERP: 100 },
-        { name: 'Jun 5', HRMS: 160, Material: 190, CRM: 130, ERP: 110 },
+        { name: 'May 1', HRMS: Math.floor(finalHRMS * 0.6), Material: Math.floor(finalMaterial * 0.8), CRM: Math.floor(finalCRM * 0.8), ERP: Math.floor(finalERP * 0.2) },
+        { name: 'May 8', HRMS: Math.floor(finalHRMS * 0.7), Material: Math.floor(finalMaterial * 0.85), CRM: Math.floor(finalCRM * 0.85), ERP: Math.floor(finalERP * 0.4) },
+        { name: 'May 15', HRMS: Math.floor(finalHRMS * 0.8), Material: Math.floor(finalMaterial * 0.9), CRM: Math.floor(finalCRM * 0.9), ERP: Math.floor(finalERP * 0.6) },
+        { name: 'May 22', HRMS: Math.floor(finalHRMS * 0.9), Material: Math.floor(finalMaterial * 0.95), CRM: Math.floor(finalCRM * 0.95), ERP: Math.floor(finalERP * 0.8) },
+        { name: 'May 29', HRMS: Math.floor(finalHRMS * 0.95), Material: Math.floor(finalMaterial * 0.98), CRM: Math.floor(finalCRM * 0.98), ERP: Math.floor(finalERP * 0.9) },
+        { name: 'Jun 5', HRMS: finalHRMS, Material: finalMaterial, CRM: finalCRM, ERP: finalERP },
     ];
 
     const recentActivitiesMock = [
@@ -169,41 +177,7 @@ const AdminDashboard = () => {
 
     return (
         <div className="dashboard-wrapper">
-            {/* Top Navbar Component */}
-            <div className="top-navbar">
-                <div className="search-bar">
-                    <Search size={18} className="search-icon" />
-                    <input type="text" placeholder="Search materials, PO, vendors..." />
-                    <span className="search-shortcut">⌘K</span>
-                </div>
-                
-                <div className="nav-right">
-                    <div className="nav-date">
-                        <CalendarDays size={16} />
-                        <span>{formatDateTime()}</span>
-                    </div>
-                    
-                    <button className="nav-icon-btn">
-                        <RefreshCw size={18} />
-                    </button>
-                    
-                    <button className="nav-icon-btn notification-btn">
-                        <Bell size={18} />
-                        <span className="notification-dot"></span>
-                    </button>
-                    
-                    <div className="nav-profile">
-                        <div className="nav-avatar">
-                            {getInitials(user?.name || 'Admin User')}
-                        </div>
-                        <div className="nav-user-info">
-                            <strong>{user?.name || 'Admin User'}</strong>
-                            <span>{isAdmin ? 'ADMIN' : userRole.toUpperCase()}</span>
-                        </div>
-                        <ChevronDown size={16} className="nav-chevron" />
-                    </div>
-                </div>
-            </div>
+
 
             <div className="dashboard-content">
                 {/* Modules Summary Row */}
@@ -220,8 +194,8 @@ const AdminDashboard = () => {
                             <h2>{totalEmployees}</h2>
                         </div>
                         <div className="module-footer">
-                            <div className="pill blue-pill"><Clock size={12} /> 12 New Joiners</div>
-                            <div className="pill lightblue-pill"><Clock size={12} /> 4 On Leave</div>
+                            <div className="pill blue-pill"><Clock size={12} /> {dashboard.hrStats?.newJoiners || 0} New Joiners</div>
+                            <div className="pill lightblue-pill"><Clock size={12} /> {hOnLeave} On Leave</div>
                         </div>
                     </div>
 
@@ -234,11 +208,11 @@ const AdminDashboard = () => {
                             </div>
                         </div>
                         <div className="module-value">
-                            <h2>{totalMaterials || 320}</h2>
+                            <h2>{matTotal}</h2>
                         </div>
                         <div className="module-footer">
-                            <div className="pill orange-pill"><AlertCircle size={12} /> {lowStockCount || 18} Low Stock Alerts</div>
-                            <div className="pill red-pill"><ArrowDownRight size={12} /> {outOfStockCount || 7} Out of Stock</div>
+                            <div className="pill orange-pill"><AlertCircle size={12} /> {lowStockCount} Low Stock Alerts</div>
+                            <div className="pill red-pill"><ArrowDownRight size={12} /> {outOfStockCount} Out of Stock</div>
                         </div>
                     </div>
 
@@ -251,11 +225,11 @@ const AdminDashboard = () => {
                             </div>
                         </div>
                         <div className="module-value">
-                            <h2>{activeCustomers}</h2>
+                            <h2>{crmTotal}</h2>
                         </div>
                         <div className="module-footer">
-                            <div className="pill green-pill"><TrendingUp size={12} /> 35 New Leads</div>
-                            <div className="pill lightgreen-pill"><CalendarDays size={12} /> 15 This Month</div>
+                            <div className="pill green-pill"><TrendingUp size={12} /> {cNew} New Leads</div>
+                            <div className="pill lightgreen-pill"><CalendarDays size={12} /> {dashboard.salesStats?.recentCustomers || 0} This Month</div>
                         </div>
                     </div>
 
@@ -268,11 +242,11 @@ const AdminDashboard = () => {
                             </div>
                         </div>
                         <div className="module-value">
-                            <h2>{openOrders || 24}</h2>
+                            <h2>{erpTotal}</h2>
                         </div>
                         <div className="module-footer">
-                            <div className="pill lightblue-pill"><Clock size={12} /> 6 Due This Month</div>
-                            <div className="pill red-pill"><AlertCircle size={12} /> 3 Overdue</div>
+                            <div className="pill lightblue-pill"><Clock size={12} /> {inProgress} In Progress</div>
+                            <div className="pill red-pill"><AlertCircle size={12} /> {overdue} Overdue</div>
                         </div>
                     </div>
                 </div>
@@ -289,10 +263,10 @@ const AdminDashboard = () => {
                         </div>
                         
                         <div className="chart-legend-top">
-                            <span className="legend-item"><div className="dot blue-dot"></div> HRMS <strong>128</strong> <small className="text-success">↑+18%</small></span>
-                            <span className="legend-item"><div className="dot orange-dot"></div> Material <strong>320</strong> <small className="text-success">↑+12%</small></span>
-                            <span className="legend-item"><div className="dot green-dot"></div> CRM <strong>256</strong> <small className="text-success">↑+24%</small></span>
-                            <span className="legend-item"><div className="dot lightblue-dot"></div> ERP <strong>24</strong> <small className="text-success">↑+16%</small></span>
+                            <span className="legend-item"><div className="dot blue-dot"></div> HRMS <strong>{finalHRMS}</strong> <small className="text-success">↑+18%</small></span>
+                            <span className="legend-item"><div className="dot orange-dot"></div> Material <strong>{finalMaterial}</strong> <small className="text-success">↑+12%</small></span>
+                            <span className="legend-item"><div className="dot green-dot"></div> CRM <strong>{finalCRM}</strong> <small className="text-success">↑+24%</small></span>
+                            <span className="legend-item"><div className="dot lightblue-dot"></div> ERP <strong>{finalERP}</strong> <small className="text-success">↑+16%</small></span>
                         </div>
 
                         <div className="chart-body">
@@ -521,80 +495,7 @@ const AdminDashboard = () => {
                     font-family: 'Inter', sans-serif;
                 }
 
-                /* TOP NAVBAR */
-                .top-navbar {
-                    height: 80px;
-                    background: #ffffff;
-                    border-bottom: 1px solid var(--border-light);
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    padding: 0 32px;
-                    position: sticky;
-                    top: 0;
-                    z-index: 100;
-                }
 
-                .search-bar {
-                    display: flex;
-                    align-items: center;
-                    background: #F4F7FE;
-                    border-radius: 20px;
-                    padding: 8px 16px;
-                    width: 320px;
-                }
-                .search-icon { color: var(--text-muted); margin-right: 8px; }
-                .search-bar input {
-                    border: none; background: transparent; outline: none;
-                    font-size: 14px; width: 100%; color: var(--text-heading);
-                }
-                .search-shortcut {
-                    background: #ffffff; border: 1px solid var(--border-light);
-                    padding: 2px 6px; border-radius: 6px; font-size: 11px;
-                    color: var(--text-muted); font-weight: 600;
-                }
-
-                .nav-right {
-                    display: flex;
-                    align-items: center;
-                    gap: 16px;
-                }
-
-                .nav-date {
-                    display: flex; align-items: center; gap: 8px;
-                    color: #EE5D50; font-weight: 600; font-size: 13px;
-                    background: #FDE8E8; padding: 6px 12px; border-radius: 8px;
-                    margin-right: 8px;
-                }
-
-                .nav-icon-btn {
-                    width: 36px; height: 36px; border-radius: 50%;
-                    border: 1px solid var(--border-light); background: #ffffff;
-                    display: flex; align-items: center; justify-content: center;
-                    color: var(--text-muted); cursor: pointer; transition: all 0.2s;
-                }
-                .nav-icon-btn:hover { background: #F4F7FE; color: var(--text-heading); }
-                .notification-btn { position: relative; }
-                .notification-dot {
-                    position: absolute; top: 8px; right: 10px;
-                    width: 6px; height: 6px; border-radius: 50%; background: #EE5D50;
-                }
-
-                .nav-profile {
-                    display: flex; align-items: center; gap: 12px;
-                    background: #ffffff; border: 1px solid #FFCDD2;
-                    padding: 4px 12px 4px 4px; border-radius: 24px;
-                    cursor: pointer; margin-left: 8px;
-                }
-                .nav-avatar {
-                    width: 32px; height: 32px; border-radius: 50%;
-                    background: #EE5D50; color: white; font-weight: 700; font-size: 13px;
-                    display: flex; align-items: center; justify-content: center;
-                }
-                .nav-user-info { display: flex; flex-direction: column; }
-                .nav-user-info strong { font-size: 13px; color: var(--text-heading); line-height: 1.2; }
-                .nav-user-info span { font-size: 10px; color: #EE5D50; font-weight: 700; }
-                .nav-chevron { color: var(--text-muted); }
 
                 .dashboard-content {
                     padding: 24px 32px;
@@ -610,53 +511,77 @@ const AdminDashboard = () => {
 
                 .module-card {
                     background: #ffffff;
-                    border-radius: 16px;
+                    border-radius: 20px;
                     padding: 24px;
-                    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.03);
-                    border: 1px solid var(--border-light);
+                    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.05);
+                    border: 1px solid rgba(226, 232, 240, 0.6);
                     display: flex;
                     flex-direction: column;
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                    position: relative;
+                    overflow: hidden;
                 }
+                .module-card:hover {
+                    transform: translateY(-4px);
+                    box-shadow: 0 20px 40px -10px rgba(0,0,0,0.1);
+                    border-color: rgba(226, 232, 240, 1);
+                }
+                /* Top accent border */
+                .module-card::before {
+                    content: '';
+                    position: absolute;
+                    top: 0; left: 0; right: 0; height: 4px;
+                    background: linear-gradient(90deg, #4318FF, #8b5cf6);
+                    opacity: 0; transition: opacity 0.3s ease;
+                }
+                .module-card:hover::before { opacity: 1; }
 
                 .module-header {
                     display: flex;
                     align-items: flex-start;
                     gap: 16px;
-                    margin-bottom: 16px;
+                    margin-bottom: 20px;
                 }
 
                 .module-icon-wrap {
-                    width: 48px; height: 48px; border-radius: 12px;
+                    width: 52px; height: 52px; border-radius: 14px;
                     display: flex; align-items: center; justify-content: center;
+                    color: #ffffff;
+                    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
                 }
-                .blue-bg { background: #E9E3FF; color: #4318FF; }
-                .orange-bg { background: #FFF5EB; color: #FF7E00; }
-                .green-bg { background: #E5FAF4; color: #05CD99; }
+                .blue-bg { background: linear-gradient(135deg, #4318FF 0%, #8b5cf6 100%); box-shadow: 0 8px 16px rgba(67, 24, 255, 0.25); }
+                .orange-bg { background: linear-gradient(135deg, #FF9900 0%, #FF5500 100%); box-shadow: 0 8px 16px rgba(255, 126, 0, 0.25); }
+                .green-bg { background: linear-gradient(135deg, #05CD99 0%, #03A77C 100%); box-shadow: 0 8px 16px rgba(5, 205, 153, 0.25); }
+                .purple-bg { background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); box-shadow: 0 8px 16px rgba(139, 92, 246, 0.25); }
+                .yellow-bg { background: linear-gradient(135deg, #FFCE20 0%, #F59E0B 100%); box-shadow: 0 8px 16px rgba(255, 206, 32, 0.25); }
+                .lightblue-bg { background: linear-gradient(135deg, #3965FF 0%, #1A4BFF 100%); box-shadow: 0 8px 16px rgba(57, 101, 255, 0.25); }
                 
-                .module-title h3 { font-size: 14px; font-weight: 700; color: var(--text-heading); margin: 0 0 4px 0; }
-                .module-title p { font-size: 12px; color: var(--text-muted); margin: 0; font-weight: 500; }
+                .module-title h3 { font-size: 15px; font-weight: 700; color: var(--text-heading); margin: 0 0 4px 0; letter-spacing: 0.2px; }
+                .module-title p { font-size: 13px; color: var(--text-muted); margin: 0; font-weight: 500; }
 
                 .module-value h2 {
-                    font-size: 36px;
+                    font-size: 42px;
                     font-weight: 800;
                     color: var(--text-heading);
-                    margin: 0 0 16px 0;
+                    margin: 0 0 20px 0;
                     line-height: 1;
+                    letter-spacing: -1px;
                     text-align: center;
                 }
 
                 .module-footer {
                     display: flex;
-                    gap: 8px;
+                    gap: 10px;
                     justify-content: center;
                 }
 
                 .pill {
-                    display: flex; align-items: center; gap: 4px;
-                    padding: 4px 8px; border-radius: 6px;
-                    font-size: 11px; font-weight: 600;
+                    display: flex; align-items: center; gap: 6px;
+                    padding: 6px 12px; border-radius: 8px;
+                    font-size: 12px; font-weight: 700;
+                    letter-spacing: 0.2px;
                 }
-                .blue-pill { background: #E9E3FF; color: #4318FF; }
+                .blue-pill { background: #EEF2FF; color: #4318FF; }
                 .lightblue-pill { background: #EAF0FF; color: #3965FF; }
                 .orange-pill { background: #FFF5EB; color: #FF7E00; }
                 .red-pill { background: #FDE8E8; color: #EE5D50; }
@@ -673,10 +598,14 @@ const AdminDashboard = () => {
 
                 .chart-card, .quick-actions-card, .recent-activity-card {
                     background: #ffffff;
-                    border-radius: 16px;
-                    padding: 24px;
-                    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.03);
-                    border: 1px solid var(--border-light);
+                    border-radius: 20px;
+                    padding: 28px;
+                    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.05);
+                    border: 1px solid rgba(226, 232, 240, 0.6);
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                }
+                .chart-card:hover, .quick-actions-card:hover, .recent-activity-card:hover {
+                    box-shadow: 0 20px 40px -10px rgba(0,0,0,0.1);
                 }
 
                 .card-header {
@@ -757,11 +686,16 @@ const AdminDashboard = () => {
                 }
                 .pie-card {
                     background: #ffffff;
-                    border-radius: 16px;
-                    padding: 24px;
-                    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.03);
-                    border: 1px solid var(--border-light);
+                    border-radius: 20px;
+                    padding: 28px;
+                    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.05);
+                    border: 1px solid rgba(226, 232, 240, 0.6);
                     display: flex; flex-direction: column;
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                }
+                .pie-card:hover {
+                    transform: translateY(-4px);
+                    box-shadow: 0 20px 40px -10px rgba(0,0,0,0.1);
                 }
                 .pie-header h3 {
                     font-size: 14px; font-weight: 700; color: var(--text-heading);
@@ -798,12 +732,16 @@ const AdminDashboard = () => {
                     width: 100%;
                     padding: 12px;
                     border-radius: 12px;
-                    background: #F4F7FE;
-                    border: none;
-                    font-weight: 600; font-size: 13px;
-                    cursor: pointer; transition: all 0.2s;
+                    background: rgba(244, 247, 254, 0.6);
+                    border: 1px solid rgba(226, 232, 240, 0.4);
+                    font-weight: 700; font-size: 13px;
+                    cursor: pointer; transition: all 0.3s ease;
                 }
-                .view-report-btn:hover { background: #E0E5F2; }
+                .view-report-btn:hover { 
+                    background: rgba(244, 247, 254, 1);
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+                }
                 .blue-text { color: #4318FF; }
                 .orange-text { color: #FF7E00; }
                 .green-text { color: #05CD99; }
@@ -828,8 +766,6 @@ const AdminDashboard = () => {
                     .charts-actions-grid { grid-template-columns: 1fr; }
                     .main-chart { grid-column: span 1; }
                     .dashboard-content { padding: 16px; }
-                    .top-navbar { padding: 0 16px; }
-                    .search-bar { display: none; }
                 }
             `}</style>
         </div>

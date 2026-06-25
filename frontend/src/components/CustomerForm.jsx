@@ -191,19 +191,7 @@ const CustomerForm = ({
                 
                 .form-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 12px; padding-top: 24px; border-top: 1px solid var(--border-subtle); }
                 
-                /* Reuse global buttons */
-                .btn-cancel {
-                    display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 8px 16px; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s;
-                    background-color: transparent; color: var(--secondary-hover); border: 1px solid var(--border-light);
-                }
-                .btn-cancel:hover { background-color: var(--bg-hover); color: var(--text-heading); }
-                
-                .btn-primary {
-                    display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 8px 16px; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s;
-                    background-color: var(--primary); color: white; border: 1px solid var(--primary); box-shadow: 0 1px 2px rgba(37, 99, 235, 0.2);
-                }
-                .btn-primary:hover:not(:disabled) { background-color: var(--primary-hover); border-color: var(--primary-hover); }
-                .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+                /* Global buttons are handled by index.css */
 
                 @media (max-width: 768px) {
                     .form-grid { grid-template-columns: 1fr; }
