@@ -10,6 +10,7 @@ import {
     BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
     XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend
 } from 'recharts';
+import AttendanceWidget from '../components/Dashboard/AttendanceWidget';
 
 const ManagerDashboard = () => {
     const [dashboardData, setDashboardData] = useState(null);
@@ -163,6 +164,10 @@ const ManagerDashboard = () => {
                             <div className="stat-desc">Tasks Completed</div>
                         </div>
                     </div>
+                </div>
+
+                <div style={{ marginTop: '24px' }}>
+                    <AttendanceWidget />
                 </div>
 
                 <div style={{ flex: '0 0 320px', display: 'flex', flexDirection: 'column', gap: '24px' }}>

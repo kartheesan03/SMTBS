@@ -13,6 +13,7 @@ const Customers = ({ directoryOnly }) => {
     const [customers, setCustomers] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(true);
+    const [actionLoading, setActionLoading] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [editingId, setEditingId] = useState(null);
     const [formData, setFormData] = useState({
@@ -101,6 +102,7 @@ const Customers = ({ directoryOnly }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validateForm()) return;
+        setActionLoading(true);
         try {
             if (editingId) {
                 await API.put(`/customers/${editingId}`, formData);
@@ -117,6 +119,8 @@ const Customers = ({ directoryOnly }) => {
             }
         } catch (err) {
             toast.error(err.response?.data?.message || 'Error processing request');
+        } finally {
+            setActionLoading(false);
         }
     };
 
@@ -446,7 +450,7 @@ const Customers = ({ directoryOnly }) => {
                                 setFormErrors={setFormErrors}
                                 onSubmit={handleSubmit}
                                 onCancel={handleCloseModal}
-                                isLoading={false}
+                                isLoading={actionLoading}
                                 emailDisabled={false}
                                 statusDisabled={false}
                                 saveButtonText={editingId ? 'Update Customer' : 'Save Customer'}
@@ -590,7 +594,7 @@ const Customers = ({ directoryOnly }) => {
                             setFormErrors={setFormErrors}
                             onSubmit={handleSubmit}
                             onCancel={handleCloseModal}
-                            isLoading={false}
+                            isLoading={actionLoading}
                             emailDisabled={false}
                             statusDisabled={false}
                             saveButtonText={editingId ? 'Update Customer' : 'Save Customer'}

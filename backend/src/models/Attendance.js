@@ -8,28 +8,62 @@ const AttendanceSequelize = sequelize.define('Attendance', {
         primaryKey: true,
         autoIncrement: true
     },
-    employeeId: {
+    userId: {
         type: DataTypes.INTEGER,
         allowNull: false
+    },
+    employeeId: { // Keeping for backward compatibility temporarily if needed
+        type: DataTypes.INTEGER,
+        allowNull: true
+    },
+    role: {
+        type: DataTypes.STRING,
+        allowNull: true
     },
     date: {
         type: DataTypes.DATEONLY,
         defaultValue: DataTypes.NOW
     },
     status: {
-        type: DataTypes.ENUM('Present', 'Absent', 'Leave', 'Late'),
+        type: DataTypes.ENUM('Present', 'Absent', 'Half-day', 'Late', 'Leave'),
         defaultValue: 'Present'
     },
     shift: {
         type: DataTypes.ENUM('Day', 'Night'),
         defaultValue: 'Day'
     },
-    checkIn: {
+    checkInTime: {
         type: DataTypes.STRING,
         allowNull: true
     },
-    checkOut: {
+    checkOutTime: {
         type: DataTypes.STRING,
+        allowNull: true
+    },
+    checkIn: {
+        type: DataTypes.VIRTUAL,
+        get() {
+            return this.checkInTime;
+        },
+        set(value) {
+            this.setDataValue('checkInTime', value);
+        }
+    },
+    checkOut: {
+        type: DataTypes.VIRTUAL,
+        get() {
+            return this.checkOutTime;
+        },
+        set(value) {
+            this.setDataValue('checkOutTime', value);
+        }
+    },
+    totalHours: {
+        type: DataTypes.FLOAT,
+        allowNull: true
+    },
+    location: { // For Sales geo-location tracking
+        type: DataTypes.JSON,
         allowNull: true
     }
 });

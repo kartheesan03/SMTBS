@@ -7,180 +7,8 @@ import {
     TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, Clock,
     Cake, PieChart as PieChartIcon
 } from 'lucide-react';
-import { 
-    PieChart, Pie, Cell, BarChart, Bar, 
-    XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend
-} from 'recharts';
-import SkeletonLoader from '../components/SkeletonLoader';
-
-const HRDashboard = () => {
-    const [dashboardData, setDashboardData] = useState(null);
-    const [employees, setEmployees] = useState([]);
-    const [users, setUsers] = useState([]);
-    const [leavesData, setLeavesData] = useState([]);
-    const [salariesData, setSalariesData] = useState([]);
-    const [attendanceSummary, setAttendanceSummary] = useState([]);
-    const [loading, setLoading] = useState(true);
-
-    const fetchDashboardData = async () => {
-        try {
-            const [statsRes, empRes, usersRes, leavesRes, salariesRes, attSummaryRes] = await Promise.all([
-                API.get('/dashboard/stats').catch(e => ({ data: {} })),
-                API.get('/employees').catch(e => ({ data: [] })),
-                API.get('/auth/users').catch(e => ({ data: [] })),
-                API.get('/leaves').catch(e => ({ data: [] })),
-                API.get('/salaries').catch(e => ({ data: [] })),
-                API.get('/attendance/monthly-summary').catch(e => ({ data: [] }))
-            ]);
-            setDashboardData(statsRes.data || {});
-            setEmployees(empRes.data || []);
-            setUsers(usersRes.data || []);
-            setLeavesData(leavesRes.data || []);
-            setSalariesData(salariesRes.data || []);
-            setAttendanceSummary(attSummaryRes.data || []);
-        } catch (error) {
-            console.error("Failed to load dashboard stats", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchDashboardData();
-        const interval = setInterval(fetchDashboardData, 30000);
-        return () => clearInterval(interval);
-    }, []);
-
-    if (loading) {
-        return (
-            <div style={{ padding: '24px', background: 'var(--bg-body)', minHeight: '100vh' }}>
-                <SkeletonLoader type="dashboard" />
-            </div>
-        );
-    }
-
-    const dashboard = dashboardData || {};
-    const hrStats = dashboard.hrStats || {};
-
-    const uniqueEmployees = Array.from(new Map(employees.map(e => [e.employeeId || e._id || Math.random(), e])).values());
-
-    const totalEmployees = uniqueEmployees.length;
-    const presentToday = hrStats.presentToday || 0;
-    const onLeave = hrStats.onLeave || 0;
-    const newJoiners = employees.filter(e => e.createdAt && new Date(e.createdAt) > new Date(Date.now() - 30*24*60*60*1000)).length || 0;
-
-    const pendingLeaves = (leavesData || []).filter(l => l.status === 'Pending').length;
-    const pendingSalaries = (salariesData || []).filter(s => s.status === 'Awaiting Approval').length;
-    const pendingApprovals = pendingLeaves + pendingSalaries;
-
-    const salaries = salariesData || [];
-    let payrollProcessed = 0;
-    if (salaries.length > 0) {
-        const paidSalaries = salaries.filter(s => s.status === 'Paid').length;
-        payrollProcessed = Math.round((paidSalaries / salaries.length) * 100);
-    }
-
-    const departmentCounts = {};
-    uniqueEmployees.forEach(emp => {
-        const dept = emp.department || 'Employee';
-        departmentCounts[dept] = (departmentCounts[dept] || 0) + 1;
-    });
-
-    const CHART_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#f43f5e', '#14b8a6', '#f97316', '#6366f1', '#84cc16'];
-
-    const rawDistributionData = Object.keys(departmentCounts).map((dept, index) => ({
-        name: dept,
-        value: departmentCounts[dept],
-        color: CHART_COLORS[index % CHART_COLORS.length]
-    })).sort((a, b) => b.value - a.value);
-
-    const employeeDistributionData = [];
-    let othersCount = 0;
-    rawDistributionData.forEach((item, index) => {
-        if (index < 4) {
-            employeeDistributionData.push(item);
-        } else {
-            othersCount += item.value;
-        }
-    });
-    if (othersCount > 0) {
-        employeeDistributionData.push({
-            name: 'Others',
-            value: othersCount,
-            color: '#cbd5e1'
-        });
-    }
-
-    const roleLabels = {
-        'admin': 'Admin',
-        'super admin': 'Admin',
-        'hr': 'HR',
-        'manager': 'Manager',
-        'sales': 'Sales',
-        'employee': 'Employee'
-    };
-
-    const roleCounts = {};
-    uniqueEmployees.forEach(emp => {
-        let roleStr = emp.department ? emp.department.toLowerCase().trim() : 'employee';
-        if (roleStr.includes('hr')) roleStr = 'hr';
-        else if (roleStr.includes('sales')) roleStr = 'sales';
-        else if (roleStr.includes('admin')) roleStr = 'admin';
-        else if (roleStr.includes('manager')) roleStr = 'manager';
-
-        const label = roleLabels[roleStr] || `${emp.department || 'Employee'}`;
-        roleCounts[label] = (roleCounts[label] || 0) + 1;
-    });
-
-    const departmentHeadcountData = Object.keys(roleCounts).map((roleLabel, index) => ({
-        name: roleLabel,
-        count: roleCounts[roleLabel],
-        fill: CHART_COLORS[index % CHART_COLORS.length]
-    })).sort((a, b) => b.count - a.count);
-
-    const absentToday = dashboard.hrStats?.absentToday || 0;
-
-    const attendanceOverviewData = totalEmployees > 0 ? [
-        { name: 'Present', value: presentToday, color: '#10b981' },
-        { name: 'Absent', value: absentToday, color: '#ef4444' },
-        { name: 'On Leave', value: onLeave, color: '#f59e0b' },
-    ].filter(item => item.value > 0) : [];
-
-    const kpiCards = [
-        { title: 'Total Employees', value: totalEmployees, icon: Users, color: '#3b82f6', trend: '+5%', trendType: 'up' },
-        { title: 'Present Today', value: presentToday, icon: UserCheck, color: '#10b981', trend: '+2%', trendType: 'up' },
-        { title: 'On Leave', value: onLeave, icon: Calendar, color: '#f59e0b', trend: '-1%', trendType: 'down' },
-        { title: 'New Joiners', value: newJoiners, icon: Briefcase, color: '#8b5cf6', trend: '+12%', trendType: 'up' },
-        { title: 'Pending Approvals', value: pendingApprovals, icon: AlertCircle, color: '#ef4444', trend: '-5%', trendType: 'down' },
-        { title: 'Payroll Processed', value: `${payrollProcessed}%`, icon: DollarSign, color: '#14b8a6', trend: '+1%', trendType: 'up' },
-    ];
-
-    const upcomingBirthdays = [];
-
-    let recentActivities = dashboard.recentActivity || [];
-    if (recentActivities.length === 0 && leavesData.length > 0) {
-        recentActivities = [...leavesData].reverse().slice(0, 5).map(l => ({
-            id: l._id,
-            title: `Leave request from ${l.employeeName || 'Employee'}`,
-            description: `Status: ${l.status || 'Pending'}`,
-            time: l.createdAt || new Date().toISOString()
-        }));
-    }
-
-    const formatTime = (isoString) => {
-import React, { useState, useEffect } from 'react';
-import API from '../api/axios';
-import { NavLink } from 'react-router-dom';
-import { 
-    Users, UserCheck, Calendar, DollarSign, 
-    FileText, Activity, AlertCircle, Briefcase,
-    TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, Clock,
-    Cake, PieChart as PieChartIcon
-} from 'lucide-react';
-import { 
-    PieChart, Pie, Cell, BarChart, Bar, 
-    XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend
-} from 'recharts';
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, PieChart, Pie, Cell, LineChart, Line, AreaChart, Area } from 'recharts';
+import AttendanceWidget from '../components/Dashboard/AttendanceWidget';
 import SkeletonLoader from '../components/SkeletonLoader';
 
 const HRDashboard = () => {
@@ -373,6 +201,10 @@ const HRDashboard = () => {
                             <div className="stat-desc">Daily Attendance</div>
                         </div>
                     </div>
+                </div>
+
+                <div style={{ marginTop: '24px' }}>
+                    <AttendanceWidget />
                 </div>
 
                 <div style={{ flex: '0 0 320px', display: 'flex', flexDirection: 'column', gap: '24px' }}>

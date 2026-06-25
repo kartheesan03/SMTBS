@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import DataTable from '../components/Dashboard/DataTable';
 import StatCard from '../components/Dashboard/StatCard';
-import { Calendar, CheckCircle, XCircle, Search, Filter, Users, Clock, Eye, History } from 'lucide-react';
+import { Calendar, CheckCircle, XCircle, Search, Filter, Users, Clock, Eye, History, Edit2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 import AttendanceHistoryTable from '../components/Dashboard/AttendanceHistoryTable';
+import { AuthContext } from '../context/AuthContext';
+import { useContext } from 'react';
+import { toast } from 'react-hot-toast';
 
 const Attendance = () => {
     const [attendanceData, setAttendanceData] = useState(null);
@@ -14,22 +17,38 @@ const Attendance = () => {
     const [filterDate, setFilterDate] = useState(new Date().toISOString().split('T')[0]);
     const [filterDept, setFilterDept] = useState('All');
     const [viewMode, setViewMode] = useState('today'); // 'today' or 'history'
+    const [editRecord, setEditRecord] = useState(null);
+    const [editStatus, setEditStatus] = useState('');
+    const { user } = useContext(AuthContext);
     const navigate = useNavigate();
+    const canEdit = user?.role === 'Admin' || user?.role === 'HR';
+
+    const fetchAttendance = async () => {
+        try {
+            const { data } = await API.get('/attendance/all'); // Updated alias
+            setAttendanceData(data);
+            setAttendanceLogs(data.employeeAttendanceList || []);
+        } catch (error) {
+            console.error('Error fetching attendance logs:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchAttendance = async () => {
-            try {
-                const { data } = await API.get('/attendance');
-                setAttendanceData(data);
-                setAttendanceLogs(data.employeeAttendanceList || []);
-            } catch (error) {
-                console.error('Error fetching attendance logs:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
         fetchAttendance();
     }, []);
+
+    const handleSaveEdit = async () => {
+        try {
+            await API.put('/attendance/edit', { recordId: editRecord._id || editRecord.id, status: editStatus });
+            toast.success('Record updated');
+            setEditRecord(null);
+            fetchAttendance();
+        } catch(e) {
+            toast.error('Failed to update record');
+        }
+    };
 
     const filteredLogs = attendanceLogs.filter(log => {
         const empName = `${log.employee?.firstName || ''} ${log.employee?.lastName || ''}`.trim();
@@ -223,13 +242,28 @@ const Attendance = () => {
                                 <td>{formatTime(a.checkOut, a.date, true, !!a.checkIn)}</td>
                                 <td>{calculateDuration(a.checkIn, a.checkOut, a.date)}</td>
                                 <td>
-                                    <button 
-                                        className="btn-icon view-btn" 
-                                        title="View Details"
-                                        onClick={() => navigate('/hrms')}
-                                    >
-                                        <Eye size={16} />
-                                    </button>
+                                    <div style={{ display: 'flex', gap: '8px' }}>
+                                        <button 
+                                            className="btn-icon view-btn" 
+                                            title="View Details"
+                                            onClick={() => navigate('/hrms')}
+                                        >
+                                            <Eye size={16} />
+                                        </button>
+                                        {canEdit && (
+                                            <button 
+                                                className="btn-icon" 
+                                                title="Edit Record"
+                                                onClick={() => {
+                                                    setEditRecord(a);
+                                                    setEditStatus(a.status || 'Present');
+                                                }}
+                                                style={{ color: 'var(--primary)', background: 'var(--bg-hover)' }}
+                                            >
+                                                <Edit2 size={16} />
+                                            </button>
+                                        )}
+                                    </div>
                                 </td>
                             </tr>
                         );
@@ -237,6 +271,29 @@ const Attendance = () => {
                 />
             </div>
             </>
+            )}
+
+            {editRecord && (
+                <div className="modal-overlay">
+                    <div className="modal-content" style={{ width: '400px', background: 'white', padding: '24px', borderRadius: '8px' }}>
+                        <h3>Edit Attendance Status</h3>
+                        <p>Editing for {editRecord.employee?.firstName || 'Employee'}</p>
+                        <select 
+                            value={editStatus} 
+                            onChange={(e) => setEditStatus(e.target.value)}
+                            style={{ width: '100%', padding: '8px', margin: '16px 0', borderRadius: '4px', border: '1px solid #ccc' }}
+                        >
+                            <option value="Present">Present</option>
+                            <option value="Absent">Absent</option>
+                            <option value="Half-day">Half-day</option>
+                            <option value="Late">Late</option>
+                        </select>
+                        <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+                            <button className="btn-secondary" onClick={() => setEditRecord(null)}>Cancel</button>
+                            <button className="btn-primary" onClick={handleSaveEdit}>Save</button>
+                        </div>
+                    </div>
+                </div>
             )}
 
             <style jsx="true">{`

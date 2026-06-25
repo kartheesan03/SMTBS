@@ -105,7 +105,9 @@ const checkIn = async (req, res) => {
             await attendance.save();
         } else {
             attendance = await Attendance.create({
+                userId: req.user._id || req.user.id,
                 employeeId: empId,
+                role: req.user.role || employee.designation,
                 date: today,
                 checkIn: checkInTime,
                 status: calculatedStatus,
@@ -511,7 +513,36 @@ const getAttendanceHistory = async (req, res) => {
     }
 };
 
+
+const getUserAttendance = async (req, res) => {
+    try {
+        const history = await Attendance.find({ userId: req.params.id }).sort({ date: -1 });
+        res.json(history);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+const editAttendance = async (req, res) => {
+    try {
+        const { recordId, status, checkInTime, checkOutTime, totalHours } = req.body;
+        let attendance = await Attendance.findOne({ _id: recordId }) || await Attendance.findOne({ id: recordId });
+        if(!attendance) return res.status(404).json({ message: 'Not found' });
+        
+        if(status) attendance.status = status;
+        if(checkInTime) attendance.checkInTime = checkInTime;
+        if(checkOutTime) attendance.checkOutTime = checkOutTime;
+        if(totalHours !== undefined) attendance.totalHours = totalHours;
+        await attendance.save();
+        res.json(attendance);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 module.exports = {
+    getUserAttendance,
+    editAttendance,
     getAttendanceStatus,
     checkIn,
     checkOut,

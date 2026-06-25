@@ -3,7 +3,10 @@ import DataTable from '../components/Dashboard/DataTable';
 import AttendanceHistoryTable from '../components/Dashboard/AttendanceHistoryTable';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip } from 'recharts';
 import { Clock, Calendar, CheckCircle, Play, Square, Timer } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import API from '../api/axios';
+import { AuthContext } from '../context/AuthContext';
+import { useContext } from 'react';
 
 const MyAttendance = () => {
     const [history, setHistory] = useState([]);
@@ -12,6 +15,7 @@ const MyAttendance = () => {
     const [actionLoading, setActionLoading] = useState(false);
     const [timer, setTimer] = useState("0h 0m 0s");
     const [stats, setStats] = useState({ avg: '0h', present: 0 });
+    const { user } = useContext(AuthContext);
 
     const parseDateTime = (timeStr, baseDateStr) => {
         if (!timeStr) return null;
@@ -122,14 +126,36 @@ const MyAttendance = () => {
     const handleCheckIn = async () => {
         if (actionLoading) return;
         setActionLoading(true);
-        try {
-            const { data } = await API.post('/attendance/check-in');
-            setStatus(data);
-            fetchData();
-        } catch (error) {
-            toast.error(error.response?.data?.message || 'Check-in failed');
-        } finally {
-            setActionLoading(false);
+        
+        const performCheckIn = async (location = null) => {
+            try {
+                const { data } = await API.post('/attendance/checkin', { location });
+                setStatus(data);
+                fetchData();
+            } catch (error) {
+                toast.error(error.response?.data?.message || 'Check-in failed');
+            } finally {
+                setActionLoading(false);
+            }
+        };
+
+        if (user?.role === 'Sales') {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        performCheckIn({ lat: position.coords.latitude, lng: position.coords.longitude });
+                    },
+                    (err) => {
+                        toast.error('Location access denied. Sales must provide location.');
+                        setActionLoading(false);
+                    }
+                );
+            } else {
+                toast.error('Geolocation not supported');
+                setActionLoading(false);
+            }
+        } else {
+            performCheckIn();
         }
     };
 
@@ -137,7 +163,7 @@ const MyAttendance = () => {
         if (actionLoading) return;
         setActionLoading(true);
         try {
-            const { data } = await API.post('/attendance/check-out');
+            const { data } = await API.post('/attendance/checkout');
             setStatus(data);
             fetchData();
         } catch (error) {

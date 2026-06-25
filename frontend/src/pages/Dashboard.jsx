@@ -17,6 +17,7 @@ import { useNavigate } from 'react-router-dom';
 import StatCard from '../components/Dashboard/StatCard';
 import QuickActions from '../components/Dashboard/QuickActions';
 import DataTable from '../components/Dashboard/DataTable';
+import AttendanceWidget from '../components/Dashboard/AttendanceWidget';
 
 const Dashboard = () => {
     const { user } = useContext(AuthContext);
@@ -277,6 +278,10 @@ const Dashboard = () => {
                     ))}
                 </div>
             )}
+
+            <div style={{ marginTop: '24px' }}>
+                <AttendanceWidget />
+            </div>
 
             {/* Sections */}
             <section className="dashboard-section stats-grid">

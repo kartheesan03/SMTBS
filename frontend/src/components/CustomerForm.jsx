@@ -14,7 +14,7 @@ const CustomerForm = ({
     saveButtonText = "Save Changes"
 }) => {
     return (
-        <form onSubmit={onSubmit} className="page-form">
+        <form onSubmit={onSubmit} className="page-form" noValidate>
             <div className="form-grid">
                 <div className="form-group">
                     <label>Full Name <span className="req">*</span></label>
@@ -100,13 +100,18 @@ const CustomerForm = ({
                     {formErrors.phone && <span className="error-text">{formErrors.phone}</span>}
                 </div>
                 <div className="form-group">
-                    <label>Industry</label>
-                    <input 
-                        type="text" 
-                        value={formData.industry || ''} 
-                        onChange={e => setFormData({...formData, industry: e.target.value})} 
-                        placeholder="e.g. Manufacturing, Retail" 
-                    />
+                    <label>Industry <span className="req">*</span></label>
+                    <div className={`input-with-icon ${formErrors.industry ? 'error-border' : ''}`}>
+                        <Building2 size={16} />
+                        <input 
+                            type="text" 
+                            value={formData.industry || ''} 
+                            onChange={e => setFormData({...formData, industry: e.target.value})} 
+                            placeholder="e.g. Manufacturing, Retail" 
+                            required
+                        />
+                    </div>
+                    {formErrors.industry && <span className="error-text">{formErrors.industry}</span>}
                 </div>
             </div>
 
@@ -191,52 +196,6 @@ const CustomerForm = ({
                 
                 .form-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 12px; padding-top: 24px; border-top: 1px solid var(--border-subtle); }
                 
-                .btn-primary {
-                    background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
-                    color: white;
-                    border: none;
-                    border-radius: 8px;
-                    padding: 12px 28px;
-                    font-size: 14px;
-                    font-weight: 600;
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                    cursor: pointer;
-                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
-                    position: relative;
-                    overflow: hidden;
-                    letter-spacing: 0.3px;
-                }
-                .btn-primary::after {
-                    content: '';
-                    position: absolute;
-                    top: 0;
-                    left: -100%;
-                    width: 50%;
-                    height: 100%;
-                    background: linear-gradient(to right, transparent, rgba(255,255,255,0.3), transparent);
-                    transform: skewX(-20deg);
-                    transition: all 0.5s ease;
-                }
-                .btn-primary:hover {
-                    transform: translateY(-2px);
-                    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.5);
-                    background: linear-gradient(135deg, #4338ca 0%, #2563eb 100%);
-                }
-                .btn-primary:hover::after {
-                    left: 150%;
-                }
-                .btn-primary:active {
-                    transform: translateY(1px);
-                    box-shadow: 0 2px 10px rgba(59, 130, 246, 0.4);
-                }
-                .btn-primary:disabled {
-                    opacity: 0.7;
-                    cursor: not-allowed;
-                    transform: none;
-                }
                 .btn-cancel {
                     background: transparent;
                     color: #64748b;

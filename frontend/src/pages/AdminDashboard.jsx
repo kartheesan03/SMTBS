@@ -5,9 +5,10 @@ import {
     Package, Briefcase, ChevronRight, Activity, Bell, ShoppingCart, DollarSign, LayoutDashboard
 } from 'lucide-react';
 import { 
-    BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, 
-    ResponsiveContainer, PieChart, Pie, Cell 
+    ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, 
+    BarChart, Bar, PieChart, Pie, Cell 
 } from 'recharts';
+import AttendanceWidget from '../components/Dashboard/AttendanceWidget';
 
 // Mock Data for Charts
 const barData = [
@@ -128,11 +129,15 @@ const AdminDashboard = () => {
                         </div>
                     </div>
 
-                    <div className="quick-action-buttons">
+                    <div className="quick-action-buttons" style={{ display: 'none' }}>
                         <button className="btn-primary"><CheckCircle size={16}/> Check In</button>
                         <button className="btn-secondary"><Calendar size={16}/> Apply Leave</button>
                         <button className="btn-secondary"><DollarSign size={16}/> View Payslip</button>
                     </div>
+                </div>
+
+                <div style={{ marginTop: '24px' }}>
+                    <AttendanceWidget />
                 </div>
 
                 <div className="top-stat-cards">

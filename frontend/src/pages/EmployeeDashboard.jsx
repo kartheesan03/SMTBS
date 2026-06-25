@@ -11,6 +11,7 @@ import {
     Tooltip as RechartsTooltip, ResponsiveContainer, Cell,
     PieChart, Pie
 } from 'recharts';
+import AttendanceWidget from '../components/Dashboard/AttendanceWidget';
 
 const EmployeeDashboard = () => {
     const { user } = useContext(AuthContext);
@@ -249,6 +250,10 @@ const EmployeeDashboard = () => {
                             <div className="stat-desc">Status Today</div>
                         </div>
                     </div>
+                </div>
+
+                <div style={{ marginTop: '24px' }}>
+                    <AttendanceWidget />
                 </div>
 
                 <div style={{ flex: '0 0 320px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
