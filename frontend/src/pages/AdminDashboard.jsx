@@ -179,10 +179,10 @@ const AdminDashboard = () => {
         <div className="dashboard-wrapper">
 
 
-            <div className="dashboard-content">
+            <div className="page-container">
                 {/* Modules Summary Row */}
-                <div className="modules-grid">
-                    <div className="module-card">
+                <div className="responsive-grid-4">
+                    <div className="premium-card">
                         <div className="module-header">
                             <div className="module-icon-wrap blue-bg"><Users size={20} /></div>
                             <div className="module-title">
@@ -199,7 +199,7 @@ const AdminDashboard = () => {
                         </div>
                     </div>
 
-                    <div className="module-card">
+                    <div className="premium-card">
                         <div className="module-header">
                             <div className="module-icon-wrap orange-bg"><Package size={20} /></div>
                             <div className="module-title">
@@ -216,7 +216,7 @@ const AdminDashboard = () => {
                         </div>
                     </div>
 
-                    <div className="module-card">
+                    <div className="premium-card">
                         <div className="module-header">
                             <div className="module-icon-wrap green-bg"><Briefcase size={20} /></div>
                             <div className="module-title">
@@ -233,7 +233,7 @@ const AdminDashboard = () => {
                         </div>
                     </div>
 
-                    <div className="module-card">
+                    <div className="premium-card">
                         <div className="module-header">
                             <div className="module-icon-wrap blue-bg"><ShoppingCart size={20} /></div>
                             <div className="module-title">
@@ -252,8 +252,8 @@ const AdminDashboard = () => {
                 </div>
 
                 {/* Charts & Actions Row */}
-                <div className="charts-actions-grid">
-                    <div className="chart-card main-chart">
+                <div className="responsive-grid-4-5-3">
+                    <div className="premium-card main-chart">
                         <div className="card-header">
                             <div>
                                 <h2>Overview Summary</h2>
@@ -303,7 +303,7 @@ const AdminDashboard = () => {
                         </div>
                     </div>
 
-                    <div className="quick-actions-card">
+                    <div className="premium-card">
                         <div className="card-header">
                             <h2>Quick Actions</h2>
                         </div>
@@ -336,7 +336,7 @@ const AdminDashboard = () => {
                         </div>
                     </div>
 
-                    <div className="recent-activity-card">
+                    <div className="premium-card">
                         <div className="card-header">
                             <h2>Recent Activities</h2>
                             <button className="outline-select-btn">View All</button>
@@ -359,7 +359,7 @@ const AdminDashboard = () => {
 
                 {/* Bottom Pie Charts Row */}
                 <div className="pie-charts-grid">
-                    <div className="pie-card">
+                    <div className="premium-card">
                         <div className="pie-header">
                             <h3>HRMS - Employee Overview</h3>
                         </div>
@@ -394,7 +394,7 @@ const AdminDashboard = () => {
                         <button className="view-report-btn blue-text">View Full Report →</button>
                     </div>
                     
-                    <div className="pie-card">
+                    <div className="premium-card">
                         <div className="pie-header">
                             <h3>Material - Stock Overview</h3>
                         </div>
@@ -429,7 +429,7 @@ const AdminDashboard = () => {
                         <button className="view-report-btn orange-text">View Full Report →</button>
                     </div>
 
-                    <div className="pie-card">
+                    <div className="premium-card">
                         <div className="pie-header">
                             <h3>CRM - Lead Status</h3>
                         </div>
@@ -464,7 +464,7 @@ const AdminDashboard = () => {
                         <button className="view-report-btn green-text">View Full Report →</button>
                     </div>
 
-                    <div className="pie-card">
+                    <div className="premium-card">
                         <div className="pie-header">
                             <h3>ERP - Projects Overview</h3>
                         </div>
@@ -502,335 +502,7 @@ const AdminDashboard = () => {
 
             </div>
 
-            <style jsx="true">{`
-                .dashboard-wrapper {
-                    background-color: var(--bg-app);
-                    min-height: 100vh;
-                    font-family: 'Inter', sans-serif;
-                    position: relative;
-                }
-                
-                /* Subtle ambient background glow for premium feel */
-                .dashboard-wrapper::before {
-                    content: '';
-                    position: absolute;
-                    top: -10%; left: -10%;
-                    width: 50%; height: 50%;
-                    background: radial-gradient(circle, rgba(67, 24, 255, 0.03) 0%, rgba(255,255,255,0) 70%);
-                    z-index: 0; pointer-events: none;
-                }
-
-                .dashboard-content {
-                    padding: 32px;
-                    position: relative;
-                    z-index: 1;
-                }
-
-                /* MODULES GRID */
-                .modules-grid {
-                    display: grid;
-                    grid-template-columns: repeat(4, 1fr);
-                    gap: 24px;
-                    margin-bottom: 32px;
-                }
-
-                .module-card {
-                    background: rgba(255, 255, 255, 0.85);
-                    backdrop-filter: blur(20px);
-                    -webkit-backdrop-filter: blur(20px);
-                    border-radius: 24px;
-                    padding: 28px;
-                    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255,255,255,1);
-                    border: 1px solid rgba(226, 232, 240, 0.6);
-                    display: flex;
-                    flex-direction: column;
-                    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-                    position: relative;
-                    overflow: hidden;
-                }
-                .module-card:hover {
-                    transform: translateY(-8px);
-                    box-shadow: 0 24px 48px -12px rgba(67, 24, 255, 0.15), inset 0 1px 0 rgba(255,255,255,1);
-                    border-color: rgba(67, 24, 255, 0.2);
-                }
-                /* Soft glowing accent bar */
-                .module-card::before {
-                    content: '';
-                    position: absolute;
-                    top: 0; left: 0; right: 0; height: 4px;
-                    background: linear-gradient(90deg, var(--primary) 0%, #00C3FF 100%);
-                    opacity: 0; transition: opacity 0.4s ease;
-                }
-                .module-card:hover::before { opacity: 1; }
-
-                .module-header {
-                    display: flex;
-                    align-items: flex-start;
-                    gap: 16px;
-                    margin-bottom: 24px;
-                }
-
-                .module-icon-wrap {
-                    width: 56px; height: 56px; border-radius: 16px;
-                    display: flex; align-items: center; justify-content: center;
-                    color: #ffffff;
-                    transition: transform 0.4s ease;
-                }
-                .module-card:hover .module-icon-wrap {
-                    transform: scale(1.1) rotate(-5deg);
-                }
-                
-                /* Premium gradients for icons */
-                .blue-bg { background: linear-gradient(135deg, #4318FF 0%, #8A2BE2 100%); box-shadow: 0 10px 20px rgba(67, 24, 255, 0.3); }
-                .orange-bg { background: linear-gradient(135deg, #FF7E00 0%, #FF2A00 100%); box-shadow: 0 10px 20px rgba(255, 126, 0, 0.3); }
-                .green-bg { background: linear-gradient(135deg, #05CD99 0%, #00966D 100%); box-shadow: 0 10px 20px rgba(5, 205, 153, 0.3); }
-                .purple-bg { background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); box-shadow: 0 10px 20px rgba(139, 92, 246, 0.3); }
-                .yellow-bg { background: linear-gradient(135deg, #FFCE20 0%, #F59E0B 100%); box-shadow: 0 10px 20px rgba(255, 206, 32, 0.3); }
-                .lightblue-bg { background: linear-gradient(135deg, #3965FF 0%, #00C3FF 100%); box-shadow: 0 10px 20px rgba(57, 101, 255, 0.3); }
-                
-                .module-title h3 { font-size: 16px; font-weight: 800; color: var(--text-heading); margin: 0 0 4px 0; letter-spacing: 0.3px; }
-                .module-title p { font-size: 13px; color: var(--text-muted); margin: 0; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;}
-
-                .module-value h2 {
-                    font-size: 46px;
-                    font-weight: 900;
-                    color: var(--text-heading);
-                    margin: 0 0 24px 0;
-                    line-height: 1;
-                    letter-spacing: -1.5px;
-                    text-align: center;
-                    background: linear-gradient(180deg, var(--text-heading) 0%, var(--text-muted) 150%);
-                    -webkit-background-clip: text;
-                    -webkit-text-fill-color: transparent;
-                }
-
-                .module-footer {
-                    display: flex;
-                    gap: 12px;
-                    justify-content: center;
-                }
-
-                .pill {
-                    display: flex; align-items: center; gap: 6px;
-                    padding: 8px 14px; border-radius: 10px;
-                    font-size: 12px; font-weight: 700;
-                    letter-spacing: 0.2px;
-                    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.5);
-                    transition: all 0.2s ease;
-                }
-                .pill:hover { filter: brightness(0.95); }
-                .blue-pill { background: rgba(67, 24, 255, 0.1); color: #4318FF; }
-                .lightblue-pill { background: rgba(57, 101, 255, 0.1); color: #3965FF; }
-                .orange-pill { background: rgba(255, 126, 0, 0.1); color: #E67300; }
-                .red-pill { background: rgba(238, 93, 80, 0.1); color: #D9483C; }
-                .green-pill { background: rgba(5, 205, 153, 0.1); color: #04A87D; }
-                .lightgreen-pill { background: rgba(16, 185, 129, 0.1); color: #0D9468; }
-
-                /* CHARTS & ACTIONS GRID */
-                .charts-actions-grid {
-                    display: grid;
-                    grid-template-columns: 2.2fr 1fr 1.2fr;
-                    gap: 24px;
-                    margin-bottom: 32px;
-                }
-
-                .chart-card, .quick-actions-card, .recent-activity-card {
-                    background: rgba(255, 255, 255, 0.85);
-                    backdrop-filter: blur(20px);
-                    -webkit-backdrop-filter: blur(20px);
-                    border-radius: 24px;
-                    padding: 32px;
-                    box-shadow: 0 12px 36px -12px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255,255,255,1);
-                    border: 1px solid rgba(226, 232, 240, 0.6);
-                    transition: all 0.3s ease;
-                }
-                .chart-card:hover, .quick-actions-card:hover, .recent-activity-card:hover {
-                    box-shadow: 0 20px 48px -10px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,1);
-                }
-
-                .card-header {
-                    display: flex; justify-content: space-between; align-items: flex-start;
-                    margin-bottom: 24px;
-                }
-                .card-header h2 { font-size: 18px; font-weight: 800; color: var(--text-heading); margin: 0 0 6px 0; letter-spacing: -0.3px;}
-                .card-header p { font-size: 13px; color: var(--text-muted); font-weight: 500; margin: 0; }
-                
-                .outline-select-btn {
-                    padding: 8px 16px; border-radius: 20px;
-                    border: 1px solid rgba(226, 232, 240, 0.8);
-                    background: rgba(255, 255, 255, 0.9); font-size: 13px; font-weight: 700;
-                    color: var(--text-heading); cursor: pointer;
-                    display: flex; align-items: center; gap: 8px;
-                    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-                    transition: all 0.2s;
-                }
-                .outline-select-btn:hover { background: #f8fafc; border-color: #cbd5e1; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-
-                .chart-legend-top {
-                    display: flex; gap: 20px; margin-bottom: 28px;
-                    padding: 16px 24px; border-radius: 16px; 
-                    background: rgba(248, 250, 252, 0.6);
-                    border: 1px solid rgba(226, 232, 240, 0.6);
-                }
-                .legend-item {
-                    display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); font-weight: 600;
-                }
-                .legend-item strong { color: var(--text-heading); font-size: 15px; font-weight: 800; }
-                .text-success { color: #05CD99; font-weight: 700;}
-                .dot { width: 10px; height: 10px; border-radius: 50%; box-shadow: inset 0 2px 4px rgba(255,255,255,0.5); }
-                .blue-dot { background: linear-gradient(135deg, #4318FF 0%, #8A2BE2 100%); }
-                .orange-dot { background: linear-gradient(135deg, #FF7E00 0%, #FFAA00 100%); }
-                .green-dot { background: linear-gradient(135deg, #05CD99 0%, #00FFB0 100%); }
-                .lightblue-dot { background: linear-gradient(135deg, #3965FF 0%, #00C3FF 100%); }
-
-                /* Quick Actions */
-                .actions-list {
-                    display: flex; flex-direction: column; gap: 14px;
-                }
-                .qa-item {
-                    display: flex; align-items: center; gap: 16px;
-                    padding: 14px 18px; border-radius: 16px;
-                    text-decoration: none; font-size: 14px; font-weight: 700; color: var(--text-heading);
-                    background: rgba(255, 255, 255, 0.5);
-                    border: 1px solid rgba(226, 232, 240, 0.8);
-                    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-                }
-                .qa-item:hover { 
-                    transform: translateX(6px); 
-                    background: rgba(255, 255, 255, 1);
-                    box-shadow: 0 10px 20px -5px rgba(0,0,0,0.06); 
-                    border-color: rgba(67, 24, 255, 0.2);
-                }
-                .qa-icon-wrap {
-                    width: 36px; height: 36px; border-radius: 10px;
-                    display: flex; align-items: center; justify-content: center;
-                    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-                    transition: transform 0.3s;
-                }
-                .qa-item:hover .qa-icon-wrap { transform: scale(1.1); }
-                .qa-arrow { margin-left: auto; color: var(--text-muted); transition: transform 0.3s; }
-                .qa-item:hover .qa-arrow { transform: translate(4px, -4px); color: var(--primary); }
-
-                /* Recent Activities */
-                .activity-list {
-                    display: flex; flex-direction: column; gap: 24px;
-                }
-                .activity-item {
-                    display: flex; align-items: flex-start; gap: 16px;
-                    padding: 8px; border-radius: 16px; transition: background 0.2s;
-                }
-                .activity-item:hover { background: rgba(248, 250, 252, 0.8); cursor: pointer; }
-                .activity-icon-circle {
-                    width: 40px; height: 40px; border-radius: 50%;
-                    display: flex; align-items: center; justify-content: center;
-                    flex-shrink: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-                }
-                .activity-details h4 {
-                    font-size: 14px; font-weight: 700; color: var(--text-heading);
-                    margin: 0 0 6px 0; line-height: 1.4; letter-spacing: -0.2px;
-                }
-                .activity-time { font-size: 12px; color: var(--text-muted); font-weight: 600; }
-
-                /* BOTTOM PIE CHARTS */
-                .pie-charts-grid {
-                    display: grid;
-                    grid-template-columns: repeat(4, 1fr);
-                    gap: 24px;
-                    margin-bottom: 32px;
-                }
-                .pie-card {
-                    background: rgba(255, 255, 255, 0.85);
-                    backdrop-filter: blur(20px);
-                    -webkit-backdrop-filter: blur(20px);
-                    border-radius: 24px;
-                    padding: 32px 28px;
-                    box-shadow: 0 12px 36px -12px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255,255,255,1);
-                    border: 1px solid rgba(226, 232, 240, 0.6);
-                    display: flex; flex-direction: column;
-                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                }
-                .pie-card:hover {
-                    transform: translateY(-6px);
-                    box-shadow: 0 24px 48px -12px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,1);
-                }
-                .pie-header h3 {
-                    font-size: 15px; font-weight: 800; color: var(--text-heading);
-                    margin: 0 0 24px 0; text-align: center; letter-spacing: -0.2px;
-                }
-                .pie-wrapper {
-                    position: relative; margin-bottom: 32px;
-                    /* Inner shadow well for the pie chart to sit inside */
-                    background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(248,250,252,0.8) 100%);
-                    border-radius: 50%;
-                    padding: 10px;
-                    box-shadow: inset 0 4px 12px rgba(0,0,0,0.04);
-                }
-                .pie-center {
-                    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-                    display: flex; flex-direction: column; align-items: center;
-                    background: #ffffff;
-                    width: 76px; height: 76px; border-radius: 50%;
-                    justify-content: center;
-                    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-                }
-                .pie-center strong { font-size: 24px; font-weight: 900; color: var(--text-heading); line-height: 1; }
-                .pie-center span { font-size: 11px; color: var(--text-muted); font-weight: 700; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px;}
-
-                .pie-legend-box {
-                    display: flex; flex-direction: column; gap: 14px; margin-bottom: 28px;
-                }
-                .pie-legend-row {
-                    display: flex; justify-content: space-between; align-items: center;
-                    padding: 8px 12px; border-radius: 12px;
-                    transition: background 0.2s;
-                }
-                .pie-legend-row:hover { background: rgba(248, 250, 252, 1); cursor: pointer; }
-                .legend-left {
-                    display: flex; align-items: center; gap: 10px;
-                    font-size: 13px; color: var(--text-muted); font-weight: 600;
-                }
-                .legend-right {
-                    display: flex; align-items: center; gap: 8px;
-                    font-size: 14px; color: var(--text-heading); font-weight: 700;
-                }
-                .legend-right small { color: var(--text-muted); font-size: 12px; font-weight: 600;}
-
-                .view-report-btn {
-                    margin-top: auto;
-                    width: 100%;
-                    padding: 14px;
-                    border-radius: 14px;
-                    background: linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(248,250,252,1) 100%);
-                    border: 1px solid rgba(226, 232, 240, 0.8);
-                    font-weight: 800; font-size: 13px;
-                    cursor: pointer; transition: all 0.3s ease;
-                    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-                }
-                .view-report-btn:hover { 
-                    transform: translateY(-2px);
-                    box-shadow: 0 8px 16px rgba(0,0,0,0.08);
-                    border-color: rgba(203, 213, 225, 1);
-                }
-                .blue-text { color: #4318FF; }
-                .orange-text { color: #FF7E00; }
-                .green-text { color: #05CD99; }
-
-                /* RESPONSIVE */
-                @media (max-width: 1500px) {
-                    .charts-actions-grid { grid-template-columns: 2fr 1.2fr; }
-                    .recent-activity-card { grid-column: span 2; }
-                }
-                @media (max-width: 1200px) {
-                    .modules-grid, .pie-charts-grid { grid-template-columns: repeat(2, 1fr); }
-                    .charts-actions-grid { grid-template-columns: 1fr; }
-                    .recent-activity-card { grid-column: span 1; }
-                }
-                @media (max-width: 768px) {
-                    .modules-grid, .pie-charts-grid { grid-template-columns: 1fr; }
-                    .dashboard-content { padding: 16px; }
-                    .module-card, .chart-card, .quick-actions-card, .recent-activity-card, .pie-card { padding: 20px; }
-                }
-            `}</style>
+            
         </div>
     );
 };

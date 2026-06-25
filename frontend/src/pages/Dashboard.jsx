@@ -292,41 +292,7 @@ const Dashboard = () => {
                 {content.tables}
             </section>
 
-            <style jsx="true">{`
-                .dashboard-search { position: relative; display: flex; align-items: center; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 6px 15px; box-shadow: var(--shadow-sm); transition: all 0.2s ease; }
-                .dashboard-search:focus-within { border-color: var(--primary); box-shadow: var(--ring-focus); }
-                .dashboard-search input { background: none; border: none; padding: 6px; width: 220px; color: var(--text-heading); outline: none; font-size: 14px; }
-                .dashboard-search input::placeholder { color: var(--text-muted); }
-                .dashboard-search svg { color: var(--text-muted); }
-                
-                .bell-box { position: relative; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: var(--bg-surface); border: 1px solid var(--border-subtle); box-shadow: var(--shadow-sm); transition: all 0.2s; }
-                .bell-box:hover { background: var(--bg-hover); color: var(--text-heading); }
-                .notif-badge { position: absolute; top: -4px; right: -4px; background: var(--danger); color: white; font-size: 10px; font-weight: 800; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3); }
-                
-                .notifications-bar { display: flex; flex-direction: column; gap: 12px; }
-                .notif-item { display: flex; align-items: center; gap: 12px; padding: 14px 20px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 500; }
-                .notif-item.warning { background: var(--warning-bg); color: #92400E; border: 1px solid rgba(245, 158, 11, 0.2); }
-                .notif-item.info { background: var(--info-bg); color: #1E40AF; border: 1px solid rgba(59, 130, 246, 0.2); }
-                .notif-item button { margin-left: auto; background: none; border: none; color: inherit; font-size: 16px; cursor: pointer; opacity: 0.7; transition: opacity 0.2s; }
-                .notif-item button:hover { opacity: 1; }
-
-                .dashboard-section { display: grid; gap: 24px; }
-                .stats-grid { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
-                .middle-grid { grid-template-columns: 2fr 1fr; }
-                .bottom-grid { grid-template-columns: 1fr; }
-
-                .chart-container h3 { font-size: 16px; font-weight: 700; color: var(--text-heading); margin: 0; }
-
-                .loading-container { height: 70vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; color: var(--text-muted); font-size: 14px; font-weight: 500; }
-                .loader { width: 48px; height: 48px; border: 3px solid var(--primary-light); border-top: 3px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
-                @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-                @media (max-width: 1024px) {
-                    .middle-grid { grid-template-columns: 1fr; }
-                    .page-header { flex-direction: column; align-items: flex-start; gap: 20px; }
-                    .dashboard-search input { width: 100%; }
-                }
-            `}</style>
+            
         </div>
     );
 };

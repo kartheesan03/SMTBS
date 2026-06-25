@@ -408,13 +408,7 @@ const SalesDashboard = () => {
                 </div>
             </div>
 
-            <style jsx="true">{`
-                .quick-action-link:hover {
-                    background: #fff !important;
-                    border-color: #e2e8f0 !important;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.02) !important;
-                }
-            `}</style>
+            
         </div>
     );
 };
