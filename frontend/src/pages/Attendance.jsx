@@ -281,7 +281,7 @@ const Attendance = () => {
                         <select 
                             value={editStatus} 
                             onChange={(e) => setEditStatus(e.target.value)}
-                            style={{ width: '100%', padding: '8px', margin: '16px 0', borderRadius: '4px', border: '1px solid #ccc' }}
+                            style={{ width: '100%', padding: '8px', margin: '16px 0', borderRadius: '4px', }}
                         >
                             <option value="Present">Present</option>
                             <option value="Absent">Absent</option>

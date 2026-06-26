@@ -285,7 +285,7 @@ const Payroll = () => {
 
             {/* Toast */}
             {toast && (
-                <div style={{ position: 'fixed', top: '24px', right: '24px', zIndex: 9999, display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 20px', borderRadius: '10px', fontSize: '13px', fontWeight: 600, color: '#fff', background: toast.ok ? '#10b981' : '#ef4444', boxShadow: '0 8px 25px rgba(0,0,0,0.15)', animation: 'slideIn 0.3s ease' }}>
+                <div style={{ position: 'fixed', top: '24px', right: '24px', zIndex: 9999, display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 20px', borderRadius: '10px', fontSize: '13px', fontWeight: 600, color: '#fff', background: toast.ok ? '#10b981' : '#ef4444', animation: 'slideIn 0.3s ease' }}>
                     {toast.ok ? <CheckCircle size={15} /> : <AlertCircle size={15} />}
                     {toast.msg}
                 </div>
@@ -294,7 +294,7 @@ const Payroll = () => {
             {/* Delete Modal */}
             {showDeleteModal && (
                 <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.6)', zIndex: 999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(4px)' }}>
-                    <div style={{ background: '#fff', borderRadius: '16px', width: '100%', maxWidth: '400px', boxShadow: '0 20px 40px rgba(0,0,0,0.2)', overflow: 'hidden', animation: 'scaleIn 0.2s ease' }}>
+                    <div style={{ background: '#fff', borderRadius: '16px', width: '100%', maxWidth: '400px', overflow: 'hidden', animation: 'scaleIn 0.2s ease' }}>
                         <div style={{ padding: '24px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}>
                                 <Trash2 size={20} color="#ef4444" /> Delete Payroll Record
@@ -320,11 +320,11 @@ const Payroll = () => {
                         <p className="page-subtitle">Process salaries, approvals, and payment tracking</p>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', background: '#fff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '8px 14px', gap: '8px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', background: '#fff', borderRadius: '10px', padding: '8px 14px', gap: '8px' }}>
                             <Search size={16} color="#94a3b8" />
                             <input type="text" placeholder="Search payroll..." style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: '13px', width: '160px' }} />
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', background: '#fff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '8px 14px', gap: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 600, color: '#334155' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', background: '#fff', borderRadius: '10px', padding: '8px 14px', gap: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 600, color: '#334155' }}>
                             <Calendar size={14} color="#64748b" />
                             <span>This Month</span>
                             <ChevronDown size={14} color="#64748b" />
@@ -412,7 +412,7 @@ const Payroll = () => {
                                                         if (!active || !payload || !payload.length) return null;
                                                         const d = payload[0].payload;
                                                         return (
-                                                            <div style={{ background: '#fff', borderRadius: '10px', padding: '10px 14px', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', border: 'none', fontSize: '12px', lineHeight: 1.6, minWidth: '160px' }}>
+                                                            <div style={{ background: '#fff', borderRadius: '10px', padding: '10px 14px', border: 'none', fontSize: '12px', lineHeight: 1.6, minWidth: '160px' }}>
                                                                 <div style={{ fontWeight: 700, color: '#0f172a', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                                                                     <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: d.color, flexShrink: 0 }}></span>
                                                                     {d.name}
@@ -558,7 +558,7 @@ const Payroll = () => {
                                                 <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
                                                     {/* View Payslip — always visible */}
                                                     <button onClick={() => handleViewDetails(s)} title="View Payslip"
-                                                        style={{ width: '36px', height: '36px', minWidth: '36px', minHeight: '36px', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#1e293b', transition: 'all 0.2s', padding: 0, lineHeight: 0 }}
+                                                        style={{ width: '36px', height: '36px', minWidth: '36px', minHeight: '36px', borderRadius: '8px', background: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#1e293b', transition: 'all 0.2s', padding: 0, lineHeight: 0 }}
                                                         onMouseEnter={e => { e.currentTarget.style.background = '#eff6ff'; e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.color = '#3b82f6'; }}
                                                         onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#1e293b'; }}>
                                                         <Eye size={20} strokeWidth={2.25} />
@@ -567,7 +567,7 @@ const Payroll = () => {
                                                     {/* Edit Salary — not for Paid */}
                                                     {s.status !== 'Paid' && (
                                                         <button onClick={() => handleOpenEditModal(s)} title="Edit Salary"
-                                                            style={{ width: '36px', height: '36px', minWidth: '36px', minHeight: '36px', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#1e293b', transition: 'all 0.2s', padding: 0, lineHeight: 0 }}
+                                                            style={{ width: '36px', height: '36px', minWidth: '36px', minHeight: '36px', borderRadius: '8px', background: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#1e293b', transition: 'all 0.2s', padding: 0, lineHeight: 0 }}
                                                             onMouseEnter={e => { e.currentTarget.style.background = '#fffbeb'; e.currentTarget.style.borderColor = '#f59e0b'; e.currentTarget.style.color = '#f59e0b'; }}
                                                             onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#1e293b'; }}>
                                                             <Pencil size={20} strokeWidth={2.25} />
@@ -578,13 +578,13 @@ const Payroll = () => {
                                                     {isAdmin && s.status === 'Awaiting Approval' && (
                                                         <>
                                                             <button onClick={() => handleApprove(s._id)} title="Approve Payroll"
-                                                                style={{ width: '36px', height: '36px', minWidth: '36px', minHeight: '36px', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#1e293b', transition: 'all 0.2s', padding: 0, lineHeight: 0 }}
+                                                                style={{ width: '36px', height: '36px', minWidth: '36px', minHeight: '36px', borderRadius: '8px', background: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#1e293b', transition: 'all 0.2s', padding: 0, lineHeight: 0 }}
                                                                 onMouseEnter={e => { e.currentTarget.style.background = '#ecfdf5'; e.currentTarget.style.borderColor = '#10b981'; e.currentTarget.style.color = '#10b981'; }}
                                                                 onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#1e293b'; }}>
                                                                 <CheckCircle size={20} strokeWidth={2.25} />
                                                             </button>
                                                             <button onClick={() => console.log('Reject', s._id)} title="Reject Payroll"
-                                                                style={{ width: '36px', height: '36px', minWidth: '36px', minHeight: '36px', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#1e293b', transition: 'all 0.2s', padding: 0, lineHeight: 0 }}
+                                                                style={{ width: '36px', height: '36px', minWidth: '36px', minHeight: '36px', borderRadius: '8px', background: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#1e293b', transition: 'all 0.2s', padding: 0, lineHeight: 0 }}
                                                                 onMouseEnter={e => { e.currentTarget.style.background = '#fef2f2'; e.currentTarget.style.borderColor = '#ef4444'; e.currentTarget.style.color = '#ef4444'; }}
                                                                 onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#1e293b'; }}>
                                                                 <XCircle size={20} strokeWidth={2.25} />
@@ -605,7 +605,7 @@ const Payroll = () => {
                                                     {/* Download Payslip — only for Paid */}
                                                     {s.status === 'Paid' && (
                                                         <button onClick={() => handleDownload(s)} title="Download Payslip"
-                                                            style={{ width: '36px', height: '36px', minWidth: '36px', minHeight: '36px', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#1e293b', transition: 'all 0.2s', padding: 0, lineHeight: 0 }}
+                                                            style={{ width: '36px', height: '36px', minWidth: '36px', minHeight: '36px', borderRadius: '8px', background: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#1e293b', transition: 'all 0.2s', padding: 0, lineHeight: 0 }}
                                                             onMouseEnter={e => { e.currentTarget.style.background = '#f0fdf4'; e.currentTarget.style.borderColor = '#16a34a'; e.currentTarget.style.color = '#16a34a'; }}
                                                             onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#1e293b'; }}>
                                                             <Download size={20} strokeWidth={2.25} />
@@ -615,7 +615,7 @@ const Payroll = () => {
                                                     {/* Delete — for Awaiting Approval, Approved or Rejected */}
                                                     {canPay && (s.status === 'Approved' || s.status === 'Rejected' || s.status === 'Awaiting Approval') && (
                                                         <button onClick={() => handleDeleteClick(s._id)} title="Delete Record"
-                                                            style={{ width: '36px', height: '36px', minWidth: '36px', minHeight: '36px', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#1e293b', transition: 'all 0.2s', padding: 0, lineHeight: 0 }}
+                                                            style={{ width: '36px', height: '36px', minWidth: '36px', minHeight: '36px', borderRadius: '8px', background: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#1e293b', transition: 'all 0.2s', padding: 0, lineHeight: 0 }}
                                                             onMouseEnter={e => { e.currentTarget.style.background = '#fef2f2'; e.currentTarget.style.borderColor = '#ef4444'; e.currentTarget.style.color = '#ef4444'; }}
                                                             onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#1e293b'; }}>
                                                             <Trash2 size={20} strokeWidth={2.25} />
@@ -653,7 +653,7 @@ const Payroll = () => {
                                     { icon: TrendingUp, bg: '#eff6ff', color: '#3b82f6', title: `${salaries.length} Payroll Entries Generated`, time: 'Current cycle' },
                                     { icon: Clock, bg: '#fffbeb', color: '#d97706', title: `${stats.pending} Awaiting Approval`, time: 'Pending review' },
                                 ].map((act, i) => (
-                                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 12px', background: '#f8fafc', borderRadius: '10px', border: '1px solid #f1f5f9' }}>
+                                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 12px', background: '#f8fafc', borderRadius: '10px', }}>
                                         <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: act.bg, color: act.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                                             <act.icon size={15} />
                                         </div>
@@ -674,7 +674,7 @@ const Payroll = () => {
                         </div>
                         <div style={{ padding: '16px 18px' }}>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                <div style={{ background: '#f8fafc', padding: '14px 16px', borderRadius: '10px', border: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div style={{ background: '#f8fafc', padding: '14px 16px', borderRadius: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                     <div>
                                         <span style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#0f172a' }}>Next Month Salary</span>
                                         <span style={{ fontSize: '11px', color: '#64748b' }}>Due in ~30 days</span>
@@ -682,7 +682,7 @@ const Payroll = () => {
                                     <div style={{ fontSize: '15px', fontWeight: 700, color: '#3b82f6' }}>Est. ₹{stats.thisMonth > 0 ? stats.thisMonth.toLocaleString() : '—'}</div>
                                 </div>
                                 {stats.approved > 0 && (
-                                    <div style={{ background: '#f0fdf4', padding: '14px 16px', borderRadius: '10px', border: '1px solid #dcfce7', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <div style={{ background: '#f0fdf4', padding: '14px 16px', borderRadius: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                         <div>
                                             <span style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#0f172a' }}>Approved & Ready</span>
                                             <span style={{ fontSize: '11px', color: '#64748b' }}>{stats.approved} employees</span>
@@ -690,7 +690,7 @@ const Payroll = () => {
                                         <div style={{ fontSize: '15px', fontWeight: 700, color: '#10b981' }}>₹{stats.approvedTotal.toLocaleString()}</div>
                                     </div>
                                 )}
-                                <div style={{ background: '#f8fafc', padding: '14px 16px', borderRadius: '10px', border: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div style={{ background: '#f8fafc', padding: '14px 16px', borderRadius: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                     <div>
                                         <span style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#0f172a' }}>Bonus Payouts Q2</span>
                                         <span style={{ fontSize: '11px', color: '#64748b' }}>Due in 15 days</span>
@@ -746,7 +746,7 @@ const Payroll = () => {
                                 </div>
                             </div>
 
-                            <div className="payment-details-container" style={{background: '#f8fafc', padding: '16px', borderRadius: '12px', border: '1px solid #e2e8f0'}}>
+                            <div className="payment-details-container" style={{background: '#f8fafc', padding: '16px', borderRadius: '12px', }}>
                                 {payForm.paymentMethod === 'UPI' && (
                                     <div className="form-grid">
                                         <div className="form-group">
@@ -960,20 +960,20 @@ const Payroll = () => {
                                 <p style={{fontSize: '16px', fontWeight: 600, color: '#0f172a', margin: 0}}>{selectedSalary.month}</p>
                             </div>
                             <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '24px'}}>
-                                <div style={{background: '#f8fafc', padding: '16px', borderRadius: '8px', border: '1px solid #f1f5f9'}}>
+                                <div style={{background: '#f8fafc', padding: '16px', borderRadius: '8px', }}>
                                     <p style={{fontSize: '12px', color: '#64748b', margin: '0 0 4px'}}>Basic</p>
                                     <p style={{fontSize: '15px', fontWeight: 600, color: '#0f172a', margin: 0}}>₹{(selectedSalary.basicSalary || 0).toLocaleString()}</p>
                                 </div>
-                                <div style={{background: '#ecfdf5', padding: '16px', borderRadius: '8px', border: '1px solid #d1fae5'}}>
+                                <div style={{background: '#ecfdf5', padding: '16px', borderRadius: '8px', }}>
                                     <p style={{fontSize: '12px', color: '#047857', margin: '0 0 4px'}}>Allowances</p>
                                     <p style={{fontSize: '15px', fontWeight: 600, color: '#10b981', margin: 0}}>+₹{(selectedSalary.allowances || 0).toLocaleString()}</p>
                                 </div>
-                                <div style={{background: '#fef2f2', padding: '16px', borderRadius: '8px', border: '1px solid #fee2e2'}}>
+                                <div style={{background: '#fef2f2', padding: '16px', borderRadius: '8px', }}>
                                     <p style={{fontSize: '12px', color: '#b91c1c', margin: '0 0 4px'}}>Deductions</p>
                                     <p style={{fontSize: '15px', fontWeight: 600, color: '#ef4444', margin: 0}}>-₹{(selectedSalary.deductions || 0).toLocaleString()}</p>
                                 </div>
                             </div>
-                            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0'}}>
+                            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc', padding: '20px', borderRadius: '12px', }}>
                                 <div>
                                     <p style={{fontSize: '12px', fontWeight: 700, color: '#64748b', margin: '0 0 4px'}}>NET PAYABLE</p>
                                     <h2 style={{margin: 0, fontSize: '24px', color: '#3b82f6'}}>₹{(selectedSalary.netSalary || 0).toLocaleString()}</h2>
@@ -1078,7 +1078,7 @@ const Payroll = () => {
                                         <label>Deductions (₹)</label>
                                         <input type="number" value={editForm.deductions} onChange={e => setEditForm({...editForm, deductions: Number(e.target.value)})} />
                                     </div>
-                                    <div className="form-group" style={{background: '#f0fdf4', padding: '12px 16px', borderRadius: '8px', border: '1px solid #bbf7d0'}}>
+                                    <div className="form-group" style={{background: '#f0fdf4', padding: '12px 16px', borderRadius: '8px', }}>
                                         <label style={{color: '#16a34a', margin: '0 0 4px', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px'}}>Calculated Net Pay</label>
                                         <div style={{fontSize: '20px', fontWeight: 700, color: '#15803d'}}>
                                             ₹{((Number(editForm.basicSalary) || 0) + (Number(editForm.allowances) || 0) - (Number(editForm.deductions) || 0)).toLocaleString()}

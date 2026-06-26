@@ -208,9 +208,9 @@ const HRDashboard = () => {
                 </div>
 
                 <div style={{ flex: '0 0 320px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                    <div style={{ background: 'white', borderRadius: '20px', padding: '24px', flex: 1, border: '1px solid #f1f5f9', boxShadow: '0 4px 15px rgba(0,0,0,0.03)' }}>
+                    <div style={{ background: 'white', borderRadius: '20px', padding: '24px', flex: 1, }}>
                         <h3 style={{ fontSize: '14px', fontWeight: 700, margin: '0 0 16px 0', color: '#0f172a' }}>HR Actions</h3>
-                        <div className="action-buttons">
+                        <div className="header-actions">
                             <NavLink to="/add-employee" style={{ textDecoration: 'none' }}>
                                 <div className="qa-btn blue">
                                     <div className="qa-icon"><Users size={18} /></div>

@@ -259,8 +259,8 @@ const Customers = ({ directoryOnly }) => {
     // ── DETAIL VIEW ──
     if (selectedCustomer) {
         return (
-            <div className="module-container">
-                <div className="module-actions-section" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+            <div className="page-container">
+                <div className="page-header" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                     <div style={{display: 'flex', alignItems: 'center', gap: '16px'}}>
                         <button className="btn-secondary" onClick={closeCustomerDetail}><ArrowLeft size={16} /> Back</button>
                         <div>
@@ -273,7 +273,7 @@ const Customers = ({ directoryOnly }) => {
                     </div>
                 </div>
 
-                <div className="module-data-section" style={{padding: 0, background: 'transparent', boxShadow: 'none'}}>
+                <div className="module-data-section" style={{padding: 0, background: 'transparent', }}>
                     <div className="detail-tabs" style={{display: 'flex', gap: '12px', marginBottom: '24px'}}>
                         {[
                             { key: 'profile', label: 'Profile', icon: <Building2 size={16} /> },
@@ -297,7 +297,7 @@ const Customers = ({ directoryOnly }) => {
                     ) : (
                         <>
                             {activeTab === 'profile' && (
-                                <div className="analytics-card" style={{ padding: '24px' }}>
+                                <div className="premium-card" style={{ padding: '24px' }}>
                                     <h3 style={{ marginBottom: 20, fontWeight: 700, fontSize: 16 }}>Contact Information</h3>
                                     <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '24px'}}>
                                         <div><p style={{fontSize: '12px', color: 'var(--text-muted)', margin: '0 0 4px'}}>Email</p><p style={{margin: 0, fontWeight: 600}}>{selectedCustomer.email || '—'}</p></div>
@@ -314,7 +314,7 @@ const Customers = ({ directoryOnly }) => {
                             )}
 
                             {activeTab === 'orders' && (
-                                <div className="analytics-card" style={{ padding: '24px' }}>
+                                <div className="premium-card" style={{ padding: '24px' }}>
                                     <h3 style={{ marginBottom: 16, fontWeight: 700, fontSize: 16 }}>Order History</h3>
                                     {customerOrders.length === 0 ? (
                                         <p className="text-muted" style={{ textAlign: 'center', padding: 30 }}>No orders found for this customer.</p>
@@ -339,7 +339,7 @@ const Customers = ({ directoryOnly }) => {
                             )}
 
                             {activeTab === 'communications' && (
-                                <div className="analytics-card" style={{ padding: '24px' }}>
+                                <div className="premium-card" style={{ padding: '24px' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                                         <h3 style={{ fontWeight: 700, fontSize: 16 }}>Communication Log</h3>
                                         <button className="btn-primary" onClick={() => setShowCommModal(true)}><Plus size={16} /> Add Entry</button>
@@ -370,7 +370,7 @@ const Customers = ({ directoryOnly }) => {
                             )}
 
                             {activeTab === 'tickets' && (
-                                <div className="analytics-card" style={{ padding: '24px' }}>
+                                <div className="premium-card" style={{ padding: '24px' }}>
                                     <h3 style={{ marginBottom: 16, fontWeight: 700, fontSize: 16 }}>Support Tickets</h3>
                                     {customerTickets.length === 0 ? (
                                         <p className="text-muted" style={{ textAlign: 'center', padding: 30 }}>No support tickets found.</p>
@@ -464,10 +464,10 @@ const Customers = ({ directoryOnly }) => {
 
     // ── LIST VIEW ──
     return (
-        <div className="module-container">
+        <div className="page-container">
             {/* KPI Section */}
             <div className="module-kpi-section">
-                <div className="kpi-card">
+                <div className="premium-card">
                     <div className="kpi-header">
                         <span className="kpi-title">Total Customers</span>
                         <div className="kpi-icon-wrapper" style={{background: 'rgba(59,130,246,0.1)', color: '#3B82F6'}}>
@@ -476,7 +476,7 @@ const Customers = ({ directoryOnly }) => {
                     </div>
                     <div className="kpi-value">{customers.length}</div>
                 </div>
-                <div className="kpi-card">
+                <div className="premium-card">
                     <div className="kpi-header">
                         <span className="kpi-title">Active Clients</span>
                         <div className="kpi-icon-wrapper" style={{background: 'rgba(16,185,129,0.1)', color: '#10B981'}}>
@@ -485,7 +485,7 @@ const Customers = ({ directoryOnly }) => {
                     </div>
                     <div className="kpi-value">{customers.filter(c => c.status === 'Active').length}</div>
                 </div>
-                <div className="kpi-card">
+                <div className="premium-card">
                     <div className="kpi-header">
                         <span className="kpi-title">New Leads</span>
                         <div className="kpi-icon-wrapper" style={{background: 'rgba(245,158,11,0.1)', color: '#F59E0B'}}>
@@ -497,12 +497,12 @@ const Customers = ({ directoryOnly }) => {
             </div>
 
             {/* Actions Section */}
-            <div className="module-actions-section">
-                <div className="module-title-block">
+            <div className="page-header">
+                <div className="header-content">
                     <h1>{directoryOnly ? 'Customer Directory' : 'Customers (CRM)'}</h1>
                     <p>{directoryOnly ? 'Manage your active customer base.' : 'Manage your customers, leads, and tracking.'}</p>
                 </div>
-                <div className="action-buttons">
+                <div className="header-actions">
                     <button className="btn-secondary" onClick={exportToPDF} title="Export PDF"><Download size={16} /> PDF</button>
                     <button className="btn-secondary" onClick={exportToExcel} title="Export Excel"><Download size={16} /> Excel</button>
                     <button className="btn-primary" onClick={() => { setEditingId(null); setFormData({ name: '', email: '', phone: '', address: '', industry: '', website: '', notes: '', status: 'Active', customerType: 'Individual', company: '', gstNumber: '' }); setFormErrors({}); setShowModal(true); }}>
@@ -512,7 +512,7 @@ const Customers = ({ directoryOnly }) => {
             </div>
 
             {/* Filters Section */}
-            <div className="module-actions-section" style={{background: 'var(--bg-surface-hover)', padding: '16px', marginTop: '-12px', borderTop: 'none', borderTopLeftRadius: 0, borderTopRightRadius: 0}}>
+            <div className="page-header" style={{background: 'var(--bg-surface-hover)', padding: '16px', marginTop: '-12px', borderTop: 'none', borderTopLeftRadius: 0, borderTopRightRadius: 0}}>
                 <div className="global-search" style={{width: '300px', background: 'var(--bg-body)'}}>
                     <Search size={16} className="search-icon" />
                     <input 

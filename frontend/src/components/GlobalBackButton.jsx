@@ -17,9 +17,7 @@ const GlobalBackButton = () => {
                 onClick={() => navigate(-1)}
                 style={{
                     background: '#ffffff',
-                    border: '1px solid #e2e8f0',
                     borderRadius: '8px',
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
                     padding: '8px 12px',
                     display: 'inline-flex',
                     alignItems: 'center',

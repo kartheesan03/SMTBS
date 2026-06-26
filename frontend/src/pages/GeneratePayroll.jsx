@@ -89,7 +89,7 @@ const GeneratePayroll = () => {
         <div style={{ position: 'relative' }}>
             {/* Toast */}
             {toast && (
-                <div style={{ position: 'fixed', top: '24px', right: '24px', zIndex: 9999, display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 20px', borderRadius: '10px', fontSize: '13px', fontWeight: 600, color: '#fff', background: toast.ok ? '#10b981' : '#ef4444', boxShadow: '0 8px 25px rgba(0,0,0,0.15)', animation: 'slideIn 0.3s ease' }}>
+                <div style={{ position: 'fixed', top: '24px', right: '24px', zIndex: 9999, display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 20px', borderRadius: '10px', fontSize: '13px', fontWeight: 600, color: '#fff', background: toast.ok ? '#10b981' : '#ef4444', animation: 'slideIn 0.3s ease' }}>
                     {toast.ok ? <CheckCircle size={15} /> : <AlertCircle size={15} />}
                     {toast.msg}
                 </div>
@@ -99,7 +99,7 @@ const GeneratePayroll = () => {
                 <button 
                     onClick={() => navigate('/payroll')} 
                     className="btn-secondary flex-center" 
-                    style={{ gap: '8px', marginBottom: '24px', padding: '8px 16px', background: '#fff', border: '1px solid #e2e8f0', color: '#64748b', fontSize: '13px', fontWeight: 600 }}
+                    style={{ gap: '8px', marginBottom: '24px', padding: '8px 16px', background: '#fff', color: '#64748b', fontSize: '13px', fontWeight: 600 }}
                 >
                     <ArrowLeft size={16} /> Back to Payroll
                 </button>
@@ -197,7 +197,7 @@ const GeneratePayroll = () => {
                         </div>
                         
                         {calcStats && (
-                            <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '16px', marginBottom: '20px' }}>
+                            <div style={{ background: '#f8fafc', borderRadius: '10px', padding: '16px', marginBottom: '20px' }}>
                                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', fontSize: '13px' }}>
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                                         <span style={{ color: '#64748b', fontWeight: 600 }}>Total Days</span>
@@ -220,7 +220,7 @@ const GeneratePayroll = () => {
                         )}
 
                         {formData.basicSalary > 0 && (
-                            <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '10px', padding: '16px', marginBottom: '30px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div style={{ background: '#eff6ff', borderRadius: '10px', padding: '16px', marginBottom: '30px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <span style={{ color: '#1e3a8a', fontWeight: 600, fontSize: '14px' }}>Net Payable:</span>
                                 <strong style={{ color: '#1d4ed8', fontSize: '20px', fontWeight: 800 }}>
                                     ₹{((formData.basicSalary || 0) + (formData.allowances || 0) - (formData.deductions || 0)).toLocaleString()}

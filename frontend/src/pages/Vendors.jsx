@@ -328,10 +328,10 @@ const Vendors = () => {
     const totalVendorValue = linkedMaterials.reduce((sum, m) => sum + (Number(m.stockQty || m.quantity || m.stock || 0) * Number(m.price || m.unitPrice || 0)), 0);
 
     return (
-        <div className="module-container">
+        <div className="page-container">
             {/* KPI Section */}
             <div className="module-kpi-section">
-                <div className="kpi-card">
+                <div className="premium-card">
                     <div className="kpi-header">
                         <span className="kpi-title">Total Vendors</span>
                         <div className="kpi-icon-wrapper" style={{background: 'rgba(59,130,246,0.1)', color: '#3B82F6'}}>
@@ -341,7 +341,7 @@ const Vendors = () => {
                     <div className="kpi-value">{vendors.length}</div>
                 </div>
 
-                <div className="kpi-card">
+                <div className="premium-card">
                     <div className="kpi-header">
                         <span className="kpi-title">Active Suppliers</span>
                         <div className="kpi-icon-wrapper" style={{background: 'rgba(16,185,129,0.1)', color: '#10B981'}}>
@@ -351,7 +351,7 @@ const Vendors = () => {
                     <div className="kpi-value">{vendors.filter(v => v.status !== 'Inactive').length}</div>
                 </div>
 
-                <div className="kpi-card">
+                <div className="premium-card">
                     <div className="kpi-header">
                         <span className="kpi-title">Linked Materials</span>
                         <div className="kpi-icon-wrapper" style={{background: 'rgba(245,158,11,0.1)', color: '#F59E0B'}}>
@@ -363,12 +363,12 @@ const Vendors = () => {
             </div>
 
             {/* Actions Section */}
-            <div className="module-actions-section">
-                <div className="module-title-block">
+            <div className="page-header">
+                <div className="header-content">
                     <h1>Vendors Directory</h1>
                     <p>Manage supplier profiles, contact details, and procurement links.</p>
                 </div>
-                <div className="action-buttons">
+                <div className="header-actions">
                     <button className="btn-secondary" onClick={exportToPDF}><Download size={16} /> PDF</button>
                     <button className="btn-secondary" onClick={exportToExcel}><Download size={16} /> Excel</button>
                     <button className="btn-primary" onClick={openAddModal}>

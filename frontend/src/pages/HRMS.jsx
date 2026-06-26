@@ -140,10 +140,10 @@ const HRMS = () => {
     }
 
     return (
-        <div className="module-container">
+        <div className="page-container">
             {/* KPI Section */}
             <div className="module-kpi-section">
-                <div className="kpi-card">
+                <div className="premium-card">
                     <div className="kpi-header">
                         <span className="kpi-title">Total Employees</span>
                         <div className="kpi-icon-wrapper" style={{background: 'rgba(59,130,246,0.1)', color: '#3B82F6'}}>
@@ -153,7 +153,7 @@ const HRMS = () => {
                     <div className="kpi-value">{employees.length}</div>
                 </div>
 
-                <div className="kpi-card">
+                <div className="premium-card">
                     <div className="kpi-header">
                         <span className="kpi-title">New Joiners (30d)</span>
                         <div className="kpi-icon-wrapper" style={{background: 'rgba(16,185,129,0.1)', color: '#10B981'}}>
@@ -163,7 +163,7 @@ const HRMS = () => {
                     <div className="kpi-value">{employees.filter(e => new Date(e.joinDate) > new Date(new Date().setDate(new Date().getDate() - 30))).length}</div>
                 </div>
 
-                <div className="kpi-card">
+                <div className="premium-card">
                     <div className="kpi-header">
                         <span className="kpi-title">Departments</span>
                         <div className="kpi-icon-wrapper" style={{background: 'rgba(139,92,246,0.1)', color: '#8B5CF6'}}>
@@ -175,12 +175,12 @@ const HRMS = () => {
             </div>
 
             {/* Actions Section */}
-            <div className="module-actions-section">
-                <div className="module-title-block">
+            <div className="page-header">
+                <div className="header-content">
                     <h1>Employee Directory</h1>
                     <p>Manage workforce, roles, and profiles.</p>
                 </div>
-                <div className="action-buttons">
+                <div className="header-actions">
                     <button className="btn-secondary" onClick={exportToExcel}><Download size={16} /> Excel</button>
                     <button className="btn-secondary" onClick={exportToPDF}><Download size={16} /> PDF</button>
                     <button className="btn-primary" onClick={() => navigate('/hrms/add-employee')}>
@@ -190,10 +190,10 @@ const HRMS = () => {
             </div>
 
             {/* Data Section */}
-            <div className="module-data-section" style={{background: 'transparent', boxShadow: 'none', padding: 0}}>
+            <div className="module-data-section" style={{background: 'transparent', padding: 0}}>
                 <div className="employee-grid" style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px'}}>
                     {employees.length > 0 ? employees.map((emp) => (
-                        <div key={emp._id} className="analytics-card" style={{padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px'}}>
+                        <div key={emp._id} className="premium-card" style={{padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px'}}>
                             <div style={{display: 'flex', alignItems: 'center', gap: '16px'}}>
                                 <div style={{width: '48px', height: '48px', borderRadius: '50%', background: 'var(--primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', fontWeight: 600}}>
                                     {emp.firstName[0]}{emp.lastName?.[0]}

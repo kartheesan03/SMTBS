@@ -54,7 +54,7 @@ const Topbar = ({ onOpenModuleLauncher, onOpenCommandCenter }) => {
                 <div className="search-bar" onClick={onOpenCommandCenter}>
                     <Search size={18} className="search-icon" />
                     <span className="search-placeholder">Search materials, PO, vendors...</span>
-                    <span className="shortcut">⌘K</span>
+                   
                 </div>
             </div>
 

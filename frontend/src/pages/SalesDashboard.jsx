@@ -203,7 +203,7 @@ const SalesDashboard = () => {
         if (active && payload && payload.length) {
             const data = payload[0].payload;
             return (
-                <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}>
+                <div style={{ background: '#fff', borderRadius: '8px', padding: '12px', }}>
                     <p style={{ margin: '0 0 8px 0', fontWeight: 700, color: '#0f172a' }}>{label}</p>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '13px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', gap: '16px' }}>
@@ -254,9 +254,9 @@ const SalesDashboard = () => {
                 </div>
 
                 <div style={{ flex: '0 0 320px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                    <div style={{ background: 'white', borderRadius: '20px', padding: '24px', flex: 1, border: '1px solid #f1f5f9', boxShadow: '0 4px 15px rgba(0,0,0,0.03)' }}>
+                    <div style={{ background: 'white', borderRadius: '20px', padding: '24px', flex: 1, }}>
                         <h3 style={{ fontSize: '14px', fontWeight: 700, margin: '0 0 16px 0', color: '#0f172a' }}>Sales Actions</h3>
-                        <div className="action-buttons">
+                        <div className="header-actions">
                             <NavLink to="/crm/leads" style={{ textDecoration: 'none' }}>
                                 <div className="qa-btn blue">
                                     <div className="qa-icon"><Filter size={18} /></div>

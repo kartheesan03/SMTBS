@@ -200,10 +200,10 @@ const StockRequests = () => {
                         <div className="modal-form">
                             <div className="form-group" style={{ marginBottom: '24px' }}>
                                 <label>Manager Message / Note</label>
-                                <textarea rows="3" required placeholder="Let the employee know your decision..." value={managerFormData.message} onChange={e => setManagerFormData({ ...managerFormData, message: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0' }}></textarea>
+                                <textarea rows="3" required placeholder="Let the employee know your decision..." value={managerFormData.message} onChange={e => setManagerFormData({ ...managerFormData, message: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', }}></textarea>
                             </div>
                             <div className="modal-actions" style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
-                                <button type="button" onClick={() => setShowManagerModal(false)} style={{ padding: '10px 16px', background: 'transparent', border: '1px solid #cbd5e1', borderRadius: '8px', cursor: 'pointer' }}>Cancel</button>
+                                <button type="button" onClick={() => setShowManagerModal(false)} style={{ padding: '10px 16px', background: 'transparent', borderRadius: '8px', cursor: 'pointer' }}>Cancel</button>
                                 <button type="button" onClick={() => submitManagerAction('MoreInfo')} style={{ padding: '10px 16px', background: '#f59e0b', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>Request More Info</button>
                                 <button type="button" onClick={() => submitManagerAction('Reject')} style={{ padding: '10px 16px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>Reject</button>
                                 <button type="button" onClick={() => submitManagerAction('Approve')} style={{ padding: '10px 16px', background: '#10b981', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>Approve Request</button>
@@ -225,7 +225,7 @@ const StockRequests = () => {
                         <form onSubmit={submitSalesAction} className="modal-form">
                             <div className="form-group" style={{ marginBottom: '24px' }}>
                                 <label>Status</label>
-                                <select value={salesFormData.status} onChange={e => setSalesFormData({ ...salesFormData, status: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                                <select value={salesFormData.status} onChange={e => setSalesFormData({ ...salesFormData, status: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', }}>
                                     <option value="Processing">Processing</option>
                                     <option value="Dispatched">Dispatched</option>
                                     <option value="Delivered">Delivered</option>
@@ -233,7 +233,7 @@ const StockRequests = () => {
                                 </select>
                             </div>
                             <div className="modal-actions" style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-                                <button type="button" onClick={() => setShowSalesModal(false)} style={{ padding: '10px 16px', background: 'transparent', border: '1px solid #cbd5e1', borderRadius: '8px', cursor: 'pointer' }}>Cancel</button>
+                                <button type="button" onClick={() => setShowSalesModal(false)} style={{ padding: '10px 16px', background: 'transparent', borderRadius: '8px', cursor: 'pointer' }}>Cancel</button>
                                 <button type="submit" style={{ padding: '10px 16px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>Update Status</button>
                             </div>
                         </form>

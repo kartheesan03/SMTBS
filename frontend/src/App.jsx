@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthContext, AuthProvider } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
-import Topbar from './components/Topbar';
+import DualSidebar from './components/DualSidebar';
 import ProtectedRoute from './components/ProtectedRoute';
 import OrderCreationRoute from './components/OrderCreationRoute';
 import { GoogleOAuthProvider } from '@react-oauth/google';
@@ -18,6 +18,7 @@ const Register = React.lazy(() => import('./pages/Register'));
 const Materials = React.lazy(() => import('./pages/Materials'));
 
 const OrderTracking = React.lazy(() => import('./pages/OrderTracking'));
+const TrackingDashboard = React.lazy(() => import('./pages/TrackingDashboard'));
 const HRMS = React.lazy(() => import('./pages/HRMS'));
 const AddEmployee = React.lazy(() => import('./pages/AddEmployee'));
 const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'));
@@ -96,13 +97,10 @@ const AppContent = () => {
 
     return (
         <div className="app-layout">
+            {user && <DualSidebar />}
             <main className="app-main">
                 {user && (
                     <>
-                        <Topbar 
-                            onOpenModuleLauncher={() => setIsModuleLauncherOpen(true)}
-                            onOpenCommandCenter={() => setIsCommandCenterOpen(true)}
-                        />
                         <ModuleLauncher 
                             isOpen={isModuleLauncherOpen} 
                             onClose={() => setIsModuleLauncherOpen(false)} 
@@ -167,6 +165,7 @@ const AppContent = () => {
                     <Route path="/erp/vendors/select" element={<OrderCreationRoute><SelectVendor /></OrderCreationRoute>} />
                     <Route path="/orders/create/:orderType" element={<OrderCreationRoute><CreateOrder /></OrderCreationRoute>} />
                     <Route path="/orders/:orderId/tracking" element={<ProtectedRoute allowedRoles={['Admin', 'Manager', 'Sales', 'HR', 'Employee', 'Customer']}><OrderTracking /></ProtectedRoute>} />
+                    <Route path="/tracking-overview" element={<ProtectedRoute><TrackingDashboard /></ProtectedRoute>} />
                     <Route path="/crm" element={<ProtectedRoute allowedRoles={['Admin', 'Sales', 'Manager']}><Customers /></ProtectedRoute>} />
                     <Route path="/crm/add-customer" element={<ProtectedRoute allowedRoles={['Admin', 'Sales', 'Manager']}><AddCustomer /></ProtectedRoute>} />
                     

@@ -259,7 +259,7 @@ const AdminDashboard = () => {
                     <div className="panel-header">
                         <h3>Quick Actions</h3>
                     </div>
-                    <div className="action-buttons">
+                    <div className="header-actions">
                         <button className="qa-btn blue">
                             <div className="qa-icon"><UserPlus size={18}/></div>
                             <span>Add New Employee</span>

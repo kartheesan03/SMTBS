@@ -16,10 +16,10 @@
 .welcome-area {
     flex: 1;
     background: #ffffff;
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
     padding: 32px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-    border: 1px solid #f1f5f9;
+    box-shadow: var(--shadow-sm); transition: all 0.3s;
+    border: 1px solid var(--border-subtle);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -151,7 +151,7 @@
     border-radius: 16px;
     padding: 24px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-    border: 1px solid #f1f5f9;
+    border: 1px solid var(--border-subtle);
     display: flex;
     align-items: center;
     gap: 16px;
@@ -202,8 +202,8 @@
     background: white;
     border-radius: 16px;
     padding: 32px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-    border: 1px solid #f1f5f9;
+    box-shadow: var(--shadow-sm); transition: all 0.3s;
+    border: 1px solid var(--border-subtle);
     position: relative;
     overflow: hidden;
     display: flex;
@@ -342,10 +342,10 @@
 
 .panel-white {
     background: white;
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
     padding: 24px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-    border: 1px solid #f1f5f9;
+    border: 1px solid var(--border-subtle);
 }
 
 .panel-header {

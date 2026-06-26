@@ -309,10 +309,10 @@ const MaterialTracking = () => {
     ])).sort();
 
     return (
-        <div className="module-container">
+        <div className="page-container">
             {/* KPI Section */}
             <div className="module-kpi-section">
-                <div className="kpi-card">
+                <div className="premium-card">
                     <div className="kpi-header">
                         <span className="kpi-title">Total Material Types</span>
                         <div className="kpi-icon-wrapper" style={{background: 'rgba(59,130,246,0.1)', color: '#3B82F6'}}>
@@ -322,7 +322,7 @@ const MaterialTracking = () => {
                     <div className="kpi-value">{materialStats.totalMaterialTypes.toLocaleString()}</div>
                 </div>
 
-                <div className="kpi-card">
+                <div className="premium-card">
                     <div className="kpi-header">
                         <span className="kpi-title">Total Stock Quantity</span>
                         <div className="kpi-icon-wrapper" style={{background: 'rgba(16,185,129,0.1)', color: '#10B981'}}>
@@ -332,7 +332,7 @@ const MaterialTracking = () => {
                     <div className="kpi-value">{materialStats.totalStockQuantity.toLocaleString()}</div>
                 </div>
 
-                <div className="kpi-card">
+                <div className="premium-card">
                     <div className="kpi-header">
                         <span className="kpi-title">In Transit</span>
                         <div className="kpi-icon-wrapper" style={{background: 'rgba(245,158,11,0.1)', color: '#F59E0B'}}>
@@ -342,7 +342,7 @@ const MaterialTracking = () => {
                     <div className="kpi-value">{materialStats.inTransitCount}</div>
                 </div>
 
-                <div className="kpi-card">
+                <div className="premium-card">
                     <div className="kpi-header">
                         <span className="kpi-title">Low Stock Items</span>
                         <div className="kpi-icon-wrapper" style={{background: 'rgba(239,68,68,0.1)', color: '#EF4444'}}>
@@ -354,12 +354,12 @@ const MaterialTracking = () => {
             </div>
 
             {/* Actions Section */}
-            <div className="module-actions-section">
-                <div className="module-title-block">
+            <div className="page-header">
+                <div className="header-content">
                     <h1>Material Tracking</h1>
                     <p>Monitor stock, in-transit items, low stock alerts, and barcode/QR movements.</p>
                 </div>
-                <div className="action-buttons">
+                <div className="header-actions">
                     <button className="btn-secondary" onClick={() => setShowFilters(!showFilters)}>
                         <Filter size={16} /> Filters
                     </button>
@@ -376,7 +376,7 @@ const MaterialTracking = () => {
 
             {/* Filters Section */}
             {showFilters && (
-                <div className="module-actions-section" style={{background: 'var(--bg-surface-hover)', padding: '16px', marginTop: '-12px', borderTop: 'none', borderTopLeftRadius: 0, borderTopRightRadius: 0}}>
+                <div className="page-header" style={{background: 'var(--bg-surface-hover)', padding: '16px', marginTop: '-12px', borderTop: 'none', borderTopLeftRadius: 0, borderTopRightRadius: 0}}>
                     <div className="global-search" style={{width: '300px', background: 'var(--bg-body)'}}>
                         <Search size={16} className="search-icon" />
                         <input 

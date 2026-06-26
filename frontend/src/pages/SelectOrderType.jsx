@@ -6,7 +6,7 @@ const SelectOrderType = () => {
     const navigate = useNavigate();
 
     return (
-        <div className="module-container">
+        <div className="page-container">
             <div className="breadcrumb-nav">
                 <span className="crumb" onClick={() => navigate('/erp')}>ERP Operations</span>
                 <span className="separator">/</span>

@@ -1,0 +1,384 @@
+/* EnlightDashboard.css */
+
+.enlight-dashboard {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background-color: #f8fafc;
+  padding: 32px 40px;
+  min-height: 100vh;
+  color: #1e293b;
+}
+
+.enlight-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.enlight-header-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.enlight-search-container {
+  position: relative;
+  width: 280px;
+}
+
+.enlight-search-input {
+  width: 100%;
+  padding: 10px 16px 10px 40px;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+  background-color: #ffffff;
+  font-size: 14px;
+  color: #475569;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.enlight-search-input:focus {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+}
+
+.enlight-search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+}
+
+.enlight-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.enlight-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.02);
+  display: flex;
+  flex-direction: column;
+}
+
+.kpi-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.kpi-title-area {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.kpi-icon-wrapper {
+  color: #4f46e5;
+}
+
+.kpi-more-options {
+  color: #94a3b8;
+  cursor: pointer;
+}
+
+.kpi-body {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.kpi-value-area {
+  display: flex;
+  flex-direction: column;
+}
+
+.kpi-numbers {
+  display: flex;
+  align-items: baseline;
+  margin-bottom: 4px;
+}
+
+.kpi-numerator {
+  font-size: 42px;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1;
+}
+
+.kpi-denominator {
+  font-size: 20px;
+  font-weight: 500;
+  color: #94a3b8;
+  margin-left: 4px;
+}
+
+.kpi-subtitle {
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+.kpi-pill {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.kpi-pill.positive {
+  background-color: #dcfce7;
+  color: #16a34a;
+}
+
+.kpi-pill.negative {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+.enlight-middle-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.enlight-chart-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.chart-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 4px 0;
+}
+
+.chart-subtitle {
+  font-size: 13px;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.chart-filter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #475569;
+  cursor: pointer;
+}
+
+.chart-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: white;
+  padding: 12px 16px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  position: absolute;
+  top: 40px;
+  right: 20px;
+  z-index: 10;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #475569;
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.legend-value {
+  font-weight: 700;
+  color: #0f172a;
+  margin-left: auto;
+}
+
+.enlight-schedule-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.schedule-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.schedule-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.schedule-subtitle {
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+.schedule-item {
+  display: flex;
+  padding: 16px;
+  border: 1px solid #f1f5f9;
+  border-radius: 12px;
+  transition: all 0.2s;
+}
+
+.schedule-item:hover {
+  border-color: #e2e8f0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+}
+
+.schedule-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  object-fit: cover;
+  margin-right: 16px;
+}
+
+.schedule-details {
+  flex: 1;
+}
+
+.schedule-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 4px;
+}
+
+.schedule-time {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-bottom: 12px;
+}
+
+.schedule-meta-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.schedule-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.enlight-table-card {
+  padding: 24px;
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.table-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 4px 0;
+}
+
+.table-subtitle {
+  font-size: 13px;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.view-all-link {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f172a;
+  text-decoration: none;
+}
+
+.enlight-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.enlight-table th {
+  text-align: left;
+  font-size: 13px;
+  font-weight: 500;
+  color: #94a3b8;
+  padding: 12px 16px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.enlight-table td {
+  padding: 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.enlight-table tr:last-child td {
+  border-bottom: none;
+}
+
+.status-pill {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-pill.pending {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+
+.status-pill.completed {
+  background-color: #dcfce7;
+  color: #16a34a;
+}
+
+.table-action-icon {
+  color: #94a3b8;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.table-action-icon:hover {
+  color: #0f172a;
+}

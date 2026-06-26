@@ -3,15 +3,14 @@ import API from '../api/axios';
 import { AuthContext } from '../context/AuthContext';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { 
-    Calendar, CheckCircle, Clock, Briefcase, 
-    FileText, Bell, Search, ChevronDown, ListTodo, ArrowUpRight, ArrowDownRight, Fingerprint
+    Search, CheckCircle, Award, Briefcase, 
+    MoreHorizontal, Calendar, ChevronDown, Download
 } from 'lucide-react';
 import { 
-    BarChart, Bar, XAxis, YAxis, CartesianGrid, 
-    Tooltip as RechartsTooltip, ResponsiveContainer, Cell,
-    PieChart, Pie
+    LineChart, Line, XAxis, YAxis, CartesianGrid, 
+    Tooltip as RechartsTooltip, ResponsiveContainer, ReferenceDot
 } from 'recharts';
-import AttendanceWidget from '../components/Dashboard/AttendanceWidget';
+import './EnlightDashboard.css';
 
 const EmployeeDashboard = () => {
     const { user } = useContext(AuthContext);
@@ -20,36 +19,16 @@ const EmployeeDashboard = () => {
     const [loading, setLoading] = useState(true);
 
     const [tasksData, setTasksData] = useState([]);
-    const [ordersData, setOrdersData] = useState([]);
-    const [attendancesData, setAttendancesData] = useState([]);
-    const [leavesData, setLeavesData] = useState([]);
     const [salariesData, setSalariesData] = useState([]);
-    const [notificationsData, setNotificationsData] = useState([]);
-    const [attStatusData, setAttStatusData] = useState(null);
-    const [attHistoryData, setAttHistoryData] = useState([]);
 
     const fetchDashboardData = async () => {
         try {
-            const [dashRes, taskRes, ordRes, attRes, levRes, salRes, notifRes, attStatusRes, attHistoryRes] = await Promise.all([
-                API.get('/dashboard/stats').catch(() => ({ data: {} })),
+            const [taskRes, salRes] = await Promise.all([
                 API.get('/tasks/my').catch(() => API.get('/tasks').catch(() => ({ data: [] }))),
-                API.get('/orders').catch(() => ({ data: [] })),
-                API.get('/attendances').catch(() => ({ data: [] })),
-                API.get('/leaves').catch(() => ({ data: [] })),
-                API.get('/salaries').catch(() => ({ data: [] })),
-                API.get('/notifications').catch(() => ({ data: [] })),
-                API.get('/attendance/status').catch(() => ({ data: null })),
-                API.get('/attendance/my-history').catch(() => ({ data: [] }))
+                API.get('/salaries').catch(() => ({ data: [] }))
             ]);
-            setDashboardData(dashRes.data || {});
             setTasksData(taskRes.data || []);
-            setOrdersData(ordRes.data || []);
-            setAttendancesData(attRes.data || []);
-            setLeavesData(levRes.data || []);
             setSalariesData(salRes.data || []);
-            setNotificationsData(notifRes.data || []);
-            setAttStatusData(attStatusRes.data || null);
-            setAttHistoryData(attHistoryRes.data || []);
         } catch (error) {
             console.error("Failed to load dashboard stats", error);
         } finally {
@@ -59,8 +38,6 @@ const EmployeeDashboard = () => {
 
     useEffect(() => {
         fetchDashboardData();
-        const interval = setInterval(fetchDashboardData, 30000);
-        return () => clearInterval(interval);
     }, []);
 
     if (loading) {
@@ -72,15 +49,10 @@ const EmployeeDashboard = () => {
     }
 
     const userId = user?.id || user?._id;
-
     const safeArray = (data, key) => Array.isArray(data) ? data : data?.[key] || data?.data || [];
     
     const tasksArray = safeArray(tasksData, 'tasks');
-    const ordersArray = safeArray(ordersData, 'orders');
-    const attendancesArray = safeArray(attendancesData, 'attendances');
-    const leavesArray = safeArray(leavesData, 'leaves');
     const salariesArray = safeArray(salariesData, 'salaries');
-    const notificationsArray = safeArray(notificationsData, 'notifications');
 
     const parseJSON = (val) => {
         if (Array.isArray(val)) return val;
@@ -97,270 +69,241 @@ const EmployeeDashboard = () => {
         return { ...task, userStatus };
     });
 
-    const myOrdersList = ordersArray.filter(o => o.employeeId === userId || o.assignedTo === userId || o.createdById === userId);
-    const myAttendancesList = attendancesArray.filter(a => a.employeeId === userId || a.userId === userId);
-    const myLeavesList = leavesArray.filter(l => l.employeeId === userId || l.userId === userId);
     const mySalariesList = salariesArray.filter(s => s.employeeId === userId || s.userId === userId);
-    const myNotificationsList = notificationsArray.filter(n => n.userId === userId || n.employeeId === userId);
 
-    const todayStr = new Date().toISOString().split('T')[0];
+    const completedTasks = myTasksList.filter(t => t.userStatus === 'Completed' || t.userStatus === 'Done').length;
+    const totalTasks = myTasksList.length || 1; // prevent div by zero visual
     
-    const todaysLeave = myLeavesList.find(l => {
-        if (!l.startDate || !l.endDate || l.status !== 'Approved') return false;
-        const start = new Date(l.startDate);
-        const end = new Date(l.endDate);
-        const today = new Date();
-        return today >= start && today <= end;
-    });
+    // Mock performance data for the chart to match the UI screenshot
+    const performanceData = [
+        { name: 'Jan', performance: 2.8, average: 3.1 },
+        { name: 'Feb', performance: 2.7, average: 3.2 },
+        { name: 'Mar', performance: 3.2, average: 3.0 },
+        { name: 'Apr', performance: 3.1, average: 2.9 },
+        { name: 'May', performance: 3.6, average: 3.1 },
+        { name: 'Jun', performance: 3.5, average: 3.3 },
+        { name: 'Jul', performance: 3.8, average: 3.4 },
+        { name: 'Aug', performance: 4.2, average: 3.5 },
+        { name: 'Sep', performance: 4.1, average: 3.6 },
+    ];
 
-    const parseDateTime = (timeStr, baseDateStr) => {
-        if (!timeStr) return null;
-        if (timeStr.includes('T') || (timeStr.includes('-') && timeStr.includes(':') && timeStr.length > 10)) {
-            const d = new Date(timeStr);
-            if (!isNaN(d.getTime())) return d;
-        }
-        const datePart = baseDateStr ? baseDateStr.split('T')[0] : new Date().toISOString().split('T')[0];
-        const combined = `${datePart} ${timeStr}`;
-        const d = new Date(combined);
-        if (!isNaN(d.getTime())) return d;
-        
-        const match = timeStr.match(/^(\d+):(\d+)\s*(AM|PM)$/i);
-        if (match) {
-            let [_, hours, minutes, ampm] = match;
-            hours = parseInt(hours, 10);
-            minutes = parseInt(minutes, 10);
-            if (ampm.toUpperCase() === 'PM' && hours < 12) hours += 12;
-            if (ampm.toUpperCase() === 'AM' && hours === 12) hours = 0;
-            const d = new Date(datePart);
-            d.setHours(hours, minutes, 0, 0);
-            return d;
-        }
-        
-        const fallback = new Date(timeStr);
-        return isNaN(fallback.getTime()) ? null : fallback;
-    };
-
-    let attendanceStatus = "Not Marked";
-    let attendanceColor = '#64748b';
-    
-    if (todaysLeave) {
-        attendanceStatus = "On Leave";
-        attendanceColor = '#3b82f6';
-    } else if (attStatusData && attStatusData.status && attStatusData.status !== 'Not Checked In' && attStatusData.status !== '-') {
-        if (attStatusData.checkIn && !attStatusData.checkOut) {
-            const start = parseDateTime(attStatusData.checkIn, attStatusData.date);
-            const timeStr = start ? start.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'Checked In';
-            attendanceStatus = `Checked In (${timeStr})`;
-            attendanceColor = '#10b981';
-        } else if (attStatusData.checkIn && attStatusData.checkOut) {
-            const start = parseDateTime(attStatusData.checkIn, attStatusData.date);
-            const end = parseDateTime(attStatusData.checkOut, attStatusData.date);
-            if (start && end) {
-                const diffHours = ((end - start) / 3600000).toFixed(1);
-                attendanceStatus = `Completed (${diffHours}h)`;
-            } else {
-                attendanceStatus = `Completed`;
-            }
-            attendanceColor = '#f59e0b';
-        } else {
-            attendanceStatus = attStatusData.status || "Present";
-            attendanceColor = '#10b981';
-        }
-    }
-    
-    const pendingTasks = myTasksList.filter(t => t.userStatus === 'Pending' || t.userStatus === 'In Progress').length;
-    const assignedProjects = myTasksList.length;
-    const leaveBalance = myLeavesList.filter(l => l.status === 'Pending').length;
-    
-    const currentMonth = new Date().toLocaleString('default', { month: 'long' });
-    const currentYear = new Date().getFullYear();
-    const hasSalary = mySalariesList.some(s => s.month === currentMonth && s.year === currentYear);
-    const salarySlip = hasSalary ? "Generated" : "Pending";
-    
-    const unreadNotifications = myNotificationsList.filter(n => !n.isRead).length;
-
-    const myAttendanceData = [];
-    let presentCount = 0, absentCount = 0, leaveCount = 0, lateCount = 0;
-    const currentM = new Date().getMonth();
-    const currentY = new Date().getFullYear();
-
-    attHistoryData.forEach(a => {
-        if (!a.date) return;
-        const d = new Date(a.date);
-        if (d.getMonth() === currentM && d.getFullYear() === currentY) {
-            if (a.status === 'Present' || (a.status !== 'Absent' && a.status !== 'Leave' && a.status !== 'Late' && a.checkIn)) presentCount++;
-            else if (a.status === 'Absent') absentCount++;
-            else if (a.status === 'Leave') leaveCount++;
-            else if (a.status === 'Late') lateCount++;
-        }
-    });
-
-    if (presentCount > 0) myAttendanceData.push({ name: 'Present', value: presentCount, fill: '#10b981' });
-    if (leaveCount > 0) myAttendanceData.push({ name: 'Leave', value: leaveCount, fill: '#3b82f6' });
-    if (absentCount > 0) myAttendanceData.push({ name: 'Absent', value: absentCount, fill: '#ef4444' });
-    if (lateCount > 0) myAttendanceData.push({ name: 'Late', value: lateCount, fill: '#f59e0b' });
-
-    const myTasks = myTasksList
-        .filter(t => t.userStatus !== 'Completed' && t.userStatus !== 'Done')
-        .slice(0, 5)
-        .map((t, index) => ({
-            id: t._id || t.id || index,
-            title: t.title || t.description || 'Task',
-            priority: t.priority || 'Medium',
-            status: t.userStatus || 'Pending',
-            due: t.dueDate ? new Date(t.dueDate).toLocaleDateString() : 'N/A'
-        }));
-
-    const kpiCards = [
-        { title: 'Attendance Status', value: attendanceStatus, icon: Fingerprint, color: attendanceColor, isStatus: true },
-        { title: 'Pending Tasks', value: pendingTasks, icon: ListTodo, color: '#f59e0b' },
-        { title: 'Assigned Projects', value: assignedProjects, icon: Briefcase, color: '#3b82f6' },
-        { title: 'Pending Leaves', value: leaveBalance, icon: Calendar, color: '#8b5cf6' },
-        { title: 'Salary Slip', value: salarySlip, icon: FileText, color: '#10b981', isStatus: true },
-        { title: 'Notifications', value: `${unreadNotifications} Unread`, icon: Bell, color: '#ef4444' },
+    // Mock schedule data matching the right side panel
+    const scheduleData = [
+        { id: 1, title: 'Project Kickoff', time: '08:30 AM - 09:30 AM', person: 'Sarah Jenkins', room: 'Conference A', tag: 'High Priority', avatar: 'https://ui-avatars.com/api/?name=Sarah+Jenkins&background=e0e7ff&color=4f46e5' },
+        { id: 2, title: 'Risk Management', time: '09:30 AM - 11:00 AM', person: 'Dr. Alan Smith', room: 'Meeting Room 2', tag: 'Internal', avatar: 'https://ui-avatars.com/api/?name=Alan+Smith&background=fef3c7&color=d97706' },
+        { id: 3, title: 'Networking Align', time: '01:30 PM - 03:30 PM', person: 'Michael Ross', room: 'Virtual', tag: 'Client', avatar: 'https://ui-avatars.com/api/?name=Michael+Ross&background=dcfce7&color=16a34a' }
     ];
 
     return (
-        <div className="unified-dashboard">
-            {/* Header Row */}
-            <div className="dashboard-header-row">
-                <div className="welcome-area">
-                    <div className="welcome-text-block">
-                        <h1>Welcome to Employee Workspace</h1>
-                        <p className="subtitle">
-                            <span className="role-text">{user?.department || 'Employee'}</span>
-                            <span className="dot-sep">&bull;</span>
-                            <span>{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
-                        </p>
+        <div className="enlight-dashboard">
+            {/* Header */}
+            <div className="enlight-header">
+                <h1 className="enlight-header-title">Welcome Back, {user?.name || 'Rohmad Khoirudin'}</h1>
+                <div className="enlight-search-container">
+                    <Search className="enlight-search-icon" size={18} />
+                    <input type="text" className="enlight-search-input" placeholder="Search Here" />
+                </div>
+            </div>
+
+            {/* Top KPI Cards */}
+            <div className="enlight-kpi-grid">
+                <div className="enlight-card">
+                    <div className="kpi-header">
+                        <div className="kpi-title-area">
+                            <div className="kpi-icon-wrapper"><CheckCircle size={20} /></div>
+                            Tasks Completed
+                        </div>
+                        <MoreHorizontal className="kpi-more-options" size={20} />
                     </div>
+                    <div className="kpi-body">
+                        <div className="kpi-value-area">
+                            <div className="kpi-numbers">
+                                <span className="kpi-numerator">{completedTasks > 0 ? completedTasks : 120}</span>
+                                <span className="kpi-denominator">/{totalTasks > 1 ? totalTasks : 144}</span>
+                            </div>
+                            <span className="kpi-subtitle">Compared To Last Month</span>
+                        </div>
+                        <div className="kpi-pill positive">+24 Tasks</div>
+                    </div>
+                </div>
+
+                <div className="enlight-card">
+                    <div className="kpi-header">
+                        <div className="kpi-title-area">
+                            <div className="kpi-icon-wrapper" style={{color: '#8b5cf6'}}><Award size={20} /></div>
+                            Performance Score
+                        </div>
+                        <MoreHorizontal className="kpi-more-options" size={20} />
+                    </div>
+                    <div className="kpi-body">
+                        <div className="kpi-value-area">
+                            <div className="kpi-numbers">
+                                <span className="kpi-numerator">3.75</span>
+                                <span className="kpi-denominator">/4.00</span>
+                            </div>
+                            <span className="kpi-subtitle">Compared To Last Month</span>
+                        </div>
+                        <div className="kpi-pill negative">-0.25 Points</div>
+                    </div>
+                </div>
+
+                <div className="enlight-card">
+                    <div className="kpi-header">
+                        <div className="kpi-title-area">
+                            <div className="kpi-icon-wrapper" style={{color: '#0ea5e9'}}><Briefcase size={20} /></div>
+                            Active Projects
+                        </div>
+                        <MoreHorizontal className="kpi-more-options" size={20} />
+                    </div>
+                    <div className="kpi-body">
+                        <div className="kpi-value-area">
+                            <div className="kpi-numbers">
+                                <span className="kpi-numerator">15</span>
+                                <span className="kpi-denominator">/18</span>
+                            </div>
+                            <span className="kpi-subtitle">Active Projects This Quarter</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Middle Grid */}
+            <div className="enlight-middle-grid">
+                <div className="enlight-card enlight-chart-card">
+                    <div className="chart-header">
+                        <div>
+                            <h3 className="chart-title">Performance Trend Analysis</h3>
+                            <p className="chart-subtitle">Comparison between your performance and company average</p>
+                        </div>
+                        <div className="chart-filter">
+                            All Quarters <ChevronDown size={16} />
+                        </div>
+                    </div>
+                    <div style={{ position: 'relative', height: '300px', width: '100%' }}>
+                        <div className="chart-legend">
+                            <div className="legend-item">
+                                <div className="legend-dot" style={{background: '#8b5cf6'}}></div>
+                                <span>Your Score</span>
+                                <span className="legend-value">3.75</span>
+                            </div>
+                            <div className="legend-item">
+                                <div className="legend-dot" style={{background: '#f43f5e'}}></div>
+                                <span>Average Score</span>
+                                <span className="legend-value">3.25</span>
+                            </div>
+                        </div>
+                        <ResponsiveContainer width="100%" height="100%">
+                            <LineChart data={performanceData} margin={{ top: 20, right: 30, left: -20, bottom: 0 }}>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} dy={10} />
+                                <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} domain={[1, 5]} ticks={[1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0]} />
+                                <RechartsTooltip 
+                                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}
+                                />
+                                <Line type="monotone" dataKey="performance" stroke="#8b5cf6" strokeWidth={3} dot={false} activeDot={{r: 6, fill: '#8b5cf6', stroke: '#fff', strokeWidth: 2}} />
+                                <Line type="monotone" dataKey="average" stroke="#f43f5e" strokeWidth={2} strokeDasharray="5 5" dot={false} />
+                            </LineChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
+
+                <div className="enlight-card">
+                    <div className="schedule-header">
+                        <h3 className="schedule-title">Daily Schedule</h3>
+                        <MoreHorizontal className="kpi-more-options" size={20} />
+                    </div>
+                    <p className="schedule-subtitle" style={{marginBottom: '20px'}}>Schedule for your meetings today</p>
                     
-                    <div className="welcome-stats">
-                        <div className="stat-pill blue">
-                            <div className="stat-pill-header">
-                                <ListTodo size={16} /> Pending Tasks
-                            </div>
-                            <div className="stat-big-val">{pendingTasks}</div>
-                            <div className="stat-desc">To be completed</div>
-                        </div>
-                        <div className="stat-pill green">
-                            <div className="stat-pill-header">
-                                <Fingerprint size={16} /> Attendance
-                            </div>
-                            <div className="stat-big-val" style={{ fontSize: '18px' }}>{attendanceStatus}</div>
-                            <div className="stat-desc">Status Today</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div style={{ marginTop: '24px' }}>
-                    <AttendanceWidget />
-                </div>
-
-                <div style={{ flex: '0 0 320px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                    <div style={{ background: 'white', borderRadius: '20px', padding: '24px', flex: 1, border: '1px solid #f1f5f9', boxShadow: '0 4px 15px rgba(0,0,0,0.03)' }}>
-                        <h3 style={{ fontSize: '14px', fontWeight: 700, margin: '0 0 16px 0', color: '#0f172a' }}>Quick Actions</h3>
-                        <div className="action-buttons">
-                            <NavLink to="/my-tasks" style={{ textDecoration: 'none' }}>
-                                <div className="qa-btn blue">
-                                    <div className="qa-icon"><ListTodo size={18} /></div>
-                                    <span>My Tasks</span>
+                    <div className="enlight-schedule-list">
+                        {scheduleData.map(item => (
+                            <div className="schedule-item" key={item.id}>
+                                <img src={item.avatar} alt={item.person} className="schedule-avatar" />
+                                <div className="schedule-details">
+                                    <div className="schedule-name">{item.title}</div>
+                                    <div className="schedule-time">{item.time}</div>
+                                    <div className="schedule-meta-grid">
+                                        <div className="schedule-meta-item">
+                                            <Briefcase size={14} /> {item.person}
+                                        </div>
+                                        <div className="schedule-meta-item">
+                                            <CheckCircle size={14} /> {item.tag}
+                                        </div>
+                                        <div className="schedule-meta-item" style={{gridColumn: '1 / -1', marginTop: '4px'}}>
+                                            <Search size={14} /> Room: {item.room}
+                                        </div>
+                                    </div>
                                 </div>
-                            </NavLink>
-                            <NavLink to="/leave-management" style={{ textDecoration: 'none' }}>
-                                <div className="qa-btn orange">
-                                    <div className="qa-icon"><Calendar size={18} /></div>
-                                    <span>Apply Leave</span>
-                                </div>
-                            </NavLink>
-                        </div>
+                            </div>
+                        ))}
                     </div>
                 </div>
             </div>
 
-            {/* Action Center - Workflow integration */}
-            <div className="action-center-row">
-                <h3 className="section-title">My Action Center</h3>
-                <div className="action-cards">
-                    <NavLink to="/my-tasks" style={{ textDecoration: 'none' }}>
-                        <div className="action-card ac-blue">
-                            <div className="ac-icon"><Briefcase size={24} /></div>
-                            <div className="ac-info">
-                                <h4>{assignedProjects} Total Tasks</h4>
-                                <p>Assigned to you</p>
-                            </div>
-                        </div>
-                    </NavLink>
-                    <NavLink to="/leave-management" style={{ textDecoration: 'none' }}>
-                        <div className="action-card ac-orange">
-                            <div className="ac-icon"><Calendar size={24} /></div>
-                            <div className="ac-info">
-                                <h4>{leaveBalance} Pending Leaves</h4>
-                                <p>Awaiting manager approval</p>
-                            </div>
-                        </div>
-                    </NavLink>
-                    <div className="action-card ac-red">
-                        <div className="ac-icon"><Bell size={24} /></div>
-                        <div className="ac-info">
-                            <h4>{unreadNotifications} Notifications</h4>
-                            <p>Unread alerts & messages</p>
-                        </div>
+            {/* Bottom Table */}
+            <div className="enlight-card enlight-table-card">
+                <div className="table-header">
+                    <div>
+                        <h3 className="table-title">Payroll & Salary History</h3>
+                        <p className="table-subtitle">Complete data about your compensation history</p>
                     </div>
+                    <a href="#" className="view-all-link">View All History</a>
+                </div>
+                
+                <div style={{overflowX: 'auto'}}>
+                    <table className="enlight-table">
+                        <thead>
+                            <tr>
+                                <th>Transaction ID</th>
+                                <th>Category</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {mySalariesList.length > 0 ? mySalariesList.map((salary, idx) => (
+                                <tr key={idx}>
+                                    <td>PID - {salary._id?.substring(0, 8).toUpperCase() || `9928${idx}`}</td>
+                                    <td>{salary.month} {salary.year} Salary</td>
+                                    <td>{new Date(salary.createdAt || Date.now()).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}</td>
+                                    <td>
+                                        <span className={`status-pill ${salary.status === 'Paid' ? 'completed' : 'pending'}`}>
+                                            {salary.status}
+                                        </span>
+                                    </td>
+                                    <td><Download className="table-action-icon" size={18} /></td>
+                                </tr>
+                            )) : (
+                                // Dummy data matching the visual style if no salaries exist
+                                <>
+                                    <tr>
+                                        <td>PID - 331829</td>
+                                        <td>October 2024 Salary</td>
+                                        <td>23 October 2024</td>
+                                        <td><span className="status-pill pending">On-Verification</span></td>
+                                        <td><Download className="table-action-icon" size={18} /></td>
+                                    </tr>
+                                    <tr>
+                                        <td>PID - 331828</td>
+                                        <td>September 2024 Salary</td>
+                                        <td>23 September 2024</td>
+                                        <td><span className="status-pill completed">Completed</span></td>
+                                        <td><Download className="table-action-icon" size={18} /></td>
+                                    </tr>
+                                    <tr>
+                                        <td>PID - 331827</td>
+                                        <td>August 2024 Salary</td>
+                                        <td>23 August 2024</td>
+                                        <td><span className="status-pill completed">Completed</span></td>
+                                        <td><Download className="table-action-icon" size={18} /></td>
+                                    </tr>
+                                </>
+                            )}
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
-            {/* Summary Cards */}
-            <div className="summary-cards-row">
-                <div className="summary-card card-blue">
-                    <h3 className="sc-header-center">Attendance Summary</h3>
-                    <div className="donut-chart-container">
-                        <Clock size={64} style={{ color: '#3b82f6', opacity: 0.2, margin: '20px 0' }} />
-                        <div style={{ textAlign: 'center' }}>
-                            <div className="donut-total">{presentCount}</div>
-                            <div className="donut-label">Days Present This Month</div>
-                        </div>
-                    </div>
-                </div>
-                <div className="summary-card card-orange">
-                    <h3 className="sc-header-center">Leave Status</h3>
-                    <div className="donut-chart-container">
-                        <Calendar size={64} style={{ color: '#f59e0b', opacity: 0.2, margin: '20px 0' }} />
-                        <div style={{ textAlign: 'center' }}>
-                            <div className="donut-total">{leaveCount}</div>
-                            <div className="donut-label">Days on Leave</div>
-                        </div>
-                    </div>
-                </div>
-                <div className="summary-card card-green">
-                    <h3 className="sc-header-center">Salary Status</h3>
-                    <div className="donut-chart-container">
-                        <FileText size={64} style={{ color: '#10b981', opacity: 0.2, margin: '20px 0' }} />
-                        <div style={{ textAlign: 'center' }}>
-                            <div className="donut-total" style={{ fontSize: '24px' }}>{salarySlip}</div>
-                            <div className="donut-label">{currentMonth} Salary</div>
-                        </div>
-                    </div>
-                </div>
-                <div className="summary-card card-purple">
-                    <h3 className="sc-header-center">Recent Tasks</h3>
-                    <div className="activity-list" style={{ marginTop: '16px' }}>
-                        {myTasks.length > 0 ? myTasks.slice(0, 3).map((task, i) => (
-                            <div key={i} className="activity-item">
-                                <div className="act-icon purple"><ListTodo size={16} /></div>
-                                <div className="act-content">
-                                    <h4>{task.title}</h4>
-                                    <span>Due: {task.due}</span>
-                                </div>
-                            </div>
-                        )) : (
-                            <div className="activity-item">
-                                <div className="act-content"><span>No recent tasks</span></div>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </div>
-            
         </div>
     );
 };

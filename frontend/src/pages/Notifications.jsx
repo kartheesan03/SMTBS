@@ -147,7 +147,7 @@ const NotificationsPage = () => {
 
             {/* Toast */}
             {toast && (
-                <div style={{ position: 'fixed', top: '24px', right: '24px', zIndex: 9999, display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 20px', borderRadius: '10px', fontSize: '13px', fontWeight: 600, color: '#fff', background: toast.ok ? '#10b981' : '#ef4444', boxShadow: '0 8px 25px rgba(0,0,0,0.15)' }}>
+                <div style={{ position: 'fixed', top: '24px', right: '24px', zIndex: 9999, display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 20px', borderRadius: '10px', fontSize: '13px', fontWeight: 600, color: '#fff', background: toast.ok ? '#10b981' : '#ef4444', }}>
                     {toast.ok ? <Check size={15} /> : <AlertTriangle size={15} />}
                     {toast.msg}
                 </div>
@@ -197,7 +197,7 @@ const NotificationsPage = () => {
             {/* ===== SEARCH + FILTER BAR ===== */}
             <div style={{ marginBottom: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {/* Search */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: '10px', padding: '8px 16px', width: '100%', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: '#fff', borderRadius: '10px', padding: '8px 16px', width: '100%', }}>
                     <Search size={16} color="#64748b" />
                     <input
                         type="text"
@@ -257,7 +257,7 @@ const NotificationsPage = () => {
                     </div>
                     {notifications.length === 0 && canAdmin && (
                         <button onClick={handleSeed}
-                            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 18px', borderRadius: '10px', border: '1px solid #3b82f6', background: '#eff6ff', fontSize: '13px', fontWeight: 600, color: '#3b82f6', cursor: 'pointer', marginTop: '8px' }}>
+                            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 18px', borderRadius: '10px', background: '#eff6ff', fontSize: '13px', fontWeight: 600, color: '#3b82f6', cursor: 'pointer', marginTop: '8px' }}>
                             <RefreshCw size={14} /> Load Notifications
                         </button>
                     )}
@@ -319,7 +319,7 @@ const NotificationsPage = () => {
                                         <button
                                             onClick={(e) => { e.stopPropagation(); handleMarkOne(n._id); }}
                                             title="Mark Read"
-                                            style={{ width: '34px', height: '34px', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#10b981', transition: 'all 0.2s' }}
+                                            style={{ width: '34px', height: '34px', borderRadius: '8px', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#10b981', transition: 'all 0.2s' }}
                                             onMouseEnter={e => { e.currentTarget.style.background = '#ecfdf5'; e.currentTarget.style.borderColor = '#10b981'; }}
                                             onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
                                         >
@@ -330,7 +330,7 @@ const NotificationsPage = () => {
                                         <button
                                             onClick={(e) => { e.stopPropagation(); handleNotificationClick(n); }}
                                             title="View Details"
-                                            style={{ width: '34px', height: '34px', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#3b82f6', transition: 'all 0.2s' }}
+                                            style={{ width: '34px', height: '34px', borderRadius: '8px', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#3b82f6', transition: 'all 0.2s' }}
                                             onMouseEnter={e => { e.currentTarget.style.background = '#eff6ff'; e.currentTarget.style.borderColor = '#3b82f6'; }}
                                             onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
                                         >
@@ -340,7 +340,7 @@ const NotificationsPage = () => {
                                     <button
                                         onClick={(e) => { e.stopPropagation(); handleDelete(n._id); }}
                                         title="Delete"
-                                        style={{ width: '34px', height: '34px', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#64748b', transition: 'all 0.2s' }}
+                                        style={{ width: '34px', height: '34px', borderRadius: '8px', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#64748b', transition: 'all 0.2s' }}
                                         onMouseEnter={e => { e.currentTarget.style.background = '#fef2f2'; e.currentTarget.style.borderColor = '#ef4444'; e.currentTarget.style.color = '#ef4444'; }}
                                         onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#64748b'; }}
                                     >
