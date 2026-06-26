@@ -9,6 +9,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 
 import ModuleLauncher from './components/ModuleLauncher';
 import CommandCenter from './components/CommandCenter';
+import GlobalBackButton from './components/GlobalBackButton';
 
 // Pages
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
@@ -114,6 +115,7 @@ const AppContent = () => {
                 )}
                 <React.Suspense fallback={<div className="flex-center" style={{height:'100vh'}}><div className="loader"></div></div>}>
                 <div className="app-content">
+                {user && <GlobalBackButton />}
                 <Routes>
                     {/* Public Route */}
                     <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />

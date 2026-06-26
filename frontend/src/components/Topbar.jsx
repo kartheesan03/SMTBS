@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect, useRef } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { Bell, RefreshCw, Search, Grid, Plus, LogOut, User, Settings as SettingsIcon } from 'lucide-react';
+import { Bell, RefreshCw, Search, Grid, Plus, LogOut, User, Settings as SettingsIcon, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Topbar = ({ onOpenModuleLauncher, onOpenCommandCenter }) => {

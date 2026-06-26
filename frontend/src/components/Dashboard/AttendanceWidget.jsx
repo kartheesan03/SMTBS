@@ -3,7 +3,7 @@ import API from '../../api/axios';
 import { toast } from 'react-hot-toast';
 import { Play, Square, Timer, Calendar } from 'lucide-react';
 
-const AttendanceWidget = () => {
+const AttendanceWidget = ({ onStatusChange }) => {
     const [status, setStatus] = useState(null);
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState(false);
@@ -50,6 +50,12 @@ const AttendanceWidget = () => {
     useEffect(() => {
         fetchStatus();
     }, []);
+
+    useEffect(() => {
+        if (onStatusChange) {
+            onStatusChange(status);
+        }
+    }, [status, onStatusChange]);
 
     useEffect(() => {
         let interval;

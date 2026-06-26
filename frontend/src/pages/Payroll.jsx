@@ -229,15 +229,29 @@ const Payroll = () => {
     
     const averageSalary = salaries.length > 0 ? (stats.total / salaries.length) : 0;
 
-    // Simulated Chart Data (since we don't have historical API)
-    const monthlyTrendData = [
-        { name: 'Jan', amount: 120000 },
-        { name: 'Feb', amount: 125000 },
-        { name: 'Mar', amount: 124500 },
-        { name: 'Apr', amount: 130000 },
-        { name: 'May', amount: 132000 },
-        { name: 'Jun', amount: stats.thisMonth || 135000 },
-    ];
+    // Dynamic Chart Data
+    const monthlyTrendMap = {};
+    salaries.forEach(s => {
+        if (s.status === 'Paid' || s.status === 'Approved') {
+            let mName = s.month || 'Unknown';
+            if (mName.includes(' ')) mName = mName.split(' ')[0]; // Extract just the month name if it contains year
+            mName = mName.substring(0, 3); // Shorten to 3 letters
+            
+            if (!monthlyTrendMap[mName]) monthlyTrendMap[mName] = 0;
+            monthlyTrendMap[mName] += (s.netSalary || 0);
+        }
+    });
+
+    let monthlyTrendData = Object.keys(monthlyTrendMap).map(m => ({
+        name: m,
+        amount: monthlyTrendMap[m]
+    }));
+
+    if (monthlyTrendData.length === 0) {
+        monthlyTrendData = [
+            { name: 'No Data', amount: 0 }
+        ];
+    }
 
     // Dynamic department salary distribution from real payroll data
     const DEPT_COLORS = ['#3b82f6', '#10b981', '#8b5cf6', '#f59e0b', '#ef4444', '#06b6d4', '#ec4899', '#14b8a6', '#f97316', '#6366f1'];

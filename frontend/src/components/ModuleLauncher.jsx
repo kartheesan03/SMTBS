@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { 
     LayoutDashboard, Users, UserPlus, FileText, 
     ShoppingCart, Package, Briefcase, Activity, 
-    BarChart2, Shield, Search, Star, Clock 
+    BarChart2, Shield, Search, Star, Clock, X 
 } from 'lucide-react';
 import './ModuleLauncher.css';
 
@@ -47,9 +47,30 @@ const ModuleLauncher = ({ isOpen, onClose }) => {
             <div className="module-launcher">
                 <div className="ml-header">
                     <h2>Apps & Modules</h2>
-                    <div className="ml-search">
-                        <Search size={16} className="ml-search-icon" />
-                        <input type="text" placeholder="Search modules..." />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                        <div className="ml-search">
+                            <Search size={16} className="ml-search-icon" />
+                            <input type="text" placeholder="Search modules..." />
+                        </div>
+                        <button 
+                            onClick={onClose} 
+                            style={{ 
+                                background: 'transparent', 
+                                border: 'none', 
+                                cursor: 'pointer', 
+                                color: '#64748b', 
+                                padding: '4px', 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                justifyContent: 'center',
+                                borderRadius: '50%',
+                                transition: 'background-color 0.2s'
+                            }}
+                            onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f1f5f9'}
+                            onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                        >
+                            <X size={24} />
+                        </button>
                     </div>
                 </div>
 
