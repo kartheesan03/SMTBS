@@ -199,6 +199,67 @@ const AppContent = () => {
                     <Route path="/complete-vendor-profile" element={<ProtectedRoute allowedRoles={['Vendor']}><CompleteVendorProfile /></ProtectedRoute>} />
                     <Route path="/customer/new-order" element={<ProtectedRoute allowedRoles={['Customer']}><CustomerNewOrder /></ProtectedRoute>} />
 
+                    {/* New Routing for DualSidebar Structure */}
+                    <Route path="/attendance/my" element={<ProtectedRoute><MyAttendance /></ProtectedRoute>} />
+                    <Route path="/attendance/daily" element={<ProtectedRoute><ComingSoonPage title="Daily Attendance" subtitle="Track daily presence" /></ProtectedRoute>} />
+                    <Route path="/attendance/monthly" element={<ProtectedRoute><ComingSoonPage title="Monthly Attendance" subtitle="Aggregated monthly records" /></ProtectedRoute>} />
+                    <Route path="/attendance/history" element={<ProtectedRoute><ComingSoonPage title="Check-In History" subtitle="Detailed check-in logs" /></ProtectedRoute>} />
+                    <Route path="/attendance/late" element={<ProtectedRoute><ComingSoonPage title="Late Attendance" subtitle="Monitor late arrivals" /></ProtectedRoute>} />
+                    
+                    <Route path="/settings/departments" element={<ProtectedRoute><ComingSoonPage title="Departments" subtitle="Manage organizational units" /></ProtectedRoute>} />
+                    <Route path="/settings/designations" element={<ProtectedRoute><ComingSoonPage title="Designations" subtitle="Manage job titles" /></ProtectedRoute>} />
+                    
+                    <Route path="/leave-management/pending" element={<ProtectedRoute><LeaveManagement filter="Pending" /></ProtectedRoute>} />
+                    <Route path="/leave-management/approve" element={<ProtectedRoute><LeaveManagement /></ProtectedRoute>} />
+                    <Route path="/leave-management/history" element={<ProtectedRoute><ComingSoonPage title="Leave History" subtitle="Past leave records" /></ProtectedRoute>} />
+                    <Route path="/leave-management/balance" element={<ProtectedRoute><ComingSoonPage title="Leave Balance" subtitle="Employee accruals and balances" /></ProtectedRoute>} />
+                    
+                    <Route path="/reports/attendance" element={<ProtectedRoute><HRReports /></ProtectedRoute>} />
+                    <Route path="/reports/payroll" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
+                    <Route path="/reports/leave" element={<ProtectedRoute><ComingSoonPage title="Leave Reports" /></ProtectedRoute>} />
+                    <Route path="/reports/materials" element={<ProtectedRoute><ComingSoonPage title="Material Reports" /></ProtectedRoute>} />
+                    <Route path="/reports/vendors" element={<ProtectedRoute><ComingSoonPage title="Vendor Reports" /></ProtectedRoute>} />
+                    <Route path="/reports/inventory" element={<ProtectedRoute><ComingSoonPage title="Inventory Reports" /></ProtectedRoute>} />
+                    <Route path="/reports/employees" element={<ProtectedRoute><HRReports /></ProtectedRoute>} />
+                    
+                    <Route path="/materials/categories" element={<ProtectedRoute><ComingSoonPage title="Categories" /></ProtectedRoute>} />
+                    <Route path="/materials/units" element={<ProtectedRoute><ComingSoonPage title="Units" /></ProtectedRoute>} />
+                    <Route path="/materials/warehouse" element={<ProtectedRoute><ComingSoonPage title="Warehouse" /></ProtectedRoute>} />
+                    <Route path="/materials/movement" element={<ProtectedRoute><ComingSoonPage title="Inward / Outward" /></ProtectedRoute>} />
+                    
+                    <Route path="/vendors/history" element={<ProtectedRoute><ComingSoonPage title="Purchase History" /></ProtectedRoute>} />
+                    
+                    <Route path="/crm/opportunities" element={<ProtectedRoute><ComingSoonPage title="Opportunities" /></ProtectedRoute>} />
+                    <Route path="/crm/follow-ups" element={<ProtectedRoute><ComingSoonPage title="Follow-ups" /></ProtectedRoute>} />
+                    <Route path="/crm/history" element={<ProtectedRoute><ComingSoonPage title="Customer History" /></ProtectedRoute>} />
+                    
+                    <Route path="/erp/purchase" element={<ProtectedRoute><ERP /></ProtectedRoute>} />
+                    <Route path="/erp/sales" element={<ProtectedRoute><ERP /></ProtectedRoute>} />
+                    <Route path="/erp/inventory" element={<ProtectedRoute><ComingSoonPage title="Inventory" /></ProtectedRoute>} />
+                    <Route path="/erp/finance" element={<ProtectedRoute><ComingSoonPage title="Finance" /></ProtectedRoute>} />
+                    <Route path="/erp/assets" element={<ProtectedRoute><ComingSoonPage title="Assets" /></ProtectedRoute>} />
+                    
+                    <Route path="/tasks/assigned" element={<ProtectedRoute><ComingSoonPage title="Assigned Tasks" /></ProtectedRoute>} />
+                    <Route path="/tasks/completed" element={<ProtectedRoute><ComingSoonPage title="Completed Tasks" /></ProtectedRoute>} />
+                    <Route path="/tasks/pending" element={<ProtectedRoute><ComingSoonPage title="Pending Tasks" /></ProtectedRoute>} />
+                    <Route path="/tasks/calendar" element={<ProtectedRoute><ComingSoonPage title="Task Calendar" /></ProtectedRoute>} />
+                    
+                    <Route path="/support/history" element={<ProtectedRoute><ComingSoonPage title="Ticket History" /></ProtectedRoute>} />
+                    <Route path="/support/kb" element={<ProtectedRoute><ComingSoonPage title="Knowledge Base" /></ProtectedRoute>} />
+                    
+                    <Route path="/notifications/system" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
+                    <Route path="/notifications/approvals" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
+                    <Route path="/notifications/stock" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
+                    
+                    <Route path="/profile/security" element={<ProtectedRoute><ComingSoonPage title="Change Password" /></ProtectedRoute>} />
+                    <Route path="/profile/security-settings" element={<ProtectedRoute><ComingSoonPage title="Security Settings" /></ProtectedRoute>} />
+                    
+                    <Route path="/settings/roles" element={<ProtectedRoute><ComingSoonPage title="Roles & Permissions" /></ProtectedRoute>} />
+                    <Route path="/settings/system" element={<ProtectedRoute><ComingSoonPage title="System Configuration" /></ProtectedRoute>} />
+                    <Route path="/settings/attendance" element={<ProtectedRoute><ComingSoonPage title="Attendance Settings" /></ProtectedRoute>} />
+                    <Route path="/settings/leave" element={<ProtectedRoute><ComingSoonPage title="Leave Policies" /></ProtectedRoute>} />
+                    <Route path="/settings/payroll" element={<ProtectedRoute><ComingSoonPage title="Payroll Settings" /></ProtectedRoute>} />
+
                     {/* Fallback */}
                     <Route path="*" element={<Navigate to="/" />} />
                 </Routes>

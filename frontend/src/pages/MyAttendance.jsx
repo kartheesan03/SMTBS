@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import DataTable from '../components/Dashboard/DataTable';
 import AttendanceHistoryTable from '../components/Dashboard/AttendanceHistoryTable';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip } from 'recharts';
-import { Clock, Calendar, CheckCircle, Play, Square, Timer } from 'lucide-react';
+import { Clock, Calendar, CheckCircle, Play, Square, Timer, Activity, TrendingUp } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import API from '../api/axios';
 import { AuthContext } from '../context/AuthContext';
-import { useContext } from 'react';
+import './MyAttendance.css';
 
 const MyAttendance = () => {
     const [history, setHistory] = useState([]);
@@ -98,10 +98,8 @@ const MyAttendance = () => {
             
             setHistory(finalHistory);
             
-            // Calculate real stats from history
             if (historyRes.data.length > 0) {
                 const presentDays = historyRes.data.filter(h => h.status === 'Present' || h.status === 'Late').length;
-                // Real avg hours from records that have both checkIn and checkOut
                 const withHours = historyRes.data.filter(h => h.checkIn && h.checkOut);
                 const totalHours = withHours.reduce((sum, h) => {
                     const start = parseDateTime(h.checkIn, h.date);
@@ -132,6 +130,7 @@ const MyAttendance = () => {
                 const { data } = await API.post('/attendance/checkin', { location });
                 setStatus(data);
                 fetchData();
+                toast.success('Successfully checked in!');
             } catch (error) {
                 toast.error(error.response?.data?.message || 'Check-in failed');
             } finally {
@@ -166,6 +165,7 @@ const MyAttendance = () => {
             const { data } = await API.post('/attendance/checkout');
             setStatus(data);
             fetchData();
+            toast.success('Successfully checked out!');
         } catch (error) {
             toast.error(error.response?.data?.message || 'Check-out failed');
         } finally {
@@ -180,77 +180,137 @@ const MyAttendance = () => {
         return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     };
 
-    const calculateDuration = (checkIn, checkOut, baseDateStr) => {
-        if (!checkIn || !checkOut) return '-';
-        const start = parseDateTime(checkIn, baseDateStr);
-        const end = parseDateTime(checkOut, baseDateStr);
-        if (!start || !end) return '-';
-        const diff = end - start;
-        const hours = Math.floor(diff / 3600000);
-        const minutes = Math.floor((diff % 3600000) / 60000);
-        return `${hours}h ${minutes}m`;
+    if (loading) return (
+        <div className="attendance-loading-screen">
+            <div className="attendance-loader"></div>
+            <p>Loading attendance data...</p>
+        </div>
+    );
+
+    const isShiftActive = status?.checkIn && !status?.checkOut;
+    const isShiftCompleted = status?.checkIn && status?.checkOut;
+
+    const CustomTooltip = ({ active, payload, label }) => {
+        if (active && payload && payload.length) {
+            return (
+                <div className="chart-tooltip">
+                    <p className="chart-tooltip-label">{label}</p>
+                    <p className="chart-tooltip-value">
+                        <span className="dot"></span>
+                        {`${payload[0].value} Hours`}
+                    </p>
+                </div>
+            );
+        }
+        return null;
     };
 
-    if (loading) return <div className="p-30">Loading attendance data...</div>;
-
     return (
-        <div className="page-container">
-            <header className="page-header">
-                <div>
+        <div className="attendance-page-container">
+            <header className="attendance-page-header">
+                <div className="header-text-group">
                     <h1 className="page-title">Attendance & Time Tracking</h1>
-                    <p className="page-subtitle">Manage your daily presence and monitor work sessions.</p>
+                    <p className="page-subtitle">Manage your daily presence and monitor work sessions in real-time.</p>
                 </div>
                 <div className="header-actions">
                     {!status?.checkIn ? (
                         <button 
-                            className="btn btn-primary check-btn"
+                            className="btn-action btn-checkin"
                             onClick={handleCheckIn}
                             disabled={actionLoading}
                         >
-                            <Play size={18} /> {actionLoading ? 'Processing...' : 'Check In Now'}
+                            <Play size={18} fill="currentColor" /> {actionLoading ? 'Processing...' : 'Check In Now'}
                         </button>
                     ) : !status?.checkOut ? (
                         <button 
                             onClick={handleCheckOut} 
-                            className="btn-danger flex-center gap-10"
+                            className="btn-action btn-checkout pulse-button-red"
                             disabled={actionLoading}
                         >
-                            <Square size={18} /> {actionLoading ? 'Processing...' : 'Check Out'}
+                            <Square size={18} fill="currentColor" /> {actionLoading ? 'Processing...' : 'Check Out Now'}
                         </button>
                     ) : (
-                        <div className="status-badge-completed">Shift Completed</div>
+                        <div className="badge-completed">
+                            <CheckCircle size={18} /> Shift Completed
+                        </div>
                     )}
                 </div>
             </header>
 
-            <div className="attendance-grid" style={{ marginBottom: '24px' }}>
-                {/* Real-time Timer Card */}
-                <div className="premium-card active-session-card">
-                    <div className="session-info">
-                        <div className="timer-icon-box" style={{ background: 'var(--bg-body)' }}>
-                            <Timer size={32} className={status?.checkIn && !status?.checkOut ? "pulse" : ""} />
+            <div className="attendance-bento-grid">
+                {/* Hero Session Card */}
+                <div className={`bento-card hero-session-card ${isShiftActive ? 'active-shift' : isShiftCompleted ? 'completed-shift' : ''}`}>
+                    <div className="session-card-content">
+                        <div className="session-status-header">
+                            <div className="icon-ring">
+                                <Timer size={28} className={isShiftActive ? "spin-slow" : ""} />
+                            </div>
+                            <span className="session-status-text">
+                                {isShiftCompleted ? "Shift Duration" : isShiftActive ? "Active Session" : "Ready to Start"}
+                            </span>
                         </div>
-                        <div>
-                            <span className="session-label">{status?.checkOut ? "Shift Duration" : status?.checkIn ? "Active Session" : "Ready to Start"}</span>
-                            <h2 className="live-timer" style={{ color: 'var(--text-heading)' }}>{timer}</h2>
+                        
+                        <div className="timer-display-wrapper">
+                            <h2 className="live-timer-text">{timer}</h2>
+                            {isShiftActive && <div className="live-indicator">LIVE</div>}
+                        </div>
+
+                        <div className="session-timeline">
+                            <div className="timeline-point">
+                                <span className="point-label">CHECK IN</span>
+                                <span className="point-time">{formatTime(status?.checkIn, status?.date)}</span>
+                            </div>
+                            <div className="timeline-divider">
+                                <div className="line"></div>
+                            </div>
+                            <div className="timeline-point">
+                                <span className="point-label">CHECK OUT</span>
+                                <span className="point-time">{formatTime(status?.checkOut, status?.date)}</span>
+                            </div>
                         </div>
                     </div>
-                    <div className="session-details">
-                        <div className="detail">
-                            <span className="label">Check In</span>
-                            <span className="value" style={{ color: 'var(--text-primary)' }}>{formatTime(status?.checkIn, status?.date)}</span>
+                    {/* Decorative Background Elements */}
+                    <div className="glass-blob blob-1"></div>
+                    <div className="glass-blob blob-2"></div>
+                </div>
+
+                {/* KPI Cards */}
+                <div className="kpi-vertical-stack">
+                    <div className="bento-card kpi-card blue-glow">
+                        <div className="kpi-icon-wrap text-blue-500 bg-blue-500/10">
+                            <Activity size={24} />
                         </div>
-                        <div className="detail">
-                            <span className="label">Check Out</span>
-                            <span className="value" style={{ color: 'var(--text-primary)' }}>{formatTime(status?.checkOut, status?.date)}</span>
+                        <div className="kpi-info">
+                            <span className="kpi-label">Average Work Hours</span>
+                            <div className="kpi-value-row">
+                                <h3 className="kpi-value">{stats.avg}</h3>
+                                <span className="kpi-suffix">/ Day</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div className="bento-card kpi-card emerald-glow">
+                        <div className="kpi-icon-wrap text-emerald-500 bg-emerald-500/10">
+                            <Calendar size={24} />
+                        </div>
+                        <div className="kpi-info">
+                            <span className="kpi-label">Days Present</span>
+                            <div className="kpi-value-row">
+                                <h3 className="kpi-value">{stats.present}</h3>
+                                <span className="kpi-suffix">This Month</span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div className="premium-card chart-box">
-                    <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: 'var(--text-heading)', display: 'flex', alignItems: 'center', gap: '8px' }}>Work Hours Trend (Last 7 Days)</h3>
-                    <div style={{ height: 200, width: '100%', marginTop: 20 }}>
-                        <ResponsiveContainer>
+                {/* Work Hours Trend Chart */}
+                <div className="bento-card chart-card">
+                    <div className="chart-header">
+                        <TrendingUp size={20} className="text-indigo-500" />
+                        <h3 className="chart-title">Work Hours Trend (Last 7 Days)</h3>
+                    </div>
+                    <div className="chart-wrapper">
+                        <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={(() => {
                                 const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
                                 return days.map(d => {
@@ -265,99 +325,27 @@ const MyAttendance = () => {
                                     const hrs = (end - start) / 3600000;
                                     return { n: d, h: parseFloat(hrs.toFixed(1)) };
                                 });
-                            })()}>
+                            })()} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
                                 <defs>
-                                    <linearGradient id="colorH" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
-                                        <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                                    <linearGradient id="colorHours" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.4}/>
+                                        <stop offset="95%" stopColor="#4f46e5" stopOpacity={0}/>
                                     </linearGradient>
                                 </defs>
-                                <XAxis dataKey="n" stroke="var(--text-muted)" fontSize={12} axisLine={false} tickLine={false} />
-                                <Tooltip contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: '8px' }} />
-                                <Area type="monotone" dataKey="h" stroke="#6366f1" fill="url(#colorH)" strokeWidth={3} />
+                                <XAxis dataKey="n" stroke="#94a3b8" fontSize={12} axisLine={false} tickLine={false} dy={10} />
+                                <YAxis stroke="#94a3b8" fontSize={12} axisLine={false} tickLine={false} />
+                                <Tooltip content={<CustomTooltip />} />
+                                <Area type="monotone" dataKey="h" stroke="#4f46e5" strokeWidth={3} fill="url(#colorHours)" />
                             </AreaChart>
                         </ResponsiveContainer>
                     </div>
                 </div>
-
-                <div className="summary-section">
-                    <div className="premium-card s-box">
-                        <CheckCircle color="#10b981" size={24} />
-                        <div className="s-text">
-                            <h4>Avg. Work Hours</h4>
-                            <p>{stats.avg} / Day</p>
-                        </div>
-                    </div>
-                    <div className="premium-card s-box">
-                        <Calendar color="#6366f1" size={24} />
-                        <div className="s-text">
-                            <h4>Days Present</h4>
-                            <p>{stats.present} This Month</p>
-                        </div>
-                    </div>
-                </div>
             </div>
 
-            <div className="premium-card" style={{ overflow: 'hidden' }}>
+            {/* History Table */}
+            <div className="bento-card table-card">
                 <AttendanceHistoryTable isEmployeeView={true} />
             </div>
-
-            <style jsx="true">{`
-                /* layout handled by .page-container */
-                .module-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px; gap: 20px; }
-                
-                .attendance-grid { display: grid; grid-template-columns: 1fr 1.5fr 1fr; gap: 20px; }
-                
-                .active-session-card { padding: 25px; display: flex; flex-direction: column; justify-content: space-between; background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%); }
-                .session-info { display: flex; align-items: center; gap: 20px; }
-                .timer-icon-box { background: var(--glass); width: 60px; height: 60px; border-radius: 15px; display: flex; align-items: center; justify-content: center; color: var(--primary); border: 1px solid var(--border); flex-shrink: 0; }
-                .session-label { font-size: 13px; color: var(--text-muted); display: block; }
-                .live-timer { font-size: 32px; font-weight: 800; color: white; margin-top: 5px; font-variant-numeric: tabular-nums; }
-                .session-details { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 25px; padding-top: 20px; border-top: 1px solid var(--border); }
-                .detail .label { display: block; font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700; margin-bottom: 5px; }
-                .detail .value { font-size: 15px; font-weight: 600; }
-
-                .chart-box { padding: 25px; }
-                .summary-section { display: flex; flex-direction: column; gap: 20px; }
-                .s-box { display: flex; align-items: center; gap: 20px; padding: 20px; }
-                .s-text h4 { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
-                .s-text p { font-size: 18px; font-weight: 700; color: var(--text-main); }
-                
-                .status-pill { padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; display: inline-block; }
-                .status-pill.present { background: rgba(16, 185, 129, 0.1); color: #10b981; }
-                .status-pill.half-day { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
-                .status-pill.absent { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
-                .status-pill.on-leave { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
-                .status-pill.late { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
-                
-                .pulse { animation: pulse-red 2s infinite; color: #10b981; }
-                @keyframes pulse-red { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
-
-                .status-badge-completed { background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 10px 20px; border-radius: 10px; font-weight: 600; font-size: 14px; border: 1px solid rgba(16, 185, 129, 0.2); }
-                .btn-danger { background: #ef4444; color: white; padding: 10px 20px; border-radius: 10px; font-weight: 600; }
-                .btn-danger:hover { background: #dc2626; }
-                
-                .mt-30 { margin-top: 30px; }
-
-                @media (max-width: 1200px) {
-                    .attendance-grid { grid-template-columns: 1fr; }
-                }
-
-                @media (max-width: 768px) {
-                    .page-container { padding: 16px 12px; }
-                    .module-header { flex-direction: column; align-items: flex-start; gap: 15px; }
-                    .header-actions { width: 100%; }
-                    .header-actions button { width: 100%; }
-                    .live-timer { font-size: 24px; }
-                    .summary-section { flex-direction: row; flex-wrap: wrap; }
-                    .s-box { flex: 1; min-width: 200px; }
-                }
-
-                @media (max-width: 480px) {
-                    .summary-section { flex-direction: column; }
-                    .s-box { width: 100%; }
-                }
-            `}</style>
         </div>
     );
 };

@@ -8,6 +8,7 @@ import AttendanceHistoryTable from '../components/Dashboard/AttendanceHistoryTab
 import { AuthContext } from '../context/AuthContext';
 import { useContext } from 'react';
 import { toast } from 'react-hot-toast';
+import './Attendance.css';
 
 const Attendance = () => {
     const [attendanceData, setAttendanceData] = useState(null);

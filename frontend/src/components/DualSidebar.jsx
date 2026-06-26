@@ -2,28 +2,11 @@ import React, { useState, useContext, useEffect } from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { 
-    LayoutDashboard, 
-    ShoppingCart, 
-    Users, 
-    Briefcase,
-    Settings as SettingsIcon,
-    ChevronLeft,
-    ChevronRight,
-    LogOut,
-    Home,
-    BarChart2,
-    CheckSquare,
-    Bell,
-    UserPlus,
-    FileText,
-    DollarSign,
-    Box,
-    Truck,
-    Clock,
-    Calendar,
-    Wallet,
-    HelpCircle,
-    User
+    LayoutDashboard, ShoppingCart, Users, Briefcase, Settings as SettingsIcon,
+    ChevronLeft, ChevronRight, LogOut, Home, BarChart2, CheckSquare, Bell,
+    UserPlus, FileText, DollarSign, Box, Truck, Clock, Calendar, Wallet,
+    HelpCircle, User, Activity, List, Key, Shield, PieChart, Info, Map, 
+    BookOpen, Layers, Archive, PackageCheck, Target
 } from 'lucide-react';
 import './DualSidebar.css';
 
@@ -39,14 +22,28 @@ const DualSidebar = () => {
     // Determine active primary tab based on current path
     useEffect(() => {
         const path = location.pathname;
-        if (path.startsWith('/crm') || path.startsWith('/sales') || path.startsWith('/customers')) {
-            setActivePrimaryTab('crm');
-        } else if (path.startsWith('/erp') || path.startsWith('/orders') || path.startsWith('/vendors') || path.startsWith('/materials') || path.startsWith('/stock-requests') || path.startsWith('/tracking-overview')) {
-            setActivePrimaryTab('operations');
-        } else if (path.startsWith('/hrms') || path.startsWith('/payroll') || path.startsWith('/attendance') || path.startsWith('/leave-management') || path.startsWith('/my-salary')) {
+        if (path.startsWith('/attendance')) {
+            setActivePrimaryTab('attendance');
+        } else if (path.startsWith('/hrms') || path.startsWith('/payroll') || path.startsWith('/leave') || path.startsWith('/my-salary') || path.startsWith('/employee')) {
             setActivePrimaryTab('hrms');
-        } else if (path.startsWith('/settings') || path.startsWith('/profile') || path.startsWith('/support')) {
-            setActivePrimaryTab('system');
+        } else if (path.startsWith('/material') || path.startsWith('/stock') || path.startsWith('/vendor')) {
+            setActivePrimaryTab('materials');
+        } else if (path.startsWith('/crm') || path.startsWith('/customer') || path.startsWith('/lead') || path.startsWith('/opportunities') || path.startsWith('/follow-ups')) {
+            setActivePrimaryTab('crm');
+        } else if (path.startsWith('/erp') || path.startsWith('/order') || path.startsWith('/inventory') || path.startsWith('/finance') || path.startsWith('/assets')) {
+            setActivePrimaryTab('erp');
+        } else if (path.startsWith('/task') || path.startsWith('/my-tasks')) {
+            setActivePrimaryTab('tasks');
+        } else if (path.startsWith('/report')) {
+            setActivePrimaryTab('reports');
+        } else if (path.startsWith('/support')) {
+            setActivePrimaryTab('support');
+        } else if (path.startsWith('/notification')) {
+            setActivePrimaryTab('notifications');
+        } else if (path.startsWith('/profile')) {
+            setActivePrimaryTab('profile');
+        } else if (path.startsWith('/setting')) {
+            setActivePrimaryTab('settings');
         } else {
             setActivePrimaryTab('dashboard');
         }
@@ -59,60 +56,24 @@ const DualSidebar = () => {
 
     const navigationConfig = {
         dashboard: {
-            title: 'Overview',
+            title: 'Dashboard',
             sections: [
                 {
-                    title: 'MAIN',
+                    title: 'OVERVIEW',
                     links: [
                         { name: 'Dashboard', path: '/', icon: <Home /> },
-                        { name: 'My Tasks', path: '/my-tasks', icon: <CheckSquare /> },
-                        { name: 'Notifications', path: '/notifications', icon: <Bell /> },
-                    ]
-                },
-                {
-                    title: 'ANALYTICS',
-                    links: [
-                        { name: 'Reports', path: '/analytics', icon: <BarChart2 /> },
                     ]
                 }
             ]
         },
-        crm: {
-            title: 'CRM & Sales',
+        attendance: {
+            title: 'Attendance',
             sections: [
                 {
-                    title: 'CUSTOMER MANAGEMENT',
+                    title: 'TIME & ATTENDANCE',
                     links: [
-                        { name: 'Customers', path: '/crm/customers', icon: <Users /> },
-                        { name: 'Leads', path: '/crm/leads', icon: <UserPlus /> },
-                    ]
-                },
-                {
-                    title: 'SALES',
-                    links: [
-                        { name: 'Pipeline', path: '/crm/pipeline', icon: <BarChart2 /> },
-                        { name: 'Quotations', path: '/quotations', icon: <FileText /> },
-                        { name: 'Revenue', path: '/sales/revenue', icon: <DollarSign /> },
-                    ]
-                }
-            ]
-        },
-        operations: {
-            title: 'Operations',
-            sections: [
-                {
-                    title: 'SUPPLY CHAIN',
-                    links: [
-                        { name: 'Orders (ERP)', path: '/erp', icon: <ShoppingCart /> },
-                        { name: 'Vendors', path: '/vendors', icon: <Truck /> },
-                        { name: 'Materials', path: '/materials', icon: <Box /> },
-                    ]
-                },
-                {
-                    title: 'LOGISTICS',
-                    links: [
-                        { name: 'Stock Requests', path: '/stock-requests', icon: <CheckSquare /> },
-                        { name: 'Tracking', path: '/tracking-overview', icon: <Truck /> },
+                        { name: 'My Attendance', path: '/attendance/my', icon: <Clock /> },
+                        { name: 'Master Attendance', path: '/attendance', icon: <List /> }
                     ]
                 }
             ]
@@ -121,36 +82,114 @@ const DualSidebar = () => {
             title: 'HRMS',
             sections: [
                 {
-                    title: 'PEOPLE',
+                    title: 'HUMAN RESOURCES',
                     links: [
-                        { name: 'HR Dashboard', path: '/hrms', icon: <Users /> },
-                        { name: 'Attendance', path: '/attendance', icon: <Clock /> },
+                        { name: 'Employee Management', path: '/hrms', icon: <Users /> },
                         { name: 'Leave Management', path: '/leave-management', icon: <Calendar /> },
-                    ]
-                },
-                {
-                    title: 'FINANCE',
-                    links: [
-                        { name: 'Payroll', path: '/payroll', icon: <Wallet /> },
-                        { name: 'My Salary', path: '/my-salary', icon: <DollarSign /> },
+                        { name: 'Payroll', path: '/payroll', icon: <DollarSign /> },
+                        { name: 'My Salary', path: '/my-salary', icon: <Wallet /> },
                     ]
                 }
             ]
         },
-        system: {
-            title: 'System',
+        materials: {
+            title: 'Material Management',
             sections: [
                 {
-                    title: 'PREFERENCES',
+                    title: 'MATERIALS',
                     links: [
-                        { name: 'Settings', path: '/settings', icon: <SettingsIcon /> },
-                        { name: 'My Profile', path: '/profile', icon: <User /> },
+                        { name: 'Materials', path: '/materials', icon: <Box /> },
+                        { name: 'Material Tracking', path: '/tracking-overview', icon: <Map /> },
+                        { name: 'Stock Request', path: '/stock-requests', icon: <Truck /> },
+                        { name: 'Vendors', path: '/vendors', icon: <Users /> }
                     ]
-                },
+                }
+            ]
+        },
+        crm: {
+            title: 'CRM',
+            sections: [
                 {
-                    title: 'HELP',
+                    title: 'CUSTOMER RELATIONS',
                     links: [
-                        { name: 'Support', path: '/support', icon: <HelpCircle /> },
+                        { name: 'CRM Dashboard', path: '/crm', icon: <Users /> }
+                    ]
+                }
+            ]
+        },
+        erp: {
+            title: 'ERP',
+            sections: [
+                {
+                    title: 'ENTERPRISE RESOURCE',
+                    links: [
+                        { name: 'ERP Dashboard', path: '/erp', icon: <ShoppingCart /> }
+                    ]
+                }
+            ]
+        },
+        tasks: {
+            title: 'Task Management',
+            sections: [
+                {
+                    title: 'TASKS',
+                    links: [
+                        { name: 'My Tasks', path: '/my-tasks', icon: <CheckSquare /> }
+                    ]
+                }
+            ]
+        },
+        reports: {
+            title: 'Reports',
+            sections: [
+                {
+                    title: 'ANALYTICS & EXPORT',
+                    links: [
+                        { name: 'Reports', path: '/reports', icon: <BarChart2 /> }
+                    ]
+                }
+            ]
+        },
+        support: {
+            title: 'Support',
+            sections: [
+                {
+                    title: 'HELP DESK',
+                    links: [
+                        { name: 'Support', path: '/support', icon: <HelpCircle /> }
+                    ]
+                }
+            ]
+        },
+        notifications: {
+            title: 'Notifications',
+            sections: [
+                {
+                    title: 'ALERTS',
+                    links: [
+                        { name: 'Notifications', path: '/notifications', icon: <Bell /> }
+                    ]
+                }
+            ]
+        },
+        profile: {
+            title: 'Profile',
+            sections: [
+                {
+                    title: 'ACCOUNT',
+                    links: [
+                        { name: 'Profile', path: '/profile', icon: <User /> }
+                    ]
+                }
+            ]
+        },
+        settings: {
+            title: 'Settings',
+            sections: [
+                {
+                    title: 'CONFIGURATION',
+                    links: [
+                        { name: 'Settings', path: '/settings', icon: <SettingsIcon /> }
                     ]
                 }
             ]
@@ -161,67 +200,63 @@ const DualSidebar = () => {
 
     return (
         <div className={`dual-sidebar-container ${isExpanded ? 'expanded' : 'collapsed'}`}>
-            {/* Primary Sidebar */}
-            <div className="primary-sidebar">
+            <div className="primary-sidebar" style={{overflowY: 'auto', msOverflowStyle: 'none', scrollbarWidth: 'none'}}>
                 <div className="ps-logo">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
                     </svg>
                 </div>
                 
-                <div className="ps-nav">
-                    <button 
-                        className={`ps-nav-item ${activePrimaryTab === 'dashboard' ? 'active' : ''}`}
-                        onClick={() => { setActivePrimaryTab('dashboard'); setIsExpanded(true); }}
-                        title="Dashboard"
-                    >
+                <div className="ps-nav" style={{flex: 1}}>
+                    <button className={`ps-nav-item ${activePrimaryTab === 'dashboard' ? 'active' : ''}`} onClick={() => { setActivePrimaryTab('dashboard'); setIsExpanded(true); }} title="Dashboard">
                         <LayoutDashboard size={24} />
                     </button>
-                    <button 
-                        className={`ps-nav-item ${activePrimaryTab === 'crm' ? 'active' : ''}`}
-                        onClick={() => { setActivePrimaryTab('crm'); setIsExpanded(true); }}
-                        title="CRM & Sales"
-                    >
-                        <Briefcase size={24} />
+                    <button className={`ps-nav-item ${activePrimaryTab === 'attendance' ? 'active' : ''}`} onClick={() => { setActivePrimaryTab('attendance'); setIsExpanded(true); }} title="Attendance">
+                        <Clock size={24} />
                     </button>
-                    <button 
-                        className={`ps-nav-item ${activePrimaryTab === 'operations' ? 'active' : ''}`}
-                        onClick={() => { setActivePrimaryTab('operations'); setIsExpanded(true); }}
-                        title="Operations"
-                    >
-                        <Box size={24} />
-                    </button>
-                    <button 
-                        className={`ps-nav-item ${activePrimaryTab === 'hrms' ? 'active' : ''}`}
-                        onClick={() => { setActivePrimaryTab('hrms'); setIsExpanded(true); }}
-                        title="HRMS"
-                    >
+                    <button className={`ps-nav-item ${activePrimaryTab === 'hrms' ? 'active' : ''}`} onClick={() => { setActivePrimaryTab('hrms'); setIsExpanded(true); }} title="HRMS">
                         <Users size={24} />
                     </button>
-                    <button 
-                        className={`ps-nav-item ${activePrimaryTab === 'system' ? 'active' : ''}`}
-                        onClick={() => { setActivePrimaryTab('system'); setIsExpanded(true); }}
-                        title="System"
-                    >
+                    <button className={`ps-nav-item ${activePrimaryTab === 'materials' ? 'active' : ''}`} onClick={() => { setActivePrimaryTab('materials'); setIsExpanded(true); }} title="Material Management">
+                        <Box size={24} />
+                    </button>
+                    <button className={`ps-nav-item ${activePrimaryTab === 'crm' ? 'active' : ''}`} onClick={() => { setActivePrimaryTab('crm'); setIsExpanded(true); }} title="CRM">
+                        <Briefcase size={24} />
+                    </button>
+                    <button className={`ps-nav-item ${activePrimaryTab === 'erp' ? 'active' : ''}`} onClick={() => { setActivePrimaryTab('erp'); setIsExpanded(true); }} title="ERP">
+                        <ShoppingCart size={24} />
+                    </button>
+                    <button className={`ps-nav-item ${activePrimaryTab === 'tasks' ? 'active' : ''}`} onClick={() => { setActivePrimaryTab('tasks'); setIsExpanded(true); }} title="Task Management">
+                        <CheckSquare size={24} />
+                    </button>
+                    <button className={`ps-nav-item ${activePrimaryTab === 'reports' ? 'active' : ''}`} onClick={() => { setActivePrimaryTab('reports'); setIsExpanded(true); }} title="Reports">
+                        <BarChart2 size={24} />
+                    </button>
+                    <button className={`ps-nav-item ${activePrimaryTab === 'support' ? 'active' : ''}`} onClick={() => { setActivePrimaryTab('support'); setIsExpanded(true); }} title="Support">
+                        <HelpCircle size={24} />
+                    </button>
+                    <button className={`ps-nav-item ${activePrimaryTab === 'notifications' ? 'active' : ''}`} onClick={() => { setActivePrimaryTab('notifications'); setIsExpanded(true); }} title="Notifications">
+                        <Bell size={24} />
+                    </button>
+                    <button className={`ps-nav-item ${activePrimaryTab === 'profile' ? 'active' : ''}`} onClick={() => { setActivePrimaryTab('profile'); setIsExpanded(true); }} title="Profile">
+                        <User size={24} />
+                    </button>
+                    <button className={`ps-nav-item ${activePrimaryTab === 'settings' ? 'active' : ''}`} onClick={() => { setActivePrimaryTab('settings'); setIsExpanded(true); }} title="Settings">
                         <SettingsIcon size={24} />
                     </button>
                 </div>
 
                 <div className="ps-bottom">
-                    <div className="ps-avatar" onClick={() => navigate('/profile')}>
-                        <img src={user?.avatar || "https://i.pravatar.cc/150?img=11"} alt={user?.name || 'User'} />
-                    </div>
                     <button className="ps-toggle-btn" onClick={() => setIsExpanded(!isExpanded)}>
                         {isExpanded ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
                     </button>
                 </div>
             </div>
 
-            {/* Secondary Sidebar */}
             <div className="secondary-sidebar">
                 <div className="ss-header">
                     <h2>
-                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight: 8}}>
                             <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
                         </svg>
                         SMTBMS
@@ -263,11 +298,11 @@ const DualSidebar = () => {
 
                     <div className="ss-profile-info">
                         <div className="ps-avatar" style={{width: 40, height: 40}}>
-                            <img src={user?.avatar || "https://i.pravatar.cc/150?img=11"} alt={user?.name || 'User'} />
+                            <img src={user?.avatar || "https://ui-avatars.com/api/?name=Admin"} alt={user?.name || 'User'} />
                         </div>
                         <div className="ss-profile-text">
                             <span className="ss-profile-name">{user?.name || 'System Admin'}</span>
-                            <span className="ss-profile-role">{user?.role || 'Admin Manager'}</span>
+                            <span className="ss-profile-role">{user?.role || 'Admin'}</span>
                         </div>
                     </div>
 
