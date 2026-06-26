@@ -6,6 +6,7 @@ import DualSidebar from './components/DualSidebar';
 import ProtectedRoute from './components/ProtectedRoute';
 import OrderCreationRoute from './components/OrderCreationRoute';
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import { Toaster } from 'react-hot-toast';
 
 import ModuleLauncher from './components/ModuleLauncher';
 import CommandCenter from './components/CommandCenter';
@@ -207,8 +208,6 @@ const AppContent = () => {
         </div>
     );
 };
-
-import { Toaster } from 'react-hot-toast';
 
 const App = () => {
     return (
