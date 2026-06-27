@@ -166,15 +166,7 @@ const FarmakuSidebar = () => {
                 </div>
             </div>
 
-            <div className="farmaku-sidebar-footer" style={{ padding: '0', display: 'flex', alignItems: 'center', backgroundColor: '#1e293b', borderTop: '1px solid #334155', cursor: 'pointer', marginTop: 'auto' }}>
-                <div style={{ flex: 1, padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '12px', color: '#94a3b8', fontSize: '14px', fontWeight: '500' }}>
-                    <ChevronRight size={18} style={{ transform: 'rotate(180deg)' }} />
-                    <span>Collapse</span>
-                </div>
-                <div style={{ padding: '16px 20px', borderLeft: '1px solid #334155', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8' }}>
-                    <SettingsIcon size={16} />
-                </div>
-            </div>
+
         </aside>
     );
 };
