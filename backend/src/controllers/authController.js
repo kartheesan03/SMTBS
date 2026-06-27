@@ -66,9 +66,6 @@ const loginUser = async (req, res) => {
     }
 
     let role = user.role;
-    if (user.email === 'admin@smtbms.com') {
-        role = 'Super Admin';
-    }
 
     // Validate role if requested
     if (requestedRole) {
@@ -84,13 +81,21 @@ const loginUser = async (req, res) => {
             return res.status(403).json({ message: `Role mismatch. This account is registered as ${role}.` });
         }
     }
-    if (user.email === 'admin@smtbms.com') {
-        role = 'Super Admin';
+
+    let actualName = user.name;
+    try {
+        const Employee = require('../models/Employee');
+        const emp = await Employee.findOne({ userId: user.id || user._id });
+        if (emp && emp.firstName) {
+            actualName = `${emp.firstName} ${emp.lastName || ''}`.trim();
+        }
+    } catch (e) {
+        console.error("Error fetching employee for login:", e);
     }
 
     return res.json({
         _id: user._id,
-        name: user.name,
+        name: actualName,
         email: user.email,
         role: role,
         picture: user.picture,
@@ -98,7 +103,7 @@ const loginUser = async (req, res) => {
         token: generateToken(user._id),
         user: {
             id: user._id,
-            name: user.name,
+            name: actualName,
             email: user.email,
             role: role,
             picture: user.picture,
@@ -180,9 +185,6 @@ const googleAuth = async (req, res) => {
             }
 
             let role = user.role;
-            if (user.email === 'admin@smtbms.com') {
-                role = 'Super Admin';
-            }
 
             if (mode === 'login' && reqRole) {
                 let isRoleValid = false;
@@ -198,10 +200,21 @@ const googleAuth = async (req, res) => {
                 }
             }
 
+            let actualName = user.name;
+            try {
+                const Employee = require('../models/Employee');
+                const emp = await Employee.findOne({ contact: user.email });
+                if (emp && emp.firstName) {
+                    actualName = `${emp.firstName} ${emp.lastName || ''}`.trim();
+                }
+            } catch (e) {
+                console.error("Error fetching employee for google login:", e);
+            }
+
             return res.json({
                 success: true,
                 _id: user.id || user._id,
-                name: user.name,
+                name: actualName,
                 email: user.email,
                 role: role,
                 picture: user.picture,
@@ -209,9 +222,9 @@ const googleAuth = async (req, res) => {
                 token: generateToken(user.id || user._id),
                 user: {
                     id: user.id || user._id,
-                    name: user.name,
+                    name: actualName,
                     email: user.email,
-                    role: role || user.role,
+                    role: role,
                     picture: user.picture,
                     isProfileComplete: user.isProfileComplete,
                     createdAt: user.createdAt
@@ -312,9 +325,6 @@ const updateUserProfile = async (req, res) => {
             const updatedUser = await user.save();
 
             let role = updatedUser.role;
-            if (updatedUser.email === 'admin@smtbms.com') {
-                role = 'Super Admin';
-            }
 
             res.json({
                 _id: updatedUser._id,
@@ -350,13 +360,21 @@ const getUserProfile = async (req, res) => {
 
         if (user) {
             let role = user.role;
-            if (user.email === 'admin@smtbms.com') {
-                role = 'Super Admin';
+            let actualName = user.name;
+            
+            try {
+                const Employee = require('../models/Employee');
+                const emp = await Employee.findOne({ contact: user.email });
+                if (emp && emp.firstName) {
+                    actualName = `${emp.firstName} ${emp.lastName || ''}`.trim();
+                }
+            } catch (e) {
+                console.error("Error fetching employee for auth profile:", e);
             }
 
             res.json({
                 _id: user._id,
-                name: user.name,
+                name: actualName,
                 email: user.email,
                 role: role,
                 picture: user.picture,
@@ -364,7 +382,7 @@ const getUserProfile = async (req, res) => {
                 token: generateToken(user._id),
                 user: {
                     id: user._id,
-                    name: user.name,
+                    name: actualName,
                     email: user.email,
                     role: role,
                     picture: user.picture,

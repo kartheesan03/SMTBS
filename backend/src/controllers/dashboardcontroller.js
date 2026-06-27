@@ -43,8 +43,14 @@ const getDashboardStats = async (req, res) => {
             
             const salesCount = await Order.countDocuments({ orderType: 'sales' });
             const purchaseCount = await Order.countDocuments({ orderType: 'purchase' });
+            
+            const activeOrdersCount = await Order.countDocuments({
+                status: { $nin: ["Completed", "Delivered", "Cancelled"] }
+            });
+            
             stats.totalSalesOrders = salesCount;
             stats.totalPurchaseOrders = purchaseCount;
+            stats.activeOrdersCount = activeOrdersCount;
         } catch (e) { console.error('Revenue Aggregation Error:', e); }
 
         let lowStockMaterials = [];
@@ -114,6 +120,41 @@ const getDashboardStats = async (req, res) => {
             monthlyStats = monthlyStatsRaw || [];
         } catch (e) { console.error('Monthly Stats Aggregation Error:', e); }
 
+        let topSellingMaterials = [];
+        try {
+            const salesOrders = await Order.find({ orderType: 'sales', status: { $ne: 'Cancelled' } });
+            let materialSalesMap = {};
+            salesOrders.forEach(order => {
+                if (order.items && Array.isArray(order.items)) {
+                    order.items.forEach(item => {
+                        const matId = String(item.material);
+                        if (matId && matId !== 'undefined') {
+                            if (!materialSalesMap[matId]) {
+                                materialSalesMap[matId] = { quantity: 0, revenue: 0 };
+                            }
+                            materialSalesMap[matId].quantity += (item.quantity || 0);
+                            materialSalesMap[matId].revenue += ((item.quantity || 0) * (item.price || item.unitPrice || 0));
+                        }
+                    });
+                }
+            });
+            
+            const matNameMap = {};
+            const matCatMap = {};
+            allMaterialsRaw.forEach(m => {
+                matNameMap[m._id.toString()] = m.name;
+                matCatMap[m._id.toString()] = m.category || 'General';
+            });
+            
+            topSellingMaterials = Object.keys(materialSalesMap).map(matId => ({
+                id: matId,
+                name: matNameMap[matId] || 'Unknown Material',
+                category: matCatMap[matId] || 'General',
+                sales: materialSalesMap[matId].quantity,
+                revenue: materialSalesMap[matId].revenue
+            })).sort((a, b) => b.sales - a.sales).slice(0, 5);
+        } catch (e) { console.error('Top Selling Calculation Error:', e); }
+
         let recentOrders = [];
         try {
             recentOrders = await Order.find()
@@ -170,7 +211,8 @@ const getDashboardStats = async (req, res) => {
                 lowStock: lowStockMaterials, 
                 recentOrders: recentOrders || [],
                 pendingSalaries: pendingSalaries || [],
-                recentActivity: recentActivity || []
+                recentActivity: recentActivity || [],
+                topSellingMaterials: topSellingMaterials || []
             }
         };
 

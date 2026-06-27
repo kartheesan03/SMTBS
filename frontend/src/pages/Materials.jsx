@@ -310,6 +310,27 @@ const MaterialTracking = () => {
 
     return (
         <div className="page-container">
+            {/* Actions Section */}
+            <div className="page-header">
+                <div className="header-content">
+                    <h1>Material Tracking</h1>
+                    <p>Monitor stock, in-transit items, low stock alerts, and barcode/QR movements.</p>
+                </div>
+                <div className="header-actions">
+                    <button className="btn-secondary" onClick={() => setShowFilters(!showFilters)}>
+                        <Filter size={16} /> Filters
+                    </button>
+                    <button className="btn-secondary" onClick={exportToPDF}><Download size={16} /> PDF</button>
+                    <button className="btn-secondary" onClick={exportToExcel}><Download size={16} /> Excel</button>
+                    <button className="btn-secondary" style={{color: 'var(--primary)', borderColor: 'var(--primary)'}} onClick={() => { if (materials.length > 0) setScanSKU(materials[0].sku); setShowScanner(true); }}>
+                        <Camera size={16} /> Scan Item
+                    </button>
+                    <button className="btn-primary" onClick={() => { setEditId(null); setFormData({ name: '', sku: '', category: '', quantity: 0, lowStockThreshold: 10, unit: 'pcs', price: 0, vendorId: '' }); setShowNewCategoryInput(false); setShowModal(true); }}>
+                        <Plus size={16} /> Add Material
+                    </button>
+                </div>
+            </div>
+
             {/* KPI Section */}
             <div className="module-kpi-section">
                 <div className="premium-card">
@@ -353,26 +374,6 @@ const MaterialTracking = () => {
                 </div>
             </div>
 
-            {/* Actions Section */}
-            <div className="page-header">
-                <div className="header-content">
-                    <h1>Material Tracking</h1>
-                    <p>Monitor stock, in-transit items, low stock alerts, and barcode/QR movements.</p>
-                </div>
-                <div className="header-actions">
-                    <button className="btn-secondary" onClick={() => setShowFilters(!showFilters)}>
-                        <Filter size={16} /> Filters
-                    </button>
-                    <button className="btn-secondary" onClick={exportToPDF}><Download size={16} /> PDF</button>
-                    <button className="btn-secondary" onClick={exportToExcel}><Download size={16} /> Excel</button>
-                    <button className="btn-secondary" style={{color: 'var(--primary)', borderColor: 'var(--primary)'}} onClick={() => { if (materials.length > 0) setScanSKU(materials[0].sku); setShowScanner(true); }}>
-                        <Camera size={16} /> Scan Item
-                    </button>
-                    <button className="btn-primary" onClick={() => { setEditId(null); setFormData({ name: '', sku: '', category: '', quantity: 0, lowStockThreshold: 10, unit: 'pcs', price: 0, vendorId: '' }); setShowNewCategoryInput(false); setShowModal(true); }}>
-                        <Plus size={16} /> Add Material
-                    </button>
-                </div>
-            </div>
 
             {/* Filters Section */}
             {showFilters && (

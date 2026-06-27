@@ -21,6 +21,8 @@ const HRMS = () => {
     const [editingId, setEditingId] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
     const [deleteConfirm, setDeleteConfirm] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [roleFilter, setRoleFilter] = useState('All');
 
     const fetchEmployees = async () => {
         try {
@@ -143,21 +145,8 @@ const HRMS = () => {
     return (
         <div className="farmaku-user-page">
             <div className="farmaku-user-header">
-                <h1>User</h1>
-                <div className="farmaku-user-header-right">
-                    <div className="farmaku-search-bar" style={{minWidth: '250px'}}>
-                        <Search size={16} color="#9ca3af" />
-                        <input type="text" placeholder="Search anything" />
-                    </div>
-                    <button className="icon-btn" style={{border: '1px solid #e5e7eb', borderRadius: '50%', padding: '8px', background: '#fff', color: '#6b7280'}}>
-                        <RefreshCw size={16} />
-                    </button>
-                    {/* The profile header is usually outside the page, but we'll add a dummy one if it matches the screenshot */}
-                    <div style={{display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '16px'}}>
-                        <div style={{width: '32px', height: '32px', borderRadius: '50%', background: '#111827', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px'}}>A</div>
-                        <span style={{fontSize: '14px', fontWeight: '600'}}>Admin</span>
-                    </div>
-                </div>
+                <h1 className="page-title">Employee Management</h1>
+
             </div>
 
             <div className="farmaku-table-container">
@@ -165,13 +154,18 @@ const HRMS = () => {
                     <div className="left-controls">
                         <div className="farmaku-search-bar" style={{background: '#f9fafb', minWidth: '350px'}}>
                             <Search size={16} color="#9ca3af" />
-                            <input type="text" placeholder="Search anything" />
+                            <input 
+                                type="text" 
+                                placeholder="" 
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
                         </div>
                     </div>
                     <div className="right-controls">
                         <div className="farmaku-filter-role">
                             Role: 
-                            <select>
+                            <select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)}>
                                 <option value="All">All</option>
                                 <option value="Admin">Admin</option>
                                 <option value="Cashier">Cashier</option>
@@ -195,7 +189,16 @@ const HRMS = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {employees.map((emp) => {
+                        {employees.filter((emp) => {
+                            const matchesSearch = 
+                                (emp.firstName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                (emp.lastName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                (emp.email || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                (emp.phone || '').toLowerCase().includes(searchTerm.toLowerCase());
+                            const role = emp.designation || emp.department || 'Employee';
+                            const matchesRole = roleFilter === 'All' || role.toLowerCase() === roleFilter.toLowerCase();
+                            return matchesSearch && matchesRole;
+                        }).map((emp) => {
                             const role = emp.designation || emp.department || 'Employee';
                             const roleLower = role.toLowerCase();
                             let roleClass = 'other';

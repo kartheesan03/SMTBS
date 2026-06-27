@@ -631,3 +631,41 @@ body:has(.dual-sidebar-container.expanded) .app-main {
   flex: 1;
   overflow-y: auto;
 }
+
+/* Fix inner borders on all search inputs */
+.erp-search-input,
+.global-search input,
+.search-input-group input,
+.enlight-search-input,
+.track-search-input,
+.sidebar-search input,
+.faq-search-input {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  background: transparent !important;
+}
+
+.erp-search-input:focus,
+.global-search input:focus,
+.search-input-group input:focus,
+.enlight-search-input:focus,
+.track-search-input:focus,
+.sidebar-search input:focus,
+.faq-search-input:focus {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Apply page-title font styling to all other page headers automatically */
+.page-header h1, 
+.module-header h1, 
+.farmaku-user-header h1,
+.tracking-title {
+  margin: 0 !important; 
+  font-size: 32px !important; 
+  font-weight: 700 !important; 
+  color: var(--text-heading) !important;
+  font-family: 'Outfit', sans-serif !important;
+}

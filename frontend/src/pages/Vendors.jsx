@@ -329,6 +329,21 @@ const Vendors = () => {
 
     return (
         <div className="page-container">
+            {/* Actions Section */}
+            <div className="page-header">
+                <div className="header-content">
+                    <h1>Vendors Directory</h1>
+                    <p>Manage supplier profiles, contact details, and procurement links.</p>
+                </div>
+                <div className="header-actions">
+                    <button className="btn-secondary" onClick={exportToPDF}><Download size={16} /> PDF</button>
+                    <button className="btn-secondary" onClick={exportToExcel}><Download size={16} /> Excel</button>
+                    <button className="btn-primary" onClick={openAddModal}>
+                        <Plus size={16} /> Add New Vendor
+                    </button>
+                </div>
+            </div>
+
             {/* KPI Section */}
             <div className="module-kpi-section">
                 <div className="premium-card">
@@ -362,20 +377,6 @@ const Vendors = () => {
                 </div>
             </div>
 
-            {/* Actions Section */}
-            <div className="page-header">
-                <div className="header-content">
-                    <h1>Vendors Directory</h1>
-                    <p>Manage supplier profiles, contact details, and procurement links.</p>
-                </div>
-                <div className="header-actions">
-                    <button className="btn-secondary" onClick={exportToPDF}><Download size={16} /> PDF</button>
-                    <button className="btn-secondary" onClick={exportToExcel}><Download size={16} /> Excel</button>
-                    <button className="btn-primary" onClick={openAddModal}>
-                        <Plus size={16} /> Add New Vendor
-                    </button>
-                </div>
-            </div>
 
             {/* Data Table Section */}
             <div className="module-data-section">

@@ -91,7 +91,14 @@ const AppContent = () => {
             }
         };
         window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
+
+        const handleOpenModuleLauncher = () => setIsModuleLauncherOpen(true);
+        window.addEventListener('openModuleLauncher', handleOpenModuleLauncher);
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+            window.removeEventListener('openModuleLauncher', handleOpenModuleLauncher);
+        };
     }, []);
 
     if (loading) return <div className="app-loading">Loading...</div>;

@@ -468,6 +468,24 @@ const ERP = () => {
 
     return (
         <div className="page-container">
+            {/* Actions Section */}
+            <div className="page-header">
+                <div className="header-content">
+                    <h1>ERP Operations</h1>
+                    <p>Manage procurement, sales orders, and invoices.</p>
+                </div>
+                <div className="header-actions">
+                    <button className="btn-secondary" onClick={() => setShowFilters(!showFilters)}>
+                        <Filter size={16} /> Filters
+                    </button>
+                    {(userInfo?.role?.toLowerCase() === 'admin' || userInfo?.role?.toLowerCase() === 'super admin' || userInfo?.role?.toLowerCase() === 'manager' || userInfo?.role?.toLowerCase() === 'hr') && (
+                        <button className="btn-primary" onClick={() => navigate('/orders/select-type')}>
+                            <Plus size={16} /> Create Order
+                        </button>
+                    )}
+                </div>
+            </div>
+
             {/* KPI Section */}
             <div className="module-kpi-section">
                 <div className="premium-card">
@@ -511,23 +529,6 @@ const ERP = () => {
                 </div>
             </div>
 
-            {/* Actions Section */}
-            <div className="page-header">
-                <div className="header-content">
-                    <h1>ERP Operations</h1>
-                    <p>Manage procurement, sales orders, and invoices.</p>
-                </div>
-                <div className="header-actions">
-                    <button className="btn-secondary" onClick={() => setShowFilters(!showFilters)}>
-                        <Filter size={16} /> Filters
-                    </button>
-                    {(userInfo?.role?.toLowerCase() === 'admin' || userInfo?.role?.toLowerCase() === 'super admin' || userInfo?.role?.toLowerCase() === 'manager' || userInfo?.role?.toLowerCase() === 'hr') && (
-                        <button className="btn-primary" onClick={() => navigate('/orders/select-type')}>
-                            <Plus size={16} /> Create Order
-                        </button>
-                    )}
-                </div>
-            </div>
 
             {/* Filters Section */}
             {showFilters && (

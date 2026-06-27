@@ -5,7 +5,7 @@ import {
     LayoutDashboard, ShoppingCart, Users, Briefcase, Settings as SettingsIcon,
     Home, BarChart2, CheckSquare, Bell, UserPlus, DollarSign, Box, Truck, 
     Clock, Calendar, Wallet, HelpCircle, User, Map, List, Moon, ChevronRight, ChevronDown, 
-    PanelLeftClose
+    PanelLeftClose, LogOut
 } from 'lucide-react';
 import './FarmakuSidebar.css';
 
@@ -36,18 +36,13 @@ const FarmakuSidebar = () => {
             <div className="farmaku-sidebar-header">
                 <div className="farmaku-logo-container">
                     <div className="farmaku-logo-icon">
-                        {/* Custom Medical Cross Logo inspired by the Dribbble shot */}
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M11 2V11H2V13H11V22H13V13H22V11H13V2H11Z" fill="currentColor"/>
-                            <path d="M19 5L5 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                            <path d="M5 5L19 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                        </svg>
+                        <Box size={24} strokeWidth={2.5} />
                     </div>
-                    <span className="farmaku-logo-text">Farmaku</span>
+                    <div className="farmaku-logo-text-wrapper">
+                        <span className="farmaku-logo-text">SMTBMS</span>
+                        <span className="farmaku-logo-subtext">Smart Material Tracking &<br/>Business Management System</span>
+                    </div>
                 </div>
-                <button className="farmaku-collapse-btn">
-                    <PanelLeftClose size={18} />
-                </button>
             </div>
 
             <div className="farmaku-sidebar-content">
@@ -122,7 +117,7 @@ const FarmakuSidebar = () => {
                         </li>
 
                         <li>
-                            <NavLink to="/my-tasks" className={({isActive}) => isActive ? "farmaku-nav-item active" : "farmaku-nav-item"}>
+                            <NavLink to="/tasks" className={({isActive}) => isActive ? "farmaku-nav-item active" : "farmaku-nav-item"}>
                                 <CheckSquare size={20} />
                                 <span>Tasks</span>
                             </NavLink>
@@ -137,54 +132,48 @@ const FarmakuSidebar = () => {
                             <NavLink to="/reports" className={({isActive}) => isActive ? "farmaku-nav-item active" : "farmaku-nav-item"}>
                                 <BarChart2 size={20} />
                                 <span>Reports</span>
+                                <ChevronRight size={16} style={{marginLeft: 'auto'}} />
                             </NavLink>
                         </li>
                         <li>
                             <NavLink to="/notifications" className={({isActive}) => isActive ? "farmaku-nav-item active" : "farmaku-nav-item"}>
                                 <Bell size={20} />
                                 <span>Notifications</span>
+                                <div style={{marginLeft: 'auto', backgroundColor: '#ef4444', color: '#fff', fontSize: '10px', borderRadius: '50%', width: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>4</div>
                             </NavLink>
                         </li>
                         <li>
                             <NavLink to="/profile" className={({isActive}) => isActive ? "farmaku-nav-item active" : "farmaku-nav-item"}>
                                 <User size={20} />
                                 <span>Profile</span>
+                                <ChevronRight size={16} style={{marginLeft: 'auto'}} />
                             </NavLink>
+                        </li>
+                        <li>
+                            <NavLink to="/settings" className={({isActive}) => isActive ? "farmaku-nav-item active" : "farmaku-nav-item"}>
+                                <SettingsIcon size={20} />
+                                <span>Settings</span>
+                                <ChevronRight size={16} style={{marginLeft: 'auto'}} />
+                            </NavLink>
+                        </li>
+                        <li>
+                            <div className="farmaku-nav-item" onClick={logout} style={{marginTop: '8px'}}>
+                                <LogOut size={20} />
+                                <span>Logout</span>
+                            </div>
                         </li>
                     </ul>
                 </div>
             </div>
 
-            <div className="farmaku-sidebar-footer">
-                <div className="farmaku-nav-title">PREFERENCES</div>
-                <ul className="farmaku-footer-list">
-                    <li>
-                        <div className="farmaku-theme-toggle" onClick={() => setDarkMode(!darkMode)}>
-                            <div className="farmaku-theme-toggle-left">
-                                <Moon size={20} />
-                                <span>Dark Mode</span>
-                            </div>
-                            <div className="farmaku-switch" style={{ backgroundColor: darkMode ? '#0f172a' : '#e2e8f0' }}>
-                                <div style={{
-                                    width: '14px', height: '14px', borderRadius: '50%', backgroundColor: '#fff',
-                                    position: 'absolute', top: '2px', left: darkMode ? '16px' : '2px', transition: 'left 0.2s'
-                                }} />
-                            </div>
-                        </div>
-                    </li>
-                    <li>
-                        <NavLink to="/settings" className={({isActive}) => isActive ? "farmaku-nav-item active" : "farmaku-nav-item"} style={{marginTop: '4px'}}>
-                            <SettingsIcon size={20} />
-                            <span>Settings</span>
-                        </NavLink>
-                    </li>
-                    <li>
-                        <NavLink to="/support" className={({isActive}) => isActive ? "farmaku-nav-item active" : "farmaku-nav-item"} style={{marginTop: '4px'}}>
-                            <HelpCircle size={20} />
-                            <span>Help</span>
-                        </NavLink>
-                    </li>
-                </ul>
+            <div className="farmaku-sidebar-footer" style={{ padding: '0', display: 'flex', alignItems: 'center', backgroundColor: '#1e293b', borderTop: '1px solid #334155', cursor: 'pointer', marginTop: 'auto' }}>
+                <div style={{ flex: 1, padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '12px', color: '#94a3b8', fontSize: '14px', fontWeight: '500' }}>
+                    <ChevronRight size={18} style={{ transform: 'rotate(180deg)' }} />
+                    <span>Collapse</span>
+                </div>
+                <div style={{ padding: '16px 20px', borderLeft: '1px solid #334155', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8' }}>
+                    <SettingsIcon size={16} />
+                </div>
             </div>
         </aside>
     );

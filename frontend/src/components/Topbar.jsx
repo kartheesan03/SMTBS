@@ -83,7 +83,7 @@ const Topbar = ({ onOpenModuleLauncher, onOpenCommandCenter }) => {
                 <div className="profile-container" ref={profileRef}>
                     <div className="profile-dropdown" onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}>
                         <div className="profile-avatar">
-                            <img src={user?.avatar || "https://i.pravatar.cc/150?img=11"} alt={user?.name || 'System Admin'} style={{width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover'}} />
+                            <img src={user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'System Admin')}&background=6366f1&color=fff`} alt={user?.name || 'System Admin'} style={{width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover'}} />
                         </div>
                         <div className="profile-info">
                             <span className="name">{user?.name || 'System Admin'}</span>
@@ -94,7 +94,7 @@ const Topbar = ({ onOpenModuleLauncher, onOpenCommandCenter }) => {
                     {isProfileMenuOpen && (
                         <div className="profile-menu">
                             <div className="pm-header">
-                                <img src={user?.avatar || "https://i.pravatar.cc/150?img=11"} alt="Avatar" />
+                                <img src={user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'System Admin')}&background=6366f1&color=fff`} alt="Avatar" />
                                 <div className="pm-header-info">
                                     <span className="pm-name">{user?.name || 'System Admin'}</span>
                                     <span className="pm-email">{user?.email || 'admin@smtbms.com'}</span>

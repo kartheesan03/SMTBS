@@ -189,7 +189,7 @@ const Profile = () => {
     
     const fullName = `${formData.firstName} ${formData.lastName}`.trim() || user?.name || 'Admin User';
     const displayEmail = formData.email || user?.email;
-    const roleBadge = user?.role === 'Admin' ? 'Super Admin' : user?.role || 'Employee';
+    const roleBadge = user?.role || 'Employee';
     const empIdBadge = employeeData?.employeeId || employeeData?.employeeCode || (user?.id ? `EMP${user.id.toString().padStart(4, '0')}` : 'EMP001');
 
     if (user?.role === 'Customer') {

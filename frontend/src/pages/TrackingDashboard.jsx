@@ -17,23 +17,44 @@ const TrackingDashboard = () => {
                 // We use orders to populate the tracking dashboard.
                 const { data } = await API.get('/orders');
                 
-                // Enhance orders with dummy tracking data for the UI representation if not present
+                // Sync tracking data with real order properties
                 const enhancedData = data.map((order, index) => {
-                    const statuses = ['On route', 'Waiting', 'Inactive'];
-                    const status = statuses[index % statuses.length];
-                    
+                    let status = 'Inactive';
+                    if (['Shipped', 'Out for Delivery'].includes(order.deliveryStatus)) {
+                        status = 'On route';
+                    } else if (['Pending', 'Processing', 'Awaiting Stock Check'].includes(order.deliveryStatus) || ['Pending Approval', 'Approved', 'Pending'].includes(order.status)) {
+                        status = 'Waiting';
+                    } else if (['Delivered', 'Completed', 'Cancelled', 'Rejected'].includes(order.status) || order.deliveryStatus === 'Delivered') {
+                        status = 'Inactive';
+                    }
+
+                    let fromStr = 'Warehouse';
+                    let toStr = 'Customer';
+                    let fromSub = 'Central Hub';
+                    let toSub = '';
+
+                    if (order.orderType === 'purchase' && order.vendor) {
+                        fromStr = order.vendor.name || 'Vendor';
+                        fromSub = order.vendor.address || '';
+                        toStr = 'Warehouse';
+                        toSub = 'Central Hub';
+                    } else if (order.customer) {
+                        toStr = order.customer.name || 'Customer';
+                        toSub = order.customer.address || '';
+                    }
+
                     return {
-                        id: order._id || `UL-${158902 + index}NH`,
+                        id: order.orderNumber || order._id || `UL-${158902 + index}NH`,
                         status: status,
                         route: {
-                            from: order.origin || 'Madrid',
-                            fromSub: '18001 Granada',
-                            to: order.destination || 'Malaga',
-                            toSub: '29001 Malaga'
+                            from: fromStr,
+                            fromSub: fromSub || 'Address not provided',
+                            to: toStr,
+                            toSub: toSub || 'Address not provided'
                         },
-                        timeLeft: status === 'On route' ? `${Math.floor(Math.random() * 5) + 1} h ${Math.floor(Math.random() * 59)} min left` : (status === 'Waiting' ? '19 h 59 min left' : '-'),
-                        distance: `${Math.floor(Math.random() * 1000) + 100} km`,
-                        estimatedTime: `${Math.floor(Math.random() * 12) + 2} h ${Math.floor(Math.random() * 59)} min`
+                        timeLeft: status === 'On route' ? 'In Transit' : (status === 'Waiting' ? 'Pending Dispatch' : '-'),
+                        distance: 'Calculated by route',
+                        estimatedTime: order.expectedDeliveryDate ? new Date(order.expectedDeliveryDate).toLocaleDateString() : 'TBD'
                     };
                 });
                 

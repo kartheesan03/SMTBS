@@ -37,13 +37,19 @@
 }
 
 .farmaku-search-bar input {
-    border: none;
-    outline: none;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
     margin-left: 8px;
-    background: transparent;
+    background: transparent !important;
     width: 100%;
     font-size: 14px;
     color: #4b5563;
+}
+.farmaku-search-bar input:focus {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 /* Container for table */

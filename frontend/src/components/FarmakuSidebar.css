@@ -1,8 +1,8 @@
 .farmaku-sidebar {
     width: 260px;
-    background-color: #ffffff;
+    background-color: #0f172a;
     height: 100vh;
-    border-right: 1px solid #f1f5f9;
+    border-right: 1px solid #1e293b;
     display: flex;
     flex-direction: column;
     font-family: 'Inter', sans-serif;
@@ -37,17 +37,29 @@
 }
 
 .farmaku-logo-icon {
-    color: #1e3a8a;
+    color: #ffffff;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
+.farmaku-logo-text-wrapper {
+    display: flex;
+    flex-direction: column;
+}
+
 .farmaku-logo-text {
     font-size: 18px;
     font-weight: 800;
-    color: #1e3a8a;
+    color: #ffffff;
     letter-spacing: -0.5px;
+}
+
+.farmaku-logo-subtext {
+    font-size: 8px;
+    color: #94a3b8;
+    line-height: 1.1;
+    margin-top: 2px;
 }
 
 .farmaku-collapse-btn {
@@ -74,7 +86,7 @@
 .farmaku-nav-title {
     font-size: 11px;
     font-weight: 600;
-    color: #9ca3af;
+    color: #64748b;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     margin-bottom: 12px;
@@ -96,21 +108,21 @@
     gap: 12px;
     padding: 10px 12px;
     border-radius: 8px;
-    color: #4b5563;
+    color: #94a3b8;
     text-decoration: none;
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 500;
     transition: all 0.2s ease;
     cursor: pointer;
 }
 
 .farmaku-nav-item:hover:not(.active) {
-    background-color: #f8fafc;
-    color: #111827;
+    background-color: #1e293b;
+    color: #ffffff;
 }
 
 .farmaku-nav-item.active {
-    background-color: #0f172a;
+    background-color: #1d4ed8;
     color: #ffffff;
 }
 

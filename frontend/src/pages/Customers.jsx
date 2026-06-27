@@ -465,6 +465,21 @@ const Customers = ({ directoryOnly }) => {
     // ── LIST VIEW ──
     return (
         <div className="page-container">
+            {/* Actions Section */}
+            <div className="page-header">
+                <div className="header-content">
+                    <h1>{directoryOnly ? 'Customer Directory' : 'Customers (CRM)'}</h1>
+                    <p>{directoryOnly ? 'Manage your active customer base.' : 'Manage your customers, leads, and tracking.'}</p>
+                </div>
+                <div className="header-actions">
+                    <button className="btn-secondary" onClick={exportToPDF} title="Export PDF"><Download size={16} /> PDF</button>
+                    <button className="btn-secondary" onClick={exportToExcel} title="Export Excel"><Download size={16} /> Excel</button>
+                    <button className="btn-primary" onClick={() => { setEditingId(null); setFormData({ name: '', email: '', phone: '', address: '', industry: '', website: '', notes: '', status: 'Active', customerType: 'Individual', company: '', gstNumber: '' }); setFormErrors({}); setShowModal(true); }}>
+                        <Plus size={16} /> Add Customer
+                    </button>
+                </div>
+            </div>
+
             {/* KPI Section */}
             <div className="module-kpi-section">
                 <div className="premium-card">
@@ -496,20 +511,6 @@ const Customers = ({ directoryOnly }) => {
                 </div>
             </div>
 
-            {/* Actions Section */}
-            <div className="page-header">
-                <div className="header-content">
-                    <h1>{directoryOnly ? 'Customer Directory' : 'Customers (CRM)'}</h1>
-                    <p>{directoryOnly ? 'Manage your active customer base.' : 'Manage your customers, leads, and tracking.'}</p>
-                </div>
-                <div className="header-actions">
-                    <button className="btn-secondary" onClick={exportToPDF} title="Export PDF"><Download size={16} /> PDF</button>
-                    <button className="btn-secondary" onClick={exportToExcel} title="Export Excel"><Download size={16} /> Excel</button>
-                    <button className="btn-primary" onClick={() => { setEditingId(null); setFormData({ name: '', email: '', phone: '', address: '', industry: '', website: '', notes: '', status: 'Active', customerType: 'Individual', company: '', gstNumber: '' }); setFormErrors({}); setShowModal(true); }}>
-                        <Plus size={16} /> Add Customer
-                    </button>
-                </div>
-            </div>
 
             {/* Filters Section */}
             <div className="page-header" style={{background: 'var(--bg-surface-hover)', padding: '16px', marginTop: '-12px', borderTop: 'none', borderTopLeftRadius: 0, borderTopRightRadius: 0}}>
