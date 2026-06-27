@@ -1,0 +1,475 @@
+.davbank-dashboard {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: #1A1D1F;
+    background-color: #FAFAFB;
+    border-radius: 24px;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.davbank-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+}
+
+.davbank-header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.davbank-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.davbank-search {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background-color: #F8F9FA;
+    padding: 12px 20px;
+    border-radius: 16px;
+    width: 280px;
+    border: 1px solid #EFEFEF;
+}
+
+.davbank-search input {
+    border: none;
+    background: transparent;
+    outline: none;
+    width: 100%;
+    font-size: 0.9rem;
+    color: #1A1D1F;
+}
+
+.davbank-notif-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
+    border: 1px solid #EFEFEF;
+    background: #FFFFFF;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+}
+
+.davbank-notif-dot {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 8px;
+    height: 8px;
+    background-color: #EF6A4F;
+    border-radius: 50%;
+    border: 2px solid #FFFFFF;
+}
+
+/* Grid */
+.davbank-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+}
+
+.davbank-left, .davbank-right {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.davbank-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.davbank-section-header h2 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.davbank-icon-btn {
+    background: #F8F9FA;
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Tabs */
+.davbank-tabs {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 30px;
+    border-bottom: 1px solid #EFEFEF;
+}
+
+.davbank-tab {
+    background: transparent;
+    border: none;
+    color: #6F767E;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    padding-bottom: 12px;
+    position: relative;
+}
+
+.davbank-tab.active {
+    color: #1A1D1F;
+}
+
+.davbank-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: #1A1D1F;
+}
+
+/* Stats */
+.davbank-stats-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 40px;
+}
+
+.davbank-amount-group .date {
+    display: block;
+    font-size: 0.8rem;
+    color: #6F767E;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.davbank-amount-group .amount {
+    font-size: 2.2rem;
+    font-weight: 800;
+}
+
+.davbank-cashback {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #245751;
+    font-size: 0.85rem;
+    font-weight: 700;
+    background: rgba(36, 87, 81, 0.05);
+    padding: 6px 12px;
+    border-radius: 8px;
+}
+
+/* Chart */
+.davbank-bar-chart {
+    display: flex;
+    height: 220px;
+    gap: 24px;
+}
+
+.davbank-y-axis {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    color: #6F767E;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding-bottom: 35px;
+}
+
+.davbank-chart-bars {
+    display: flex;
+    justify-content: space-between;
+    flex-grow: 1;
+    align-items: flex-end;
+    border-bottom: 1px dashed #EFEFEF;
+    padding-bottom: 35px;
+    position: relative;
+    padding-left: 20px;
+}
+
+.davbank-bar-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 48px;
+    position: relative;
+    height: 100%;
+    justify-content: flex-end;
+}
+
+.davbank-bar {
+    width: 100%;
+    border-radius: 6px;
+    transition: height 1s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+.davbank-bar-label-top {
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.davbank-bar-label-bottom {
+    position: absolute;
+    bottom: -30px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #6F767E;
+}
+
+/* History */
+.davbank-history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.davbank-history-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: #FFFFFF;
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid #EFEFEF;
+}
+
+.davbank-history-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.davbank-history-details {
+    flex-grow: 1;
+}
+
+.davbank-history-details h4 {
+    margin: 0 0 4px 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.davbank-history-details p {
+    margin: 0;
+    font-size: 0.75rem;
+    color: #6F767E;
+    font-weight: 500;
+}
+
+.davbank-history-method {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    color: #6F767E;
+    font-weight: 600;
+    width: 120px;
+}
+
+.davbank-history-amount {
+    font-size: 0.95rem;
+    font-weight: 800;
+    width: 80px;
+    text-align: right;
+}
+
+/* Balances */
+.davbank-balance-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+}
+
+.davbank-subtitle {
+    font-size: 0.9rem;
+    color: #6F767E;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+}
+
+.davbank-main-amount {
+    font-size: 2.2rem;
+    font-weight: 800;
+    margin: 0;
+}
+
+.davbank-balance-stats {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 24px;
+    border-top: 1px solid #EFEFEF;
+}
+
+.davbank-stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.davbank-stat-label {
+    font-size: 0.8rem;
+    color: #6F767E;
+    font-weight: 600;
+}
+
+.davbank-stat-value {
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+/* Cards */
+.davbank-cards-container {
+    display: flex;
+    gap: 20px;
+}
+
+.davbank-credit-card {
+    background: linear-gradient(135deg, #183C38, #245751);
+    color: white;
+    border-radius: 20px;
+    padding: 24px;
+    width: 280px;
+    height: 170px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 15px 30px rgba(36, 87, 81, 0.2);
+}
+
+.davbank-card-content {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.davbank-card-top {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    font-weight: 600;
+    opacity: 0.9;
+}
+
+.davbank-card-amount {
+    font-size: 1.6rem;
+    font-weight: 700;
+}
+
+.davbank-card-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.davbank-card-number {
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    font-family: monospace;
+}
+
+.davbank-card-exp {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.davbank-exp-label {
+    font-size: 0.55rem;
+    opacity: 0.7;
+    text-transform: uppercase;
+}
+
+.davbank-exp-value {
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.davbank-add-card {
+    border: 2px dashed #E2E2E2;
+    border-radius: 20px;
+    width: 80px;
+    height: 170px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    color: #6F767E;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* Planning */
+.davbank-planning-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.davbank-planning-item {
+    background-color: #FFFFFF;
+    padding: 16px 20px;
+    border-radius: 16px;
+    border: 1px solid #EFEFEF;
+}
+
+.davbank-plan-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.davbank-plan-header h4 {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.davbank-plan-progress-text {
+    font-size: 0.8rem;
+    color: #6F767E;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.davbank-progress-bar {
+    height: 6px;
+    background-color: #E2E2E2;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.davbank-progress-fill {
+    height: 100%;
+    border-radius: 3px;
+}

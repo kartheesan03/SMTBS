@@ -1,425 +1,269 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { Link, useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 import { 
-    CheckCircle, Calendar, FileText, Shield, UserPlus, Users,
-    Package, Briefcase, ChevronRight, Activity, Bell, ShoppingCart, DollarSign, 
-    LayoutDashboard, UserCheck, AlertCircle, Clock, PieChart as PieChartIcon, 
-    BarChart2, Truck, Box
+    Users, FileText, DollarSign, Search, Bell, Settings, Moon
 } from 'lucide-react';
 import { 
-    ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, 
-    BarChart, Bar, PieChart, Pie, Cell, Legend
+    AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
+    PieChart, Pie, Cell,
+    BarChart, Bar
 } from 'recharts';
-import AttendanceWidget from '../components/Dashboard/AttendanceWidget';
-import SkeletonLoader from '../components/SkeletonLoader';
-
-const CustomDonut = ({ data, total, label, isLoading }) => {
-    if (isLoading) return <SkeletonLoader type="pie" />;
-    return (
-        <div className="donut-chart-container">
-            <ResponsiveContainer width="100%" height={200}>
-                <PieChart>
-                    <Pie
-                        data={data}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={60}
-                        outerRadius={80}
-                        paddingAngle={2}
-                        dataKey="value"
-                        stroke="none"
-                    >
-                        {data.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                    </Pie>
-                    <RechartsTooltip />
-                </PieChart>
-            </ResponsiveContainer>
-            <div className="donut-center-text">
-                <div className="donut-total">{total}</div>
-                <div className="donut-label">{label}</div>
-            </div>
-            <div className="donut-legend">
-                {data.map((item, index) => (
-                    <div key={index} className="legend-row">
-                        <div className="legend-name">
-                            <span className="dot" style={{ backgroundColor: item.color }}></span>
-                            {item.name}
-                        </div>
-                        <div className="legend-value">
-                            <span className="val">{item.value}</span>
-                            <span className="perc">({total > 0 ? Math.round((item.value / total) * 100) : 0}%)</span>
-                        </div>
-                    </div>
-                ))}
-            </div>
-        </div>
-    );
-};
+import './FarmakuDashboard.css';
 
 const AdminDashboard = () => {
     const { user } = useContext(AuthContext);
-    const navigate = useNavigate();
-    const [attStatus, setAttStatus] = useState(null);
     const [dashboardData, setDashboardData] = useState(null);
-    const [tasksData, setTasksData] = useState([]);
-    const [ticketsData, setTicketsData] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchDashboard = async () => {
+        const fetchDashboardData = async () => {
             try {
-                const [dashRes, tasksRes, ticketsRes] = await Promise.allSettled([
-                    API.get('/dashboard/stats'),
-                    API.get('/tasks/my').catch(() => ({ data: [] })),
-                    API.get('/tickets').catch(() => ({ data: [] }))
-                ]);
-                
-                if (dashRes.status === 'fulfilled' && dashRes.value.data) {
-                    setDashboardData(dashRes.value.data);
-                }
-                if (tasksRes.status === 'fulfilled' && tasksRes.value.data) {
-                    setTasksData(tasksRes.value.data);
-                }
-                if (ticketsRes.status === 'fulfilled' && ticketsRes.value.data) {
-                    setTicketsData(ticketsRes.value.data);
-                }
-            } catch (err) {
-                console.error('Error fetching dashboard stats:', err);
+                const { data } = await API.get('/dashboard/stats');
+                setDashboardData(data);
+            } catch (error) {
+                console.error("Failed to fetch dashboard stats", error);
             } finally {
-                setIsLoading(false);
+                setLoading(false);
             }
         };
-        fetchDashboard();
+        fetchDashboardData();
     }, []);
 
-    const hour = new Date().getHours();
-    const greeting = hour < 12 ? 'Good Morning' : hour < 18 ? 'Good Afternoon' : 'Good Evening';
+    if (loading) return <div style={{ padding: '24px' }}>Loading dashboard...</div>;
+    if (!dashboardData) return <div style={{ padding: '24px' }}>Failed to load dashboard data.</div>;
 
-    let statusText = "Not Checked In";
-    let statusColor = "#64748b"; 
-    if (attStatus && attStatus.status && attStatus.status !== 'Not Checked In' && attStatus.status !== '-') {
-        if (attStatus.checkIn && !attStatus.checkOut) {
-            statusText = "Checked In";
-            statusColor = "#10b981"; 
-        } else if (attStatus.checkIn && attStatus.checkOut) {
-            statusText = "Completed";
-            statusColor = "#f59e0b"; 
-        }
-    }
+    const { 
+        stats = {}, 
+        charts = { monthlyStats: [], categoryData: [] },
+        tables = { recentOrders: [] }
+    } = dashboardData;
 
-    if (isLoading) {
-        return (
-            <div style={{ padding: '24px' }}>
-                <SkeletonLoader type="dashboard" />
-            </div>
-        );
-    }
+    const totalCustomers = dashboardData.totalCustomers || 0;
+    const totalTransaction = stats.totalSalesOrders || 0; // Or totalOrders
+    const totalIncome = dashboardData.totalRevenue || 0;
 
-    const d = dashboardData || {};
-    const hr = d.hrStats || {};
-    const stats = d.stats || {};
-    const materials = d.materialStats || {};
-    const tables = d.tables || {};
-    const charts = d.charts || {};
-    const vendors = d.vendorStats || {};
-
-    const pendingApprovals = (stats.pendingOrders || 0) + (stats.pendingSalaries || 0) + (hr.pending || 0);
-    const todayTasks = tasksData.filter(t => t.dueDate && new Date(t.dueDate).toDateString() === new Date().toDateString()).length;
-    const openTickets = Array.isArray(ticketsData) ? ticketsData.filter(t => t.status === 'Open').length : 0;
-
-    // Chart Data Preparation
-    const hrmsPie = hr.employeeDistribution ? hr.employeeDistribution.map(item => ({
+    // Format for Area Chart (Sales Performance)
+    // We want to map monthlyStats to revenue and sales
+    const salesPerformanceData = charts.monthlyStats.map(item => ({
         name: item.name,
-        value: item.value,
-        color: item.color || '#3b82f6'
-    })) : [];
+        Revenue: item.revenue || 0,
+    }));
 
-    const COLORS = ['#10b981', '#f59e0b', '#3b82f6', '#ef4444', '#8b5cf6'];
-    const materialPie = charts.categoryData ? charts.categoryData.map((item, idx) => ({
+    // Format for Doughnut Chart (Categories or Departments)
+    const categoryData = charts.categoryData.length > 0 ? charts.categoryData : [
+        { name: 'No Data', value: 1 }
+    ];
+    const COLORS = ['#1e3a8a', '#3b82f6', '#93c5fd', '#bfdbfe', '#e0e7ff', '#818cf8'];
+
+    // Format for Bar Chart (Revenue Performance or transaction count)
+    const revenuePerformanceData = charts.monthlyStats.map(item => ({
         name: item.name,
-        value: item.value,
-        color: COLORS[idx % COLORS.length]
-    })) : [];
+        Transactions: item.sales || 0
+    }));
 
-    const vendorPie = vendors.vendorsByCategory ? vendors.vendorsByCategory.map((item, idx) => ({
-        name: item.name,
-        value: item.value,
-        color: COLORS[(idx + 2) % COLORS.length]
-    })) : [];
+    const recentOrders = tables.recentOrders || [];
 
-    const attendancePie = [
-        { name: 'Present', value: hr.presentToday || 0, color: '#10b981' },
-        { name: 'Absent', value: hr.absentToday || 0, color: '#ef4444' },
-        { name: 'On Leave', value: hr.onLeave || 0, color: '#f59e0b' }
-    ].filter(item => item.value > 0);
+    const formatCurrency = (val) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val);
 
-    const monthlyPayroll = charts.payrollData || [];
-    
     return (
-        <div className="admin-dashboard-clone">
-            
-            {/* ROW 1: Header & Quick Stats */}
-            <div className="dashboard-header-row">
-                <div className="welcome-area">
-                    <div className="welcome-text-block">
-                        <h1>{greeting}, {user?.name ? user.name.split(' ')[0] : 'Admin'}</h1>
-                        <p className="subtitle">
-                            <Shield size={16} className="text-blue-500" />
-                            <span className="role-text">{user?.role || 'System Administrator'}</span>
-                            <span className="dot-sep">&middot;</span>
-                            <span className="date-text">{new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</span>
-                        </p>
+        <div className="farmaku-dashboard">
+            {/* Header */}
+            <header className="farmaku-header">
+                <div className="farmaku-header-left">
+                    <h1>Dashboard</h1>
+                    <p>Welcome back, {user?.name || 'Admin'}</p>
+                </div>
+                <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', background: '#fff', borderRadius: '8px', padding: '8px 16px', border: '1px solid #e5e7eb' }}>
+                        <Search size={16} color="#9ca3af" />
+                        <input 
+                            type="text" 
+                            placeholder="Search anything" 
+                            style={{ border: 'none', outline: 'none', marginLeft: '8px', background: 'transparent' }}
+                        />
                     </div>
-                    
-                    <div className="user-context-bar">
-                        <div className="context-item">
-                            <span className="c-label">Department</span>
-                            <span className="c-value">{user?.department || 'Administration'}</span>
-                        </div>
-                        <div className="context-item">
-                            <span className="c-label">Status</span>
-                            <span className="c-value" style={{ color: statusColor, display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}>
-                                {statusText === 'Checked In' && <CheckCircle size={14}/>}
-                                {statusText}
-                            </span>
-                        </div>
+                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                         <Bell size={20} color="#4b5563" />
+                         <Settings size={20} color="#4b5563" />
+                         <Moon size={20} color="#4b5563" />
                     </div>
                 </div>
+            </header>
 
-                <div style={{ marginTop: '24px' }}>
-                    <AttendanceWidget onStatusChange={setAttStatus} />
+            {/* Stat Cards */}
+            <div className="farmaku-stats-grid">
+                <div className="farmaku-stat-card">
+                    <div className="farmaku-stat-icon blue">
+                        <Users size={24} />
+                    </div>
+                    <div className="farmaku-stat-info">
+                        <h3>Total Customers</h3>
+                        <p className="farmaku-stat-val">{totalCustomers.toLocaleString()}</p>
+                    </div>
                 </div>
-
-                <div className="top-stat-cards">
-                    <div className="top-stat-card">
-                        <div className="ts-icon blue"><Users size={24} /></div>
-                        <div className="ts-info">
-                            <h3>{d.totalEmployees || 0}</h3>
-                            <p>Total<br/><span>Employees</span></p>
-                        </div>
+                <div className="farmaku-stat-card">
+                    <div className="farmaku-stat-icon purple">
+                        <FileText size={24} />
                     </div>
-                    <div className="top-stat-card">
-                        <div className="ts-icon green"><UserCheck size={24} /></div>
-                        <div className="ts-info">
-                            <h3>{hr.presentToday || 0}</h3>
-                            <p>Present<br/><span>Today</span></p>
-                        </div>
+                    <div className="farmaku-stat-info">
+                        <h3>Total Transaction</h3>
+                        <p className="farmaku-stat-val">{totalTransaction.toLocaleString()}</p>
                     </div>
-                    <div className="top-stat-card">
-                        <div className="ts-icon orange"><AlertCircle size={24} /></div>
-                        <div className="ts-info">
-                            <h3>{pendingApprovals}</h3>
-                            <p>Pending<br/><span>Approvals</span></p>
-                        </div>
+                </div>
+                <div className="farmaku-stat-card">
+                    <div className="farmaku-stat-icon green">
+                        <DollarSign size={24} />
                     </div>
-                    <div className="top-stat-card">
-                        <div className="ts-icon purple"><Box size={24} /></div>
-                        <div className="ts-info">
-                            <h3>{d.totalMaterials || 0}</h3>
-                            <p>Total<br/><span>Materials</span></p>
-                        </div>
+                    <div className="farmaku-stat-info">
+                        <h3>Total Income</h3>
+                        <p className="farmaku-stat-val">{formatCurrency(totalIncome)}</p>
                     </div>
                 </div>
             </div>
 
-            {/* ROW 2: Additional Metrics */}
-            <div className="kpi-grid">
-                <div className="kpi-card">
-                    <div className="kpi-icon-wrap bg-blue-100 text-blue-600"><Calendar size={20}/></div>
-                    <div className="kpi-details">
-                        <h4>{hr.onLeave || 0}</h4>
-                        <span>On Leave Today</span>
-                    </div>
-                </div>
-                <div className="kpi-card">
-                    <div className="kpi-icon-wrap bg-red-100 text-red-600"><AlertCircle size={20}/></div>
-                    <div className="kpi-details">
-                        <h4>{d.lowStockItems || 0}</h4>
-                        <span>Low Stock Items</span>
-                    </div>
-                </div>
-                <div className="kpi-card">
-                    <div className="kpi-icon-wrap bg-green-100 text-green-600"><Truck size={20}/></div>
-                    <div className="kpi-details">
-                        <h4>{vendors.totalVendors || 0}</h4>
-                        <span>Active Vendors</span>
-                    </div>
-                </div>
-                <div className="kpi-card">
-                    <div className="kpi-icon-wrap bg-orange-100 text-orange-600"><CheckCircle size={20}/></div>
-                    <div className="kpi-details">
-                        <h4>{todayTasks}</h4>
-                        <span>Today's Tasks</span>
-                    </div>
-                </div>
-                <div className="kpi-card">
-                    <div className="kpi-icon-wrap bg-purple-100 text-purple-600"><Activity size={20}/></div>
-                    <div className="kpi-details">
-                        <h4>{openTickets}</h4>
-                        <span>Open Tickets</span>
-                    </div>
-                </div>
-            </div>
-
-            {/* ROW 3: Summary Cards (Donut Charts) */}
-            <div className="summary-cards-row">
-                <div className="summary-card card-blue">
-                    <h3 className="sc-header-center">Employee Distribution</h3>
-                    <CustomDonut data={hrmsPie} total={d.totalEmployees || 0} label="Employees" />
-                </div>
-
-                <div className="summary-card card-green">
-                    <h3 className="sc-header-center">Attendance Today</h3>
-                    <CustomDonut data={attendancePie} total={d.totalEmployees || 0} label="Employees" />
-                </div>
-                
-                <div className="summary-card card-orange">
-                    <h3 className="sc-header-center">Material Categories</h3>
-                    <CustomDonut data={materialPie} total={d.totalMaterials || 0} label="Types" />
-                </div>
-
-                <div className="summary-card card-purple">
-                    <h3 className="sc-header-center">Vendor Categories</h3>
-                    <CustomDonut data={vendorPie} total={vendors.totalVendors || 0} label="Vendors" />
-                </div>
-            </div>
-
-            {/* ROW 4: Charts & Actions */}
-            <div className="middle-row">
-                <div className="chart-section panel-white">
-                    <div className="panel-header">
+            {/* Charts Area Grid */}
+            <div className="farmaku-charts-grid">
+                {/* Line Chart */}
+                <div className="farmaku-card">
+                    <div className="farmaku-card-header">
                         <div>
-                            <h3>Monthly Payroll Summary</h3>
-                            <p>Salary disbursements over the last 6 months</p>
+                            <h2 className="farmaku-card-title">Sales Performance</h2>
+                            <p className="farmaku-card-subtitle">See how your sales grow month by month</p>
                         </div>
-                        <select className="dropdown-select"><option>Last 6 Months</option></select>
                     </div>
-
-                    <div className="chart-container">
-                        <ResponsiveContainer width="100%" height={250}>
-                            <AreaChart data={monthlyPayroll} margin={{top: 20, right: 0, left: 0, bottom: 0}}>
+                    <div style={{ width: '100%', height: 250 }}>
+                        <ResponsiveContainer>
+                            <AreaChart data={salesPerformanceData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                                 <defs>
-                                    <linearGradient id="colorAmount" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
-                                    <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                                    <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="#818cf8" stopOpacity={0.3}/>
+                                        <stop offset="95%" stopColor="#818cf8" stopOpacity={0}/>
                                     </linearGradient>
                                 </defs>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} dy={10} />
-                                <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
-                                <RechartsTooltip cursor={{fill: '#f8fafc'}} formatter={(value) => `₹${value}`} />
-                                <Area type="monotone" dataKey="amount" stroke="#10b981" fillOpacity={1} fill="url(#colorAmount)" />
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#9ca3af' }} />
+                                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#9ca3af' }} tickFormatter={(val) => `$${val/1000}k`} />
+                                <RechartsTooltip 
+                                    formatter={(value) => formatCurrency(value)}
+                                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
+                                />
+                                <Area type="monotone" dataKey="Revenue" stroke="#4f46e5" strokeWidth={3} fillOpacity={1} fill="url(#colorRevenue)" />
                             </AreaChart>
                         </ResponsiveContainer>
                     </div>
                 </div>
 
-                <div className="quick-actions-section panel-white">
-                    <div className="panel-header">
-                        <h3>Quick Actions</h3>
+                {/* Doughnut Chart */}
+                <div className="farmaku-card">
+                    <div className="farmaku-card-header">
+                        <h2 className="farmaku-card-title">Material Categories</h2>
                     </div>
-                    <div className="header-actions">
-                        <button className="qa-btn blue" onClick={() => navigate('/hrms/add-employee')}>
-                            <div className="qa-icon"><UserPlus size={18}/></div>
-                            <span>Add New Employee</span>
-                            <ChevronRight size={16} className="qa-arrow" />
-                        </button>
-                        <button className="qa-btn green" onClick={() => navigate('/materials')}>
-                            <div className="qa-icon"><Box size={18}/></div>
-                            <span>Manage Materials</span>
-                            <ChevronRight size={16} className="qa-arrow" />
-                        </button>
-                        <button className="qa-btn purple" onClick={() => navigate('/vendors/add-vendor')}>
-                            <div className="qa-icon"><Briefcase size={18}/></div>
-                            <span>Add New Vendor</span>
-                            <ChevronRight size={16} className="qa-arrow" />
-                        </button>
-                        <button className="qa-btn orange" onClick={() => navigate('/erp')}>
-                            <div className="qa-icon"><ShoppingCart size={18}/></div>
-                            <span>View Orders (ERP)</span>
-                            <ChevronRight size={16} className="qa-arrow" />
-                        </button>
-                        <button className="qa-btn cyan" onClick={() => navigate('/reports/attendance')}>
-                            <div className="qa-icon"><BarChart2 size={18}/></div>
-                            <span>Generate Reports</span>
-                            <ChevronRight size={16} className="qa-arrow" />
-                        </button>
-                    </div>
-                </div>
-
-                <div className="recent-activities-section panel-white">
-                    <div className="panel-header">
-                        <h3>Recent Activities & Notifications</h3>
-                        <Link to="/notifications" className="view-all-btn">View All</Link>
-                    </div>
-                    <div className="activity-list">
-                        {tables.recentActivity && tables.recentActivity.length > 0 ? (
-                            tables.recentActivity.map((act, idx) => (
-                                <div className="activity-item" key={idx}>
-                                    <div className={`act-icon ${act.type === 'error' ? 'red' : act.type === 'success' ? 'green' : 'blue'}`}>
-                                        <Bell size={16}/>
-                                    </div>
-                                    <div className="act-content">
-                                        <h4>{act.text}</h4>
-                                        <span>{new Date(act.time).toLocaleString()}</span>
-                                    </div>
-                                </div>
-                            ))
-                        ) : (
-                            <div className="activity-item">
-                                <div className="act-content">
-                                    <h4>No recent activity</h4>
-                                </div>
+                    <div style={{ width: '100%', height: 200, position: 'relative' }}>
+                        <ResponsiveContainer>
+                            <PieChart>
+                                <Pie
+                                    data={categoryData}
+                                    cx="50%"
+                                    cy="50%"
+                                    innerRadius={60}
+                                    outerRadius={80}
+                                    paddingAngle={2}
+                                    dataKey="value"
+                                    stroke="none"
+                                >
+                                    {categoryData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                    ))}
+                                </Pie>
+                                <RechartsTooltip />
+                            </PieChart>
+                        </ResponsiveContainer>
+                        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
+                            <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#111827' }}>
+                                {categoryData.reduce((acc, curr) => acc + curr.value, 0)}
                             </div>
-                        )}
+                            <div style={{ fontSize: '10px', color: '#6b7280' }}>Total</div>
+                        </div>
+                    </div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', justifyContent: 'center', marginTop: '16px' }}>
+                        {categoryData.slice(0, 4).map((entry, index) => (
+                            <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#4b5563' }}>
+                                <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: COLORS[index % COLORS.length] }}></span>
+                                {entry.name}
+                            </div>
+                        ))}
                     </div>
                 </div>
             </div>
 
-            <style jsx>{`
-                .kpi-grid {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                    gap: 20px;
-                    margin-bottom: 24px;
-                }
-                .kpi-card {
-                    background: white;
-                    border-radius: 12px;
-                    padding: 20px;
-                    display: flex;
-                    align-items: center;
-                    gap: 16px;
-                    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-                }
-                .kpi-icon-wrap {
-                    width: 48px;
-                    height: 48px;
-                    border-radius: 12px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                }
-                .bg-blue-100 { background: #dbeafe; } .text-blue-600 { color: #2563eb; }
-                .bg-red-100 { background: #fee2e2; } .text-red-600 { color: #dc2626; }
-                .bg-green-100 { background: #d1fae5; } .text-green-600 { color: #059669; }
-                .bg-orange-100 { background: #ffedd5; } .text-orange-600 { color: #ea580c; }
-                .bg-purple-100 { background: #f3e8ff; } .text-purple-600 { color: #9333ea; }
-                .kpi-details h4 {
-                    font-size: 20px;
-                    font-weight: 700;
-                    margin: 0 0 4px 0;
-                    color: #0f172a;
-                }
-                .kpi-details span {
-                    font-size: 13px;
-                    color: #64748b;
-                }
-            `}</style>
+            {/* Bottom Grid */}
+            <div className="farmaku-bottom-grid">
+                {/* Bar Chart */}
+                <div className="farmaku-card">
+                    <div className="farmaku-card-header">
+                        <div>
+                            <h2 className="farmaku-card-title">Monthly Transactions</h2>
+                            <p className="farmaku-card-subtitle">Volume of sales over time</p>
+                        </div>
+                    </div>
+                    <div style={{ width: '100%', height: 220 }}>
+                        <ResponsiveContainer>
+                            <BarChart data={revenuePerformanceData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#9ca3af' }} />
+                                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#9ca3af' }} />
+                                <RechartsTooltip cursor={{fill: 'transparent'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
+                                <Bar dataKey="Transactions" fill="#6366f1" radius={[4, 4, 0, 0]} barSize={20} />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
+
+                {/* Table */}
+                <div className="farmaku-card">
+                    <div className="farmaku-card-header">
+                        <div>
+                            <h2 className="farmaku-card-title">Top Transactions</h2>
+                            <p className="farmaku-card-subtitle">Highlights of the highest transactions made recently</p>
+                        </div>
+                        <button style={{ background: 'none', border: 'none', color: '#4f46e5', fontWeight: 600, fontSize: '12px', cursor: 'pointer' }}>See All</button>
+                    </div>
+                    <div className="farmaku-table-wrapper">
+                        <table className="farmaku-table">
+                            <thead>
+                                <tr>
+                                    <th>Transaction ID</th>
+                                    <th>Customer/Vendor</th>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>Purchase</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {recentOrders.slice(0, 5).map((order) => (
+                                    <tr key={order.id || order._id || Math.random()}>
+                                        <td><strong>#{String(order.id || order._id || '').substring(0, 8).toUpperCase()}</strong></td>
+                                        <td>{order.customer?.name || order.vendor?.name || 'N/A'}</td>
+                                        <td>{new Date(order.createdAt).toLocaleDateString()}</td>
+                                        <td>
+                                            <span className={`farmaku-pill ${order.orderType === 'sales' ? 'success' : 'info'}`}>
+                                                {order.orderType === 'sales' ? 'Sales' : 'Purchase'}
+                                            </span>
+                                        </td>
+                                        <td><strong>{formatCurrency(order.totalAmount)}</strong></td>
+                                    </tr>
+                                ))}
+                                {recentOrders.length === 0 && (
+                                    <tr>
+                                        <td colSpan="5" style={{ textAlign: 'center', color: '#9ca3af' }}>No recent transactions</td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 };

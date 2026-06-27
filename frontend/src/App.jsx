@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthContext, AuthProvider } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
-import DualSidebar from './components/DualSidebar';
+import FarmakuSidebar from './components/FarmakuSidebar';
 import ProtectedRoute from './components/ProtectedRoute';
 import OrderCreationRoute from './components/OrderCreationRoute';
 import { GoogleOAuthProvider } from '@react-oauth/google';
@@ -98,7 +98,7 @@ const AppContent = () => {
 
     return (
         <div className="app-layout">
-            {user && <DualSidebar />}
+            {user && <FarmakuSidebar />}
             <main className="app-main">
                 {user && (
                     <>

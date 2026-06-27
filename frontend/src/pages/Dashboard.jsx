@@ -1,303 +1,267 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import API from '../api/axios';
-import { AuthContext } from '../context/AuthContext';
 import { 
-    ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, 
-    BarChart, Bar, PieChart, Pie, Cell 
-} from 'recharts';
-import { 
-    Users, Package, TrendingUp, AlertTriangle, CheckCircle2, 
-    Briefcase, Calendar, DollarSign, PlusCircle, FileText, 
-    Bell, Search, Filter, ChevronRight
+    Users, FileText, DollarSign, Search, Bell, Settings, Moon
 } from 'lucide-react';
-
-import { useNavigate } from 'react-router-dom';
-
-// Components
-import StatCard from '../components/Dashboard/StatCard';
-import QuickActions from '../components/Dashboard/QuickActions';
-import DataTable from '../components/Dashboard/DataTable';
-import AttendanceWidget from '../components/Dashboard/AttendanceWidget';
+import { 
+    AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
+    PieChart, Pie, Cell,
+    BarChart, Bar
+} from 'recharts';
+import './FarmakuDashboard.css';
 
 const Dashboard = () => {
-    const { user } = useContext(AuthContext);
-    const navigate = useNavigate();
-    const [data, setData] = useState(null);
+    const [dashboardData, setDashboardData] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [notifications, setNotifications] = useState([]);
 
     useEffect(() => {
-        const fetchDashboard = async () => {
+        const fetchDashboardData = async () => {
             try {
-                const [dashRes, erpRes] = await Promise.all([
-                    API.get('/dashboard/stats'),
-                    API.get('/erp/stats')
-                ]);
-                setData({ ...dashRes.data, erpStats: erpRes.data });
+                const { data } = await API.get('/dashboard/stats');
+                setDashboardData(data);
             } catch (error) {
-                console.error(error);
+                console.error("Failed to fetch dashboard stats", error);
             } finally {
                 setLoading(false);
             }
         };
-        fetchDashboard();
+        fetchDashboardData();
     }, []);
 
-    // Removed broken fetchLowStockCount
-    if (loading) return <div className="loading-container">
-        <div className="loader"></div>
-        <p>Synchronizing Business Intelligence...</p>
-    </div>;
+    if (loading) return <div style={{ padding: '24px' }}>Loading dashboard...</div>;
+    if (!dashboardData) return <div style={{ padding: '24px' }}>Failed to load dashboard data.</div>;
 
-    const role = user?.role;
+    const { 
+        stats = {}, 
+        charts = { monthlyStats: [], categoryData: [] },
+        tables = { recentOrders: [] }
+    } = dashboardData;
 
-    // --- Role Based Config ---
-    const getRoleContent = () => {
-        switch(role) {
-            case 'Admin':
-                return {
-                    title: "Admin Control Center",
-                    stats: [
-                        { title: 'Total Material Types', value: data?.totalMaterials ?? 0, icon: <Package />, color: '#6366f1', trend: 0 },
-                        { title: 'Low Stock Items', value: data?.lowStockItems ?? 0, icon: <AlertTriangle />, color: '#ef4444', trend: 0 },
-                        { title: 'Total Employees', value: data?.totalEmployees ?? 0, icon: <Users />, color: '#14b8a6', trend: 0 },
-                        { title: 'Open Orders', value: data?.openOrders ?? 0, icon: <TrendingUp />, color: '#f59e0b', trend: 0 },
-                        { title: 'Active Customers', value: data?.activeCustomers ?? 0, icon: <Briefcase />, color: '#10b981', trend: 0 }
-                    ],
-                    actions: [
-                        { label: 'Add Material', icon: <Package size={20}/>, onClick: () => {} },
-                        { label: 'Add Employee', icon: <Users size={20}/>, onClick: () => {} },
-                        { label: 'Add Customer', icon: <Briefcase size={20}/>, onClick: () => {} },
-                    ],
-                    charts: (
-                        <div className="premium-card chart-container">
-                            <h3>Revenue & Sales Growth</h3>
-                            <div style={{ height: 300, marginTop: 20 }}>
-                                {data?.charts?.monthlyStats?.length > 0 ? (
-                                    <ResponsiveContainer>
-                                        <AreaChart data={data.charts.monthlyStats}>
-                                            <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} />
-                                            <YAxis stroke="#94a3b8" fontSize={12} />
-                                            <Tooltip contentStyle={{ background: '#fff', border: '1px solid var(--border-subtle)', borderRadius: '8px', boxShadow: 'var(--shadow-md)' }} />
-                                            <Area type="monotone" dataKey="revenue" stroke="var(--primary)" fill="rgba(79, 70, 229, 0.15)" />
-                                            <Area type="monotone" dataKey="sales" stroke="var(--success)" fill="rgba(16, 185, 129, 0.1)" />
-                                        </AreaChart>
-                                    </ResponsiveContainer>
-                                ) : (
-                                    <div className="empty-state" style={{ height: '100%' }}>No revenue data available</div>
-                                )}
-                            </div>
-                        </div>
-                    ),
-                    tables: (
-                        <div className="premium-card">
-                        <DataTable 
-                            title="Critical Stock Alerts" 
-                            headers={['Item', 'SKU', 'Level', 'Status']} 
-                            data={data?.tables?.lowStock || []}
-                            renderRow={(item) => (
-                                <>
-                                    <td>{item.name}</td>
-                                    <td><code className="sku-code">{item.sku}</code></td>
-                                    <td style={{ color: 'var(--danger)', fontWeight: 600 }}>{item.quantity} {item.unit}</td>
-                                    <td><span className="status-badge status-danger">Low Stock</span></td>
-                                </>
-                            )}
-                        />
-                        </div>
-                    )
-                };
-            case 'HR':
-                return {
-                    title: "HR Management Hub",
-                    stats: [
-                        { title: 'Total Workforce', value: data?.totalEmployees ?? 0, icon: <Users />, color: '#6366f1' },
-                        { title: 'On Leave', value: data?.stats?.onLeave ?? 0, icon: <Calendar />, color: '#ef4444' },
-                        { title: 'Present Today', value: data?.stats?.presentToday ?? 0, icon: <CheckCircle2 />, color: '#10b981' },
-                        { title: 'Pending Leave', value: data?.stats?.pendingRequests ?? 0, icon: <FileText />, color: '#f59e0b' },
-                    ],
-                    actions: [
-                        { label: 'Add Employee', icon: <Users size={20}/>, onClick: () => navigate('/hrms') },
-                        { label: 'Approve Leave', icon: <CheckCircle2 size={20}/>, onClick: () => navigate('/hrms') },
-                        { label: 'Update Payroll', icon: <DollarSign size={20}/>, onClick: () => navigate('/hrms') },
-                    ],
-                    charts: (
-                        <div className="premium-card chart-container">
-                            <h3>Workforce Attendance Trends</h3>
-                            <div style={{ height: 300, marginTop: 20 }}>
-                                {data?.charts?.attendanceHistory?.length > 0 ? (
-                                    <ResponsiveContainer>
-                                        <BarChart data={data.charts.attendanceHistory}>
-                                            <XAxis dataKey="name" stroke="#94a3b8" />
-                                            <YAxis stroke="#94a3b8" />
-                                            <Tooltip cursor={{fill: 'var(--bg-hover)'}} contentStyle={{ background: '#fff', border: '1px solid var(--border-subtle)', borderRadius: '8px', boxShadow: 'var(--shadow-md)' }} />
-                                            <Bar dataKey="employees" fill="var(--primary)" radius={[4, 4, 0, 0]} />
-                                        </BarChart>
-                                    </ResponsiveContainer>
-                                ) : (
-                                    <div className="empty-state" style={{ height: '100%' }}>No attendance data available</div>
-                                )}
-                            </div>
-                        </div>
-                    ),
-                    tables: (
-                        <div className="premium-card">
-                        <DataTable 
-                            title="Employees" 
-                            headers={['Name', 'Designation', 'Department', 'Status']} 
-                            data={data?.tables?.employees || []}
-                            renderRow={(item) => (
-                                <>
-                                    <td>{item.firstName} {item.lastName}</td>
-                                    <td>{item.designation}</td>
-                                    <td>{item.department}</td>
-                                    <td><span className="status-badge status-success">Active</span></td>
-                                </>
-                            )}
-                        />
-                        </div>
-                    )
-                };
-            case 'Sales':
-                return {
-                    title: "Sales & CRM Pipeline",
-                    stats: [
-                        { title: 'Total Sales Orders', value: data?.stats?.totalSalesOrders ?? 0, icon: <TrendingUp />, color: '#6366f1' },
-                        { title: 'Active Customers', value: data?.activeCustomers ?? 0, icon: <CheckCircle2 />, color: '#10b981' },
-                        { title: 'Recent Customers', value: data?.salesStats?.recentCustomers ?? 0, icon: <Users />, color: '#f59e0b' },
-                        { title: 'Total Revenue', value: `₹${(data?.charts?.monthlyStats?.reduce((sum, m) => sum + (Number(m.revenue) || 0), 0) || 0).toLocaleString('en-IN')}`, icon: <DollarSign />, color: '#14b8a6' },
-                    ],
-                    actions: [
-                        { label: 'Add Customer', icon: <PlusCircle size={20}/>, onClick: () => navigate('/crm') },
-                    ],
-                    charts: (
-                        <div className="premium-card chart-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                            <h3>Lead Conversion Rate</h3>
-                            <div style={{ height: 250, width: '100%', marginTop: 20 }}>
-                                {data?.charts?.conversionRate?.length > 0 ? (
-                                    <ResponsiveContainer>
-                                        <PieChart>
-                                            <Pie data={data.charts.conversionRate} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
-                                                <Cell fill="var(--primary)" />
-                                                <Cell fill="var(--border-subtle)" />
-                                            </Pie>
-                                            <Tooltip contentStyle={{ background: '#fff', border: '1px solid var(--border-subtle)', borderRadius: '8px' }} />
-                                        </PieChart>
-                                    </ResponsiveContainer>
-                                ) : (
-                                    <div className="empty-state" style={{ height: '100%' }}>No conversion data available</div>
-                                )}
-                            </div>
-                        </div>
-                    ),
-                    tables: (
-                        <div className="premium-card">
-                        <DataTable 
-                            title="Recent Orders" 
-                            headers={['Order #', 'Customer', 'Amount', 'Status']} 
-                            data={data?.tables?.recentOrders || []}
-                            renderRow={(item) => (
-                                <>
-                                    <td>{item.orderNumber}</td>
-                                    <td>{item.customer?.name || 'Walk-in'}</td>
-                                    <td>₹{(Number(item.totalAmount) || 0).toLocaleString('en-IN')}</td>
-                                    <td><span className={`status-badge ${item.status.toLowerCase()}`}>{item.status}</span></td>
-                                </>
-                            )}
-                        />
-                        </div>
-                    )
-                };
-            default:
-                return {
-                    title: "Operational Dashboard",
-                    stats: [
-                        { title: 'My Tasks', value: 0, icon: <FileText />, color: '#6366f1' },
-                        { title: 'Attendance', value: '0%', icon: <CheckCircle2 />, color: '#10b981' },
-                        { title: 'Pending Orders', value: data?.erpStats?.openOrders || 0, icon: <TrendingUp />, color: '#f59e0b' },
-                    ],
-                    actions: [
-                        { label: 'Apply Leave', icon: <Calendar size={20}/>, onClick: () => navigate('/hrms') },
-                        { label: 'Update Task', icon: <CheckCircle2 size={20}/>, onClick: () => navigate('/analytics') },
-                    ],
-                    charts: (
-                        <div className="premium-card chart-container">
-                            <h3>Performance Score</h3>
-                            <div style={{ height: 300, marginTop: 20 }}>
-                                <ResponsiveContainer>
-                                    <AreaChart data={data?.charts?.monthlyStats || []}>
-                                        <Area type="monotone" dataKey="sales" stroke="#6366f1" fill="rgba(99, 102, 241, 0.1)" />
-                                    </AreaChart>
-                                </ResponsiveContainer>
-                            </div>
-                        </div>
-                    ),
-                    tables: <div className="premium-card"><p style={{padding: '20px', color: 'var(--text-muted)'}}>No recent activity found.</p></div>
-                };
-        }
-    };
+    const totalCustomers = dashboardData.totalCustomers || 0;
+    const totalTransaction = stats.totalSalesOrders || 0; // Or totalOrders
+    const totalIncome = dashboardData.totalRevenue || 0;
 
-    const content = getRoleContent();
+    // Format for Area Chart (Sales Performance)
+    // We want to map monthlyStats to revenue and sales
+    const salesPerformanceData = charts.monthlyStats.map(item => ({
+        name: item.name,
+        Revenue: item.revenue || 0,
+    }));
+
+    // Format for Doughnut Chart (Categories or Departments)
+    const categoryData = charts.categoryData.length > 0 ? charts.categoryData : [
+        { name: 'No Data', value: 1 }
+    ];
+    const COLORS = ['#1e3a8a', '#3b82f6', '#93c5fd', '#bfdbfe', '#e0e7ff', '#818cf8'];
+
+    // Format for Bar Chart (Revenue Performance or transaction count)
+    const revenuePerformanceData = charts.monthlyStats.map(item => ({
+        name: item.name,
+        Transactions: item.sales || 0
+    }));
+
+    const recentOrders = tables.recentOrders || [];
+
+    const formatCurrency = (val) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val);
 
     return (
-        <div className="page-container">
-            {/* Header / Notifications */}
-            <header className="page-header">
-                <div>
-                    <h1 className="page-title">{content.title}</h1>
-                    <p className="page-subtitle">Welcome back, {user?.role} {user?.name}</p>
+        <div className="farmaku-dashboard">
+            {/* Header */}
+            <header className="farmaku-header">
+                <div className="farmaku-header-left">
+                    <h1>Dashboard</h1>
+                    <p>Welcome back, Admin</p>
                 </div>
-                
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    <div className="dashboard-search">
-                        <Search size={18} />
-                        <input type="text" placeholder="Global system search..." />
+                <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', background: '#fff', borderRadius: '8px', padding: '8px 16px', border: '1px solid #e5e7eb' }}>
+                        <Search size={16} color="#9ca3af" />
+                        <input 
+                            type="text" 
+                            placeholder="Search anything" 
+                            style={{ border: 'none', outline: 'none', marginLeft: '8px', background: 'transparent' }}
+                        />
                     </div>
-                    <div className="notifications-dropdown">
-                        <div className="bell-box">
-                            <Bell size={20} />
-                            <span className="notif-badge">{notifications.length}</span>
-                        </div>
-                    </div>
-                    <div className="premium-card" style={{ padding: '10px 18px', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>
-                        <Calendar size={16} />
-                        <span>{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                         <Bell size={20} color="#4b5563" />
+                         <Settings size={20} color="#4b5563" />
+                         <Moon size={20} color="#4b5563" />
                     </div>
                 </div>
             </header>
 
-            {/* Notifications Bar */}
-            {notifications.length > 0 && (
-                <div className="notifications-bar">
-                    {notifications.map(n => (
-                        <div key={n.id} className={`notif-item ${n.type}`}>
-                            <AlertTriangle size={16} />
-                            <span>{n.text}</span>
-                            <button onClick={() => setNotifications(notifications.filter(x => x.id !== n.id))}>✕</button>
-                        </div>
-                    ))}
+            {/* Stat Cards */}
+            <div className="farmaku-stats-grid">
+                <div className="farmaku-stat-card">
+                    <div className="farmaku-stat-icon blue">
+                        <Users size={24} />
+                    </div>
+                    <div className="farmaku-stat-info">
+                        <h3>Total Customers</h3>
+                        <p className="farmaku-stat-val">{totalCustomers.toLocaleString()}</p>
+                    </div>
                 </div>
-            )}
-
-            <div style={{ marginTop: '24px' }}>
-                <AttendanceWidget />
+                <div className="farmaku-stat-card">
+                    <div className="farmaku-stat-icon purple">
+                        <FileText size={24} />
+                    </div>
+                    <div className="farmaku-stat-info">
+                        <h3>Total Transaction</h3>
+                        <p className="farmaku-stat-val">{totalTransaction.toLocaleString()}</p>
+                    </div>
+                </div>
+                <div className="farmaku-stat-card">
+                    <div className="farmaku-stat-icon green">
+                        <DollarSign size={24} />
+                    </div>
+                    <div className="farmaku-stat-info">
+                        <h3>Total Income</h3>
+                        <p className="farmaku-stat-val">{formatCurrency(totalIncome)}</p>
+                    </div>
+                </div>
             </div>
 
-            {/* Sections */}
-            <section className="dashboard-section stats-grid">
-                {content.stats.map((s, i) => <StatCard key={i} {...s} />)}
-            </section>
+            {/* Charts Area Grid */}
+            <div className="farmaku-charts-grid">
+                {/* Line Chart */}
+                <div className="farmaku-card">
+                    <div className="farmaku-card-header">
+                        <div>
+                            <h2 className="farmaku-card-title">Sales Performance</h2>
+                            <p className="farmaku-card-subtitle">See how your sales grow month by month</p>
+                        </div>
+                    </div>
+                    <div style={{ width: '100%', height: 250 }}>
+                        <ResponsiveContainer>
+                            <AreaChart data={salesPerformanceData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                                <defs>
+                                    <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="#818cf8" stopOpacity={0.3}/>
+                                        <stop offset="95%" stopColor="#818cf8" stopOpacity={0}/>
+                                    </linearGradient>
+                                </defs>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#9ca3af' }} />
+                                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#9ca3af' }} tickFormatter={(val) => `$${val/1000}k`} />
+                                <RechartsTooltip 
+                                    formatter={(value) => formatCurrency(value)}
+                                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
+                                />
+                                <Area type="monotone" dataKey="Revenue" stroke="#4f46e5" strokeWidth={3} fillOpacity={1} fill="url(#colorRevenue)" />
+                            </AreaChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
 
-            <section className="dashboard-section middle-grid">
-                {content.charts}
-                <QuickActions actions={content.actions} />
-            </section>
+                {/* Doughnut Chart */}
+                <div className="farmaku-card">
+                    <div className="farmaku-card-header">
+                        <h2 className="farmaku-card-title">Material Categories</h2>
+                    </div>
+                    <div style={{ width: '100%', height: 200, position: 'relative' }}>
+                        <ResponsiveContainer>
+                            <PieChart>
+                                <Pie
+                                    data={categoryData}
+                                    cx="50%"
+                                    cy="50%"
+                                    innerRadius={60}
+                                    outerRadius={80}
+                                    paddingAngle={2}
+                                    dataKey="value"
+                                    stroke="none"
+                                >
+                                    {categoryData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                    ))}
+                                </Pie>
+                                <RechartsTooltip />
+                            </PieChart>
+                        </ResponsiveContainer>
+                        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
+                            <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#111827' }}>
+                                {categoryData.reduce((acc, curr) => acc + curr.value, 0)}
+                            </div>
+                            <div style={{ fontSize: '10px', color: '#6b7280' }}>Total</div>
+                        </div>
+                    </div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', justifyContent: 'center', marginTop: '16px' }}>
+                        {categoryData.slice(0, 4).map((entry, index) => (
+                            <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#4b5563' }}>
+                                <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: COLORS[index % COLORS.length] }}></span>
+                                {entry.name}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
 
-            <section className="dashboard-section bottom-grid">
-                {content.tables}
-            </section>
+            {/* Bottom Grid */}
+            <div className="farmaku-bottom-grid">
+                {/* Bar Chart */}
+                <div className="farmaku-card">
+                    <div className="farmaku-card-header">
+                        <div>
+                            <h2 className="farmaku-card-title">Monthly Transactions</h2>
+                            <p className="farmaku-card-subtitle">Volume of sales over time</p>
+                        </div>
+                    </div>
+                    <div style={{ width: '100%', height: 220 }}>
+                        <ResponsiveContainer>
+                            <BarChart data={revenuePerformanceData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#9ca3af' }} />
+                                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#9ca3af' }} />
+                                <RechartsTooltip cursor={{fill: 'transparent'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
+                                <Bar dataKey="Transactions" fill="#6366f1" radius={[4, 4, 0, 0]} barSize={20} />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
 
-            
+                {/* Table */}
+                <div className="farmaku-card">
+                    <div className="farmaku-card-header">
+                        <div>
+                            <h2 className="farmaku-card-title">Top Transactions</h2>
+                            <p className="farmaku-card-subtitle">Highlights of the highest transactions made recently</p>
+                        </div>
+                        <button style={{ background: 'none', border: 'none', color: '#4f46e5', fontWeight: 600, fontSize: '12px', cursor: 'pointer' }}>See All</button>
+                    </div>
+                    <div className="farmaku-table-wrapper">
+                        <table className="farmaku-table">
+                            <thead>
+                                <tr>
+                                    <th>Transaction ID</th>
+                                    <th>Customer/Vendor</th>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>Purchase</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {recentOrders.slice(0, 5).map((order) => (
+                                    <tr key={order.id || order._id || Math.random()}>
+                                        <td><strong>#{String(order.id || order._id || '').substring(0, 8).toUpperCase()}</strong></td>
+                                        <td>{order.customer?.name || order.vendor?.name || 'N/A'}</td>
+                                        <td>{new Date(order.createdAt).toLocaleDateString()}</td>
+                                        <td>
+                                            <span className={`farmaku-pill ${order.orderType === 'sales' ? 'success' : 'info'}`}>
+                                                {order.orderType === 'sales' ? 'Sales' : 'Purchase'}
+                                            </span>
+                                        </td>
+                                        <td><strong>{formatCurrency(order.totalAmount)}</strong></td>
+                                    </tr>
+                                ))}
+                                {recentOrders.length === 0 && (
+                                    <tr>
+                                        <td colSpan="5" style={{ textAlign: 'center', color: '#9ca3af' }}>No recent transactions</td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 };

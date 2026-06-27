@@ -220,19 +220,15 @@ const getMyAttendanceHistory = async (req, res) => {
 // @access  Private
 const getAllAttendance = async (req, res) => {
     try {
-        const today = new Date().toISOString().split('T')[0];
+        const targetDate = req.query.date || new Date().toISOString().split('T')[0];
         
         let query = {};
 
         // Fetch all employees (since status field doesn't exist in the current schema)
-        const employees = await Employee.find(query).select('id firstName lastName department employeeId');
+        const employees = await Employee.find(query);
 
-        // Fetch attendance records for today
-        const attendances = await Attendance.find({ date: today })
-            .populate({
-                path: 'employee',
-                select: 'firstName lastName employeeId department'
-            })
+        // Fetch attendance records for targetDate
+        const attendances = await Attendance.find({ date: targetDate })
             .sort({ date: -1 });
 
         // Map employeeId to attendance
@@ -242,14 +238,16 @@ const getAllAttendance = async (req, res) => {
             attendanceMap[empId] = att;
         });
 
-        const todayStart = new Date();
-        todayStart.setHours(0,0,0,0);
-        const todayEnd = new Date();
-        todayEnd.setHours(23,59,59,999);
+        // Fetch leaves for targetDate
+        const targetDateObj = new Date(targetDate);
+        const dateStart = new Date(targetDateObj);
+        dateStart.setHours(0,0,0,0);
+        const dateEnd = new Date(targetDateObj);
+        dateEnd.setHours(23,59,59,999);
         
         const leaves = await Leave.find({
-            startDate: { $lte: todayEnd },
-            endDate: { $gte: todayStart },
+            startDate: { $lte: dateEnd },
+            endDate: { $gte: dateStart },
             status: 'Approved'
         });
         const leaveMap = {};
@@ -282,12 +280,21 @@ const getAllAttendance = async (req, res) => {
             else if (finalStatus === 'Not Checked In') notCheckedInToday++;
             else if (finalStatus === 'On Leave') onLeaveToday++;
 
+            const employeeData = {
+                firstName: emp.firstName,
+                lastName: emp.lastName,
+                employeeId: emp.employeeId,
+                department: emp.department
+            };
+
             if (record) {
+                // Attach employee data manually since populate was removed
+                record.employee = employeeData;
                 return record;
             }
             return {
                 employeeId: empId,
-                date: today,
+                date: targetDate,
                 status: finalStatus,
                 employee: {
                     firstName: emp.firstName,

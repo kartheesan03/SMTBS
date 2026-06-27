@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import API from '../api/axios';
-import { Plus, Search, UserPlus, Mail, Phone, Calendar, Trash2, Download } from 'lucide-react';
+import { Plus, Search, UserPlus, Mail, Phone, Calendar, Trash2, Download, Edit2, RefreshCw } from 'lucide-react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import ExcelJS from 'exceljs';
+import './FarmakuUser.css';
 
 const HRMS = () => {
     const [employees, setEmployees] = useState([]);
@@ -140,98 +141,100 @@ const HRMS = () => {
     }
 
     return (
-        <div className="page-container">
-            {/* KPI Section */}
-            <div className="module-kpi-section">
-                <div className="premium-card">
-                    <div className="kpi-header">
-                        <span className="kpi-title">Total Employees</span>
-                        <div className="kpi-icon-wrapper" style={{background: 'rgba(59,130,246,0.1)', color: '#3B82F6'}}>
-                            <UserPlus size={20} />
-                        </div>
+        <div className="farmaku-user-page">
+            <div className="farmaku-user-header">
+                <h1>User</h1>
+                <div className="farmaku-user-header-right">
+                    <div className="farmaku-search-bar" style={{minWidth: '250px'}}>
+                        <Search size={16} color="#9ca3af" />
+                        <input type="text" placeholder="Search anything" />
                     </div>
-                    <div className="kpi-value">{employees.length}</div>
-                </div>
-
-                <div className="premium-card">
-                    <div className="kpi-header">
-                        <span className="kpi-title">New Joiners (30d)</span>
-                        <div className="kpi-icon-wrapper" style={{background: 'rgba(16,185,129,0.1)', color: '#10B981'}}>
-                            <Calendar size={20} />
-                        </div>
-                    </div>
-                    <div className="kpi-value">{employees.filter(e => new Date(e.joinDate) > new Date(new Date().setDate(new Date().getDate() - 30))).length}</div>
-                </div>
-
-                <div className="premium-card">
-                    <div className="kpi-header">
-                        <span className="kpi-title">Departments</span>
-                        <div className="kpi-icon-wrapper" style={{background: 'rgba(139,92,246,0.1)', color: '#8B5CF6'}}>
-                            <Search size={20} />
-                        </div>
-                    </div>
-                    <div className="kpi-value">{[...new Set(employees.map(e => e.department))].length}</div>
-                </div>
-            </div>
-
-            {/* Actions Section */}
-            <div className="page-header">
-                <div className="header-content">
-                    <h1>Employee Directory</h1>
-                    <p>Manage workforce, roles, and profiles.</p>
-                </div>
-                <div className="header-actions">
-                    <button className="btn-secondary" onClick={exportToExcel}><Download size={16} /> Excel</button>
-                    <button className="btn-secondary" onClick={exportToPDF}><Download size={16} /> PDF</button>
-                    <button className="btn-primary" onClick={() => navigate('/hrms/add-employee')}>
-                        <UserPlus size={16} /> Add Employee
+                    <button className="icon-btn" style={{border: '1px solid #e5e7eb', borderRadius: '50%', padding: '8px', background: '#fff', color: '#6b7280'}}>
+                        <RefreshCw size={16} />
                     </button>
+                    {/* The profile header is usually outside the page, but we'll add a dummy one if it matches the screenshot */}
+                    <div style={{display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '16px'}}>
+                        <div style={{width: '32px', height: '32px', borderRadius: '50%', background: '#111827', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px'}}>A</div>
+                        <span style={{fontSize: '14px', fontWeight: '600'}}>Admin</span>
+                    </div>
                 </div>
             </div>
 
-            {/* Data Section */}
-            <div className="module-data-section" style={{background: 'transparent', padding: 0}}>
-                <div className="employee-grid" style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px'}}>
-                    {employees.length > 0 ? employees.map((emp) => (
-                        <div key={emp._id} className="premium-card" style={{padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px'}}>
-                            <div style={{display: 'flex', alignItems: 'center', gap: '16px'}}>
-                                <div style={{width: '48px', height: '48px', borderRadius: '50%', background: 'var(--primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', fontWeight: 600}}>
-                                    {emp.firstName[0]}{emp.lastName?.[0]}
-                                </div>
-                                <div>
-                                    <h3 style={{ fontSize: '16px', fontWeight: 600, margin: '0 0 4px 0', color: 'var(--text-main)' }}>{emp.firstName} {emp.lastName}</h3>
-                                    <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: 0 }}>{emp.designation}</p>
-                                </div>
-                            </div>
-                            
-                            <div style={{display: 'flex', flexDirection: 'column', gap: '10px', padding: '16px 0', borderTop: '1px solid var(--border-light)', borderBottom: '1px solid var(--border-light)'}}>
-                                <div style={{display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', color: 'var(--text-secondary)'}}>
-                                    <Mail size={14} /> <span>{emp.contact || 'No email'}</span>
-                                </div>
-                                <div style={{display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', color: 'var(--text-secondary)'}}>
-                                    <Phone size={14} /> <span>{emp.phone || 'No phone'}</span>
-                                </div>
-                                <div style={{display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', color: 'var(--text-secondary)'}}>
-                                    <Calendar size={14} /> <span>Joined {new Date(emp.joinDate).toLocaleDateString()}</span>
-                                </div>
-                            </div>
-                            
-                            <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto'}}>
-                                <span style={{padding: '4px 10px', background: 'var(--bg-hover)', borderRadius: '6px', fontSize: '12px', fontWeight: 600, color: 'var(--text-main)'}}>{emp.department}</span>
-                                <div style={{display: 'flex', gap: '8px'}}>
-                                    <button className="btn-secondary" style={{padding: '6px 12px', fontSize: '12px'}} onClick={() => setSelectedEmployee(emp)}>Profile</button>
-                                    <button className="icon-btn" style={{color: 'var(--danger)', background: 'rgba(239,68,68,0.1)'}} onClick={(e) => { e.stopPropagation(); setDeleteConfirm(emp); }}>
-                                        <Trash2 size={14} />
-                                    </button>
-                                </div>
-                            </div>
+            <div className="farmaku-table-container">
+                <div className="farmaku-table-controls">
+                    <div className="left-controls">
+                        <div className="farmaku-search-bar" style={{background: '#f9fafb', minWidth: '350px'}}>
+                            <Search size={16} color="#9ca3af" />
+                            <input type="text" placeholder="Search anything" />
                         </div>
-                    )) : (
-                        <div style={{ gridColumn: '1 / -1', padding: '40px', textAlign: 'center', background: 'var(--bg-surface)', borderRadius: '12px' }}>
-                            <p style={{ color: 'var(--text-muted)' }}>No employees found in the system.</p>
+                    </div>
+                    <div className="right-controls">
+                        <div className="farmaku-filter-role">
+                            Role: 
+                            <select>
+                                <option value="All">All</option>
+                                <option value="Admin">Admin</option>
+                                <option value="Cashier">Cashier</option>
+                                <option value="Employee">Employee</option>
+                            </select>
                         </div>
-                    )}
+                        <button className="farmaku-add-btn" onClick={() => navigate('/hrms/add-employee')}>
+                            <Plus size={16} /> Add New
+                        </button>
+                    </div>
                 </div>
+
+                <table className="farmaku-user-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone Number</th>
+                            <th>Role</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {employees.map((emp) => {
+                            const role = emp.designation || emp.department || 'Employee';
+                            const roleLower = role.toLowerCase();
+                            let roleClass = 'other';
+                            if (roleLower.includes('admin')) roleClass = 'admin';
+                            else if (roleLower.includes('cashier')) roleClass = 'cashier';
+
+                            return (
+                                <tr key={emp._id}>
+                                    <td>{emp.firstName} {emp.lastName}</td>
+                                    <td className="email-col">{emp.contact || 'No email'}</td>
+                                    <td className="phone-col">{emp.phone || 'No phone'}</td>
+                                    <td>
+                                        <span className={`farmaku-role-pill ${roleClass}`}>
+                                            {role}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div className="farmaku-action-icons">
+                                            <button onClick={() => {
+                                                setFormData({ ...emp, joinDate: new Date(emp.joinDate).toISOString().split('T')[0] });
+                                                setEditingId(emp._id);
+                                                setIsEditing(true);
+                                                setShowModal(true);
+                                            }}><Edit2 size={16} /></button>
+                                            <button onClick={() => setDeleteConfirm(emp)}><Trash2 size={16} /></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            );
+                        })}
+                        {employees.length === 0 && (
+                            <tr>
+                                <td colSpan="5" style={{textAlign: 'center', padding: '40px', color: '#9ca3af'}}>
+                                    No users found
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
             </div>
 
             {/* Modals */}

@@ -26,7 +26,8 @@ const Attendance = () => {
 
     const fetchAttendance = async () => {
         try {
-            const { data } = await API.get('/attendance/all'); // Updated alias
+            setLoading(true);
+            const { data } = await API.get('/attendance/all', { params: { date: filterDate } });
             setAttendanceData(data);
             setAttendanceLogs(data.employeeAttendanceList || []);
         } catch (error) {
@@ -38,7 +39,7 @@ const Attendance = () => {
 
     useEffect(() => {
         fetchAttendance();
-    }, []);
+    }, [filterDate]);
 
     const handleSaveEdit = async () => {
         try {
@@ -54,10 +55,8 @@ const Attendance = () => {
     const filteredLogs = attendanceLogs.filter(log => {
         const empName = `${log.employee?.firstName || ''} ${log.employee?.lastName || ''}`.trim();
         const matchesSearch = empName.toLowerCase().includes(searchQuery.toLowerCase());
-        const logDate = new Date(log.date).toISOString().split('T')[0];
-        const matchesDate = !filterDate || logDate === filterDate;
         const matchesDept = filterDept === 'All' || log.employee?.department === filterDept;
-        return matchesSearch && matchesDate && matchesDept;
+        return matchesSearch && matchesDept;
     });
 
     const departments = ['All', ...new Set(attendanceLogs.map(l => l.employee?.department).filter(Boolean))];
@@ -122,13 +121,14 @@ const Attendance = () => {
 
     return (
         <div className="page-container">
-            <header className="page-header">
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    <div>
-                        <h1 className="page-title">Master Attendance Log</h1>
-                        <p className="page-subtitle">Review and oversee daily check-ins across all departments.</p>
-                    </div>
-                    <div className="tab-group" style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+            <header className="page-header" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div>
+                    <h1 className="page-title">Master Attendance Log</h1>
+                    <p className="page-subtitle">Review and oversee daily check-ins across all departments.</p>
+                </div>
+                
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+                    <div className="tab-group" style={{ display: 'flex', gap: '10px' }}>
                         <button 
                             className={`tab-btn ${viewMode === 'today' ? 'active' : ''}`}
                             onClick={() => setViewMode('today')}
@@ -142,28 +142,48 @@ const Attendance = () => {
                             <History size={16}/> Attendance History
                         </button>
                     </div>
-                </div>
-                {viewMode === 'today' && (
-                    <div style={{ display: 'flex', gap: '12px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-subtle)', background: 'var(--bg-surface)' }}>
-                            <Search size={16} color="var(--text-muted)" />
-                            <input 
-                                type="text" 
-                                placeholder="Search employee..." 
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                style={{ background: 'transparent', border: 'none', outline: 'none', color: 'var(--text-heading)', marginLeft: '4px', width: '180px' }}
-                            />
+
+                    {viewMode === 'today' && (
+                        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-subtle)', background: 'var(--bg-surface)' }}>
+                                <Search size={16} color="var(--text-muted)" />
+                                <input 
+                                    type="text" 
+                                    placeholder="Search employee..." 
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    style={{ background: 'transparent', border: 'none', outline: 'none', color: 'var(--text-heading)', marginLeft: '4px', width: '180px' }}
+                                />
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-subtle)', background: 'var(--bg-surface)' }}>
+                                <Filter size={16} color="var(--text-muted)"/>
+                                <select 
+                                    value={filterDept} 
+                                    onChange={(e) => setFilterDept(e.target.value)}
+                                    style={{ background: 'transparent', border: 'none', outline: 'none', color: 'var(--text-heading)', cursor: 'pointer' }}
+                                >
+                                    {departments.map(d => <option key={d} value={d}>{d}</option>)}
+                                </select>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-subtle)', background: 'var(--bg-surface)' }}>
+                                <Calendar size={16} color="var(--text-muted)"/>
+                                <input 
+                                    type="date" 
+                                    value={filterDate} 
+                                    onChange={(e) => setFilterDate(e.target.value)}
+                                    style={{ background: 'transparent', border: 'none', outline: 'none', color: 'var(--text-heading)', cursor: 'pointer' }}
+                                />
+                            </div>
                         </div>
-                    </div>
-                )}
+                    )}
+                </div>
             </header>
 
             {viewMode === 'history' ? (
                 <AttendanceHistoryTable isEmployeeView={false} />
             ) : (
                 <>
-                    <div className="attendance-dashboard-grid mt-30">
+                    <div className="attendance-dashboard-grid mt-30" style={{ marginBottom: '24px' }}>
                 <StatCard 
                     title="Total Employees" 
                     value={totalCount} 
@@ -189,30 +209,6 @@ const Attendance = () => {
                     icon={<Calendar />} 
                     color="purple" 
                 />
-            </div>
-
-            <div className="attendance-controls mt-30" style={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>
-                <div className="premium-card flex-center gap-10" style={{ padding: '12px 18px', borderRadius: '8px', display: 'flex', alignItems: 'center' }}>
-                    <Calendar size={16}/>
-                    <input 
-                        type="date" 
-                        value={filterDate} 
-                        onChange={(e) => setFilterDate(e.target.value)}
-                        className="date-input-clean"
-                        style={{ background: 'transparent', border: 'none', outline: 'none', color: 'var(--text-primary)', fontWeight: 600, fontSize: '14px' }}
-                    />
-                </div>
-                <div className="premium-card flex-center gap-10" style={{ padding: '12px 18px', borderRadius: '8px', display: 'flex', alignItems: 'center' }}>
-                    <Filter size={16}/>
-                    <select 
-                        value={filterDept} 
-                        onChange={(e) => setFilterDept(e.target.value)}
-                        className="dept-select-clean"
-                        style={{ background: 'transparent', border: 'none', outline: 'none', color: 'var(--text-primary)', fontWeight: 600, fontSize: '14px' }}
-                    >
-                        {departments.map(d => <option key={d} value={d}>{d}</option>)}
-                    </select>
-                </div>
             </div>
 
             <div className="premium-card">

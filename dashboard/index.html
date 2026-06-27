@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Davbank Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Using Phosphor Icons for modern premium icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="ph-fill ph-square-logo"></i>
+                <span>Davbank</span>
+            </div>
+            
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active">
+                    <i class="ph ph-squares-four"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="ph ph-chart-pie-slice"></i>
+                    <span>Services</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="ph ph-arrows-left-right"></i>
+                    <span>Exchange</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="ph ph-credit-card"></i>
+                    <span>Cards</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="ph ph-currency-circle-dollar"></i>
+                    <span>Deposits</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="ph ph-file-text"></i>
+                    <span>History</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="ph ph-user"></i>
+                    <span>Account</span>
+                </a>
+            </nav>
+
+            <div class="user-profile">
+                <img src="https://i.pravatar.cc/150?u=robert" alt="Robert Nikkolai" class="avatar">
+                <div class="user-info">
+                    <span class="user-name">Robert Nikkolai</span>
+                    <span class="user-email">robertnikkolai@gmail.com</span>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>Copyright 2023 Davbank</p>
+                <p>All rights reserved</p>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <h1>Dashboard</h1>
+                <div class="header-actions">
+                    <div class="search-bar">
+                        <i class="ph ph-magnifying-glass"></i>
+                        <input type="text" placeholder="Search...">
+                    </div>
+                    <button class="notification-btn">
+                        <i class="ph ph-bell"></i>
+                        <span class="notification-dot"></span>
+                    </button>
+                </div>
+            </header>
+
+            <div class="dashboard-grid">
+                <!-- Left Column -->
+                <div class="left-column">
+                    <!-- Payment Statistics -->
+                    <section class="card payment-stats">
+                        <div class="card-header">
+                            <h2>Payment Statistics</h2>
+                            <button class="icon-btn"><i class="ph ph-faders"></i></button>
+                        </div>
+                        
+                        <div class="stats-tabs">
+                            <button class="tab active">Today</button>
+                            <button class="tab">Week</button>
+                            <button class="tab">Month</button>
+                            <button class="tab">Year</button>
+                        </div>
+
+                        <div class="stats-summary">
+                            <div class="amount-group">
+                                <span class="date">05 December 2022</span>
+                                <span class="amount">$50,450.00</span>
+                            </div>
+                            <div class="cashback">
+                                <span>Cashback 20%</span>
+                                <i class="ph ph-arrow-up-right"></i>
+                            </div>
+                        </div>
+
+                        <div class="bar-chart">
+                            <div class="chart-y-axis">
+                                <span>50K</span>
+                                <span>40K</span>
+                                <span>30K</span>
+                                <span>20K</span>
+                                <span>10K</span>
+                            </div>
+                            <div class="chart-bars">
+                                <div class="bar-group">
+                                    <span class="bar-label-top">18%</span>
+                                    <div class="bar bar-health" style="height: 36%"></div>
+                                    <span class="bar-label-bottom">Health</span>
+                                </div>
+                                <div class="bar-group">
+                                    <span class="bar-label-top">26%</span>
+                                    <div class="bar bar-shopping" style="height: 52%"></div>
+                                    <span class="bar-label-bottom">Shopping</span>
+                                </div>
+                                <div class="bar-group">
+                                    <span class="bar-label-top">35%</span>
+                                    <div class="bar bar-traveling" style="height: 70%"></div>
+                                    <span class="bar-label-bottom">Traveling</span>
+                                </div>
+                                <div class="bar-group">
+                                    <span class="bar-label-top">42%</span>
+                                    <div class="bar bar-food" style="height: 84%"></div>
+                                    <span class="bar-label-bottom">Food</span>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Payment History -->
+                    <section class="payment-history">
+                        <div class="section-header">
+                            <h2>Payment History</h2>
+                            <button class="icon-btn"><i class="ph ph-dots-three"></i></button>
+                        </div>
+                        
+                        <div class="history-list">
+                            <div class="history-item">
+                                <div class="item-icon bg-gray">
+                                    <img src="https://cdn.iconscout.com/icon/free/png-256/mailchimp-3628919-3030141.png" alt="Mailchimp" width="20">
+                                </div>
+                                <div class="item-details">
+                                    <h4>Mailchimp</h4>
+                                    <p>10 November 2022 at 3:30 PM</p>
+                                </div>
+                                <div class="item-method">
+                                    <img src="https://cdn-icons-png.flaticon.com/128/196/196561.png" width="16" alt="MasterCard"> MasterCard
+                                </div>
+                                <div class="item-amount">$230.00</div>
+                            </div>
+
+                            <div class="history-item">
+                                <div class="item-icon bg-dark">
+                                    <i class="ph-fill ph-github-logo" style="color: white; font-size: 20px;"></i>
+                                </div>
+                                <div class="item-details">
+                                    <h4>Github</h4>
+                                    <p>15 November 2022 at 11:20 PM</p>
+                                </div>
+                                <div class="item-method">
+                                    <img src="https://cdn-icons-png.flaticon.com/128/196/196561.png" width="16" alt="MasterCard"> MasterCard
+                                </div>
+                                <div class="item-amount">$134.00</div>
+                            </div>
+
+                            <div class="history-item">
+                                <div class="item-icon bg-black">
+                                    <i class="ph-fill ph-spotify-logo" style="color: #1ED760; font-size: 20px;"></i>
+                                </div>
+                                <div class="item-details">
+                                    <h4>Spotify</h4>
+                                    <p>30 November 2022 at 10:30 PM</p>
+                                </div>
+                                <div class="item-method">
+                                    <img src="https://cdn-icons-png.flaticon.com/128/196/196561.png" width="16" alt="MasterCard"> MasterCard
+                                </div>
+                                <div class="item-amount">$432.00</div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Right Column -->
+                <div class="right-column">
+                    <!-- Balances -->
+                    <section class="card balances">
+                        <div class="balance-header">
+                            <div>
+                                <h3 class="subtitle">Total Balance</h3>
+                                <div class="main-amount">$80,550.00</div>
+                            </div>
+                            <button class="icon-btn"><i class="ph ph-dots-three"></i></button>
+                        </div>
+                        <div class="balance-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Income</span>
+                                <span class="stat-value">$30,540.00</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Expenses</span>
+                                <span class="stat-value">$18,430.00</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Credit Limit</span>
+                                <span class="stat-value">$8,420.00</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Your Cards -->
+                    <section class="your-cards">
+                        <h2>Your Cards</h2>
+                        <div class="cards-container">
+                            <div class="credit-card">
+                                <div class="card-wave"></div>
+                                <div class="card-wave card-wave-2"></div>
+                                <div class="card-content">
+                                    <div class="card-top">
+                                        <span>John Demin</span>
+                                        <i class="ph ph-wifi-high"></i>
+                                    </div>
+                                    <div class="card-middle">
+                                        <div class="card-amount">$34,856.00</div>
+                                    </div>
+                                    <div class="card-bottom">
+                                        <span class="card-number">3459 **** **** 4356</span>
+                                        <div class="card-exp">
+                                            <span class="exp-label">Exp</span>
+                                            <span class="exp-value">09/24</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="add-card">
+                                <i class="ph ph-plus"></i>
+                                <span>Add Card</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Planning -->
+                    <section class="planning">
+                        <div class="section-header">
+                            <h2>Planning</h2>
+                            <a href="#" class="view-all">View All</a>
+                        </div>
+                        <div class="planning-list">
+                            <div class="planning-item">
+                                <div class="plan-info">
+                                    <div class="plan-header">
+                                        <h4>Buy a Mackbook</h4>
+                                        <button class="icon-btn-small"><i class="ph ph-arrow-up-right"></i></button>
+                                    </div>
+                                    <div class="plan-progress-text">$1500 / $2000</div>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill fill-green" style="width: 75%"></div>
+                                </div>
+                            </div>
+
+                            <div class="planning-item">
+                                <div class="plan-info">
+                                    <div class="plan-header">
+                                        <h4>Rent a new home</h4>
+                                        <button class="icon-btn-small"><i class="ph ph-arrow-up-right"></i></button>
+                                    </div>
+                                    <div class="plan-progress-text">$1000 / $1200</div>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill fill-orange" style="width: 83%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

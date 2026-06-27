@@ -263,7 +263,7 @@ const EmployeeDashboard = () => {
                         <tbody>
                             {mySalariesList.length > 0 ? mySalariesList.map((salary, idx) => (
                                 <tr key={idx}>
-                                    <td>PID - {salary._id?.substring(0, 8).toUpperCase() || `9928${idx}`}</td>
+                                    <td>PID - {String(salary.id || salary._id || '').substring(0, 8).toUpperCase() || `9928${idx}`}</td>
                                     <td>{salary.month} {salary.year} Salary</td>
                                     <td>{new Date(salary.createdAt || Date.now()).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}</td>
                                     <td>
