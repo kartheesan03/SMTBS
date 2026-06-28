@@ -1,58 +1,114 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 import API from '../api/axios';
-import { NavLink } from 'react-router-dom';
-import { 
-    Users, UserCheck, Calendar, DollarSign, 
-    FileText, Activity, AlertCircle, Briefcase,
-    TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, Clock,
-    Cake, PieChart as PieChartIcon
+import {
+    Users, Search, Bell, Moon,
+    Briefcase, Activity, FileText,
+    Menu, Calendar, Clock, LogOut, Settings as SettingsIcon, User as UserIcon, UserCheck, DollarSign, AlertCircle
 } from 'lucide-react';
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, PieChart, Pie, Cell, LineChart, Line, AreaChart, Area } from 'recharts';
-import AttendanceWidget from '../components/Dashboard/AttendanceWidget';
-import SkeletonLoader from '../components/SkeletonLoader';
+import {
+    EmptyState, SkeletonCard,
+    TopWelcomeBar, PremiumKPICard, TimelineWidget,
+    PendingApprovalsList, QuickActionsGrid
+} from '../components/AdminDashboard/DashboardWidgets';
+import { SalesAreaChart, InventoryStatusDonut } from '../components/AdminDashboard/AnalyticsCharts';
+import CommandCenter from '../components/CommandCenter';
+import '../components/AdminDashboard/AdminDashboardPremium.css';
 
 const HRDashboard = () => {
+    const { user, logout } = useContext(AuthContext);
+
+    // Fallback logic for user profile data (handles both flat and nested user objects)
+    const displayName = user?.name || user?.user?.name || 'HR Admin';
+    const displayRole = user?.role || user?.user?.role || 'Human Resources';
+    const displayEmail = user?.email || user?.user?.email || 'hr@smtbms.com';
+    const displayAvatar = user?.picture || user?.avatar || user?.user?.picture || user?.user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=6366f1&color=fff`;
+
+    const navigate = useNavigate();
     const [dashboardData, setDashboardData] = useState(null);
+    
+    // Add additional state variables needed for HR specific widgets
     const [employees, setEmployees] = useState([]);
-    const [users, setUsers] = useState([]);
     const [leavesData, setLeavesData] = useState([]);
     const [salariesData, setSalariesData] = useState([]);
-    const [attendanceSummary, setAttendanceSummary] = useState([]);
-    const [loading, setLoading] = useState(true);
 
-    const fetchDashboardData = async () => {
-        try {
-            const [statsRes, empRes, usersRes, leavesRes, salariesRes, attSummaryRes] = await Promise.all([
-                API.get('/dashboard/stats').catch(e => ({ data: {} })),
-                API.get('/employees').catch(e => ({ data: [] })),
-                API.get('/auth/users').catch(e => ({ data: [] })),
-                API.get('/leaves').catch(e => ({ data: [] })),
-                API.get('/salaries').catch(e => ({ data: [] })),
-                API.get('/attendance/monthly-summary').catch(e => ({ data: [] }))
-            ]);
-            setDashboardData(statsRes.data || {});
-            setEmployees(empRes.data || []);
-            setUsers(usersRes.data || []);
-            setLeavesData(leavesRes.data || []);
-            setSalariesData(salariesRes.data || []);
-            setAttendanceSummary(attSummaryRes.data || []);
-        } catch (error) {
-            console.error("Failed to load dashboard stats", error);
-        } finally {
-            setLoading(false);
-        }
-    };
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [currentTime, setCurrentTime] = useState(new Date());
+    const [isCommandCenterOpen, setIsCommandCenterOpen] = useState(false);
+    const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (!e.target.closest('.erp-profile-menu-container')) {
+                setIsProfileMenuOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     useEffect(() => {
+        const timer = setInterval(() => {
+            setCurrentTime(new Date());
+        }, 1000);
+        return () => clearInterval(timer);
+    }, []);
+
+    useEffect(() => {
+        const fetchDashboardData = async () => {
+            try {
+                const [statsRes, empRes, leavesRes, salariesRes] = await Promise.all([
+                    API.get('/dashboard/stats').catch(e => ({ data: {} })),
+                    API.get('/employees').catch(e => ({ data: [] })),
+                    API.get('/leaves').catch(e => ({ data: [] })),
+                    API.get('/salaries').catch(e => ({ data: [] }))
+                ]);
+                
+                setDashboardData(statsRes.data || {});
+                setEmployees(empRes.data || []);
+                setLeavesData(leavesRes.data || []);
+                setSalariesData(salariesRes.data || []);
+                setError(null);
+            } catch (err) {
+                console.error("Failed to fetch dashboard stats", err);
+                setError("Failed to load dashboard data. Please try again.");
+            } finally {
+                setLoading(false);
+            }
+        };
         fetchDashboardData();
         const interval = setInterval(fetchDashboardData, 30000);
         return () => clearInterval(interval);
     }, []);
 
+    const toggleDarkMode = () => {
+        const root = document.documentElement;
+        if (root.getAttribute('data-theme') === 'dark') {
+            root.removeAttribute('data-theme');
+        } else {
+            root.setAttribute('data-theme', 'dark');
+        }
+    };
+
     if (loading) {
         return (
-            <div style={{ padding: '24px', background: 'var(--bg-body)', minHeight: '100vh' }}>
-                <SkeletonLoader type="dashboard" />
+            <div className="erp-dashboard-container">
+                <div className="erp-main-content">
+                    <div className="erp-summary-grid">
+                        {[1, 2, 3, 4, 5, 6].map(i => <SkeletonCard key={i} />)}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="erp-dashboard-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
+                <EmptyState icon={Activity} title="Error Loading Data" message={error} />
             </div>
         );
     }
@@ -65,6 +121,7 @@ const HRDashboard = () => {
     const totalEmployees = uniqueEmployees.length;
     const presentToday = hrStats.presentToday || 0;
     const onLeave = hrStats.onLeave || 0;
+    const absentToday = hrStats.absentToday || 0;
     const newJoiners = employees.filter(e => e.createdAt && new Date(e.createdAt) > new Date(Date.now() - 30*24*60*60*1000)).length || 0;
 
     const pendingLeaves = (leavesData || []).filter(l => l.status === 'Pending').length;
@@ -78,240 +135,165 @@ const HRDashboard = () => {
         payrollProcessed = Math.round((paidSalaries / salaries.length) * 100);
     }
 
-    const departmentCounts = {};
-    uniqueEmployees.forEach(emp => {
-        const dept = emp.department || 'Employee';
-        departmentCounts[dept] = (departmentCounts[dept] || 0) + 1;
-    });
-
-    const CHART_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#f43f5e', '#14b8a6', '#f97316', '#6366f1', '#84cc16'];
-
-    const rawDistributionData = Object.keys(departmentCounts).map((dept, index) => ({
-        name: dept,
-        value: departmentCounts[dept],
-        color: CHART_COLORS[index % CHART_COLORS.length]
-    })).sort((a, b) => b.value - a.value);
-
-    const employeeDistributionData = [];
-    let othersCount = 0;
-    rawDistributionData.forEach((item, index) => {
-        if (index < 4) {
-            employeeDistributionData.push(item);
-        } else {
-            othersCount += item.value;
-        }
-    });
-    if (othersCount > 0) {
-        employeeDistributionData.push({
-            name: 'Others',
-            value: othersCount,
-            color: '#cbd5e1'
-        });
-    }
-
-    const roleLabels = {
-        'admin': 'Admin',
-        'super admin': 'Admin',
-        'hr': 'HR',
-        'manager': 'Manager',
-        'sales': 'Sales',
-        'employee': 'Employee'
+    const todayData = {
+        attendance: totalEmployees > 0 ? Math.round((presentToday / totalEmployees) * 100) : 0,
+        employees: totalEmployees,
+        onLeave: onLeave,
+        alerts: pendingApprovals
     };
 
-    const roleCounts = {};
-    uniqueEmployees.forEach(emp => {
-        let roleStr = emp.department ? emp.department.toLowerCase().trim() : 'employee';
-        if (roleStr.includes('hr')) roleStr = 'hr';
-        else if (roleStr.includes('sales')) roleStr = 'sales';
-        else if (roleStr.includes('admin')) roleStr = 'admin';
-        else if (roleStr.includes('manager')) roleStr = 'manager';
+    const pendingApprovalsData = [
+        { name: 'Pending Leaves', count: pendingLeaves },
+        { name: 'Pending Salaries', count: pendingSalaries }
+    ].filter(item => item.count > 0);
 
-        const label = roleLabels[roleStr] || `${emp.department || 'Employee'}`;
-        roleCounts[label] = (roleCounts[label] || 0) + 1;
-    });
-
-    const departmentHeadcountData = Object.keys(roleCounts).map((roleLabel, index) => ({
-        name: roleLabel,
-        count: roleCounts[roleLabel],
-        fill: CHART_COLORS[index % CHART_COLORS.length]
-    })).sort((a, b) => b.count - a.count);
-
-    const absentToday = dashboard.hrStats?.absentToday || 0;
-
-    const attendanceOverviewData = totalEmployees > 0 ? [
+    const attendanceDonutData = [
         { name: 'Present', value: presentToday, color: '#10b981' },
         { name: 'Absent', value: absentToday, color: '#ef4444' },
-        { name: 'On Leave', value: onLeave, color: '#f59e0b' },
-    ].filter(item => item.value > 0) : [];
-
-    const kpiCards = [
-        { title: 'Total Employees', value: totalEmployees, icon: Users, color: '#3b82f6', trend: '+5%', trendType: 'up' },
-        { title: 'Present Today', value: presentToday, icon: UserCheck, color: '#10b981', trend: '+2%', trendType: 'up' },
-        { title: 'On Leave', value: onLeave, icon: Calendar, color: '#f59e0b', trend: '-1%', trendType: 'down' },
-        { title: 'New Joiners', value: newJoiners, icon: Briefcase, color: '#8b5cf6', trend: '+12%', trendType: 'up' },
-        { title: 'Pending Approvals', value: pendingApprovals, icon: AlertCircle, color: '#ef4444', trend: '-5%', trendType: 'down' },
-        { title: 'Payroll Processed', value: `${payrollProcessed}%`, icon: DollarSign, color: '#14b8a6', trend: '+1%', trendType: 'up' },
-    ];
-
-    const upcomingBirthdays = [];
+        { name: 'On Leave', value: onLeave, color: '#f59e0b' }
+    ].filter(item => item.value > 0);
 
     let recentActivities = dashboard.recentActivity || [];
     if (recentActivities.length === 0 && leavesData.length > 0) {
         recentActivities = [...leavesData].reverse().slice(0, 5).map(l => ({
             id: l._id,
-            title: `Leave request from ${l.employeeName || 'Employee'}`,
-            description: `Status: ${l.status || 'Pending'}`,
-            time: l.createdAt || new Date().toISOString()
+            text: `Leave request from ${l.employeeName || 'Employee'} (${l.status || 'Pending'})`,
+            time: new Date(l.createdAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            color: '#8b5cf6'
+        }));
+    } else {
+        recentActivities = recentActivities.map(a => ({
+            text: a.text,
+            time: new Date(a.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            color: '#3b82f6'
         }));
     }
 
-    const formatTime = (isoString) => {
-        if (!isoString) return 'Recently';
-        const date = new Date(isoString);
-        return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    };
-
     return (
-        <div className="unified-dashboard">
-            {/* Header Row */}
-            <div className="dashboard-header-row">
-                <div className="welcome-area">
-                    <div className="welcome-text-block">
-                        <h1>Welcome to HR Dashboard</h1>
-                        <p className="subtitle">
-                            <span className="role-text">Human Resources</span>
-                            <span className="dot-sep">&bull;</span>
-                            <span>{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
-                        </p>
-                    </div>
-                    
-                    <div className="welcome-stats">
-                        <div className="stat-pill blue">
-                            <div className="stat-pill-header">
-                                <Users size={16} /> Total Employees
-                            </div>
-                            <div className="stat-big-val">{totalEmployees}</div>
-                            <div className="stat-desc">Active Workforce</div>
-                        </div>
-                        <div className="stat-pill green">
-                            <div className="stat-pill-header">
-                                <UserCheck size={16} /> Present Today
-                            </div>
-                            <div className="stat-big-val">{presentToday}</div>
-                            <div className="stat-desc">Daily Attendance</div>
-                        </div>
+        <div className="erp-dashboard-container">
+            {/* Top Navigation */}
+            <header className="erp-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px', backgroundColor: '#fff', borderBottom: '1px solid #f1f5f9' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '24px', flex: 1 }}>
+                    <Menu size={24} color="#64748b" style={{ cursor: 'pointer' }} onClick={() => window.dispatchEvent(new CustomEvent('openModuleLauncher'))} />
+                    <div className="erp-global-search" style={{ display: 'flex', alignItems: 'center', backgroundColor: '#f8fafc', padding: '8px 16px', borderRadius: '8px', width: '400px', cursor: 'text' }} onClick={() => setIsCommandCenterOpen(true)}>
+                        <Search size={18} color="#94a3b8" />
+                        <input type="text" placeholder="Search across ERP..." className="erp-search-input" style={{ border: 'none', background: 'transparent', outline: 'none', marginLeft: '12px', width: '100%', fontSize: '14px', color: '#1e293b', cursor: 'text' }} readOnly />
                     </div>
                 </div>
 
-                <div style={{ marginTop: '24px' }}>
-                    <AttendanceWidget />
-                </div>
+                <div className="erp-header-actions" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                    <div className="erp-datetime" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', fontSize: '12px', color: '#64748b' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '600', color: '#1e293b' }}>
+                            <Calendar size={12} />
+                            <span>{currentTime.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
+                            <Clock size={12} />
+                            <span>{currentTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}</span>
+                        </div>
+                    </div>
 
-                <div style={{ flex: '0 0 320px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                    <div style={{ background: 'white', borderRadius: '20px', padding: '24px', flex: 1, }}>
-                        <h3 style={{ fontSize: '14px', fontWeight: 700, margin: '0 0 16px 0', color: '#0f172a' }}>HR Actions</h3>
-                        <div className="header-actions">
-                            <NavLink to="/add-employee" style={{ textDecoration: 'none' }}>
-                                <div className="qa-btn blue">
-                                    <div className="qa-icon"><Users size={18} /></div>
-                                    <span>Add Employee</span>
+                    <button className="erp-icon-btn erp-notification-btn" style={{ position: 'relative', background: 'transparent', border: 'none', cursor: 'pointer' }} onClick={() => navigate('/notifications')}>
+                        <Bell size={20} color="#64748b" />
+                        {pendingApprovals > 0 && <span className="erp-notification-badge" style={{ position: 'absolute', top: '-4px', right: '-4px', background: '#ef4444', color: '#fff', fontSize: '10px', borderRadius: '50%', width: '16px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #fff' }}>{pendingApprovals}</span>}
+                    </button>
+
+                    <button className="erp-icon-btn" onClick={toggleDarkMode} style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}>
+                        <Moon size={20} color="#64748b" />
+                    </button>
+
+                    <div className="erp-profile-menu-container" style={{ position: 'relative' }}>
+                        <div className="erp-profile-menu" style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer', paddingLeft: '24px', borderLeft: '1px solid #e2e8f0' }} onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}>
+                            <div className="erp-profile-avatar" style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#0f172a', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '600', fontSize: '14px', overflow: 'hidden' }}>
+                                <img src={displayAvatar} alt={displayName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            </div>
+                            <div className="erp-profile-info" style={{ display: 'flex', flexDirection: 'column' }}>
+                                <span className="erp-profile-name" style={{ fontSize: '14px', fontWeight: '600', color: '#1e293b' }}>{displayName}</span>
+                                <span className="erp-profile-role" style={{ fontSize: '12px', color: '#64748b' }}>{displayRole}</span>
+                            </div>
+                        </div>
+
+                        {isProfileMenuOpen && (
+                            <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: '8px', width: '220px', backgroundColor: '#fff', borderRadius: '8px', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)', border: '1px solid #e2e8f0', zIndex: 50, overflow: 'hidden' }}>
+                                <div style={{ padding: '16px', borderBottom: '1px solid #e2e8f0', backgroundColor: '#f8fafc' }}>
+                                    <div style={{ fontWeight: '600', fontSize: '14px', color: '#0f172a' }}>{displayName}</div>
+                                    <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>{displayEmail}</div>
                                 </div>
-                            </NavLink>
-                            <NavLink to="/payroll" style={{ textDecoration: 'none' }}>
-                                <div className="qa-btn green">
-                                    <div className="qa-icon"><DollarSign size={18} /></div>
-                                    <span>Run Payroll</span>
+                                <div style={{ padding: '8px 0' }}>
+                                    <button onClick={() => navigate('/profile')} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px 16px', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '14px', color: '#475569', textAlign: 'left' }} onMouseOver={e => e.currentTarget.style.backgroundColor = '#f1f5f9'} onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}>
+                                        <UserIcon size={16} /> My Profile
+                                    </button>
+                                    <button onClick={() => navigate('/settings')} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px 16px', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '14px', color: '#475569', textAlign: 'left' }} onMouseOver={e => e.currentTarget.style.backgroundColor = '#f1f5f9'} onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}>
+                                        <SettingsIcon size={16} /> Account Settings
+                                    </button>
                                 </div>
-                            </NavLink>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Action Center - Workflow integration */}
-            <div className="action-center-row">
-                <h3 className="section-title">Action Center</h3>
-                <div className="action-cards">
-                    <NavLink to="/leave-management" style={{ textDecoration: 'none' }}>
-                        <div className="action-card ac-orange">
-                            <div className="ac-icon"><Calendar size={24} /></div>
-                            <div className="ac-info">
-                                <h4>{pendingLeaves} Leave Requests</h4>
-                                <p>Awaiting HR verification</p>
-                            </div>
-                        </div>
-                    </NavLink>
-                    <NavLink to="/payroll" style={{ textDecoration: 'none' }}>
-                        <div className="action-card ac-blue">
-                            <div className="ac-icon"><DollarSign size={24} /></div>
-                            <div className="ac-info">
-                                <h4>{pendingSalaries} Payroll Approvals</h4>
-                                <p>Salaries awaiting processing</p>
-                            </div>
-                        </div>
-                    </NavLink>
-                    <div className="action-card ac-green">
-                        <div className="ac-icon"><UserCheck size={24} /></div>
-                        <div className="ac-info">
-                            <h4>{newJoiners} New Joiners</h4>
-                            <p>Need onboarding verification</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Summary Cards */}
-            <div className="summary-cards-row">
-                <div className="summary-card card-blue">
-                    <h3 className="sc-header-center">Workforce Health</h3>
-                    <div className="donut-chart-container">
-                        <PieChartIcon size={64} style={{ color: '#3b82f6', opacity: 0.2, margin: '20px 0' }} />
-                        <div style={{ textAlign: 'center' }}>
-                            <div className="donut-total">{Math.round((presentToday / (totalEmployees || 1)) * 100) || 0}%</div>
-                            <div className="donut-label">Attendance Rate</div>
-                        </div>
-                    </div>
-                </div>
-                <div className="summary-card card-orange">
-                    <h3 className="sc-header-center">Leave Status</h3>
-                    <div className="donut-chart-container">
-                        <Calendar size={64} style={{ color: '#f59e0b', opacity: 0.2, margin: '20px 0' }} />
-                        <div style={{ textAlign: 'center' }}>
-                            <div className="donut-total">{onLeave}</div>
-                            <div className="donut-label">Currently on Leave</div>
-                        </div>
-                    </div>
-                </div>
-                <div className="summary-card card-green">
-                    <h3 className="sc-header-center">Payroll Status</h3>
-                    <div className="donut-chart-container">
-                        <DollarSign size={64} style={{ color: '#10b981', opacity: 0.2, margin: '20px 0' }} />
-                        <div style={{ textAlign: 'center' }}>
-                            <div className="donut-total">{payrollProcessed}%</div>
-                            <div className="donut-label">Processed this month</div>
-                        </div>
-                    </div>
-                </div>
-                <div className="summary-card card-purple">
-                    <h3 className="sc-header-center">Recent Activity</h3>
-                    <div className="activity-list" style={{ marginTop: '16px' }}>
-                        {recentActivities.length > 0 ? recentActivities.slice(0, 3).map((act, i) => (
-                            <div key={i} className="activity-item">
-                                <div className="act-icon purple"><Activity size={16} /></div>
-                                <div className="act-content">
-                                    <h4>{act.title}</h4>
-                                    <span>{formatTime(act.time)}</span>
+                                <div style={{ padding: '8px 0', borderTop: '1px solid #e2e8f0' }}>
+                                    <button onClick={() => logout()} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px 16px', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '14px', color: '#ef4444', textAlign: 'left', fontWeight: '500' }} onMouseOver={e => e.currentTarget.style.backgroundColor = '#fef2f2'} onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}>
+                                        <LogOut size={16} /> Logout
+                                    </button>
                                 </div>
-                            </div>
-                        )) : (
-                            <div className="activity-item">
-                                <div className="act-content"><span>No recent activity</span></div>
                             </div>
                         )}
                     </div>
                 </div>
-            </div>
-            
+            </header>
+
+            {/* Main Content Area */}
+            <main className="erp-main-content erp-dashboard-main">
+                {/* Row 1: Welcome & Quick Metrics */}
+                <TopWelcomeBar username={displayName.split(' ')[0]} data={todayData} />
+
+                {/* Row 2: Premium KPI Cards */}
+                <div className="erp-premium-kpi-grid">
+                    <PremiumKPICard
+                        title="Total Employees" value={totalEmployees} subtitle="Active Workforce"
+                        icon={Users} color="#3b82f6" trend="up" trendValue="+5%"
+                    />
+                    <PremiumKPICard
+                        title="Present Today" value={presentToday} subtitle="Daily Attendance"
+                        icon={UserCheck} color="#10b981" trend="up" trendValue="+2%"
+                    />
+                    <PremiumKPICard
+                        title="On Leave" value={onLeave} subtitle="Currently Away"
+                        icon={Calendar} color="#f59e0b" trend="down" trendValue="-1%"
+                    />
+                    <PremiumKPICard
+                        title="New Joiners" value={newJoiners} subtitle="Past 30 Days"
+                        icon={Briefcase} color="#8b5cf6" trend="up" trendValue="+12%"
+                    />
+                    <PremiumKPICard
+                        title="Pending Approvals" value={pendingApprovals} subtitle="Needs Attention"
+                        icon={AlertCircle} color="#ef4444" trend="down" trendValue="-5%"
+                    />
+                    <PremiumKPICard
+                        title="Payroll Processed" value={payrollProcessed} subtitle="Current Month" isCurrency={false} prefix="" suffix="%"
+                        icon={DollarSign} color="#14b8a6" trend="up" trendValue="+1%"
+                    />
+                </div>
+
+                {/* Row 3: Charts & Timelines */}
+                <div className="erp-premium-row-3">
+                    {dashboard.charts?.monthlyStats && <SalesAreaChart data={dashboard.charts.monthlyStats} />}
+                    <InventoryStatusDonut 
+                        inventoryData={attendanceDonutData} 
+                        totalItems={totalEmployees} 
+                        title="Today's Attendance" 
+                        centerLabel="Total Staff" 
+                    />
+                    <TimelineWidget title="Recent Activities" items={recentActivities} viewAllLink={true} />
+                </div>
+
+                {/* Row 4: Bottom Widgets */}
+                <div className="erp-premium-row-4">
+                    <PendingApprovalsList approvals={pendingApprovalsData} />
+                    <QuickActionsGrid />
+                </div>
+            </main>
+
+            <CommandCenter
+                isOpen={isCommandCenterOpen}
+                onClose={() => setIsCommandCenterOpen(false)}
+            />
         </div>
     );
 };

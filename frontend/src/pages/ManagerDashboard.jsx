@@ -1,63 +1,118 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 import API from '../api/axios';
-import { NavLink } from 'react-router-dom';
-import { 
-    Users, Briefcase, FileText, CheckCircle, 
-    Activity, DollarSign, ListTodo, TrendingUp, TrendingDown,
-    Search, Bell, ChevronDown, Clock, Calendar, ArrowUpRight, ArrowDownRight, FolderGit2
+import {
+    Users, Search, Bell, Moon,
+    Briefcase, Activity, FileText, CheckCircle, ListTodo, FolderGit2,
+    Menu, Calendar, Clock, LogOut, Settings as SettingsIcon, User as UserIcon, DollarSign, TrendingUp
 } from 'lucide-react';
-import { 
-    BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
-    XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend
-} from 'recharts';
-import AttendanceWidget from '../components/Dashboard/AttendanceWidget';
+import {
+    EmptyState, SkeletonCard,
+    TopWelcomeBar, PremiumKPICard, TimelineWidget,
+    QuickActionsGrid
+} from '../components/AdminDashboard/DashboardWidgets';
+import { SalesAreaChart, InventoryStatusDonut } from '../components/AdminDashboard/AnalyticsCharts';
+import CommandCenter from '../components/CommandCenter';
+import '../components/AdminDashboard/AdminDashboardPremium.css';
 
 const ManagerDashboard = () => {
+    const { user, logout } = useContext(AuthContext);
+
+    const displayName = user?.name || user?.user?.name || 'Manager';
+    const displayRole = user?.role || user?.user?.role || 'Management';
+    const displayEmail = user?.email || user?.user?.email || 'manager@smtbms.com';
+    const displayAvatar = user?.picture || user?.avatar || user?.user?.picture || user?.user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=6366f1&color=fff`;
+
+    const navigate = useNavigate();
     const [dashboardData, setDashboardData] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     const [ordersData, setOrdersData] = useState([]);
     const [employeesData, setEmployeesData] = useState([]);
     const [tasksData, setTasksData] = useState([]);
     const [attendanceData, setAttendanceData] = useState(null);
 
-    const fetchDashboardData = async () => {
-        try {
-            const [dashRes, ordRes, empRes, taskRes, attRes] = await Promise.all([
-                API.get('/dashboard/stats').catch(e => ({ data: {} })),
-                API.get('/orders').catch(e => ({ data: [] })),
-                API.get('/employees').catch(e => ({ data: [] })),
-                API.get('/tasks').catch(e => ({ data: [] })),
-                API.get('/attendance').catch(e => ({ data: null }))
-            ]);
-            setDashboardData(dashRes.data || {});
-            setOrdersData(ordRes.data || []);
-            setEmployeesData(empRes.data || []);
-            setTasksData(taskRes.data || []);
-            setAttendanceData(attRes.data);
-        } catch (error) {
-            console.error("Failed to load dashboard stats", error);
-        } finally {
-            setLoading(false);
-        }
-    };
+    const [currentTime, setCurrentTime] = useState(new Date());
+    const [isCommandCenterOpen, setIsCommandCenterOpen] = useState(false);
+    const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
     useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (!e.target.closest('.erp-profile-menu-container')) {
+                setIsProfileMenuOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setCurrentTime(new Date());
+        }, 1000);
+        return () => clearInterval(timer);
+    }, []);
+
+    useEffect(() => {
+        const fetchDashboardData = async () => {
+            try {
+                const [dashRes, ordRes, empRes, taskRes, attRes] = await Promise.all([
+                    API.get('/dashboard/stats').catch(e => ({ data: {} })),
+                    API.get('/orders').catch(e => ({ data: [] })),
+                    API.get('/employees').catch(e => ({ data: [] })),
+                    API.get('/tasks').catch(e => ({ data: [] })),
+                    API.get('/attendance').catch(e => ({ data: null }))
+                ]);
+                setDashboardData(dashRes.data || {});
+                setOrdersData(ordRes.data || []);
+                setEmployeesData(empRes.data || []);
+                setTasksData(taskRes.data || []);
+                setAttendanceData(attRes.data);
+                setError(null);
+            } catch (err) {
+                console.error("Failed to load dashboard stats", err);
+                setError("Failed to load dashboard data. Please try again.");
+            } finally {
+                setLoading(false);
+            }
+        };
         fetchDashboardData();
         const interval = setInterval(fetchDashboardData, 30000);
         return () => clearInterval(interval);
     }, []);
 
+    const toggleDarkMode = () => {
+        const root = document.documentElement;
+        if (root.getAttribute('data-theme') === 'dark') {
+            root.removeAttribute('data-theme');
+        } else {
+            root.setAttribute('data-theme', 'dark');
+        }
+    };
+
     if (loading) {
         return (
-            <div className="flex-center" style={{ minHeight: '100vh', background: '#f8fafc' }}>
-                <div className="loader"></div>
+            <div className="erp-dashboard-container">
+                <div className="erp-main-content">
+                    <div className="erp-summary-grid">
+                        {[1, 2, 3, 4, 5, 6].map(i => <SkeletonCard key={i} />)}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="erp-dashboard-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
+                <EmptyState icon={Activity} title="Error Loading Data" message={error} />
             </div>
         );
     }
 
     const dashboard = dashboardData || {};
-
     const teamMembers = employeesData.length;
     const activeProjects = ordersData.filter(o => ['Pending', 'Awaiting Approval', 'Approved', 'In Progress'].includes(o.status)).length;
     const pendingApprovals = ordersData.filter(o => o.status === 'Awaiting Approval').length;
@@ -73,7 +128,6 @@ const ManagerDashboard = () => {
         }
     });
 
-    const completedTasks = completedTasksCount;
     const totalTasks = completedTasksCount + pendingTasksCount;
     const teamProductivity = totalTasks > 0 ? Math.round((completedTasksCount / totalTasks) * 100) : 0;
     
@@ -81,196 +135,157 @@ const ManagerDashboard = () => {
         .filter(o => o.status === 'Delivered' || o.status === 'Paid')
         .reduce((sum, o) => sum + (o.totalAmount || 0), 0);
 
-    const daysMap = { 'Mon': { completed: 0, pending: 0 }, 'Tue': { completed: 0, pending: 0 }, 'Wed': { completed: 0, pending: 0 }, 'Thu': { completed: 0, pending: 0 }, 'Fri': { completed: 0, pending: 0 }, 'Sat': { completed: 0, pending: 0 }, 'Sun': { completed: 0, pending: 0 } };
-    
-    tasksData.forEach(task => {
-        if (!task.createdAt) return;
-        const d = new Date(task.createdAt);
-        const dayStr = d.toLocaleDateString('en-US', { weekday: 'short' });
-        if (daysMap[dayStr]) {
-            if (task.status === 'Completed' || task.status === 'Done') {
-                daysMap[dayStr].completed++;
-            } else {
-                daysMap[dayStr].pending++;
-            }
-        }
-    });
-
-    const teamPerformanceData = Object.keys(daysMap)
-        .map(key => ({
-            name: key,
-            completed: daysMap[key].completed,
-            pending: daysMap[key].pending
-        }))
-        .filter(d => d.completed > 0 || d.pending > 0);
-
     const presentCount = attendanceData?.presentToday || 0;
     const leaveCount = attendanceData?.onLeaveToday || 0;
     const absentCount = attendanceData?.absentToday || 0;
-    const totalAttendanceEmployees = presentCount + leaveCount + absentCount;
 
     const teamAttendanceData = [
         { name: 'Present', value: presentCount, color: '#10b981' },
         { name: 'On Leave', value: leaveCount, color: '#f59e0b' },
         { name: 'Absent', value: absentCount, color: '#ef4444' }
-    ];
+    ].filter(item => item.value > 0);
 
     const projectStatusData = ordersData
         .filter(o => o.status && o.status !== 'Completed' && o.status !== 'Delivered' && o.status !== 'Cancelled')
         .slice(0, 5)
         .map(o => ({
             id: o._id,
-            name: o.description || `Project ${o.orderNumber || ''}`,
-            progress: o.status === 'In Progress' ? 50 : (o.status === 'Approved' ? 25 : 10),
-            status: o.status
+            text: `Project: ${o.description || o.orderNumber} (${o.status})`,
+            time: new Date(o.createdAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            color: '#3b82f6'
         }));
 
-    const kpiCards = [
-        { title: 'Team Members', value: teamMembers, icon: Users, color: '#3b82f6', trend: '+2', trendType: 'up' },
-        { title: 'Active Projects', value: activeProjects, icon: Briefcase, color: '#8b5cf6', trend: '+1', trendType: 'up' },
-        { title: 'Pending Approvals', value: pendingApprovals, icon: FileText, color: '#ef4444', trend: '-2', trendType: 'down' },
-        { title: 'Completed Tasks', value: completedTasks, icon: CheckCircle, color: '#10b981', trend: '+15%', trendType: 'up' },
-        { title: 'Team Productivity', value: `${teamProductivity}%`, icon: TrendingUp, color: '#f59e0b', trend: '+5%', trendType: 'up' },
-        { title: 'Dept Revenue', value: `$${departmentRevenue.toLocaleString()}`, icon: DollarSign, color: '#10b981', trend: '+12%', trendType: 'up' },
-    ];
+    const todayData = {
+        revenue: departmentRevenue.toLocaleString(),
+        orders: activeProjects,
+        attendance: teamMembers > 0 ? Math.round((presentCount / teamMembers) * 100) : 0,
+        alerts: pendingApprovals
+    };
 
     return (
-        <div className="unified-dashboard">
-            {/* Header Row */}
-            <div className="dashboard-header-row">
-                <div className="welcome-area">
-                    <div className="welcome-text-block">
-                        <h1>Welcome to Manager Dashboard</h1>
-                        <p className="subtitle">
-                            <span className="role-text">Management</span>
-                            <span className="dot-sep">&bull;</span>
-                            <span>{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
-                        </p>
+        <div className="erp-dashboard-container">
+            {/* Top Navigation */}
+            <header className="erp-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px', backgroundColor: '#fff', borderBottom: '1px solid #f1f5f9' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '24px', flex: 1 }}>
+                    <Menu size={24} color="#64748b" style={{ cursor: 'pointer' }} onClick={() => window.dispatchEvent(new CustomEvent('openModuleLauncher'))} />
+                    <div className="erp-global-search" style={{ display: 'flex', alignItems: 'center', backgroundColor: '#f8fafc', padding: '8px 16px', borderRadius: '8px', width: '400px', cursor: 'text' }} onClick={() => setIsCommandCenterOpen(true)}>
+                        <Search size={18} color="#94a3b8" />
+                        <input type="text" placeholder="Search across ERP..." className="erp-search-input" style={{ border: 'none', background: 'transparent', outline: 'none', marginLeft: '12px', width: '100%', fontSize: '14px', color: '#1e293b', cursor: 'text' }} readOnly />
                     </div>
-                    
-                    <div className="welcome-stats">
-                        <div className="stat-pill blue">
-                            <div className="stat-pill-header">
-                                <Users size={16} /> Team Members
+                </div>
+
+                <div className="erp-header-actions" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                    <div className="erp-datetime" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', fontSize: '12px', color: '#64748b' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '600', color: '#1e293b' }}>
+                            <Calendar size={12} />
+                            <span>{currentTime.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
+                            <Clock size={12} />
+                            <span>{currentTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}</span>
+                        </div>
+                    </div>
+
+                    <button className="erp-icon-btn erp-notification-btn" style={{ position: 'relative', background: 'transparent', border: 'none', cursor: 'pointer' }} onClick={() => navigate('/notifications')}>
+                        <Bell size={20} color="#64748b" />
+                        {pendingApprovals > 0 && <span className="erp-notification-badge" style={{ position: 'absolute', top: '-4px', right: '-4px', background: '#ef4444', color: '#fff', fontSize: '10px', borderRadius: '50%', width: '16px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #fff' }}>{pendingApprovals}</span>}
+                    </button>
+
+                    <button className="erp-icon-btn" onClick={toggleDarkMode} style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}>
+                        <Moon size={20} color="#64748b" />
+                    </button>
+
+                    <div className="erp-profile-menu-container" style={{ position: 'relative' }}>
+                        <div className="erp-profile-menu" style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer', paddingLeft: '24px', borderLeft: '1px solid #e2e8f0' }} onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}>
+                            <div className="erp-profile-avatar" style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#0f172a', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '600', fontSize: '14px', overflow: 'hidden' }}>
+                                <img src={displayAvatar} alt={displayName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                             </div>
-                            <div className="stat-big-val">{teamMembers}</div>
-                            <div className="stat-desc">Direct Reports</div>
-                        </div>
-                        <div className="stat-pill green">
-                            <div className="stat-pill-header">
-                                <CheckCircle size={16} /> Productivity
+                            <div className="erp-profile-info" style={{ display: 'flex', flexDirection: 'column' }}>
+                                <span className="erp-profile-name" style={{ fontSize: '14px', fontWeight: '600', color: '#1e293b' }}>{displayName}</span>
+                                <span className="erp-profile-role" style={{ fontSize: '12px', color: '#64748b' }}>{displayRole}</span>
                             </div>
-                            <div className="stat-big-val">{teamProductivity}%</div>
-                            <div className="stat-desc">Tasks Completed</div>
                         </div>
-                    </div>
-                </div>
 
-                <div style={{ marginTop: '24px' }}>
-                    <AttendanceWidget />
-                </div>
-
-                <div style={{ flex: '0 0 320px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                    <div style={{ background: 'white', borderRadius: '20px', padding: '24px', flex: 1, }}>
-                        <h3 style={{ fontSize: '14px', fontWeight: 700, margin: '0 0 16px 0', color: '#0f172a' }}>Quick Actions</h3>
-                        <div className="header-actions">
-                            <NavLink to="/my-tasks" style={{ textDecoration: 'none' }}>
-                                <div className="qa-btn blue">
-                                    <div className="qa-icon"><ListTodo size={18} /></div>
-                                    <span>Assign Task</span>
+                        {isProfileMenuOpen && (
+                            <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: '8px', width: '220px', backgroundColor: '#fff', borderRadius: '8px', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)', border: '1px solid #e2e8f0', zIndex: 50, overflow: 'hidden' }}>
+                                <div style={{ padding: '16px', borderBottom: '1px solid #e2e8f0', backgroundColor: '#f8fafc' }}>
+                                    <div style={{ fontWeight: '600', fontSize: '14px', color: '#0f172a' }}>{displayName}</div>
+                                    <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>{displayEmail}</div>
                                 </div>
-                            </NavLink>
-                            <NavLink to="/erp" style={{ textDecoration: 'none' }}>
-                                <div className="qa-btn purple">
-                                    <div className="qa-icon"><FolderGit2 size={18} /></div>
-                                    <span>Manage Projects</span>
+                                <div style={{ padding: '8px 0' }}>
+                                    <button onClick={() => navigate('/profile')} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px 16px', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '14px', color: '#475569', textAlign: 'left' }} onMouseOver={e => e.currentTarget.style.backgroundColor = '#f1f5f9'} onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}>
+                                        <UserIcon size={16} /> My Profile
+                                    </button>
+                                    <button onClick={() => navigate('/settings')} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px 16px', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '14px', color: '#475569', textAlign: 'left' }} onMouseOver={e => e.currentTarget.style.backgroundColor = '#f1f5f9'} onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}>
+                                        <SettingsIcon size={16} /> Account Settings
+                                    </button>
                                 </div>
-                            </NavLink>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Action Center - Workflow integration */}
-            <div className="action-center-row">
-                <h3 className="section-title">Team Action Center</h3>
-                <div className="action-cards">
-                    <div className="action-card ac-red">
-                        <div className="ac-icon"><FileText size={24} /></div>
-                        <div className="ac-info">
-                            <h4>{pendingApprovals} Pending Approvals</h4>
-                            <p>Awaiting your sign-off</p>
-                        </div>
-                    </div>
-                    <div className="action-card ac-blue">
-                        <div className="ac-icon"><Briefcase size={24} /></div>
-                        <div className="ac-info">
-                            <h4>{activeProjects} Active Projects</h4>
-                            <p>Currently in progress</p>
-                        </div>
-                    </div>
-                    <div className="action-card ac-green">
-                        <div className="ac-icon"><CheckCircle size={24} /></div>
-                        <div className="ac-info">
-                            <h4>{completedTasks} Tasks Done</h4>
-                            <p>Team completed tasks</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Summary Cards */}
-            <div className="summary-cards-row">
-                <div className="summary-card card-blue">
-                    <h3 className="sc-header-center">Team Attendance</h3>
-                    <div className="donut-chart-container">
-                        <Users size={64} style={{ color: '#3b82f6', opacity: 0.2, margin: '20px 0' }} />
-                        <div style={{ textAlign: 'center' }}>
-                            <div className="donut-total">{presentCount}</div>
-                            <div className="donut-label">Present Today</div>
-                        </div>
-                    </div>
-                </div>
-                <div className="summary-card card-orange">
-                    <h3 className="sc-header-center">Project Status</h3>
-                    <div className="donut-chart-container">
-                        <FolderGit2 size={64} style={{ color: '#f59e0b', opacity: 0.2, margin: '20px 0' }} />
-                        <div style={{ textAlign: 'center' }}>
-                            <div className="donut-total">{projectStatusData.length}</div>
-                            <div className="donut-label">Projects In Pipeline</div>
-                        </div>
-                    </div>
-                </div>
-                <div className="summary-card card-green">
-                    <h3 className="sc-header-center">Department Revenue</h3>
-                    <div className="donut-chart-container">
-                        <DollarSign size={64} style={{ color: '#10b981', opacity: 0.2, margin: '20px 0' }} />
-                        <div style={{ textAlign: 'center' }}>
-                            <div className="donut-total">${(departmentRevenue / 1000).toFixed(1)}k</div>
-                            <div className="donut-label">Generated Revenue</div>
-                        </div>
-                    </div>
-                </div>
-                <div className="summary-card card-purple">
-                    <h3 className="sc-header-center">Recent Projects</h3>
-                    <div className="activity-list" style={{ marginTop: '16px' }}>
-                        {projectStatusData.length > 0 ? projectStatusData.slice(0, 3).map((proj, i) => (
-                            <div key={i} className="activity-item">
-                                <div className="act-icon purple"><Activity size={16} /></div>
-                                <div className="act-content">
-                                    <h4>{proj.name}</h4>
-                                    <span>Status: {proj.status}</span>
+                                <div style={{ padding: '8px 0', borderTop: '1px solid #e2e8f0' }}>
+                                    <button onClick={() => logout()} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px 16px', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '14px', color: '#ef4444', textAlign: 'left', fontWeight: '500' }} onMouseOver={e => e.currentTarget.style.backgroundColor = '#fef2f2'} onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}>
+                                        <LogOut size={16} /> Logout
+                                    </button>
                                 </div>
-                            </div>
-                        )) : (
-                            <div className="activity-item">
-                                <div className="act-content"><span>No recent projects</span></div>
                             </div>
                         )}
                     </div>
                 </div>
-            </div>
-            
+            </header>
+
+            {/* Main Content Area */}
+            <main className="erp-main-content erp-dashboard-main">
+                {/* Row 1: Welcome & Quick Metrics */}
+                <TopWelcomeBar username={displayName.split(' ')[0]} data={todayData} />
+
+                {/* Row 2: Premium KPI Cards */}
+                <div className="erp-premium-kpi-grid">
+                    <PremiumKPICard
+                        title="Team Members" value={teamMembers} subtitle="Direct Reports"
+                        icon={Users} color="#3b82f6" trend="up" trendValue="+2"
+                    />
+                    <PremiumKPICard
+                        title="Active Projects" value={activeProjects} subtitle="In Progress"
+                        icon={Briefcase} color="#8b5cf6" trend="up" trendValue="+1"
+                    />
+                    <PremiumKPICard
+                        title="Pending Approvals" value={pendingApprovals} subtitle="Needs Review"
+                        icon={FileText} color="#ef4444" trend="down" trendValue="-2"
+                    />
+                    <PremiumKPICard
+                        title="Completed Tasks" value={completedTasksCount} subtitle="This Month"
+                        icon={CheckCircle} color="#10b981" trend="up" trendValue="+15%"
+                    />
+                    <PremiumKPICard
+                        title="Team Productivity" value={teamProductivity} subtitle="Task Completion" isCurrency={false} prefix="" suffix="%"
+                        icon={TrendingUp} color="#f59e0b" trend="up" trendValue="+5%"
+                    />
+                    <PremiumKPICard
+                        title="Dept Revenue" value={departmentRevenue} subtitle="This Month" isCurrency={true} prefix="$"
+                        icon={DollarSign} color="#10b981" trend="up" trendValue="+12%"
+                    />
+                </div>
+
+                {/* Row 3: Charts & Timelines */}
+                <div className="erp-premium-row-3">
+                    {dashboard.charts?.monthlyStats && <SalesAreaChart data={dashboard.charts.monthlyStats} />}
+                    <InventoryStatusDonut 
+                        inventoryData={teamAttendanceData} 
+                        totalItems={teamMembers} 
+                        title="Team Attendance" 
+                        centerLabel="Team Size" 
+                    />
+                    <TimelineWidget title="Recent Projects" items={projectStatusData} viewAllLink={true} />
+                </div>
+
+                {/* Row 4: Bottom Widgets */}
+                <div className="erp-premium-row-4">
+                    <QuickActionsGrid />
+                </div>
+            </main>
+
+            <CommandCenter
+                isOpen={isCommandCenterOpen}
+                onClose={() => setIsCommandCenterOpen(false)}
+            />
         </div>
     );
 };

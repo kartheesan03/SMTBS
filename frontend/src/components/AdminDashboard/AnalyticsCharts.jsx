@@ -124,14 +124,14 @@ export const PerformanceBarChart = ({ data, title, dataKey = "amount" }) => {
         </div>
     );
 };
-export const InventoryStatusDonut = ({ inventoryData = [], totalItems = 0 }) => {
+export const InventoryStatusDonut = ({ inventoryData = [], totalItems = 0, title = "Inventory Status", centerLabel = "Total Items" }) => {
     const data = inventoryData.length > 0 ? inventoryData : [
         { name: 'No Data', value: 1, color: '#e2e8f0' }
     ];  
     return (  
         <div className="erp-card">  
             <div className="erp-premium-widget-header">  
-                <h3 className="erp-premium-widget-title">Inventory Status</h3>  
+                <h3 className="erp-premium-widget-title">{title}</h3>  
             </div>  
             <div className="erp-chart-container" style={{ height: '300px', display: 'flex', alignItems: 'center', position: 'relative' }}>  
                 <ResponsiveContainer width="100%" height="100%">  
@@ -146,6 +146,9 @@ export const InventoryStatusDonut = ({ inventoryData = [], totalItems = 0 }) => 
                             wrapperStyle={{ paddingTop: '20px' }}
                             formatter={(value, entry) => {
                                 const payload = entry.payload;
+                                if (payload.name === 'No Data') {
+                                    return <span style={{ color: 'var(--erp-text-secondary)', fontSize: '0.875rem', marginLeft: '8px' }}>No Data Available</span>;
+                                }
                                 const percent = totalItems > 0 ? ((payload.value / totalItems) * 100).toFixed(1) : 0;
                                 return (
                                     <span style={{ color: 'var(--erp-text-primary)', fontSize: '0.875rem', marginLeft: '8px' }}>
@@ -158,7 +161,7 @@ export const InventoryStatusDonut = ({ inventoryData = [], totalItems = 0 }) => 
                 </ResponsiveContainer>  
                 <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center', pointerEvents: 'none', marginTop: '-15px' }}>  
                     <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--erp-text-primary)' }}>{totalItems.toLocaleString()}</div>  
-                    <div style={{ fontSize: '0.75rem', color: 'var(--erp-text-secondary)' }}>Total Items</div>  
+                    <div style={{ fontSize: '0.75rem', color: 'var(--erp-text-secondary)' }}>{centerLabel}</div>  
                 </div>  
             </div>  
         </div>  
