@@ -184,12 +184,17 @@ const DualSidebar = () => {
             ]
         },
         settings: {
-            title: 'Settings',
+            title: 'Administration',
             sections: [
                 {
-                    title: 'CONFIGURATION',
+                    title: 'ADMINISTRATION',
                     links: [
-                        { name: 'Settings', path: '/settings', icon: <SettingsIcon /> }
+                        { name: 'Dashboard', path: '/', icon: <LayoutDashboard /> },
+                        { name: 'Users', path: '/hrms', icon: <Users /> },
+                        { name: 'Roles & Permissions', path: '/settings/roles', icon: <Shield /> },
+                        { name: 'System Settings', path: '/settings/system', icon: <SettingsIcon /> },
+                        { name: 'Backup & Restore', path: '/settings/backup', icon: <Archive /> },
+                        { name: 'Audit Logs', path: '/reports', icon: <Activity /> }
                     ]
                 }
             ]

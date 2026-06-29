@@ -32,6 +32,7 @@ const Payroll = React.lazy(() => import('./pages/Payroll'));
 const Attendance = React.lazy(() => import('./pages/Attendance'));
 const HRReports = React.lazy(() => import('./pages/HRReports'));
 const Settings = React.lazy(() => import('./pages/Settings'));
+const BackupRestore = React.lazy(() => import('./pages/BackupRestore'));
 const Profile = React.lazy(() => import('./pages/Profile'));
 const Reports = React.lazy(() => import('./pages/Reports'));
 const ERP = React.lazy(() => import('./pages/ERP'));
@@ -263,6 +264,7 @@ const AppContent = () => {
                     
                     <Route path="/settings/roles" element={<ProtectedRoute><ComingSoonPage title="Roles & Permissions" /></ProtectedRoute>} />
                     <Route path="/settings/system" element={<ProtectedRoute><ComingSoonPage title="System Configuration" /></ProtectedRoute>} />
+                    <Route path="/settings/backup" element={<ProtectedRoute><BackupRestore /></ProtectedRoute>} />
                     <Route path="/settings/attendance" element={<ProtectedRoute><ComingSoonPage title="Attendance Settings" /></ProtectedRoute>} />
                     <Route path="/settings/leave" element={<ProtectedRoute><ComingSoonPage title="Leave Policies" /></ProtectedRoute>} />
                     <Route path="/settings/payroll" element={<ProtectedRoute><ComingSoonPage title="Payroll Settings" /></ProtectedRoute>} />
