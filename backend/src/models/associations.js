@@ -13,6 +13,7 @@ const Notification = require('./Notification');
 const MaterialMovement = require('./MaterialMovement');
 const CommunicationLog = require('./CommunicationLog');
 const AuditLog = require('./AuditLog');
+const Role = require('./Role');
 
 function setupAssociations() {
     // 1. Employee -> User

@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { Navigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 
-const ProtectedRoute = ({ children, allowedRoles }) => {
+const ProtectedRoute = ({ children, requiredPermission }) => {
     const { user, loading } = useContext(AuthContext);
 
     if (loading) return null;
@@ -11,14 +11,12 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
         return <Navigate to="/login" replace />;
     }
 
-    if (allowedRoles && allowedRoles.length > 0) {
-        const userRole = user.role ? user.role.toLowerCase() : '';
-        const isSuperAdmin = user.email === 'admin@smtbms.com' || userRole === 'super admin' || userRole === 'admin';
-        
-        const normalizedAllowed = allowedRoles.map(r => r.toLowerCase());
-        
-        if (!isSuperAdmin && !normalizedAllowed.includes(userRole)) {
-            return <Navigate to="/" replace />;
+    if (requiredPermission) {
+        // If user is super admin they might have "all" permission.
+        const isSuperAdmin = user.email === 'admin@smtbms.com' || (user.role && user.role.toLowerCase() === 'super admin');
+        const hasPermission = isSuperAdmin || (user.permissions && (user.permissions.includes(requiredPermission) || user.permissions.includes('all')));
+        if (!hasPermission) {
+            return <Navigate to="/access-denied" replace />;
         }
     }
 

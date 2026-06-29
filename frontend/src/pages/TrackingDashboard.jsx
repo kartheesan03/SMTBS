@@ -1,199 +1,160 @@
-import React, { useState, useEffect } from 'react';
-import { Search, Plus, SlidersHorizontal, ChevronDown, Truck } from 'lucide-react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import API from '../api/axios';
-import './TrackingDashboard.css';
+import { RefreshCw, Search, Filter, ArrowUpRight, ArrowDownRight, Activity, ArrowRightLeft, Download, Eye, Layers } from 'lucide-react';
+import { LineChart, Line, ResponsiveContainer } from 'recharts';
+import '../components/AdminDashboard/AdminDashboardRedesign.css';
+import { RDHeader } from './AdminDashboard';
 
 const TrackingDashboard = () => {
     const navigate = useNavigate();
-    const [deliveries, setDeliveries] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState('All');
+    const [filter, setFilter] = useState('All');
 
-    useEffect(() => {
-        const fetchDeliveries = async () => {
-            try {
-                // In a real scenario, this would be a specific tracking/deliveries endpoint.
-                // We use orders to populate the tracking dashboard.
-                const { data } = await API.get('/orders');
-                
-                // Sync tracking data with real order properties
-                const enhancedData = data.map((order, index) => {
-                    let status = 'Inactive';
-                    if (['Shipped', 'Out for Delivery'].includes(order.deliveryStatus)) {
-                        status = 'On route';
-                    } else if (['Pending', 'Processing', 'Awaiting Stock Check'].includes(order.deliveryStatus) || ['Pending Approval', 'Approved', 'Pending'].includes(order.status)) {
-                        status = 'Waiting';
-                    } else if (['Delivered', 'Completed', 'Cancelled', 'Rejected'].includes(order.status) || order.deliveryStatus === 'Delivered') {
-                        status = 'Inactive';
-                    }
+    const trendData1 = [{v: 40},{v: 45},{v: 42},{v: 50},{v: 48},{v: 55},{v: 60}];
+    const trendData2 = [{v: 10},{v: 15},{v: 25},{v: 20},{v: 30},{v: 25},{v: 35}];
+    const trendData3 = [{v: 30},{v: 20},{v: 25},{v: 22},{v: 18},{v: 24},{v: 20}];
+    const trendData4 = [{v: 5},{v: 8},{v: 12},{v: 10},{v: 15},{v: 14},{v: 18}];
 
-                    let fromStr = 'Warehouse';
-                    let toStr = 'Customer';
-                    let fromSub = 'Central Hub';
-                    let toSub = '';
+    const logsData = [
+        { id: 'TRK-1042', date: 'Oct 24, 2026', time: '14:30', mat: 'MacBook Pro M3', type: 'IN', qty: 50, ref: 'PO-2026-089', user: 'Admin User' },
+        { id: 'TRK-1041', date: 'Oct 24, 2026', time: '11:15', mat: 'Ergonomic Chair', type: 'OUT', qty: 12, ref: 'REQ-HR-004', user: 'Jane Smith' },
+        { id: 'TRK-1040', date: 'Oct 23, 2026', time: '16:45', mat: '4K Monitor', type: 'TRANSFER', qty: 5, ref: 'TRF-NY-SF', user: 'Admin User' },
+        { id: 'TRK-1039', date: 'Oct 23, 2026', time: '09:20', mat: 'Wireless Mouse', type: 'OUT', qty: 25, ref: 'REQ-IT-102', user: 'Mark Johnson' },
+        { id: 'TRK-1038', date: 'Oct 22, 2026', time: '15:10', mat: 'Standing Desk', type: 'IN', qty: 10, ref: 'PO-2026-088', user: 'Jane Smith' },
+    ];
 
-                    if (order.orderType === 'purchase' && order.vendor) {
-                        fromStr = order.vendor.name || 'Vendor';
-                        fromSub = order.vendor.address || '';
-                        toStr = 'Warehouse';
-                        toSub = 'Central Hub';
-                    } else if (order.customer) {
-                        toStr = order.customer.name || 'Customer';
-                        toSub = order.customer.address || '';
-                    }
-
-                    return {
-                        id: order.orderNumber || order._id || `UL-${158902 + index}NH`,
-                        status: status,
-                        route: {
-                            from: fromStr,
-                            fromSub: fromSub || 'Address not provided',
-                            to: toStr,
-                            toSub: toSub || 'Address not provided'
-                        },
-                        timeLeft: status === 'On route' ? 'In Transit' : (status === 'Waiting' ? 'Pending Dispatch' : '-'),
-                        distance: 'Calculated by route',
-                        estimatedTime: order.expectedDeliveryDate ? new Date(order.expectedDeliveryDate).toLocaleDateString() : 'TBD'
-                    };
-                });
-                
-                setDeliveries(enhancedData);
-            } catch (err) {
-                console.error("Failed to fetch deliveries", err);
-                // Fallback dummy data matching the screenshot if API fails
-                setDeliveries([
-                    { id: 'UL-158902NH', status: 'On route', route: { from: 'Madrid', fromSub: '18001 Granada', to: 'Malaga', toSub: '29001 Malaga' }, timeLeft: '1 h 35 min left', distance: '529 km', estimatedTime: '5 h 27 min' },
-                    { id: 'KO-158454PO', status: 'On route', route: { from: 'Warszawa', fromSub: '00-006 Warszawa', to: 'Krakow', toSub: '30-000 Krakow' }, timeLeft: '3 h 09 min left', distance: '290 km', estimatedTime: '3 h 35 min' },
-                    { id: 'UK-568742NK', status: 'Waiting', route: { from: 'Madrid', fromSub: '28001 Madrid', to: 'Roma', toSub: '00100 Roma' }, timeLeft: '19 h 59 min left', distance: '1959 km', estimatedTime: '20 h 34 min' },
-                    { id: 'KO-158002NH', status: 'On route', route: { from: 'Warszawa', fromSub: '97-300 Piotrkow', to: 'Katowice', toSub: '40-001 Katowice' }, timeLeft: '2 h 06 min left', distance: '295 km', estimatedTime: '3 h 16 min' },
-                    { id: 'KJ-145651LK', status: 'On route', route: { from: 'Paris', fromSub: '18001 Hannover', to: 'Berlin', toSub: '10115 Berlin' }, timeLeft: '1 h 16 min left', distance: '1275 km', estimatedTime: '12 h 50 min' },
-                    { id: 'GM-145125PO', status: 'Waiting', route: { from: 'Stockholm', fromSub: '58128 Linkoping', to: 'Copenhagen', toSub: '21110 Malmo' }, timeLeft: '4 h 10 min left', distance: '658 km', estimatedTime: '7 h 08 min' },
-                ]);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchDeliveries();
-    }, []);
-
-    const counts = {
-        'All': deliveries.length,
-        'On route': deliveries.filter(d => d.status === 'On route').length,
-        'Waiting': deliveries.filter(d => d.status === 'Waiting').length,
-        'Inactive': deliveries.filter(d => d.status === 'Inactive').length,
+    const getTypeBadge = (type) => {
+        if (type === 'IN') return <span className="rd-status-badge rd-status-green" style={{width: 80, textAlign: 'center'}}>↓ IN</span>;
+        if (type === 'OUT') return <span className="rd-status-badge rd-status-orange" style={{width: 80, textAlign: 'center'}}>↑ OUT</span>;
+        if (type === 'TRANSFER') return <span className="rd-status-badge rd-status-blue" style={{width: 80, textAlign: 'center'}}>↔ TRANSFER</span>;
+        return <span>{type}</span>;
     };
 
-    const filteredDeliveries = activeTab === 'All' ? deliveries : deliveries.filter(d => d.status === activeTab);
-
-    if (loading) return <div className="flex-center" style={{height:'100vh'}}><div className="loader"></div></div>;
-
     return (
-        <div className="tracking-dashboard">
-            <div className="tracking-header">
-                <div className="tracking-title-area">
-                    <h1 className="tracking-title">Tracking</h1>
-                    <span className="tracking-subtitle">{deliveries.length} deliveries</span>
-                </div>
-                <button className="btn-add-track">
-                    <Plus size={16} strokeWidth={3} /> Add new track
-                </button>
-            </div>
+        <div className="rd-container">
+            <RDHeader onRefresh={() => {}} />
 
-            <div className="tracking-tabs">
-                {['All', 'On route', 'Waiting', 'Inactive'].map(tab => (
-                    <div 
-                        key={tab} 
-                        className={`track-tab ${activeTab === tab ? 'active' : ''}`}
-                        onClick={() => setActiveTab(tab)}
-                    >
-                        {tab} <span className="tab-count">{counts[tab]}</span>
+            <div className="rd-content">
+                {/* Module Header */}
+                <div className="rd-module-header">
+                    <div className="rd-module-icon">
+                        <Activity size={32} />
                     </div>
-                ))}
-            </div>
-
-            <div className="tracking-filters">
-                <div className="track-search-wrapper">
-                    <Search className="track-search-icon" size={18} />
-                    <input 
-                        type="text" 
-                        className="track-search-input" 
-                        placeholder="Search for track ID, customer, delivery status, destination"
-                    />
-                </div>
-                <div className="track-filter-btn">
-                    <SlidersHorizontal size={16} /> Filters <ChevronDown size={16} />
-                </div>
-                <div className="track-filter-btn">
-                    <Search size={16} style={{visibility:'hidden', width:0}}/> Time <ChevronDown size={16} />
-                </div>
-            </div>
-
-            <div className="tracking-grid">
-                {filteredDeliveries.map((item, idx) => {
-                    const statusClass = item.status.toLowerCase().replace(' ', '-');
-                    return (
-                        <div key={idx} className="track-card" onClick={() => navigate(`/order-tracking/${item.id}`)} style={{cursor: 'pointer'}}>
-                            <div className="tc-top">
-                                <div className="tc-status-col">
-                                    <div className={`tc-status-badge ${statusClass}`}>
-                                        <div className={`tc-dot ${statusClass}`}></div> {item.status}
-                                    </div>
-                                    <div className="tc-id">{item.id}</div>
-                                </div>
-                                <div className="tc-route-col">
-                                    <div className="tc-cities">{item.route.from} - {item.route.to}</div>
-                                    <div className="tc-time-left">{item.timeLeft}</div>
-                                </div>
-                            </div>
-                            
-                            <div className="tc-middle">
-                                <div className="tc-route-visual">
-                                    <div className="route-line-container">
-                                        <div className={`route-node ${statusClass}`}></div>
-                                        <div className="route-line"></div>
-                                        <div className="route-node inactive" style={{background: '#cbd5e1'}}></div>
-                                    </div>
-                                    <div className="route-details">
-                                        <div className="route-location">
-                                            {item.route.fromSub}
-                                        </div>
-                                        <div className="route-location" style={{marginTop:'auto'}}>
-                                            {item.route.toSub}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="tc-truck-graphic">
-                                    {/* Using Lucide icon as a fallback, styled with a colored box to mimic the truck graphic */}
-                                    <div style={{
-                                        width: '80px', height: '48px', 
-                                        background: '#f1f5f9', 
-                                        borderRadius: '8px 8px 4px 4px',
-                                        position: 'relative',
-                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                        borderLeft: `20px solid ${statusClass === 'on-route' ? '#10b981' : (statusClass === 'waiting' ? '#3b82f6' : '#94a3b8')}`
-                                    }}>
-                                        <Truck size={24} color="#64748b" />
-                                        <div style={{position:'absolute', bottom: '-4px', left: '10px', width: '12px', height: '12px', background: '#475569', borderRadius: '50%'}}></div>
-                                        <div style={{position:'absolute', bottom: '-4px', right: '10px', width: '12px', height: '12px', background: '#475569', borderRadius: '50%'}}></div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="tc-bottom">
-                                <div className="tc-stat">
-                                    <span className="tc-stat-label">Distance</span>
-                                    <span className="tc-stat-value">{item.distance}</span>
-                                </div>
-                                <div className="tc-stat">
-                                    <span className="tc-stat-label">Estimated time</span>
-                                    <span className="tc-stat-value">{item.estimatedTime}</span>
-                                </div>
-                            </div>
+                    <div className="rd-module-info">
+                        <div className="rd-module-title-row">
+                            <span className="rd-module-badge" style={{background: '#fef2f2', color: '#ef4444', borderColor: '#fecaca'}}>MOVEMENTS</span>
+                            <span className="rd-module-title">Movement Tracking</span>
                         </div>
-                    );
-                })}
+                        <div className="rd-module-desc">Track all inventory IN/OUT activities, transfers, and historical movement logs.</div>
+                    </div>
+                </div>
+
+                {/* KPI Cards */}
+                <div className="rd-kpi-row">
+                    <TrackingKPICard title="Total Movements" val="3,842" trend="+15.2%" trendDir="up" color="purple" data={trendData1} icon={Layers} />
+                    <TrackingKPICard title="Units IN" val="1,250" trend="+24.5%" trendDir="up" color="green" data={trendData2} icon={ArrowDownRight} />
+                    <TrackingKPICard title="Units OUT" val="842" trend="-5.4%" trendDir="down" color="orange" data={trendData3} icon={ArrowUpRight} />
+                    <TrackingKPICard title="Transferred" val="325" trend="+8.1%" trendDir="up" color="blue" data={trendData4} icon={ArrowRightLeft} />
+                </div>
+
+                {/* Table Section */}
+                <div className="rd-table-card">
+                    <div className="rd-table-header">
+                        <div>
+                            <div className="rd-table-title">Movement Log</div>
+                            <div className="rd-table-subtitle">Real-time log of all material stock movements</div>
+                        </div>
+                        <div className="rd-table-actions">
+                            <div className="rd-search-bar" style={{width: 250, background: '#fff'}}>
+                                <Search size={16} color="#94a3b8" />
+                                <input type="text" className="rd-search-input" placeholder="Search by TRK or Ref..." />
+                            </div>
+                            <button className="rd-icon-btn"><Filter size={18} /></button>
+                            <button className="rd-icon-btn" style={{color: 'var(--rd-blue)', borderColor: 'var(--rd-blue)'}}><Download size={18} /></button>
+                        </div>
+                    </div>
+                    
+                    <div style={{padding: '16px 24px', display: 'flex', gap: '8px', borderBottom: '1px solid var(--rd-border)'}}>
+                        {['All', 'IN', 'OUT', 'TRANSFER'].map(f => (
+                            <div key={f} className={`rd-filter-pill ${filter === f ? 'active' : ''}`} onClick={() => setFilter(f)}>
+                                {f} Movements
+                            </div>
+                        ))}
+                    </div>
+                    
+                    <table className="rd-table">
+                        <thead>
+                            <tr>
+                                <th>Tracking ID</th>
+                                <th>Date & Time</th>
+                                <th>Material / Item</th>
+                                <th>Movement Type</th>
+                                <th>Quantity</th>
+                                <th>Reference</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {logsData.filter(m => filter === 'All' || m.type === filter).map(log => (
+                                <tr key={log.id}>
+                                    <td style={{fontWeight: 700, color: '#3b82f6'}}>{log.id}</td>
+                                    <td>
+                                        <div style={{fontWeight: 600, color: 'var(--rd-text-main)'}}>{log.date}</div>
+                                        <div style={{fontSize: 12, color: '#94a3b8', marginTop: 4}}>{log.time} by {log.user}</div>
+                                    </td>
+                                    <td style={{fontWeight: 600, color: 'var(--rd-text-main)'}}>{log.mat}</td>
+                                    <td>{getTypeBadge(log.type)}</td>
+                                    <td style={{fontWeight: 700, fontSize: 16}}>{log.type === 'IN' ? '+' : log.type === 'OUT' ? '-' : ''}{log.qty}</td>
+                                    <td style={{fontWeight: 500, color: '#64748b'}}>{log.ref}</td>
+                                    <td>
+                                        <button className="rd-btn-link" style={{marginTop: 0, display: 'flex', alignItems: 'center', gap: 6}}>
+                                            <Eye size={14} /> View Details
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                    
+                    <div className="rd-table-footer">
+                        <span>Showing 1 to 5 of 3,842 entries</span>
+                        <div style={{display: 'flex', gap: 8}}>
+                            <button className="rd-icon-btn" style={{width: 32, height: 32}} disabled>{"<"}</button>
+                            <button className="rd-icon-btn" style={{width: 32, height: 32, background: 'var(--rd-blue)', color: 'white', borderColor: 'var(--rd-blue)'}}>1</button>
+                            <button className="rd-icon-btn" style={{width: 32, height: 32}}>2</button>
+                            <button className="rd-icon-btn" style={{width: 32, height: 32}}>3</button>
+                            <button className="rd-icon-btn" style={{width: 32, height: 32}}>{">"}</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const TrackingKPICard = ({ title, val, trend, trendDir, color, data, icon: Icon }) => {
+    return (
+        <div className={`rd-kpi-card ${color}`} style={{minHeight: 140, padding: 20}}>
+            <div className="rd-kpi-header">
+                <div style={{display: 'flex', flexDirection: 'column', gap: 4}}>
+                    <span style={{fontSize: 13, fontWeight: 600, opacity: 0.9}}>{title}</span>
+                    <span style={{fontSize: 28, fontWeight: 800}}>{val}</span>
+                </div>
+                <div className="rd-kpi-icon-box" style={{width: 40, height: 40}}>
+                    <Icon size={20} color="#fff" />
+                </div>
+            </div>
+            <div style={{display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: 16}}>
+                <div style={{display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 600}}>
+                    {trendDir === 'up' ? <ArrowUpRight size={16} /> : <ArrowDownRight size={16} />}
+                    {trend} <span style={{opacity: 0.7, fontWeight: 400, marginLeft: 4}}>vs last month</span>
+                </div>
+                <div style={{width: 60, height: 30}}>
+                    <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={data}>
+                            <Line type="monotone" dataKey="v" stroke="#fff" strokeWidth={2} dot={false} />
+                        </LineChart>
+                    </ResponsiveContainer>
+                </div>
             </div>
         </div>
     );

@@ -1,0 +1,340 @@
+.users-page {
+    padding: 24px;
+    background: #f8fafc;
+    min-height: 100vh;
+}
+
+.breadcrumb {
+    font-size: 13px;
+    color: #64748b;
+    margin-bottom: 24px;
+    letter-spacing: 0.5px;
+}
+
+.breadcrumb strong {
+    color: #0f172a;
+    font-size: 14px;
+}
+
+/* KPI Row */
+.users-kpi-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.um-kpi-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    border-left: 4px solid;
+}
+
+.um-kpi-card.blue { border-left-color: #3b82f6; }
+.um-kpi-card.green { border-left-color: #10b981; }
+.um-kpi-card.purple { border-left-color: #8b5cf6; }
+.um-kpi-card.red { border-left-color: #ef4444; }
+
+.um-kpi-content p {
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    margin: 0 0 4px 0;
+}
+
+.um-kpi-content h2 {
+    font-size: 28px;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0;
+}
+
+.um-kpi-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.um-kpi-card.blue .um-kpi-icon { background: #eff6ff; color: #3b82f6; }
+.um-kpi-card.green .um-kpi-icon { background: #ecfdf5; color: #10b981; }
+.um-kpi-card.purple .um-kpi-icon { background: #f5f3ff; color: #8b5cf6; }
+.um-kpi-card.red .um-kpi-icon { background: #fef2f2; color: #ef4444; }
+
+/* Table Card */
+.um-table-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+    overflow: hidden;
+}
+
+.um-table-header {
+    padding: 20px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.um-table-header h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 4px 0;
+}
+
+.um-table-header p {
+    font-size: 13px;
+    color: #64748b;
+    margin: 0;
+}
+
+.um-table-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.um-search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 8px 12px;
+    width: 300px;
+    color: #64748b;
+}
+
+.um-search input {
+    border: none;
+    background: transparent;
+    outline: none;
+    width: 100%;
+    font-size: 13px;
+    color: #0f172a;
+}
+
+.um-btn-filter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #0f172a;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.um-btn-filter:hover {
+    background: #f8fafc;
+}
+
+/* Table */
+.um-table-wrapper {
+    overflow-x: auto;
+}
+
+.um-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.um-table th {
+    background: #f8fafc;
+    padding: 12px 24px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.um-table th:first-child {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.um-table td {
+    padding: 16px 24px;
+    border-bottom: 1px solid #e2e8f0;
+    vertical-align: middle;
+}
+
+.um-table tr:hover {
+    background: #f8fafc;
+}
+
+.um-user-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.um-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.um-user-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.um-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.um-email {
+    font-size: 12px;
+    color: #64748b;
+}
+
+/* Badges */
+.role-badge {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.role-badge.admin { background: #fef2f2; color: #ef4444; }
+.role-badge.hr { background: #f5f3ff; color: #8b5cf6; }
+.role-badge.manager { background: #ecfdf5; color: #10b981; }
+.role-badge.sales { background: #fff7ed; color: #f97316; }
+.role-badge.employee { background: #eff6ff; color: #3b82f6; }
+.role-badge.external { background: #f1f5f9; color: #64748b; }
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.status-badge.active { color: #10b981; }
+.status-badge.active .status-dot { background: #10b981; }
+
+.status-badge.offline { color: #64748b; }
+.status-badge.offline .status-dot { background: #cbd5e1; }
+
+.status-badge.suspended { color: #ef4444; }
+.status-badge.suspended .status-dot { background: #ef4444; }
+
+.um-dept, .um-attendance, .um-last-active {
+    font-size: 13px;
+    color: #475569;
+    font-weight: 500;
+}
+
+.um-row-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.um-action-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.um-action-icon:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+
+.um-action-icon.danger:hover {
+    background: #fef2f2;
+    color: #ef4444;
+}
+
+/* Pagination */
+.um-table-footer {
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.um-showing {
+    font-size: 13px;
+    color: #64748b;
+}
+
+.um-showing strong {
+    color: #0f172a;
+}
+
+.um-pagination {
+    display: flex;
+    gap: 4px;
+}
+
+.um-pagination button {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+    background: white;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.um-pagination button:hover:not(:disabled) {
+    background: #f8fafc;
+}
+
+.um-pagination button.active {
+    background: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+}
+
+.um-pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}

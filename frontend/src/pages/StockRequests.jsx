@@ -1,285 +1,236 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { AuthContext } from '../context/AuthContext';
-import API from '../api/axios';
-import { Box, Send, CheckCircle, XCircle, Clock, Truck, ShieldAlert, Check } from 'lucide-react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Package, Search, TrendingUp, AlertTriangle, XCircle, ArrowUpRight, ArrowDownRight, ExternalLink } from 'lucide-react';
+import { LineChart, Line, PieChart, Pie, Cell, ResponsiveContainer, XAxis, Tooltip, CartesianGrid } from 'recharts';
+import '../components/AdminDashboard/AdminDashboardRedesign.css';
+import { RDHeader } from './AdminDashboard';
 
 const StockRequests = () => {
-    const { user } = useContext(AuthContext);
-    const userRole = user?.role ? user.role : '';
-    const isEmployee = userRole === 'Employee';
-    const isManager = userRole === 'Manager';
-    const isSales = userRole === 'Sales';
-    const isAdmin = userRole === 'Admin';
-    const isSuperAdmin = userRole === 'Super Admin';
-
-    const [requests, setRequests] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [toastMsg, setToastMsg] = useState('');
     const navigate = useNavigate();
 
-    // Manager Action Modal
-    const [showManagerModal, setShowManagerModal] = useState(false);
-    const [managerFormData, setManagerFormData] = useState({ id: '', message: '', orderId: '' });
+    // Mock data for tiny trend charts
+    const trendData1 = [{v: 10},{v: 15},{v: 12},{v: 20},{v: 18},{v: 25},{v: 22}];
+    const trendData2 = [{v: 20},{v: 22},{v: 25},{v: 24},{v: 28},{v: 27},{v: 30}];
+    const trendData3 = [{v: 5},{v: 4},{v: 8},{v: 6},{v: 10},{v: 8},{v: 12}];
+    const trendData4 = [{v: 2},{v: 3},{v: 2},{v: 5},{v: 4},{v: 6},{v: 4}];
 
-    // Sales Action Modal
-    const [showSalesModal, setShowSalesModal] = useState(false);
-    const [salesFormData, setSalesFormData] = useState({ id: '', status: 'Processing' });
+    // Main line chart data
+    const chartData = [
+        { name: 'Dec', inStock: 700, low: 100, out: 50 },
+        { name: 'Jan', inStock: 720, low: 120, out: 60 },
+        { name: 'Feb', inStock: 700, low: 110, out: 55 },
+        { name: 'Mar', inStock: 750, low: 100, out: 40 },
+        { name: 'Apr', inStock: 680, low: 140, out: 70 },
+        { name: 'May', inStock: 700, low: 150, out: 80 }
+    ];
 
-    // History Modal
-    const [showHistoryModal, setShowHistoryModal] = useState(false);
-    const [selectedHistory, setSelectedHistory] = useState('[]');
+    const pieData = [
+        { name: 'In Stock', value: 2, color: '#3b82f6' },
+        { name: 'In Transit', value: 0, color: '#06b6d4' },
+        { name: 'Low Stock', value: 2, color: '#f59e0b' },
+        { name: 'Out of Stock', value: 2, color: '#ef4444' }
+    ];
 
-    useEffect(() => {
-        fetchRequests();
-    }, []);
-
-    const fetchRequests = async () => {
-        try {
-            const res = await API.get('/stock-requests');
-            setRequests(res.data);
-        } catch (err) {
-            console.error('Failed to fetch stock requests', err);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const showToast = (msg) => {
-        setToastMsg(msg);
-        setTimeout(() => setToastMsg(''), 4000);
-    };
-
-    const getStatusBadge = (status) => {
-        switch (status) {
-            case 'Pending': return <span className="status-badge-premium low">Pending</span>;
-            case 'Manager Approved': return <span className="status-badge-premium ok">Manager Approved</span>;
-            case 'Rejected': return <span className="status-badge-premium out">Rejected</span>;
-            case 'More Info Requested': return <span className="status-badge-premium warn" style={{ background: '#fef3c7', color: '#b45309' }}>More Info Requested</span>;
-            case 'Processing': return <span className="status-badge-premium" style={{ background: '#e0e7ff', color: '#4338ca' }}>Processing</span>;
-            case 'Dispatched': return <span className="status-badge-premium" style={{ background: '#dbeafe', color: '#1d4ed8' }}>Dispatched</span>;
-            case 'Delivered': return <span className="status-badge-premium" style={{ background: '#dcfce7', color: '#15803d' }}>Delivered</span>;
-            case 'Completed': return <span className="status-badge-premium" style={{ background: '#dcfce7', color: '#166534' }}>Completed</span>;
-            case 'Cancelled': return <span className="status-badge-premium out">Cancelled</span>;
-            default: return <span className="status-badge-premium">{status}</span>;
-        }
-    };
-
-    // Employee Actions
-    const handleEmployeeReceive = async (id) => {
-        try {
-            await API.put(`/stock-requests/${id}/employee-receive`);
-            showToast('Material received and request completed.');
-            fetchRequests();
-        } catch (err) {
-            showToast('Action failed.');
-        }
-    };
-
-    // Manager Actions
-    const submitManagerAction = async (actionType) => {
-        try {
-            await API.put(`/stock-requests/${managerFormData.id}/manager-action`, {
-                managerMessage: managerFormData.message,
-                actionType
-            });
-            setShowManagerModal(false);
-            showToast('Manager response recorded.');
-            fetchRequests();
-        } catch (err) {
-            showToast('Manager action failed.');
-        }
-    };
-
-    // Sales Actions
-    const submitSalesAction = async (e) => {
-        e.preventDefault();
-        try {
-            await API.put(`/stock-requests/${salesFormData.id}/sales-update`, {
-                status: salesFormData.status
-            });
-            setShowSalesModal(false);
-            showToast('Delivery status updated.');
-            fetchRequests();
-        } catch (err) {
-            showToast('Sales action failed.');
-        }
-    };
+    const alertsData = [
+        { matId: 'MAT-013', name: 'Grease Cartridge', status: 'Low Stock', current: 60, reorder: 20, deficit: -40, since: 'Just now' },
+        { matId: 'MAT-042', name: 'Steel Bearings', status: 'Critical / 0', current: 0, reorder: 50, deficit: -50, since: '2 hrs ago' },
+        { matId: 'MAT-088', name: 'Hydraulic Fluid', status: 'Low Stock', current: 15, reorder: 40, deficit: -25, since: '5 hrs ago' },
+        { matId: 'MAT-102', name: 'Conveyor Belt', status: 'Critical / 0', current: 0, reorder: 5, deficit: -5, since: '1 day ago' },
+    ];
 
     return (
-        <div className="page-container" style={{ padding: '24px', background: 'var(--bg-body)', minHeight: '100vh' }}>
-            <header className="module-header" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px' }}>
-                <div>
-                    <h1 style={{ margin: '0 0 6px 0', fontSize: '26px' }}>Stock Requests Pipeline</h1>
-                    <p style={{ margin: 0, color: 'var(--text-muted)' }}>Manage material requests, manager approvals, and sales deliveries.</p>
+        <div className="rd-container">
+            <RDHeader onRefresh={() => {}} />
+
+            <div className="rd-content">
+                {/* Module Header */}
+                <div className="rd-module-header">
+                    <div className="rd-module-icon" style={{background: 'linear-gradient(135deg, #4338ca 0%, #312e81 100%)'}}>
+                        <span style={{fontSize: 24, fontWeight: 800}}>SM</span>
+                    </div>
+                    <div className="rd-module-info">
+                        <div className="rd-module-title-row">
+                            <span className="rd-module-title">Stock Monitoring</span>
+                            <span className="rd-module-badge" style={{background: '#eff6ff', color: '#3b82f6', borderColor: '#bfdbfe'}}>STOCK</span>
+                        </div>
+                        <div className="rd-module-desc">Live stock health alerts, trend analysis, and distribution overview across all locations.</div>
+                    </div>
                 </div>
-            </header>
 
-            {toastMsg && <div className="toast-notification success" style={{ background: '#10b981', color: 'white', padding: '12px 20px', borderRadius: '8px', marginBottom: '20px' }}>{toastMsg}</div>}
+                {/* KPI Cards */}
+                <div className="rd-kpi-row">
+                    <StockKPICard title="Total SKUs" val="6" trend="+9%" trendDir="up" color="blue" data={trendData1} icon={Package} />
+                    <StockKPICard title="Healthy" val="2" trend="+17%" trendDir="up" color="green" data={trendData2} icon={TrendingUp} />
+                    <StockKPICard title="Low Stock" val="2" trend="-8%" trendDir="down" color="orange" data={trendData3} icon={AlertTriangle} />
+                    <StockKPICard title="Critical / 0" val="2" trend="-15%" trendDir="down" color="red" data={trendData4} icon={XCircle} />
+                </div>
 
-            <div className="table-card" >
-                {loading ? (
-                    <div style={{ padding: '40px', textAlign: 'center' }}>Loading...</div>
-                ) : requests.length === 0 ? (
-                    <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>No stock requests found.</div>
-                ) : (
-                    <table className="enterprise-table">
+                {/* Charts Section */}
+                <div style={{display: 'flex', gap: 24, marginBottom: 24}}>
+                    <div className="rd-chart-card" style={{flex: 2}}>
+                        <div className="rd-chart-header" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start'}}>
+                            <div>
+                                <h3 className="rd-chart-title">Stock Level Trend</h3>
+                                <p style={{margin: 0, color: '#94a3b8', fontSize: 13, marginTop: 4}}>Dec 2025 - May 2026</p>
+                            </div>
+                            <div style={{display: 'flex', gap: 16}}>
+                                <div style={{display: 'flex', alignItems: 'center', gap: 6}}>
+                                    <span style={{width: 12, height: 4, background: '#3b82f6', borderRadius: 2}}></span>
+                                    <span style={{fontSize: 12, color: '#64748b', fontWeight: 600}}>In Stock</span>
+                                </div>
+                                <div style={{display: 'flex', alignItems: 'center', gap: 6}}>
+                                    <span style={{width: 12, height: 4, background: '#f59e0b', borderRadius: 2}}></span>
+                                    <span style={{fontSize: 12, color: '#64748b', fontWeight: 600}}>Low</span>
+                                </div>
+                                <div style={{display: 'flex', alignItems: 'center', gap: 6}}>
+                                    <span style={{width: 12, height: 4, background: '#ef4444', borderRadius: 2}}></span>
+                                    <span style={{fontSize: 12, color: '#64748b', fontWeight: 600}}>Out</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div style={{height: 240, marginTop: 24}}>
+                            <ResponsiveContainer width="100%" height="100%">
+                                <LineChart data={chartData}>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} dy={10} />
+                                    <Tooltip contentStyle={{borderRadius: 8, border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'}} />
+                                    <Line type="monotone" dataKey="inStock" stroke="#3b82f6" strokeWidth={3} dot={{r: 4, strokeWidth: 2}} activeDot={{r: 6}} />
+                                    <Line type="monotone" dataKey="low" stroke="#f59e0b" strokeWidth={3} dot={{r: 4, strokeWidth: 2}} />
+                                    <Line type="monotone" dataKey="out" stroke="#ef4444" strokeWidth={3} dot={{r: 4, strokeWidth: 2}} />
+                                </LineChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+
+                    <div className="rd-chart-card" style={{flex: 1}}>
+                        <h3 className="rd-chart-title">Current Stock Distribution</h3>
+                        <div style={{height: 240, display: 'flex', alignItems: 'center', marginTop: 24, position: 'relative'}}>
+                            <ResponsiveContainer width="100%" height="100%">
+                                <PieChart>
+                                    <Pie data={pieData} innerRadius={60} outerRadius={90} paddingAngle={2} dataKey="value" stroke="none">
+                                        {pieData.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={entry.color} />
+                                        ))}
+                                    </Pie>
+                                </PieChart>
+                            </ResponsiveContainer>
+                            <div style={{position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center'}}>
+                                <div style={{fontSize: 24, fontWeight: 800, color: 'var(--rd-text-main)'}}>6</div>
+                                <div style={{fontSize: 11, fontWeight: 600, color: '#94a3b8'}}>TOTAL</div>
+                            </div>
+                            <div style={{position: 'absolute', right: 20, top: '50%', transform: 'translateY(-50%)', display: 'flex', flexDirection: 'column', gap: 12}}>
+                                {pieData.map((item, i) => (
+                                    <div key={i} style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 24}}>
+                                        <div style={{display: 'flex', alignItems: 'center', gap: 8}}>
+                                            <span style={{width: 8, height: 8, borderRadius: '50%', background: item.color}}></span>
+                                            <span style={{fontSize: 13, color: '#475569'}}>{item.name}</span>
+                                        </div>
+                                        <span style={{fontSize: 13, fontWeight: 700, color: 'var(--rd-text-main)'}}>{item.value}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Table Section */}
+                <div className="rd-table-card">
+                    <div className="rd-table-header" style={{borderBottom: '1px solid var(--rd-border)'}}>
+                        <div>
+                            <div style={{display: 'flex', alignItems: 'center', gap: 12}}>
+                                <div className="rd-table-title">Stock Alerts <span style={{fontSize: 14, color: '#94a3b8', fontWeight: 500}}>(Live from Inventory)</span></div>
+                            </div>
+                            <div className="rd-table-subtitle">Items requiring immediate attention</div>
+                        </div>
+                        <div className="rd-table-actions">
+                            <span style={{padding: '6px 12px', background: '#ffe4e6', color: '#e11d48', borderRadius: 20, fontSize: 13, fontWeight: 600, border: '1px solid #fecdd3'}}>
+                                4 Active Alerts
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <table className="rd-table">
                         <thead>
                             <tr>
-                                <th>Date</th>
-                                <th>Material</th>
-                                <th>Requested By</th>
-                                <th>Req. Qty</th>
-                                <th>Status</th>
-                                <th>Manager Message</th>
-                                <th>Actions</th>
+                                <th>MATERIAL</th>
+                                <th>ID</th>
+                                <th>STATUS</th>
+                                <th>CURRENT QTY</th>
+                                <th>REORDER LEVEL</th>
+                                <th>DEFICIT</th>
+                                <th>SINCE</th>
+                                <th>ACTION</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {requests.map((req) => (
-                                <tr key={req.id}>
-                                    <td>{new Date(req.createdAt).toLocaleDateString()}</td>
+                            {alertsData.map((item, i) => (
+                                <tr key={i}>
+                                    <td style={{fontWeight: 700, color: 'var(--rd-text-main)'}}>{item.name}</td>
+                                    <td style={{fontWeight: 700, color: '#3b82f6'}}>{item.matId}</td>
                                     <td>
-                                        <strong>{req.material?.name || 'Unknown'}</strong><br />
-                                        <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{req.material?.sku}</span>
+                                        <span className={`rd-status-badge ${item.status === 'Low Stock' ? 'rd-status-orange' : 'rd-status-red'}`}>
+                                            {item.status}
+                                        </span>
                                     </td>
-                                    <td>{req.employee?.name || 'Unknown'}</td>
-                                    <td>{req.requiredQuantity}</td>
-                                    <td>{getStatusBadge(req.status)}</td>
-                                    <td style={{ maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                        {req.managerMessage || '-'}
-                                    </td>
+                                    <td style={{fontWeight: 700, color: item.status === 'Low Stock' ? '#f59e0b' : '#ef4444'}}>{item.current} pcs</td>
+                                    <td style={{color: '#64748b'}}>{item.reorder} pcs</td>
+                                    <td style={{fontWeight: 700, color: '#e11d48'}}>{item.deficit}</td>
+                                    <td style={{color: '#94a3b8'}}>{item.since}</td>
                                     <td>
-                                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                                            <button className="btn-primary-blue" style={{ padding: '6px 12px', background: '#64748b', border: 'none' }} onClick={() => {
-                                                setSelectedHistory(req.history || '[]');
-                                                setShowHistoryModal(true);
-                                            }}>History</button>
-
-                                            {/* Manager Button */}
-                                            {(isManager || isAdmin || isSuperAdmin) && req.status === 'Pending' && (
-                                                <button className="btn-primary-blue" style={{ padding: '6px 12px', background: '#f59e0b', border: 'none' }} onClick={() => {
-                                                    setManagerFormData({ id: req.id, message: '' });
-                                                    setShowManagerModal(true);
-                                                }}>
-                                                    Take Action
-                                                </button>
-                                            )}
-
-                                            {/* Employee Receive Button */}
-                                            {isEmployee && req.status === 'Delivered' && (
-                                                <button className="btn-primary-blue" style={{ padding: '6px 12px', background: '#10b981', border: 'none' }} onClick={() => handleEmployeeReceive(req.id)}>Mark as Received</button>
-                                            )}
-
-                                            {/* Sales Delivery Update Button */}
-                                            {(isSales || isAdmin || isSuperAdmin) && ['Manager Approved', 'Processing', 'Dispatched'].includes(req.status) && (
-                                                <button className="btn-primary-blue" style={{ padding: '6px 12px', background: '#3b82f6', border: 'none' }} onClick={() => {
-                                                    setSalesFormData({ id: req.id, status: req.status === 'Manager Approved' ? 'Processing' : req.status });
-                                                    setShowSalesModal(true);
-                                                }}>
-                                                    Update Delivery
-                                                </button>
-                                            )}
+                                        <div style={{display: 'flex', gap: 8}}>
+                                            <button className="rd-btn-solid" style={{padding: '6px 12px', fontSize: 12}}>Raise PO</button>
+                                            <button className="rd-btn-outline" style={{padding: '6px 12px', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4}} onClick={() => navigate(`/materials/${item.matId}`)}>
+                                                <ExternalLink size={14} /> Inv.
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
-                )}
+                </div>
             </div>
+        </div>
+    );
+};
 
-            {/* Manager Action Modal */}
-            {showManagerModal && (
-                <div className="modal-overlay">
-                    <div className="modal-content animate-pop" style={{ maxWidth: '450px' }}>
-                        <div className="modal-header">
-                            <h2>Manager Action</h2>
-                            <button className="close-btn" onClick={() => setShowManagerModal(false)}>✕</button>
-                        </div>
-                        <div className="modal-form">
-                            <div className="form-group" style={{ marginBottom: '24px' }}>
-                                <label>Manager Message / Note</label>
-                                <textarea rows="3" required placeholder="Let the employee know your decision..." value={managerFormData.message} onChange={e => setManagerFormData({ ...managerFormData, message: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', }}></textarea>
-                            </div>
-                            <div className="modal-actions" style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
-                                <button type="button" onClick={() => setShowManagerModal(false)} style={{ padding: '10px 16px', background: 'transparent', borderRadius: '8px', cursor: 'pointer' }}>Cancel</button>
-                                <button type="button" onClick={() => submitManagerAction('MoreInfo')} style={{ padding: '10px 16px', background: '#f59e0b', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>Request More Info</button>
-                                <button type="button" onClick={() => submitManagerAction('Reject')} style={{ padding: '10px 16px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>Reject</button>
-                                <button type="button" onClick={() => submitManagerAction('Approve')} style={{ padding: '10px 16px', background: '#10b981', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>Approve Request</button>
-                                <button type="button" onClick={() => submitManagerAction('CreatePO')} style={{ padding: '10px 16px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>Create Purchase Order</button>
-                            </div>
-                        </div>
+const StockKPICard = ({ title, val, trend, trendDir, color, data, icon: Icon }) => {
+    return (
+        <div className={`rd-kpi-card ${color}`} style={{minHeight: 140, padding: 20, position: 'relative', overflow: 'hidden'}}>
+            {/* The circular blobs in the background */}
+            <div style={{position: 'absolute', top: -20, right: -20, width: 100, height: 100, borderRadius: '50%', background: 'rgba(255,255,255,0.1)'}}></div>
+            
+            <div className="rd-kpi-header" style={{alignItems: 'flex-start'}}>
+                <div style={{display: 'flex', flexDirection: 'column', gap: 12}}>
+                    <div className="rd-kpi-icon-box" style={{width: 44, height: 44, background: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.3)'}}>
+                        <Icon size={22} color="#fff" />
+                    </div>
+                    <div>
+                        <div style={{fontSize: 32, fontWeight: 800, color: '#fff', lineHeight: 1}}>{val}</div>
+                        <div style={{fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.9)', marginTop: 4}}>{title}</div>
                     </div>
                 </div>
-            )}
-
-            {/* Sales Action Modal */}
-            {showSalesModal && (
-                <div className="modal-overlay">
-                    <div className="modal-content animate-pop" style={{ maxWidth: '400px' }}>
-                        <div className="modal-header">
-                            <h2>Update Delivery Status</h2>
-                            <button className="close-btn" onClick={() => setShowSalesModal(false)}>✕</button>
-                        </div>
-                        <form onSubmit={submitSalesAction} className="modal-form">
-                            <div className="form-group" style={{ marginBottom: '24px' }}>
-                                <label>Status</label>
-                                <select value={salesFormData.status} onChange={e => setSalesFormData({ ...salesFormData, status: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', }}>
-                                    <option value="Processing">Processing</option>
-                                    <option value="Dispatched">Dispatched</option>
-                                    <option value="Delivered">Delivered</option>
-                                    <option value="Cancelled">Cancelled</option>
-                                </select>
-                            </div>
-                            <div className="modal-actions" style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-                                <button type="button" onClick={() => setShowSalesModal(false)} style={{ padding: '10px 16px', background: 'transparent', borderRadius: '8px', cursor: 'pointer' }}>Cancel</button>
-                                <button type="submit" style={{ padding: '10px 16px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>Update Status</button>
-                            </div>
-                        </form>
+                
+                <div style={{display: 'flex', alignItems: 'center', gap: 8}}>
+                    <div style={{padding: '4px 10px', background: 'rgba(255,255,255,0.2)', borderRadius: 20, fontSize: 12, fontWeight: 700, color: '#fff', display: 'flex', alignItems: 'center', gap: 4}}>
+                        {trendDir === 'up' ? '▲' : '▼'} {trend}
                     </div>
+                    <button style={{background: 'none', border: 'none', color: '#fff', opacity: 0.7, cursor: 'pointer'}}>•••</button>
                 </div>
-            )}
-
-            {/* History Modal */}
-            {showHistoryModal && (
-                <div className="modal-overlay">
-                    <div className="modal-content animate-pop" style={{ maxWidth: '500px' }}>
-                        <div className="modal-header">
-                            <h2>Request History</h2>
-                            <button className="close-btn" onClick={() => setShowHistoryModal(false)}>✕</button>
-                        </div>
-                        <div style={{ padding: '10px 0' }}>
-                            {(() => {
-                                let historyArray = [];
-                                try { historyArray = JSON.parse(selectedHistory); } catch(e){}
-                                if (!Array.isArray(historyArray) || historyArray.length === 0) {
-                                    return <p style={{ color: 'var(--text-muted)' }}>No history available for this request.</p>;
-                                }
-                                return (
-                                    <ul style={{ listStyleType: 'none', padding: 0, margin: 0 }}>
-                                        {historyArray.map((entry, i) => (
-                                            <li key={i} style={{ marginBottom: '16px', display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-                                                <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#3b82f6', marginTop: '6px' }}></div>
-                                                <div>
-                                                    <div style={{ fontWeight: 'bold' }}>{entry.status}</div>
-                                                    <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
-                                                        {new Date(entry.timestamp).toLocaleString()} • by {entry.user?.name || 'System'} ({entry.user?.role || ''})
-                                                    </div>
-                                                </div>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                );
-                            })()}
-                        </div>
-                        <div className="modal-actions" style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
-                            <button type="button" onClick={() => setShowHistoryModal(false)} style={{ padding: '10px 16px', background: '#cbd5e1', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>Close</button>
-                        </div>
-                    </div>
+            </div>
+            <div style={{display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: 16}}>
+                <div style={{width: '100%', height: 40, position: 'relative', zIndex: 2}}>
+                    <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={data}>
+                            <Line type="monotone" dataKey="v" stroke="#fff" strokeWidth={3} dot={false} activeDot={{r: 4}} />
+                        </LineChart>
+                    </ResponsiveContainer>
                 </div>
-            )}
-
+                <div style={{position: 'absolute', bottom: 20, right: 20, textAlign: 'right', zIndex: 1}}>
+                    <div style={{fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.6)'}}>VS LAST MO.</div>
+                    <div style={{fontSize: 14, fontWeight: 800, color: '#fff'}}>{trendDir === 'up' ? '+' : ''}{trend}</div>
+                </div>
+            </div>
         </div>
     );
 };

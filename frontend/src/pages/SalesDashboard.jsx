@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { NotificationContext } from '../context/NotificationContext';
 import API from '../api/axios';
 import {
     Users, Search, Bell, Moon, Target, ShoppingBag, Award,
     Briefcase, Activity, FileText, CheckCircle, ListTodo,
-    Menu, Calendar, Clock, LogOut, Settings as SettingsIcon, User as UserIcon, DollarSign, TrendingUp
+    Menu, Calendar, Clock, LogOut, Settings as SettingsIcon, User as UserIcon, DollarSign, TrendingUp,
+    ArrowUpRight, ArrowDownRight
 } from 'lucide-react';
 import {
     EmptyState, SkeletonCard,
@@ -18,6 +20,7 @@ import '../components/AdminDashboard/AdminDashboardPremium.css';
 
 const SalesDashboard = () => {
     const { user, logout } = useContext(AuthContext);
+    const { unreadCount } = useContext(NotificationContext);
 
     const displayName = user?.name || user?.user?.name || 'Sales Rep';
     const displayRole = user?.role || user?.user?.role || 'Sales';
@@ -159,130 +162,199 @@ const SalesDashboard = () => {
         alerts: activeLeads // Alerts showing active leads
     };
 
+    const kpiCards = [
+        { title: 'Total Revenue', value: `$${revenue.toLocaleString()}`, icon: DollarSign, color: '#10b981', trend: '+12%', trendType: 'up' },
+        { title: 'Sales Orders', value: totalSales, icon: ShoppingBag, color: '#3b82f6', trend: '+8%', trendType: 'up' },
+        { title: 'Active Leads', value: activeLeads, icon: Target, color: '#f59e0b', trend: '-2%', trendType: 'down' },
+        { title: 'Conversion Rate', value: `${conversionRate}%`, icon: TrendingUp, color: '#8b5cf6', trend: '+5%', trendType: 'up' }
+    ];
+
     return (
-        <div className="erp-dashboard-container">
-            {/* Top Navigation */}
-            <header className="erp-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px', backgroundColor: '#fff', borderBottom: '1px solid #f1f5f9' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '24px', flex: 1 }}>
-                    <Menu size={24} color="#64748b" style={{ cursor: 'pointer' }} onClick={() => window.dispatchEvent(new CustomEvent('openModuleLauncher'))} />
-                    <div className="erp-global-search" style={{ display: 'flex', alignItems: 'center', backgroundColor: '#f8fafc', padding: '8px 16px', borderRadius: '8px', width: '400px', cursor: 'text' }} onClick={() => setIsCommandCenterOpen(true)}>
-                        <Search size={18} color="#94a3b8" />
-                        <input type="text" placeholder="Search across ERP..." className="erp-search-input" style={{ border: 'none', background: 'transparent', outline: 'none', marginLeft: '12px', width: '100%', fontSize: '14px', color: '#1e293b', cursor: 'text' }} readOnly />
-                    </div>
+        <div className="module-container">
+            {/* Actions & Title */}
+            <div className="module-actions-section">
+                <div className="module-title-block">
+                    <h1>Sales Overview</h1>
+                    <p>Pipeline & Revenue Dashboard</p>
                 </div>
+                <div className="action-buttons">
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'var(--bg-body)', border: '1px solid var(--border-subtle)', padding: '8px 16px', borderRadius: 'var(--radius-md)', fontSize: '13px', fontWeight: 600, color: 'var(--text-main)', boxShadow: 'var(--shadow-sm)' }}>
+                        <span style={{ width: '8px', height: '8px', background: 'var(--success)', borderRadius: '50%', boxShadow: '0 0 0 2px rgba(16, 185, 129, 0.2)' }}></span> Live Data System
+                    </span>
+                </div>
+            </div>
 
-                <div className="erp-header-actions" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                    <div className="erp-datetime" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', fontSize: '12px', color: '#64748b' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '600', color: '#1e293b' }}>
-                            <Calendar size={12} />
-                            <span>{currentTime.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}</span>
+            {/* Core KPIs */}
+            <div className="module-kpi-section" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
+                {kpiCards.map((kpi, idx) => (
+                    <div key={idx} className="kpi-card">
+                        <div className="kpi-header">
+                            <span className="kpi-title">{kpi.title}</span>
+                            <div className="kpi-icon-wrapper" style={{background: `${kpi.color}15`, color: kpi.color}}>
+                                <kpi.icon size={20} />
+                            </div>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
-                            <Clock size={12} />
-                            <span>{currentTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}</span>
+                        <div className="kpi-value">{kpi.value}</div>
+                        <div className={`kpi-trend ${kpi.trendType === 'down' ? 'negative' : 'positive'}`}>
+                            {kpi.trendType === 'up' ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />} 
+                            {kpi.trend} vs last month
                         </div>
                     </div>
+                ))}
+            </div>
 
-                    <button className="erp-icon-btn erp-notification-btn" style={{ position: 'relative', background: 'transparent', border: 'none', cursor: 'pointer' }} onClick={() => navigate('/notifications')}>
-                        <Bell size={20} color="#64748b" />
-                        {activeLeads > 0 && <span className="erp-notification-badge" style={{ position: 'absolute', top: '-4px', right: '-4px', background: '#ef4444', color: '#fff', fontSize: '10px', borderRadius: '50%', width: '16px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #fff' }}>{activeLeads}</span>}
-                    </button>
-
-                    <button className="erp-icon-btn" onClick={toggleDarkMode} style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}>
-                        <Moon size={20} color="#64748b" />
-                    </button>
-
-                    <div className="erp-profile-menu-container" style={{ position: 'relative' }}>
-                        <div className="erp-profile-menu" style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer', paddingLeft: '24px', borderLeft: '1px solid #e2e8f0' }} onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}>
-                            <div className="erp-profile-avatar" style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#0f172a', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '600', fontSize: '14px', overflow: 'hidden' }}>
-                                <img src={displayAvatar} alt={displayName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                            </div>
-                            <div className="erp-profile-info" style={{ display: 'flex', flexDirection: 'column' }}>
-                                <span className="erp-profile-name" style={{ fontSize: '14px', fontWeight: '600', color: '#1e293b' }}>{displayName}</span>
-                                <span className="erp-profile-role" style={{ fontSize: '12px', color: '#64748b' }}>{displayRole}</span>
-                            </div>
-                        </div>
-
-                        {isProfileMenuOpen && (
-                            <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: '8px', width: '220px', backgroundColor: '#fff', borderRadius: '8px', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)', border: '1px solid #e2e8f0', zIndex: 50, overflow: 'hidden' }}>
-                                <div style={{ padding: '16px', borderBottom: '1px solid #e2e8f0', backgroundColor: '#f8fafc' }}>
-                                    <div style={{ fontWeight: '600', fontSize: '14px', color: '#0f172a' }}>{displayName}</div>
-                                    <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>{displayEmail}</div>
+            {/* Main Analytics */}
+            <div className="module-analytics-section" style={{ gridTemplateColumns: '4fr 5fr 3fr' }}>
+                
+                {/* Lead Sources */}
+                <div className="analytics-card" style={{ display: 'flex', flexDirection: 'column' }}>
+                    <div className="analytics-header">
+                        <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Activity size={18} /> Lead Sources</h3>
+                    </div>
+                    <div style={{ flex: 1, minHeight: '280px', display: 'flex', flexDirection: 'column' }}>
+                        {leadSourceData.length > 0 ? (
+                            <>
+                                <div style={{ position: 'relative', flex: 1 }}>
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <PieChart>
+                                            <Pie data={leadSourceData} cx="50%" cy="50%" innerRadius={60} outerRadius={85} paddingAngle={2} dataKey="value" stroke="none">
+                                                {leadSourceData.map((entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={entry.color} />
+                                                ))}
+                                            </Pie>
+                                            <RechartsTooltip contentStyle={{ borderRadius: '12px', border: '1px solid var(--border-light)', boxShadow: 'var(--shadow-lg)' }} />
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                    <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center', pointerEvents: 'none' }}>
+                                        <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-heading)', lineHeight: 1 }}>{totalLeads}</div>
+                                        <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 600, marginTop: '4px' }}>Leads</div>
+                                    </div>
                                 </div>
-                                <div style={{ padding: '8px 0' }}>
-                                    <button onClick={() => navigate('/profile')} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px 16px', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '14px', color: '#475569', textAlign: 'left' }} onMouseOver={e => e.currentTarget.style.backgroundColor = '#f1f5f9'} onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}>
-                                        <UserIcon size={16} /> My Profile
-                                    </button>
-                                    <button onClick={() => navigate('/settings')} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px 16px', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '14px', color: '#475569', textAlign: 'left' }} onMouseOver={e => e.currentTarget.style.backgroundColor = '#f1f5f9'} onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}>
-                                        <SettingsIcon size={16} /> Account Settings
-                                    </button>
+                                <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap', paddingTop: '16px' }}>
+                                    {leadSourceData.map((item, idx) => (
+                                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 600, color: 'var(--text-main)' }}>
+                                            <span style={{ width: '10px', height: '10px', borderRadius: '4px', background: item.color }}></span>
+                                            {item.name} ({item.percentage}%)
+                                        </div>
+                                    ))}
                                 </div>
-                                <div style={{ padding: '8px 0', borderTop: '1px solid #e2e8f0' }}>
-                                    <button onClick={() => logout()} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px 16px', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '14px', color: '#ef4444', textAlign: 'left', fontWeight: '500' }} onMouseOver={e => e.currentTarget.style.backgroundColor = '#fef2f2'} onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}>
-                                        <LogOut size={16} /> Logout
-                                    </button>
-                                </div>
-                            </div>
+                            </>
+                        ) : (
+                            <div className="flex-center" style={{ flex: 1, color: 'var(--text-muted)' }}>No Lead Data Available</div>
                         )}
                     </div>
                 </div>
-            </header>
 
-            {/* Main Content Area */}
-            <main className="erp-main-content erp-dashboard-main">
-                {/* Row 1: Welcome & Quick Metrics */}
-                <TopWelcomeBar username={displayName.split(' ')[0]} data={todayData} />
-
-                {/* Row 2: Premium KPI Cards */}
-                <div className="erp-premium-kpi-grid">
-                    <PremiumKPICard
-                        title="Total Revenue" value={revenue} subtitle="This Month" isCurrency={true} prefix="$"
-                        icon={DollarSign} color="#10b981" trend="up" trendValue="+15%"
-                    />
-                    <PremiumKPICard
-                        title="Completed Sales" value={totalSales} subtitle="Closed Won"
-                        icon={ShoppingBag} color="#3b82f6" trend="up" trendValue="+8%"
-                    />
-                    <PremiumKPICard
-                        title="Active Leads" value={activeLeads} subtitle="In Pipeline"
-                        icon={Target} color="#f59e0b" trend="up" trendValue="+12"
-                    />
-                    <PremiumKPICard
-                        title="Total Customers" value={totalCustomers} subtitle="Active Accounts"
-                        icon={Users} color="#8b5cf6" trend="up" trendValue="+5%"
-                    />
-                    <PremiumKPICard
-                        title="Conversion Rate" value={conversionRate} subtitle="Leads to Sales" isCurrency={false} prefix="" suffix="%"
-                        icon={TrendingUp} color="#10b981" trend="up" trendValue="+2%"
-                    />
-                    <PremiumKPICard
-                        title="Target Achieved" value={targetAchieved} subtitle="Monthly Goal" isCurrency={false} prefix="" suffix="%"
-                        icon={Award} color="#ef4444" trend="up" trendValue="+5%"
-                    />
+                {/* Revenue Trend */}
+                <div className="analytics-card" style={{ display: 'flex', flexDirection: 'column' }}>
+                    <div className="analytics-header">
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                            <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}><TrendingUp size={18} /> Revenue Trend</h3>
+                            <div style={{ textAlign: 'right' }}>
+                                <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>6-Month Total</div>
+                                <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--success)' }}>{formatIndianCurrency(trendTotalRevenue)}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style={{ flex: 1, minHeight: '280px', display: 'flex', flexDirection: 'column' }}>
+                        {monthsWithRevenue >= 2 ? (
+                            <ResponsiveContainer width="100%" height="100%">
+                                <AreaChart data={revenueTrendData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                                    <defs>
+                                        <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="var(--success)" stopOpacity={0.3}/>
+                                            <stop offset="95%" stopColor="var(--success)" stopOpacity={0}/>
+                                        </linearGradient>
+                                    </defs>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-light)" />
+                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--text-secondary)' }} dy={10} />
+                                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--text-secondary)' }} tickFormatter={formatYAxis} width={60} />
+                                    <RechartsTooltip content={<CustomTooltip />} cursor={{fill: 'transparent'}} />
+                                    <Area type="monotone" dataKey="revenue" stroke="var(--success)" strokeWidth={2} fillOpacity={1} fill="url(#colorRevenue)" dot={{ r: 4, strokeWidth: 2, fill: '#fff' }} activeDot={{ r: 6 }} label={{ position: 'top', formatter: formatIndianCurrency, fill: 'var(--text-heading)', fontSize: 12, fontWeight: 600, dy: -5 }} />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        ) : monthsWithRevenue === 1 ? (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '0 20px', height: '100%', justifyContent: 'center' }}>
+                                <div style={{ padding: '16px', background: 'var(--bg-body)', borderRadius: 'var(--radius-md)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Current Revenue</div>
+                                    <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--success)' }}>{formatIndianCurrency(thisMonthRevenue)}</div>
+                                </div>
+                                <div style={{ padding: '16px', background: 'var(--bg-body)', borderRadius: 'var(--radius-md)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Growth Trend</div>
+                                    <div style={{ fontSize: '20px', fontWeight: 800, color: revGrowth >= 0 ? 'var(--success)' : 'var(--danger)' }}>{growthTrend}</div>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="flex-center" style={{ flex: 1, color: 'var(--text-muted)' }}>No Revenue Data</div>
+                        )}
+                    </div>
                 </div>
 
-                {/* Row 3: Charts & Timelines */}
-                <div className="erp-premium-row-3">
-                    {dashboard.charts?.monthlyStats ? <SalesAreaChart data={dashboard.charts.monthlyStats} /> : <div className="erp-premium-card" style={{ flex: 2, minWidth: '400px' }}><div className="erp-card-header"><h3 className="erp-card-title">Sales Overview</h3></div><div className="erp-card-body" style={{ height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>No data available</div></div>}
-                    <InventoryStatusDonut 
-                        inventoryData={leadsStatusData} 
-                        totalItems={leadsData.length} 
-                        title="Leads Pipeline" 
-                        centerLabel="Total Leads" 
-                    />
-                    <TimelineWidget title="Recent Orders" items={recentOrdersData} viewAllLink={true} />
+                {/* Quick Actions */}
+                <div className="analytics-card" style={{ padding: '20px', display: 'flex', flexDirection: 'column' }}>
+                    <div className="analytics-header">
+                        <h3>Sales Actions</h3>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', flex: 1 }}>
+                        {[
+                            { path: '/crm/leads', name: 'Leads', icon: Filter, color: '#3b82f6' },
+                            { path: '/crm/pipeline', name: 'Pipeline', icon: Layers, color: '#8b5cf6' },
+                            { path: '/crm/customers', name: 'Customers', icon: Users, color: '#10b981' },
+                            { path: '/sales/revenue', name: 'Revenue', icon: DollarSign, color: '#f59e0b' },
+                            { path: '/sales/goals', name: 'Goals', icon: Target, color: '#ec4899' },
+                            { path: '/quotations', name: 'Quotes', icon: FileText, color: '#64748b' }
+                        ].map((link, idx) => (
+                            <div onClick={() => navigate(link.path)} key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '16px 12px', background: 'var(--bg-body)', border: '1px solid var(--border-light)', borderRadius: 'var(--radius-md)', cursor: 'pointer', color: 'var(--text-heading)', fontWeight: 600, fontSize: '13px', transition: 'all 0.2s' }}>
+                                <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: `${link.color}15`, color: link.color, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '8px' }}>
+                                    <link.icon size={18} />
+                                </div>
+                                {link.name}
+                            </div>
+                        ))}
+                    </div>
                 </div>
+            </div>
 
-                {/* Row 4: Bottom Widgets */}
-                <div className="erp-premium-row-4">
-                    <QuickActionsGrid />
+            {/* Top Executives Table */}
+            <div className="analytics-card" style={{ marginTop: '24px' }}>
+                <div className="analytics-header">
+                    <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Award size={18} /> Top Sales Executives</h3>
                 </div>
-            </main>
-
-            <CommandCenter
-                isOpen={isCommandCenterOpen}
-                onClose={() => setIsCommandCenterOpen(false)}
-            />
+                <div style={{ padding: '0 20px 20px 20px' }}>
+                    {topExecutives.length > 0 ? (
+                        <table className="enterprise-table" style={{ margin: 0 }}>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Orders</th>
+                                    <th>Revenue</th>
+                                    <th>Rank</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {topExecutives.map((exec, i) => (
+                                    <tr key={i}>
+                                        <td><strong>{exec.name}</strong></td>
+                                        <td>{exec.deliveries}</td>
+                                        <td><span style={{ color: 'var(--success)', fontWeight: 700 }}>{exec.revenue}</span></td>
+                                        <td>
+                                            <span style={{ 
+                                                padding: '4px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 600,
+                                                background: exec.rank === 1 ? 'rgba(245,158,11,0.1)' : 'var(--bg-surface-hover)', 
+                                                color: exec.rank === 1 ? '#F59E0B' : 'var(--text-muted)'
+                                            }}>
+                                                #{exec.rank}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    ) : (
+                        <div className="flex-center" style={{ padding: '40px 0', color: 'var(--text-muted)' }}>No Sales Performance Data Available</div>
+                    )}
+                </div>
+            </div>
         </div>
     );
 };

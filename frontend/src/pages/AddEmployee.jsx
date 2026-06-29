@@ -1,158 +1,167 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import API from '../api/axios';
-import { ArrowLeft, UserPlus } from 'lucide-react';
+import StandardPageLayout from '../components/StandardPageLayout/StandardPageLayout';
+import toast from 'react-hot-toast';
 
-const AddEmployee = () => {
+const AddEmployee = ({ isEditMode = false }) => {
     const navigate = useNavigate();
+    const { id } = useParams();
     const [formData, setFormData] = useState({
         employeeId: '', firstName: '', lastName: '', 
         department: 'Employee', designation: '', contact: '', phone: '',
         address: '', password: '', joinDate: new Date().toISOString().split('T')[0]
     });
     const [loading, setLoading] = useState(false);
+    const [isFetching, setIsFetching] = useState(isEditMode);
     const [error, setError] = useState('');
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    useEffect(() => {
+        if (isEditMode && id) {
+            fetchEmployee();
+        }
+    }, [isEditMode, id]);
+
+    const fetchEmployee = async () => {
+        try {
+            const { data } = await API.get(`/employees/${id}`);
+            setFormData({
+                employeeId: data.employeeId || '', 
+                firstName: data.firstName || '', 
+                lastName: data.lastName || '', 
+                department: data.department || 'Employee', 
+                designation: data.designation || '', 
+                contact: data.contact || '', 
+                phone: data.phone || '',
+                address: data.address || '', 
+                password: '', // Do not populate password
+                joinDate: data.joinDate ? new Date(data.joinDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
+            });
+        } catch (err) {
+            toast.error('Failed to fetch employee data');
+            navigate('/hrms');
+        } finally {
+            setIsFetching(false);
+        }
+    };
+
+    const handleSubmit = async () => {
         setLoading(true);
         setError('');
         try {
-            await API.post('/employees', formData);
-            navigate('/hrms');
+            if (isEditMode) {
+                const dataToSubmit = { ...formData };
+                if (!dataToSubmit.password) delete dataToSubmit.password;
+                await API.put(`/employees/${id}`, dataToSubmit);
+                toast.success('Employee updated successfully');
+                navigate(`/employees/${id}`);
+            } else {
+                const res = await API.post('/employees', formData);
+                toast.success('Employee created successfully');
+                navigate(`/employees/${res.data._id}`);
+            }
         } catch (err) {
             setError(err.response?.data?.message || 'Error saving employee');
+            toast.error(err.response?.data?.message || 'Error saving employee');
+        } finally {
             setLoading(false);
         }
     };
 
+    if (isFetching) return <div className="flex-center" style={{height:'100vh'}}><div className="loader"></div></div>;
+
     return (
-        <div className="page-container">
-            <header className="module-header glass-card">
-                <div className="header-top">
+        <StandardPageLayout
+            title={isEditMode ? "Edit Employee" : "Add New Employee"}
+            subtitle={isEditMode ? "Update employee details in the system." : "Create a new employee profile in HRMS."}
+            breadcrumbs={[
+                { label: 'HRMS', path: '/hrms' },
+                { label: 'Employees', path: '/hrms' },
+                { label: isEditMode ? 'Edit' : 'New' }
+            ]}
+            onSave={handleSubmit}
+            onCancel={() => navigate('/hrms')}
+            isEditMode={isEditMode}
+            infoCard={
+                <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+                    <div style={{ padding: '12px', background: '#e0e7ff', borderRadius: '50%', color: '#4f46e5' }}>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                    </div>
                     <div>
-                        <h1 style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                            <button className="back-btn" onClick={() => navigate('/hrms')} title="Back to HRMS">
-                                <ArrowLeft size={24} />
-                            </button>
-                            Add New Employee
-                        </h1>
-                        <p style={{ color: 'var(--text-secondary)', marginTop: '8px', marginLeft: '36px' }}>
-                            Create a new employee profile in HRMS.
-                        </p>
+                        <h4 style={{ margin: 0, color: '#1e293b', fontSize: '16px' }}>{isEditMode ? `${formData.firstName} ${formData.lastName}` : 'New Employee Profile'}</h4>
+                        <p style={{ margin: '4px 0 0 0', color: '#64748b', fontSize: '14px' }}>Please complete all required fields below.</p>
                     </div>
                 </div>
-            </header>
-
-            <div className="glass-card form-container animate-pop">
-                {error && <div className="error-alert">{error}</div>}
+            }
+        >
+            <div className="standard-section">
+                <div className="standard-section-header">Basic Details</div>
+                {error && <div className="error-alert" style={{color: '#ef4444', background: '#fef2f2', padding: '12px', borderRadius: '8px', marginBottom: '16px'}}>{error}</div>}
                 
-                <form onSubmit={handleSubmit} className="employee-form">
-                    <div className="form-grid">
-                        <div className="form-group">
-                            <label>Employee ID</label>
-                            <input type="text" required value={formData.employeeId} onChange={e => setFormData({...formData, employeeId: e.target.value})} placeholder="e.g. EMP-001" />
+                <form id="employee-form" onSubmit={e => { e.preventDefault(); handleSubmit(); }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            <label style={{ fontSize: '14px', fontWeight: 500, color: '#475569' }}>Employee ID *</label>
+                            <input type="text" required value={formData.employeeId} onChange={e => setFormData({...formData, employeeId: e.target.value})} placeholder="e.g. EMP-001" style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px' }} />
                         </div>
-                        <div className="form-group">
-                            <label>First Name</label>
-                            <input type="text" required value={formData.firstName} onChange={e => setFormData({...formData, firstName: e.target.value})} placeholder="First name" />
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            <label style={{ fontSize: '14px', fontWeight: 500, color: '#475569' }}>First Name *</label>
+                            <input type="text" required value={formData.firstName} onChange={e => setFormData({...formData, firstName: e.target.value})} placeholder="First name" style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px' }} />
                         </div>
-                        <div className="form-group">
-                            <label>Last Name</label>
-                            <input type="text" value={formData.lastName} onChange={e => setFormData({...formData, lastName: e.target.value})} placeholder="Last name" />
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            <label style={{ fontSize: '14px', fontWeight: 500, color: '#475569' }}>Last Name</label>
+                            <input type="text" value={formData.lastName} onChange={e => setFormData({...formData, lastName: e.target.value})} placeholder="Last name" style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px' }} />
                         </div>
-                        <div className="form-group">
-                            <label>Department</label>
-                            <select value={formData.department} onChange={e => setFormData({...formData, department: e.target.value})} required>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            <label style={{ fontSize: '14px', fontWeight: 500, color: '#475569' }}>Role / Department *</label>
+                            <select value={formData.department} onChange={e => setFormData({...formData, department: e.target.value})} required style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px', background: '#fff' }}>
                                 <option value="Employee">Employee</option>
                                 <option value="HR">HR</option>
                                 <option value="Manager">Manager</option>
                                 <option value="Sales">Sales</option>
                             </select>
                         </div>
-                        <div className="form-group">
-                            <label>Designation</label>
-                            <input type="text" required value={formData.designation} onChange={e => setFormData({...formData, designation: e.target.value})} placeholder="e.g. Senior Manager" />
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            <label style={{ fontSize: '14px', fontWeight: 500, color: '#475569' }}>Designation *</label>
+                            <input type="text" required value={formData.designation} onChange={e => setFormData({...formData, designation: e.target.value})} placeholder="e.g. Senior Manager" style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px' }} />
                         </div>
-                        <div className="form-group">
-                            <label>Email Address</label>
-                            <input type="email" required value={formData.contact} onChange={e => setFormData({...formData, contact: e.target.value})} placeholder="email@company.com" />
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            <label style={{ fontSize: '14px', fontWeight: 500, color: '#475569' }}>Join Date *</label>
+                            <input type="date" required value={formData.joinDate} onChange={e => setFormData({...formData, joinDate: e.target.value})} style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px' }} />
                         </div>
-                        <div className="form-group">
-                            <label>Join Date</label>
-                            <input type="date" required value={formData.joinDate} onChange={e => setFormData({...formData, joinDate: e.target.value})} />
-                        </div>
-                        <div className="form-group">
-                            <label>Contact Number</label>
-                            <input type="tel" pattern="[0-9\-\+\s\(\)]+" maxLength="15" title="Valid mobile number" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} placeholder="+91 9876543210" required />
-                        </div>
-                        <div className="form-group full-width">
-                            <label>Set Password</label>
-                            <input 
-                                type="password" 
-                                required
-                                value={formData.password} 
-                                onChange={e => setFormData({...formData, password: e.target.value})} 
-                                placeholder="Enter password"
-                            />
-                        </div>
-                        <div className="form-group full-width">
-                            <label>Address</label>
-                            <input type="text" value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} placeholder="Full address" />
-                        </div>
-                    </div>
-                    
-                    <div className="form-actions">
-                        <button type="button" className="btn-cancel" onClick={() => navigate('/hrms')}>Cancel</button>
-                        <button type="submit" className="btn-primary" disabled={loading}>
-                            {loading ? 'Saving...' : 'Save Employee'}
-                        </button>
                     </div>
                 </form>
             </div>
 
-            <style jsx="true">{`
-                .module-container { padding: 30px; color: var(--text-primary); }
-                .module-header { margin-bottom: 24px; padding: 24px; }
-                .header-top { display: flex; justify-content: space-between; align-items: center; }
-                .header-top h1 { margin: 0; font-size: 24px; font-weight: 800; }
-                
-                .back-btn { background: none; border: none; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 4px; border-radius: 8px; transition: 0.2s; }
-                .back-btn:hover { background: var(--bg-hover); color: var(--primary); }
-
-                .form-container { padding: 32px; max-width: 900px; margin: 0 auto; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg, 16px); box-shadow: var(--shadow-sm); }
-                
-                .error-alert { background: var(--danger-light); color: var(--danger); border: 1px solid var(--danger); padding: 14px 20px; border-radius: 8px; margin-bottom: 24px; font-weight: 600; font-size: 14px; }
-
-                .employee-form { display: flex; flex-direction: column; gap: 32px; }
-                .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-                .form-group { display: flex; flex-direction: column; gap: 8px; }
-                .form-group label { font-size: 13px; font-weight: 700; color: var(--text-secondary); }
-                .form-group input, .form-group select { padding: 14px 16px; background: var(--bg-body); border: 1px solid var(--border); border-radius: 10px; color: var(--text-primary); width: 100%; font-size: 14px; outline: none; transition: all 0.2s; box-sizing: border-box; }
-                .form-group input:focus, .form-group select:focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-50); background: var(--bg-card); }
-                .form-group select { appearance: none; padding-right: 40px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; }
-                
-                .full-width { grid-column: 1 / -1; }
-                
-                .form-actions { display: flex; justify-content: flex-end; gap: 16px; margin-top: 16px; border-top: 1px solid var(--border); padding-top: 24px; }
-                .btn-cancel { background: var(--bg-body); color: var(--text-secondary); border: 1px solid var(--border); padding: 14px 28px; border-radius: 10px; font-weight: 700; font-size: 15px; cursor: pointer; transition: 0.2s; }
-                .btn-cancel:hover { background: var(--bg-hover); border-color: var(--border-hover); color: var(--text-primary); }
-                .btn-primary { background: var(--primary); color: white; border: none; padding: 14px 32px; border-radius: 10px; font-weight: 700; font-size: 15px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px color-mix(in srgb, var(--primary) 30%, transparent); }
-                .btn-primary:hover:not(:disabled) { background: var(--primary-dark, #1d4ed8); transform: translateY(-1px); box-shadow: 0 6px 16px color-mix(in srgb, var(--primary) 40%, transparent); }
-                .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
-
-                .animate-pop { animation: pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
-                @keyframes pop { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-                @media (max-width: 768px) {
-                    .page-container { padding: 16px 12px; }
-                    .form-container { padding: 24px; }
-                    .form-grid { grid-template-columns: 1fr; }
-                    .form-actions { flex-direction: column-reverse; }
-                    .form-actions button { width: 100%; justify-content: center; }
-                }
-            `}</style>
-        </div>
+            <div className="standard-section">
+                <div className="standard-section-header">Contact & Security</div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <label style={{ fontSize: '14px', fontWeight: 500, color: '#475569' }}>Email Address *</label>
+                        <input type="email" required value={formData.contact} onChange={e => setFormData({...formData, contact: e.target.value})} placeholder="email@company.com" style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px' }} />
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <label style={{ fontSize: '14px', fontWeight: 500, color: '#475569' }}>Phone Number *</label>
+                        <input type="tel" pattern="[0-9\-\+\s\(\)]+" maxLength="15" title="Valid mobile number" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} placeholder="+91 9876543210" required style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px' }} />
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', gridColumn: '1 / -1' }}>
+                        <label style={{ fontSize: '14px', fontWeight: 500, color: '#475569' }}>Address</label>
+                        <textarea rows="3" value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} placeholder="Full address..." style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px' }}></textarea>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', gridColumn: '1 / -1' }}>
+                        <label style={{ fontSize: '14px', fontWeight: 500, color: '#475569' }}>Password {isEditMode ? '(Leave blank to keep current)' : '*'}</label>
+                        <input 
+                            type="password" 
+                            required={!isEditMode}
+                            value={formData.password} 
+                            onChange={e => setFormData({...formData, password: e.target.value})} 
+                            placeholder={isEditMode ? "Enter new password..." : "Enter initial password"}
+                            style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px' }}
+                        />
+                    </div>
+                </div>
+            </div>
+        </StandardPageLayout>
     );
 };
 

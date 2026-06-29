@@ -1,10 +1,53 @@
 import React, { useContext, useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import API from '../api/axios';
-import { User, Briefcase, Key, Bell, Activity, Settings as SettingsIcon, Shield, ShieldCheck } from 'lucide-react';
+import { User, Briefcase, Key, Bell, Activity, CreditCard, Plus, Edit, Trash2, Smartphone, ShieldCheck, Mail, MapPin } from 'lucide-react';
+import { toast } from 'react-hot-toast';
+import RolesPermissions from './RolesPermissions';
+import NotificationSettings from './NotificationSettings';
+import SystemSettings from './SystemSettings';
+import SecuritySettings from './SecuritySettings';
+import IntegrationsSettings from './IntegrationsSettings';
 
 const Settings = () => {
     const { user, updateUser } = useContext(AuthContext);
+    const location = useLocation();
+    const navigate = useNavigate();
+
+    const pathToTab = {
+        '/settings': 'Profile',
+        '/settings/roles': 'Roles & Permissions',
+        '/settings/audit-logs': 'Security',
+        '/settings/notifications': 'Notifications',
+        '/settings/system': 'System',
+        '/settings/integrations': 'Integrations'
+    };
+
+    const tabToPath = {
+        'Profile': '/settings',
+        'Security': '/settings/audit-logs',
+        'Roles & Permissions': '/settings/roles',
+        'Notifications': '/settings/notifications',
+        'System': '/settings/system',
+        'Integrations': '/settings/integrations'
+    };
+
+    const currentTabFromPath = pathToTab[location.pathname] || 'Roles & Permissions';
+    const [activeTab, setActiveTab] = useState(currentTabFromPath);
+
+    useEffect(() => {
+        if (pathToTab[location.pathname]) {
+            setActiveTab(pathToTab[location.pathname]);
+        }
+    }, [location.pathname]);
+
+    const handleTabChange = (tab) => {
+        setActiveTab(tab);
+        if (tabToPath[tab]) {
+            navigate(tabToPath[tab]);
+        }
+    };
     const [employeeData, setEmployeeData] = useState(null);
     const [formData, setFormData] = useState({
         firstName: '',
@@ -53,11 +96,7 @@ const Settings = () => {
                     throw new Error("No logs found");
                 }
             } catch (err) {
-                setRecentActivity([
-                    { text: 'Logged in successfully', time: '2 hours ago', icon: 'Activity' },
-                    { text: 'Updated profile preferences', time: 'Yesterday', icon: 'SettingsIcon' },
-                    { text: 'Changed account password', time: 'Last week', icon: 'Shield' }
-                ]);
+                setRecentActivity([]);
             }
         };
         if (user) fetchActivity();
@@ -172,7 +211,26 @@ const Settings = () => {
 
     return (
         <div className="page-container">
-            {/* Top Banner Card */}
+            <div className="settings-tabs-wrapper">
+                {['Profile', 'Security', 'Roles & Permissions', 'Notifications', 'System', 'Integrations'].map(tab => (
+                    <button 
+                        key={tab} 
+                        className={`settings-tab-btn ${activeTab === tab ? 'active' : ''}`}
+                        onClick={() => handleTabChange(tab)}
+                    >
+                        {tab}
+                    </button>
+                ))}
+            </div>
+
+            {activeTab === 'Security' && <SecuritySettings />}
+            {activeTab === 'Roles & Permissions' && <RolesPermissions />}
+            {activeTab === 'Notifications' && <NotificationSettings />}
+            {activeTab === 'System' && <SystemSettings />}
+            {activeTab === 'Integrations' && <IntegrationsSettings />}
+
+            <div style={{ display: activeTab === 'Profile' ? 'block' : 'none' }}>
+                {/* Top Banner Card */}
             <div className="premium-profile-banner">
                 <div className="premium-banner-avatar-wrapper">
                     <div className="premium-banner-avatar">
@@ -352,7 +410,9 @@ const Settings = () => {
                             <h3 style={{ fontSize: '18px', fontWeight: 700 }}>Recent Activity</h3>
                         </div>
                         <div className="activity-timeline">
-                            {recentActivity.map((act, i) => {
+                            {recentActivity.length === 0 ? (
+                                <p style={{ fontSize: '14px', color: '#64748b', margin: 0 }}>No recent activity found.</p>
+                            ) : recentActivity.map((act, i) => {
                                 const renderIcon = () => {
                                     if (act.icon === 'SettingsIcon') return <SettingsIcon size={14} />;
                                     if (act.icon === 'Shield') return <Shield size={14} />;
@@ -375,8 +435,42 @@ const Settings = () => {
                 </div>
 
             </div>
+            </div>
 
             <style jsx="true">{`
+                .settings-tabs-wrapper {
+                    display: flex;
+                    gap: 8px;
+                    margin-bottom: 24px;
+                    border-bottom: 1px solid #e2e8f0;
+                    padding-bottom: 16px;
+                }
+                .settings-tab-btn {
+                    padding: 8px 16px;
+                    background: transparent;
+                    border: none;
+                    font-size: 14px;
+                    font-weight: 600;
+                    color: #64748b;
+                    cursor: pointer;
+                    position: relative;
+                    transition: color 0.2s;
+                }
+                .settings-tab-btn:hover {
+                    color: #0f172a;
+                }
+                .settings-tab-btn.active {
+                    color: #3b82f6;
+                }
+                .settings-tab-btn.active::after {
+                    content: '';
+                    position: absolute;
+                    bottom: -17px;
+                    left: 0;
+                    right: 0;
+                    height: 2px;
+                    background: #3b82f6;
+                }
                 .premium-profile-banner {
                     display: flex;
                     align-items: center;

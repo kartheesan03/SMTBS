@@ -12,6 +12,7 @@ import './DualSidebar.css';
 
 const DualSidebar = () => {
     const { user, logout } = useContext(AuthContext);
+    const hasPerm = (perm) => user?.permissions?.includes(perm) || user?.permissions?.includes("all");
     const navigate = useNavigate();
     const location = useLocation();
     
@@ -194,7 +195,7 @@ const DualSidebar = () => {
                         { name: 'Roles & Permissions', path: '/settings/roles', icon: <Shield /> },
                         { name: 'System Settings', path: '/settings/system', icon: <SettingsIcon /> },
                         { name: 'Backup & Restore', path: '/settings/backup', icon: <Archive /> },
-                        { name: 'Audit Logs', path: '/reports', icon: <Activity /> }
+                        { name: 'Audit Logs', path: '/settings/audit-logs', icon: <Activity /> }
                     ]
                 }
             ]

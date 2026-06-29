@@ -3,6 +3,17 @@ const { OAuth2Client } = require('google-auth-library');
 const User = require('../models/User');
 const Customer = require('../models/Customer');
 const Vendor = require('../models/Vendor');
+const Role = require('../models/Role');
+
+const getRolePermissions = async (roleName) => {
+    try {
+        const role = await Role.findOne({ name: roleName });
+        return role && role.permissions ? (typeof role.permissions === 'string' ? JSON.parse(role.permissions) : role.permissions) : [];
+    } catch (e) {
+        console.error("Error fetching permissions:", e);
+        return [];
+    }
+};
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -93,11 +104,17 @@ const loginUser = async (req, res) => {
         console.error("Error fetching employee for login:", e);
     }
 
+    const permissions = await getRolePermissions(role);
+    if (user.email === 'admin@smtbms.com' && !permissions.includes('all')) {
+        permissions.push('all');
+    }
+
     return res.json({
         _id: user._id,
         name: actualName,
         email: user.email,
         role: role,
+        permissions: permissions,
         picture: user.picture,
         isProfileComplete: user.isProfileComplete,
         token: generateToken(user._id),
@@ -106,6 +123,7 @@ const loginUser = async (req, res) => {
             name: actualName,
             email: user.email,
             role: role,
+            permissions: permissions,
             picture: user.picture,
             isProfileComplete: user.isProfileComplete
         }
@@ -211,12 +229,18 @@ const googleAuth = async (req, res) => {
                 console.error("Error fetching employee for google login:", e);
             }
 
+            const permissions = await getRolePermissions(role);
+            if (user.email === 'admin@smtbms.com' && !permissions.includes('all')) {
+                permissions.push('all');
+            }
+
             return res.json({
                 success: true,
                 _id: user.id || user._id,
                 name: actualName,
                 email: user.email,
                 role: role,
+                permissions: permissions,
                 picture: user.picture,
                 isProfileComplete: user.isProfileComplete,
                 token: generateToken(user.id || user._id),
@@ -225,6 +249,7 @@ const googleAuth = async (req, res) => {
                     name: actualName,
                     email: user.email,
                     role: role,
+                    permissions: permissions,
                     picture: user.picture,
                     isProfileComplete: user.isProfileComplete,
                     createdAt: user.createdAt
@@ -273,6 +298,8 @@ const googleAuth = async (req, res) => {
                 });
             }
 
+            const permissions = await getRolePermissions(user.role);
+
             return res.json({
                 success: true,
                 _id: user.id || user._id,
@@ -287,6 +314,7 @@ const googleAuth = async (req, res) => {
                     name: user.name,
                     email: user.email,
                     role: user.role,
+                    permissions: permissions,
                     picture: user.picture,
                     isProfileComplete: user.isProfileComplete
                 }
@@ -325,12 +353,14 @@ const updateUserProfile = async (req, res) => {
             const updatedUser = await user.save();
 
             let role = updatedUser.role;
+            const permissions = await getRolePermissions(role);
 
             res.json({
                 _id: updatedUser._id,
                 name: updatedUser.name,
                 email: updatedUser.email,
                 role: role,
+                permissions: permissions,
                 picture: updatedUser.picture,
                 isProfileComplete: updatedUser.isProfileComplete,
                 token: generateToken(updatedUser._id),
@@ -339,6 +369,7 @@ const updateUserProfile = async (req, res) => {
                     name: updatedUser.name,
                     email: updatedUser.email,
                     role: role,
+                    permissions: permissions,
                     picture: updatedUser.picture,
                     isProfileComplete: updatedUser.isProfileComplete
                 }
@@ -372,11 +403,17 @@ const getUserProfile = async (req, res) => {
                 console.error("Error fetching employee for auth profile:", e);
             }
 
+            const permissions = await getRolePermissions(role);
+            if (user.email === 'admin@smtbms.com' && !permissions.includes('all')) {
+                permissions.push('all');
+            }
+
             res.json({
                 _id: user._id,
                 name: actualName,
                 email: user.email,
                 role: role,
+                permissions: permissions,
                 picture: user.picture,
                 isProfileComplete: user.isProfileComplete,
                 token: generateToken(user._id),
@@ -385,6 +422,7 @@ const getUserProfile = async (req, res) => {
                     name: actualName,
                     email: user.email,
                     role: role,
+                    permissions: permissions,
                     picture: user.picture,
                     isProfileComplete: user.isProfileComplete
                 }

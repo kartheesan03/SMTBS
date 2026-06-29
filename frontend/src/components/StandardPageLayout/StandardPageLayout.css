@@ -1,0 +1,222 @@
+.standard-page-container {
+    padding: 24px 32px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    overflow-y: auto;
+    position: relative;
+    padding-bottom: 80px; /* Space for sticky footer */
+}
+
+.standard-page-header-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.standard-page-breadcrumbs {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    color: #64748b;
+}
+
+.breadcrumb-back-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: none;
+    border: none;
+    color: #3b82f6;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 4px 8px;
+    margin-left: -8px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.breadcrumb-back-btn:hover {
+    background: #eff6ff;
+}
+
+.breadcrumb-separator {
+    color: #cbd5e1;
+}
+
+.breadcrumb-item {
+    font-weight: 500;
+}
+
+.breadcrumb-item.active {
+    color: #0f172a;
+    font-weight: 600;
+}
+
+.standard-page-header .header-titles h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+}
+
+.standard-page-header .header-titles .subtitle {
+    font-size: 14px;
+    color: #64748b;
+    margin: 4px 0 0 0;
+}
+
+.standard-page-body {
+    display: flex;
+    gap: 24px;
+    flex: 1;
+    align-items: flex-start;
+}
+
+.standard-page-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    min-width: 0; /* prevent overflow */
+}
+
+.standard-page-sidebar {
+    width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    flex-shrink: 0;
+}
+
+.standard-info-card {
+    background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.standard-sections-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.standard-section {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.standard-section-header {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.standard-page-footer {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    left: 260px; /* Sidebar width adjustment if any, this varies by layout */
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid #e2e8f0;
+    padding: 16px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 100;
+}
+
+.app-main:has(.standard-page-footer) {
+    position: relative; /* Ensure it tracks properly */
+}
+
+.footer-actions-left, .footer-actions-right {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.btn-cancel {
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-cancel:hover {
+    background: #e2e8f0;
+    color: #1e293b;
+}
+
+.btn-draft {
+    background: #f8fafc;
+    color: #3b82f6;
+    border: 1px solid #bfdbfe;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.btn-draft:hover {
+    background: #eff6ff;
+}
+
+.btn-save {
+    background: #3b82f6;
+    color: #ffffff;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
+    transition: all 0.2s ease;
+}
+
+.btn-save:hover {
+    background: #2563eb;
+    box-shadow: 0 6px 8px -1px rgba(59, 130, 246, 0.4);
+    transform: translateY(-1px);
+}
+
+@media (max-width: 1024px) {
+    .standard-page-body {
+        flex-direction: column;
+    }
+    .standard-page-sidebar {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .standard-page-footer {
+        left: 0;
+        padding: 16px;
+    }
+}

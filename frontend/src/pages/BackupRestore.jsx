@@ -1,362 +1,199 @@
 import React, { useState } from 'react';
-import { Archive, Plus, Download, RefreshCw, Trash2, Database, FileText, CheckCircle, AlertCircle, Calendar, HardDrive, Server, Activity, Clock, Cloud, ShieldAlert } from 'lucide-react';
+import { Database, Download, ArrowUpRight, CloudDownload, Trash2, ShieldAlert, FileText, Settings, AlertTriangle } from 'lucide-react';
 import './BackupRestore.css';
 
 const BackupRestore = () => {
-    const [backupData, setBackupData] = useState({
-        database: true,
-        uploadedFiles: true,
-        documents: true,
-        employeePhotos: true,
-        materialImages: true,
-        settings: true,
-        backupType: 'full',
-        backupName: `SMTBMS_Backup_${new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '_')}`
-    });
+    const [autoBackup, setAutoBackup] = useState(true);
 
-    const [backupHistory, setBackupHistory] = useState([
-        { id: 1, date: '29 Jun', type: 'Full', size: '1.8GB', createdBy: 'Admin', status: 'Success', name: 'SMTBMS_Backup_29_June_2026' },
-        { id: 2, date: '28 Jun', type: 'Database', size: '320MB', createdBy: 'System', status: 'Success', name: 'SMTBMS_Backup_28_June_2026' },
-        { id: 3, date: '27 Jun', type: 'Full', size: '1.7GB', createdBy: 'Admin', status: 'Success', name: 'SMTBMS_Backup_27_June_2026' }
-    ]);
-
-    const [restoreBackup, setRestoreBackup] = useState('SMTBMS_Backup_29_June_2026');
-
-    const [autoBackup, setAutoBackup] = useState({
-        enabled: true,
-        frequency: 'Daily',
-        time: '23:00',
-        keepLast: '30 Backups',
-        storage: {
-            local: true,
-            gdrive: true,
-            onedrive: false,
-            s3: false
-        }
-    });
-
-    const handleCheckboxChange = (field) => {
-        setBackupData({ ...backupData, [field]: !backupData[field] });
-    };
-
-    const handleRadioChange = (type) => {
-        setBackupData({ ...backupData, backupType: type });
-    };
-
-    const handleAutoStorageChange = (field) => {
-        setAutoBackup({ 
-            ...autoBackup, 
-            storage: { ...autoBackup.storage, [field]: !autoBackup.storage[field] } 
-        });
-    };
-
-    const handleCreateBackup = (e) => {
-        e.preventDefault();
-        const newBackup = {
-            id: Date.now(),
-            date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }),
-            type: backupData.backupType === 'full' ? 'Full' : backupData.backupType === 'db' ? 'Database' : 'Files',
-            size: backupData.backupType === 'full' ? '1.8GB' : '300MB',
-            createdBy: 'Admin',
-            status: 'Success',
-            name: backupData.backupName
-        };
-        setBackupHistory([newBackup, ...backupHistory]);
-        alert(`Backup "${backupData.backupName}" created successfully.`);
-    };
-
-    const handleRestore = (e) => {
-        e.preventDefault();
-        alert(`Initiating restore from backup: ${restoreBackup}`);
-    };
+    const historyData = [
+        { id: 'BK-2206', name: 'Daily Auto Backup', type: 'Automatic', size: '1.84 GB', date: '23 Jun 2026, 02:00', status: 'Completed' },
+        { id: 'BK-2205', name: 'Daily Auto Backup', type: 'Automatic', size: '1.83 GB', date: '22 Jun 2026, 02:00', status: 'Completed' },
+        { id: 'BK-2204', name: 'Pre-upgrade Snapshot', type: 'Manual', size: '1.81 GB', date: '21 Jun 2026, 14:22', status: 'Completed' },
+        { id: 'BK-2203', name: 'Daily Auto Backup', type: 'Automatic', size: '1.79 GB', date: '20 Jun 2026, 02:00', status: 'Completed' },
+        { id: 'BK-2202', name: 'Daily Auto Backup', type: 'Automatic', size: '—', date: '19 Jun 2026, 02:00', status: 'Failed' },
+        { id: 'BK-2201', name: 'Daily Auto Backup', type: 'Automatic', size: '1.77 GB', date: '18 Jun 2026, 02:00', status: 'Completed' },
+    ];
 
     return (
-        <div className="page-container backup-page">
-            <div className="page-header">
-                <h2>Backup & Restore</h2>
-            </div>
-            
-            {/* Stats Grid */}
-            <div className="backup-stats-grid">
-                <div className="premium-card stats-card">
-                    <div className="stats-icon-wrapper blue">
-                        <Calendar size={20} />
+        <div className="backup-restore-container">
+            {/* Header */}
+            <div className="backup-header-section">
+                <div className="backup-header-left">
+                    <div className="backup-header-icon">
+                        <Database size={28} className="header-icon" />
                     </div>
-                    <div className="stats-info">
-                        <span className="stats-label">Last Backup</span>
-                        <span className="stats-value">29 Jun 2026</span>
+                    <div className="backup-header-text">
+                        <span className="backup-eyebrow">DATA PROTECTION</span>
+                        <h1>Backup & Restore</h1>
+                        <p>Protect your data with scheduled backups and one-click restores.</p>
                     </div>
                 </div>
-                <div className="premium-card stats-card">
-                    <div className="stats-icon-wrapper purple">
-                        <Database size={20} />
-                    </div>
-                    <div className="stats-info">
-                        <span className="stats-label">Total Backups</span>
-                        <span className="stats-value">32</span>
-                    </div>
-                </div>
-                <div className="premium-card stats-card">
-                    <div className="stats-icon-wrapper orange">
-                        <HardDrive size={20} />
-                    </div>
-                    <div className="stats-info">
-                        <span className="stats-label">Storage Used</span>
-                        <span className="stats-value">28 GB</span>
-                    </div>
-                </div>
-                <div className="premium-card stats-card">
-                    <div className="stats-icon-wrapper green">
-                        <Activity size={20} />
-                    </div>
-                    <div className="stats-info">
-                        <span className="stats-label">Health</span>
-                        <span className="stats-value">98%</span>
-                    </div>
+                <div className="backup-header-actions">
+                    <button className="btn-download-latest">
+                        <CloudDownload size={18} />
+                        Download Latest
+                    </button>
+                    <button className="btn-backup-now">
+                        <Database size={18} />
+                        Backup Now
+                    </button>
                 </div>
             </div>
 
-            <div className="profile-grid">
-                <div className="profile-col-left">
-                    {/* Create Backup */}
-                    <div className="premium-card mb-24" style={{ padding: '24px' }}>
-                        <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                <Archive size={18} className="header-icon purple-icon" />
-                                <h3 style={{ fontSize: '18px', fontWeight: 700 }}>Create Backup</h3>
-                            </div>
-                        </div>
-                        
-                        <div className="backup-section-divider"></div>
-
-                        <form className="ui-form" onSubmit={handleCreateBackup}>
-                            <div className="form-group mb-20">
-                                <label style={{ marginBottom: '12px', display: 'block', fontSize: '14px', fontWeight: 600, color: '#1e293b' }}>Select data to include</label>
-                                <div className="checkbox-grid">
-                                    <label className="custom-checkbox">
-                                        <input type="checkbox" checked={backupData.database} onChange={() => handleCheckboxChange('database')} />
-                                        <span className="checkmark"></span>
-                                        Database
-                                    </label>
-                                    <label className="custom-checkbox">
-                                        <input type="checkbox" checked={backupData.uploadedFiles} onChange={() => handleCheckboxChange('uploadedFiles')} />
-                                        <span className="checkmark"></span>
-                                        Uploaded Files
-                                    </label>
-                                    <label className="custom-checkbox">
-                                        <input type="checkbox" checked={backupData.documents} onChange={() => handleCheckboxChange('documents')} />
-                                        <span className="checkmark"></span>
-                                        Documents
-                                    </label>
-                                    <label className="custom-checkbox">
-                                        <input type="checkbox" checked={backupData.employeePhotos} onChange={() => handleCheckboxChange('employeePhotos')} />
-                                        <span className="checkmark"></span>
-                                        Employee Photos
-                                    </label>
-                                    <label className="custom-checkbox">
-                                        <input type="checkbox" checked={backupData.materialImages} onChange={() => handleCheckboxChange('materialImages')} />
-                                        <span className="checkmark"></span>
-                                        Material Images
-                                    </label>
-                                    <label className="custom-checkbox">
-                                        <input type="checkbox" checked={backupData.settings} onChange={() => handleCheckboxChange('settings')} />
-                                        <span className="checkmark"></span>
-                                        Settings
-                                    </label>
-                                </div>
-                            </div>
-
-                            <div className="form-group mb-20">
-                                <label style={{ marginBottom: '12px', display: 'block', fontSize: '14px', fontWeight: 600, color: '#1e293b' }}>Backup Type</label>
-                                <div className="radio-group">
-                                    <label className="custom-radio">
-                                        <input type="radio" name="backupType" checked={backupData.backupType === 'full'} onChange={() => handleRadioChange('full')} />
-                                        <span className="radiomark"></span>
-                                        Full Backup
-                                    </label>
-                                    <label className="custom-radio">
-                                        <input type="radio" name="backupType" checked={backupData.backupType === 'db'} onChange={() => handleRadioChange('db')} />
-                                        <span className="radiomark"></span>
-                                        Database Only
-                                    </label>
-                                    <label className="custom-radio">
-                                        <input type="radio" name="backupType" checked={backupData.backupType === 'files'} onChange={() => handleRadioChange('files')} />
-                                        <span className="radiomark"></span>
-                                        Files Only
-                                    </label>
-                                </div>
-                            </div>
-
-                            <div className="form-group mb-24">
-                                <label style={{ marginBottom: '8px', display: 'block', fontSize: '14px', fontWeight: 600, color: '#1e293b' }}>Backup Name</label>
-                                <input 
-                                    type="text" 
-                                    value={backupData.backupName} 
-                                    onChange={(e) => setBackupData({...backupData, backupName: e.target.value})}
-                                    className="ui-input"
-                                />
-                            </div>
-
-                            <button type="submit" className="btn-save-full">
-                                <Plus size={16} /> Create Backup
-                            </button>
-                        </form>
+            {/* KPI Cards */}
+            <div className="backup-kpi-grid">
+                <div className="backup-kpi-card kpi-green">
+                    <div className="kpi-top">
+                        <span className="kpi-title">LAST SUCCESSFUL BACKUP</span>
+                        <div className="kpi-arrow"><ArrowUpRight size={16} /></div>
                     </div>
-
-                    {/* Restore Backup */}
-                    <div className="premium-card" style={{ padding: '24px' }}>
-                        <div className="card-header" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <RefreshCw size={18} className="header-icon purple-icon" />
-                            <h3 style={{ fontSize: '18px', fontWeight: 700 }}>Restore Backup</h3>
-                        </div>
-                        
-                        <div className="backup-section-divider"></div>
-
-                        <form className="ui-form" onSubmit={handleRestore}>
-                            <div className="form-group mb-20">
-                                <label style={{ marginBottom: '8px', display: 'block', fontSize: '14px', fontWeight: 600, color: '#1e293b' }}>Select Backup</label>
-                                <select 
-                                    className="ui-input" 
-                                    value={restoreBackup} 
-                                    onChange={(e) => setRestoreBackup(e.target.value)}
-                                >
-                                    {backupHistory.map(b => (
-                                        <option key={b.id} value={b.name}>{b.name}</option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            <div className="warning-box mb-24">
-                                <ShieldAlert size={18} className="warning-icon" />
-                                <span>Restoring will overwrite current data.</span>
-                            </div>
-
-                            <button type="submit" className="btn-save-full btn-warning">
-                                Restore
-                            </button>
-                        </form>
+                    <div className="kpi-value">
+                        <div className="kpi-main">23 Jun<br/>2026</div>
+                        <div className="kpi-sub">02:00</div>
                     </div>
+                    <div className="kpi-bg-icon kpi-bg-database"></div>
                 </div>
 
-                <div className="profile-col-right">
+                <div className="backup-kpi-card kpi-teal">
+                    <div className="kpi-top">
+                        <span className="kpi-title">TOTAL STORAGE USED</span>
+                        <div className="kpi-arrow"><ArrowUpRight size={16} /></div>
+                    </div>
+                    <div className="kpi-value">
+                        <div className="kpi-main">9.04<br/>GB</div>
+                        <div className="kpi-sub">6 snapshots stored</div>
+                    </div>
+                    <div className="kpi-bg-icon kpi-bg-storage"></div>
+                </div>
+
+                <div className="backup-kpi-card kpi-blue">
+                    <div className="kpi-top">
+                        <span className="kpi-title">BACKUP FREQUENCY</span>
+                        <div className="kpi-arrow"><ArrowUpRight size={16} /></div>
+                    </div>
+                    <div className="kpi-value">
+                        <div className="kpi-main-single">Daily</div>
+                        <div className="kpi-sub">Automated backups on</div>
+                    </div>
+                    <div className="kpi-bg-icon kpi-bg-stack"></div>
+                </div>
+
+                <div className="backup-kpi-card kpi-purple">
+                    <div className="kpi-top">
+                        <span className="kpi-title">RETENTION POLICY</span>
+                        <div className="kpi-arrow"><ArrowUpRight size={16} /></div>
+                    </div>
+                    <div className="kpi-value">
+                        <div className="kpi-main-single">30<br/>days</div>
+                        <div className="kpi-sub">Older backups auto-purged</div>
+                    </div>
+                    <div className="kpi-bg-icon kpi-bg-circle"></div>
+                </div>
+            </div>
+
+            {/* Main Content */}
+            <div className="backup-main-grid">
+                {/* Left Column - History */}
+                <div className="backup-history-card">
+                    <div className="card-header">
+                        <FileText size={20} className="card-title-icon" />
+                        <h2>Backup History</h2>
+                    </div>
                     
-                    {/* Automatic Backup */}
-                    <div className="premium-card mb-24" style={{ padding: '24px' }}>
-                        <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                <Clock size={18} className="header-icon purple-icon" />
-                                <h3 style={{ fontSize: '18px', fontWeight: 700 }}>Automatic Backup</h3>
-                            </div>
-                            <label className="switch">
-                                <input type="checkbox" checked={autoBackup.enabled} onChange={() => setAutoBackup({...autoBackup, enabled: !autoBackup.enabled})} />
-                                <span className="slider round"></span>
-                            </label>
+                    <div className="backup-table-wrapper">
+                        <table className="backup-table">
+                            <thead>
+                                <tr>
+                                    <th>BACKUP</th>
+                                    <th>TYPE</th>
+                                    <th>SIZE</th>
+                                    <th>CREATED</th>
+                                    <th>STATUS</th>
+                                    <th className="th-actions"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {historyData.map((item, index) => (
+                                    <tr key={index}>
+                                        <td>
+                                            <div className="backup-name">{item.name}</div>
+                                            <div className="backup-id">{item.id}</div>
+                                        </td>
+                                        <td>{item.type}</td>
+                                        <td>{item.size}</td>
+                                        <td>
+                                            <div className="backup-date">{item.date.split(',')[0]},</div>
+                                            <div className="backup-time">{item.date.split(',')[1]}</div>
+                                        </td>
+                                        <td>
+                                            <span className={`status-badge ${item.status.toLowerCase()}`}>
+                                                {item.status === 'Completed' ? <span className="status-dot green"></span> : <span className="status-dot red"></span>}
+                                                {item.status}
+                                            </span>
+                                        </td>
+                                        <td className="td-actions">
+                                            <button className="action-btn download-btn"><CloudDownload size={16} /></button>
+                                            <button className="action-btn delete-btn"><Trash2 size={16} /></button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                {/* Right Column - Settings & Warning */}
+                <div className="backup-sidebar">
+                    <div className="backup-settings-card">
+                        <div className="card-header">
+                            <Settings size={20} className="card-title-icon" />
+                            <h2>Backup Settings</h2>
                         </div>
                         
-                        <div className="backup-section-divider"></div>
+                        <div className="settings-toggle-group">
+                            <div className="toggle-info">
+                                <h3>Automatic Backups</h3>
+                                <p>Run scheduled backups automatically</p>
+                            </div>
+                            <div className="toggle-switch-container">
+                                <label className="switch">
+                                    <input 
+                                        type="checkbox" 
+                                        checked={autoBackup}
+                                        onChange={() => setAutoBackup(!autoBackup)}
+                                    />
+                                    <span className="slider round"></span>
+                                </label>
+                            </div>
+                        </div>
 
-                        <div className="ui-form" style={{ opacity: autoBackup.enabled ? 1 : 0.6, pointerEvents: autoBackup.enabled ? 'auto' : 'none' }}>
-                            <div className="form-row-2 mb-20">
-                                <div className="form-group">
-                                    <label style={{ marginBottom: '8px', display: 'block', fontSize: '14px', fontWeight: 600, color: '#1e293b' }}>Frequency</label>
-                                    <select className="ui-input" value={autoBackup.frequency} onChange={e => setAutoBackup({...autoBackup, frequency: e.target.value})}>
-                                        <option>Daily</option>
-                                        <option>Weekly</option>
-                                        <option>Monthly</option>
-                                    </select>
-                                </div>
-                                <div className="form-group">
-                                    <label style={{ marginBottom: '8px', display: 'block', fontSize: '14px', fontWeight: 600, color: '#1e293b' }}>Time</label>
-                                    <input type="time" className="ui-input" value={autoBackup.time} onChange={e => setAutoBackup({...autoBackup, time: e.target.value})} />
-                                </div>
-                            </div>
-                            
-                            <div className="form-group mb-20">
-                                <label style={{ marginBottom: '8px', display: 'block', fontSize: '14px', fontWeight: 600, color: '#1e293b' }}>Keep Last</label>
-                                <select className="ui-input" value={autoBackup.keepLast} onChange={e => setAutoBackup({...autoBackup, keepLast: e.target.value})}>
-                                    <option>10 Backups</option>
-                                    <option>30 Backups</option>
-                                    <option>50 Backups</option>
-                                    <option>Unlimited</option>
-                                </select>
-                            </div>
+                        <div className="settings-field">
+                            <label>FREQUENCY</label>
+                            <select defaultValue="Daily" className="br-select">
+                                <option value="Daily">Daily</option>
+                                <option value="Weekly">Weekly</option>
+                                <option value="Monthly">Monthly</option>
+                            </select>
+                        </div>
 
-                            <div className="form-group">
-                                <label style={{ marginBottom: '12px', display: 'block', fontSize: '14px', fontWeight: 600, color: '#1e293b' }}>Storage</label>
-                                <div className="checkbox-grid">
-                                    <label className="custom-checkbox">
-                                        <input type="checkbox" checked={autoBackup.storage.local} onChange={() => handleAutoStorageChange('local')} />
-                                        <span className="checkmark"></span>
-                                        Local
-                                    </label>
-                                    <label className="custom-checkbox">
-                                        <input type="checkbox" checked={autoBackup.storage.gdrive} onChange={() => handleAutoStorageChange('gdrive')} />
-                                        <span className="checkmark"></span>
-                                        Google Drive
-                                    </label>
-                                    <label className="custom-checkbox">
-                                        <input type="checkbox" checked={autoBackup.storage.onedrive} onChange={() => handleAutoStorageChange('onedrive')} />
-                                        <span className="checkmark"></span>
-                                        OneDrive
-                                    </label>
-                                    <label className="custom-checkbox">
-                                        <input type="checkbox" checked={autoBackup.storage.s3} onChange={() => handleAutoStorageChange('s3')} />
-                                        <span className="checkmark"></span>
-                                        AWS S3
-                                    </label>
-                                </div>
-                            </div>
+                        <div className="settings-field">
+                            <label>RETENTION POLICY</label>
+                            <select defaultValue="30 days" className="br-select">
+                                <option value="7 days">7 days</option>
+                                <option value="14 days">14 days</option>
+                                <option value="30 days">30 days</option>
+                                <option value="60 days">60 days</option>
+                            </select>
                         </div>
                     </div>
 
-                    {/* Backup History */}
-                    <div className="premium-card h-full" style={{ padding: '24px' }}>
-                        <div className="card-header">
-                            <Server size={18} className="header-icon purple-icon" />
-                            <h3 style={{ fontSize: '18px', fontWeight: 700 }}>Backup History</h3>
+                    <div className="backup-warning-card">
+                        <div className="warning-icon-wrapper">
+                            <ShieldAlert size={24} />
                         </div>
-                        
-                        <div className="table-responsive">
-                            <table className="backup-table">
-                                <thead>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Type</th>
-                                        <th>Size</th>
-                                        <th>Created By</th>
-                                        <th>Status</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {backupHistory.map((backup, index) => (
-                                        <tr key={index}>
-                                            <td>{backup.date}</td>
-                                            <td>
-                                                <span className={`type-badge ${backup.type.toLowerCase()}`}>
-                                                    {backup.type}
-                                                </span>
-                                            </td>
-                                            <td>{backup.size}</td>
-                                            <td>{backup.createdBy}</td>
-                                            <td>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: backup.status === 'Success' ? '#10b981' : '#ef4444', fontSize: '13px', fontWeight: 500 }}>
-                                                    {backup.status === 'Success' ? <CheckCircle size={14} /> : <AlertCircle size={14} />}
-                                                    {backup.status}
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <div className="action-buttons">
-                                                    {index === 0 && <button className="action-btn download" title="Download"><Download size={16} /></button>}
-                                                    {index === 1 && <button className="action-btn restore" title="Restore"><RefreshCw size={16} /></button>}
-                                                    {index === 2 && <button className="action-btn delete" title="Delete"><Trash2 size={16} /></button>}
-                                                    {index > 2 && <button className="action-btn download" title="Download"><Download size={16} /></button>}
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                        <div className="warning-content">
+                            <h3>Restoring overwrites live data</h3>
+                            <p>Always create a fresh manual backup before restoring an older snapshot, in case you need to undo the restore.</p>
                         </div>
                     </div>
                 </div>

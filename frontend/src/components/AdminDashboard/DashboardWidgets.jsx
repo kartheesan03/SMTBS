@@ -98,10 +98,16 @@ export const RoleBasedRenderer = ({ allowedRoles, userRole, children }) => {
 
 // NEW COMPONENTS FOR REDESIGN
 
-export const TopWelcomeBar = ({ username, data }) => (
+export const TopWelcomeBar = ({ username, data }) => {
+    const hour = new Date().getHours();
+    let greeting = 'Good evening';
+    if (hour < 12) greeting = 'Good morning';
+    else if (hour < 18) greeting = 'Good afternoon';
+
+    return (
     <div className="erp-premium-top-bar">
         <div className="erp-premium-welcome">
-            <h1>Good afternoon, {username || 'System Admin'} <span role="img" aria-label="wave">👋</span></h1>
+            <h1>{greeting}, {username || 'System Admin'} <span role="img" aria-label="wave">👋</span></h1>
             <p>Here's what's happening with your business today.</p>
         </div>
         <div className="erp-premium-quick-metrics">
@@ -109,37 +115,50 @@ export const TopWelcomeBar = ({ username, data }) => (
                 <span className="erp-quick-metric-label">Business Health</span>
                 <div className="erp-quick-metric-value-row">
                     <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--erp-success-color)' }}></div>
-                    <span style={{ fontSize: '0.875rem', fontWeight: '500' }}>Good</span>
-                    <span className="erp-trend-indicator erp-trend-up erp-trend-pill">92%</span>
+                    <span style={{ fontSize: '0.875rem', fontWeight: '500' }}>{data?.healthStatus || 'Good'}</span>
+                    <span className="erp-trend-indicator erp-trend-up erp-trend-pill">{data?.healthScore || 0}%</span>
                 </div>
             </div>
             
             <div className="erp-quick-metric">
                 <span className="erp-quick-metric-label">Today's Revenue</span>
                 <div className="erp-quick-metric-value-row">
-                    <span className="erp-quick-metric-val">₹{data?.revenue ?? '18,450'}</span>
-                    <span className="erp-trend-indicator erp-trend-up erp-trend-pill">↑ 12.5%</span>
+                    <span className="erp-quick-metric-val">₹{data?.revenue || 0}</span>
+                    {data?.revenueTrend && (
+                        <span className={`erp-trend-indicator ${data.revenueTrend >= 0 ? 'erp-trend-up' : 'erp-trend-down'} erp-trend-pill`}>
+                            {data.revenueTrend >= 0 ? '↑' : '↓'} {Math.abs(data.revenueTrend)}%
+                        </span>
+                    )}
                 </div>
             </div>
 
             <div className="erp-quick-metric">
                 <span className="erp-quick-metric-label">Today's Orders</span>
                 <div className="erp-quick-metric-value-row">
-                    <span className="erp-quick-metric-val">{data?.orders ?? '14'}</span>
-                    <span className="erp-trend-indicator erp-trend-up erp-trend-pill">↑ 7.7%</span>
+                    <span className="erp-quick-metric-val">{data?.orders || 0}</span>
+                    {data?.ordersTrend && (
+                        <span className={`erp-trend-indicator ${data.ordersTrend >= 0 ? 'erp-trend-up' : 'erp-trend-down'} erp-trend-pill`}>
+                            {data.ordersTrend >= 0 ? '↑' : '↓'} {Math.abs(data.ordersTrend)}%
+                        </span>
+                    )}
                 </div>
             </div>
 
             <div className="erp-quick-metric">
                 <span className="erp-quick-metric-label">Low Stock Alerts</span>
                 <div className="erp-quick-metric-value-row">
-                    <span className="erp-quick-metric-val">{data?.lowStock ?? '3'}</span>
-                    <span className="erp-trend-indicator erp-trend-down erp-trend-pill">↓ 25%</span>
+                    <span className="erp-quick-metric-val">{data?.lowStock || 0}</span>
+                    {data?.lowStockTrend && (
+                        <span className={`erp-trend-indicator ${data.lowStockTrend <= 0 ? 'erp-trend-down' : 'erp-trend-up'} erp-trend-pill`}>
+                            {data.lowStockTrend <= 0 ? '↓' : '↑'} {Math.abs(data.lowStockTrend)}%
+                        </span>
+                    )}
                 </div>
             </div>
         </div>
     </div>
-);
+    );
+};
 
 // Helper for curved sparklines
 const MockSparkline = ({ color }) => {

@@ -201,7 +201,9 @@
 }
 
 .farmaku-subnav-item {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 8px;
     padding: 8px 12px;
     border-radius: 6px;
     color: #6b7280;
@@ -211,15 +213,26 @@
     transition: all 0.2s ease;
 }
 
+.farmaku-subnav-item::before {
+    content: "•";
+    color: #94a3b8;
+    font-size: 16px;
+    line-height: 1;
+}
+
 .farmaku-subnav-item:hover {
-    background-color: #f1f5f9;
-    color: #111827;
+    background-color: #1e293b;
+    color: #ffffff;
 }
 
 .farmaku-subnav-item.active {
-    color: #0f172a;
-    font-weight: 600;
-    background-color: #f8fafc;
+    color: #ffffff;
+    font-weight: 500;
+    background-color: #1e293b;
+}
+
+.farmaku-subnav-item.active::before {
+    color: #ffffff;
 }
 
 /* Make sure the main layout accounts for the sidebar */

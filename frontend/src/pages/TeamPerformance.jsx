@@ -1,272 +1,156 @@
-import React, { useState, useEffect } from 'react';
-import API from '../api/axios';
-import DataTable from '../components/Dashboard/DataTable';
-import { ResponsiveContainer, BarChart, Bar, XAxis, Tooltip as RechartsTooltip, Cell } from 'recharts';
-import { Users, Target, Zap, Award, Loader, Activity } from 'lucide-react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Search, TrendingUp, Star, ThumbsUp, ThumbsDown } from 'lucide-react';
+import '../components/AdminDashboard/AdminDashboardRedesign.css';
+import { RDHeader } from './AdminDashboard';
+import { HRMSKPICard } from '../components/HRMSShared';
 
 const TeamPerformance = () => {
-    const [teamData, setTeamData] = useState([]);
-    const [chartData, setChartData] = useState([]);
-    const [kpiData, setKpiData] = useState({
-        teamTarget: 0,
-        avgVelocity: 0,
-        totalCompleted: 0
-    });
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const navigate = useNavigate();
+    const [filter, setFilter] = useState('All');
 
-    useEffect(() => {
-        const fetchPerformanceData = async () => {
-            try {
-                setLoading(true);
-                const [tasksRes, usersRes] = await Promise.all([
-                    API.get('/tasks'),
-                    API.get('/auth/users')
-                ]);
+    // Mock data for tiny trend charts
+    const trendData1 = [{v: 4},{v: 5},{v: 6},{v: 5},{v: 8},{v: 7},{v: 9},{v: 8}];
+    const trendData2 = [{v: 2},{v: 1},{v: 3},{v: 4},{v: 2},{v: 1},{v: 3},{v: 2}];
+    const trendData3 = [{v: 2},{v: 4},{v: 3},{v: 3},{v: 6},{v: 5},{v: 5},{v: 6}];
+    const trendData4 = [{v: 0},{v: 0},{v: 0},{v: 1},{v: 0},{v: 1},{v: 1},{v: 0}];
 
-                const tasks = tasksRes.data || [];
-                const users = usersRes.data || [];
+    const perfData = [
+        { id: 'Q2 2026', name: 'Divya Pillai', dept: 'Sales', kpi: 80, attendance: 92, targets: 78, overall: 84, rating: 'Good', appraisal: '8%' },
+        { id: 'Q2 2026', name: 'Kavya Menon', dept: 'Finance', kpi: 85, attendance: 96, targets: 88, overall: 88, rating: 'Excellent', appraisal: '10%' },
+    ];
 
-                // Map users to their performance metrics
-                const userMetrics = {};
-                users.forEach(u => {
-                    userMetrics[u._id] = {
-                        name: u.name,
-                        tasksAssigned: 0,
-                        tasksCompleted: 0,
-                        velocity: 0 // completed tasks / active days (simplified as just completed tasks for now)
-                    };
-                });
-
-                let totalTeamAssigned = 0;
-                let totalTeamCompleted = 0;
-
-                tasks.forEach(task => {
-                    // task.completions is a JSON string
-                    let completions = [];
-                    try {
-                        if (typeof task.completions === 'string') {
-                            completions = JSON.parse(task.completions);
-                        } else if (Array.isArray(task.completions)) {
-                            completions = task.completions;
-                        }
-                    } catch (e) {
-                        completions = [];
-                    }
-
-                    completions.forEach(c => {
-                        const uid = c.user?._id || c.user;
-                        if (userMetrics[uid]) {
-                            userMetrics[uid].tasksAssigned += 1;
-                            totalTeamAssigned += 1;
-                            if (c.status === 'Completed') {
-                                userMetrics[uid].tasksCompleted += 1;
-                                totalTeamCompleted += 1;
-                            }
-                        }
-                    });
-                });
-
-                // Format data for tables and charts
-                const formattedTeamData = [];
-                const formattedChartData = [];
-
-                Object.values(userMetrics).forEach(metric => {
-                    if (metric.tasksAssigned > 0) { // Only show users with assigned tasks
-                        const efficiencyNum = metric.tasksAssigned > 0 
-                            ? Math.round((metric.tasksCompleted / metric.tasksAssigned) * 100) 
-                            : 0;
-                        
-                        let status = 'Active';
-                        if (efficiencyNum >= 90) status = 'Top Performer';
-                        else if (efficiencyNum < 50) status = 'Needs Improvement';
-
-                        formattedTeamData.push({
-                            name: metric.name,
-                            tasks: metric.tasksCompleted,
-                            efficiency: `${efficiencyNum}%`,
-                            efficiencyNum,
-                            status
-                        });
-
-                        formattedChartData.push({
-                            name: metric.name.split(' ')[0], // First name for chart
-                            tasks: metric.tasksCompleted
-                        });
-                    }
-                });
-
-                // Sort by efficiency
-                formattedTeamData.sort((a, b) => b.efficiencyNum - a.efficiencyNum);
-                // Sort chart by tasks completed
-                formattedChartData.sort((a, b) => b.tasks - a.tasks);
-
-                setTeamData(formattedTeamData);
-                setChartData(formattedChartData.slice(0, 8)); // Top 8 for chart
-
-                const teamTarget = totalTeamAssigned > 0 
-                    ? Math.round((totalTeamCompleted / totalTeamAssigned) * 100) 
-                    : 0;
-
-                // Simplistic avg velocity: completed tasks per user per day (assuming 30 days for demo, or just total completed / users)
-                const activeUsersCount = formattedTeamData.length;
-                const avgVelocity = activeUsersCount > 0 
-                    ? (totalTeamCompleted / activeUsersCount).toFixed(1) 
-                    : 0;
-
-                setKpiData({
-                    teamTarget,
-                    avgVelocity,
-                    totalCompleted: totalTeamCompleted
-                });
-
-                setLoading(false);
-            } catch (err) {
-                console.error("Error fetching performance data:", err);
-                setError("Failed to load performance metrics.");
-                setLoading(false);
-            }
-        };
-
-        fetchPerformanceData();
-    }, []);
-
-    if (loading) {
+    const getInitials = (name) => name.split(' ').map(n => n[0]).join('').toUpperCase();
+    
+    const renderMiniBar = (val, color) => (
+        <div style={{display: 'flex', alignItems: 'center', gap: 12}}>
+            <div style={{flex: 1, height: 4, background: '#f1f5f9', borderRadius: 4, overflow: 'hidden'}}>
+                <div style={{width: `${val}%`, height: '100%', background: color, borderRadius: 4}}></div>
+            </div>
+            <span style={{fontSize: 13, fontWeight: 700, color: 'var(--rd-text-main)', width: 24}}>{val}</span>
+        </div>
+    );
+    
+    const renderCircularProgress = (val, color) => {
+        const radius = 16;
+        const circumference = 2 * Math.PI * radius;
+        const strokeDashoffset = circumference - (val / 100) * circumference;
         return (
-            <div className="page-container flex-center" style={{ height: '80vh' }}>
-                <Loader size={40} className="spin-icon" color="#6366f1" />
+            <div style={{position: 'relative', width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                <svg width="40" height="40" style={{transform: 'rotate(-90deg)'}}>
+                    <circle cx="20" cy="20" r={radius} fill="transparent" stroke="#f1f5f9" strokeWidth="4" />
+                    <circle cx="20" cy="20" r={radius} fill="transparent" stroke={color} strokeWidth="4" strokeDasharray={circumference} strokeDashoffset={strokeDashoffset} strokeLinecap="round" />
+                </svg>
+                <span style={{position: 'absolute', fontSize: 11, fontWeight: 800, color: color}}>{val}</span>
             </div>
         );
-    }
-
-    if (error) {
-        return (
-            <div className="page-container flex-center" style={{ height: '80vh' }}>
-                <p className="text-danger">{error}</p>
-            </div>
-        );
-    }
-
-    const hasData = teamData.length > 0;
+    };
 
     return (
-        <div className="page-container">
-            <header className="page-header">
-                <div>
-                    <h1 className="page-title">Team Performance Metrics</h1>
-                    <p className="page-subtitle">Analyze workforce efficiency, task completion rates, and individual contributions.</p>
-                </div>
-            </header>
+        <div className="rd-container">
+            <RDHeader onRefresh={() => {}} />
 
-            {!hasData ? (
-                <div className="glass-card flex-center" style={{ minHeight: '400px', flexDirection: 'column', gap: '15px' }}>
-                    <Activity size={48} color="#94a3b8" opacity={0.5} />
-                    <h3 style={{ color: '#64748b' }}>No performance data available</h3>
-                    <p className="text-muted">Task completions and team metrics will appear here once tasks are assigned and updated.</p>
-                </div>
-            ) : (
-                <>
-                    <div className="performance-viz-grid" style={{ marginBottom: '24px' }}>
-                        <div className="premium-card main-viz" style={{ padding: '24px' }}>
-                            <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: 'var(--text-heading)', marginBottom: '20px' }}>Volume of Tasks Completed</h3>
-                            <div style={{ height: 250, width: '100%' }}>
-                                <ResponsiveContainer>
-                                    <BarChart data={chartData}>
-                                        <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} axisLine={false} tickLine={false} />
-                                        <RechartsTooltip cursor={{fill: 'rgba(255,255,255,0.02)'}} contentStyle={{ background: '#0f172a', border: '1px solid #334155', borderRadius: '8px' }} />
-                                        <Bar dataKey="tasks" radius={[4, 4, 0, 0]}>
-                                            {chartData.map((entry, index) => (
-                                                <Cell key={index} fill={index % 2 === 0 ? '#6366f1' : '#14b8a6'} />
-                                            ))}
-                                        </Bar>
-                                    </BarChart>
-                                </ResponsiveContainer>
-                            </div>
+            <div className="rd-content">
+                {/* Module Header */}
+                <div className="rd-module-header">
+                    <div className="rd-module-icon" style={{background: 'linear-gradient(135deg, #4338ca 0%, #312e81 100%)'}}>
+                        <span style={{fontSize: 24, fontWeight: 800}}>PR</span>
+                    </div>
+                    <div className="rd-module-info">
+                        <div className="rd-module-title-row">
+                            <span className="rd-module-title">Performance Reviews</span>
+                            <span className="rd-module-badge" style={{background: '#eff6ff', color: '#3b82f6', borderColor: '#bfdbfe'}}>HRMS</span>
                         </div>
+                        <div className="rd-module-desc">KPI scores, targets, ratings and appraisal tracking</div>
+                    </div>
+                </div>
 
-                        <div className="kpi-column">
-                            <div className="premium-card kpi-box">
-                                <Target color="#6366f1" size={24}/>
-                                <div>
-                                    <h4 style={{ color: 'var(--text-muted)' }}>Team Target</h4>
-                                    <p style={{ color: 'var(--text-heading)' }}>{kpiData.teamTarget}% Complete</p>
-                                </div>
+                {/* KPI Cards */}
+                <div className="rd-kpi-row">
+                    <HRMSKPICard title="Team Avg Score" val="84/100" sub="↗ 4pts vs last quarter" color="blue" data={trendData1} icon={TrendingUp} />
+                    <HRMSKPICard title="Excellent" val="4" sub="↗ Top performers" color="green" data={trendData2} icon={Star} />
+                    <HRMSKPICard title="Good" val="5" sub="↗ Meeting targets" color="orange" data={trendData3} icon={ThumbsUp} />
+                    <HRMSKPICard title="Below Average" val="0" sub="↘ Needs improvement" color="red" data={trendData4} icon={ThumbsDown} />
+                </div>
+
+                {/* Table Section */}
+                <div className="rd-table-card">
+                    <div className="rd-table-header" style={{borderBottom: 'none'}}>
+                        <div style={{display: 'flex', gap: 16, alignItems: 'center'}}>
+                            <div className="rd-search-bar" style={{width: 250, background: '#fff'}}>
+                                <Search size={16} color="#94a3b8" />
+                                <input type="text" className="rd-search-input" placeholder="Search employee..." />
                             </div>
-                            <div className="premium-card kpi-box">
-                                <Zap color="#f59e0b" size={24}/>
-                                <div>
-                                    <h4 style={{ color: 'var(--text-muted)' }}>Avg. Velocity</h4>
-                                    <p style={{ color: 'var(--text-heading)' }}>{kpiData.avgVelocity} Tasks/Person</p>
-                                </div>
-                            </div>
-                            <div className="premium-card kpi-box">
-                                <Award color="#10b981" size={24}/>
-                                <div>
-                                    <h4 style={{ color: 'var(--text-muted)' }}>Tasks Completed</h4>
-                                    <p style={{ color: 'var(--text-heading)' }}>{kpiData.totalCompleted} Total</p>
-                                </div>
-                            </div>
+                            <select style={{padding: '8px 16px', border: '1px solid #e2e8f0', borderRadius: 8, outline: 'none', background: '#fff', color: '#64748b', fontSize: 14}}>
+                                <option>All Depts</option>
+                                <option>Sales</option>
+                                <option>Finance</option>
+                            </select>
+                            <select style={{padding: '8px 16px', border: '1px solid #e2e8f0', borderRadius: 8, outline: 'none', background: '#fff', color: '#64748b', fontSize: 14}}>
+                                <option>All Ratings</option>
+                                <option>Excellent</option>
+                                <option>Good</option>
+                            </select>
                         </div>
                     </div>
-
-                    <div className="premium-card" style={{ overflow: 'hidden' }}>
-                        <DataTable 
-                            title="Individual Contribution Breakdown"
-                            headers={['Employee Name', 'Tasks Completed', 'Efficiency Score', 'Status']}
-                            data={teamData}
-                            renderRow={(e) => (
-                                <tr key={e.name}>
-                                    <td><strong>{e.name}</strong></td>
-                                    <td>{e.tasks} Tasks</td>
+                    
+                    <table className="rd-table">
+                        <thead>
+                            <tr>
+                                <th style={{width: 40}}>
+                                    <input type="checkbox" />
+                                </th>
+                                <th>Employee</th>
+                                <th>Department</th>
+                                <th style={{width: 140}}>KPI Score</th>
+                                <th style={{width: 140}}>Attendance</th>
+                                <th style={{width: 140}}>Targets</th>
+                                <th>Overall</th>
+                                <th>Rating</th>
+                                <th>Appraisal</th>
+                                <th style={{width: 40}}></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {perfData.map((emp, i) => (
+                                <tr key={i}>
+                                    <td><input type="checkbox" /></td>
                                     <td>
-                                        <div className="efficiency-cell">
-                                            <strong>{e.efficiency}</strong>
-                                            <div className="tiny-bar"><div className="tiny-fill" style={{width: e.efficiency, background: e.efficiencyNum < 50 ? '#ef4444' : e.efficiencyNum < 80 ? '#f59e0b' : '#14b8a6'}}></div></div>
+                                        <div style={{display: 'flex', alignItems: 'center', gap: 12}}>
+                                            <div className="rd-avatar" style={{width: 32, height: 32, fontSize: 12, background: emp.name === 'Divya Pillai' ? '#10b981' : '#3b82f6'}}>
+                                                {getInitials(emp.name)}
+                                            </div>
+                                            <div>
+                                                <div style={{fontWeight: 700, color: 'var(--rd-text-main)'}}>{emp.name}</div>
+                                                <div style={{fontSize: 11, color: '#94a3b8', marginTop: 2}}>{emp.id}</div>
+                                            </div>
                                         </div>
                                     </td>
                                     <td>
-                                        <span className={`status-badge ${e.status.toLowerCase().replace(' ', '-')}`}>
-                                            <Award size={12}/> {e.status}
+                                        <span style={{background: emp.dept === 'Finance' ? '#fff7ed' : '#ecfdf5', color: emp.dept === 'Finance' ? '#f59e0b' : '#10b981', padding: '4px 10px', borderRadius: 6, fontSize: 12, fontWeight: 600}}>
+                                            {emp.dept}
                                         </span>
                                     </td>
+                                    <td>{renderMiniBar(emp.kpi, '#3b82f6')}</td>
+                                    <td>{renderMiniBar(emp.attendance, '#10b981')}</td>
+                                    <td>{renderMiniBar(emp.targets, '#10b981')}</td>
+                                    <td>{renderCircularProgress(emp.overall, emp.overall > 85 ? '#10b981' : '#f59e0b')}</td>
+                                    <td>
+                                        <span className={`rd-status-badge ${emp.rating === 'Excellent' ? 'rd-status-green' : 'rd-status-blue'}`}>
+                                            <span className="rd-legend-dot" style={{background: emp.rating === 'Excellent' ? '#10b981' : '#3b82f6', display:'inline-block', marginRight: 6}}></span>
+                                            {emp.rating}
+                                        </span>
+                                    </td>
+                                    <td style={{fontWeight: 700, color: '#10b981'}}>{emp.appraisal}</td>
+                                    <td>
+                                        <button style={{background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8'}}>•••</button>
+                                    </td>
                                 </tr>
-                            )}
-                        />
-                    </div>
-                </>
-            )}
-
-            <style jsx="true">{`
-                /* layout handled by .page-container */
-                .module-header { margin-bottom: 30px; }
-                
-                .performance-viz-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
-                .main-viz { padding: 25px; }
-                .kpi-column { display: flex; flex-direction: column; gap: 20px; }
-                .kpi-box { display: flex; align-items: center; gap: 20px; padding: 25px; }
-                .kpi-box h4 { font-size: 13px; color: var(--text-muted); margin-bottom: 5px; }
-                .kpi-box p { font-size: 18px; font-weight: 700; color: var(--text-main); }
-                
-                .efficiency-cell { display: flex; align-items: center; gap: 10px; min-width: 120px; }
-                .tiny-bar { flex: 1; height: 4px; background: rgba(255,255,255,0.05); border-radius: 2px; }
-                .tiny-fill { height: 100%; border-radius: 20px; transition: width 0.3s ease; }
-                
-                .status-badge { display: flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; width: fit-content; }
-                .status-badge.top-performer { background: rgba(99, 102, 241, 0.1); color: var(--primary); }
-                .status-badge.active { background: rgba(255,255,255,0.03); color: var(--text-muted); }
-                .status-badge.needs-improvement { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
-                
-                .mt-30 { margin-top: 30px; }
-                .flex-center { display: flex; align-items: center; justify-content: center; }
-
-                @media (max-width: 768px) {
-                    .page-container { padding: 16px 12px; }
-                    .performance-viz-grid { grid-template-columns: 1fr; }
-                    .kpi-column { flex-direction: column; }
-                    .main-viz { padding: 15px; }
-                    .kpi-box { padding: 15px; }
-                }
-            `}</style>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     );
 };

@@ -11,7 +11,8 @@ const CustomerForm = ({
     isLoading, 
     emailDisabled = false,
     statusDisabled = false,
-    saveButtonText = "Save Changes"
+    saveButtonText = "Save Changes",
+    hideActions = false
 }) => {
     return (
         <form onSubmit={onSubmit} className="page-form" noValidate>
@@ -159,14 +160,16 @@ const CustomerForm = ({
                 {formErrors.address && <span className="error-text">{formErrors.address}</span>}
             </div>
 
-            <div className="form-actions">
-                <button type="button" className="btn-cancel" onClick={onCancel}>
-                    <X size={18} /> Cancel
-                </button>
-                <button type="submit" className="btn-primary" disabled={isLoading}>
-                    <Save size={18} /> {isLoading ? 'Saving...' : saveButtonText}
-                </button>
-            </div>
+            {!hideActions && (
+                <div className="form-actions">
+                    <button type="button" className="btn-cancel" onClick={onCancel}>
+                        <X size={18} /> Cancel
+                    </button>
+                    <button type="submit" className="btn-primary" disabled={isLoading}>
+                        <Save size={18} /> {isLoading ? 'Saving...' : saveButtonText}
+                    </button>
+                </div>
+            )}
 
             <style jsx="true">{`
                 .page-form { display: flex; flex-direction: column; background: #ffffff; border-radius: var(--radius-lg); border: 1px solid var(--border-subtle); padding: 24px; box-shadow: var(--shadow-sm); }

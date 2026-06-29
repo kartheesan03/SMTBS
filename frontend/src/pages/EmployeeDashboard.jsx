@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { NotificationContext } from '../context/NotificationContext';
 import API from '../api/axios';
 import {
     Users, Search, Bell, Moon,
     Briefcase, Activity, FileText, CheckCircle, ListTodo, FolderGit2,
-    Menu, Calendar, Clock, LogOut, Settings as SettingsIcon, User as UserIcon, UserCheck, TrendingUp
+    Menu, Calendar, Clock, LogOut, Settings as SettingsIcon, User as UserIcon, UserCheck, TrendingUp, Fingerprint
 } from 'lucide-react';
 import {
     EmptyState, SkeletonCard,
@@ -18,6 +19,7 @@ import '../components/AdminDashboard/AdminDashboardPremium.css';
 
 const EmployeeDashboard = () => {
     const { user, logout } = useContext(AuthContext);
+    const { unreadCount } = useContext(NotificationContext);
 
     const displayName = user?.name || user?.user?.name || 'Employee';
     const displayRole = user?.role || user?.user?.role || 'Staff';
@@ -153,130 +155,162 @@ const EmployeeDashboard = () => {
         alerts: pendingTasksCount // Pending tasks as alerts
     };
 
+    const kpiCards = [
+        { title: 'My Tasks', value: totalTasks, icon: ListTodo, color: '#3b82f6', trend: `${pendingTasksCount} pending`, trendType: 'up' },
+        { title: 'Task Completion', value: `${taskCompletionRate}%`, icon: CheckCircle, color: '#10b981', trend: 'Great job', trendType: 'up' },
+        { title: 'Attendance', value: `${attendancePercentage}%`, icon: UserCheck, color: '#f59e0b', trend: `${presentDays} days present`, trendType: 'up' },
+        { title: 'Leave Balance', value: '12', icon: Calendar, color: '#8b5cf6', trend: 'Available', trendType: 'up' }
+    ];
+
     return (
-        <div className="erp-dashboard-container">
-            {/* Top Navigation */}
-            <header className="erp-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px', backgroundColor: '#fff', borderBottom: '1px solid #f1f5f9' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '24px', flex: 1 }}>
-                    <Menu size={24} color="#64748b" style={{ cursor: 'pointer' }} onClick={() => window.dispatchEvent(new CustomEvent('openModuleLauncher'))} />
-                    <div className="erp-global-search" style={{ display: 'flex', alignItems: 'center', backgroundColor: '#f8fafc', padding: '8px 16px', borderRadius: '8px', width: '400px', cursor: 'text' }} onClick={() => setIsCommandCenterOpen(true)}>
-                        <Search size={18} color="#94a3b8" />
-                        <input type="text" placeholder="Search across ERP..." className="erp-search-input" style={{ border: 'none', background: 'transparent', outline: 'none', marginLeft: '12px', width: '100%', fontSize: '14px', color: '#1e293b', cursor: 'text' }} readOnly />
+        <div className="module-container">
+            {/* Actions & Title */}
+            <div className="module-actions-section">
+                <div className="module-title-block">
+                    <h1>Employee Workspace</h1>
+                    <p>Welcome back, {user?.firstName || 'User'}!</p>
+                </div>
+                <div className="action-buttons">
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'var(--bg-body)', border: '1px solid var(--border-subtle)', padding: '8px 16px', borderRadius: 'var(--radius-md)', fontSize: '13px', fontWeight: 600, color: 'var(--text-main)', boxShadow: 'var(--shadow-sm)' }}>
+                        <Clock size={16} style={{ color: 'var(--primary)' }} /> 
+                        {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+                    </span>
+                </div>
+            </div>
+
+            {/* Core KPIs */}
+            <div className="module-kpi-section" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
+                {kpiCards.map((kpi, idx) => (
+                    <div key={idx} className="kpi-card">
+                        <div className="kpi-header">
+                            <span className="kpi-title">{kpi.title}</span>
+                            <div className="kpi-icon-wrapper" style={{background: `${kpi.color}15`, color: kpi.color}}>
+                                <kpi.icon size={20} />
+                            </div>
+                        </div>
+                        <div className="kpi-value" style={{ color: kpi.isStatus ? kpi.color : 'inherit', fontSize: kpi.isStatus ? '20px' : '28px' }}>
+                            {kpi.value}
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {/* Main Content */}
+            <div className="module-analytics-section" style={{ gridTemplateColumns: '5fr 3fr' }}>
+                {/* Left Side: Tasks Table */}
+                <div className="analytics-card" style={{ flex: 1 }}>
+                    <div className="analytics-header">
+                        <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><ListTodo size={18} /> My Pending Tasks</h3>
+                    </div>
+                    <div style={{ padding: '0 20px 20px 20px' }}>
+                        {myTasks.length > 0 ? (
+                            <table className="enterprise-table" style={{ margin: 0 }}>
+                                <thead>
+                                    <tr>
+                                        <th>Task Description</th>
+                                        <th>Priority</th>
+                                        <th>Due Date</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {myTasks.map((task, i) => (
+                                        <tr key={i}>
+                                            <td><strong>{task.title}</strong></td>
+                                            <td>
+                                                <span style={{ 
+                                                    padding: '4px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 600,
+                                                    background: task.priority === 'High' ? 'rgba(239,68,68,0.1)' : task.priority === 'Medium' ? 'rgba(245,158,11,0.1)' : 'rgba(100,116,139,0.1)',
+                                                    color: task.priority === 'High' ? '#EF4444' : task.priority === 'Medium' ? '#F59E0B' : '#64748B'
+                                                }}>{task.priority}</span>
+                                            </td>
+                                            <td style={{ color: 'var(--text-secondary)' }}>{task.due}</td>
+                                            <td>
+                                                <span style={{ 
+                                                    padding: '4px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 600,
+                                                    background: task.status === 'Completed' ? 'rgba(16,185,129,0.1)' : task.status === 'In Progress' ? 'rgba(59,130,246,0.1)' : 'rgba(100,116,139,0.1)',
+                                                    color: task.status === 'Completed' ? '#10B981' : task.status === 'In Progress' ? '#3B82F6' : '#64748B'
+                                                }}>{task.status}</span>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        ) : (
+                            <div className="flex-center" style={{ padding: '40px 0', color: 'var(--text-muted)' }}>No pending tasks</div>
+                        )}
                     </div>
                 </div>
 
-                <div className="erp-header-actions" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                    <div className="erp-datetime" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', fontSize: '12px', color: '#64748b' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '600', color: '#1e293b' }}>
-                            <Calendar size={12} />
-                            <span>{currentTime.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                {/* Right Side: Quick Actions & Attendance Chart */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                    {/* Quick Actions */}
+                    <div className="analytics-card" style={{ padding: '20px' }}>
+                        <div className="analytics-header">
+                            <h3>Quick Actions</h3>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
-                            <Clock size={12} />
-                            <span>{currentTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}</span>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            {[
+                                { path: '/my-tasks', name: 'My Tasks', icon: ListTodo, color: '#3b82f6' },
+                                { path: '/leave-management', name: 'Apply Leave', icon: Calendar, color: '#8b5cf6' },
+                                { path: '/my-attendance', name: 'Mark Attendance', icon: Fingerprint, color: '#10b981' },
+                                { path: '/my-salary', name: 'Salary Slips', icon: FileText, color: '#f59e0b' }
+                            ].map((link, idx) => (
+                                <div onClick={() => navigate(link.path)} key={idx} style={{ display: 'flex', alignItems: 'center', padding: '12px 16px', background: 'var(--bg-body)', border: '1px solid var(--border-light)', borderRadius: 'var(--radius-md)', cursor: 'pointer', color: 'var(--text-heading)', fontWeight: 600, fontSize: '14px', transition: 'all 0.2s' }}>
+                                    <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: `${link.color}15`, color: link.color, display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: '16px' }}>
+                                        <link.icon size={16} />
+                                    </div>
+                                    {link.name}
+                                    <ArrowUpRight size={16} style={{ marginLeft: 'auto', color: 'var(--text-muted)' }} />
+                                </div>
+                            ))}
                         </div>
                     </div>
 
-                    <button className="erp-icon-btn erp-notification-btn" style={{ position: 'relative', background: 'transparent', border: 'none', cursor: 'pointer' }} onClick={() => navigate('/notifications')}>
-                        <Bell size={20} color="#64748b" />
-                        {pendingTasksCount > 0 && <span className="erp-notification-badge" style={{ position: 'absolute', top: '-4px', right: '-4px', background: '#ef4444', color: '#fff', fontSize: '10px', borderRadius: '50%', width: '16px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #fff' }}>{pendingTasksCount}</span>}
-                    </button>
-
-                    <button className="erp-icon-btn" onClick={toggleDarkMode} style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}>
-                        <Moon size={20} color="#64748b" />
-                    </button>
-
-                    <div className="erp-profile-menu-container" style={{ position: 'relative' }}>
-                        <div className="erp-profile-menu" style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer', paddingLeft: '24px', borderLeft: '1px solid #e2e8f0' }} onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}>
-                            <div className="erp-profile-avatar" style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#0f172a', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '600', fontSize: '14px', overflow: 'hidden' }}>
-                                <img src={displayAvatar} alt={displayName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                            </div>
-                            <div className="erp-profile-info" style={{ display: 'flex', flexDirection: 'column' }}>
-                                <span className="erp-profile-name" style={{ fontSize: '14px', fontWeight: '600', color: '#1e293b' }}>{displayName}</span>
-                                <span className="erp-profile-role" style={{ fontSize: '12px', color: '#64748b' }}>{displayRole}</span>
-                            </div>
+                    {/* Attendance Chart */}
+                    <div className="analytics-card" style={{ padding: '20px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                        <div className="analytics-header">
+                            <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Clock size={18} /> My Attendance</h3>
                         </div>
-
-                        {isProfileMenuOpen && (
-                            <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: '8px', width: '220px', backgroundColor: '#fff', borderRadius: '8px', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)', border: '1px solid #e2e8f0', zIndex: 50, overflow: 'hidden' }}>
-                                <div style={{ padding: '16px', borderBottom: '1px solid #e2e8f0', backgroundColor: '#f8fafc' }}>
-                                    <div style={{ fontWeight: '600', fontSize: '14px', color: '#0f172a' }}>{displayName}</div>
-                                    <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>{displayEmail}</div>
-                                </div>
-                                <div style={{ padding: '8px 0' }}>
-                                    <button onClick={() => navigate('/profile')} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px 16px', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '14px', color: '#475569', textAlign: 'left' }} onMouseOver={e => e.currentTarget.style.backgroundColor = '#f1f5f9'} onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}>
-                                        <UserIcon size={16} /> My Profile
-                                    </button>
-                                    <button onClick={() => navigate('/settings')} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px 16px', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '14px', color: '#475569', textAlign: 'left' }} onMouseOver={e => e.currentTarget.style.backgroundColor = '#f1f5f9'} onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}>
-                                        <SettingsIcon size={16} /> Account Settings
-                                    </button>
-                                </div>
-                                <div style={{ padding: '8px 0', borderTop: '1px solid #e2e8f0' }}>
-                                    <button onClick={() => logout()} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px 16px', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '14px', color: '#ef4444', textAlign: 'left', fontWeight: '500' }} onMouseOver={e => e.currentTarget.style.backgroundColor = '#fef2f2'} onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}>
-                                        <LogOut size={16} /> Logout
-                                    </button>
-                                </div>
+                        <div style={{ flex: 1, minHeight: '220px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            {myAttendanceData.length > 0 ? (
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <PieChart>
+                                        <RechartsTooltip cursor={{fill: 'transparent'}} contentStyle={{ borderRadius: '12px', border: '1px solid var(--border-light)', boxShadow: 'var(--shadow-lg)' }} />
+                                        <Pie
+                                            data={myAttendanceData}
+                                            dataKey="value"
+                                            nameKey="name"
+                                            cx="50%"
+                                            cy="50%"
+                                            innerRadius={60}
+                                            outerRadius={85}
+                                            paddingAngle={2}
+                                            stroke="none"
+                                        >
+                                            {myAttendanceData.map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={entry.fill} />
+                                            ))}
+                                        </Pie>
+                                    </PieChart>
+                                </ResponsiveContainer>
+                            ) : (
+                                <div className="flex-center" style={{ color: 'var(--text-muted)' }}>No attendance data available</div>
+                            )}
+                        </div>
+                        {myAttendanceData.length > 0 && (
+                            <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap', paddingTop: '16px' }}>
+                                {myAttendanceData.map((item, idx) => (
+                                    <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 600, color: 'var(--text-main)' }}>
+                                        <span style={{ width: '10px', height: '10px', borderRadius: '4px', background: item.fill }}></span>
+                                        {item.name}
+                                    </div>
+                                ))}
                             </div>
                         )}
                     </div>
                 </div>
-            </header>
-
-            {/* Main Content Area */}
-            <main className="erp-main-content erp-dashboard-main">
-                {/* Row 1: Welcome & Quick Metrics */}
-                <TopWelcomeBar username={displayName.split(' ')[0]} data={todayData} />
-
-                {/* Row 2: Premium KPI Cards */}
-                <div className="erp-premium-kpi-grid">
-                    <PremiumKPICard
-                        title="My Pending Tasks" value={pendingTasksCount} subtitle="Needs Action"
-                        icon={ListTodo} color="#f59e0b" trend="up" trendValue="+2"
-                    />
-                    <PremiumKPICard
-                        title="My Completed Tasks" value={completedTasksCount} subtitle="This Month"
-                        icon={CheckCircle} color="#10b981" trend="up" trendValue="+10%"
-                    />
-                    <PremiumKPICard
-                        title="Task Completion Rate" value={taskCompletionRate} subtitle="Productivity" isCurrency={false} prefix="" suffix="%"
-                        icon={TrendingUp} color="#3b82f6" trend="up" trendValue="+5%"
-                    />
-                    <PremiumKPICard
-                        title="Days Present" value={presentDays} subtitle="This Month"
-                        icon={UserCheck} color="#10b981" trend="up" trendValue="95%"
-                    />
-                    <PremiumKPICard
-                        title="Days on Leave" value={leaveDays} subtitle="This Month"
-                        icon={Calendar} color="#f59e0b" trend="down" trendValue="-1"
-                    />
-                    <PremiumKPICard
-                        title="Days Absent" value={absentDays} subtitle="This Month"
-                        icon={FileText} color="#ef4444" trend="down" trendValue="0"
-                    />
-                </div>
-
-                {/* Row 3: Charts & Timelines */}
-                <div className="erp-premium-row-3">
-                    {dashboard.charts?.monthlyStats && <SalesAreaChart data={dashboard.charts.monthlyStats} />}
-                    <InventoryStatusDonut 
-                        inventoryData={personalAttendanceData} 
-                        totalItems={workingDays} 
-                        title="My Attendance (Month)" 
-                        centerLabel="Total Days" 
-                    />
-                    <TimelineWidget title="My Pending Tasks" items={recentTaskData} viewAllLink={true} />
-                </div>
-
-                {/* Row 4: Bottom Widgets */}
-                <div className="erp-premium-row-4">
-                    <QuickActionsGrid />
-                </div>
-            </main>
-
-            <CommandCenter
-                isOpen={isCommandCenterOpen}
-                onClose={() => setIsCommandCenterOpen(false)}
-            />
+            </div>
         </div>
     );
 };

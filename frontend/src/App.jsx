@@ -17,6 +17,8 @@ const Dashboard = React.lazy(() => import('./pages/Dashboard'));
 const Login = React.lazy(() => import('./pages/Login'));
 const Register = React.lazy(() => import('./pages/Register'));
 const Materials = React.lazy(() => import('./pages/Materials'));
+const AddMaterial = React.lazy(() => import('./pages/AddMaterial'));
+const MaterialDetails = React.lazy(() => import('./pages/MaterialDetails'));
 
 const OrderTracking = React.lazy(() => import('./pages/OrderTracking'));
 const TrackingDashboard = React.lazy(() => import('./pages/TrackingDashboard'));
@@ -55,6 +57,18 @@ const CreateOrder = React.lazy(() => import('./pages/CreateOrder'));
 const SelectOrderType = React.lazy(() => import('./pages/SelectOrderType'));
 const SelectCustomer = React.lazy(() => import('./pages/SelectCustomer'));
 const SelectVendor = React.lazy(() => import('./pages/SelectVendor'));
+const BarcodeManagement = React.lazy(() => import('./pages/BarcodeManagement'));
+const AccessDenied = React.lazy(() => import('./pages/AccessDenied'));
+const CustomerDetails = React.lazy(() => import('./pages/CustomerDetails'));
+const CustomerProfileSettings = React.lazy(() => import('./pages/CustomerProfileSettings'));
+const EmployeeDetails = React.lazy(() => import('./pages/EmployeeDetails'));
+const Invoices = React.lazy(() => import('./pages/Invoices'));
+const OrderDetails = React.lazy(() => import('./pages/OrderDetails'));
+const VendorDetails = React.lazy(() => import('./pages/VendorDetails'));
+const FinancialOperations = React.lazy(() => import('./pages/FinancialOperations'));
+const OrderManagement = React.lazy(() => import('./pages/OrderManagement'));
+const Leads = React.lazy(() => import('./pages/Leads'));
+const SalesPipeline = React.lazy(() => import('./pages/SalesPipeline'));
 import ErrorBoundary from './components/ErrorBoundary';
 
 const CompleteCustomerProfile = React.lazy(() => import('./pages/CompleteCustomerProfile'));
@@ -64,7 +78,7 @@ const CustomerDashboard = React.lazy(() => import('./pages/CustomerDashboard'));
 const VendorDashboard = React.lazy(() => import('./pages/VendorDashboard'));
 const RevenueDashboard = React.lazy(() => import('./pages/RevenueDashboard'));
 const CustomerNewOrder = React.lazy(() => import('./pages/CustomerNewOrder'));
-
+const UserManagement = React.lazy(() => import('./pages/UserManagement'));
 const AppContent = () => {
     const { user, loading, logout } = useContext(AuthContext);
     
@@ -148,54 +162,72 @@ const AppContent = () => {
                     
                     {/* HRMS Routes */}
                     <Route path="/hrms" element={
-                        <ProtectedRoute allowedRoles={['Super Admin', 'Admin', 'HR', 'Manager']}>
+                        <ProtectedRoute requiredPermission="view_hrms">
                             <HRMS />
                         </ProtectedRoute>
                     } />
                     <Route path="/hrms/add-employee" element={
-                        <ProtectedRoute allowedRoles={['Super Admin', 'Admin', 'HR', 'Manager']}>
+                        <ProtectedRoute requiredPermission="view_hrms">
                             <AddEmployee />
                         </ProtectedRoute>
                     } />
+                    <Route path="/employees/:id/edit" element={<ProtectedRoute requiredPermission="view_hrms"><AddEmployee isEditMode={true} /></ProtectedRoute>} />
+                    <Route path="/employees/:id" element={<ProtectedRoute requiredPermission="view_hrms"><EmployeeDetails /></ProtectedRoute>} />
+                    <Route path="/employees/new" element={<ProtectedRoute requiredPermission="view_hrms"><AddEmployee /></ProtectedRoute>} />
                     
                     {/* Role Specific Protected Routes */}
-                    <Route path="/materials" element={<ProtectedRoute allowedRoles={['Admin', 'Manager', 'Sales', 'Employee']}><Materials /></ProtectedRoute>} />
-                    <Route path="/payroll" element={<ProtectedRoute allowedRoles={['Admin', 'HR', 'Manager']}><Payroll /></ProtectedRoute>} />
-                    <Route path="/payroll/generate" element={<ProtectedRoute allowedRoles={['Admin', 'HR', 'Manager']}><GeneratePayroll /></ProtectedRoute>} />
-                    <Route path="/payroll/payment/:id" element={<ProtectedRoute allowedRoles={['Admin', 'HR', 'Manager']}><PayrollPayment /></ProtectedRoute>} />
-                    <Route path="/payslips" element={<ProtectedRoute allowedRoles={['Admin', 'HR', 'Manager']}><Payslips /></ProtectedRoute>} />
-                    <Route path="/attendance" element={<ProtectedRoute allowedRoles={['Admin', 'HR', 'Manager']}><Attendance /></ProtectedRoute>} />
-                    <Route path="/hr-reports" element={<ProtectedRoute allowedRoles={['Admin', 'HR']}><HRReports /></ProtectedRoute>} />
-                    <Route path="/team-performance" element={<ProtectedRoute allowedRoles={['Admin', 'Manager']}><TeamPerformance /></ProtectedRoute>} />
-                    <Route path="/erp" element={<ProtectedRoute allowedRoles={['Admin', 'Manager', 'Sales', 'HR', 'Employee']}><ERP /></ProtectedRoute>} />
-                    <Route path="/orders" element={<Navigate to="/erp" replace />} />
+                    <Route path="/materials/new" element={<ProtectedRoute requiredPermission="view_hrms"><AddMaterial /></ProtectedRoute>} />
+                    <Route path="/materials/barcode" element={<ProtectedRoute><BarcodeManagement /></ProtectedRoute>} />
+                    <Route path="/materials/:id/edit" element={<ProtectedRoute requiredPermission="manage_materials"><AddMaterial isEditMode={true} /></ProtectedRoute>} />
+                    <Route path="/materials/:id" element={<ProtectedRoute requiredPermission="view_materials"><MaterialDetails /></ProtectedRoute>} />
+                    <Route path="/materials" element={<ProtectedRoute requiredPermission="view_materials"><Materials /></ProtectedRoute>} />
+                    <Route path="/payroll" element={<ProtectedRoute requiredPermission="manage_hrms"><Payroll /></ProtectedRoute>} />
+                    <Route path="/payroll/generate" element={<ProtectedRoute requiredPermission="view_hrms"><GeneratePayroll /></ProtectedRoute>} />
+                    <Route path="/payroll/payment/:id" element={<ProtectedRoute requiredPermission="view_hrms"><PayrollPayment /></ProtectedRoute>} />
+                    <Route path="/payslips" element={<ProtectedRoute requiredPermission="view_hrms"><Payslips /></ProtectedRoute>} />
+                    <Route path="/attendance" element={<ProtectedRoute requiredPermission="view_hrms"><Attendance /></ProtectedRoute>} />
+                    <Route path="/hr-reports" element={<ProtectedRoute requiredPermission="view_hrms"><HRReports /></ProtectedRoute>} />
+                    <Route path="/team-performance" element={<ProtectedRoute requiredPermission="view_hrms"><TeamPerformance /></ProtectedRoute>} />
+                    <Route path="/erp" element={<ProtectedRoute requiredPermission="view_erp"><ERP /></ProtectedRoute>} />
+                    <Route path="/orders" element={<ProtectedRoute requiredPermission="view_erp"><OrderManagement /></ProtectedRoute>} />
                     <Route path="/orders/select-type" element={<OrderCreationRoute><SelectOrderType /></OrderCreationRoute>} />
                     <Route path="/erp/customers/select" element={<OrderCreationRoute><SelectCustomer /></OrderCreationRoute>} />
                     <Route path="/erp/vendors/select" element={<OrderCreationRoute><SelectVendor /></OrderCreationRoute>} />
                     <Route path="/orders/create/:orderType" element={<OrderCreationRoute><CreateOrder /></OrderCreationRoute>} />
-                    <Route path="/orders/:orderId/tracking" element={<ProtectedRoute allowedRoles={['Admin', 'Manager', 'Sales', 'HR', 'Employee', 'Customer']}><OrderTracking /></ProtectedRoute>} />
+                    <Route path="/orders/:orderId/tracking" element={<ProtectedRoute requiredPermission="view_erp"><OrderTracking /></ProtectedRoute>} />
                     <Route path="/tracking-overview" element={<ProtectedRoute><TrackingDashboard /></ProtectedRoute>} />
-                    <Route path="/crm" element={<ProtectedRoute allowedRoles={['Admin', 'Sales', 'Manager']}><Customers /></ProtectedRoute>} />
-                    <Route path="/crm/add-customer" element={<ProtectedRoute allowedRoles={['Admin', 'Sales', 'Manager']}><AddCustomer /></ProtectedRoute>} />
+                    <Route path="/crm" element={<ProtectedRoute requiredPermission="view_crm"><Customers /></ProtectedRoute>} />
+                    <Route path="/crm/add-customer" element={<ProtectedRoute requiredPermission="view_crm"><AddCustomer /></ProtectedRoute>} />
                     
                     {/* Sales Dashboard Quick Action Routes */}
-                    <Route path="/crm/leads" element={<ProtectedRoute allowedRoles={['Admin', 'Sales', 'Manager']}><ComingSoonPage title="Lead Management" subtitle="The Lead Management module is currently under development." /></ProtectedRoute>} />
-                    <Route path="/crm/pipeline" element={<ProtectedRoute allowedRoles={['Admin', 'Sales', 'Manager']}><ComingSoonPage title="Pipeline Overview" subtitle="The visual sales pipeline is being assembled." /></ProtectedRoute>} />
-                    <Route path="/crm/customers" element={<ProtectedRoute allowedRoles={['Admin', 'Sales', 'Manager']}><Customers directoryOnly={true} /></ProtectedRoute>} />
+                    <Route path="/crm/leads" element={<ProtectedRoute requiredPermission="view_crm"><Leads /></ProtectedRoute>} />
+                    <Route path="/crm/pipeline" element={<ProtectedRoute requiredPermission="view_crm"><SalesPipeline /></ProtectedRoute>} />
+                    <Route path="/crm/customers" element={<ProtectedRoute requiredPermission="view_crm"><Customers directoryOnly={true} /></ProtectedRoute>} />
                     <Route path="/customers" element={<Navigate to="/crm/customers" replace />} />
-                    <Route path="/sales/revenue" element={<ProtectedRoute allowedRoles={['Admin', 'Sales', 'Manager']}><RevenueDashboard /></ProtectedRoute>} />
-                    <Route path="/sales/goals" element={<ProtectedRoute allowedRoles={['Admin', 'Sales', 'Manager']}><ComingSoonPage title="Sales Goals" subtitle="Sales targeting and team goals will be available shortly." /></ProtectedRoute>} />
-                    <Route path="/quotations" element={<ProtectedRoute allowedRoles={['Admin', 'Sales', 'Manager']}><ComingSoonPage title="Quotations" subtitle="Quotation and proposal generation will be enabled soon." /></ProtectedRoute>} />
+                    <Route path="/sales/revenue" element={<ProtectedRoute requiredPermission="view_crm"><RevenueDashboard /></ProtectedRoute>} />
+                    <Route path="/sales/goals" element={<ProtectedRoute requiredPermission="view_crm"><ComingSoonPage title="Sales Goals" subtitle="Sales targeting and team goals will be available shortly." /></ProtectedRoute>} />
+                    <Route path="/quotations" element={<ProtectedRoute requiredPermission="view_crm"><ComingSoonPage title="Quotations" subtitle="Quotation and proposal generation will be enabled soon." /></ProtectedRoute>} />
                     
-                    <Route path="/vendors" element={<ProtectedRoute allowedRoles={['Admin', 'Manager', 'Sales']}><Vendors /></ProtectedRoute>} />
-                    <Route path="/vendors/add-vendor" element={<ProtectedRoute allowedRoles={['Admin', 'Manager', 'Sales']}><AddVendor /></ProtectedRoute>} />
-                    <Route path="/analytics" element={<ProtectedRoute allowedRoles={['Admin', 'Manager', 'Sales', 'HR']}><Reports /></ProtectedRoute>} />
+                    <Route path="/vendors" element={<ProtectedRoute requiredPermission="view_erp"><Vendors /></ProtectedRoute>} />
+                    <Route path="/vendors/add-vendor" element={<ProtectedRoute requiredPermission="view_erp"><AddVendor /></ProtectedRoute>} />
+                    <Route path="/vendors/:id/edit" element={<ProtectedRoute requiredPermission="view_erp"><AddVendor isEditMode={true} /></ProtectedRoute>} />
+                    <Route path="/vendors/:id" element={<ProtectedRoute requiredPermission="view_erp"><VendorDetails /></ProtectedRoute>} />
+                    <Route path="/customers/new" element={<ProtectedRoute requiredPermission="view_crm"><AddCustomer /></ProtectedRoute>} />
+                    <Route path="/customers/:id/edit" element={<ProtectedRoute requiredPermission="view_crm"><AddCustomer isEditMode={true} /></ProtectedRoute>} />
+                    <Route path="/customers/:id" element={<ProtectedRoute requiredPermission="view_crm"><CustomerDetails /></ProtectedRoute>} />
+                    <Route path="/orders/:id" element={<ProtectedRoute><OrderDetails /></ProtectedRoute>} />
+                    <Route path="/invoices" element={<ProtectedRoute requiredPermission="view_erp"><Invoices /></ProtectedRoute>} />
+                    <Route path="/customer/profile-settings" element={<ProtectedRoute requiredPermission="view_crm"><CustomerProfileSettings /></ProtectedRoute>} />
+                    <Route path="/access-denied" element={<AccessDenied />} />
+                    <Route path="/analytics" element={<ProtectedRoute requiredPermission="view_reports"><Reports /></ProtectedRoute>} />
                     <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
                     <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                     <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+                    <Route path="/finance" element={<ProtectedRoute requiredPermission="view_reports"><FinancialOperations /></ProtectedRoute>} />
 
 
                     <Route path="/support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
+                    <Route path="/users" element={<ProtectedRoute requiredPermission="view_settings"><UserManagement /></ProtectedRoute>} />
                     <Route path="/my-tasks" element={<ProtectedRoute><MyTasks /></ProtectedRoute>} />
                     <Route path="/my-attendance" element={<ProtectedRoute><MyAttendance /></ProtectedRoute>} />
                     <Route path="/my-salary" element={<ProtectedRoute><MySalaryPage /></ProtectedRoute>} />
@@ -203,9 +235,9 @@ const AppContent = () => {
                     <Route path="/leave-management/apply" element={<ProtectedRoute><ApplyLeave /></ProtectedRoute>} />
                     <Route path="/stock-requests" element={<ProtectedRoute><StockRequests /></ProtectedRoute>} />
 
-                    <Route path="/complete-customer-profile" element={<ProtectedRoute allowedRoles={['Customer']}><CompleteCustomerProfile /></ProtectedRoute>} />
-                    <Route path="/complete-vendor-profile" element={<ProtectedRoute allowedRoles={['Vendor']}><CompleteVendorProfile /></ProtectedRoute>} />
-                    <Route path="/customer/new-order" element={<ProtectedRoute allowedRoles={['Customer']}><CustomerNewOrder /></ProtectedRoute>} />
+                    <Route path="/complete-customer-profile" element={<ProtectedRoute requiredPermission="view_crm"><CompleteCustomerProfile /></ProtectedRoute>} />
+                    <Route path="/complete-vendor-profile" element={<ProtectedRoute requiredPermission="view_erp"><CompleteVendorProfile /></ProtectedRoute>} />
+                    <Route path="/customer/new-order" element={<ProtectedRoute requiredPermission="view_crm"><CustomerNewOrder /></ProtectedRoute>} />
 
                     {/* New Routing for DualSidebar Structure */}
                     <Route path="/attendance/my" element={<ProtectedRoute><MyAttendance /></ProtectedRoute>} />
@@ -262,8 +294,11 @@ const AppContent = () => {
                     <Route path="/profile/security" element={<ProtectedRoute><ComingSoonPage title="Change Password" /></ProtectedRoute>} />
                     <Route path="/profile/security-settings" element={<ProtectedRoute><ComingSoonPage title="Security Settings" /></ProtectedRoute>} />
                     
-                    <Route path="/settings/roles" element={<ProtectedRoute><ComingSoonPage title="Roles & Permissions" /></ProtectedRoute>} />
-                    <Route path="/settings/system" element={<ProtectedRoute><ComingSoonPage title="System Configuration" /></ProtectedRoute>} />
+                    <Route path="/settings/roles" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+                    <Route path="/settings/system" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+                    <Route path="/settings/audit-logs" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+                    <Route path="/settings/integrations" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+                    <Route path="/settings/notifications" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
                     <Route path="/settings/backup" element={<ProtectedRoute><BackupRestore /></ProtectedRoute>} />
                     <Route path="/settings/attendance" element={<ProtectedRoute><ComingSoonPage title="Attendance Settings" /></ProtectedRoute>} />
                     <Route path="/settings/leave" element={<ProtectedRoute><ComingSoonPage title="Leave Policies" /></ProtectedRoute>} />

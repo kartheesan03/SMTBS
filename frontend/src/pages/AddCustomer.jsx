@@ -1,16 +1,47 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import API from '../api/axios';
-import { ArrowLeft } from 'lucide-react';
 import CustomerForm from '../components/CustomerForm';
+import StandardPageLayout from '../components/StandardPageLayout/StandardPageLayout';
+import toast from 'react-hot-toast';
 
-const AddCustomer = () => {
+const AddCustomer = ({ isEditMode = false }) => {
     const navigate = useNavigate();
+    const { id } = useParams();
     const [formData, setFormData] = useState({
-        name: '', email: '', phone: '', address: '', industry: '', website: '', notes: '', status: '', customerType: 'Individual'
+        name: '', email: '', phone: '', address: '', industry: '', website: '', notes: '', status: 'Active', customerType: 'Individual'
     });
     const [formErrors, setFormErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
+    const [isFetching, setIsFetching] = useState(isEditMode);
+
+    useEffect(() => {
+        if (isEditMode && id) {
+            fetchCustomer();
+        }
+    }, [isEditMode, id]);
+
+    const fetchCustomer = async () => {
+        try {
+            const { data } = await API.get(`/customers/${id}`);
+            setFormData({
+                name: data.name || '',
+                email: data.email || '',
+                phone: data.phone || '',
+                address: data.address || '',
+                industry: data.industry || '',
+                website: data.website || '',
+                notes: data.notes || '',
+                status: data.status || 'Active',
+                customerType: data.customerType || 'Individual'
+            });
+        } catch (err) {
+            toast.error('Failed to fetch customer data');
+            navigate('/customers');
+        } finally {
+            setIsFetching(false);
+        }
+    };
 
     const validateForm = () => {
         const errors = {};
@@ -26,66 +57,69 @@ const AddCustomer = () => {
         return Object.keys(errors).length === 0;
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const handleSubmit = async () => {
         if (!validateForm()) return;
         setIsLoading(true);
         try {
-            await API.post('/customers', formData);
-            navigate('/crm');
+            if (isEditMode) {
+                await API.put(`/customers/${id}`, formData);
+                toast.success('Customer updated successfully');
+                navigate(`/customers/${id}`);
+            } else {
+                const res = await API.post('/customers', formData);
+                toast.success('Customer created successfully');
+                navigate(`/customers/${res.data._id}`);
+            }
         } catch (err) {
-            toast.error(err.response?.data?.message || 'Error creating customer');
+            toast.error(err.response?.data?.message || 'Error saving customer');
         } finally {
             setIsLoading(false);
         }
     };
 
+    if (isFetching) return <div className="flex-center" style={{height:'100vh'}}><div className="loader"></div></div>;
+
     return (
-        <div className="page-container">
-            <header className="module-header glass-card">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    <button className="btn-back" onClick={() => navigate('/crm')}>
-                        <ArrowLeft size={18} />
-                    </button>
+        <StandardPageLayout
+            title={isEditMode ? "Edit Customer" : "Add New Customer"}
+            subtitle={isEditMode ? "Update customer profile information" : "Create a new customer profile in the CRM."}
+            breadcrumbs={[
+                { label: 'CRM', path: '/customers' },
+                { label: 'Customers', path: '/customers' },
+                { label: isEditMode ? 'Edit' : 'New' }
+            ]}
+            onSave={handleSubmit}
+            onCancel={() => navigate('/customers')}
+            isEditMode={isEditMode}
+            infoCard={
+                <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+                    <div style={{ padding: '12px', background: '#e0e7ff', borderRadius: '50%', color: '#4f46e5' }}>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    </div>
                     <div>
-                        <h1 className="title-gradient">Add New Customer</h1>
-                        <p className="text-muted">Create a new customer profile in the CRM.</p>
+                        <h4 style={{ margin: 0, color: '#1e293b', fontSize: '16px' }}>{isEditMode ? formData.name : 'New Customer'}</h4>
+                        <p style={{ margin: '4px 0 0 0', color: '#64748b', fontSize: '14px' }}>Fill in the primary details below to {isEditMode ? 'update' : 'register'} the customer.</p>
                     </div>
                 </div>
-            </header>
-
-            <div className="module-content">
-                <div className="glass-card form-wrapper">
-                    <CustomerForm 
-                        formData={formData}
-                        setFormData={setFormData}
-                        formErrors={formErrors}
-                        setFormErrors={setFormErrors}
-                        onSubmit={handleSubmit}
-                        onCancel={() => navigate('/crm')}
-                        isLoading={isLoading}
-                        emailDisabled={false}
-                        statusDisabled={false}
-                        saveButtonText="Save Customer"
-                    />
-                </div>
+            }
+        >
+            <div className="standard-section">
+                <div className="standard-section-header">Customer Information</div>
+                <CustomerForm 
+                    formData={formData}
+                    setFormData={setFormData}
+                    formErrors={formErrors}
+                    setFormErrors={setFormErrors}
+                    onSubmit={e => { e.preventDefault(); handleSubmit(); }}
+                    onCancel={() => navigate('/customers')}
+                    isLoading={isLoading}
+                    emailDisabled={false}
+                    statusDisabled={false}
+                    saveButtonText={isEditMode ? "Update Customer" : "Save Customer"}
+                    hideActions={true} /* Let StandardPageLayout handle the buttons */
+                />
             </div>
-
-            <style jsx="true">{`
-                /* layout handled by .page-container */
-                .module-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px; padding: 25px; }
-                
-                .form-wrapper { padding: 30px; max-width: 800px; margin: 0 auto; background: #ffffff; border-radius: 12px; }
-                
-                .btn-back { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 8px; background: #f1f5f9; color: #475569; border: none; cursor: pointer; transition: all 0.2s; }
-                .btn-back:hover { background: #e2e8f0; color: #0f172a; }
-
-                @media (max-width: 768px) {
-                    .page-container { padding: 16px 12px; }
-                    .form-wrapper { padding: 20px; }
-                }
-            `}</style>
-        </div>
+        </StandardPageLayout>
     );
 };
 

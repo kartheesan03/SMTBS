@@ -169,6 +169,13 @@ const HRDashboard = () => {
         }));
     }
 
+    const kpiCards = [
+        { title: 'Total Employees', value: totalEmployees, icon: Users, color: '#3b82f6', trend: `+${newJoiners} new joiners`, trendType: 'up' },
+        { title: 'Present Today', value: presentToday, icon: UserCheck, color: '#10b981', trend: `${todayData.attendance}% attendance`, trendType: 'up' },
+        { title: 'On Leave', value: onLeave, icon: Moon, color: '#f59e0b', trend: `${pendingLeaves} pending`, trendType: 'down' },
+        { title: 'Pending Approvals', value: pendingApprovals, icon: AlertCircle, color: '#ef4444', trend: 'Needs attention', trendType: 'down' }
+    ];
+
     return (
         <div className="erp-dashboard-container">
             {/* Top Navigation */}

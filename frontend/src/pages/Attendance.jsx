@@ -1,351 +1,135 @@
-import React, { useState, useEffect } from 'react';
-import DataTable from '../components/Dashboard/DataTable';
-import StatCard from '../components/Dashboard/StatCard';
-import { Calendar, CheckCircle, XCircle, Search, Filter, Users, Clock, Eye, History, Edit2 } from 'lucide-react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import API from '../api/axios';
-import AttendanceHistoryTable from '../components/Dashboard/AttendanceHistoryTable';
-import { AuthContext } from '../context/AuthContext';
-import { useContext } from 'react';
-import { toast } from 'react-hot-toast';
-import './Attendance.css';
+import { Search, CheckCircle, XCircle, Clock, Home, Check } from 'lucide-react';
+import '../components/AdminDashboard/AdminDashboardRedesign.css';
+import { RDHeader } from './AdminDashboard';
+import { HRMSKPICard } from '../components/HRMSShared';
 
 const Attendance = () => {
-    const [attendanceData, setAttendanceData] = useState(null);
-    const [attendanceLogs, setAttendanceLogs] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [filterDate, setFilterDate] = useState(new Date().toISOString().split('T')[0]);
-    const [filterDept, setFilterDept] = useState('All');
-    const [viewMode, setViewMode] = useState('today'); // 'today' or 'history'
-    const [editRecord, setEditRecord] = useState(null);
-    const [editStatus, setEditStatus] = useState('');
-    const { user } = useContext(AuthContext);
     const navigate = useNavigate();
-    const canEdit = user?.role === 'Admin' || user?.role === 'HR';
+    const [filter, setFilter] = useState('All');
 
-    const fetchAttendance = async () => {
-        try {
-            setLoading(true);
-            const { data } = await API.get('/attendance/all', { params: { date: filterDate } });
-            setAttendanceData(data);
-            setAttendanceLogs(data.employeeAttendanceList || []);
-        } catch (error) {
-            console.error('Error fetching attendance logs:', error);
-        } finally {
-            setLoading(false);
-        }
+    // Mock data for tiny trend charts
+    const trendData1 = [{v: 4},{v: 5},{v: 4},{v: 6},{v: 7},{v: 6},{v: 8},{v: 9}];
+    const trendData2 = [{v: 0},{v: 1},{v: 0},{v: 0},{v: 1},{v: 0},{v: 0},{v: 0}];
+    const trendData3 = [{v: 2},{v: 1},{v: 3},{v: 2},{v: 1},{v: 1},{v: 0},{v: 0}];
+    const trendData4 = [{v: 1},{v: 0},{v: 2},{v: 1},{v: 1},{v: 0},{v: 1},{v: 1}];
+
+    const attendanceData = [
+        { id: 'EMP-011', name: 'Ritu Agarwal', dept: 'Engineering', checkIn: '05:29 PM', checkOut: '05:29 PM', hours: '9h', status: 'Present' },
+        { id: 'EMP-015', name: 'Neha Chatterjee', dept: 'Operations', checkIn: '01:13 PM', checkOut: '01:13 PM', hours: '—', status: 'Present' },
+    ];
+
+    const getStatusBadge = (status) => {
+        if (status === 'Present') return <span className="rd-status-badge rd-status-green"><span className="rd-legend-dot" style={{background: '#10b981', display:'inline-block', marginRight: 6}}></span>Present</span>;
+        if (status === 'Absent') return <span className="rd-status-badge rd-status-red"><span className="rd-legend-dot" style={{background: '#ef4444', display:'inline-block', marginRight: 6}}></span>Absent</span>;
+        return <span className="rd-status-badge rd-status-orange">{status}</span>;
     };
 
-    useEffect(() => {
-        fetchAttendance();
-    }, [filterDate]);
-
-    const handleSaveEdit = async () => {
-        try {
-            await API.put('/attendance/edit', { recordId: editRecord._id || editRecord.id, status: editStatus });
-            toast.success('Record updated');
-            setEditRecord(null);
-            fetchAttendance();
-        } catch(e) {
-            toast.error('Failed to update record');
-        }
-    };
-
-    const filteredLogs = attendanceLogs.filter(log => {
-        const empName = `${log.employee?.firstName || ''} ${log.employee?.lastName || ''}`.trim();
-        const matchesSearch = empName.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesDept = filterDept === 'All' || log.employee?.department === filterDept;
-        return matchesSearch && matchesDept;
-    });
-
-    const departments = ['All', ...new Set(attendanceLogs.map(l => l.employee?.department).filter(Boolean))];
-
-    const parseDateTime = (timeStr, baseDateStr) => {
-        if (!timeStr) return null;
-        if (timeStr.includes('T') || (timeStr.includes('-') && timeStr.includes(':') && timeStr.length > 10)) {
-            const d = new Date(timeStr);
-            if (!isNaN(d.getTime())) return d;
-        }
-        const datePart = baseDateStr ? baseDateStr.split('T')[0] : new Date().toISOString().split('T')[0];
-        const combined = `${datePart} ${timeStr}`;
-        const d = new Date(combined);
-        if (!isNaN(d.getTime())) return d;
-        
-        const match = timeStr.match(/^(\d+):(\d+)\s*(AM|PM)$/i);
-        if (match) {
-            let [_, hours, minutes, ampm] = match;
-            hours = parseInt(hours, 10);
-            minutes = parseInt(minutes, 10);
-            if (ampm.toUpperCase() === 'PM' && hours < 12) hours += 12;
-            if (ampm.toUpperCase() === 'AM' && hours === 12) hours = 0;
-            const d = new Date(datePart);
-            d.setHours(hours, minutes, 0, 0);
-            return d;
-        }
-        
-        const fallback = new Date(timeStr);
-        return isNaN(fallback.getTime()) ? null : fallback;
-    };
-
-    const formatTime = (timeStr, baseDateStr, isCheckOut = false, hasCheckIn = false) => {
-        if (!timeStr) {
-            return (isCheckOut && hasCheckIn) ? 'Active' : '-';
-        }
-        const d = parseDateTime(timeStr, baseDateStr);
-        if (!d) return '-';
-        return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    };
-
-    const calculateDuration = (checkIn, checkOut, baseDateStr) => {
-        if (!checkIn || !checkOut) return '-';
-        const start = parseDateTime(checkIn, baseDateStr);
-        const end = parseDateTime(checkOut, baseDateStr);
-        if (!start || !end) return '-';
-        const diff = end - start;
-        const hours = Math.floor(diff / 3600000);
-        const minutes = Math.floor((diff % 3600000) / 60000);
-        return `${hours}h ${minutes}m`;
-    };
-
-    const getDisplayStatus = (status) => {
-        return status || '-';
-    };
-
-    if (loading) return <div className="p-30 text-center">Loading records...</div>;
-
-    const totalCount = attendanceData?.totalEmployees || 0;
-    const presentCount = attendanceData?.presentToday || 0;
-    const absentCount = attendanceData?.absentToday || 0;
-    const leaveCount = attendanceData?.onLeaveToday || 0;
+    const getInitials = (name) => name.split(' ').map(n => n[0]).join('').toUpperCase();
 
     return (
-        <div className="page-container">
-            <header className="page-header" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <div>
-                    <h1 className="page-title">Master Attendance Log</h1>
-                    <p className="page-subtitle">Review and oversee daily check-ins across all departments.</p>
-                </div>
-                
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
-                    <div className="tab-group" style={{ display: 'flex', gap: '10px' }}>
-                        <button 
-                            className={`tab-btn ${viewMode === 'today' ? 'active' : ''}`}
-                            onClick={() => setViewMode('today')}
-                        >
-                            <Calendar size={16}/> Today's Log
-                        </button>
-                        <button 
-                            className={`tab-btn ${viewMode === 'history' ? 'active' : ''}`}
-                            onClick={() => setViewMode('history')}
-                        >
-                            <History size={16}/> Attendance History
-                        </button>
+        <div className="rd-container">
+            <RDHeader onRefresh={() => {}} />
+
+            <div className="rd-content">
+                {/* Module Header */}
+                <div className="rd-module-header">
+                    <div className="rd-module-icon" style={{background: 'linear-gradient(135deg, #4338ca 0%, #312e81 100%)'}}>
+                        <span style={{fontSize: 24, fontWeight: 800}}>AT</span>
                     </div>
-
-                    {viewMode === 'today' && (
-                        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-subtle)', background: 'var(--bg-surface)' }}>
-                                <Search size={16} color="var(--text-muted)" />
-                                <input 
-                                    type="text" 
-                                    placeholder="Search employee..." 
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    style={{ background: 'transparent', border: 'none', outline: 'none', color: 'var(--text-heading)', marginLeft: '4px', width: '180px' }}
-                                />
-                            </div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-subtle)', background: 'var(--bg-surface)' }}>
-                                <Filter size={16} color="var(--text-muted)"/>
-                                <select 
-                                    value={filterDept} 
-                                    onChange={(e) => setFilterDept(e.target.value)}
-                                    style={{ background: 'transparent', border: 'none', outline: 'none', color: 'var(--text-heading)', cursor: 'pointer' }}
-                                >
-                                    {departments.map(d => <option key={d} value={d}>{d}</option>)}
-                                </select>
-                            </div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-subtle)', background: 'var(--bg-surface)' }}>
-                                <Calendar size={16} color="var(--text-muted)"/>
-                                <input 
-                                    type="date" 
-                                    value={filterDate} 
-                                    onChange={(e) => setFilterDate(e.target.value)}
-                                    style={{ background: 'transparent', border: 'none', outline: 'none', color: 'var(--text-heading)', cursor: 'pointer' }}
-                                />
-                            </div>
+                    <div className="rd-module-info">
+                        <div className="rd-module-title-row">
+                            <span className="rd-module-title">Attendance Tracker</span>
+                            <span className="rd-module-badge" style={{background: '#eff6ff', color: '#3b82f6', borderColor: '#bfdbfe'}}>HRMS</span>
                         </div>
-                    )}
+                        <div className="rd-module-desc">Daily attendance for 26 May 2026</div>
+                    </div>
                 </div>
-            </header>
 
-            {viewMode === 'history' ? (
-                <AttendanceHistoryTable isEmployeeView={false} />
-            ) : (
-                <>
-                    <div className="attendance-dashboard-grid mt-30" style={{ marginBottom: '24px' }}>
-                <StatCard 
-                    title="Total Employees" 
-                    value={totalCount} 
-                    icon={<Users />} 
-                    color="primary" 
-                    trend={{ value: 100, isPositive: true, label: "Active" }} 
-                />
-                <StatCard 
-                    title="Present Today" 
-                    value={presentCount} 
-                    icon={<CheckCircle />} 
-                    color="success" 
-                />
-                <StatCard 
-                    title="Absent" 
-                    value={absentCount} 
-                    icon={<XCircle />} 
-                    color="danger" 
-                />
-                <StatCard 
-                    title="On Leave" 
-                    value={leaveCount} 
-                    icon={<Calendar />} 
-                    color="purple" 
-                />
-            </div>
+                {/* KPI Cards */}
+                <div className="rd-kpi-row">
+                    <HRMSKPICard title="Present" val="5" sub="↗ 100% attendance rate" color="green" data={trendData1} icon={CheckCircle} />
+                    <HRMSKPICard title="Absent" val="0" sub="↘ Unplanned absences" color="red" data={trendData2} icon={XCircle} />
+                    <HRMSKPICard title="Late Arrivals" val="0" sub="↘ Arrived after 9 AM" color="orange" data={trendData3} icon={Clock} />
+                    <HRMSKPICard title="On Leave" val="0" sub="↗ Approved leaves today" color="blue" data={trendData4} icon={Home} />
+                </div>
 
-            <div className="premium-card">
-                <DataTable 
-                    title="All Employees Attendance"
-                    headers={['Employee Name', 'Employee ID', 'Department', 'Today\'s Status', 'Check In Time', 'Check Out Time', 'Total Hours', 'Action/View']}
-                    data={filteredLogs}
-                    emptyText="No attendance records found."
-                    renderRow={(a, index) => {
-                        const displayStatus = getDisplayStatus(a.status);
-                        const statusClass = displayStatus.toLowerCase().replace(' ', '-');
-                        
-                        return (
-                            <tr key={a._id || index}>
-                                <td><strong>{`${a.employee?.firstName || ''} ${a.employee?.lastName || ''}`.trim() || 'N/A'}</strong></td>
-                                <td>{a.employee?.employeeId || '-'}</td>
-                                <td>{a.employee?.department || '-'}</td>
-                                <td>
-                                    <div className={displayStatus === '-' ? '' : `status-pill-flex ${statusClass}`}>
-                                          {displayStatus === 'Present' ? <CheckCircle size={14}/> : 
-                                           displayStatus === 'Late' ? <CheckCircle size={14} style={{color: '#f59e0b'}}/> : 
-                                           displayStatus === '-' ? null :
-                                         <XCircle size={14}/>}
-                                        {displayStatus}
-                                    </div>
-                                </td>
-                                <td>{formatTime(a.checkIn, a.date)}</td>
-                                <td>{formatTime(a.checkOut, a.date, true, !!a.checkIn)}</td>
-                                <td>{calculateDuration(a.checkIn, a.checkOut, a.date)}</td>
-                                <td>
-                                    <div style={{ display: 'flex', gap: '8px' }}>
-                                        <button 
-                                            className="btn-icon view-btn" 
-                                            title="View Details"
-                                            onClick={() => navigate('/hrms')}
-                                        >
-                                            <Eye size={16} />
-                                        </button>
-                                        {canEdit && (
-                                            <button 
-                                                className="btn-icon" 
-                                                title="Edit Record"
-                                                onClick={() => {
-                                                    setEditRecord(a);
-                                                    setEditStatus(a.status || 'Present');
-                                                }}
-                                                style={{ color: 'var(--primary)', background: 'var(--bg-hover)' }}
-                                            >
-                                                <Edit2 size={16} />
-                                            </button>
-                                        )}
-                                    </div>
-                                </td>
+                {/* Table Section */}
+                <div className="rd-table-card">
+                    <div className="rd-table-header" style={{borderBottom: 'none'}}>
+                        <div style={{display: 'flex', gap: 16, alignItems: 'center'}}>
+                            <div className="rd-search-bar" style={{width: 250, background: '#fff'}}>
+                                <Search size={16} color="#94a3b8" />
+                                <input type="text" className="rd-search-input" placeholder="Search employee..." />
+                            </div>
+                            <select style={{padding: '8px 16px', border: '1px solid #e2e8f0', borderRadius: 8, outline: 'none', background: '#fff', color: '#64748b', fontSize: 14}}>
+                                <option>All Depts</option>
+                                <option>Engineering</option>
+                                <option>Operations</option>
+                            </select>
+                            <select style={{padding: '8px 16px', border: '1px solid #e2e8f0', borderRadius: 8, outline: 'none', background: '#fff', color: '#64748b', fontSize: 14}}>
+                                <option>All Status</option>
+                                <option>Present</option>
+                                <option>Absent</option>
+                            </select>
+                        </div>
+                        <div className="rd-table-actions">
+                            <button className="rd-btn-solid" style={{background: '#10b981'}}>
+                                <Check size={16} style={{marginRight: 8, verticalAlign: 'middle'}}/>
+                                Mark All Present
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <table className="rd-table">
+                        <thead>
+                            <tr>
+                                <th style={{width: 40}}>
+                                    <input type="checkbox" />
+                                </th>
+                                <th>Employee</th>
+                                <th>EMP ID</th>
+                                <th>Department</th>
+                                <th>Check In</th>
+                                <th>Check Out</th>
+                                <th>Hours</th>
+                                <th>Status</th>
+                                <th style={{width: 100}}></th>
                             </tr>
-                        );
-                    }}
-                />
-            </div>
-            </>
-            )}
-
-            {editRecord && (
-                <div className="modal-overlay">
-                    <div className="modal-content" style={{ width: '400px', background: 'white', padding: '24px', borderRadius: '8px' }}>
-                        <h3>Edit Attendance Status</h3>
-                        <p>Editing for {editRecord.employee?.firstName || 'Employee'}</p>
-                        <select 
-                            value={editStatus} 
-                            onChange={(e) => setEditStatus(e.target.value)}
-                            style={{ width: '100%', padding: '8px', margin: '16px 0', borderRadius: '4px', }}
-                        >
-                            <option value="Present">Present</option>
-                            <option value="Absent">Absent</option>
-                            <option value="Half-day">Half-day</option>
-                            <option value="Late">Late</option>
-                        </select>
-                        <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-                            <button className="btn-secondary" onClick={() => setEditRecord(null)}>Cancel</button>
-                            <button className="btn-primary" onClick={handleSaveEdit}>Save</button>
-                        </div>
-                    </div>
+                        </thead>
+                        <tbody>
+                            {attendanceData.map((emp, i) => (
+                                <tr key={i}>
+                                    <td><input type="checkbox" /></td>
+                                    <td>
+                                        <div style={{display: 'flex', alignItems: 'center', gap: 12}}>
+                                            <div className="rd-avatar" style={{width: 32, height: 32, fontSize: 12, background: 'var(--rd-orange-grad)'}}>
+                                                {getInitials(emp.name)}
+                                            </div>
+                                            <div style={{fontWeight: 700, color: 'var(--rd-text-main)'}}>{emp.name}</div>
+                                        </div>
+                                    </td>
+                                    <td style={{color: '#94a3b8'}}>{emp.id}</td>
+                                    <td style={{color: '#64748b'}}>{emp.dept}</td>
+                                    <td style={{fontWeight: 500}}>{emp.checkIn}</td>
+                                    <td style={{fontWeight: 500}}>{emp.checkOut}</td>
+                                    <td>
+                                        <span style={{fontWeight: 700, color: 'var(--rd-blue)'}}>{emp.hours}</span>
+                                    </td>
+                                    <td>{getStatusBadge(emp.status)}</td>
+                                    <td>
+                                        <button style={{background: 'transparent', border: '1px solid #10b981', color: '#10b981', padding: '4px 12px', borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: 'pointer', marginRight: 16}}>
+                                            Check In
+                                        </button>
+                                        <button style={{background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8'}}>•••</button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
-            )}
-
-            <style jsx="true">{`
-                .tab-btn { display: flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; cursor: pointer; border: 1px solid var(--border-subtle); background: var(--bg-surface); color: var(--text-muted); transition: all 0.2s; }
-                .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-                .tab-btn:hover:not(.active) { background: var(--bg-hover); color: var(--text-primary); }
-
-                .dept-select-clean { appearance: none; padding-right: 20px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right center; }
-                .dept-select-clean option { background: var(--bg-body); color: var(--text-primary); }
-
-                .status-pill-flex { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.5px; }
-                .status-pill-flex.present { background: rgba(16, 185, 129, 0.1); color: #10b981; }
-                .status-pill-flex.half-day { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
-                .status-pill-flex.absent { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
-                .status-pill-flex.on-leave { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
-                .status-pill-flex.late { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
-
-                .attendance-dashboard-grid {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                    gap: 20px;
-                }
-
-                .btn-icon {
-                    background: transparent;
-                    border: none;
-                    color: var(--text-muted);
-                    cursor: pointer;
-                    padding: 6px;
-                    border-radius: 6px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    transition: all 0.2s;
-                }
-                .btn-icon.view-btn:hover {
-                    background: var(--primary-light);
-                    color: var(--primary);
-                }
-
-                .mt-30 { margin-top: 30px; }
-                .mt-20 { margin-top: 20px; }
-                .flex-center { display: flex; align-items: center; justify-content: center; }
-                .gap-10 { gap: 10px; }
-
-                @media (max-width: 768px) {
-                    .page-container { padding: 16px 12px; }
-                    .module-header { flex-direction: column; align-items: flex-start; gap: 16px; }
-                    .header-actions { max-width: 100%; }
-                    .attendance-controls { flex-direction: column; width: 100%; }
-                    .date-selector, .dept-selector { width: 100%; justify-content: flex-start; }
-                    .date-input-clean, .dept-select-clean { width: 100%; }
-                    .attendance-dashboard-grid { grid-template-columns: 1fr 1fr; }
-                }
-            `}</style>
+            </div>
         </div>
     );
 };

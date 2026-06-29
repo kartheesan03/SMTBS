@@ -4,8 +4,9 @@ import { AuthContext } from '../context/AuthContext';
 import API from '../api/axios';
 import {
     Users, Search, Bell, Moon,
-    Briefcase, Activity, FileText, CheckCircle, ListTodo, FolderGit2,
-    Menu, Calendar, Clock, LogOut, Settings as SettingsIcon, User as UserIcon, DollarSign, TrendingUp
+    Briefcase, Activity, FileText, CheckCircle, ListTodo, FolderGit2, AlertCircle,
+    Menu, Calendar, Clock, LogOut, Settings as SettingsIcon, User as UserIcon, DollarSign, TrendingUp,
+    ArrowUpRight, ArrowDownRight
 } from 'lucide-react';
 import {
     EmptyState, SkeletonCard,
@@ -161,6 +162,13 @@ const ManagerDashboard = () => {
         attendance: teamMembers > 0 ? Math.round((presentCount / teamMembers) * 100) : 0,
         alerts: pendingApprovals
     };
+
+    const kpiCards = [
+        { title: 'Team Members', value: teamMembers, icon: Users, color: '#3b82f6', trend: 'Active', trendType: 'up' },
+        { title: 'Active Projects', value: activeProjects, icon: Briefcase, color: '#10b981', trend: 'In Progress', trendType: 'up' },
+        { title: 'Pending Approvals', value: pendingApprovals, icon: AlertCircle, color: '#f59e0b', trend: 'Requires Attention', trendType: 'down' },
+        { title: 'Team Productivity', value: `${teamProductivity}%`, icon: TrendingUp, color: '#8b5cf6', trend: 'Tasks Completed', trendType: 'up' }
+    ];
 
     return (
         <div className="erp-dashboard-container">

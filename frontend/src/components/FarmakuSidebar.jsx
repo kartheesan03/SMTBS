@@ -1,20 +1,32 @@
-import React, { useState, useContext } from 'react';
-import { NavLink, useNavigate, useLocation } from 'react-router-dom';
+import React, { useState, useContext, useEffect } from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { 
-    LayoutDashboard, ShoppingCart, Users, Briefcase, Settings as SettingsIcon,
-    Home, BarChart2, CheckSquare, Bell, UserPlus, DollarSign, Box, Truck, 
-    Clock, Calendar, Wallet, HelpCircle, User, Map, List, Moon, ChevronRight, ChevronDown, 
-    PanelLeftClose, LogOut
-} from 'lucide-react';
+import { NotificationContext } from '../context/NotificationContext';
+import * as Icons from 'lucide-react';
+import API from '../api/axios';
 import './FarmakuSidebar.css';
 
 const FarmakuSidebar = () => {
-    const { logout } = useContext(AuthContext);
-    const navigate = useNavigate();
+    const { user, logout } = useContext(AuthContext);
+    const { unreadCount } = useContext(NotificationContext);
     const location = useLocation();
     const [expandedMenu, setExpandedMenu] = useState('');
-    const [darkMode, setDarkMode] = useState(false);
+    const [navigation, setNavigation] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchNavigation = async () => {
+            try {
+                const response = await API.get('/system/navigation');
+                setNavigation(response.data);
+            } catch (error) {
+                console.error("Failed to load navigation:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchNavigation();
+    }, []);
 
     const toggleMenu = (menu) => {
         if (expandedMenu === menu) {
@@ -24,11 +36,17 @@ const FarmakuSidebar = () => {
         }
     };
 
-    const isPathActive = (paths) => {
-        if (Array.isArray(paths)) {
-            return paths.some(p => location.pathname === p || location.pathname.startsWith(p + '/'));
+    const isPathActive = (navItem) => {
+        if (navItem.path && location.pathname === navItem.path) return true;
+        if (navItem.children) {
+            return navItem.children.some(child => location.pathname === child.path || location.pathname.startsWith(child.path + '/'));
         }
-        return location.pathname === paths;
+        return false;
+    };
+
+    const renderIcon = (iconName) => {
+        const IconComponent = Icons[iconName] || Icons.Circle;
+        return <IconComponent size={20} />;
     };
 
     return (
@@ -36,7 +54,7 @@ const FarmakuSidebar = () => {
             <div className="farmaku-sidebar-header">
                 <div className="farmaku-logo-container">
                     <div className="farmaku-logo-icon">
-                        <Box size={24} strokeWidth={2.5} />
+                        <Icons.Box size={24} strokeWidth={2.5} />
                     </div>
                     <div className="farmaku-logo-text-wrapper">
                         <span className="farmaku-logo-text">SMTBMS</span>
@@ -45,128 +63,80 @@ const FarmakuSidebar = () => {
                 </div>
             </div>
 
-            <div className="farmaku-sidebar-content">
-                <div className="farmaku-nav-group">
-                    <div className="farmaku-nav-title">MENU</div>
-                    <ul className="farmaku-nav-list">
-                        <li>
-                            <NavLink to="/" className={({isActive}) => isActive && location.pathname === '/' ? "farmaku-nav-item active" : "farmaku-nav-item"}>
-                                <LayoutDashboard size={20} />
-                                <span>Dashboard</span>
-                            </NavLink>
-                        </li>
+            <div className="farmaku-sidebar-content" style={{ padding: '0 16px' }}>
+                <ul className="farmaku-nav-list" style={{ marginTop: '16px', gap: '8px', display: 'flex', flexDirection: 'column' }}>
+                    {loading ? (
+                        <div style={{ padding: '20px', textAlign: 'center', color: '#64748b' }}>Loading menu...</div>
+                    ) : (
+                        navigation.map((item, index) => (
+                            <li key={index}>
+                                {item.children ? (
+                                    <>
+                                        <div 
+                                            className={`farmaku-nav-item ${isPathActive(item) || expandedMenu === item.title ? 'active' : ''}`} 
+                                            onClick={() => toggleMenu(item.title)}
+                                        >
+                                            {renderIcon(item.icon)}
+                                            <span>{item.title}</span>
+                                            {expandedMenu === item.title ? <Icons.ChevronDown size={16} style={{marginLeft: 'auto'}} /> : <Icons.ChevronRight size={16} style={{marginLeft: 'auto'}} />}
+                                        </div>
+                                        {expandedMenu === item.title && (
+                                            <div className="farmaku-submenu">
+                                                {item.children.map((child, cIndex) => (
+                                                    <NavLink 
+                                                        key={cIndex}
+                                                        to={child.path} 
+                                                        className={({isActive}) => isActive ? "farmaku-subnav-item active" : "farmaku-subnav-item"}
+                                                    >
+                                                        {child.title}
+                                                    </NavLink>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </>
+                                ) : (
+                                    <NavLink 
+                                        to={item.path} 
+                                        className={({isActive}) => isActive ? "farmaku-nav-item active" : "farmaku-nav-item"}
+                                    >
+                                        {renderIcon(item.icon)}
+                                        <span>{item.title}</span>
+                                        <Icons.ChevronRight size={16} style={{marginLeft: 'auto'}} />
+                                    </NavLink>
+                                )}
+                            </li>
+                        ))
+                    )}
 
-                        <li>
-                            <div className={`farmaku-nav-item ${isPathActive(['/hrms', '/leave-management', '/payroll', '/my-salary']) ? 'active' : ''}`} onClick={() => toggleMenu('hrms')}>
-                                <Users size={20} />
-                                <span>HRMS</span>
-                                {expandedMenu === 'hrms' ? <ChevronDown size={16} style={{marginLeft: 'auto'}} /> : <ChevronRight size={16} style={{marginLeft: 'auto'}} />}
-                            </div>
-                            {expandedMenu === 'hrms' && (
-                                <div className="farmaku-submenu">
-                                    <NavLink to="/hrms" className={({isActive}) => isActive ? "farmaku-subnav-item active" : "farmaku-subnav-item"}>Employee Management</NavLink>
-                                    <NavLink to="/leave-management" className={({isActive}) => isActive ? "farmaku-subnav-item active" : "farmaku-subnav-item"}>Leave Management</NavLink>
-                                    <NavLink to="/payroll" className={({isActive}) => isActive ? "farmaku-subnav-item active" : "farmaku-subnav-item"}>Payroll</NavLink>
-                                    <NavLink to="/my-salary" className={({isActive}) => isActive ? "farmaku-subnav-item active" : "farmaku-subnav-item"}>My Salary</NavLink>
-                                </div>
+                    {/* Static Items that are not entirely permission driven in the same way (like Notifications, Support, Logout) */}
+                    <li>
+                        <NavLink to="/notifications" className={({isActive}) => isActive ? "farmaku-nav-item active" : "farmaku-nav-item"}>
+                            <Icons.Bell size={20} />
+                            <span>Notifications</span>
+                            {unreadCount > 0 ? (
+                                <div style={{marginLeft: 'auto', backgroundColor: '#ef4444', color: '#fff', fontSize: '10px', borderRadius: '50%', width: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>{unreadCount}</div>
+                            ) : (
+                                <Icons.ChevronRight size={16} style={{marginLeft: 'auto'}} />
                             )}
-                        </li>
+                        </NavLink>
+                    </li>
 
-                        <li>
-                            <div className={`farmaku-nav-item ${isPathActive(['/materials', '/tracking-overview', '/stock-requests', '/vendors']) ? 'active' : ''}`} onClick={() => toggleMenu('materials')}>
-                                <Box size={20} />
-                                <span>Materials</span>
-                                {expandedMenu === 'materials' ? <ChevronDown size={16} style={{marginLeft: 'auto'}} /> : <ChevronRight size={16} style={{marginLeft: 'auto'}} />}
-                            </div>
-                            {expandedMenu === 'materials' && (
-                                <div className="farmaku-submenu">
-                                    <NavLink to="/materials" className={({isActive}) => isActive ? "farmaku-subnav-item active" : "farmaku-subnav-item"}>Materials</NavLink>
-                                    <NavLink to="/tracking-overview" className={({isActive}) => isActive ? "farmaku-subnav-item active" : "farmaku-subnav-item"}>Material Tracking</NavLink>
-                                    <NavLink to="/stock-requests" className={({isActive}) => isActive ? "farmaku-subnav-item active" : "farmaku-subnav-item"}>Stock Request</NavLink>
-                                    <NavLink to="/vendors" className={({isActive}) => isActive ? "farmaku-subnav-item active" : "farmaku-subnav-item"}>Vendors</NavLink>
-                                </div>
-                            )}
-                        </li>
+                    <li>
+                        <NavLink to="/support" className={({isActive}) => isActive ? "farmaku-nav-item active" : "farmaku-nav-item"}>
+                            <Icons.HelpCircle size={20} />
+                            <span>Help & Support</span>
+                            <Icons.ChevronRight size={16} style={{marginLeft: 'auto'}} />
+                        </NavLink>
+                    </li>
 
-                        <li>
-                            <NavLink to="/erp" className={({isActive}) => isActive ? "farmaku-nav-item active" : "farmaku-nav-item"}>
-                                <ShoppingCart size={20} />
-                                <span>ERP</span>
-                            </NavLink>
-                        </li>
-
-                        <li>
-                            <div className={`farmaku-nav-item ${isPathActive(['/attendance', '/attendance/my']) ? 'active' : ''}`} onClick={() => toggleMenu('attendance')}>
-                                <Clock size={20} />
-                                <span>Attendance</span>
-                                {expandedMenu === 'attendance' ? <ChevronDown size={16} style={{marginLeft: 'auto'}} /> : <ChevronRight size={16} style={{marginLeft: 'auto'}} />}
-                            </div>
-                            {expandedMenu === 'attendance' && (
-                                <div className="farmaku-submenu">
-                                    <NavLink to="/attendance/my" className={({isActive}) => isActive ? "farmaku-subnav-item active" : "farmaku-subnav-item"}>My Attendance</NavLink>
-                                    <NavLink to="/attendance" className={({isActive}) => isActive ? "farmaku-subnav-item active" : "farmaku-subnav-item"}>Master Attendance</NavLink>
-                                </div>
-                            )}
-                        </li>
-
-                        <li>
-                            <NavLink to="/crm" className={({isActive}) => isActive ? "farmaku-nav-item active" : "farmaku-nav-item"}>
-                                <Briefcase size={20} />
-                                <span>CRM</span>
-                            </NavLink>
-                        </li>
-
-                        <li>
-                            <NavLink to="/tasks" className={({isActive}) => isActive ? "farmaku-nav-item active" : "farmaku-nav-item"}>
-                                <CheckSquare size={20} />
-                                <span>Tasks</span>
-                            </NavLink>
-                        </li>
-                    </ul>
-                </div>
-
-                <div className="farmaku-nav-group">
-                    <div className="farmaku-nav-title">OTHERS</div>
-                    <ul className="farmaku-nav-list">
-                        <li>
-                            <NavLink to="/reports" className={({isActive}) => isActive ? "farmaku-nav-item active" : "farmaku-nav-item"}>
-                                <BarChart2 size={20} />
-                                <span>Reports</span>
-                                <ChevronRight size={16} style={{marginLeft: 'auto'}} />
-                            </NavLink>
-                        </li>
-                        <li>
-                            <NavLink to="/notifications" className={({isActive}) => isActive ? "farmaku-nav-item active" : "farmaku-nav-item"}>
-                                <Bell size={20} />
-                                <span>Notifications</span>
-                                <div style={{marginLeft: 'auto', backgroundColor: '#ef4444', color: '#fff', fontSize: '10px', borderRadius: '50%', width: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>4</div>
-                            </NavLink>
-                        </li>
-                        <li>
-                            <NavLink to="/profile" className={({isActive}) => isActive ? "farmaku-nav-item active" : "farmaku-nav-item"}>
-                                <User size={20} />
-                                <span>Profile</span>
-                                <ChevronRight size={16} style={{marginLeft: 'auto'}} />
-                            </NavLink>
-                        </li>
-                        <li>
-                            <NavLink to="/settings" className={({isActive}) => isActive ? "farmaku-nav-item active" : "farmaku-nav-item"}>
-                                <SettingsIcon size={20} />
-                                <span>Settings</span>
-                                <ChevronRight size={16} style={{marginLeft: 'auto'}} />
-                            </NavLink>
-                        </li>
-                        <li>
-                            <div className="farmaku-nav-item" onClick={logout} style={{marginTop: '8px'}}>
-                                <LogOut size={20} />
-                                <span>Logout</span>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
+                    <li>
+                        <div className="farmaku-nav-item" onClick={logout} style={{marginTop: '16px'}}>
+                            <Icons.LogOut size={20} />
+                            <span>Logout</span>
+                        </div>
+                    </li>
+                </ul>
             </div>
-
-
         </aside>
     );
 };

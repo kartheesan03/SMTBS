@@ -24,6 +24,9 @@ const erpRoutes = require('./src/routes/erpRoutes');
 const communicationRoutes = require('./src/routes/communicationRoutes');
 const auditRoutes = require('./src/routes/auditRoutes');
 const stockRequestRoutes = require('./src/routes/stockRequestRoutes');
+const backupRoutes = require('./src/routes/backupRoutes');
+const systemRoutes = require('./src/routes/systemRoutes');
+const roleRoutes = require('./src/routes/roleRoutes');
 
 const app = express();
 
@@ -53,6 +56,9 @@ app.use('/api/erp', erpRoutes);
 app.use('/api/communications', communicationRoutes);
 app.use('/api/audit-logs', auditRoutes);
 app.use('/api/stock-requests', stockRequestRoutes);
+app.use('/api/backup', backupRoutes);
+app.use('/api/system', systemRoutes);
+app.use('/api/roles', roleRoutes);
 
 // 404 Handler
 app.use((req, res, next) => {
@@ -74,7 +80,7 @@ app.use((err, req, res, next) => {
 // Start server
 const PORT = process.env.PORT || 5000;
 
-const { autoMarkAbsent } = require('./src/controllers/attendancecontroller');
+const { autoMarkAbsent } = require('./src/controllers/attendanceController');
 
 const startServer = async () => {
     try {

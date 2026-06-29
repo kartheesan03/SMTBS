@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect, useRef } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { Bell, RefreshCw, Search, Grid, Plus, LogOut, User, Settings as SettingsIcon, ArrowLeft } from 'lucide-react';
+import { Bell, RefreshCw, Search, Grid, Plus, LogOut, User, Settings as SettingsIcon, ArrowLeft, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Topbar = ({ onOpenModuleLauncher, onOpenCommandCenter }) => {
@@ -122,15 +122,36 @@ const Topbar = ({ onOpenModuleLauncher, onOpenCommandCenter }) => {
             {isLogoutModalOpen && (
                 <>
                     <div className="logout-overlay" onClick={() => setIsLogoutModalOpen(false)}></div>
-                    <div className="logout-modal">
-                        <div className="logout-icon-circle">
-                            <LogOut size={24} color="#e11d48" />
+                    <div className="logout-modal-modern">
+                        <button className="logout-close-btn" onClick={() => setIsLogoutModalOpen(false)}>
+                            <X size={16} />
+                        </button>
+                        <div className="logout-modal-header">
+                            <div className="logout-icon-box">
+                                <LogOut size={20} color="#e11d48" />
+                            </div>
+                            <div className="logout-header-text">
+                                <h3>Sign out?</h3>
+                                <p>Your session will be securely ended</p>
+                            </div>
                         </div>
-                        <h3>Sign Out</h3>
-                        <p>Are you sure you want to sign out of your account? You will need to log back in to access the system.</p>
-                        <div className="logout-actions">
-                            <button className="btn-cancel" onClick={() => setIsLogoutModalOpen(false)}>Cancel</button>
-                            <button className="btn-confirm" onClick={handleConfirmLogout}>Sign Out</button>
+                        
+                        <div className="logout-divider"></div>
+                        
+                        <div className="logout-user-card">
+                            <img src={user?.picture || 'https://via.placeholder.com/40'} alt="User" />
+                            <div className="luc-info">
+                                <h4>{user?.name || 'Admin'}</h4>
+                                <p>{user?.role || 'Full Access'} · smtbms.com</p>
+                            </div>
+                            <div className="luc-status-dot"></div>
+                        </div>
+                        
+                        <div className="logout-actions-modern">
+                            <button className="btn-stay" onClick={() => setIsLogoutModalOpen(false)}>Stay</button>
+                            <button className="btn-signout" onClick={handleConfirmLogout}>
+                                <LogOut size={16} /> Sign Out
+                            </button>
                         </div>
                     </div>
                 </>
@@ -492,7 +513,7 @@ const Topbar = ({ onOpenModuleLauncher, onOpenCommandCenter }) => {
                     background: #fff1f2;
                 }
 
-                /* Logout Modal */
+                /* Modern Logout Modal */
                 .logout-overlay {
                     position: fixed;
                     inset: 0;
@@ -502,81 +523,161 @@ const Topbar = ({ onOpenModuleLauncher, onOpenCommandCenter }) => {
                     animation: fadeIn 0.15s ease-out;
                 }
 
-                .logout-modal {
+                .logout-modal-modern {
                     position: fixed;
                     top: 50%;
                     left: 50%;
                     transform: translate(-50%, -50%);
                     width: 90%;
-                    max-width: 400px;
+                    max-width: 420px;
                     background: #ffffff;
                     border-radius: 20px;
                     padding: 32px;
                     z-index: 1001;
                     box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
-                    text-align: center;
                     animation: scaleUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
                 }
 
-                .logout-icon-circle {
-                    width: 64px;
-                    height: 64px;
-                    background: #fff1f2;
-                    border-radius: 50%;
+                .logout-close-btn {
+                    position: absolute;
+                    top: 20px;
+                    right: 20px;
+                    width: 32px;
+                    height: 32px;
+                    border-radius: 8px;
+                    background: #eff6ff;
+                    border: 1px solid #dbeafe;
+                    color: #64748b;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    margin: 0 auto 24px auto;
-                }
-
-                .logout-modal h3 {
-                    margin: 0 0 12px 0;
-                    font-size: 20px;
-                    color: #0f172a;
-                    font-weight: 700;
-                }
-
-                .logout-modal p {
-                    margin: 0 0 32px 0;
-                    color: #64748b;
-                    font-size: 14px;
-                    line-height: 1.5;
-                }
-
-                .logout-actions {
-                    display: flex;
-                    gap: 12px;
-                }
-
-                .btn-cancel, .btn-confirm {
-                    flex: 1;
-                    height: 44px;
-                    border-radius: 12px;
-                    font-weight: 600;
-                    font-size: 14px;
                     cursor: pointer;
                     transition: all 0.2s;
                 }
 
-                .btn-cancel {
-                    background: #f1f5f9;
-                    border: none;
-                    color: #475569;
-                }
-
-                .btn-cancel:hover {
-                    background: #e2e8f0;
+                .logout-close-btn:hover {
+                    background: #dbeafe;
                     color: #0f172a;
                 }
 
-                .btn-confirm {
-                    background: #e11d48;
+                .logout-modal-header {
+                    display: flex;
+                    align-items: center;
+                    gap: 16px;
+                    margin-bottom: 24px;
+                }
+
+                .logout-icon-box {
+                    width: 52px;
+                    height: 52px;
+                    background: #fff1f2;
+                    border: 1px solid #fecdd3;
+                    border-radius: 14px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+
+                .logout-header-text h3 {
+                    margin: 0 0 4px 0;
+                    font-size: 20px;
+                    color: #0f172a;
+                    font-weight: 800;
+                }
+
+                .logout-header-text p {
+                    margin: 0;
+                    color: #64748b;
+                    font-size: 13px;
+                }
+
+                .logout-divider {
+                    height: 1px;
+                    background-color: #f1f5f9;
+                    margin: 24px 0;
+                }
+
+                .logout-user-card {
+                    display: flex;
+                    align-items: center;
+                    background: #f8fafc;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 12px;
+                    padding: 16px;
+                    margin-bottom: 24px;
+                }
+
+                .logout-user-card img {
+                    width: 44px;
+                    height: 44px;
+                    border-radius: 10px;
+                    object-fit: cover;
+                    margin-right: 12px;
+                }
+
+                .luc-info {
+                    flex-grow: 1;
+                }
+
+                .luc-info h4 {
+                    margin: 0 0 2px 0;
+                    font-size: 14px;
+                    font-weight: 700;
+                    color: #0f172a;
+                }
+
+                .luc-info p {
+                    margin: 0;
+                    font-size: 12px;
+                    color: #64748b;
+                }
+
+                .luc-status-dot {
+                    width: 8px;
+                    height: 8px;
+                    background-color: #10b981;
+                    border-radius: 50%;
+                }
+
+                .logout-actions-modern {
+                    display: flex;
+                    gap: 12px;
+                }
+
+                .btn-stay, .btn-signout {
+                    flex: 1;
+                    height: 48px;
+                    border-radius: 12px;
+                    font-weight: 700;
+                    font-size: 14px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 8px;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                }
+
+                .btn-stay {
+                    background: transparent;
+                    border: 1px solid #cbd5e1;
+                    color: #334155;
+                }
+
+                .btn-stay:hover {
+                    background: #f8fafc;
+                    border-color: #94a3b8;
+                    color: #0f172a;
+                }
+
+                .btn-signout {
+                    background: #be123c;
                     border: none;
                     color: white;
                 }
 
-                .btn-confirm:hover {
-                    background: #be123c;
+                .btn-signout:hover {
+                    background: #9f1239;
                 }
 
                 @keyframes slideUpFade {

@@ -56,8 +56,9 @@ const getDashboardStats = async (req, res) => {
         let lowStockMaterials = [];
         let totalStockQuantity = 0;
         let inTransitCount = 0;
+        let allMaterialsRaw = [];
         try {
-            const allMaterialsRaw = await Material.find();
+            allMaterialsRaw = await Material.find();
             const allMaterials = allMaterialsRaw.filter(m => m.isActive !== false);
             allMaterials.forEach(m => {
                 totalStockQuantity += (m.quantity || 0);
@@ -206,7 +207,29 @@ const getDashboardStats = async (req, res) => {
                 lowStockCount: lowStockMaterials.length,
                 inTransitCount: inTransitCount
             },
-            charts: { monthlyStats, categoryData: categoryData || [] },
+            charts: { 
+                monthlyStats, 
+                categoryData: categoryData || [],
+                hrmsDonut: [
+                    { name: 'Active', value: stats.totalEmployees || 0, color: '#3b82f6' },
+                    { name: 'Pending', value: await Employee.countDocuments({status: 'Pending'}) || 0, color: '#f59e0b' }
+                ],
+                matDonut: [
+                    { name: 'In Stock', value: (stats.totalMaterials || 0) - lowStockMaterials.length, color: '#10b981' },
+                    { name: 'Low Stock', value: lowStockMaterials.length, color: '#f59e0b' },
+                    { name: 'In Transit', value: inTransitCount > 0 ? 1 : 0, color: '#3b82f6' }
+                ],
+                crmDonut: [
+                    { name: 'Active', value: stats.activeCustomers || 0, color: '#10b981' },
+                    { name: 'Pending', value: await Customer.countDocuments({status: 'Pending Review'}), color: '#f59e0b' },
+                    { name: 'Inactive', value: (stats.totalCustomers || 0) - (stats.activeCustomers || 0), color: '#ef4444' }
+                ],
+                erpDonut: [
+                    { name: 'Sales', value: stats.totalSalesOrders || 0, color: '#3b82f6' },
+                    { name: 'Purchase', value: stats.totalPurchaseOrders || 0, color: '#10b981' },
+                    { name: 'Pending', value: await Order.countDocuments({status: 'Awaiting Approval'}), color: '#f59e0b' }
+                ]
+            },
             tables: { 
                 lowStock: lowStockMaterials, 
                 recentOrders: recentOrders || [],
