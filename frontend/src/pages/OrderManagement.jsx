@@ -4,7 +4,6 @@ import API from '../api/axios';
 import { Package, Truck, CheckCircle, DollarSign, Search, Plus, Eye, ArrowRight, Activity, TrendingUp } from 'lucide-react';
 import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell } from 'recharts';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
-import { RDHeader } from './AdminDashboard';
 import toast from 'react-hot-toast';
 
 const OrderManagement = () => {
@@ -40,6 +39,7 @@ const OrderManagement = () => {
     const activeOrders = orders.filter(o => !['Delivered', 'Completed', 'Cancelled'].includes(o.status));
     const deliveredOrders = orders.filter(o => ['Delivered', 'Completed'].includes(o.status));
     const orderRevenue = deliveredOrders.reduce((sum, o) => sum + (Number(o.totalAmount) || Number(o.grandTotal) || 0), 0);
+    const currentMonthRevenue = orderRevenue * 0.8; // mock current month
 
     const formatCurrency = (val) => {
         if (!val || val === 0) return '₹0';
@@ -70,22 +70,24 @@ const OrderManagement = () => {
         { name: 'Cancelled', value: orders.filter(o => o.status === 'Cancelled').length || 1, fill: '#ef4444' }
     ];
 
+    // Dynamic Chart Data Generation
+    const makeBarData = (base) => Array.from({length: 7}, () => ({v: Math.max(1, base + Math.floor(Math.random() * (base * 0.4) - (base * 0.2)))}));
+    
+    const revBase = (orderRevenue / 1000) || 500;
+    const currentMonth = new Date().toLocaleString('default', { month: 'short' });
     const revenueChartData = [
-        { name: 'Dec', orderRevenue: 310, deliveredRevenue: 90 },
-        { name: 'Jan', orderRevenue: 420, deliveredRevenue: 135 },
-        { name: 'Feb', orderRevenue: 380, deliveredRevenue: 110 },
-        { name: 'Mar', orderRevenue: 510, deliveredRevenue: 170 },
-        { name: 'Apr', orderRevenue: 465, deliveredRevenue: 155 },
-        { name: 'May', orderRevenue: 580, deliveredRevenue: 205 }
+        { name: 'Jan', orderRevenue: Math.round(revBase * 0.6), deliveredRevenue: Math.round(revBase * 0.4) },
+        { name: 'Feb', orderRevenue: Math.round(revBase * 0.7), deliveredRevenue: Math.round(revBase * 0.5) },
+        { name: 'Mar', orderRevenue: Math.round(revBase * 0.65), deliveredRevenue: Math.round(revBase * 0.45) },
+        { name: 'Apr', orderRevenue: Math.round(revBase * 0.8), deliveredRevenue: Math.round(revBase * 0.6) },
+        { name: 'May', orderRevenue: Math.round(revBase * 0.9), deliveredRevenue: Math.round(revBase * 0.7) },
+        { name: currentMonth, orderRevenue: Math.round(revBase), deliveredRevenue: Math.round(currentMonthRevenue / 1000) }
     ];
-
-    const barData = [{v:5},{v:7},{v:4},{v:8},{v:6},{v:9},{v:7}];
 
     if (loading) return <div className="flex-center" style={{height:'100vh'}}><div className="loader"></div></div>;
 
     return (
         <div className="rd-container">
-            <RDHeader onRefresh={fetchOrders} />
             <div className="rd-content">
                 {/* Module Header */}
                 <div className="rd-module-header">
@@ -103,10 +105,10 @@ const OrderManagement = () => {
 
                 {/* KPI Cards */}
                 <div className="rd-kpi-row">
-                    <OrderKPICard title="Total Orders" val={orders.length} trend="+18%" subtitle="vs last month" color="blue" icon={Package} data={barData} />
-                    <OrderKPICard title="Active Orders" val={activeOrders.length} trend="~" subtitle="In pipeline" color="purple" icon={Truck} data={barData} />
-                    <OrderKPICard title="Delivered" val={deliveredOrders.length} trend="+25%" subtitle="vs last month" color="green" icon={CheckCircle} data={barData} />
-                    <OrderKPICard title="Order Revenue" val={formatCurrency(orderRevenue)} trend="+19%" subtitle="vs last month" color="teal" icon={DollarSign} data={barData} />
+                    <OrderKPICard title="Total Orders" val={orders.length} trend="+18%" subtitle="vs last month" color="blue" icon={Package} data={makeBarData(orders.length || 10)} />
+                    <OrderKPICard title="Active Orders" val={activeOrders.length} trend="~" subtitle="In pipeline" color="purple" icon={Truck} data={makeBarData(activeOrders.length || 5)} />
+                    <OrderKPICard title="Delivered" val={deliveredOrders.length} trend="+25%" subtitle="vs last month" color="green" icon={CheckCircle} data={makeBarData(deliveredOrders.length || 5)} />
+                    <OrderKPICard title="Order Revenue" val={formatCurrency(orderRevenue)} trend="+19%" subtitle="vs last month" color="teal" icon={DollarSign} data={makeBarData(revBase)} />
                 </div>
 
                 {/* Charts */}
@@ -236,7 +238,7 @@ const OrderManagement = () => {
                                 const priStyle = priorityColors[pri] || priorityColors['Normal'];
 
                                 return (
-                                    <tr key={o._id || i} style={{cursor: 'pointer'}} onClick={() => navigate(`/orders/${o._id || o.id}/tracking`)}>
+                                    <tr key={o._id || o.id || i} style={{cursor: 'pointer'}} onClick={() => navigate(`/orders/${o._id || o.id}/tracking`)}>
                                         <td style={{fontWeight: 700, color: '#3b82f6'}}>{orderId}</td>
                                         <td style={{fontWeight: 700, color: 'var(--rd-text-main)'}}>{o.customer?.company || o.customer?.name || '-'}</td>
                                         <td style={{color: '#475569'}}>{o.items?.length || 1}</td>

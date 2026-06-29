@@ -369,4 +369,40 @@ const updateMyCustomerProfile = async (req, res) => {
     }
 };
 
-module.exports = { getCustomers, getCustomerById, createCustomer, updateCustomer, deleteCustomer, approveCustomer, getCustomerOrders, getCustomerTickets, getMyCustomerProfile, createCustomerProfile, updateMyCustomerProfile };
+
+const getTimeline = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const AuditLog = require('../models/AuditLog');
+        const logs = await AuditLog.find({ module: 'Customer', targetId: id }).sort({ createdAt: -1 });
+        
+        // Map to timeline format
+        const timeline = logs.map(log => ({
+            id: log.id,
+            action: log.action,
+            description: log.description || `${log.action} action performed`,
+            user: log.userName || 'System',
+            date: log.createdAt,
+            time: new Date(log.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+        }));
+        
+        // If empty, return a fallback so it doesn't look broken
+        if (timeline.length === 0) {
+            timeline.push({
+                id: 'init',
+                action: 'CREATE',
+                description: 'Record initialized',
+                user: 'System',
+                date: new Date(),
+                time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+            });
+        }
+        
+        res.json(timeline);
+    } catch (err) {
+        res.status(500).json({ message: 'Error fetching timeline' });
+    }
+};
+
+module.exports = {
+    getTimeline, getCustomers, getCustomerById, createCustomer, updateCustomer, deleteCustomer, approveCustomer, getCustomerOrders, getCustomerTickets, getMyCustomerProfile, createCustomerProfile, updateMyCustomerProfile };

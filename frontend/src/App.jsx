@@ -10,7 +10,8 @@ import { Toaster } from 'react-hot-toast';
 
 import ModuleLauncher from './components/ModuleLauncher';
 import CommandCenter from './components/CommandCenter';
-import GlobalBackButton from './components/GlobalBackButton';
+
+import GlobalHeader from './components/GlobalHeader';
 
 // Pages
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
@@ -132,11 +133,15 @@ const AppContent = () => {
                             isOpen={isCommandCenterOpen} 
                             onClose={() => setIsCommandCenterOpen(false)} 
                         />
+                        <GlobalHeader 
+                            onOpenModuleLauncher={() => setIsModuleLauncherOpen(true)}
+                            onOpenCommandCenter={() => setIsCommandCenterOpen(true)}
+                        />
                     </>
                 )}
                 <React.Suspense fallback={<div className="flex-center" style={{height:'100vh'}}><div className="loader"></div></div>}>
                 <div className="app-content">
-                {user && <GlobalBackButton />}
+
                 <Routes>
                     {/* Public Route */}
                     <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />

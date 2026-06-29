@@ -43,6 +43,7 @@
   background-color: var(--rd-bg);
   min-height: 100vh;
   color: var(--rd-text-main);
+  margin-top: -32px;
 }
 
 /* Header */

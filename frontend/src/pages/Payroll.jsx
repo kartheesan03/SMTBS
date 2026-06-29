@@ -1,37 +1,115 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Briefcase, CreditCard, User, FileText, Play } from 'lucide-react';
+import { Search, Briefcase, CreditCard, User, FileText, Play, CheckCircle } from 'lucide-react';
+import API from '../api/axios';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
-import { RDHeader } from './AdminDashboard';
 import { HRMSKPICard } from '../components/HRMSShared';
 
 const Payroll = () => {
     const navigate = useNavigate();
-    const [filter, setFilter] = useState('All');
+    
+    const [salaries, setSalaries] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [monthFilter, setMonthFilter] = useState('All');
+    const [deptFilter, setDeptFilter] = useState('All');
 
-    // Mock data for tiny trend charts
-    const trendData1 = [{v: 4},{v: 5},{v: 6},{v: 5},{v: 8},{v: 7},{v: 9},{v: 8}];
-    const trendData2 = [{v: 2},{v: 4},{v: 3},{v: 5},{v: 6},{v: 5},{v: 7},{v: 6}];
-    const trendData3 = [{v: 2},{v: 3},{v: 2},{v: 4},{v: 3},{v: 4},{v: 5},{v: 4}];
-    const trendData4 = [{v: 1},{v: 2},{v: 1},{v: 3},{v: 2},{v: 3},{v: 2},{v: 4}];
+    const fetchSalaries = useCallback(async () => {
+        setLoading(true);
+        try {
+            const res = await API.get('/salaries');
+            setSalaries(res.data || []);
+        } catch (err) {
+            console.error('Failed to fetch salaries:', err);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
 
-    const payrollData = [
-        { id: 'EMP-011', name: 'Ritu Agarwal', role: 'Jr. Engineer', dept: 'Engineering', basic: '₹24,000', hra: '₹9,600', gross: '₹48,000', net: '₹38,400', status: 'Processed' },
-        { id: 'EMP-016', name: 'Lata Mishra', role: 'Jr. Finance Analyst', dept: 'Finance', basic: '₹22,500', hra: '₹9,000', gross: '₹45,000', net: '₹36,000', status: 'Processed' },
-    ];
+    useEffect(() => {
+        fetchSalaries();
+    }, [fetchSalaries]);
+
+    const formatCurrency = (amount) => {
+        if (amount === undefined || amount === null) return '₹0';
+        // Check if amount is >= 1,00,000 for 'L' format in KPIs, else format normally
+        if (amount >= 100000 && arguments[1] === 'short') {
+            return `₹${(amount / 100000).toFixed(1)}L`;
+        }
+        if (amount >= 1000 && arguments[1] === 'short') {
+            return `₹${(amount / 1000).toFixed(1)}K`;
+        }
+        return new Intl.NumberFormat('en-IN', {
+            style: 'currency',
+            currency: 'INR',
+            maximumFractionDigits: 0
+        }).format(amount);
+    };
+
+    // Calculate dynamic KPIs
+    const totalGross = salaries.reduce((sum, s) => sum + (s.basicSalary || 0) + (s.allowances || 0), 0);
+    const totalNet = salaries.reduce((sum, s) => sum + (s.netSalary || 0), 0);
+    const totalPF = salaries.reduce((sum, s) => sum + ((s.basicSalary || 0) * 0.12), 0); // Assuming 12% PF for KPI
+    const totalTax = salaries.reduce((sum, s) => sum + (s.deductions || 0) - ((s.basicSalary || 0) * 0.12), 0); // Remaining deductions as Tax
+
+    // Trend mock generator
+    const makeTrend = (base) => Array.from({length: 8}, () => ({v: Math.max(0, base + Math.floor(Math.random() * 4 - 2))}));
 
     const getStatusBadge = (status) => {
-        if (status === 'Processed') return <span className="rd-status-badge rd-status-green"><span className="rd-legend-dot" style={{background: '#10b981', display:'inline-block', marginRight: 6}}></span>Processed</span>;
-        if (status === 'Pending') return <span className="rd-status-badge rd-status-orange"><span className="rd-legend-dot" style={{background: '#f59e0b', display:'inline-block', marginRight: 6}}></span>Pending</span>;
+        if (status === 'Paid') return <span className="rd-status-badge rd-status-green"><span className="rd-legend-dot" style={{background: '#10b981', display:'inline-block', marginRight: 6}}></span>Paid</span>;
+        if (status === 'Approved') return <span className="rd-status-badge rd-status-blue"><span className="rd-legend-dot" style={{background: '#3b82f6', display:'inline-block', marginRight: 6}}></span>Approved</span>;
+        if (status === 'Awaiting Approval') return <span className="rd-status-badge rd-status-orange"><span className="rd-legend-dot" style={{background: '#f59e0b', display:'inline-block', marginRight: 6}}></span>Pending</span>;
         return <span className="rd-status-badge rd-status-blue">{status}</span>;
     };
 
-    const getInitials = (name) => name.split(' ').map(n => n[0]).join('').toUpperCase();
+    const getInitials = (firstName, lastName) => `${(firstName || '')[0] || ''}${(lastName || '')[0] || ''}`.toUpperCase() || '??';
+
+    // Filters setup
+    const departments = ['All', ...new Set(salaries.map(s => s.employee?.department).filter(Boolean))];
+    const months = ['All', ...new Set(salaries.map(s => s.month).filter(Boolean))];
+
+    const filteredSalaries = salaries.filter(record => {
+        const emp = record.employee || {};
+        const name = `${emp.firstName || ''} ${emp.lastName || ''}`.toLowerCase();
+        
+        const matchesSearch = !searchTerm || name.includes(searchTerm.toLowerCase()) || (emp.employeeId || '').toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesDept = deptFilter === 'All' || emp.department === deptFilter;
+        const matchesMonth = monthFilter === 'All' || record.month === monthFilter;
+
+        return matchesSearch && matchesDept && matchesMonth;
+    });
+
+    const handleProcessAll = async () => {
+        if(window.confirm('Process payments for all Approved salary records?')) {
+            try {
+                await API.put('/salaries/pay-all');
+                fetchSalaries();
+            } catch (err) {
+                alert(err.response?.data?.message || 'Error processing payroll');
+            }
+        }
+    };
+
+    const handleApprove = async (id) => {
+        try {
+            await API.put(`/salaries/${id}/approve`);
+            fetchSalaries();
+        } catch (err) {
+            alert(err.response?.data?.message || 'Error approving salary');
+        }
+    };
+
+    const handlePay = async (id) => {
+        try {
+            await API.put(`/salaries/${id}/pay`);
+            fetchSalaries();
+        } catch (err) {
+            alert(err.response?.data?.message || 'Error processing payment');
+        }
+    };
 
     return (
         <div className="rd-container">
-            <RDHeader onRefresh={() => {}} />
-
             <div className="rd-content">
                 {/* Module Header */}
                 <div className="rd-module-header">
@@ -49,10 +127,10 @@ const Payroll = () => {
 
                 {/* KPI Cards */}
                 <div className="rd-kpi-row">
-                    <HRMSKPICard title="Total Gross Payroll" val="₹2.7L" sub="↗ Gross this cycle" color="blue" data={trendData1} icon={Briefcase} />
-                    <HRMSKPICard title="Total Net Pay" val="₹2.2L" sub="↗ After deductions" color="green" data={trendData2} icon={CreditCard} />
-                    <HRMSKPICard title="PF Contributions" val="₹33K" sub="↗ 12% of basic salary" color="orange" data={trendData3} icon={User} />
-                    <HRMSKPICard title="Tax Deducted" val="₹22K" sub="↘ TDS this month" color="red" data={trendData4} icon={FileText} />
+                    <HRMSKPICard title="Total Gross Payroll" val={formatCurrency(totalGross, 'short')} sub="↗ Gross across records" color="blue" data={makeTrend(8)} icon={Briefcase} />
+                    <HRMSKPICard title="Total Net Pay" val={formatCurrency(totalNet, 'short')} sub="↗ After deductions" color="green" data={makeTrend(6)} icon={CreditCard} />
+                    <HRMSKPICard title="Est. PF Contributions" val={formatCurrency(totalPF, 'short')} sub="↗ 12% of basic salary" color="orange" data={makeTrend(4)} icon={User} />
+                    <HRMSKPICard title="Other Deductions" val={formatCurrency(totalTax > 0 ? totalTax : 0, 'short')} sub="↘ TDS/Other this cycle" color="red" data={makeTrend(3)} icon={FileText} />
                 </div>
 
                 {/* Table Section */}
@@ -61,23 +139,33 @@ const Payroll = () => {
                         <div style={{display: 'flex', gap: 16, alignItems: 'center'}}>
                             <div className="rd-search-bar" style={{width: 250, background: '#fff'}}>
                                 <Search size={16} color="#94a3b8" />
-                                <input type="text" className="rd-search-input" placeholder="Search employee..." />
+                                <input
+                                    type="text"
+                                    className="rd-search-input"
+                                    placeholder="Search employee..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
                             </div>
-                            <select style={{padding: '8px 16px', border: '1px solid #e2e8f0', borderRadius: 8, outline: 'none', background: '#fff', color: '#64748b', fontSize: 14}}>
-                                <option>Jun 2026</option>
-                                <option>May 2026</option>
-                                <option>Apr 2026</option>
+                            <select
+                                value={monthFilter}
+                                onChange={(e) => setMonthFilter(e.target.value)}
+                                style={{padding: '8px 16px', border: '1px solid #e2e8f0', borderRadius: 8, outline: 'none', background: '#fff', color: '#64748b', fontSize: 14}}
+                            >
+                                {months.map(m => <option key={m} value={m}>{m === 'All' ? 'All Months' : m}</option>)}
                             </select>
-                            <select style={{padding: '8px 16px', border: '1px solid #e2e8f0', borderRadius: 8, outline: 'none', background: '#fff', color: '#64748b', fontSize: 14}}>
-                                <option>All Depts</option>
-                                <option>Engineering</option>
-                                <option>Finance</option>
+                            <select
+                                value={deptFilter}
+                                onChange={(e) => setDeptFilter(e.target.value)}
+                                style={{padding: '8px 16px', border: '1px solid #e2e8f0', borderRadius: 8, outline: 'none', background: '#fff', color: '#64748b', fontSize: 14}}
+                            >
+                                {departments.map(d => <option key={d} value={d}>{d === 'All' ? 'All Depts' : d}</option>)}
                             </select>
                         </div>
                         <div className="rd-table-actions">
-                            <button className="rd-btn-solid" style={{background: '#10b981'}}>
+                            <button className="rd-btn-solid" style={{background: '#10b981'}} onClick={handleProcessAll}>
                                 <Play size={16} style={{marginRight: 8, verticalAlign: 'middle'}} fill="currentColor" />
-                                Process All
+                                Pay All Approved
                             </button>
                         </div>
                     </div>
@@ -85,49 +173,76 @@ const Payroll = () => {
                     <table className="rd-table">
                         <thead>
                             <tr>
-                                <th style={{width: 40}}>
-                                    <input type="checkbox" />
-                                </th>
+                                <th>Month</th>
                                 <th>Employee</th>
                                 <th>Department</th>
                                 <th>Basic</th>
-                                <th>HRA</th>
+                                <th>Allowances</th>
                                 <th>Gross</th>
+                                <th>Deductions</th>
                                 <th>Net Pay</th>
                                 <th>Status</th>
-                                <th style={{width: 40}}></th>
+                                <th style={{textAlign: 'center', width: 100}}>Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {payrollData.map((emp, i) => (
-                                <tr key={i}>
-                                    <td><input type="checkbox" /></td>
-                                    <td>
-                                        <div style={{display: 'flex', alignItems: 'center', gap: 12}}>
-                                            <div className="rd-avatar" style={{width: 32, height: 32, fontSize: 12, background: emp.name === 'Ritu Agarwal' ? 'var(--rd-orange-grad)' : 'var(--rd-purple-grad)'}}>
-                                                {getInitials(emp.name)}
-                                            </div>
-                                            <div>
-                                                <div style={{fontWeight: 700, color: 'var(--rd-text-main)'}}>{emp.name}</div>
-                                                <div style={{fontSize: 11, color: '#94a3b8', marginTop: 2}}>{emp.role}</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span style={{background: emp.dept === 'Finance' ? '#fdf2f8' : '#eff6ff', color: emp.dept === 'Finance' ? '#db2777' : '#3b82f6', padding: '4px 10px', borderRadius: 6, fontSize: 12, fontWeight: 600}}>
-                                            {emp.dept}
-                                        </span>
-                                    </td>
-                                    <td style={{color: '#64748b'}}>{emp.basic}</td>
-                                    <td style={{color: '#64748b'}}>{emp.hra}</td>
-                                    <td style={{fontWeight: 600, color: 'var(--rd-text-main)'}}>{emp.gross}</td>
-                                    <td style={{fontWeight: 700, color: '#10b981'}}>{emp.net}</td>
-                                    <td>{getStatusBadge(emp.status)}</td>
-                                    <td>
-                                        <button style={{background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8'}}>•••</button>
-                                    </td>
+                            {loading ? (
+                                <tr>
+                                    <td colSpan={10} style={{textAlign: 'center', padding: 32, color: '#94a3b8'}}>Loading payroll data...</td>
                                 </tr>
-                            ))}
+                            ) : filteredSalaries.length === 0 ? (
+                                <tr>
+                                    <td colSpan={10} style={{textAlign: 'center', padding: 32, color: '#94a3b8'}}>No salary records match your criteria</td>
+                                </tr>
+                            ) : (
+                                filteredSalaries.map((record, i) => {
+                                    const emp = record.employee || {};
+                                    const gross = (record.basicSalary || 0) + (record.allowances || 0);
+                                    
+                                    return (
+                                        <tr key={record._id || record.id || i}>
+                                            <td style={{fontWeight: 600, color: 'var(--rd-text-main)'}}>{record.month}</td>
+                                            <td>
+                                                <div style={{display: 'flex', alignItems: 'center', gap: 12}}>
+                                                    <div className="rd-avatar" style={{width: 32, height: 32, fontSize: 12, background: 'var(--rd-blue-grad)'}}>
+                                                        {getInitials(emp.firstName, emp.lastName)}
+                                                    </div>
+                                                    <div>
+                                                        <div style={{fontWeight: 700, color: 'var(--rd-text-main)'}}>{`${emp.firstName || ''} ${emp.lastName || ''}`.trim()}</div>
+                                                        <div style={{fontSize: 11, color: '#94a3b8', marginTop: 2}}>{emp.designation || '—'}</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span style={{background: '#eff6ff', color: '#3b82f6', padding: '4px 10px', borderRadius: 6, fontSize: 12, fontWeight: 600}}>
+                                                    {emp.department || '—'}
+                                                </span>
+                                            </td>
+                                            <td style={{color: '#64748b'}}>{formatCurrency(record.basicSalary)}</td>
+                                            <td style={{color: '#64748b'}}>{formatCurrency(record.allowances)}</td>
+                                            <td style={{fontWeight: 600, color: 'var(--rd-text-main)'}}>{formatCurrency(gross)}</td>
+                                            <td style={{color: '#ef4444'}}>{formatCurrency(record.deductions)}</td>
+                                            <td style={{fontWeight: 700, color: '#10b981'}}>{formatCurrency(record.netSalary)}</td>
+                                            <td>{getStatusBadge(record.status)}</td>
+                                            <td style={{textAlign: 'center'}}>
+                                                {record.status === 'Awaiting Approval' && (
+                                                    <button onClick={() => handleApprove(record._id || record.id)} style={{background: 'transparent', border: '1px solid #3b82f6', color: '#3b82f6', padding: '4px 12px', borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: 'pointer'}}>
+                                                        Approve
+                                                    </button>
+                                                )}
+                                                {record.status === 'Approved' && (
+                                                    <button onClick={() => handlePay(record._id || record.id)} style={{background: '#10b981', color: 'white', border: 'none', padding: '5px 12px', borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: 'pointer'}}>
+                                                        Pay Now
+                                                    </button>
+                                                )}
+                                                {record.status === 'Paid' && (
+                                                    <CheckCircle size={20} color="#10b981" />
+                                                )}
+                                            </td>
+                                        </tr>
+                                    );
+                                })
+                            )}
                         </tbody>
                     </table>
                 </div>

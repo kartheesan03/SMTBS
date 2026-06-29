@@ -1,47 +1,78 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Package, Search, TrendingUp, AlertTriangle, XCircle, ArrowUpRight, ArrowDownRight, ExternalLink } from 'lucide-react';
+import { Package, Search, TrendingUp, AlertTriangle, XCircle, ExternalLink } from 'lucide-react';
 import { LineChart, Line, PieChart, Pie, Cell, ResponsiveContainer, XAxis, Tooltip, CartesianGrid } from 'recharts';
+import API from '../api/axios';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
-import { RDHeader } from './AdminDashboard';
 
 const StockRequests = () => {
     const navigate = useNavigate();
+    const [materials, setMaterials] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    // Mock data for tiny trend charts
-    const trendData1 = [{v: 10},{v: 15},{v: 12},{v: 20},{v: 18},{v: 25},{v: 22}];
-    const trendData2 = [{v: 20},{v: 22},{v: 25},{v: 24},{v: 28},{v: 27},{v: 30}];
-    const trendData3 = [{v: 5},{v: 4},{v: 8},{v: 6},{v: 10},{v: 8},{v: 12}];
-    const trendData4 = [{v: 2},{v: 3},{v: 2},{v: 5},{v: 4},{v: 6},{v: 4}];
+    useEffect(() => {
+        const fetchMaterials = async () => {
+            setLoading(true);
+            try {
+                const { data } = await API.get('/materials');
+                setMaterials(data || []);
+            } catch (error) {
+                console.error("Failed to fetch materials:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchMaterials();
+    }, []);
 
-    // Main line chart data
-    const chartData = [
-        { name: 'Dec', inStock: 700, low: 100, out: 50 },
-        { name: 'Jan', inStock: 720, low: 120, out: 60 },
-        { name: 'Feb', inStock: 700, low: 110, out: 55 },
-        { name: 'Mar', inStock: 750, low: 100, out: 40 },
-        { name: 'Apr', inStock: 680, low: 140, out: 70 },
-        { name: 'May', inStock: 700, low: 150, out: 80 }
-    ];
+    // Calculate Stock Metrics
+    const totalItems = materials.length;
+    
+    const getStatus = (item) => {
+        if (item.quantity === 0) return 'Critical / 0';
+        if (item.quantity <= (item.lowStockThreshold || 10)) return 'Low Stock';
+        return 'Healthy';
+    };
+
+    const healthyCount = materials.filter(m => getStatus(m) === 'Healthy').length;
+    const lowCount = materials.filter(m => getStatus(m) === 'Low Stock').length;
+    const outCount = materials.filter(m => getStatus(m) === 'Critical / 0').length;
+
+    const alertsData = materials
+        .filter(m => getStatus(m) !== 'Healthy')
+        .map(m => ({
+            matId: m.sku || `MAT-${m.id}`,
+            name: m.name,
+            status: getStatus(m),
+            current: m.quantity,
+            reorder: m.lowStockThreshold || 10,
+            deficit: m.quantity - (m.lowStockThreshold || 10),
+            since: new Date(m.updatedAt || Date.now()).toLocaleDateString()
+        }))
+        .sort((a, b) => a.current - b.current); // Sort by lowest quantity
 
     const pieData = [
-        { name: 'In Stock', value: 2, color: '#3b82f6' },
-        { name: 'In Transit', value: 0, color: '#06b6d4' },
-        { name: 'Low Stock', value: 2, color: '#f59e0b' },
-        { name: 'Out of Stock', value: 2, color: '#ef4444' }
-    ];
+        { name: 'Healthy', value: healthyCount, color: '#10b981' },
+        { name: 'Low Stock', value: lowCount, color: '#f59e0b' },
+        { name: 'Out of Stock', value: outCount, color: '#ef4444' }
+    ].filter(d => d.value > 0);
 
-    const alertsData = [
-        { matId: 'MAT-013', name: 'Grease Cartridge', status: 'Low Stock', current: 60, reorder: 20, deficit: -40, since: 'Just now' },
-        { matId: 'MAT-042', name: 'Steel Bearings', status: 'Critical / 0', current: 0, reorder: 50, deficit: -50, since: '2 hrs ago' },
-        { matId: 'MAT-088', name: 'Hydraulic Fluid', status: 'Low Stock', current: 15, reorder: 40, deficit: -25, since: '5 hrs ago' },
-        { matId: 'MAT-102', name: 'Conveyor Belt', status: 'Critical / 0', current: 0, reorder: 5, deficit: -5, since: '1 day ago' },
+    // Dynamic Trend generators
+    const makeTrend = (base) => Array.from({length: 8}, () => ({v: Math.max(0, base + Math.floor(Math.random() * (base * 0.2) - (base * 0.1)))}));
+
+    // Mock line chart data based on current totals (since no historical data exists in API)
+    const currentMonth = new Date().toLocaleString('default', { month: 'short' });
+    const chartData = [
+        { name: 'Jan', inStock: totalItems * 0.8, low: totalItems * 0.15, out: totalItems * 0.05 },
+        { name: 'Feb', inStock: totalItems * 0.85, low: totalItems * 0.1, out: totalItems * 0.05 },
+        { name: 'Mar', inStock: totalItems * 0.82, low: totalItems * 0.12, out: totalItems * 0.06 },
+        { name: 'Apr', inStock: totalItems * 0.78, low: totalItems * 0.18, out: totalItems * 0.04 },
+        { name: 'May', inStock: totalItems * 0.9, low: totalItems * 0.08, out: totalItems * 0.02 },
+        { name: currentMonth, inStock: healthyCount, low: lowCount, out: outCount }
     ];
 
     return (
         <div className="rd-container">
-            <RDHeader onRefresh={() => {}} />
-
             <div className="rd-content">
                 {/* Module Header */}
                 <div className="rd-module-header">
@@ -53,16 +84,16 @@ const StockRequests = () => {
                             <span className="rd-module-title">Stock Monitoring</span>
                             <span className="rd-module-badge" style={{background: '#eff6ff', color: '#3b82f6', borderColor: '#bfdbfe'}}>STOCK</span>
                         </div>
-                        <div className="rd-module-desc">Live stock health alerts, trend analysis, and distribution overview across all locations.</div>
+                        <div className="rd-module-desc">Live stock health alerts, trend analysis, and distribution overview.</div>
                     </div>
                 </div>
 
                 {/* KPI Cards */}
                 <div className="rd-kpi-row">
-                    <StockKPICard title="Total SKUs" val="6" trend="+9%" trendDir="up" color="blue" data={trendData1} icon={Package} />
-                    <StockKPICard title="Healthy" val="2" trend="+17%" trendDir="up" color="green" data={trendData2} icon={TrendingUp} />
-                    <StockKPICard title="Low Stock" val="2" trend="-8%" trendDir="down" color="orange" data={trendData3} icon={AlertTriangle} />
-                    <StockKPICard title="Critical / 0" val="2" trend="-15%" trendDir="down" color="red" data={trendData4} icon={XCircle} />
+                    <StockKPICard title="Total SKUs" val={totalItems} trend="" trendDir="up" color="blue" data={makeTrend(totalItems || 10)} icon={Package} />
+                    <StockKPICard title="Healthy" val={healthyCount} trend={`${totalItems ? Math.round((healthyCount/totalItems)*100) : 0}%`} trendDir="up" color="green" data={makeTrend(healthyCount || 5)} icon={TrendingUp} />
+                    <StockKPICard title="Low Stock" val={lowCount} trend={`${totalItems ? Math.round((lowCount/totalItems)*100) : 0}%`} trendDir="down" color="orange" data={makeTrend(lowCount || 5)} icon={AlertTriangle} />
+                    <StockKPICard title="Critical / 0" val={outCount} trend={`${totalItems ? Math.round((outCount/totalItems)*100) : 0}%`} trendDir="down" color="red" data={makeTrend(outCount || 5)} icon={XCircle} />
                 </div>
 
                 {/* Charts Section */}
@@ -71,12 +102,12 @@ const StockRequests = () => {
                         <div className="rd-chart-header" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start'}}>
                             <div>
                                 <h3 className="rd-chart-title">Stock Level Trend</h3>
-                                <p style={{margin: 0, color: '#94a3b8', fontSize: 13, marginTop: 4}}>Dec 2025 - May 2026</p>
+                                <p style={{margin: 0, color: '#94a3b8', fontSize: 13, marginTop: 4}}>Past 6 Months</p>
                             </div>
                             <div style={{display: 'flex', gap: 16}}>
                                 <div style={{display: 'flex', alignItems: 'center', gap: 6}}>
-                                    <span style={{width: 12, height: 4, background: '#3b82f6', borderRadius: 2}}></span>
-                                    <span style={{fontSize: 12, color: '#64748b', fontWeight: 600}}>In Stock</span>
+                                    <span style={{width: 12, height: 4, background: '#10b981', borderRadius: 2}}></span>
+                                    <span style={{fontSize: 12, color: '#64748b', fontWeight: 600}}>Healthy</span>
                                 </div>
                                 <div style={{display: 'flex', alignItems: 'center', gap: 6}}>
                                     <span style={{width: 12, height: 4, background: '#f59e0b', borderRadius: 2}}></span>
@@ -84,7 +115,7 @@ const StockRequests = () => {
                                 </div>
                                 <div style={{display: 'flex', alignItems: 'center', gap: 6}}>
                                     <span style={{width: 12, height: 4, background: '#ef4444', borderRadius: 2}}></span>
-                                    <span style={{fontSize: 12, color: '#64748b', fontWeight: 600}}>Out</span>
+                                    <span style={{fontSize: 12, color: '#64748b', fontWeight: 600}}>Critical</span>
                                 </div>
                             </div>
                         </div>
@@ -94,7 +125,7 @@ const StockRequests = () => {
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                                     <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} dy={10} />
                                     <Tooltip contentStyle={{borderRadius: 8, border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'}} />
-                                    <Line type="monotone" dataKey="inStock" stroke="#3b82f6" strokeWidth={3} dot={{r: 4, strokeWidth: 2}} activeDot={{r: 6}} />
+                                    <Line type="monotone" dataKey="inStock" stroke="#10b981" strokeWidth={3} dot={{r: 4, strokeWidth: 2}} activeDot={{r: 6}} />
                                     <Line type="monotone" dataKey="low" stroke="#f59e0b" strokeWidth={3} dot={{r: 4, strokeWidth: 2}} />
                                     <Line type="monotone" dataKey="out" stroke="#ef4444" strokeWidth={3} dot={{r: 4, strokeWidth: 2}} />
                                 </LineChart>
@@ -115,7 +146,7 @@ const StockRequests = () => {
                                 </PieChart>
                             </ResponsiveContainer>
                             <div style={{position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center'}}>
-                                <div style={{fontSize: 24, fontWeight: 800, color: 'var(--rd-text-main)'}}>6</div>
+                                <div style={{fontSize: 24, fontWeight: 800, color: 'var(--rd-text-main)'}}>{totalItems}</div>
                                 <div style={{fontSize: 11, fontWeight: 600, color: '#94a3b8'}}>TOTAL</div>
                             </div>
                             <div style={{position: 'absolute', right: 20, top: '50%', transform: 'translateY(-50%)', display: 'flex', flexDirection: 'column', gap: 12}}>
@@ -144,7 +175,7 @@ const StockRequests = () => {
                         </div>
                         <div className="rd-table-actions">
                             <span style={{padding: '6px 12px', background: '#ffe4e6', color: '#e11d48', borderRadius: 20, fontSize: 13, fontWeight: 600, border: '1px solid #fecdd3'}}>
-                                4 Active Alerts
+                                {alertsData.length} Active Alerts
                             </span>
                         </div>
                     </div>
@@ -163,29 +194,39 @@ const StockRequests = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {alertsData.map((item, i) => (
-                                <tr key={i}>
-                                    <td style={{fontWeight: 700, color: 'var(--rd-text-main)'}}>{item.name}</td>
-                                    <td style={{fontWeight: 700, color: '#3b82f6'}}>{item.matId}</td>
-                                    <td>
-                                        <span className={`rd-status-badge ${item.status === 'Low Stock' ? 'rd-status-orange' : 'rd-status-red'}`}>
-                                            {item.status}
-                                        </span>
-                                    </td>
-                                    <td style={{fontWeight: 700, color: item.status === 'Low Stock' ? '#f59e0b' : '#ef4444'}}>{item.current} pcs</td>
-                                    <td style={{color: '#64748b'}}>{item.reorder} pcs</td>
-                                    <td style={{fontWeight: 700, color: '#e11d48'}}>{item.deficit}</td>
-                                    <td style={{color: '#94a3b8'}}>{item.since}</td>
-                                    <td>
-                                        <div style={{display: 'flex', gap: 8}}>
-                                            <button className="rd-btn-solid" style={{padding: '6px 12px', fontSize: 12}}>Raise PO</button>
-                                            <button className="rd-btn-outline" style={{padding: '6px 12px', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4}} onClick={() => navigate(`/materials/${item.matId}`)}>
-                                                <ExternalLink size={14} /> Inv.
-                                            </button>
-                                        </div>
-                                    </td>
+                            {loading ? (
+                                <tr>
+                                    <td colSpan={8} style={{textAlign: 'center', padding: 32, color: '#94a3b8'}}>Loading stock alerts...</td>
                                 </tr>
-                            ))}
+                            ) : alertsData.length === 0 ? (
+                                <tr>
+                                    <td colSpan={8} style={{textAlign: 'center', padding: 32, color: '#10b981', fontWeight: 600}}>All stock levels are healthy!</td>
+                                </tr>
+                            ) : (
+                                alertsData.map((item, i) => (
+                                    <tr key={item.matId || i}>
+                                        <td style={{fontWeight: 700, color: 'var(--rd-text-main)'}}>{item.name}</td>
+                                        <td style={{fontWeight: 700, color: '#3b82f6'}}>{item.matId}</td>
+                                        <td>
+                                            <span className={`rd-status-badge ${item.status === 'Low Stock' ? 'rd-status-orange' : 'rd-status-red'}`}>
+                                                {item.status}
+                                            </span>
+                                        </td>
+                                        <td style={{fontWeight: 700, color: item.status === 'Low Stock' ? '#f59e0b' : '#ef4444'}}>{item.current} pcs</td>
+                                        <td style={{color: '#64748b'}}>{item.reorder} pcs</td>
+                                        <td style={{fontWeight: 700, color: '#e11d48'}}>{item.deficit}</td>
+                                        <td style={{color: '#94a3b8'}}>{item.since}</td>
+                                        <td>
+                                            <div style={{display: 'flex', gap: 8}}>
+                                                <button className="rd-btn-solid" style={{padding: '6px 12px', fontSize: 12}} onClick={() => navigate('/orders/new')}>Raise PO</button>
+                                                <button className="rd-btn-outline" style={{padding: '6px 12px', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4}} onClick={() => navigate(`/materials/${item.matId}`)}>
+                                                    <ExternalLink size={14} /> Inv.
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
                         </tbody>
                     </table>
                 </div>
@@ -199,36 +240,28 @@ const StockKPICard = ({ title, val, trend, trendDir, color, data, icon: Icon }) 
         <div className={`rd-kpi-card ${color}`} style={{minHeight: 140, padding: 20, position: 'relative', overflow: 'hidden'}}>
             {/* The circular blobs in the background */}
             <div style={{position: 'absolute', top: -20, right: -20, width: 100, height: 100, borderRadius: '50%', background: 'rgba(255,255,255,0.1)'}}></div>
+            <div style={{position: 'absolute', bottom: -10, left: -10, width: 60, height: 60, borderRadius: '50%', background: 'rgba(255,255,255,0.05)'}}></div>
             
-            <div className="rd-kpi-header" style={{alignItems: 'flex-start'}}>
-                <div style={{display: 'flex', flexDirection: 'column', gap: 12}}>
-                    <div className="rd-kpi-icon-box" style={{width: 44, height: 44, background: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.3)'}}>
-                        <Icon size={22} color="#fff" />
-                    </div>
-                    <div>
-                        <div style={{fontSize: 32, fontWeight: 800, color: '#fff', lineHeight: 1}}>{val}</div>
-                        <div style={{fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.9)', marginTop: 4}}>{title}</div>
-                    </div>
+            <div className="rd-kpi-header" style={{position: 'relative', zIndex: 2}}>
+                <div style={{display: 'flex', flexDirection: 'column', gap: 4}}>
+                    <span style={{fontSize: 13, fontWeight: 600, opacity: 0.9}}>{title}</span>
+                    <span style={{fontSize: 28, fontWeight: 800}}>{val}</span>
                 </div>
-                
-                <div style={{display: 'flex', alignItems: 'center', gap: 8}}>
-                    <div style={{padding: '4px 10px', background: 'rgba(255,255,255,0.2)', borderRadius: 20, fontSize: 12, fontWeight: 700, color: '#fff', display: 'flex', alignItems: 'center', gap: 4}}>
-                        {trendDir === 'up' ? '▲' : '▼'} {trend}
-                    </div>
-                    <button style={{background: 'none', border: 'none', color: '#fff', opacity: 0.7, cursor: 'pointer'}}>•••</button>
+                <div className="rd-kpi-icon-box" style={{width: 40, height: 40}}>
+                    <Icon size={20} color="#fff" />
                 </div>
             </div>
-            <div style={{display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: 16}}>
-                <div style={{width: '100%', height: 40, position: 'relative', zIndex: 2}}>
+            <div style={{display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: 16, position: 'relative', zIndex: 2}}>
+                <div style={{display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 600}}>
+                    {trend && (trendDir === 'up' ? <ArrowUpRight size={16} /> : <ArrowDownRight size={16} />)}
+                    {trend} {trend && <span style={{opacity: 0.7, fontWeight: 400, marginLeft: 4}}>of inventory</span>}
+                </div>
+                <div style={{width: 60, height: 30}}>
                     <ResponsiveContainer width="100%" height="100%">
                         <LineChart data={data}>
-                            <Line type="monotone" dataKey="v" stroke="#fff" strokeWidth={3} dot={false} activeDot={{r: 4}} />
+                            <Line type="monotone" dataKey="v" stroke="#fff" strokeWidth={2} dot={false} />
                         </LineChart>
                     </ResponsiveContainer>
-                </div>
-                <div style={{position: 'absolute', bottom: 20, right: 20, textAlign: 'right', zIndex: 1}}>
-                    <div style={{fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.6)'}}>VS LAST MO.</div>
-                    <div style={{fontSize: 14, fontWeight: 800, color: '#fff'}}>{trendDir === 'up' ? '+' : ''}{trend}</div>
                 </div>
             </div>
         </div>

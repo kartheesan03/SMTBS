@@ -4,7 +4,6 @@ import API from '../api/axios';
 import { Target, Zap, Handshake, DollarSign, Search, ArrowRight } from 'lucide-react';
 import { BarChart, Bar, ResponsiveContainer } from 'recharts';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
-import { RDHeader } from './AdminDashboard';
 import toast from 'react-hot-toast';
 
 const Leads = () => {
@@ -16,30 +15,29 @@ const Leads = () => {
 
     const fetchLeads = async () => {
         try {
-            // We use customers and filter those flagged as leads
             const { data } = await API.get('/customers');
             let fetchedData = Array.isArray(data) ? data : [];
-            const leadData = fetchedData.filter(c => c.customerType === 'Lead' || c.status === 'Lead');
             
-            // Generate some mock data for leads if backend doesn't have enough fields yet
-            const augmentedLeads = leadData.map(l => ({
-                ...l,
-                source: l.source || ['LinkedIn', 'Cold Call', 'Referral', 'Website'][Math.floor(Math.random() * 4)],
-                stage: l.leadStage || ['New', 'Contacted', 'Qualified', 'Proposal Sent', 'Negotiation'][Math.floor(Math.random() * 5)],
-                score: l.leadScore || Math.floor(Math.random() * 60) + 40,
-                estValue: l.estValue || Math.floor(Math.random() * 200000) + 50000,
-                assignedTo: l.assignedTo || (Math.random() > 0.5 ? 'Sales Team' : 'Manager')
-            }));
+            // All customers are potential leads — augment with computed fields
+            const augmentedLeads = fetchedData.map((l, idx) => {
+                // Derive lead stage from status or notes
+                const statusLower = (l.status || '').toLowerCase();
+                let stage = 'New';
+                if (statusLower === 'active') stage = 'Qualified';
+                else if (statusLower === 'contacted') stage = 'Contacted';
+                else if (statusLower === 'negotiation') stage = 'Negotiation';
+                else if (statusLower === 'proposal') stage = 'Proposal Sent';
+                else if (statusLower === 'lead') stage = 'New';
 
-            // Fallback mock data if DB has no leads
-            if (augmentedLeads.length === 0) {
-                augmentedLeads.push(
-                    { id: 'LED-007', company: 'InfraCore Solutions', contactPerson: 'Vivek Bhat', email: 'vivek@infracore.in', source: 'LinkedIn', stage: 'Contacted', score: 68, estValue: 95000, assignedTo: 'Sales Team', createdAt: '2026-06-03T10:00:00Z' },
-                    { id: 'LED-010', company: 'UrbanVista Realty', contactPerson: 'Anjali Mehta', email: 'anjali@urbanvista.in', source: 'Cold Call', stage: 'Proposal Sent', score: 87, estValue: 265000, assignedTo: 'Manager', createdAt: '2026-05-30T10:00:00Z' },
-                    { id: 'LED-009', company: 'PrimeArch Housing', contactPerson: 'Nikhil Rao', email: 'nikhil@primearch.com', source: 'Referral', stage: 'New', score: 55, estValue: 72000, assignedTo: 'Sales Team', createdAt: '2026-06-05T10:00:00Z' },
-                    { id: 'LED-008', company: 'BuildStar Pvt. Ltd.', contactPerson: 'Swati Kulkarni', email: 'swati@buildstar.in', source: 'Website', stage: 'Qualified', score: 81, estValue: 145000, assignedTo: 'Manager', createdAt: '2026-06-02T10:00:00Z' }
-                );
-            }
+                return {
+                    ...l,
+                    source: l.industry || 'Direct',
+                    stage,
+                    score: l.gstNumber ? 85 : (l.company ? 70 : 50),
+                    estValue: l.company ? 150000 : 50000,
+                    assignedTo: l.createdBy?.name || 'Sales Team'
+                };
+            });
 
             setLeads(augmentedLeads);
         } catch (err) {
@@ -60,24 +58,24 @@ const Leads = () => {
 
     const filteredLeads = leads.filter(l => {
         const matchesFilter = activeFilter === 'All' || l.stage === activeFilter;
-        const searchStr = `${l.company} ${l.name} ${l.contactPerson} ${l.email}`.toLowerCase();
+        const searchStr = `${l.company || ''} ${l.name || ''} ${l.contactPerson || ''} ${l.email || ''}`.toLowerCase();
         const matchesSearch = !searchTerm || searchStr.includes(searchTerm.toLowerCase());
         return matchesFilter && matchesSearch;
     });
 
     const formatCurrency = (val) => {
-        if (!val) return '$0';
-        if (val >= 1000) return `$${Math.round(val / 1000)}K`;
-        return `$${val.toLocaleString()}`;
+        if (!val) return '₹0';
+        if (val >= 100000) return `₹${(val / 100000).toFixed(1)}L`;
+        if (val >= 1000) return `₹${Math.round(val / 1000)}K`;
+        return `₹${val.toLocaleString()}`;
     };
 
-    const barData = [{v:5},{v:7},{v:4},{v:8},{v:6},{v:9},{v:7}];
+    const makeBarData = (base) => Array.from({length: 7}, () => ({v: Math.max(1, base + Math.floor(Math.random() * (base * 0.4) - (base * 0.2)))}));
 
     if (loading) return <div className="flex-center" style={{height:'100vh'}}><div className="loader"></div></div>;
 
     return (
         <div className="rd-container">
-            <RDHeader onRefresh={fetchLeads} />
             <div className="rd-content">
                 <div className="rd-module-header">
                     <div className="rd-module-icon" style={{background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)'}}>
@@ -93,10 +91,10 @@ const Leads = () => {
                 </div>
 
                 <div className="rd-kpi-row">
-                    <LeadKPICard title="Total Leads" val={leads.length} trend="+22%" color="blue" icon={Target} data={barData} />
-                    <LeadKPICard title="Hot Leads (≥80)" val={hotLeads.length} trend="+15%" color="red" icon={Zap} data={barData} />
-                    <LeadKPICard title="In Negotiation" val={inNegotiation.length} trend="+7%" color="purple" icon={Handshake} data={barData} />
-                    <LeadKPICard title="Pipeline Value" val={formatCurrency(pipelineValue)} trend="+31%" color="green" icon={DollarSign} data={barData} />
+                    <LeadKPICard title="Total Leads" val={leads.length} trend="+22%" color="blue" icon={Target} data={makeBarData(leads.length || 5)} />
+                    <LeadKPICard title="Hot Leads (≥80)" val={hotLeads.length} trend="+15%" color="red" icon={Zap} data={makeBarData(hotLeads.length || 3)} />
+                    <LeadKPICard title="In Negotiation" val={inNegotiation.length} trend="+7%" color="purple" icon={Handshake} data={makeBarData(inNegotiation.length || 2)} />
+                    <LeadKPICard title="Pipeline Value" val={formatCurrency(pipelineValue)} trend="+31%" color="green" icon={DollarSign} data={makeBarData(pipelineValue / 10000 || 5)} />
                 </div>
 
                 <div className="rd-table-card">
@@ -142,8 +140,10 @@ const Leads = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredLeads.map((l, i) => {
-                                const leadId = l.customerId || l.id || `LED-${String(i + 1).padStart(3, '0')}`;
+                            {filteredLeads.length === 0 ? (
+                                <tr><td colSpan={10} style={{textAlign: 'center', padding: 40, color: '#94a3b8'}}>No leads found</td></tr>
+                            ) : filteredLeads.map((l, i) => {
+                                const leadId = l.customerId || l.id || l._id || `LED-${String(i + 1).padStart(3, '0')}`;
                                 const scoreColor = l.score >= 80 ? '#10b981' : l.score >= 60 ? '#f59e0b' : '#ef4444';
                                 const scoreBg = l.score >= 80 ? '#ecfdf5' : l.score >= 60 ? '#fff7ed' : '#fef2f2';
                                 
@@ -157,12 +157,12 @@ const Leads = () => {
                                 const stColor = stageColors[l.stage] || '#64748b';
 
                                 return (
-                                    <tr key={l._id || leadId}>
+                                    <tr key={l._id || l.id || leadId}>
                                         <td style={{fontWeight: 700, color: '#3b82f6'}}>{leadId}</td>
                                         <td style={{fontWeight: 700, color: 'var(--rd-text-main)'}}>{l.company || l.name || '-'}</td>
                                         <td>
                                             <div style={{display: 'flex', flexDirection: 'column'}}>
-                                                <span style={{fontWeight: 600, color: '#475569'}}>{l.contactPerson || '-'}</span>
+                                                <span style={{fontWeight: 600, color: '#475569'}}>{l.name || l.contactPerson || '-'}</span>
                                                 <span style={{fontSize: 12, color: '#94a3b8'}}>{l.email || '-'}</span>
                                             </div>
                                         </td>
@@ -181,9 +181,9 @@ const Leads = () => {
                                                 {l.score}
                                             </div>
                                         </td>
-                                        <td style={{fontWeight: 700, color: '#10b981'}}>${(l.estValue || 0).toLocaleString()}</td>
+                                        <td style={{fontWeight: 700, color: '#10b981'}}>₹{(l.estValue || 0).toLocaleString()}</td>
                                         <td style={{color: '#475569', fontWeight: 500}}>{l.assignedTo}</td>
-                                        <td style={{color: '#94a3b8'}}>{l.createdAt ? new Date(l.createdAt).toLocaleDateString('en-GB', {day: 'numeric', month: 'short', year: 'numeric'}) : '3 Jun 2026'}</td>
+                                        <td style={{color: '#94a3b8'}}>{l.createdAt ? new Date(l.createdAt).toLocaleDateString('en-GB', {day: 'numeric', month: 'short', year: 'numeric'}) : '-'}</td>
                                         <td>
                                             <button className="rd-btn-solid" style={{padding: '6px 14px', fontSize: 13, background: '#0ea5e9'}}>
                                                 Advance →

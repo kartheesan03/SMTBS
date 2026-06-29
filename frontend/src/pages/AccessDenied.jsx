@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ShieldAlert, ArrowLeft } from 'lucide-react';
-import GlobalBackButton from '../components/GlobalBackButton';
+
 
 const AccessDenied = () => {
     const navigate = useNavigate();
@@ -12,7 +12,7 @@ const AccessDenied = () => {
             justifyContent: 'center', height: '100vh', background: '#f8fafc',
             color: '#334155', fontFamily: 'Inter, sans-serif'
         }}>
-            <GlobalBackButton />
+
             <ShieldAlert size={80} color="#ef4444" style={{ marginBottom: '20px' }} />
             <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', margin: '0 0 10px' }}>403 Access Denied</h1>
             <p style={{ fontSize: '1.2rem', marginBottom: '30px' }}>

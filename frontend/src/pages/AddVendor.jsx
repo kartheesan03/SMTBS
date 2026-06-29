@@ -3,12 +3,13 @@ import { useNavigate, useParams } from 'react-router-dom';
 import API from '../api/axios';
 import StandardPageLayout from '../components/StandardPageLayout/StandardPageLayout';
 import toast from 'react-hot-toast';
+import { FormSection, FormGroup, Input, Select } from '../components/ui';
 
 const AddVendor = ({ isEditMode = false }) => {
     const navigate = useNavigate();
     const { id } = useParams();
     const [formData, setFormData] = useState({
-        name: '', category: '', contactPerson: '', email: '', phone: '', address: '', gstNumber: '', website: ''
+        name: '', category: '', contactPerson: '', email: '', phone: '', address: '', gstNumber: '', website: '', status: 'Active'
     });
     const [loading, setLoading] = useState(false);
     const [isFetching, setIsFetching] = useState(isEditMode);
@@ -31,7 +32,8 @@ const AddVendor = ({ isEditMode = false }) => {
                 phone: data.phone || '', 
                 address: data.address || '', 
                 gstNumber: data.gstNumber || '', 
-                website: data.website || ''
+                website: data.website || '',
+                status: data.status || 'Active'
             });
         } catch (err) {
             toast.error('Failed to fetch vendor data');
@@ -42,6 +44,12 @@ const AddVendor = ({ isEditMode = false }) => {
     };
 
     const handleSubmit = async () => {
+        if (!formData.name || !formData.category || !formData.email) {
+            setError("Please fill all required fields.");
+            toast.error("Please fill all required fields.");
+            return;
+        }
+
         setLoading(true);
         setError('');
         try {
@@ -76,6 +84,7 @@ const AddVendor = ({ isEditMode = false }) => {
             onSave={handleSubmit}
             onCancel={() => navigate('/vendors')}
             isEditMode={isEditMode}
+            loading={loading}
             infoCard={
                 <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
                     <div style={{ padding: '12px', background: '#e0e7ff', borderRadius: '50%', color: '#4f46e5' }}>
@@ -88,53 +97,95 @@ const AddVendor = ({ isEditMode = false }) => {
                 </div>
             }
         >
-            <div className="standard-section">
-                <div className="standard-section-header">Company Information</div>
+            <form id="vendor-form" onSubmit={e => { e.preventDefault(); handleSubmit(); }}>
                 {error && <div className="error-alert" style={{color: '#ef4444', background: '#fef2f2', padding: '12px', borderRadius: '8px', marginBottom: '16px'}}>{error}</div>}
                 
-                <form id="vendor-form" onSubmit={e => { e.preventDefault(); handleSubmit(); }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                            <label style={{ fontSize: '14px', fontWeight: 500, color: '#475569' }}>Company Name *</label>
-                            <input type="text" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="e.g. Steel Supply Co" style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px' }} />
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                            <label style={{ fontSize: '14px', fontWeight: 500, color: '#475569' }}>Category *</label>
-                            <input type="text" required value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} placeholder="e.g. Electronics, Packaging" style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px' }} />
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                            <label style={{ fontSize: '14px', fontWeight: 500, color: '#475569' }}>GST/Tax ID</label>
-                            <input type="text" value={formData.gstNumber} onChange={e => setFormData({...formData, gstNumber: e.target.value})} placeholder="Tax Identification Number" style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px' }} />
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                            <label style={{ fontSize: '14px', fontWeight: 500, color: '#475569' }}>Website</label>
-                            <input type="url" value={formData.website} onChange={e => setFormData({...formData, website: e.target.value})} placeholder="https://www.example.com" style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px' }} />
-                        </div>
+                <FormSection title="Company Information">
+                    <div className="ui-grid-2">
+                        <FormGroup label="Company Name" required>
+                            <Input 
+                                type="text" 
+                                value={formData.name} 
+                                onChange={e => setFormData({...formData, name: e.target.value})} 
+                                placeholder="e.g. Steel Supply Co"
+                            />
+                        </FormGroup>
+                        <FormGroup label="Category" required>
+                            <Input 
+                                type="text" 
+                                value={formData.category} 
+                                onChange={e => setFormData({...formData, category: e.target.value})} 
+                                placeholder="e.g. Metals, Plastics, Services" 
+                            />
+                        </FormGroup>
+                        <FormGroup label="GST Number">
+                            <Input 
+                                type="text" 
+                                value={formData.gstNumber} 
+                                onChange={e => setFormData({...formData, gstNumber: e.target.value})} 
+                                placeholder="e.g. 27AAAAA0000A1Z5" 
+                            />
+                        </FormGroup>
+                        <FormGroup label="Status">
+                            <Select 
+                                value={formData.status} 
+                                onChange={e => setFormData({...formData, status: e.target.value})} 
+                                options={[
+                                    { value: 'Active', label: 'Active' },
+                                    { value: 'On Hold', label: 'On Hold' },
+                                    { value: 'Inactive', label: 'Inactive' }
+                                ]}
+                            />
+                        </FormGroup>
                     </div>
-                </form>
-            </div>
+                </FormSection>
 
-            <div className="standard-section">
-                <div className="standard-section-header">Contact Information</div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        <label style={{ fontSize: '14px', fontWeight: 500, color: '#475569' }}>Contact Person *</label>
-                        <input type="text" required value={formData.contactPerson} onChange={e => setFormData({...formData, contactPerson: e.target.value})} placeholder="Primary contact name" style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px' }} />
+                <FormSection title="Contact Information">
+                    <div className="ui-grid-2">
+                        <FormGroup label="Primary Contact Person">
+                            <Input 
+                                type="text" 
+                                value={formData.contactPerson} 
+                                onChange={e => setFormData({...formData, contactPerson: e.target.value})} 
+                                placeholder="e.g. Jane Doe"
+                            />
+                        </FormGroup>
+                        <FormGroup label="Email Address" required>
+                            <Input 
+                                type="email" 
+                                value={formData.email} 
+                                onChange={e => setFormData({...formData, email: e.target.value})} 
+                                placeholder="e.g. sales@steelsupply.com" 
+                            />
+                        </FormGroup>
+                        <FormGroup label="Phone Number">
+                            <Input 
+                                type="text" 
+                                value={formData.phone} 
+                                onChange={e => setFormData({...formData, phone: e.target.value})} 
+                                placeholder="e.g. +91 9876543210" 
+                            />
+                        </FormGroup>
+                        <FormGroup label="Website">
+                            <Input 
+                                type="url" 
+                                value={formData.website} 
+                                onChange={e => setFormData({...formData, website: e.target.value})} 
+                                placeholder="e.g. https://www.steelsupply.com" 
+                            />
+                        </FormGroup>
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        <label style={{ fontSize: '14px', fontWeight: 500, color: '#475569' }}>Email Address *</label>
-                        <input type="email" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} placeholder="contact@supplier.com" style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px' }} />
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        <label style={{ fontSize: '14px', fontWeight: 500, color: '#475569' }}>Phone Number *</label>
-                        <input type="tel" pattern="[0-9\-\+\s\(\)]+" maxLength="15" title="Valid phone number" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} placeholder="+91 9876543210" required style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px' }} />
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', gridColumn: '1 / -1' }}>
-                        <label style={{ fontSize: '14px', fontWeight: 500, color: '#475569' }}>Full Address *</label>
-                        <textarea rows="3" required value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} placeholder="Company location and address..." style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px' }}></textarea>
-                    </div>
-                </div>
-            </div>
+                    <FormGroup label="Address">
+                        <Input 
+                            type="text" 
+                            value={formData.address} 
+                            onChange={e => setFormData({...formData, address: e.target.value})} 
+                            placeholder="Full address" 
+                        />
+                    </FormGroup>
+                </FormSection>
+                <button type="submit" style={{ display: 'none' }}>Submit</button>
+            </form>
         </StandardPageLayout>
     );
 };

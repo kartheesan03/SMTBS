@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import API from '../api/axios';
 import StandardPageLayout from '../components/StandardPageLayout/StandardPageLayout';
 import toast from 'react-hot-toast';
+import { FormSection, FormGroup, Input, Select, SearchableSelect } from '../components/ui';
 
 const AddMaterial = ({ isEditMode = false }) => {
     const navigate = useNavigate();
@@ -53,6 +54,12 @@ const AddMaterial = ({ isEditMode = false }) => {
     };
 
     const handleSubmit = async () => {
+        if (!formData.name || !formData.sku || !formData.category || !formData.unit) {
+            setError("Please fill all required fields.");
+            toast.error("Please fill all required fields.");
+            return;
+        }
+
         setLoading(true);
         setError('');
         try {
@@ -75,6 +82,8 @@ const AddMaterial = ({ isEditMode = false }) => {
 
     if (isFetching) return <div className="flex-center" style={{height:'100vh'}}><div className="loader"></div></div>;
 
+    const vendorOptions = vendors.map(v => ({ value: v._id || v.id, label: v.name }));
+
     return (
         <StandardPageLayout
             title={isEditMode ? "Edit Material" : "Add New Material"}
@@ -87,6 +96,7 @@ const AddMaterial = ({ isEditMode = false }) => {
             onSave={handleSubmit}
             onCancel={() => navigate('/materials')}
             isEditMode={isEditMode}
+            loading={loading}
             infoCard={
                 <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
                     <div style={{ padding: '12px', background: '#e0e7ff', borderRadius: '50%', color: '#4f46e5' }}>
@@ -99,64 +109,90 @@ const AddMaterial = ({ isEditMode = false }) => {
                 </div>
             }
         >
-            <div className="standard-section">
-                <div className="standard-section-header">Basic Information</div>
+            <form id="material-form" onSubmit={e => { e.preventDefault(); handleSubmit(); }}>
                 {error && <div className="error-alert" style={{color: '#ef4444', background: '#fef2f2', padding: '12px', borderRadius: '8px', marginBottom: '16px'}}>{error}</div>}
                 
-                <form id="material-form" onSubmit={e => { e.preventDefault(); handleSubmit(); }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                            <label style={{ fontSize: '14px', fontWeight: 500, color: '#475569' }}>Material Name *</label>
-                            <input type="text" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="e.g. Steel Pipe 12mm" style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px' }} />
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                            <label style={{ fontSize: '14px', fontWeight: 500, color: '#475569' }}>SKU / Barcode *</label>
-                            <input type="text" required value={formData.sku} onChange={e => setFormData({...formData, sku: e.target.value})} placeholder="e.g. SP-12MM-001" style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px' }} />
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                            <label style={{ fontSize: '14px', fontWeight: 500, color: '#475569' }}>Category *</label>
-                            <input type="text" required value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} placeholder="e.g. Raw Materials" style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px' }} />
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                            <label style={{ fontSize: '14px', fontWeight: 500, color: '#475569' }}>Vendor (Optional)</label>
-                            <select value={formData.vendorId} onChange={e => setFormData({...formData, vendorId: e.target.value})} style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px', background: 'white' }}>
-                                <option value="">Select a Vendor</option>
-                                {vendors.map(v => (
-                                    <option key={v._id || v.id} value={v._id || v.id}>{v.name}</option>
-                                ))}
-                            </select>
-                        </div>
+                <FormSection title="Basic Information">
+                    <div className="ui-grid-2">
+                        <FormGroup label="Material Name" required>
+                            <Input 
+                                type="text" 
+                                value={formData.name} 
+                                onChange={e => setFormData({...formData, name: e.target.value})} 
+                                placeholder="e.g. Steel Pipe 12mm"
+                            />
+                        </FormGroup>
+                        <FormGroup label="SKU / Barcode" required>
+                            <Input 
+                                type="text" 
+                                value={formData.sku} 
+                                onChange={e => setFormData({...formData, sku: e.target.value})} 
+                                placeholder="e.g. SP-12MM-001" 
+                            />
+                        </FormGroup>
+                        <FormGroup label="Category" required>
+                            <Input 
+                                type="text" 
+                                value={formData.category} 
+                                onChange={e => setFormData({...formData, category: e.target.value})} 
+                                placeholder="e.g. Raw Materials" 
+                            />
+                        </FormGroup>
+                        <FormGroup label="Vendor (Optional)">
+                            <SearchableSelect 
+                                options={vendorOptions}
+                                value={formData.vendorId}
+                                onChange={(val) => setFormData({...formData, vendorId: val})}
+                                placeholder="Search & Select a Vendor"
+                            />
+                        </FormGroup>
                     </div>
-                </form>
-            </div>
+                </FormSection>
 
-            <div className="standard-section">
-                <div className="standard-section-header">Inventory & Pricing</div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        <label style={{ fontSize: '14px', fontWeight: 500, color: '#475569' }}>Initial Quantity *</label>
-                        <input type="number" min="0" required value={formData.quantity} onChange={e => setFormData({...formData, quantity: Number(e.target.value)})} style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px' }} />
+                <FormSection title="Inventory & Pricing">
+                    <div className="ui-grid-2">
+                        <FormGroup label="Initial Quantity" required>
+                            <Input 
+                                type="number" 
+                                min="0" 
+                                value={formData.quantity} 
+                                onChange={e => setFormData({...formData, quantity: Number(e.target.value)})} 
+                            />
+                        </FormGroup>
+                        <FormGroup label="Low Stock Threshold" required>
+                            <Input 
+                                type="number" 
+                                min="0" 
+                                value={formData.lowStockThreshold} 
+                                onChange={e => setFormData({...formData, lowStockThreshold: Number(e.target.value)})} 
+                            />
+                        </FormGroup>
+                        <FormGroup label="Unit of Measure" required>
+                            <Select 
+                                value={formData.unit} 
+                                onChange={e => setFormData({...formData, unit: e.target.value})} 
+                                options={[
+                                    { value: 'pcs', label: 'Pieces (pcs)' },
+                                    { value: 'kg', label: 'Kilograms (kg)' },
+                                    { value: 'ltr', label: 'Liters (ltr)' },
+                                    { value: 'boxes', label: 'Boxes' },
+                                    { value: 'meters', label: 'Meters (m)' },
+                                ]}
+                            />
+                        </FormGroup>
+                        <FormGroup label="Unit Price (₹)" required>
+                            <Input 
+                                type="number" 
+                                min="0" 
+                                step="0.01" 
+                                value={formData.price} 
+                                onChange={e => setFormData({...formData, price: Number(e.target.value)})} 
+                            />
+                        </FormGroup>
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        <label style={{ fontSize: '14px', fontWeight: 500, color: '#475569' }}>Low Stock Threshold *</label>
-                        <input type="number" min="0" required value={formData.lowStockThreshold} onChange={e => setFormData({...formData, lowStockThreshold: Number(e.target.value)})} style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px' }} />
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        <label style={{ fontSize: '14px', fontWeight: 500, color: '#475569' }}>Unit of Measure *</label>
-                        <select value={formData.unit} onChange={e => setFormData({...formData, unit: e.target.value})} required style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px', background: 'white' }}>
-                            <option value="pcs">Pieces (pcs)</option>
-                            <option value="kg">Kilograms (kg)</option>
-                            <option value="ltr">Liters (ltr)</option>
-                            <option value="boxes">Boxes</option>
-                            <option value="meters">Meters (m)</option>
-                        </select>
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        <label style={{ fontSize: '14px', fontWeight: 500, color: '#475569' }}>Unit Price (₹) *</label>
-                        <input type="number" min="0" step="0.01" required value={formData.price} onChange={e => setFormData({...formData, price: Number(e.target.value)})} style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px' }} />
-                    </div>
-                </div>
-            </div>
+                </FormSection>
+                <button type="submit" style={{ display: 'none' }}>Submit</button>
+            </form>
         </StandardPageLayout>
     );
 };

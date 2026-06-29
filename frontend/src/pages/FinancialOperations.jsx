@@ -3,7 +3,6 @@ import API from '../api/axios';
 import { TrendingUp, CreditCard, AlertTriangle, DollarSign, Search } from 'lucide-react';
 import { LineChart, Line, PieChart, Pie, Cell, BarChart, Bar, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
-import { RDHeader } from './AdminDashboard';
 import toast from 'react-hot-toast';
 
 const FinancialOperations = () => {
@@ -45,25 +44,49 @@ const FinancialOperations = () => {
         return `₹${val.toLocaleString()}`;
     };
 
-    // P&L chart data
-    const plData = [
-        { name: 'Dec', revenue: 310000, profit: 90000 },
-        { name: 'Jan', revenue: 420000, profit: 120000 },
-        { name: 'Feb', revenue: 380000, profit: 95000 },
-        { name: 'Mar', revenue: 460000, profit: 140000 },
-        { name: 'Apr', revenue: 510000, profit: 160000 },
-        { name: 'May', revenue: 580000, profit: 205000 }
-    ];
+    // P&L chart data — derived from real orders by month
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const currentMonthIdx = new Date().getMonth();
+    const plData = [];
+    for (let i = 5; i >= 0; i--) {
+        let mIdx = currentMonthIdx - i;
+        if (mIdx < 0) mIdx += 12;
+        const mName = monthNames[mIdx];
+        const monthSalesRev = salesOrders
+            .filter(o => ['Delivered', 'Completed'].includes(o.status))
+            .filter(o => { const d = new Date(o.orderDate || o.createdAt); return !isNaN(d) && d.getMonth() === mIdx; })
+            .reduce((s, o) => s + (Number(o.totalAmount) || Number(o.grandTotal) || 0), 0);
+        const monthPurchaseExp = purchaseOrders
+            .filter(o => { const d = new Date(o.orderDate || o.createdAt); return !isNaN(d) && d.getMonth() === mIdx; })
+            .reduce((s, o) => s + (Number(o.totalAmount) || Number(o.grandTotal) || 0), 0);
+        plData.push({ name: mName, revenue: monthSalesRev, profit: monthSalesRev - monthPurchaseExp });
+    }
+    const latestPL = plData[plData.length - 1] || { revenue: 0, profit: 0 };
+    const latestExpense = latestPL.revenue - latestPL.profit;
 
-    // Spend by category donut
-    const spendData = [
-        { name: 'Metals', value: 2110000, color: '#3b82f6', pct: '50%' },
-        { name: 'Construction', value: 1390000, color: '#06b6d4', pct: '33%' },
-        { name: 'Electrical', value: 480000, color: '#8b5cf6', pct: '11%' },
-        { name: 'Paints', value: 110000, color: '#f59e0b', pct: '3%' },
-        { name: 'Other', value: 90000, color: '#ef4444', pct: '2%' }
-    ];
-    const totalSpend = spendData.reduce((s, d) => s + d.value, 0);
+    // Spend by category — derived from real purchase order items
+    const categoryColors = ['#3b82f6', '#06b6d4', '#8b5cf6', '#f59e0b', '#ef4444', '#10b981', '#ec4899'];
+    const catSpendMap = {};
+    purchaseOrders.forEach(o => {
+        if (o.items && Array.isArray(o.items)) {
+            o.items.forEach(item => {
+                const cat = item.category || item.materialCategory || 'Other';
+                catSpendMap[cat] = (catSpendMap[cat] || 0) + ((Number(item.quantity) || 0) * (Number(item.price) || Number(item.unitPrice) || 0));
+            });
+        } else {
+            const cat = 'General';
+            catSpendMap[cat] = (catSpendMap[cat] || 0) + (Number(o.totalAmount) || Number(o.grandTotal) || 0);
+        }
+    });
+    const totalSpend = Object.values(catSpendMap).reduce((s, v) => s + v, 0) || 1;
+    const spendData = Object.entries(catSpendMap)
+        .sort((a, b) => b[1] - a[1])
+        .map(([name, value], idx) => ({
+            name,
+            value,
+            color: categoryColors[idx % categoryColors.length],
+            pct: `${Math.round((value / totalSpend) * 100)}%`
+        }));
 
     // Invoice data from orders
     const invoiceData = orders.map((o, i) => {
@@ -95,7 +118,7 @@ const FinancialOperations = () => {
 
     return (
         <div className="rd-container">
-            <RDHeader onRefresh={fetchData} />
+            
             <div className="rd-content">
                 {/* Module Header */}
                 <div className="rd-module-header">
@@ -141,16 +164,16 @@ const FinancialOperations = () => {
                         </div>
                         <div style={{display: 'flex', gap: 16, marginTop: 20}}>
                             <div style={{flex: 1, padding: '12px 16px', borderRadius: 12, border: '1px solid #e2e8f0', background: '#f8fafc'}}>
-                                <div style={{fontSize: 11, fontWeight: 700, color: '#94a3b8', marginBottom: 4}}>REVENUE (MAY)</div>
-                                <div style={{fontSize: 20, fontWeight: 800, color: '#1d4ed8'}}>₹580K</div>
+                                <div style={{fontSize: 11, fontWeight: 700, color: '#94a3b8', marginBottom: 4}}>REVENUE ({(latestPL.name || '').toUpperCase()})</div>
+                                <div style={{fontSize: 20, fontWeight: 800, color: '#1d4ed8'}}>{formatCurrency(latestPL.revenue)}</div>
                             </div>
                             <div style={{flex: 1, padding: '12px 16px', borderRadius: 12, border: '1px solid #e2e8f0', background: '#f8fafc'}}>
-                                <div style={{fontSize: 11, fontWeight: 700, color: '#94a3b8', marginBottom: 4}}>EXPENSE (MAY)</div>
-                                <div style={{fontSize: 20, fontWeight: 800, color: '#dc2626'}}>₹375K</div>
+                                <div style={{fontSize: 11, fontWeight: 700, color: '#94a3b8', marginBottom: 4}}>EXPENSE ({(latestPL.name || '').toUpperCase()})</div>
+                                <div style={{fontSize: 20, fontWeight: 800, color: '#dc2626'}}>{formatCurrency(latestExpense)}</div>
                             </div>
                             <div style={{flex: 1, padding: '12px 16px', borderRadius: 12, border: '1px solid #e2e8f0', background: '#f8fafc'}}>
-                                <div style={{fontSize: 11, fontWeight: 700, color: '#94a3b8', marginBottom: 4}}>PROFIT (MAY)</div>
-                                <div style={{fontSize: 20, fontWeight: 800, color: '#059669'}}>₹205K</div>
+                                <div style={{fontSize: 11, fontWeight: 700, color: '#94a3b8', marginBottom: 4}}>PROFIT ({(latestPL.name || '').toUpperCase()})</div>
+                                <div style={{fontSize: 20, fontWeight: 800, color: '#059669'}}>{formatCurrency(latestPL.profit)}</div>
                             </div>
                         </div>
                     </div>
@@ -172,7 +195,7 @@ const FinancialOperations = () => {
                                 </PieChart>
                             </ResponsiveContainer>
                             <div style={{position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center'}}>
-                                <div style={{fontSize: 18, fontWeight: 800, color: 'var(--rd-text-main)'}}>₹41.8L</div>
+                                <div style={{fontSize: 18, fontWeight: 800, color: 'var(--rd-text-main)'}}>{formatCurrency(totalSpend)}</div>
                                 <div style={{fontSize: 10, fontWeight: 700, color: '#94a3b8'}}>TOTAL</div>
                             </div>
                         </div>

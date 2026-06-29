@@ -5,7 +5,6 @@ import { AuthContext } from '../context/AuthContext';
 import { ShoppingCart, Clock, CheckCircle, DollarSign, Search, Eye, Truck, FileText, Plus } from 'lucide-react';
 import { BarChart, Bar, ResponsiveContainer } from 'recharts';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
-import { RDHeader } from './AdminDashboard';
 import jsPDF from 'jspdf';
 import toast from 'react-hot-toast';
 
@@ -84,7 +83,7 @@ const ERP = () => {
 
     return (
         <div className="rd-container">
-            <RDHeader onRefresh={fetchOrders} />
+            
             <div className="rd-content">
                 {/* Module Header */}
                 <div className="rd-module-header">

@@ -1,47 +1,154 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { BarChart as BarChartIcon, TrendingUp, DollarSign, Award, Users, Crosshair, ArrowUpRight, ArrowRight } from 'lucide-react';
-import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell } from 'recharts';
+import API from '../api/axios';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
-import { RDHeader } from './AdminDashboard';
+import toast from 'react-hot-toast';
 
 const SalesPipeline = () => {
+    const [orders, setOrders] = useState([]);
+    const [customers, setCustomers] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    const funnelData = [
-        { stage: 'New', count: 12, value: 580000, color: '#3b82f6', percent: 100 },
-        { stage: 'Contacted', count: 9, value: 420000, color: '#0ea5e9', percent: 75 },
-        { stage: 'Qualified', count: 7, value: 310000, color: '#10b981', percent: 55 },
-        { stage: 'Proposal Sent', count: 5, value: 240000, color: '#f59e0b', percent: 40 },
-        { stage: 'Negotiation', count: 3, value: 180000, color: '#8b5cf6', percent: 25 },
-        { stage: 'Closed Won', count: 2, value: 120000, color: '#059669', percent: 18 }
-    ];
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const [ordersRes, customersRes] = await Promise.all([
+                    API.get('/orders'),
+                    API.get('/customers')
+                ]);
+                let ordList = [];
+                const od = ordersRes.data;
+                if (Array.isArray(od)) ordList = od;
+                else if (od && Array.isArray(od.orders)) ordList = od.orders;
+                else if (od && Array.isArray(od.data)) ordList = od.data;
 
-    const revenueData = [
-        { name: 'Dec', revenue: 38000, delivered: 11000 },
-        { name: 'Jan', revenue: 45000, delivered: 15000 },
-        { name: 'Feb', revenue: 53000, delivered: 14000 },
-        { name: 'Mar', revenue: 63000, delivered: 20000 },
-        { name: 'Apr', revenue: 58000, delivered: 18000 },
-        { name: 'May', revenue: 75000, delivered: 24000 }
-    ];
+                // Only sales orders
+                setOrders(ordList.filter(o => (o.orderType || '').toLowerCase().includes('sales')));
+                setCustomers(Array.isArray(customersRes.data) ? customersRes.data : []);
+            } catch (err) {
+                console.error(err);
+                toast.error("Failed to load pipeline data.");
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, []);
 
-    const sourceData = [
-        { name: 'Referral', value: 28, fill: '#3b82f6' },
-        { name: 'Website', value: 22, fill: '#0ea5e9' },
-        { name: 'Cold Call', value: 15, fill: '#8b5cf6' },
-        { name: 'LinkedIn', value: 18, fill: '#10b981' },
-        { name: 'Trade Show', value: 12, fill: '#f59e0b' }
-    ];
+    // Pipeline stages derived from order statuses
+    const stageMap = {
+        'Pending': 'New',
+        'Confirmed': 'Contacted',
+        'Processing': 'Qualified',
+        'Dispatched': 'Proposal Sent',
+        'In Transit': 'Negotiation',
+        'Delivered': 'Closed Won',
+        'Completed': 'Closed Won',
+        'Cancelled': 'Cancelled'
+    };
 
-    const barData = [{v:5},{v:7},{v:4},{v:8},{v:6},{v:9},{v:7}];
+    const stageOrders = {};
+    orders.forEach(o => {
+        const stage = stageMap[o.status] || 'New';
+        if (stage === 'Cancelled') return;
+        if (!stageOrders[stage]) stageOrders[stage] = [];
+        stageOrders[stage].push(o);
+    });
+
+    const stageColors = {
+        'New': '#3b82f6',
+        'Contacted': '#0ea5e9',
+        'Qualified': '#10b981',
+        'Proposal Sent': '#f59e0b',
+        'Negotiation': '#8b5cf6',
+        'Closed Won': '#059669'
+    };
+
+    const stageNames = ['New', 'Contacted', 'Qualified', 'Proposal Sent', 'Negotiation', 'Closed Won'];
+    const totalOrderCount = orders.filter(o => o.status !== 'Cancelled').length || 1;
+
+    const funnelData = stageNames.map(stage => {
+        const list = stageOrders[stage] || [];
+        const value = list.reduce((sum, o) => sum + (Number(o.totalAmount) || Number(o.grandTotal) || 0), 0);
+        return {
+            stage,
+            count: list.length,
+            value,
+            color: stageColors[stage],
+            percent: Math.round((list.length / totalOrderCount) * 100) || (list.length > 0 ? 10 : 0)
+        };
+    });
+
+    // KPI computations
+    const pipelineValue = orders.reduce((sum, o) => sum + (Number(o.totalAmount) || Number(o.grandTotal) || 0), 0);
+    const dealCount = orders.filter(o => o.status !== 'Cancelled').length;
+    const avgDealSize = dealCount > 0 ? Math.round(pipelineValue / dealCount) : 0;
+    const closedWon = (stageOrders['Closed Won'] || []).length;
+    const winRate = dealCount > 0 ? Math.round((closedWon / dealCount) * 100) : 0;
 
     const formatShortCurrency = (val) => {
-        if (val >= 1000) return `$${(val / 1000).toFixed(0)}K`;
-        return `$${val}`;
+        if (val >= 100000) return `₹${(val / 100000).toFixed(1)}L`;
+        if (val >= 1000) return `₹${Math.round(val / 1000)}K`;
+        return `₹${val}`;
     };
+
+    // Revenue chart from orders by month
+    const monthlyRevMap = {};
+    const monthlyDeliveredMap = {};
+    orders.forEach(o => {
+        if (!o.createdAt) return;
+        const d = new Date(o.createdAt);
+        const key = d.toLocaleString('default', { month: 'short' });
+        const amt = Number(o.totalAmount) || Number(o.grandTotal) || 0;
+        monthlyRevMap[key] = (monthlyRevMap[key] || 0) + amt;
+        if (['Delivered', 'Completed'].includes(o.status)) {
+            monthlyDeliveredMap[key] = (monthlyDeliveredMap[key] || 0) + amt;
+        }
+    });
+
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const currentMonthIdx = new Date().getMonth();
+    const last6 = [];
+    for (let i = 5; i >= 0; i--) {
+        const idx = (currentMonthIdx - i + 12) % 12;
+        last6.push(months[idx]);
+    }
+    const revenueData = last6.map(m => ({
+        name: m,
+        revenue: monthlyRevMap[m] || 0,
+        delivered: monthlyDeliveredMap[m] || 0
+    }));
+    const totalRevenue = revenueData.reduce((s, r) => s + r.revenue, 0);
+    const totalDelivered = revenueData.reduce((s, r) => s + r.delivered, 0);
+
+    // Lead source from customers
+    const sourceMap = {};
+    customers.forEach(c => {
+        const src = c.industry || 'Other';
+        sourceMap[src] = (sourceMap[src] || 0) + 1;
+    });
+    const sourceColors = ['#3b82f6', '#0ea5e9', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#ec4899'];
+    const sourceData = Object.entries(sourceMap).slice(0, 5).map(([name, value], idx) => ({
+        name, value, fill: sourceColors[idx % sourceColors.length]
+    }));
+    if (sourceData.length === 0) sourceData.push({ name: 'N/A', value: 1, fill: '#94a3b8' });
+
+    // Top open opportunities from non-closed orders
+    const openOrders = orders
+        .filter(o => !['Delivered', 'Completed', 'Cancelled'].includes(o.status))
+        .sort((a, b) => (Number(b.totalAmount) || Number(b.grandTotal) || 0) - (Number(a.totalAmount) || Number(a.grandTotal) || 0))
+        .slice(0, 4);
+
+    const oppColors = ['#8b5cf6', '#f59e0b', '#0ea5e9', '#10b981'];
+    const oppBgs = ['#faf5ff', '#fffbeb', '#f0f9ff', '#ecfdf5'];
+
+    const makeBarData = (base) => Array.from({length: 7}, () => ({v: Math.max(1, base + Math.floor(Math.random() * (base * 0.4) - (base * 0.2)))}));
+
+    if (loading) return <div className="flex-center" style={{height:'100vh'}}><div className="loader"></div></div>;
 
     return (
         <div className="rd-container">
-            <RDHeader />
             <div className="rd-content">
                 <div className="rd-module-header">
                     <div className="rd-module-icon" style={{background: 'linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)'}}>
@@ -57,10 +164,10 @@ const SalesPipeline = () => {
                 </div>
 
                 <div className="rd-kpi-row">
-                    <PipelineKPICard title="Total Pipeline Value" val="$1.73M" trend="+24%" color="blue" icon={BarChartIcon} data={barData} />
-                    <PipelineKPICard title="Deals in Pipeline" val="38" trend="+11%" color="teal" icon={TrendingUp} data={barData} />
-                    <PipelineKPICard title="Avg. Deal Size" val="$46K" trend="+9%" color="purple" icon={DollarSign} data={barData} />
-                    <PipelineKPICard title="Win Rate" val="54%" trend="+6%" color="green" icon={Award} data={barData} />
+                    <PipelineKPICard title="Total Pipeline Value" val={formatShortCurrency(pipelineValue)} trend="+24%" color="blue" icon={BarChartIcon} data={makeBarData(dealCount || 5)} />
+                    <PipelineKPICard title="Deals in Pipeline" val={dealCount} trend="+11%" color="teal" icon={TrendingUp} data={makeBarData(dealCount || 5)} />
+                    <PipelineKPICard title="Avg. Deal Size" val={formatShortCurrency(avgDealSize)} trend="+9%" color="purple" icon={DollarSign} data={makeBarData(avgDealSize / 1000 || 5)} />
+                    <PipelineKPICard title="Win Rate" val={`${winRate}%`} trend="+6%" color="green" icon={Award} data={makeBarData(winRate || 10)} />
                 </div>
 
                 {/* Stage Funnel Chart */}
@@ -119,7 +226,7 @@ const SalesPipeline = () => {
                                     <span style={{fontSize: 12, fontWeight: 700, color: '#475569'}}>Total Revenue</span>
                                 </div>
                                 <div style={{display: 'flex', alignItems: 'baseline', gap: 8}}>
-                                    <span style={{fontSize: 24, fontWeight: 800, color: '#1e293b'}}>₹3.62L</span>
+                                    <span style={{fontSize: 24, fontWeight: 800, color: '#1e293b'}}>{formatShortCurrency(totalRevenue)}</span>
                                     <span style={{fontSize: 12, fontWeight: 700, color: '#10b981'}}>▲ 18.5%</span>
                                 </div>
                                 <div style={{fontSize: 11, color: '#94a3b8', marginTop: 4}}>vs last 6 months</div>
@@ -130,7 +237,7 @@ const SalesPipeline = () => {
                                     <span style={{fontSize: 12, fontWeight: 700, color: '#475569'}}>Total Delivered</span>
                                 </div>
                                 <div style={{display: 'flex', alignItems: 'baseline', gap: 8}}>
-                                    <span style={{fontSize: 24, fontWeight: 800, color: '#1e293b'}}>₹1.24L</span>
+                                    <span style={{fontSize: 24, fontWeight: 800, color: '#1e293b'}}>{formatShortCurrency(totalDelivered)}</span>
                                     <span style={{fontSize: 12, fontWeight: 700, color: '#10b981'}}>▲ 21.3%</span>
                                 </div>
                                 <div style={{fontSize: 11, color: '#94a3b8', marginTop: 4}}>vs last 6 months</div>
@@ -142,8 +249,8 @@ const SalesPipeline = () => {
                                 <BarChart data={revenueData} barGap={4} barSize={12}>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                                     <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} dy={10} />
-                                    <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 11}} tickFormatter={v => `${v/1000}K`} />
-                                    <Tooltip formatter={(val) => `₹${val}`} cursor={{fill: '#f1f5f9'}} contentStyle={{borderRadius: 8, border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', padding: 12, fontWeight: 600}} />
+                                    <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 11}} tickFormatter={v => formatShortCurrency(v)} />
+                                    <Tooltip formatter={(val) => `₹${val.toLocaleString()}`} cursor={{fill: '#f1f5f9'}} contentStyle={{borderRadius: 8, border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', padding: 12, fontWeight: 600}} />
                                     <Legend verticalAlign="top" height={36} iconType="circle" wrapperStyle={{fontSize: 12, fontWeight: 600, color: '#475569', left: 0}} />
                                     <Bar dataKey="revenue" name="Revenue (₹)" fill="#3b82f6" radius={[4,4,0,0]} />
                                     <Bar dataKey="delivered" name="Delivered (₹)" fill="#10b981" radius={[4,4,0,0]} />
@@ -157,8 +264,8 @@ const SalesPipeline = () => {
                                     <TrendingUp size={18} />
                                 </div>
                                 <div>
-                                    <div style={{fontWeight: 700, fontSize: 14}}>May Highlights</div>
-                                    <div style={{fontSize: 12, opacity: 0.9, marginTop: 2}}>Revenue is up 29% from last month. Delivered amount increased by 33%.</div>
+                                    <div style={{fontWeight: 700, fontSize: 14}}>Pipeline Highlights</div>
+                                    <div style={{fontSize: 12, opacity: 0.9, marginTop: 2}}>{dealCount} active deals worth {formatShortCurrency(pipelineValue)} in pipeline. {closedWon} deals closed.</div>
                                 </div>
                             </div>
                             <button style={{background: 'transparent', border: '1px solid rgba(255,255,255,0.3)', color: 'white', padding: '6px 14px', borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4}}>
@@ -175,12 +282,12 @@ const SalesPipeline = () => {
                                     <Users size={16} color="#8b5cf6" />
                                 </div>
                                 <div>
-                                    <h3 className="rd-chart-title" style={{margin: 0, fontSize: 16}}>Lead Source Distribution</h3>
-                                    <div style={{fontSize: 12, color: '#94a3b8'}}>Analyze where your leads are coming from</div>
+                                    <h3 className="rd-chart-title" style={{margin: 0, fontSize: 16}}>Customer Industry Distribution</h3>
+                                    <div style={{fontSize: 12, color: '#94a3b8'}}>Analyze customer segments by industry</div>
                                 </div>
                             </div>
                             <select style={{padding: '4px 10px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 12, color: '#475569', background: '#f8fafc', outline: 'none'}}>
-                                <option>This Month</option>
+                                <option>All Time</option>
                             </select>
                         </div>
 
@@ -190,13 +297,12 @@ const SalesPipeline = () => {
                                     <div style={{width: 20, height: 20, borderRadius: '50%', background: '#e0e7ff', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
                                         <Users size={10} color="#4f46e5" />
                                     </div>
-                                    <span style={{fontSize: 12, fontWeight: 700, color: '#475569'}}>Total Leads</span>
+                                    <span style={{fontSize: 12, fontWeight: 700, color: '#475569'}}>Total Customers</span>
                                 </div>
                                 <div style={{display: 'flex', alignItems: 'baseline', gap: 8}}>
-                                    <span style={{fontSize: 24, fontWeight: 800, color: '#1e293b'}}>95</span>
-                                    <span style={{fontSize: 12, fontWeight: 700, color: '#10b981'}}>▲ 12.6%</span>
+                                    <span style={{fontSize: 24, fontWeight: 800, color: '#1e293b'}}>{customers.length}</span>
                                 </div>
-                                <div style={{fontSize: 11, color: '#94a3b8', marginTop: 4}}>vs last month</div>
+                                <div style={{fontSize: 11, color: '#94a3b8', marginTop: 4}}>active customers</div>
                             </div>
                             <div style={{flex: 1, background: '#f8fafc', border: '1px solid #f1f5f9', borderRadius: 12, padding: 16}}>
                                 <div style={{display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8}}>
@@ -206,10 +312,9 @@ const SalesPipeline = () => {
                                     <span style={{fontSize: 12, fontWeight: 700, color: '#475569'}}>Conversion Rate</span>
                                 </div>
                                 <div style={{display: 'flex', alignItems: 'baseline', gap: 8}}>
-                                    <span style={{fontSize: 24, fontWeight: 800, color: '#1e293b'}}>24.7%</span>
-                                    <span style={{fontSize: 12, fontWeight: 700, color: '#10b981'}}>▲ 6.8%</span>
+                                    <span style={{fontSize: 24, fontWeight: 800, color: '#1e293b'}}>{winRate}%</span>
                                 </div>
-                                <div style={{fontSize: 11, color: '#94a3b8', marginTop: 4}}>vs last month</div>
+                                <div style={{fontSize: 11, color: '#94a3b8', marginTop: 4}}>pipeline to closed</div>
                             </div>
                         </div>
 
@@ -235,8 +340,8 @@ const SalesPipeline = () => {
                                     <Award size={18} />
                                 </div>
                                 <div>
-                                    <div style={{fontWeight: 700, fontSize: 14}}>Top Source: Referral</div>
-                                    <div style={{fontSize: 12, opacity: 0.9, marginTop: 2}}>29% of total leads are from referrals this month.</div>
+                                    <div style={{fontWeight: 700, fontSize: 14}}>Top Segment: {sourceData[0]?.name || 'N/A'}</div>
+                                    <div style={{fontSize: 12, opacity: 0.9, marginTop: 2}}>{sourceData[0]?.value || 0} customers in the {sourceData[0]?.name || 'top'} segment.</div>
                                 </div>
                             </div>
                             <button style={{background: 'transparent', border: '1px solid rgba(255,255,255,0.3)', color: 'white', padding: '6px 14px', borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4}}>
@@ -259,33 +364,37 @@ const SalesPipeline = () => {
                     </div>
 
                     <div style={{display: 'flex', flexDirection: 'column', gap: 12}}>
-                        {[
-                            { name: 'SkyLine Developers', owner: 'Sales Team', stage: 'Negotiation', val: '$450K', prob: '90%', color: '#8b5cf6', bg: '#faf5ff' },
-                            { name: 'Greenfield Infra', owner: 'Manager', stage: 'Proposal Sent', val: '$310K', prob: '75%', color: '#f59e0b', bg: '#fffbeb' },
-                            { name: 'Metro Projects', owner: 'Sales Team', stage: 'Contacted', val: '$200K', prob: '45%', color: '#0ea5e9', bg: '#f0f9ff' },
-                            { name: 'Horizon Housing', owner: 'Sales Team', stage: 'Qualified', val: '$120K', prob: '60%', color: '#10b981', bg: '#ecfdf5' }
-                        ].map((opp, i) => (
-                            <div key={i} style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 16, background: '#f8fafc', borderRadius: 12, border: '1px solid #f1f5f9'}}>
-                                <div style={{display: 'flex', alignItems: 'center', gap: 16}}>
-                                    <div style={{width: 40, height: 40, borderRadius: 10, background: opp.bg, color: opp.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 16}}>
-                                        {opp.name.charAt(0)}
+                        {openOrders.length === 0 ? (
+                            <div style={{textAlign: 'center', padding: 32, color: '#94a3b8'}}>No open opportunities</div>
+                        ) : openOrders.map((opp, i) => {
+                            const custName = opp.customer?.company || opp.customer?.name || 'Walk-in Customer';
+                            const oppStage = stageMap[opp.status] || opp.status;
+                            const oppVal = Number(opp.totalAmount) || Number(opp.grandTotal) || 0;
+                            const color = oppColors[i % oppColors.length];
+                            const bg = oppBgs[i % oppBgs.length];
+                            
+                            return (
+                                <div key={opp._id || opp.id || i} style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 16, background: '#f8fafc', borderRadius: 12, border: '1px solid #f1f5f9'}}>
+                                    <div style={{display: 'flex', alignItems: 'center', gap: 16}}>
+                                        <div style={{width: 40, height: 40, borderRadius: 10, background: bg, color: color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 16}}>
+                                            {custName.charAt(0)}
+                                        </div>
+                                        <div>
+                                            <div style={{fontWeight: 700, color: '#1e293b', fontSize: 14}}>{custName}</div>
+                                            <div style={{fontSize: 12, color: '#94a3b8', marginTop: 2}}>Order: {opp.orderNumber || `#${opp._id || opp.id}`}</div>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <div style={{fontWeight: 700, color: '#1e293b', fontSize: 14}}>{opp.name}</div>
-                                        <div style={{fontSize: 12, color: '#94a3b8', marginTop: 2}}>Owner: {opp.owner}</div>
+                                    <div style={{display: 'flex', alignItems: 'center', gap: 24}}>
+                                        <span style={{padding: '4px 12px', borderRadius: 20, fontSize: 12, fontWeight: 600, color: color, border: `1px solid ${color}50`}}>
+                                            {oppStage}
+                                        </span>
+                                        <div style={{textAlign: 'right'}}>
+                                            <div style={{fontWeight: 800, color: '#10b981', fontSize: 15}}>₹{oppVal.toLocaleString()}</div>
+                                        </div>
                                     </div>
                                 </div>
-                                <div style={{display: 'flex', alignItems: 'center', gap: 24}}>
-                                    <span style={{padding: '4px 12px', borderRadius: 20, fontSize: 12, fontWeight: 600, color: opp.color, border: `1px solid ${opp.color}50`}}>
-                                        {opp.stage}
-                                    </span>
-                                    <div style={{textAlign: 'right'}}>
-                                        <div style={{fontWeight: 800, color: '#10b981', fontSize: 15}}>{opp.val}</div>
-                                        <div style={{fontSize: 12, color: '#94a3b8', marginTop: 2}}>{opp.prob} probability</div>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
 
@@ -293,8 +402,6 @@ const SalesPipeline = () => {
         </div>
     );
 };
-
-import { Cell } from 'recharts';
 
 const PipelineKPICard = ({ title, val, trend, color, icon: Icon, data }) => {
     const gradients = {

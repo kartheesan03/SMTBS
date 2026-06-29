@@ -132,10 +132,10 @@ const EmployeeDashboard = () => {
     const workingDays = presentDays + leaveDays + absentDays || 1;
     const attendancePercentage = Math.round((presentDays / workingDays) * 100);
 
-    const personalAttendanceData = [
-        { name: 'Present', value: presentDays, color: '#10b981' },
-        { name: 'On Leave', value: leaveDays, color: '#f59e0b' },
-        { name: 'Absent', value: absentDays, color: '#ef4444' }
+    const myAttendanceData = [
+        { name: 'Present', value: presentDays, fill: '#10b981' },
+        { name: 'On Leave', value: leaveDays, fill: '#f59e0b' },
+        { name: 'Absent', value: absentDays, fill: '#ef4444' }
     ].filter(item => item.value > 0);
 
     const recentTaskData = myTasks
@@ -159,7 +159,7 @@ const EmployeeDashboard = () => {
         { title: 'My Tasks', value: totalTasks, icon: ListTodo, color: '#3b82f6', trend: `${pendingTasksCount} pending`, trendType: 'up' },
         { title: 'Task Completion', value: `${taskCompletionRate}%`, icon: CheckCircle, color: '#10b981', trend: 'Great job', trendType: 'up' },
         { title: 'Attendance', value: `${attendancePercentage}%`, icon: UserCheck, color: '#f59e0b', trend: `${presentDays} days present`, trendType: 'up' },
-        { title: 'Leave Balance', value: '12', icon: Calendar, color: '#8b5cf6', trend: 'Available', trendType: 'up' }
+        { title: 'Leave Balance', value: attendanceStats?.leaveBalance ?? 'N/A', icon: Calendar, color: '#8b5cf6', trend: 'Available', trendType: 'up' }
     ];
 
     return (

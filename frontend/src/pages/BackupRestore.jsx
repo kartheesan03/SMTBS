@@ -1,18 +1,97 @@
-import React, { useState } from 'react';
-import { Database, Download, ArrowUpRight, CloudDownload, Trash2, ShieldAlert, FileText, Settings, AlertTriangle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import API from '../api/axios';
+import toast from 'react-hot-toast';
+import { Database, Download, ArrowUpRight, CloudDownload, Trash2, ShieldAlert, FileText, Settings, AlertTriangle, RefreshCw } from 'lucide-react';
 import './BackupRestore.css';
 
 const BackupRestore = () => {
     const [autoBackup, setAutoBackup] = useState(true);
+    const [historyData, setHistoryData] = useState([]);
+    const [stats, setStats] = useState({ totalBackups: 0, lastBackup: null, storageUsed: '0 MB' });
+    const [loading, setLoading] = useState(true);
 
-    const historyData = [
-        { id: 'BK-2206', name: 'Daily Auto Backup', type: 'Automatic', size: '1.84 GB', date: '23 Jun 2026, 02:00', status: 'Completed' },
-        { id: 'BK-2205', name: 'Daily Auto Backup', type: 'Automatic', size: '1.83 GB', date: '22 Jun 2026, 02:00', status: 'Completed' },
-        { id: 'BK-2204', name: 'Pre-upgrade Snapshot', type: 'Manual', size: '1.81 GB', date: '21 Jun 2026, 14:22', status: 'Completed' },
-        { id: 'BK-2203', name: 'Daily Auto Backup', type: 'Automatic', size: '1.79 GB', date: '20 Jun 2026, 02:00', status: 'Completed' },
-        { id: 'BK-2202', name: 'Daily Auto Backup', type: 'Automatic', size: '—', date: '19 Jun 2026, 02:00', status: 'Failed' },
-        { id: 'BK-2201', name: 'Daily Auto Backup', type: 'Automatic', size: '1.77 GB', date: '18 Jun 2026, 02:00', status: 'Completed' },
-    ];
+    const fetchBackups = async () => {
+        try {
+            setLoading(true);
+            const [listRes, statsRes] = await Promise.all([
+                API.get('/backup/list'),
+                API.get('/backup/statistics')
+            ]);
+            setHistoryData(listRes.data || []);
+            setStats(statsRes.data || { totalBackups: 0, lastBackup: null, storageUsed: '0 MB' });
+        } catch (error) {
+            console.error('Failed to load backups', error);
+            toast.error('Failed to load backup data');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchBackups();
+    }, []);
+
+    const handleBackupNow = async () => {
+        const loadingToast = toast.loading('Creating backup...');
+        try {
+            await API.post('/backup/create', { backupType: 'Full' });
+            toast.success('Backup created successfully', { id: loadingToast });
+            fetchBackups();
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'Failed to create backup', { id: loadingToast });
+        }
+    };
+
+    const handleDelete = async (id) => {
+        if (window.confirm('Are you sure you want to delete this backup?')) {
+            try {
+                await API.delete(`/backup/delete/${id}`);
+                toast.success('Backup deleted');
+                fetchBackups();
+            } catch (error) {
+                toast.error(error.response?.data?.message || 'Failed to delete backup');
+            }
+        }
+    };
+
+    const handleDownload = async (id, filename) => {
+        try {
+            const response = await API.get(`/backup/download/${id}`, { responseType: 'blob' });
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', filename || 'backup.json');
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } catch (error) {
+            toast.error('Failed to download backup');
+        }
+    };
+
+    const handleRestore = async (id) => {
+        if (window.confirm('WARNING: Restoring this backup will overwrite all current live data. This action cannot be undone. Are you sure you want to proceed?')) {
+            const loadingToast = toast.loading('Restoring data from backup...');
+            try {
+                await API.post(`/backup/restore/${id}`);
+                toast.success('Backup restored successfully. Please refresh the page.', { id: loadingToast });
+                fetchBackups();
+            } catch (error) {
+                toast.error(error.response?.data?.message || 'Failed to restore backup', { id: loadingToast });
+            }
+        }
+    };
+
+    const formatDateTime = (dateString) => {
+        if (!dateString) return { date: '-', time: '-' };
+        const d = new Date(dateString);
+        return {
+            date: d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+            time: d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+        };
+    };
+
+    const lastBackupInfo = formatDateTime(stats.lastBackup);
 
     return (
         <div className="backup-restore-container">
@@ -29,11 +108,11 @@ const BackupRestore = () => {
                     </div>
                 </div>
                 <div className="backup-header-actions">
-                    <button className="btn-download-latest">
-                        <CloudDownload size={18} />
-                        Download Latest
+                    <button className="btn-download-latest" onClick={fetchBackups} disabled={loading}>
+                        <RefreshCw size={18} className={loading ? 'spin-icon' : ''} />
+                        Refresh
                     </button>
-                    <button className="btn-backup-now">
+                    <button className="btn-backup-now" onClick={handleBackupNow}>
                         <Database size={18} />
                         Backup Now
                     </button>
@@ -48,8 +127,8 @@ const BackupRestore = () => {
                         <div className="kpi-arrow"><ArrowUpRight size={16} /></div>
                     </div>
                     <div className="kpi-value">
-                        <div className="kpi-main">23 Jun<br/>2026</div>
-                        <div className="kpi-sub">02:00</div>
+                        <div className="kpi-main">{lastBackupInfo.date.replace(/ /g, '\n')}</div>
+                        <div className="kpi-sub">{lastBackupInfo.time}</div>
                     </div>
                     <div className="kpi-bg-icon kpi-bg-database"></div>
                 </div>
@@ -60,8 +139,8 @@ const BackupRestore = () => {
                         <div className="kpi-arrow"><ArrowUpRight size={16} /></div>
                     </div>
                     <div className="kpi-value">
-                        <div className="kpi-main">9.04<br/>GB</div>
-                        <div className="kpi-sub">6 snapshots stored</div>
+                        <div className="kpi-main">{stats.storageUsed.replace(' ', '\n')}</div>
+                        <div className="kpi-sub">{stats.totalBackups} snapshots stored</div>
                     </div>
                     <div className="kpi-bg-icon kpi-bg-storage"></div>
                 </div>
@@ -113,30 +192,40 @@ const BackupRestore = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {historyData.map((item, index) => (
-                                    <tr key={index}>
-                                        <td>
-                                            <div className="backup-name">{item.name}</div>
-                                            <div className="backup-id">{item.id}</div>
-                                        </td>
-                                        <td>{item.type}</td>
-                                        <td>{item.size}</td>
-                                        <td>
-                                            <div className="backup-date">{item.date.split(',')[0]},</div>
-                                            <div className="backup-time">{item.date.split(',')[1]}</div>
-                                        </td>
-                                        <td>
-                                            <span className={`status-badge ${item.status.toLowerCase()}`}>
-                                                {item.status === 'Completed' ? <span className="status-dot green"></span> : <span className="status-dot red"></span>}
-                                                {item.status}
-                                            </span>
-                                        </td>
-                                        <td className="td-actions">
-                                            <button className="action-btn download-btn"><CloudDownload size={16} /></button>
-                                            <button className="action-btn delete-btn"><Trash2 size={16} /></button>
-                                        </td>
-                                    </tr>
-                                ))}
+                                {loading ? (
+                                    <tr><td colSpan={6} style={{textAlign: 'center', padding: '40px'}}>Loading...</td></tr>
+                                ) : historyData.length === 0 ? (
+                                    <tr><td colSpan={6} style={{textAlign: 'center', padding: '40px'}}>No backups found</td></tr>
+                                ) : (
+                                    historyData.map((item, index) => {
+                                        const dt = formatDateTime(item.createdAt);
+                                        return (
+                                            <tr key={item._id || index}>
+                                                <td>
+                                                    <div className="backup-name">{item.backupName}</div>
+                                                    <div className="backup-id">{item._id?.substring(0, 8) || `BK-${index}`}</div>
+                                                </td>
+                                                <td>{item.backupType || 'Full'}</td>
+                                                <td>{item.fileSize || '-'}</td>
+                                                <td>
+                                                    <div className="backup-date">{dt.date},</div>
+                                                    <div className="backup-time">{dt.time}</div>
+                                                </td>
+                                                <td>
+                                                    <span className={`status-badge ${(item.status || 'Success').toLowerCase()}`}>
+                                                        {item.status === 'Success' ? <span className="status-dot green"></span> : <span className="status-dot red"></span>}
+                                                        {item.status || 'Success'}
+                                                    </span>
+                                                </td>
+                                                <td className="td-actions">
+                                                    <button className="action-btn download-btn" onClick={() => handleDownload(item._id, item.backupName)} title="Download"><CloudDownload size={16} /></button>
+                                                    <button className="action-btn restore-btn" onClick={() => handleRestore(item._id)} title="Restore" style={{ color: '#f59e0b', background: '#fffbeb', border: '1px solid #fef3c7', padding: '6px', borderRadius: '6px', cursor: 'pointer', marginLeft: '6px' }}><RefreshCw size={16} /></button>
+                                                    <button className="action-btn delete-btn" onClick={() => handleDelete(item._id)} title="Delete" style={{ marginLeft: '6px' }}><Trash2 size={16} /></button>
+                                                </td>
+                                            </tr>
+                                        )
+                                    })
+                                )}
                             </tbody>
                         </table>
                     </div>

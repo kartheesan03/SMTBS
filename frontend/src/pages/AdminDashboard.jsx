@@ -13,56 +13,6 @@ import CommandCenter from '../components/CommandCenter';
 
 // --- Shared Reusable Components ---
 
-export const RDHeader = ({ onRefresh }) => {
-    const { user } = useContext(AuthContext);
-    const { unreadCount } = useContext(NotificationContext);
-    const [currentTime, setCurrentTime] = useState(new Date());
-
-    useEffect(() => {
-        const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-        return () => clearInterval(timer);
-    }, []);
-
-    const initials = user?.name ? user.name.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase() : 'AU';
-    const role = user?.role?.toUpperCase() || 'ADMIN';
-
-    return (
-        <header className="rd-header">
-            <div className="rd-search-bar">
-                <Search size={16} color="#94a3b8" />
-                <input type="text" className="rd-search-input" placeholder="Search materials, PO, vendors..." />
-                <span className="rd-cmd-k">⌘K</span>
-            </div>
-            
-            <div className="rd-header-actions">
-                <div className="rd-datetime-pill">
-                    <Calendar size={16} />
-                    {currentTime.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
-                    <span style={{ color: '#fda4af', margin: '0 4px' }}>·</span>
-                    {currentTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
-                </div>
-                
-                <button className="rd-icon-btn" onClick={onRefresh}>
-                    <RefreshCw size={18} />
-                </button>
-                
-                <button className="rd-icon-btn">
-                    <Bell size={18} />
-                    {unreadCount > 0 && <span className="rd-badge">{unreadCount}</span>}
-                </button>
-                
-                <div className="rd-profile-menu">
-                    <div className="rd-avatar">{initials}</div>
-                    <div className="rd-profile-info">
-                        <span className="rd-profile-name">{user?.name || 'Admin User'}</span>
-                        <span className="rd-profile-role">{role} <span className="rd-dot"></span></span>
-                    </div>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight: 4}}><polyline points="6 9 12 15 18 9"></polyline></svg>
-                </div>
-            </div>
-        </header>
-    );
-};
 
 export const RDKPICard = ({ title, value, trend, trendValue, icon: Icon, color, subLabel, bottomVal, data }) => {
     return (
@@ -130,8 +80,6 @@ const AdminDashboard = () => {
 
     return (
         <div className="rd-container">
-            <RDHeader onRefresh={() => window.location.reload()} />
-            
             <div className="rd-content">
                 {/* Hero Banner */}
                 <div className="rd-hero">
@@ -140,48 +88,48 @@ const AdminDashboard = () => {
                             Good Morning, {user?.name?.split(' ')[0] || 'Admin'} <CheckCircle size={28} color="#fca5a5" />
                         </div>
                         <div className="rd-subtitle">
-                            System Administrator • <span className="rd-badge-id">ADM-00001</span> • Today's Status: Checked In
+                            {user?.role || 'Administrator'} • <span className="rd-badge-id">{user?.email || 'System'}</span> • Today's Status: Online
                         </div>
                         
                         <div className="rd-hero-actions">
-                            <button className="rd-btn-primary"><CheckCircle size={18}/> Check In</button>
-                            <button className="rd-btn-outline"><Calendar size={18}/> Apply Leave</button>
-                            <button className="rd-btn-outline"><DollarSign size={18}/> View Payslip</button>
+                            <button className="rd-btn-primary" onClick={() => navigate('/hrms/attendance')}><CheckCircle size={18}/> Check Attendance</button>
+                            <button className="rd-btn-outline" onClick={() => navigate('/hrms/leave')}><Calendar size={18}/> Leaves</button>
+                            <button className="rd-btn-outline" onClick={() => navigate('/hrms/payroll')}><DollarSign size={18}/> Payroll</button>
                         </div>
                         
                         <div className="rd-hero-footer">
                             <div className="rd-footer-item">
-                                <span className="rd-footer-label">Department</span>
-                                <span className="rd-footer-val">IT / Systems</span>
+                                <span className="rd-footer-label">Module Access</span>
+                                <span className="rd-footer-val">{user?.role === 'Admin' ? 'All Modules' : 'Restricted'}</span>
                             </div>
                             <div className="rd-footer-item">
-                                <span className="rd-footer-label">Reporting To</span>
-                                <span className="rd-footer-val">Board</span>
+                                <span className="rd-footer-label">Active Users</span>
+                                <span className="rd-footer-val">{dashboardData?.totalEmployees || 0}</span>
                             </div>
                             <div className="rd-footer-item">
-                                <span className="rd-footer-label">Work Location</span>
-                                <span className="rd-footer-val">Head Office</span>
+                                <span className="rd-footer-label">Active Materials</span>
+                                <span className="rd-footer-val">{dashboardData?.totalMaterials || 0}</span>
                             </div>
                         </div>
                     </div>
                     
                     <div className="rd-hero-right">
-                        <div className="rd-circle-progress" style={{"--p": "92%"}}>
+                        <div className="rd-circle-progress" style={{"--p": "100%"}}>
                             <div className="rd-circle-inner">
-                                <span className="rd-circle-val">92%</span>
-                                <span className="rd-circle-label">Performance</span>
+                                <span className="rd-circle-val">100%</span>
+                                <span className="rd-circle-label">Sys Health</span>
                             </div>
                         </div>
-                        <div className="rd-circle-progress" style={{"--p": "87%"}}>
+                        <div className="rd-circle-progress" style={{"--p": `${dashboardData?.totalOrders > 0 ? Math.round((dashboardData.totalOrders - dashboardData.activeOrdersCount) / dashboardData.totalOrders * 100) : 0}%`}}>
                             <div className="rd-circle-inner">
-                                <span className="rd-circle-val">87%</span>
-                                <span className="rd-circle-label">Sys Health</span>
+                                <span className="rd-circle-val">{dashboardData?.totalOrders > 0 ? Math.round((dashboardData.totalOrders - dashboardData.activeOrdersCount) / dashboardData.totalOrders * 100) : 0}%</span>
+                                <span className="rd-circle-label">Order Completion</span>
                             </div>
                         </div>
                         <div className="rd-circle-progress" style={{"--p": "100%"}}>
                             <div className="rd-circle-inner">
-                                <span className="rd-circle-val">128</span>
-                                <span className="rd-circle-label">Tasks Done</span>
+                                <span className="rd-circle-val">{dashboardData?.totalOrders || 0}</span>
+                                <span className="rd-circle-label">Total Orders</span>
                             </div>
                         </div>
                     </div>
@@ -217,11 +165,11 @@ const AdminDashboard = () => {
                     <div className="rd-card">
                         <div className="rd-card-title">Quick Actions</div>
                         <div className="rd-action-stack">
-                            <div className="rd-action-btn blue">Add New Employee <span>→</span></div>
-                            <div className="rd-action-btn green">Add New Material <span>→</span></div>
-                            <div className="rd-action-btn purple">Add New Lead <span>→</span></div>
-                            <div className="rd-action-btn orange">Create New Project <span>→</span></div>
-                            <div className="rd-action-btn cyan">View All Modules <span>→</span></div>
+                            <div className="rd-action-btn blue" onClick={() => navigate('/hrms/employees/new')}>Add New Employee <span>→</span></div>
+                            <div className="rd-action-btn green" onClick={() => navigate('/materials/new')}>Add New Material <span>→</span></div>
+                            <div className="rd-action-btn purple" onClick={() => navigate('/customers/new')}>Add New Customer <span>→</span></div>
+                            <div className="rd-action-btn orange" onClick={() => navigate('/orders/new')}>Create New Order <span>→</span></div>
+                            <div className="rd-action-btn cyan" onClick={() => navigate('/settings')}>System Settings <span>→</span></div>
                         </div>
                     </div>
 

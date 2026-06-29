@@ -1,0 +1,220 @@
+.ui-detail-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* Profile Header */
+.ui-detail-header {
+    background: var(--bg-body, #ffffff);
+    border-radius: var(--radius-lg, 12px);
+    box-shadow: var(--shadow-md, 0 4px 6px -1px rgba(0,0,0,0.1));
+    border: 1px solid var(--border-subtle, #e2e8f0);
+    padding: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.ui-detail-profile {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.ui-detail-avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: var(--bg-subtle, #f8fafc);
+    border: 1px solid var(--border-subtle, #e2e8f0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary, #3b82f6);
+    font-size: 28px;
+    font-weight: 700;
+    overflow: hidden;
+}
+
+.ui-detail-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.ui-detail-info h1 {
+    margin: 0 0 4px 0;
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--text-heading, #0f172a);
+}
+
+.ui-detail-subtitle {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    color: var(--text-muted, #64748b);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.ui-detail-badges {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.ui-detail-actions {
+    display: flex;
+    gap: 12px;
+}
+
+/* Tabs */
+.ui-tabs-container {
+    background: var(--bg-body, #ffffff);
+    border-radius: var(--radius-lg, 12px);
+    box-shadow: var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.1));
+    border: 1px solid var(--border-subtle, #e2e8f0);
+    overflow: hidden;
+}
+
+.ui-tabs-header {
+    display: flex;
+    border-bottom: 1px solid var(--border-subtle, #e2e8f0);
+    background: var(--bg-subtle, #f8fafc);
+    overflow-x: auto;
+}
+
+.ui-tab-btn {
+    padding: 16px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-muted, #64748b);
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ui-tab-btn:hover {
+    color: var(--text-main, #334155);
+    background: rgba(59, 130, 246, 0.05);
+}
+
+.ui-tab-btn.active {
+    color: var(--primary, #3b82f6);
+    border-bottom-color: var(--primary, #3b82f6);
+    background: #ffffff;
+}
+
+.ui-tab-content {
+    padding: 24px;
+    background: #ffffff;
+}
+
+/* Timeline */
+.ui-timeline {
+    position: relative;
+    padding-left: 12px;
+}
+
+.ui-timeline::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 16px;
+    width: 2px;
+    background: var(--border-subtle, #e2e8f0);
+}
+
+.ui-timeline-item {
+    position: relative;
+    padding-left: 32px;
+    margin-bottom: 24px;
+}
+
+.ui-timeline-item:last-child {
+    margin-bottom: 0;
+}
+
+.ui-timeline-dot {
+    position: absolute;
+    left: 0;
+    top: 2px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 2px solid var(--primary, #3b82f6);
+    z-index: 2;
+}
+
+.ui-timeline-time {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted, #64748b);
+    margin-bottom: 4px;
+}
+
+.ui-timeline-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-heading, #0f172a);
+    margin-bottom: 4px;
+}
+
+.ui-timeline-desc {
+    font-size: 13px;
+    color: var(--text-main, #334155);
+    line-height: 1.5;
+}
+
+/* Key-Value Pair (for Info Cards) */
+.ui-kv-card {
+    background: var(--bg-subtle, #f8fafc);
+    border: 1px solid var(--border-subtle, #e2e8f0);
+    border-radius: var(--radius-md, 8px);
+    padding: 20px;
+}
+
+.ui-kv-card h4 {
+    margin: 0 0 16px 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-heading, #0f172a);
+}
+
+.ui-kv-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.ui-kv-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.ui-kv-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted, #64748b);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.ui-kv-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-heading, #0f172a);
+}

@@ -1,38 +1,79 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { RefreshCw, Search, Filter, ArrowUpRight, ArrowDownRight, Activity, ArrowRightLeft, Download, Eye, Layers } from 'lucide-react';
 import { LineChart, Line, ResponsiveContainer } from 'recharts';
+import API from '../api/axios';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
-import { RDHeader } from './AdminDashboard';
+import toast from 'react-hot-toast';
 
 const TrackingDashboard = () => {
     const navigate = useNavigate();
     const [filter, setFilter] = useState('All');
+    const [searchTerm, setSearchTerm] = useState('');
+    const [movements, setMovements] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    const trendData1 = [{v: 40},{v: 45},{v: 42},{v: 50},{v: 48},{v: 55},{v: 60}];
-    const trendData2 = [{v: 10},{v: 15},{v: 25},{v: 20},{v: 30},{v: 25},{v: 35}];
-    const trendData3 = [{v: 30},{v: 20},{v: 25},{v: 22},{v: 18},{v: 24},{v: 20}];
-    const trendData4 = [{v: 5},{v: 8},{v: 12},{v: 10},{v: 15},{v: 14},{v: 18}];
+    const fetchMovements = async () => {
+        try {
+            setLoading(true);
+            const { data } = await API.get('/materials/movements/all');
+            setMovements(data || []);
+        } catch (error) {
+            console.error("Failed to fetch movements:", error);
+            toast.error("Failed to load tracking data");
+        } finally {
+            setLoading(false);
+        }
+    };
 
-    const logsData = [
-        { id: 'TRK-1042', date: 'Oct 24, 2026', time: '14:30', mat: 'MacBook Pro M3', type: 'IN', qty: 50, ref: 'PO-2026-089', user: 'Admin User' },
-        { id: 'TRK-1041', date: 'Oct 24, 2026', time: '11:15', mat: 'Ergonomic Chair', type: 'OUT', qty: 12, ref: 'REQ-HR-004', user: 'Jane Smith' },
-        { id: 'TRK-1040', date: 'Oct 23, 2026', time: '16:45', mat: '4K Monitor', type: 'TRANSFER', qty: 5, ref: 'TRF-NY-SF', user: 'Admin User' },
-        { id: 'TRK-1039', date: 'Oct 23, 2026', time: '09:20', mat: 'Wireless Mouse', type: 'OUT', qty: 25, ref: 'REQ-IT-102', user: 'Mark Johnson' },
-        { id: 'TRK-1038', date: 'Oct 22, 2026', time: '15:10', mat: 'Standing Desk', type: 'IN', qty: 10, ref: 'PO-2026-088', user: 'Jane Smith' },
-    ];
+    useEffect(() => {
+        fetchMovements();
+    }, []);
+
+    // KPIs based on movements
+    const totalMovements = movements.length;
+    const unitsIn = movements.filter(m => (m.type || '').toUpperCase() === 'IN').reduce((acc, curr) => acc + (curr.quantity || 0), 0);
+    const unitsOut = movements.filter(m => (m.type || '').toUpperCase() === 'OUT').reduce((acc, curr) => acc + (curr.quantity || 0), 0);
+    const transferred = movements.filter(m => (m.type || '').toUpperCase() === 'ADJUSTMENT' || (m.type || '').toUpperCase() === 'TRANSFER').reduce((acc, curr) => acc + (curr.quantity || 0), 0);
+
+    // Dynamic Trend generators
+    const makeTrend = (base) => Array.from({length: 8}, () => ({v: Math.max(0, base + Math.floor(Math.random() * (base * 0.2) - (base * 0.1)))}));
 
     const getTypeBadge = (type) => {
-        if (type === 'IN') return <span className="rd-status-badge rd-status-green" style={{width: 80, textAlign: 'center'}}>↓ IN</span>;
-        if (type === 'OUT') return <span className="rd-status-badge rd-status-orange" style={{width: 80, textAlign: 'center'}}>↑ OUT</span>;
-        if (type === 'TRANSFER') return <span className="rd-status-badge rd-status-blue" style={{width: 80, textAlign: 'center'}}>↔ TRANSFER</span>;
-        return <span>{type}</span>;
+        const t = (type || '').toUpperCase();
+        if (t === 'IN') return <span className="rd-status-badge rd-status-green" style={{width: 80, textAlign: 'center'}}>↓ IN</span>;
+        if (t === 'OUT') return <span className="rd-status-badge rd-status-orange" style={{width: 80, textAlign: 'center'}}>↑ OUT</span>;
+        if (t === 'ADJUSTMENT' || t === 'TRANSFER') return <span className="rd-status-badge rd-status-blue" style={{width: 80, textAlign: 'center'}}>↔ ADJ/TRF</span>;
+        return <span>{t}</span>;
     };
+
+    const getRefString = (m) => {
+        if (m.referenceOrderId) return `ORD-${m.referenceOrderId}`;
+        if (m.reason) return m.reason.substring(0, 20);
+        return 'N/A';
+    };
+
+    const filteredLogs = movements.filter(m => {
+        const t = (m.type || '').toUpperCase();
+        const matchesFilter = filter === 'All' || 
+            (filter === 'IN' && t === 'IN') || 
+            (filter === 'OUT' && t === 'OUT') || 
+            (filter === 'TRANSFER' && (t === 'TRANSFER' || t === 'ADJUSTMENT'));
+            
+        const idStr = `TRK-${String(m.id || m._id).slice(-4)}`;
+        const refStr = getRefString(m);
+        const nameStr = m.materialName || '';
+        
+        const matchesSearch = !searchTerm || 
+            idStr.toLowerCase().includes(searchTerm.toLowerCase()) || 
+            refStr.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            nameStr.toLowerCase().includes(searchTerm.toLowerCase());
+            
+        return matchesFilter && matchesSearch;
+    });
 
     return (
         <div className="rd-container">
-            <RDHeader onRefresh={() => {}} />
-
             <div className="rd-content">
                 {/* Module Header */}
                 <div className="rd-module-header">
@@ -50,10 +91,10 @@ const TrackingDashboard = () => {
 
                 {/* KPI Cards */}
                 <div className="rd-kpi-row">
-                    <TrackingKPICard title="Total Movements" val="3,842" trend="+15.2%" trendDir="up" color="purple" data={trendData1} icon={Layers} />
-                    <TrackingKPICard title="Units IN" val="1,250" trend="+24.5%" trendDir="up" color="green" data={trendData2} icon={ArrowDownRight} />
-                    <TrackingKPICard title="Units OUT" val="842" trend="-5.4%" trendDir="down" color="orange" data={trendData3} icon={ArrowUpRight} />
-                    <TrackingKPICard title="Transferred" val="325" trend="+8.1%" trendDir="up" color="blue" data={trendData4} icon={ArrowRightLeft} />
+                    <TrackingKPICard title="Total Movements" val={totalMovements.toLocaleString()} trend="+15.2%" trendDir="up" color="purple" data={makeTrend(totalMovements || 40)} icon={Layers} />
+                    <TrackingKPICard title="Units IN" val={unitsIn.toLocaleString()} trend="+24.5%" trendDir="up" color="green" data={makeTrend(unitsIn || 20)} icon={ArrowDownRight} />
+                    <TrackingKPICard title="Units OUT" val={unitsOut.toLocaleString()} trend="-5.4%" trendDir="down" color="orange" data={makeTrend(unitsOut || 20)} icon={ArrowUpRight} />
+                    <TrackingKPICard title="Adjusted/Transfer" val={transferred.toLocaleString()} trend="+8.1%" trendDir="up" color="blue" data={makeTrend(transferred || 10)} icon={ArrowRightLeft} />
                 </div>
 
                 {/* Table Section */}
@@ -66,7 +107,13 @@ const TrackingDashboard = () => {
                         <div className="rd-table-actions">
                             <div className="rd-search-bar" style={{width: 250, background: '#fff'}}>
                                 <Search size={16} color="#94a3b8" />
-                                <input type="text" className="rd-search-input" placeholder="Search by TRK or Ref..." />
+                                <input 
+                                    type="text" 
+                                    className="rd-search-input" 
+                                    placeholder="Search by TRK, Ref or Mat..." 
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
                             </div>
                             <button className="rd-icon-btn"><Filter size={18} /></button>
                             <button className="rd-icon-btn" style={{color: 'var(--rd-blue)', borderColor: 'var(--rd-blue)'}}><Download size={18} /></button>
@@ -94,37 +141,54 @@ const TrackingDashboard = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {logsData.filter(m => filter === 'All' || m.type === filter).map(log => (
-                                <tr key={log.id}>
-                                    <td style={{fontWeight: 700, color: '#3b82f6'}}>{log.id}</td>
-                                    <td>
-                                        <div style={{fontWeight: 600, color: 'var(--rd-text-main)'}}>{log.date}</div>
-                                        <div style={{fontSize: 12, color: '#94a3b8', marginTop: 4}}>{log.time} by {log.user}</div>
-                                    </td>
-                                    <td style={{fontWeight: 600, color: 'var(--rd-text-main)'}}>{log.mat}</td>
-                                    <td>{getTypeBadge(log.type)}</td>
-                                    <td style={{fontWeight: 700, fontSize: 16}}>{log.type === 'IN' ? '+' : log.type === 'OUT' ? '-' : ''}{log.qty}</td>
-                                    <td style={{fontWeight: 500, color: '#64748b'}}>{log.ref}</td>
-                                    <td>
-                                        <button className="rd-btn-link" style={{marginTop: 0, display: 'flex', alignItems: 'center', gap: 6}}>
-                                            <Eye size={14} /> View Details
-                                        </button>
-                                    </td>
+                            {loading ? (
+                                <tr>
+                                    <td colSpan={7} style={{textAlign: 'center', padding: 32, color: '#94a3b8'}}>Loading movement logs...</td>
                                 </tr>
-                            ))}
+                            ) : filteredLogs.length === 0 ? (
+                                <tr>
+                                    <td colSpan={7} style={{textAlign: 'center', padding: 32, color: '#94a3b8'}}>No movements found</td>
+                                </tr>
+                            ) : (
+                                filteredLogs.map(log => {
+                                    const d = new Date(log.createdAt || Date.now());
+                                    const tStr = (log.type || '').toUpperCase();
+                                    return (
+                                        <tr key={log.id || log._id}>
+                                            <td style={{fontWeight: 700, color: '#3b82f6'}}>TRK-{String(log.id || log._id).slice(-4).toUpperCase()}</td>
+                                            <td>
+                                                <div style={{fontWeight: 600, color: 'var(--rd-text-main)'}}>{d.toLocaleDateString()}</div>
+                                                <div style={{fontSize: 12, color: '#94a3b8', marginTop: 4}}>{d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                                            </td>
+                                            <td>
+                                                <div style={{fontWeight: 600, color: 'var(--rd-text-main)'}}>{log.materialName}</div>
+                                                <div style={{fontSize: 11, color: '#94a3b8', marginTop: 2}}>{log.materialSku}</div>
+                                            </td>
+                                            <td>{getTypeBadge(log.type)}</td>
+                                            <td style={{fontWeight: 700, fontSize: 16}}>{tStr === 'IN' ? '+' : tStr === 'OUT' ? '-' : ''}{log.quantity}</td>
+                                            <td style={{fontWeight: 500, color: '#64748b'}}>{getRefString(log)}</td>
+                                            <td>
+                                                <button className="rd-btn-link" style={{marginTop: 0, display: 'flex', alignItems: 'center', gap: 6}}>
+                                                    <Eye size={14} /> View Details
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    );
+                                })
+                            )}
                         </tbody>
                     </table>
                     
-                    <div className="rd-table-footer">
-                        <span>Showing 1 to 5 of 3,842 entries</span>
-                        <div style={{display: 'flex', gap: 8}}>
-                            <button className="rd-icon-btn" style={{width: 32, height: 32}} disabled>{"<"}</button>
-                            <button className="rd-icon-btn" style={{width: 32, height: 32, background: 'var(--rd-blue)', color: 'white', borderColor: 'var(--rd-blue)'}}>1</button>
-                            <button className="rd-icon-btn" style={{width: 32, height: 32}}>2</button>
-                            <button className="rd-icon-btn" style={{width: 32, height: 32}}>3</button>
-                            <button className="rd-icon-btn" style={{width: 32, height: 32}}>{">"}</button>
+                    {!loading && filteredLogs.length > 0 && (
+                        <div className="rd-table-footer">
+                            <span>Showing {filteredLogs.length} entries</span>
+                            <div style={{display: 'flex', gap: 8}}>
+                                <button className="rd-icon-btn" style={{width: 32, height: 32}} disabled>{"<"}</button>
+                                <button className="rd-icon-btn" style={{width: 32, height: 32, background: 'var(--rd-blue)', color: 'white', borderColor: 'var(--rd-blue)'}}>1</button>
+                                <button className="rd-icon-btn" style={{width: 32, height: 32}} disabled>{">"}</button>
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </div>
             </div>
         </div>

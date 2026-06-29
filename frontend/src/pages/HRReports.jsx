@@ -202,15 +202,15 @@ const HRReports = () => {
         }
     };
 
-    // Fallback Mock Datasets
-    const mockKPIs = {
+    // Backend Datasets
+    const liveKPIs = stats?.hrStats || {
         totalEmployees: stats?.hrStats?.totalEmployees ?? stats?.stats?.totalEmployees ?? 0,
         attendanceRate: stats?.hrStats?.attendanceRate ?? '0%',
         onLeave: stats?.hrStats?.onLeave ?? 0,
         newJoiners: stats?.hrStats?.newJoiners ?? 0
     };
 
-    const mockAttendanceHistory = (stats?.hrStats?.attendanceHistory && stats.hrStats.attendanceHistory.length > 0)
+    const attendanceHistory = (stats?.hrStats?.attendanceHistory && stats.hrStats.attendanceHistory.length > 0)
         ? stats.hrStats.attendanceHistory.map(day => ({
             name: day.name,
             Present: day.employees,
@@ -218,7 +218,7 @@ const HRReports = () => {
           }))
         : [];
 
-    const mockEmployeeDistribution = (stats?.hrStats?.employeeDistribution && stats.hrStats.employeeDistribution.length > 0)
+    const employeeDistribution = (stats?.hrStats?.employeeDistribution && stats.hrStats.employeeDistribution.length > 0)
         ? stats.hrStats.employeeDistribution.map(dept => ({
             name: dept.name,
             Count: dept.value,
@@ -292,7 +292,7 @@ const HRReports = () => {
                         <span>Total Active Staff</span>
                         <Users className="icon-blue" size={18} />
                     </div>
-                    <h3>{loading ? '...' : mockKPIs.totalEmployees}</h3>
+                    <h3>{loading ? '...' : liveKPIs.totalEmployees}</h3>
                     <p className="kpi-sub"><TrendingUp size={12} /> Live Headcount</p>
                 </div>
                 <div className="premium-card green-edge">
@@ -300,7 +300,7 @@ const HRReports = () => {
                         <span>Attendance Rate</span>
                         <CheckCircle className="icon-green" size={18} />
                     </div>
-                    <h3>{mockKPIs.attendanceRate}</h3>
+                    <h3>{liveKPIs.attendanceRate}</h3>
                     <p className="kpi-sub">Weekly Average</p>
                 </div>
                 <div className="premium-card yellow-edge">
@@ -308,7 +308,7 @@ const HRReports = () => {
                         <span>Active Absences</span>
                         <Clock className="icon-yellow" size={18} />
                     </div>
-                    <h3>{loading ? '...' : mockKPIs.onLeave}</h3>
+                    <h3>{loading ? '...' : liveKPIs.onLeave}</h3>
                     <p className="kpi-sub">Approved Leaves</p>
                 </div>
                 <div className="premium-card pink-edge">
@@ -316,7 +316,7 @@ const HRReports = () => {
                         <span>Monthly Hires</span>
                         <Award className="icon-pink" size={18} />
                     </div>
-                    <h3>+{loading ? '...' : mockKPIs.newJoiners}</h3>
+                    <h3>+{loading ? '...' : liveKPIs.newJoiners}</h3>
                     <p className="kpi-sub">New Personnel</p>
                 </div>
             </section>
@@ -369,9 +369,9 @@ const HRReports = () => {
                             <span className="badge-glow-blue">Weekly Log</span>
                         </div>
                         <div className="chart-body" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                            {mockAttendanceHistory.length > 0 ? (
+                            {attendanceHistory.length > 0 ? (
                                 <ResponsiveContainer width="100%" height={260}>
-                                    <AreaChart data={mockAttendanceHistory} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+                                    <AreaChart data={attendanceHistory} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
                                         <defs>
                                             <linearGradient id="cyberArea" x1="0" y1="0" x2="0" y2="1">
                                                 <stop offset="5%" stopColor="var(--dash-primary, #3b82f6)" stopOpacity={0.2} />
@@ -400,15 +400,15 @@ const HRReports = () => {
                             <span className="badge-glow-purple">Active Roles</span>
                         </div>
                         <div className="chart-body" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                            {mockEmployeeDistribution.length > 0 ? (
+                            {employeeDistribution.length > 0 ? (
                                 <ResponsiveContainer width="100%" height={260}>
-                                    <BarChart data={mockEmployeeDistribution} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+                                    <BarChart data={employeeDistribution} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
                                         <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.03)" />
                                         <XAxis dataKey="name" stroke="var(--dash-text-muted, #64748b)" fontSize={10} tickLine={false} />
                                         <YAxis stroke="var(--dash-text-muted, #64748b)" fontSize={11} tickLine={false} axisLine={false} />
                                         <Tooltip content={<CustomTooltip />} />
                                         <Bar dataKey="Count" radius={[6, 6, 0, 0]} name="Headcount">
-                                            {mockEmployeeDistribution.map((entry, index) => (
+                                            {employeeDistribution.map((entry, index) => (
                                                 <Cell key={index} fill={entry.color || 'var(--dash-purple, #8b5cf6)'} />
                                             ))}
                                         </Bar>

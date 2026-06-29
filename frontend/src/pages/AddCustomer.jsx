@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import API from '../api/axios';
-import CustomerForm from '../components/CustomerForm';
 import StandardPageLayout from '../components/StandardPageLayout/StandardPageLayout';
 import toast from 'react-hot-toast';
+import { FormSection, FormGroup, Input, Select } from '../components/ui';
 
 const AddCustomer = ({ isEditMode = false }) => {
     const navigate = useNavigate();
     const { id } = useParams();
     const [formData, setFormData] = useState({
-        name: '', email: '', phone: '', address: '', industry: '', website: '', notes: '', status: 'Active', customerType: 'Individual'
+        name: '', email: '', phone: '', address: '', industry: '', website: '', notes: '', status: 'Active', customerType: 'Individual', company: ''
     });
-    const [formErrors, setFormErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
     const [isFetching, setIsFetching] = useState(isEditMode);
+    const [error, setError] = useState('');
 
     useEffect(() => {
         if (isEditMode && id) {
@@ -33,7 +33,8 @@ const AddCustomer = ({ isEditMode = false }) => {
                 website: data.website || '',
                 notes: data.notes || '',
                 status: data.status || 'Active',
-                customerType: data.customerType || 'Individual'
+                customerType: data.customerType || 'Individual',
+                company: data.company || ''
             });
         } catch (err) {
             toast.error('Failed to fetch customer data');
@@ -44,17 +45,31 @@ const AddCustomer = ({ isEditMode = false }) => {
     };
 
     const validateForm = () => {
-        const errors = {};
-        if (!formData.name || formData.name.trim().length < 2) errors.name = 'Organization name must be at least 2 characters.';
+        if (!formData.name || formData.name.trim().length < 2) {
+            setError('Organization or Contact name must be at least 2 characters.');
+            return false;
+        }
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!formData.email || !emailRegex.test(formData.email)) errors.email = 'Please enter a valid email address.';
+        if (!formData.email || !emailRegex.test(formData.email)) {
+            setError('Please enter a valid email address.');
+            return false;
+        }
         const phoneRegex = /^\+?[\d\s-]{10,}$/;
-        if (!formData.phone || !phoneRegex.test(formData.phone)) errors.phone = 'Please enter a valid phone number (at least 10 digits).';
-        if (!formData.industry || formData.industry.trim().length === 0) errors.industry = 'Industry is required.';
-        if (!formData.address || formData.address.trim().length === 0) errors.address = 'Primary address is required.';
+        if (!formData.phone || !phoneRegex.test(formData.phone)) {
+            setError('Please enter a valid phone number (at least 10 digits).');
+            return false;
+        }
+        if (!formData.industry || formData.industry.trim().length === 0) {
+            setError('Industry is required.');
+            return false;
+        }
+        if (!formData.address || formData.address.trim().length === 0) {
+            setError('Primary address is required.');
+            return false;
+        }
         
-        setFormErrors(errors);
-        return Object.keys(errors).length === 0;
+        setError('');
+        return true;
     };
 
     const handleSubmit = async () => {
@@ -68,10 +83,11 @@ const AddCustomer = ({ isEditMode = false }) => {
             } else {
                 const res = await API.post('/customers', formData);
                 toast.success('Customer created successfully');
-                navigate(`/customers/${res.data._id}`);
+                navigate(`/customers/${res.data._id || res.data.id}`);
             }
         } catch (err) {
             toast.error(err.response?.data?.message || 'Error saving customer');
+            setError(err.response?.data?.message || 'Error saving customer');
         } finally {
             setIsLoading(false);
         }
@@ -91,6 +107,7 @@ const AddCustomer = ({ isEditMode = false }) => {
             onSave={handleSubmit}
             onCancel={() => navigate('/customers')}
             isEditMode={isEditMode}
+            loading={isLoading}
             infoCard={
                 <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
                     <div style={{ padding: '12px', background: '#e0e7ff', borderRadius: '50%', color: '#4f46e5' }}>
@@ -98,27 +115,104 @@ const AddCustomer = ({ isEditMode = false }) => {
                     </div>
                     <div>
                         <h4 style={{ margin: 0, color: '#1e293b', fontSize: '16px' }}>{isEditMode ? formData.name : 'New Customer'}</h4>
-                        <p style={{ margin: '4px 0 0 0', color: '#64748b', fontSize: '14px' }}>Fill in the primary details below to {isEditMode ? 'update' : 'register'} the customer.</p>
+                        <p style={{ margin: '4px 0 0 0', color: '#64748b', fontSize: '14px' }}>Please provide detailed information for the new customer profile.</p>
                     </div>
                 </div>
             }
         >
-            <div className="standard-section">
-                <div className="standard-section-header">Customer Information</div>
-                <CustomerForm 
-                    formData={formData}
-                    setFormData={setFormData}
-                    formErrors={formErrors}
-                    setFormErrors={setFormErrors}
-                    onSubmit={e => { e.preventDefault(); handleSubmit(); }}
-                    onCancel={() => navigate('/customers')}
-                    isLoading={isLoading}
-                    emailDisabled={false}
-                    statusDisabled={false}
-                    saveButtonText={isEditMode ? "Update Customer" : "Save Customer"}
-                    hideActions={true} /* Let StandardPageLayout handle the buttons */
-                />
-            </div>
+            <form id="customer-form" onSubmit={e => { e.preventDefault(); handleSubmit(); }}>
+                {error && <div className="error-alert" style={{color: '#ef4444', background: '#fef2f2', padding: '12px', borderRadius: '8px', marginBottom: '16px'}}>{error}</div>}
+                
+                <FormSection title="Account Details">
+                    <div className="ui-grid-2">
+                        <FormGroup label="Customer Type" required>
+                            <Select 
+                                value={formData.customerType} 
+                                onChange={e => setFormData({...formData, customerType: e.target.value})} 
+                                options={[
+                                    { value: 'Individual', label: 'Individual' },
+                                    { value: 'Corporate', label: 'Corporate / B2B' },
+                                    { value: 'Government', label: 'Government' },
+                                ]}
+                            />
+                        </FormGroup>
+                        <FormGroup label="Status">
+                            <Select 
+                                value={formData.status} 
+                                onChange={e => setFormData({...formData, status: e.target.value})} 
+                                options={[
+                                    { value: 'Active', label: 'Active' },
+                                    { value: 'Lead', label: 'Lead' },
+                                    { value: 'At Risk', label: 'At Risk' },
+                                    { value: 'Inactive', label: 'Inactive' }
+                                ]}
+                            />
+                        </FormGroup>
+                        <FormGroup label="Primary Contact Name" required>
+                            <Input 
+                                type="text" 
+                                value={formData.name} 
+                                onChange={e => setFormData({...formData, name: e.target.value})} 
+                                placeholder="e.g. John Doe"
+                            />
+                        </FormGroup>
+                        <FormGroup label="Company Name">
+                            <Input 
+                                type="text" 
+                                value={formData.company} 
+                                onChange={e => setFormData({...formData, company: e.target.value})} 
+                                placeholder="e.g. Acme Corp" 
+                            />
+                        </FormGroup>
+                    </div>
+                </FormSection>
+
+                <FormSection title="Contact Information">
+                    <div className="ui-grid-2">
+                        <FormGroup label="Email Address" required>
+                            <Input 
+                                type="email" 
+                                value={formData.email} 
+                                onChange={e => setFormData({...formData, email: e.target.value})} 
+                                placeholder="e.g. john@example.com" 
+                            />
+                        </FormGroup>
+                        <FormGroup label="Phone Number" required>
+                            <Input 
+                                type="text" 
+                                value={formData.phone} 
+                                onChange={e => setFormData({...formData, phone: e.target.value})} 
+                                placeholder="e.g. +91 9876543210" 
+                            />
+                        </FormGroup>
+                        <FormGroup label="Industry" required>
+                            <Input 
+                                type="text" 
+                                value={formData.industry} 
+                                onChange={e => setFormData({...formData, industry: e.target.value})} 
+                                placeholder="e.g. Technology, Manufacturing" 
+                            />
+                        </FormGroup>
+                        <FormGroup label="Website">
+                            <Input 
+                                type="url" 
+                                value={formData.website} 
+                                onChange={e => setFormData({...formData, website: e.target.value})} 
+                                placeholder="e.g. https://www.example.com" 
+                            />
+                        </FormGroup>
+                    </div>
+                    <FormGroup label="Address" required>
+                        <Input 
+                            type="text" 
+                            value={formData.address} 
+                            onChange={e => setFormData({...formData, address: e.target.value})} 
+                            placeholder="Full street address, City, State, Zip" 
+                        />
+                    </FormGroup>
+                </FormSection>
+                <button type="submit" style={{ display: 'none' }}>Submit</button>
+            </form>
         </StandardPageLayout>
     );
 };

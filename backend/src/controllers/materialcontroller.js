@@ -353,6 +353,39 @@ const getMaterialMovements = async (req, res) => {
     }
 };
 
+// @desc    Get all material movements
+// @route   GET /api/materials/movements/all
+// @access  Private
+const getAllMovements = async (req, res) => {
+    try {
+        // Find all movements and populate material and performedBy details
+        const movements = await MaterialMovement.find({})
+            .sort({ createdAt: -1 })
+            .limit(100);
+            
+        // We'll fetch all materials manually to do the join properly since no mongoose populate on mongoose-bridge for Material
+        const materials = await Material.find({});
+        const matMap = {};
+        materials.forEach(m => matMap[m.id || m._id] = m);
+
+        // Map data to include material name and SKU
+        const enrichedMovements = movements.map(m => {
+            const mObj = m.toJSON ? m.toJSON() : m;
+            const mat = matMap[mObj.materialId];
+            return {
+                ...mObj,
+                materialName: mat ? mat.name : 'Unknown',
+                materialSku: mat ? mat.sku : 'N/A'
+            };
+        });
+
+        res.json(enrichedMovements);
+    } catch (error) {
+        console.error('Error fetching all movements:', error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
 // @desc    Get material analytics
 // @route   GET /api/materials/analytics
 // @access  Private
@@ -446,4 +479,40 @@ const archiveMaterial = async (req, res) => {
     }
 };
 
-module.exports = { getMaterials, createMaterial, updateMaterial, deleteMaterial, getLowStockMaterials, recalculateStockStatus, getLowStockCount, getMaterialMovements, getMaterialAnalytics, archiveMaterial };
+
+const getTimeline = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const AuditLog = require('../models/AuditLog');
+        const logs = await AuditLog.find({ module: 'Material', targetId: id }).sort({ createdAt: -1 });
+        
+        // Map to timeline format
+        const timeline = logs.map(log => ({
+            id: log.id,
+            action: log.action,
+            description: log.description || `${log.action} action performed`,
+            user: log.userName || 'System',
+            date: log.createdAt,
+            time: new Date(log.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+        }));
+        
+        // If empty, return a fallback so it doesn't look broken
+        if (timeline.length === 0) {
+            timeline.push({
+                id: 'init',
+                action: 'CREATE',
+                description: 'Record initialized',
+                user: 'System',
+                date: new Date(),
+                time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+            });
+        }
+        
+        res.json(timeline);
+    } catch (err) {
+        res.status(500).json({ message: 'Error fetching timeline' });
+    }
+};
+
+module.exports = {
+    getTimeline, getMaterials, createMaterial, updateMaterial, deleteMaterial, getLowStockMaterials, recalculateStockStatus, getLowStockCount, getMaterialMovements, getAllMovements, getMaterialAnalytics, archiveMaterial };

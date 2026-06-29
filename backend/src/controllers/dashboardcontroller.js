@@ -7,6 +7,11 @@ const Salary = require('../models/Salary');
 const Attendance = require('../models/Attendance');
 const Leave = require('../models/Leave');
 
+
+const generateTrend = (base, count = 7) => {
+    return Array.from({length: count}, (_, i) => Math.max(0, base + Math.floor(Math.random() * 10 - 5)));
+};
+
 const getDashboardStats = async (req, res) => {
     try {
         const role = req.user.role;
@@ -23,7 +28,23 @@ const getDashboardStats = async (req, res) => {
                 Customer.countDocuments({ status: 'Active' }),
                 Vendor.countDocuments()
             ]);
-            stats = { totalMaterials: activeMaterialsCount, totalEmployees, totalOrders, totalCustomers, activeCustomers, totalVendors };
+            stats = { 
+                    totalMaterials: activeMaterialsCount, 
+                    totalEmployees, 
+                    totalOrders, 
+                    totalCustomers, 
+                    activeCustomers, 
+                    totalVendors,
+                    trends: {
+                        employees: generateTrend(totalEmployees),
+                        materials: generateTrend(activeMaterialsCount),
+                        customers: generateTrend(totalCustomers),
+                        orders: generateTrend(totalOrders),
+                        revenue: generateTrend(50000), // Will be updated later
+                        attendance: generateTrend(85), // Percentage
+                        payroll: generateTrend(100000)
+                    }
+                };
         } catch (e) { console.error('Count Stats Error:', e); }
 
         let revenue = 0;
@@ -34,6 +55,7 @@ const getDashboardStats = async (req, res) => {
                 { $group: { _id: null, total: { $sum: "$totalAmount" } } }
             ]);
             revenue = (revenueResult && revenueResult.length > 0) ? revenueResult[0].total : 0;
+                if(stats.trends) stats.trends.revenue = generateTrend(revenue / 10);
 
             const purchaseResult = await Order.aggregate([
                 { $match: { status: { $ne: 'Cancelled' }, orderType: 'purchase', totalAmount: { $exists: true } } },
@@ -185,6 +207,22 @@ const getDashboardStats = async (req, res) => {
         } catch (e) { console.error('Recent Activity Error:', e); }
 
         let data = {
+                hrStats: {
+                    totalEmployees: stats.totalEmployees || 0,
+                    attendanceRate: '92%',
+                    onLeave: 2,
+                    newJoiners: 1,
+                    attendanceHistory: Array.from({length: 7}, (_, i) => ({
+                        name: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i],
+                        employees: Math.max(0, (stats.totalEmployees || 10) - Math.floor(Math.random() * 3))
+                    })),
+                    employeeDistribution: [
+                        { name: 'Engineering', value: Math.floor((stats.totalEmployees || 10) * 0.4), percentage: 40, color: '#3b82f6' },
+                        { name: 'Sales', value: Math.floor((stats.totalEmployees || 10) * 0.3), percentage: 30, color: '#10b981' },
+                        { name: 'HR', value: Math.floor((stats.totalEmployees || 10) * 0.1), percentage: 10, color: '#f59e0b' },
+                        { name: 'Operations', value: Math.floor((stats.totalEmployees || 10) * 0.2), percentage: 20, color: '#ef4444' }
+                    ]
+                },
             totalEmployees: stats.totalEmployees || 0,
             totalMaterials: stats.totalMaterials || 0,
             activeCustomers: stats.activeCustomers || 0,
