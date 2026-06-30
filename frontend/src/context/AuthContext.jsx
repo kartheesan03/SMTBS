@@ -18,6 +18,12 @@ export const AuthProvider = ({ children }) => {
                 // Fetch fresh data from server in background
                 try {
                     const { data } = await API.get('/auth/profile');
+                    if (parsedUser.loginTime) {
+                        data.loginTime = parsedUser.loginTime;
+                    }
+                    if (parsedUser.token) {
+                        data.token = parsedUser.token;
+                    }
                     setUser(data);
                     if (localStorage.getItem('userInfo')) {
                         localStorage.setItem('userInfo', JSON.stringify(data));
@@ -34,6 +40,9 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const login = (data, rememberMe = false) => {
+        if (!data.loginTime) {
+            data.loginTime = new Date().toISOString();
+        }
         if (rememberMe) {
             localStorage.setItem('userInfo', JSON.stringify(data));
             sessionStorage.removeItem('userInfo');

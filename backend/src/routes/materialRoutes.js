@@ -1,16 +1,18 @@
 const express = require('express');
 const router = express.Router();
-const { getMaterials, createMaterial, updateMaterial, deleteMaterial, getLowStockMaterials, recalculateStockStatus, getMaterialMovements, getAllMovements, getMaterialAnalytics, archiveMaterial } = require('../controllers/materialcontroller');
+const { getMaterials, createMaterial, updateMaterial, deleteMaterial, getLowStockMaterials, recalculateStockStatus, getMaterialMovements, getAllMovements, getMaterialAnalytics, archiveMaterial, getMaterialList } = require('../controllers/materialcontroller');
 const { protect } = require('../middleware/authMiddleware');
 const { authorize } = require('../middleware/roleMiddleware');
 
+router.get('/list', protect, require('../controllers/materialcontroller').getMaterialList);
+router.get('/list', protect, getMaterialList);
 router.get('/analytics', protect, getMaterialAnalytics);
-router.get('/low-stock', protect, authorize('HR', 'Manager', 'Sales'), getLowStockMaterials);
+router.get('/low-stock', protect, authorize('HR', 'Manager', 'Sales', 'Employee'), getLowStockMaterials);
 router.get('/movements/all', protect, getAllMovements);
-router.put('/recalculate-status', protect, authorize('Admin', 'Manager', 'Sales'), recalculateStockStatus);
+router.put('/recalculate-status', protect, authorize('Admin', 'Manager', 'Sales', 'Employee'), recalculateStockStatus);
 
 router.route('/')
-    .get(protect, getMaterials)
+    .get(protect, authorize('Admin', 'Manager', 'Sales', 'Employee'), getMaterials)
     .post(protect, authorize('Admin', 'Manager', 'Sales', 'Employee'), createMaterial);
 
 router.route('/:id')

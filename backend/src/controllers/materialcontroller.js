@@ -67,6 +67,20 @@ const handleStockStatusNotifications = async (material, previousStatus, newStatu
     }
 };
 
+// @desc    Get all materials (dropdown list, safe)
+// @route   GET /api/materials/list
+// @access  Private
+const getMaterialList = async (req, res) => {
+    try {
+        const materials = await Material.find({});
+        const activeMaterials = materials.filter(m => m.isActive !== false);
+        const list = activeMaterials.map(m => ({ id: m._id || m.id, name: m.name }));
+        res.json(list);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 // @desc    Get all materials
 // @route   GET /api/materials
 // @access  Private
@@ -515,4 +529,6 @@ const getTimeline = async (req, res) => {
 };
 
 module.exports = {
-    getTimeline, getMaterials, createMaterial, updateMaterial, deleteMaterial, getLowStockMaterials, recalculateStockStatus, getLowStockCount, getMaterialMovements, getAllMovements, getMaterialAnalytics, archiveMaterial };
+    getTimeline, getMaterials, createMaterial, updateMaterial, 
+    deleteMaterial, getLowStockMaterials, recalculateStockStatus, getLowStockCount, getMaterialMovements, getAllMovements, 
+    getMaterialAnalytics, archiveMaterial, getMaterialList };

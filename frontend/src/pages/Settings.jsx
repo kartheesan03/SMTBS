@@ -19,8 +19,8 @@ const Settings = () => {
         '/settings': 'Profile',
         '/settings/roles': 'Roles & Permissions',
         '/settings/audit-logs': 'Security',
-        '/settings/notifications': 'Notifications',
         '/settings/system': 'System',
+        '/settings/notifications': 'Notifications',
         '/settings/integrations': 'Integrations'
     };
 
@@ -33,8 +33,23 @@ const Settings = () => {
         'Integrations': '/settings/integrations'
     };
 
-    const currentTabFromPath = pathToTab[location.pathname] || 'Roles & Permissions';
-    const [activeTab, setActiveTab] = useState(currentTabFromPath);
+    const currentTabFromPath = pathToTab[location.pathname] || 'Profile';
+    
+    const roleName = typeof user?.role === 'string' ? user.role : (user?.role?.name || user?.user?.role || '');
+    const isAdminOrManager = roleName.toLowerCase().includes('admin') || 
+                             roleName.toLowerCase().includes('manager') || 
+                             user?.email === 'admin@smtbms.com' ||
+                             user?.permissions?.includes('manage_settings');
+    
+    // If a user goes directly to a protected tab, fallback to Profile
+    const finalTab = (!isAdminOrManager && ['Security', 'Roles & Permissions', 'Integrations'].includes(currentTabFromPath)) ? 'Profile' : currentTabFromPath;
+    
+    const [activeTab, setActiveTab] = useState(finalTab);
+
+    // List of tabs to render based on role
+    const availableTabs = isAdminOrManager 
+        ? ['Profile', 'Security', 'Roles & Permissions', 'Notifications', 'System', 'Integrations']
+        : ['Profile', 'Notifications', 'System'];
 
     useEffect(() => {
         if (pathToTab[location.pathname]) {
@@ -209,10 +224,30 @@ const Settings = () => {
     const roleBadge = user?.role === 'Admin' ? 'Super Admin' : user?.role || 'Employee';
     const empIdBadge = employeeData?.employeeId || employeeData?.employeeCode || (user?.id ? `EMP${user.id.toString().padStart(4, '0')}` : 'EMP001');
 
+    const formatLoginTime = (time) => {
+        let actualTime = time;
+        if (!actualTime && user?.token) {
+            try {
+                const payload = JSON.parse(atob(user.token.split('.')[1]));
+                if (payload.iat) actualTime = payload.iat * 1000;
+            } catch (e) { }
+        }
+        if (!actualTime) return 'Recently';
+        const date = new Date(actualTime);
+        const now = new Date();
+        const diffMs = now - date;
+        const diffMins = Math.floor(diffMs / 60000);
+        if (diffMins < 1) return 'Just now';
+        if (diffMins < 60) return `${diffMins} min ago`;
+        const diffHrs = Math.floor(diffMins / 60);
+        if (diffHrs < 24) return `${diffHrs} hours ago`;
+        return date.toLocaleDateString();
+    };
+
     return (
         <div className="page-container">
             <div className="settings-tabs-wrapper">
-                {['Profile', 'Security', 'Roles & Permissions', 'Notifications', 'System', 'Integrations'].map(tab => (
+                {availableTabs.map(tab => (
                     <button 
                         key={tab} 
                         className={`settings-tab-btn ${activeTab === tab ? 'active' : ''}`}
@@ -223,11 +258,11 @@ const Settings = () => {
                 ))}
             </div>
 
-            {activeTab === 'Security' && <SecuritySettings />}
-            {activeTab === 'Roles & Permissions' && <RolesPermissions />}
+            {activeTab === 'Security' && isAdminOrManager && <SecuritySettings />}
+            {activeTab === 'Roles & Permissions' && isAdminOrManager && <RolesPermissions />}
             {activeTab === 'Notifications' && <NotificationSettings />}
             {activeTab === 'System' && <SystemSettings />}
-            {activeTab === 'Integrations' && <IntegrationsSettings />}
+            {activeTab === 'Integrations' && isAdminOrManager && <IntegrationsSettings />}
 
             <div style={{ display: activeTab === 'Profile' ? 'block' : 'none' }}>
                 {/* Top Banner Card */}
@@ -262,7 +297,7 @@ const Settings = () => {
                         <span className="premium-badge-banner">{roleBadge}</span>
                         <span className="premium-badge-banner secondary-badge">{empIdBadge}</span>
                     </div>
-                    <span className="last-login-banner">{displayEmail} &bull; Last Login: Just now</span>
+                    <span className="last-login-banner">{displayEmail} &bull; Last Login: {formatLoginTime(user?.loginTime)}</span>
                 </div>
             </div>
 
@@ -485,7 +520,6 @@ const Settings = () => {
                     flex-shrink: 0;
                     width: 80px;
                     height: 80px;
-                    position: relative;
                 }
                 .premium-banner-avatar {
                     width: 80px;
@@ -505,7 +539,6 @@ const Settings = () => {
                     height: 100%;
                     border-radius: 50%;
                     object-fit: cover;
-                    border: 2px solid var(--bg-surface, #ffffff);
                 }
                 .premium-banner-avatar-initial {
                     font-size: 28px;
@@ -522,13 +555,22 @@ const Settings = () => {
                     border-radius: 50%;
                     width: 26px;
                     height: 26px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
+                    display: block;
                     cursor: pointer;
                     box-shadow: 0 2px 8px rgba(0,0,0,0.25);
                     transition: transform 0.2s, background 0.2s;
                     z-index: 3;
+                    padding: 0;
+                    margin: 0;
+                    box-sizing: border-box;
+                }
+                .avatar-upload-btn-premium svg {
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    margin: 0 !important;
+                    display: block;
                 }
                 .avatar-upload-btn-premium:hover {
                     background: #3b82f6;
@@ -542,9 +584,10 @@ const Settings = () => {
                     width: 18px;
                     height: 18px;
                     background: #10b981;
-                    border: 3px solid var(--bg-surface, #ffffff);
                     border-radius: 50%;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                    border: 3px solid var(--bg-surface, #fff);
+                    box-shadow: 0 0 0 1px rgba(0,0,0,0.05);
+                    z-index: 1;
                 }
 
                 .premium-banner-details {

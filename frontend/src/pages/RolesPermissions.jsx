@@ -55,7 +55,8 @@ const RolesPermissions = () => {
                     <div style={{ padding: '20px', color: '#64748b' }}>Loading roles...</div>
                 ) : roles.map((role) => {
                     const styleInfo = getColorForRole(role.name);
-                    const perms = role.permissions || [];
+                    const perms = Array.isArray(role.permissions) ? role.permissions : [];
+                    const isInvalid = !Array.isArray(role.permissions) && role.permissions != null;
                     
                     return (
                     <div key={role._id || role.id} className="rp-card">
@@ -70,7 +71,8 @@ const RolesPermissions = () => {
                         </div>
                         <div className="rp-card-body">
                             <div className="rp-tags">
-                                {perms.slice(0, 5).map((perm, i) => (
+                                {isInvalid && <span className="rp-tag" style={{backgroundColor: '#fee2e2', color: '#ef4444'}}>Invalid Data Format</span>}
+                                {!isInvalid && perms.slice(0, 5).map((perm, i) => (
                                     <span key={i} className="rp-tag">{perm}</span>
                                 ))}
                                 {perms.length > 5 && (

@@ -50,6 +50,45 @@ const FarmakuSidebar = () => {
         return <IconComponent size={20} />;
     };
 
+    const renderNavItem = (item, index) => (
+        <li key={index || item.title}>
+            {item.children ? (
+                <>
+                    <div 
+                        className={`farmaku-nav-item ${isPathActive(item) || expandedMenu === item.title ? 'active' : ''}`} 
+                        onClick={() => toggleMenu(item.title)}
+                    >
+                        {renderIcon(item.icon)}
+                        <span>{item.title}</span>
+                        {expandedMenu === item.title ? <Icons.ChevronDown size={16} style={{marginLeft: 'auto'}} /> : <Icons.ChevronRight size={16} style={{marginLeft: 'auto'}} />}
+                    </div>
+                    {expandedMenu === item.title && (
+                        <div className="farmaku-submenu">
+                            {item.children.map((child, cIndex) => (
+                                <NavLink 
+                                    key={cIndex}
+                                    to={child.path} 
+                                    className={({isActive}) => isActive ? "farmaku-subnav-item active" : "farmaku-subnav-item"}
+                                >
+                                    {child.title}
+                                </NavLink>
+                            ))}
+                        </div>
+                    )}
+                </>
+            ) : (
+                <NavLink 
+                    to={item.path} 
+                    className={({isActive}) => isActive ? "farmaku-nav-item active" : "farmaku-nav-item"}
+                >
+                    {renderIcon(item.icon)}
+                    <span>{item.title}</span>
+                    <Icons.ChevronRight size={16} style={{marginLeft: 'auto'}} />
+                </NavLink>
+            )}
+        </li>
+    );
+
     return (
         <aside className="farmaku-sidebar">
             <div className="farmaku-sidebar-header">
@@ -61,44 +100,7 @@ const FarmakuSidebar = () => {
                     {loading ? (
                         <div style={{ padding: '20px', textAlign: 'center', color: '#64748b' }}>Loading menu...</div>
                     ) : (
-                        navigation.map((item, index) => (
-                            <li key={index}>
-                                {item.children ? (
-                                    <>
-                                        <div 
-                                            className={`farmaku-nav-item ${isPathActive(item) || expandedMenu === item.title ? 'active' : ''}`} 
-                                            onClick={() => toggleMenu(item.title)}
-                                        >
-                                            {renderIcon(item.icon)}
-                                            <span>{item.title}</span>
-                                            {expandedMenu === item.title ? <Icons.ChevronDown size={16} style={{marginLeft: 'auto'}} /> : <Icons.ChevronRight size={16} style={{marginLeft: 'auto'}} />}
-                                        </div>
-                                        {expandedMenu === item.title && (
-                                            <div className="farmaku-submenu">
-                                                {item.children.map((child, cIndex) => (
-                                                    <NavLink 
-                                                        key={cIndex}
-                                                        to={child.path} 
-                                                        className={({isActive}) => isActive ? "farmaku-subnav-item active" : "farmaku-subnav-item"}
-                                                    >
-                                                        {child.title}
-                                                    </NavLink>
-                                                ))}
-                                            </div>
-                                        )}
-                                    </>
-                                ) : (
-                                    <NavLink 
-                                        to={item.path} 
-                                        className={({isActive}) => isActive ? "farmaku-nav-item active" : "farmaku-nav-item"}
-                                    >
-                                        {renderIcon(item.icon)}
-                                        <span>{item.title}</span>
-                                        <Icons.ChevronRight size={16} style={{marginLeft: 'auto'}} />
-                                    </NavLink>
-                                )}
-                            </li>
-                        ))
+                        navigation.filter(item => item.title !== 'Settings').map((item, index) => renderNavItem(item, index))
                     )}
 
                     {/* Static Items that are not entirely permission driven in the same way (like Notifications, Support, Logout) */}
@@ -121,6 +123,11 @@ const FarmakuSidebar = () => {
                             <Icons.ChevronRight size={16} style={{marginLeft: 'auto'}} />
                         </NavLink>
                     </li>
+
+                    {/* Render Settings explicitly here if it exists in the navigation response */}
+                    {!loading && navigation.find(item => item.title === 'Settings') && (
+                        renderNavItem(navigation.find(item => item.title === 'Settings'), 'settings')
+                    )}
 
                     <li>
                         <div className="farmaku-nav-item" onClick={logout} style={{marginTop: '16px'}}>

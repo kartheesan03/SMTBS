@@ -18,6 +18,7 @@ const Dashboard = React.lazy(() => import('./pages/Dashboard'));
 const Login = React.lazy(() => import('./pages/Login'));
 const Register = React.lazy(() => import('./pages/Register'));
 const Materials = React.lazy(() => import('./pages/Materials'));
+const MyMaterials = React.lazy(() => import('./pages/MyMaterials'));
 const AddMaterial = React.lazy(() => import('./pages/AddMaterial'));
 const MaterialDetails = React.lazy(() => import('./pages/MaterialDetails'));
 
@@ -186,6 +187,11 @@ const AppContent = () => {
                     <Route path="/materials/:id/edit" element={<ProtectedRoute requiredPermission="manage_materials"><AddMaterial isEditMode={true} /></ProtectedRoute>} />
                     <Route path="/materials/:id" element={<ProtectedRoute requiredPermission="view_materials"><MaterialDetails /></ProtectedRoute>} />
                     <Route path="/materials" element={<ProtectedRoute requiredPermission="view_materials"><Materials /></ProtectedRoute>} />
+                    <Route path="/my-materials" element={<Navigate to="/my-materials/inventory" replace />} />
+                    <Route path="/my-materials/inventory" element={<ProtectedRoute requiredPermission="view_materials_self"><MyMaterials /></ProtectedRoute>} />
+                    <Route path="/my-materials/requests" element={<ProtectedRoute requiredPermission="view_materials_self"><MyMaterials /></ProtectedRoute>} />
+                    <Route path="/my-materials/stock" element={<ProtectedRoute requiredPermission="view_materials_self"><MyMaterials /></ProtectedRoute>} />
+                    <Route path="/my-materials/barcode" element={<ProtectedRoute requiredPermission="view_materials_self"><ComingSoonPage title="Employee Barcode Scanner" subtitle="Self-service barcode scanning is coming soon." /></ProtectedRoute>} />
                     <Route path="/payroll" element={<ProtectedRoute requiredPermission="manage_hrms"><Payroll /></ProtectedRoute>} />
                     <Route path="/payroll/generate" element={<ProtectedRoute requiredPermission="view_hrms"><GeneratePayroll /></ProtectedRoute>} />
                     <Route path="/payroll/payment/:id" element={<ProtectedRoute requiredPermission="view_hrms"><PayrollPayment /></ProtectedRoute>} />
@@ -234,6 +240,7 @@ const AppContent = () => {
                     <Route path="/support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
                     <Route path="/users" element={<ProtectedRoute requiredPermission="view_settings"><UserManagement /></ProtectedRoute>} />
                     <Route path="/my-tasks" element={<ProtectedRoute><MyTasks /></ProtectedRoute>} />
+                    <Route path="/tasks" element={<Navigate to="/my-tasks" replace />} />
                     <Route path="/my-attendance" element={<ProtectedRoute><MyAttendance /></ProtectedRoute>} />
                     <Route path="/my-salary" element={<ProtectedRoute><MySalaryPage /></ProtectedRoute>} />
                     <Route path="/leave-management" element={<ProtectedRoute><LeaveManagement /></ProtectedRoute>} />

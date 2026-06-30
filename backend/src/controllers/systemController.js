@@ -17,6 +17,17 @@ const navigationConfig = [
         ]
     },
     {
+        title: 'Material Tracking',
+        icon: 'Box',
+        permission: 'view_materials_self',
+        children: [
+            { title: 'Inventory', path: '/my-materials/inventory' },
+            { title: 'Movement Tracking', path: '/my-materials/requests' },
+            { title: 'Stock Monitoring', path: '/my-materials/stock' },
+            { title: 'Barcode / QR', path: '/my-materials/barcode' }
+        ]
+    },
+    {
         title: 'HRMS',
         icon: 'Users',
         permission: 'view_hrms',
@@ -51,12 +62,13 @@ const navigationConfig = [
             { title: 'Support Management', path: '/support' }
         ]
     },
+
     {
         title: 'Tasks & Projects',
         icon: 'CheckSquare',
-        permission: 'all',
+        permission: 'view_tasks',
         children: [
-            { title: 'My Tasks', path: '/my-tasks' },
+            { title: 'All Tasks', path: '/tasks' },
             { title: 'Assigned Tasks', path: '/tasks/assigned' },
             { title: 'Projects', path: '/projects' }
         ]
@@ -76,14 +88,14 @@ const navigationConfig = [
     {
         title: 'Settings',
         icon: 'Settings',
-        permission: 'view_settings',
+        permission: '',
         children: [
-            { title: 'General Settings', path: '/settings' },
-            { title: 'User Management', path: '/users' },
-            { title: 'Roles & Permissions', path: '/settings/roles' },
-            { title: 'Audit Logs', path: '/settings/audit-logs' },
-            { title: 'Backup & Restore', path: '/settings/backup' },
-            { title: 'Integrations', path: '/settings/integrations' }
+            { title: 'General Settings', path: '/settings', permission: '' },
+            { title: 'User Management', path: '/users', permission: 'manage_users' },
+            { title: 'Roles & Permissions', path: '/settings/roles', permission: 'manage_settings' },
+            { title: 'Audit Logs', path: '/settings/audit-logs', permission: 'view_audit_logs' },
+            { title: 'Backup & Restore', path: '/settings/backup', permission: 'manage_backup' },
+            { title: 'Integrations', path: '/settings/integrations', permission: 'manage_settings' }
         ]
     }
 ];
@@ -109,10 +121,28 @@ exports.getNavigation = async (req, res) => {
         }
         
         // Filter navigation based on user permissions
-        const filteredNav = navigationConfig.filter(item => {
-            if (!item.permission) return true;
-            return userPermissions.includes(item.permission) || userPermissions.includes('all');
-        });
+        let filteredNav = navigationConfig.map(item => {
+            // First check if user can see parent
+            if (item.permission && !userPermissions.includes(item.permission) && !userPermissions.includes('all')) {
+                return null;
+            }
+            
+            // Then filter children if they exist
+            if (item.children) {
+                const filteredChildren = item.children.filter(child => {
+                    if (!child.permission) return true;
+                    return userPermissions.includes(child.permission) || userPermissions.includes('all');
+                });
+                return { ...item, children: filteredChildren };
+            }
+            return item;
+        }).filter(Boolean); // Remove nulls
+
+        // Prevent duplicate "Material Tracking" for Admin/Manager who have both permissions
+        const hasFullMaterialTracking = filteredNav.some(i => i.title === 'Material Tracking' && i.permission === 'view_materials');
+        if (hasFullMaterialTracking) {
+            filteredNav = filteredNav.filter(i => !(i.title === 'Material Tracking' && i.permission === 'view_materials_self'));
+        }
 
         res.json(filteredNav);
     } catch (error) {

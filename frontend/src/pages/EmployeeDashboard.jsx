@@ -1,116 +1,68 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { NotificationContext } from '../context/NotificationContext';
 import API from '../api/axios';
-import {
-    Users, Search, Bell, Moon,
-    Briefcase, Activity, FileText, CheckCircle, ListTodo, FolderGit2,
-    Menu, Calendar, Clock, LogOut, Settings as SettingsIcon, User as UserIcon, UserCheck, TrendingUp, Fingerprint
+import { 
+    Users, Search, Bell, CheckCircle, Calendar, DollarSign,
+    Box, Briefcase, Activity, RefreshCw, BarChart2, TrendingUp, AlertTriangle, AlertCircle, FileText, ListTodo
 } from 'lucide-react';
-import {
-    EmptyState, SkeletonCard,
-    TopWelcomeBar, PremiumKPICard, TimelineWidget,
-    QuickActionsGrid
-} from '../components/AdminDashboard/DashboardWidgets';
-import { SalesAreaChart, InventoryStatusDonut } from '../components/AdminDashboard/AnalyticsCharts';
+import { AreaChart, Area, PieChart, Pie, Cell, ResponsiveContainer, XAxis, YAxis, Legend, Tooltip, CartesianGrid } from 'recharts';
+import '../components/AdminDashboard/AdminDashboardRedesign.css';
 import CommandCenter from '../components/CommandCenter';
-import '../components/AdminDashboard/AdminDashboardPremium.css';
+import { RDKPICard } from './AdminDashboard';
 
 const EmployeeDashboard = () => {
-    const { user, logout } = useContext(AuthContext);
-    const { unreadCount } = useContext(NotificationContext);
-
-    const displayName = user?.name || user?.user?.name || 'Employee';
-    const displayRole = user?.role || user?.user?.role || 'Staff';
-    const displayEmail = user?.email || user?.user?.email || 'employee@smtbms.com';
-
     const navigate = useNavigate();
+    const { user } = useContext(AuthContext);
+    const [isCommandCenterOpen, setIsCommandCenterOpen] = useState(false);
+    
     const [dashboardData, setDashboardData] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-
     const [myTasks, setMyTasks] = useState([]);
     const [attendanceStats, setAttendanceStats] = useState(null);
-
-    const [currentTime, setCurrentTime] = useState(new Date());
-    const [isCommandCenterOpen, setIsCommandCenterOpen] = useState(false);
-    const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-
-    useEffect(() => {
-        const handleClickOutside = (e) => {
-            if (!e.target.closest('.erp-profile-menu-container')) {
-                setIsProfileMenuOpen(false);
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
-
-    useEffect(() => {
-        const timer = setInterval(() => {
-            setCurrentTime(new Date());
-        }, 1000);
-        return () => clearInterval(timer);
-    }, []);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchDashboardData = async () => {
             try {
-                // Get general stats (if needed) but main focus is own data
                 const [dashRes, myTasksRes, attRes] = await Promise.all([
                     API.get('/dashboard/stats').catch(e => ({ data: {} })),
                     API.get('/tasks/my-tasks').catch(e => ({ data: [] })),
                     API.get('/attendance/my-stats').catch(e => ({ data: null }))
                 ]);
-                
                 setDashboardData(dashRes.data || {});
                 setMyTasks(myTasksRes.data || []);
                 setAttendanceStats(attRes.data);
-                setError(null);
             } catch (err) {
-                console.error("Failed to load dashboard stats", err);
-                setError("Failed to load dashboard data. Please try again.");
+                console.error("Failed to load dashboard data", err);
             } finally {
                 setLoading(false);
             }
         };
         fetchDashboardData();
-        const interval = setInterval(fetchDashboardData, 30000);
-        return () => clearInterval(interval);
     }, []);
 
-    const toggleDarkMode = () => {
-        const root = document.documentElement;
-        if (root.getAttribute('data-theme') === 'dark') {
-            root.removeAttribute('data-theme');
-        } else {
-            root.setAttribute('data-theme', 'dark');
-        }
-    };
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault();
+                setIsCommandCenterOpen(true);
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []);
 
     if (loading) {
-        return (
-            <div className="erp-dashboard-container">
-                <div className="erp-main-content">
-                    <div className="erp-summary-grid">
-                        {[1, 2, 3, 4, 5, 6].map(i => <SkeletonCard key={i} />)}
-                    </div>
-                </div>
-            </div>
-        );
+        return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: '#64748b' }}>Loading My Workspace...</div>;
     }
 
-    if (error) {
-        return (
-            <div className="erp-dashboard-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
-                <EmptyState icon={Activity} title="Error Loading Data" message={error} />
-            </div>
-        );
-    }
+    const getGreeting = () => {
+        const hour = new Date().getHours();
+        if (hour < 12) return 'Good Morning';
+        if (hour < 18) return 'Good Afternoon';
+        return 'Good Evening';
+    };
 
-    const dashboard = dashboardData || {};
-    
     let completedTasksCount = 0;
     let pendingTasksCount = 0;
     
@@ -131,12 +83,6 @@ const EmployeeDashboard = () => {
     const workingDays = presentDays + leaveDays + absentDays || 1;
     const attendancePercentage = Math.round((presentDays / workingDays) * 100);
 
-    const myAttendanceData = [
-        { name: 'Present', value: presentDays, fill: '#10b981' },
-        { name: 'On Leave', value: leaveDays, fill: '#f59e0b' },
-        { name: 'Absent', value: absentDays, fill: '#ef4444' }
-    ].filter(item => item.value > 0);
-
     const recentTaskData = myTasks
         .filter(t => t.status !== 'Completed' && t.status !== 'Done')
         .slice(0, 5)
@@ -144,172 +90,135 @@ const EmployeeDashboard = () => {
             id: t._id,
             text: `Task: ${t.title || 'Untitled'} (${t.status})`,
             time: new Date(t.dueDate || t.createdAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            color: '#3b82f6'
+            type: 'activity'
         }));
 
-    const todayData = {
-        revenue: 'N/A', // Not highly relevant for typical employee, maybe replace with task info if needed
-        orders: myTasks.length, // Total Tasks
-        attendance: attendancePercentage, // Personal attendance
-        alerts: pendingTasksCount // Pending tasks as alerts
-    };
-
-    const kpiCards = [
-        { title: 'My Tasks', value: totalTasks, icon: ListTodo, color: '#3b82f6', trend: `${pendingTasksCount} pending`, trendType: 'up' },
-        { title: 'Task Completion', value: `${taskCompletionRate}%`, icon: CheckCircle, color: '#10b981', trend: 'Great job', trendType: 'up' },
-        { title: 'Attendance', value: `${attendancePercentage}%`, icon: UserCheck, color: '#f59e0b', trend: `${presentDays} days present`, trendType: 'up' },
-        { title: 'Leave Balance', value: attendanceStats?.leaveBalance ?? 'N/A', icon: Calendar, color: '#8b5cf6', trend: 'Available', trendType: 'up' }
-    ];
-
     return (
-        <div className="module-container">
-            {/* Actions & Title */}
-            <div className="module-actions-section">
-                <div className="module-title-block">
-                    <h1>Employee Workspace</h1>
-                    <p>Welcome back, {user?.firstName || 'User'}!</p>
-                </div>
-                <div className="action-buttons">
-                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'var(--bg-body)', border: '1px solid var(--border-subtle)', padding: '8px 16px', borderRadius: 'var(--radius-md)', fontSize: '13px', fontWeight: 600, color: 'var(--text-main)', boxShadow: 'var(--shadow-sm)' }}>
-                        <Clock size={16} style={{ color: 'var(--primary)' }} /> 
-                        {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
-                    </span>
-                </div>
-            </div>
-
-            {/* Core KPIs */}
-            <div className="module-kpi-section" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
-                {kpiCards.map((kpi, idx) => (
-                    <div key={idx} className="kpi-card">
-                        <div className="kpi-header">
-                            <span className="kpi-title">{kpi.title}</span>
-                            <div className="kpi-icon-wrapper" style={{background: `${kpi.color}15`, color: kpi.color}}>
-                                <kpi.icon size={20} />
+        <div className="rd-container">
+            <div className="rd-content">
+                {/* Hero Banner */}
+                <div className="rd-hero">
+                    <div className="rd-hero-left">
+                        <div className="rd-greeting">
+                            {getGreeting()}, {user?.name?.split(' ')[0] || 'User'} <span role="img" aria-label="wave">👋</span>
+                        </div>
+                        <div className="rd-subtitle">
+                            {user?.role || 'Employee'} • <span className="rd-badge-id">{user?.email || 'employee@smtbms.com'}</span> • Today's Status: Online
+                        </div>
+                        
+                        <div className="rd-hero-actions">
+                            <button className="rd-btn-primary" onClick={() => navigate('/tasks')}><ListTodo size={18}/> My Tasks</button>
+                            <button className="rd-btn-outline" onClick={() => navigate('/attendance')}><Calendar size={18}/> My Attendance</button>
+                            <button className="rd-btn-outline" onClick={() => navigate('/leave-management')}><AlertCircle size={18}/> Request Leave</button>
+                        </div>
+                        
+                        <div className="rd-hero-footer">
+                            <div className="rd-footer-item">
+                                <span className="rd-footer-label">Module Access</span>
+                                <span className="rd-footer-val">Personal Workspace</span>
+                            </div>
+                            <div className="rd-footer-item">
+                                <span className="rd-footer-label">Pending Tasks</span>
+                                <span className="rd-footer-val">{pendingTasksCount}</span>
+                            </div>
+                            <div className="rd-footer-item">
+                                <span className="rd-footer-label">Attendance Rate</span>
+                                <span className="rd-footer-val">{attendancePercentage}%</span>
                             </div>
                         </div>
-                        <div className="kpi-value" style={{ color: kpi.isStatus ? kpi.color : 'inherit', fontSize: kpi.isStatus ? '20px' : '28px' }}>
-                            {kpi.value}
+                    </div>
+                    
+                    <div className="rd-hero-right">
+                        <div className="rd-circle-progress" style={{"--p": `${taskCompletionRate}%`}}>
+                            <div className="rd-circle-inner">
+                                <span className="rd-circle-val">{taskCompletionRate}%</span>
+                                <span className="rd-circle-label">Task Completion</span>
+                            </div>
                         </div>
-                    </div>
-                ))}
-            </div>
-
-            {/* Main Content */}
-            <div className="module-analytics-section" style={{ gridTemplateColumns: '5fr 3fr' }}>
-                {/* Left Side: Tasks Table */}
-                <div className="analytics-card" style={{ flex: 1 }}>
-                    <div className="analytics-header">
-                        <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><ListTodo size={18} /> My Pending Tasks</h3>
-                    </div>
-                    <div style={{ padding: '0 20px 20px 20px' }}>
-                        {myTasks.length > 0 ? (
-                            <table className="enterprise-table" style={{ margin: 0 }}>
-                                <thead>
-                                    <tr>
-                                        <th>Task Description</th>
-                                        <th>Priority</th>
-                                        <th>Due Date</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {myTasks.map((task, i) => (
-                                        <tr key={i}>
-                                            <td><strong>{task.title}</strong></td>
-                                            <td>
-                                                <span style={{ 
-                                                    padding: '4px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 600,
-                                                    background: task.priority === 'High' ? 'rgba(239,68,68,0.1)' : task.priority === 'Medium' ? 'rgba(245,158,11,0.1)' : 'rgba(100,116,139,0.1)',
-                                                    color: task.priority === 'High' ? '#EF4444' : task.priority === 'Medium' ? '#F59E0B' : '#64748B'
-                                                }}>{task.priority}</span>
-                                            </td>
-                                            <td style={{ color: 'var(--text-secondary)' }}>{task.due}</td>
-                                            <td>
-                                                <span style={{ 
-                                                    padding: '4px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 600,
-                                                    background: task.status === 'Completed' ? 'rgba(16,185,129,0.1)' : task.status === 'In Progress' ? 'rgba(59,130,246,0.1)' : 'rgba(100,116,139,0.1)',
-                                                    color: task.status === 'Completed' ? '#10B981' : task.status === 'In Progress' ? '#3B82F6' : '#64748B'
-                                                }}>{task.status}</span>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        ) : (
-                            <div className="flex-center" style={{ padding: '40px 0', color: 'var(--text-muted)' }}>No pending tasks</div>
-                        )}
+                        <div className="rd-circle-progress" style={{"--p": `${attendancePercentage}%`}}>
+                            <div className="rd-circle-inner">
+                                <span className="rd-circle-val">{attendancePercentage}%</span>
+                                <span className="rd-circle-label">Attendance</span>
+                            </div>
+                        </div>
+                        <div className="rd-circle-progress" style={{"--p": "100%"}}>
+                            <div className="rd-circle-inner">
+                                <span className="rd-circle-val">{leaveDays}</span>
+                                <span className="rd-circle-label">Leaves Taken</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                {/* Right Side: Quick Actions & Attendance Chart */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                    {/* Quick Actions */}
-                    <div className="analytics-card" style={{ padding: '20px' }}>
-                        <div className="analytics-header">
-                            <h3>Quick Actions</h3>
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                            {[
-                                { path: '/my-tasks', name: 'My Tasks', icon: ListTodo, color: '#3b82f6' },
-                                { path: '/leave-management', name: 'Apply Leave', icon: Calendar, color: '#8b5cf6' },
-                                { path: '/my-attendance', name: 'Mark Attendance', icon: Fingerprint, color: '#10b981' },
-                                { path: '/my-salary', name: 'Salary Slips', icon: FileText, color: '#f59e0b' }
-                            ].map((link, idx) => (
-                                <div onClick={() => navigate(link.path)} key={idx} style={{ display: 'flex', alignItems: 'center', padding: '12px 16px', background: 'var(--bg-body)', border: '1px solid var(--border-light)', borderRadius: 'var(--radius-md)', cursor: 'pointer', color: 'var(--text-heading)', fontWeight: 600, fontSize: '14px', transition: 'all 0.2s' }}>
-                                    <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: `${link.color}15`, color: link.color, display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: '16px' }}>
-                                        <link.icon size={16} />
-                                    </div>
-                                    {link.name}
-                                    <ArrowUpRight size={16} style={{ marginLeft: 'auto', color: 'var(--text-muted)' }} />
-                                </div>
-                            ))}
+                {/* KPI Row */}
+                <div className="rd-kpi-row">
+                    <RDKPICard title="My Total Tasks" value={totalTasks} trendValue="Assigned" icon={ListTodo} color="blue" subLabel="Overall" bottomVal={`${pendingTasksCount} pending`} />
+                    <RDKPICard title="Task Completion" value={`${taskCompletionRate}%`} trendValue="Done" icon={CheckCircle} color="green" subLabel="This Month" bottomVal={`${completedTasksCount} completed`} />
+                    <RDKPICard title="Attendance Rate" value={`${attendancePercentage}%`} trendValue="Active" icon={Calendar} color="orange" subLabel="Overall" bottomVal={`${presentDays} days present`} />
+                    <RDKPICard title="Leaves Balance" value={leaveDays} trendValue="Taken" icon={FileText} color="purple" subLabel="This Year" bottomVal={`${absentDays} days absent`} />
+                </div>
+
+                {/* Middle Section */}
+                <div className="rd-middle-row">
+                    {/* Overview Summary */}
+                    <div className="rd-card" style={{ display: 'flex', flexDirection: 'column' }}>
+                        <div className="rd-card-title">My Output</div>
+                        <div style={{flex: 1, minHeight: 250, marginTop: 16}}>
+                            <ResponsiveContainer width="100%" height="100%">
+                                <AreaChart data={dashboardData?.charts?.monthlyStats || []} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                                    <defs>
+                                        <linearGradient id="colorOutput" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
+                                            <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                                        </linearGradient>
+                                    </defs>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={true} stroke="#f1f5f9" />
+                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#64748b'}} dy={10} />
+                                    <YAxis axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#64748b'}} />
+                                    <Tooltip contentStyle={{borderRadius: 8, border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'}} />
+                                    <Legend verticalAlign="top" align="left" iconType="circle" wrapperStyle={{ paddingBottom: '20px', fontSize: 13, fontWeight: 500 }} />
+                                    <Area type="monotone" dataKey="sales" stroke="#3b82f6" strokeWidth={2} fillOpacity={1} fill="url(#colorOutput)" name="Performance Metric" dot={{ r: 4, strokeWidth: 2, fill: '#fff', stroke: '#3b82f6' }} activeDot={{ r: 6 }} />
+                                </AreaChart>
+                            </ResponsiveContainer>
                         </div>
                     </div>
 
-                    {/* Attendance Chart */}
-                    <div className="analytics-card" style={{ padding: '20px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                        <div className="analytics-header">
-                            <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Clock size={18} /> My Attendance</h3>
+                    {/* Quick Actions */}
+                    <div className="rd-card">
+                        <div className="rd-card-title">Quick Actions</div>
+                        <div className="rd-action-stack">
+                            <div className="rd-action-btn blue" onClick={() => navigate('/tasks')}><span className="rd-action-text">My Tasks</span> <span>→</span></div>
+                            <div className="rd-action-btn green" onClick={() => navigate('/attendance')}><span className="rd-action-text">Attendance</span> <span>→</span></div>
+                            <div className="rd-action-btn purple" onClick={() => navigate('/leave-management')}><span className="rd-action-text">Request Leave</span> <span>→</span></div>
+                            <div className="rd-action-btn orange" onClick={() => navigate('/profile')}><span className="rd-action-text">My Profile</span> <span>→</span></div>
                         </div>
-                        <div style={{ flex: 1, minHeight: '220px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            {myAttendanceData.length > 0 ? (
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <PieChart>
-                                        <RechartsTooltip cursor={{fill: 'transparent'}} contentStyle={{ borderRadius: '12px', border: '1px solid var(--border-light)', boxShadow: 'var(--shadow-lg)' }} />
-                                        <Pie
-                                            data={myAttendanceData}
-                                            dataKey="value"
-                                            nameKey="name"
-                                            cx="50%"
-                                            cy="50%"
-                                            innerRadius={60}
-                                            outerRadius={85}
-                                            paddingAngle={2}
-                                            stroke="none"
-                                        >
-                                            {myAttendanceData.map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill={entry.fill} />
-                                            ))}
-                                        </Pie>
-                                    </PieChart>
-                                </ResponsiveContainer>
+                    </div>
+
+                    {/* Recent Activities */}
+                    <div className="rd-card">
+                        <div className="rd-card-title">Pending Tasks</div>
+                        <div className="rd-feed">
+                            {recentTaskData.length > 0 ? (
+                                recentTaskData.map((notif, idx) => (
+                                    <div className="rd-feed-item" key={notif.id || idx}>
+                                        <div className={`rd-feed-icon ${notif.type === 'alert' ? 'orange' : 'blue'}`}>
+                                            <ListTodo size={16}/>
+                                        </div>
+                                        <div className="rd-feed-content">
+                                            <div className="rd-feed-text">{notif.text}</div>
+                                            <div className="rd-feed-time">{notif.time}</div>
+                                        </div>
+                                    </div>
+                                ))
                             ) : (
-                                <div className="flex-center" style={{ color: 'var(--text-muted)' }}>No attendance data available</div>
+                                <div style={{padding: '20px', textAlign: 'center', color: '#94a3b8'}}>No pending tasks!</div>
                             )}
                         </div>
-                        {myAttendanceData.length > 0 && (
-                            <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap', paddingTop: '16px' }}>
-                                {myAttendanceData.map((item, idx) => (
-                                    <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 600, color: 'var(--text-main)' }}>
-                                        <span style={{ width: '10px', height: '10px', borderRadius: '4px', background: item.fill }}></span>
-                                        {item.name}
-                                    </div>
-                                ))}
-                            </div>
-                        )}
                     </div>
                 </div>
             </div>
+            
+            <CommandCenter isOpen={isCommandCenterOpen} onClose={() => setIsCommandCenterOpen(false)} />
         </div>
     );
 };

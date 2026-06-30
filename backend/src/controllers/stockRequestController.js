@@ -230,6 +230,43 @@ exports.employeeReceive = async (req, res) => {
     }
 };
 
+exports.requestReturn = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const request = await StockRequest.sequelizeModel.findByPk(id);
+        
+        if (!request) return res.status(404).json({ message: 'Request not found' });
+
+        const userId = req.user.id || req.user._id;
+        if (request.employeeId !== userId && !['Admin', 'Manager'].includes(req.user.role)) {
+            return res.status(403).json({ message: 'Unauthorized to return this request' });
+        }
+
+        if (request.status !== 'Completed') {
+            return res.status(400).json({ message: 'Can only return completed requests' });
+        }
+
+        request.status = 'Return Requested';
+        addHistory(request, 'Return Requested', req.user);
+        await request.save();
+
+        if (request.managerId) {
+            await createNotification(
+                request.managerId,
+                'Return Requested',
+                `Employee ${req.user.name} has requested to return a material.`,
+                'warning',
+                request.id
+            );
+        }
+
+        res.json(request);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Failed to request return' });
+    }
+};
+
 exports.salesUpdate = async (req, res) => {
     try {
         const { id } = req.params;

@@ -192,6 +192,26 @@ const Profile = () => {
     const roleBadge = user?.role || 'Employee';
     const empIdBadge = employeeData?.employeeId || employeeData?.employeeCode || (user?.id ? `EMP${user.id.toString().padStart(4, '0')}` : 'EMP001');
 
+    const formatLoginTime = (time) => {
+        let actualTime = time;
+        if (!actualTime && user?.token) {
+            try {
+                const payload = JSON.parse(atob(user.token.split('.')[1]));
+                if (payload.iat) actualTime = payload.iat * 1000;
+            } catch (e) { }
+        }
+        if (!actualTime) return 'Recently';
+        const date = new Date(actualTime);
+        const now = new Date();
+        const diffMs = now - date;
+        const diffMins = Math.floor(diffMs / 60000);
+        if (diffMins < 1) return 'Just now';
+        if (diffMins < 60) return `${diffMins} min ago`;
+        const diffHrs = Math.floor(diffMins / 60);
+        if (diffHrs < 24) return `${diffHrs} hours ago`;
+        return date.toLocaleDateString();
+    };
+
     if (user?.role === 'Customer') {
         return <CustomerProfileSettings />;
     }
@@ -232,7 +252,7 @@ const Profile = () => {
                             <span className="premium-badge-banner secondary-badge">{empIdBadge}</span>
                         )}
                     </div>
-                    <span className="last-login-banner">{displayEmail} &bull; Last Login: Just now</span>
+                    <span className="last-login-banner">{displayEmail} &bull; Last Login: {formatLoginTime(user?.loginTime)}</span>
                 </div>
             </div>
 
@@ -544,14 +564,22 @@ const Profile = () => {
                     border-radius: 50%;
                     width: 26px;
                     height: 26px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 12px;
+                    display: block;
                     cursor: pointer;
                     box-shadow: 0 2px 8px rgba(0,0,0,0.25);
                     transition: transform 0.2s, background 0.2s;
                     z-index: 3;
+                    padding: 0;
+                    margin: 0;
+                    box-sizing: border-box;
+                }
+                .avatar-upload-btn-premium svg {
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    margin: 0 !important;
+                    display: block;
                 }
                 .avatar-upload-btn-premium:hover {
                     background: #3b82f6;

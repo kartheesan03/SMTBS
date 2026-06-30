@@ -2,60 +2,24 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import API from '../api/axios';
-import {
-    Users, Search, Bell, Moon,
-    Briefcase, Activity, FileText,
-    Menu, Calendar, Clock, LogOut, Settings as SettingsIcon, User as UserIcon, UserCheck, DollarSign, AlertCircle
+import { 
+    Users, Search, Bell, CheckCircle, Calendar, DollarSign,
+    Box, Briefcase, Activity, RefreshCw, BarChart2, TrendingUp, AlertTriangle, UserCheck, Moon, AlertCircle
 } from 'lucide-react';
-import {
-    EmptyState, SkeletonCard,
-    TopWelcomeBar, PremiumKPICard, TimelineWidget,
-    PendingApprovalsList, QuickActionsGrid
-} from '../components/AdminDashboard/DashboardWidgets';
-import { SalesAreaChart, InventoryStatusDonut } from '../components/AdminDashboard/AnalyticsCharts';
+import { AreaChart, Area, PieChart, Pie, Cell, ResponsiveContainer, XAxis, YAxis, Legend, Tooltip, CartesianGrid } from 'recharts';
+import '../components/AdminDashboard/AdminDashboardRedesign.css';
 import CommandCenter from '../components/CommandCenter';
-import UserAvatar from '../components/UserAvatar';
-import '../components/AdminDashboard/AdminDashboardPremium.css';
+import { RDKPICard } from './AdminDashboard';
 
 const HRDashboard = () => {
-    const { user, logout } = useContext(AuthContext);
-
-    // Fallback logic for user profile data (handles both flat and nested user objects)
-    const displayName = user?.name || user?.user?.name || 'HR Admin';
-    const displayRole = user?.role || user?.user?.role || 'Human Resources';
-    const displayEmail = user?.email || user?.user?.email || 'hr@smtbms.com';
-
     const navigate = useNavigate();
+    const { user } = useContext(AuthContext);
+    const [isCommandCenterOpen, setIsCommandCenterOpen] = useState(false);
     const [dashboardData, setDashboardData] = useState(null);
-    
-    // Add additional state variables needed for HR specific widgets
     const [employees, setEmployees] = useState([]);
     const [leavesData, setLeavesData] = useState([]);
     const [salariesData, setSalariesData] = useState([]);
-
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [currentTime, setCurrentTime] = useState(new Date());
-    const [isCommandCenterOpen, setIsCommandCenterOpen] = useState(false);
-    const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-
-    // Close dropdown when clicking outside
-    useEffect(() => {
-        const handleClickOutside = (e) => {
-            if (!e.target.closest('.erp-profile-menu-container')) {
-                setIsProfileMenuOpen(false);
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
-
-    useEffect(() => {
-        const timer = setInterval(() => {
-            setCurrentTime(new Date());
-        }, 1000);
-        return () => clearInterval(timer);
-    }, []);
 
     useEffect(() => {
         const fetchDashboardData = async () => {
@@ -71,47 +35,36 @@ const HRDashboard = () => {
                 setEmployees(empRes.data || []);
                 setLeavesData(leavesRes.data || []);
                 setSalariesData(salariesRes.data || []);
-                setError(null);
             } catch (err) {
-                console.error("Failed to fetch dashboard stats", err);
-                setError("Failed to load dashboard data. Please try again.");
+                console.error("Failed to load dashboard data", err);
             } finally {
                 setLoading(false);
             }
         };
         fetchDashboardData();
-        const interval = setInterval(fetchDashboardData, 30000);
-        return () => clearInterval(interval);
     }, []);
 
-    const toggleDarkMode = () => {
-        const root = document.documentElement;
-        if (root.getAttribute('data-theme') === 'dark') {
-            root.removeAttribute('data-theme');
-        } else {
-            root.setAttribute('data-theme', 'dark');
-        }
-    };
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault();
+                setIsCommandCenterOpen(true);
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []);
 
     if (loading) {
-        return (
-            <div className="erp-dashboard-container">
-                <div className="erp-main-content">
-                    <div className="erp-summary-grid">
-                        {[1, 2, 3, 4, 5, 6].map(i => <SkeletonCard key={i} />)}
-                    </div>
-                </div>
-            </div>
-        );
+        return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: '#64748b' }}>Loading HR dashboard data...</div>;
     }
 
-    if (error) {
-        return (
-            <div className="erp-dashboard-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
-                <EmptyState icon={Activity} title="Error Loading Data" message={error} />
-            </div>
-        );
-    }
+    const getGreeting = () => {
+        const hour = new Date().getHours();
+        if (hour < 12) return 'Good Morning';
+        if (hour < 18) return 'Good Afternoon';
+        return 'Good Evening';
+    };
 
     const dashboard = dashboardData || {};
     const hrStats = dashboard.hrStats || {};
@@ -135,18 +88,6 @@ const HRDashboard = () => {
         payrollProcessed = Math.round((paidSalaries / salaries.length) * 100);
     }
 
-    const todayData = {
-        attendance: totalEmployees > 0 ? Math.round((presentToday / totalEmployees) * 100) : 0,
-        employees: totalEmployees,
-        onLeave: onLeave,
-        alerts: pendingApprovals
-    };
-
-    const pendingApprovalsData = [
-        { name: 'Pending Leaves', count: pendingLeaves },
-        { name: 'Pending Salaries', count: pendingSalaries }
-    ].filter(item => item.count > 0);
-
     const attendanceDonutData = [
         { name: 'Present', value: presentToday, color: '#10b981' },
         { name: 'Absent', value: absentToday, color: '#ef4444' },
@@ -158,153 +99,144 @@ const HRDashboard = () => {
         recentActivities = [...leavesData].reverse().slice(0, 5).map(l => ({
             id: l._id,
             text: `Leave request from ${l.employeeName || 'Employee'} (${l.status || 'Pending'})`,
-            time: new Date(l.createdAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            color: '#8b5cf6'
+            time: new Date(l.createdAt || Date.now()).toISOString(),
+            type: 'activity'
         }));
     } else {
         recentActivities = recentActivities.map(a => ({
             text: a.text,
-            time: new Date(a.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            color: '#3b82f6'
+            time: a.time,
+            type: 'activity'
         }));
     }
 
-    const kpiCards = [
-        { title: 'Total Employees', value: totalEmployees, icon: Users, color: '#3b82f6', trend: `+${newJoiners} new joiners`, trendType: 'up' },
-        { title: 'Present Today', value: presentToday, icon: UserCheck, color: '#10b981', trend: `${todayData.attendance}% attendance`, trendType: 'up' },
-        { title: 'On Leave', value: onLeave, icon: Moon, color: '#f59e0b', trend: `${pendingLeaves} pending`, trendType: 'down' },
-        { title: 'Pending Approvals', value: pendingApprovals, icon: AlertCircle, color: '#ef4444', trend: 'Needs attention', trendType: 'down' }
-    ];
-
     return (
-        <div className="erp-dashboard-container">
-            {/* Top Navigation */}
-            <header className="erp-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px', backgroundColor: '#fff', borderBottom: '1px solid #f1f5f9' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '24px', flex: 1 }}>
-                    <Menu size={24} color="#64748b" style={{ cursor: 'pointer' }} onClick={() => window.dispatchEvent(new CustomEvent('openModuleLauncher'))} />
-                    <div className="erp-global-search" style={{ display: 'flex', alignItems: 'center', backgroundColor: '#f8fafc', padding: '8px 16px', borderRadius: '8px', width: '400px', cursor: 'text' }} onClick={() => setIsCommandCenterOpen(true)}>
-                        <Search size={18} color="#94a3b8" />
-                        <input type="text" placeholder="Search across ERP..." className="erp-search-input" style={{ border: 'none', background: 'transparent', outline: 'none', marginLeft: '12px', width: '100%', fontSize: '14px', color: '#1e293b', cursor: 'text' }} readOnly />
+        <div className="rd-container">
+            <div className="rd-content">
+                {/* Hero Banner */}
+                <div className="rd-hero">
+                    <div className="rd-hero-left">
+                        <div className="rd-greeting">
+                            {getGreeting()}, {user?.name?.split(' ')[0] || 'HR Admin'} <span role="img" aria-label="wave">👋</span>
+                        </div>
+                        <div className="rd-subtitle">
+                            {user?.role || 'Human Resources'} • <span className="rd-badge-id">{user?.email || 'hr@smtbms.com'}</span> • Today's Status: Online
+                        </div>
+                        
+                        <div className="rd-hero-actions">
+                            <button className="rd-btn-primary" onClick={() => navigate('/attendance')}><CheckCircle size={18}/> Check Attendance</button>
+                            <button className="rd-btn-outline" onClick={() => navigate('/leave-management')}><Calendar size={18}/> Leaves</button>
+                            <button className="rd-btn-outline" onClick={() => navigate('/payroll')}><DollarSign size={18}/> Payroll</button>
+                        </div>
+                        
+                        <div className="rd-hero-footer">
+                            <div className="rd-footer-item">
+                                <span className="rd-footer-label">Module Access</span>
+                                <span className="rd-footer-val">HR Operations</span>
+                            </div>
+                            <div className="rd-footer-item">
+                                <span className="rd-footer-label">Total Staff</span>
+                                <span className="rd-footer-val">{totalEmployees}</span>
+                            </div>
+                            <div className="rd-footer-item">
+                                <span className="rd-footer-label">Pending Req.</span>
+                                <span className="rd-footer-val">{pendingApprovals}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div className="rd-hero-right">
+                        <div className="rd-circle-progress" style={{"--p": `${totalEmployees > 0 ? Math.round((presentToday / totalEmployees) * 100) : 0}%`}}>
+                            <div className="rd-circle-inner">
+                                <span className="rd-circle-val">{totalEmployees > 0 ? Math.round((presentToday / totalEmployees) * 100) : 0}%</span>
+                                <span className="rd-circle-label">Attendance</span>
+                            </div>
+                        </div>
+                        <div className="rd-circle-progress" style={{"--p": `${payrollProcessed}%`}}>
+                            <div className="rd-circle-inner">
+                                <span className="rd-circle-val">{payrollProcessed}%</span>
+                                <span className="rd-circle-label">Payroll Paid</span>
+                            </div>
+                        </div>
+                        <div className="rd-circle-progress" style={{"--p": "100%"}}>
+                            <div className="rd-circle-inner">
+                                <span className="rd-circle-val">{pendingApprovals}</span>
+                                <span className="rd-circle-label">Pending</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div className="erp-header-actions" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                    <div className="erp-datetime" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', fontSize: '12px', color: '#64748b' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '600', color: '#1e293b' }}>
-                            <Calendar size={12} />
-                            <span>{currentTime.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
-                            <Clock size={12} />
-                            <span>{currentTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}</span>
+                {/* KPI Row */}
+                <div className="rd-kpi-row">
+                    <RDKPICard title="Total Employees" value={totalEmployees} trendValue={`+${newJoiners} new`} icon={Users} color="blue" subLabel="Active Workforce" bottomVal={`${totalEmployees} total`} />
+                    <RDKPICard title="Present Today" value={presentToday} trendValue="+2%" icon={UserCheck} color="green" subLabel="Daily Attendance" bottomVal={`${presentToday} staff`} />
+                    <RDKPICard title="On Leave" value={onLeave} trendValue={`${pendingLeaves} pending`} icon={Moon} color="orange" subLabel="Currently Away" bottomVal={`${onLeave} staff`} />
+                    <RDKPICard title="Pending Approvals" value={pendingApprovals} trendValue="Attention" icon={AlertCircle} color="red" subLabel="Needs Action" bottomVal={`${pendingApprovals} requests`} />
+                </div>
+
+                {/* Middle Section */}
+                <div className="rd-middle-row">
+                    {/* Overview Summary */}
+                    <div className="rd-card" style={{ display: 'flex', flexDirection: 'column' }}>
+                        <div className="rd-card-title">Monthly Employee Growth</div>
+                        <div style={{flex: 1, minHeight: 250, marginTop: 16}}>
+                            <ResponsiveContainer width="100%" height="100%">
+                                <AreaChart data={dashboardData?.charts?.monthlyStats || []} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                                    <defs>
+                                        <linearGradient id="colorEmp" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
+                                            <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                                        </linearGradient>
+                                    </defs>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={true} stroke="#f1f5f9" />
+                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#64748b'}} dy={10} />
+                                    <YAxis axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#64748b'}} />
+                                    <Tooltip contentStyle={{borderRadius: 8, border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'}} />
+                                    <Legend verticalAlign="top" align="left" iconType="circle" wrapperStyle={{ paddingBottom: '20px', fontSize: 13, fontWeight: 500 }} />
+                                    <Area type="monotone" dataKey="sales" stroke="#3b82f6" strokeWidth={2} fillOpacity={1} fill="url(#colorEmp)" name="Growth Rate" dot={{ r: 4, strokeWidth: 2, fill: '#fff', stroke: '#3b82f6' }} activeDot={{ r: 6 }} />
+                                </AreaChart>
+                            </ResponsiveContainer>
                         </div>
                     </div>
 
-                    <button className="erp-icon-btn erp-notification-btn" style={{ position: 'relative', background: 'transparent', border: 'none', cursor: 'pointer' }} onClick={() => navigate('/notifications')}>
-                        <Bell size={20} color="#64748b" />
-                        {pendingApprovals > 0 && <span className="erp-notification-badge" style={{ position: 'absolute', top: '-4px', right: '-4px', background: '#ef4444', color: '#fff', fontSize: '10px', borderRadius: '50%', width: '16px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #fff' }}>{pendingApprovals}</span>}
-                    </button>
-
-                    <button className="erp-icon-btn" onClick={toggleDarkMode} style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}>
-                        <Moon size={20} color="#64748b" />
-                    </button>
-
-                    <div className="erp-profile-menu-container" style={{ position: 'relative' }}>
-                        <div className="erp-profile-menu" style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer', paddingLeft: '24px', borderLeft: '1px solid #e2e8f0' }} onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}>
-                            <div className="module-wb-avatar">
-                                <UserAvatar
-                                    src={user?.picture || user?.avatar || user?.user?.picture || user?.user?.avatar}
-                                    name={displayName}
-                                    size={48}
-                                />
-                            </div>
-                            <div className="erp-profile-info" style={{ display: 'flex', flexDirection: 'column' }}>
-                                <span className="erp-profile-name" style={{ fontSize: '14px', fontWeight: '600', color: '#1e293b' }}>{displayName}</span>
-                                <span className="erp-profile-role" style={{ fontSize: '12px', color: '#64748b' }}>{displayRole}</span>
-                            </div>
+                    {/* Quick Actions */}
+                    <div className="rd-card">
+                        <div className="rd-card-title">Quick Actions</div>
+                        <div className="rd-action-stack">
+                            <div className="rd-action-btn blue" onClick={() => navigate('/employees/new')}><span className="rd-action-text">Add Employee</span> <span>→</span></div>
+                            <div className="rd-action-btn green" onClick={() => navigate('/attendance')}><span className="rd-action-text">Mark Attendance</span> <span>→</span></div>
+                            <div className="rd-action-btn orange" onClick={() => navigate('/leave-management')}><span className="rd-action-text">Leave Requests</span> <span>→</span></div>
+                            <div className="rd-action-btn purple" onClick={() => navigate('/payroll')}><span className="rd-action-text">Process Payroll</span> <span>→</span></div>
+                            <div className="rd-action-btn cyan" onClick={() => navigate('/settings')}><span className="rd-action-text">HR Settings</span> <span>→</span></div>
                         </div>
+                    </div>
 
-                        {isProfileMenuOpen && (
-                            <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: '8px', width: '220px', backgroundColor: '#fff', borderRadius: '8px', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)', border: '1px solid #e2e8f0', zIndex: 50, overflow: 'hidden' }}>
-                                <div style={{ padding: '16px', borderBottom: '1px solid #e2e8f0', backgroundColor: '#f8fafc' }}>
-                                    <div style={{ fontWeight: '600', fontSize: '14px', color: '#0f172a' }}>{displayName}</div>
-                                    <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>{displayEmail}</div>
-                                </div>
-                                <div style={{ padding: '8px 0' }}>
-                                    <button onClick={() => navigate('/profile')} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px 16px', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '14px', color: '#475569', textAlign: 'left' }} onMouseOver={e => e.currentTarget.style.backgroundColor = '#f1f5f9'} onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}>
-                                        <UserIcon size={16} /> My Profile
-                                    </button>
-                                    <button onClick={() => navigate('/settings')} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px 16px', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '14px', color: '#475569', textAlign: 'left' }} onMouseOver={e => e.currentTarget.style.backgroundColor = '#f1f5f9'} onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}>
-                                        <SettingsIcon size={16} /> Account Settings
-                                    </button>
-                                </div>
-                                <div style={{ padding: '8px 0', borderTop: '1px solid #e2e8f0' }}>
-                                    <button onClick={() => logout()} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px 16px', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '14px', color: '#ef4444', textAlign: 'left', fontWeight: '500' }} onMouseOver={e => e.currentTarget.style.backgroundColor = '#fef2f2'} onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}>
-                                        <LogOut size={16} /> Logout
-                                    </button>
-                                </div>
-                            </div>
-                        )}
+                    {/* Recent Activities */}
+                    <div className="rd-card">
+                        <div className="rd-card-title">Recent Activities</div>
+                        <div className="rd-feed">
+                            {recentActivities.length > 0 ? (
+                                recentActivities.slice(0,4).map((notif, idx) => (
+                                    <div className="rd-feed-item" key={notif.id || idx}>
+                                        <div className={`rd-feed-icon ${notif.type === 'alert' ? 'orange' : 'blue'}`}>
+                                            {notif.type === 'alert' ? <AlertTriangle size={16}/> : <Activity size={16}/>}
+                                        </div>
+                                        <div className="rd-feed-content">
+                                            <div className="rd-feed-text">{notif.text}</div>
+                                            <div className="rd-feed-time">{new Date(notif.time).toLocaleString()}</div>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <div style={{padding: '20px', textAlign: 'center', color: '#94a3b8'}}>No recent activities.</div>
+                            )}
+                        </div>
                     </div>
                 </div>
-            </header>
-
-            {/* Main Content Area */}
-            <main className="erp-main-content erp-dashboard-main">
-                {/* Row 1: Welcome & Quick Metrics */}
-                <TopWelcomeBar username={displayName.split(' ')[0]} data={todayData} />
-
-                {/* Row 2: Premium KPI Cards */}
-                <div className="erp-premium-kpi-grid">
-                    <PremiumKPICard
-                        title="Total Employees" value={totalEmployees} subtitle="Active Workforce"
-                        icon={Users} color="#3b82f6" trendValue="+5%"
-                    />
-                    <PremiumKPICard
-                        title="Present Today" value={presentToday} subtitle="Daily Attendance"
-                        icon={UserCheck} color="#10b981" trendValue="+2%"
-                    />
-                    <PremiumKPICard
-                        title="On Leave" value={onLeave} subtitle="Currently Away"
-                        icon={Calendar} color="#f59e0b" trendValue="-1%"
-                    />
-                    <PremiumKPICard
-                        title="New Joiners" value={newJoiners} subtitle="Past 30 Days"
-                        icon={Briefcase} color="#8b5cf6" trendValue="+12%"
-                    />
-                    <PremiumKPICard
-                        title="Pending Approvals" value={pendingApprovals} subtitle="Needs Attention"
-                        icon={AlertCircle} color="#ef4444" trendValue="-5%"
-                    />
-                    <PremiumKPICard
-                        title="Payroll Processed" value={payrollProcessed} subtitle="Current Month" isCurrency={false} prefix="" suffix="%"
-                        icon={DollarSign} color="#14b8a6" trendValue="+1%"
-                    />
-                </div>
-
-                {/* Row 3: Charts & Timelines */}
-                <div className="erp-premium-row-3">
-                    {dashboard.charts?.monthlyStats && <SalesAreaChart data={dashboard.charts.monthlyStats} />}
-                    <InventoryStatusDonut 
-                        inventoryData={attendanceDonutData} 
-                        totalItems={totalEmployees} 
-                        title="Today's Attendance" 
-                        centerLabel="Total Staff" 
-                    />
-                    <TimelineWidget title="Recent Activities" items={recentActivities} viewAllLink={true} />
-                </div>
-
-                {/* Row 4: Bottom Widgets */}
-                <div className="erp-premium-row-4">
-                    <PendingApprovalsList approvals={pendingApprovalsData} />
-                    <QuickActionsGrid />
-                </div>
-            </main>
-
-            <CommandCenter
-                isOpen={isCommandCenterOpen}
-                onClose={() => setIsCommandCenterOpen(false)}
-            />
+            </div>
+            
+            <CommandCenter isOpen={isCommandCenterOpen} onClose={() => setIsCommandCenterOpen(false)} />
         </div>
     );
 };

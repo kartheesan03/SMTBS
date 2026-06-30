@@ -12,7 +12,22 @@ exports.getRoles = async (req, res) => {
 
 exports.createRole = async (req, res) => {
     try {
-        const { name, description, permissions } = req.body;
+        let { name, description, permissions } = req.body;
+        
+        if (permissions) {
+            if (typeof permissions === 'string') {
+                try {
+                    permissions = JSON.parse(permissions);
+                } catch (e) {
+                    return res.status(400).json({ message: 'Permissions must be a valid JSON array' });
+                }
+            }
+            if (!Array.isArray(permissions)) {
+                return res.status(400).json({ message: 'Permissions must be an array' });
+            }
+        } else {
+            permissions = [];
+        }
         
         const roleExists = await Role.findOne({ name });
         if (roleExists) {
@@ -29,11 +44,24 @@ exports.createRole = async (req, res) => {
 
 exports.updateRole = async (req, res) => {
     try {
-        const { name, description, permissions } = req.body;
+        let { name, description, permissions } = req.body;
         const role = await Role.findById(req.params.id);
 
         if (!role) {
             return res.status(404).json({ message: 'Role not found' });
+        }
+
+        if (permissions) {
+            if (typeof permissions === 'string') {
+                try {
+                    permissions = JSON.parse(permissions);
+                } catch (e) {
+                    return res.status(400).json({ message: 'Permissions must be a valid JSON array' });
+                }
+            }
+            if (!Array.isArray(permissions)) {
+                return res.status(400).json({ message: 'Permissions must be an array' });
+            }
         }
 
         role.name = name || role.name;

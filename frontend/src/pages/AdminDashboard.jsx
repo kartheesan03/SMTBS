@@ -205,11 +205,11 @@ const AdminDashboard = () => {
                     <div className="rd-card">
                         <div className="rd-card-title">Quick Actions</div>
                         <div className="rd-action-stack">
-                            <div className="rd-action-btn blue" onClick={() => navigate('/employees/new')}>Add New Employee <span>→</span></div>
-                            <div className="rd-action-btn green" onClick={() => navigate('/materials/new')}>Add New Material <span>→</span></div>
-                            <div className="rd-action-btn purple" onClick={() => navigate('/customers/new')}>Add New Customer <span>→</span></div>
-                            <div className="rd-action-btn orange" onClick={() => navigate('/orders/select-type')}>Create New Order <span>→</span></div>
-                            <div className="rd-action-btn cyan" onClick={() => navigate('/settings')}>System Settings <span>→</span></div>
+                            <div className="rd-action-btn blue" onClick={() => navigate('/employees/new')}><span className="rd-action-text">Add Employee</span> <span>→</span></div>
+                            <div className="rd-action-btn green" onClick={() => navigate('/materials/new')}><span className="rd-action-text">Add Material</span> <span>→</span></div>
+                            <div className="rd-action-btn purple" onClick={() => navigate('/customers/new')}><span className="rd-action-text">Add Customer</span> <span>→</span></div>
+                            <div className="rd-action-btn orange" onClick={() => navigate('/orders/select-type')}><span className="rd-action-text">New Order</span> <span>→</span></div>
+                            <div className="rd-action-btn cyan" onClick={() => navigate('/settings')}><span className="rd-action-text">Settings</span> <span>→</span></div>
                         </div>
                     </div>
 

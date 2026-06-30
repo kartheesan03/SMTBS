@@ -471,6 +471,10 @@
   gap: 24px;
 }
 
+.rd-middle-row > * {
+  min-width: 0;
+}
+
 .rd-card {
   background: var(--rd-surface);
   border-radius: 16px;
@@ -495,8 +499,8 @@
 .rd-action-btn {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  gap: 4px;
+  justify-content: space-between;
+  gap: 8px;
   padding: 16px;
   background: #f8fafc;
   border: 1px solid #e2e8f0;
@@ -506,6 +510,16 @@
   color: var(--rd-text-main);
   font-weight: 600;
   font-size: 14px;
+}
+
+.rd-action-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rd-action-btn > span:not(.rd-action-text) {
+  flex-shrink: 0;
 }
 
 .rd-action-btn:hover {
