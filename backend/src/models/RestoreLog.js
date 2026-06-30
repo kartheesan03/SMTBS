@@ -1,10 +1,13 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/sequelize');
+const { makeBridgedModel } = require('../config/mongoose-bridge');
 
-const restoreLogSchema = new mongoose.Schema({
-    backupId: { type: mongoose.Schema.Types.ObjectId, ref: 'Backup', required: true },
-    restoredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    status: { type: String, default: 'Success' },
-    remarks: { type: String }
+const RestoreLogSequelize = sequelize.define('RestoreLog', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    backupIdField: { type: DataTypes.INTEGER, allowNull: false },
+    restoredById: { type: DataTypes.INTEGER, allowNull: false },
+    status: { type: DataTypes.STRING, defaultValue: 'Success' },
+    remarks: { type: DataTypes.STRING }
 }, { timestamps: true });
 
-module.exports = mongoose.model('RestoreLog', restoreLogSchema);
+module.exports = makeBridgedModel('RestoreLog', RestoreLogSequelize);

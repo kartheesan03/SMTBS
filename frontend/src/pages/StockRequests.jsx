@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Package, Search, TrendingUp, AlertTriangle, XCircle, ExternalLink } from 'lucide-react';
+import { Package, Search, TrendingUp, AlertTriangle, XCircle, ExternalLink, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { LineChart, Line, PieChart, Pie, Cell, ResponsiveContainer, XAxis, Tooltip, CartesianGrid } from 'recharts';
 import API from '../api/axios';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
@@ -58,17 +58,18 @@ const StockRequests = () => {
     ].filter(d => d.value > 0);
 
     // Dynamic Trend generators
-    const makeTrend = (base) => Array.from({length: 8}, () => ({v: Math.max(0, base + Math.floor(Math.random() * (base * 0.2) - (base * 0.1)))}));
+    
 
-    // Mock line chart data based on current totals (since no historical data exists in API)
+    // Since there is no historical data in the API, plot a steady trend based on actual current counts
+    // to prevent showing "wrong data" fluctuations that don't match the live inventory.
     const currentMonth = new Date().toLocaleString('default', { month: 'short' });
     const chartData = [
-        { name: 'Jan', inStock: totalItems * 0.8, low: totalItems * 0.15, out: totalItems * 0.05 },
-        { name: 'Feb', inStock: totalItems * 0.85, low: totalItems * 0.1, out: totalItems * 0.05 },
-        { name: 'Mar', inStock: totalItems * 0.82, low: totalItems * 0.12, out: totalItems * 0.06 },
-        { name: 'Apr', inStock: totalItems * 0.78, low: totalItems * 0.18, out: totalItems * 0.04 },
-        { name: 'May', inStock: totalItems * 0.9, low: totalItems * 0.08, out: totalItems * 0.02 },
-        { name: currentMonth, inStock: healthyCount, low: lowCount, out: outCount }
+        { name: 'Jan', Healthy: healthyCount, Low: lowCount, Critical: outCount },
+        { name: 'Feb', Healthy: healthyCount, Low: lowCount, Critical: outCount },
+        { name: 'Mar', Healthy: healthyCount, Low: lowCount, Critical: outCount },
+        { name: 'Apr', Healthy: healthyCount, Low: lowCount, Critical: outCount },
+        { name: 'May', Healthy: healthyCount, Low: lowCount, Critical: outCount },
+        { name: currentMonth, Healthy: healthyCount, Low: lowCount, Critical: outCount }
     ];
 
     return (
@@ -90,10 +91,10 @@ const StockRequests = () => {
 
                 {/* KPI Cards */}
                 <div className="rd-kpi-row">
-                    <StockKPICard title="Total SKUs" val={totalItems} trend="" trendDir="up" color="blue" data={makeTrend(totalItems || 10)} icon={Package} />
-                    <StockKPICard title="Healthy" val={healthyCount} trend={`${totalItems ? Math.round((healthyCount/totalItems)*100) : 0}%`} trendDir="up" color="green" data={makeTrend(healthyCount || 5)} icon={TrendingUp} />
-                    <StockKPICard title="Low Stock" val={lowCount} trend={`${totalItems ? Math.round((lowCount/totalItems)*100) : 0}%`} trendDir="down" color="orange" data={makeTrend(lowCount || 5)} icon={AlertTriangle} />
-                    <StockKPICard title="Critical / 0" val={outCount} trend={`${totalItems ? Math.round((outCount/totalItems)*100) : 0}%`} trendDir="down" color="red" data={makeTrend(outCount || 5)} icon={XCircle} />
+                    <StockKPICard title="Total SKUs" val={totalItems} color="blue" icon={Package} />
+                    <StockKPICard title="Healthy" val={healthyCount} trend={`${totalItems ? Math.round((healthyCount/totalItems)*100) : 0}%`} color="green" icon={TrendingUp} />
+                    <StockKPICard title="Low Stock" val={lowCount} trend={`${totalItems ? Math.round((lowCount/totalItems)*100) : 0}%`} color="orange" icon={AlertTriangle} />
+                    <StockKPICard title="Critical / 0" val={outCount} trend={`${totalItems ? Math.round((outCount/totalItems)*100) : 0}%`} color="red" icon={XCircle} />
                 </div>
 
                 {/* Charts Section */}
@@ -125,9 +126,9 @@ const StockRequests = () => {
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                                     <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} dy={10} />
                                     <Tooltip contentStyle={{borderRadius: 8, border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'}} />
-                                    <Line type="monotone" dataKey="inStock" stroke="#10b981" strokeWidth={3} dot={{r: 4, strokeWidth: 2}} activeDot={{r: 6}} />
-                                    <Line type="monotone" dataKey="low" stroke="#f59e0b" strokeWidth={3} dot={{r: 4, strokeWidth: 2}} />
-                                    <Line type="monotone" dataKey="out" stroke="#ef4444" strokeWidth={3} dot={{r: 4, strokeWidth: 2}} />
+                                    <Line type="monotone" dataKey="Healthy" stroke="#10b981" strokeWidth={3} dot={{r: 4, strokeWidth: 2}} activeDot={{r: 6}} />
+                                    <Line type="monotone" dataKey="Low" stroke="#f59e0b" strokeWidth={3} dot={{r: 4, strokeWidth: 2}} />
+                                    <Line type="monotone" dataKey="Critical" stroke="#ef4444" strokeWidth={3} dot={{r: 4, strokeWidth: 2}} />
                                 </LineChart>
                             </ResponsiveContainer>
                         </div>
@@ -135,28 +136,32 @@ const StockRequests = () => {
 
                     <div className="rd-chart-card" style={{flex: 1}}>
                         <h3 className="rd-chart-title">Current Stock Distribution</h3>
-                        <div style={{height: 240, display: 'flex', alignItems: 'center', marginTop: 24, position: 'relative'}}>
-                            <ResponsiveContainer width="100%" height="100%">
-                                <PieChart>
-                                    <Pie data={pieData} innerRadius={60} outerRadius={90} paddingAngle={2} dataKey="value" stroke="none">
-                                        {pieData.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={entry.color} />
-                                        ))}
-                                    </Pie>
-                                </PieChart>
-                            </ResponsiveContainer>
-                            <div style={{position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center'}}>
-                                <div style={{fontSize: 24, fontWeight: 800, color: 'var(--rd-text-main)'}}>{totalItems}</div>
-                                <div style={{fontSize: 11, fontWeight: 600, color: '#94a3b8'}}>TOTAL</div>
+                        <div style={{height: 240, display: 'flex', alignItems: 'center', marginTop: 24}}>
+                            <div style={{flex: 1, height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                                <div style={{width: 200, height: 200, position: 'relative'}}>
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <PieChart>
+                                            <Pie cx="50%" cy="50%" data={pieData} innerRadius={70} outerRadius={95} paddingAngle={2} dataKey="value" stroke="none">
+                                                {pieData.map((entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={entry.color} />
+                                                ))}
+                                            </Pie>
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                    <div style={{position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center', width: '100%'}}>
+                                        <div style={{fontSize: 32, fontWeight: 800, color: 'var(--rd-text-main)', lineHeight: 1}}>{totalItems}</div>
+                                        <div style={{fontSize: 11, fontWeight: 700, color: '#94a3b8', letterSpacing: 1, marginTop: 4}}>TOTAL</div>
+                                    </div>
+                                </div>
                             </div>
-                            <div style={{position: 'absolute', right: 20, top: '50%', transform: 'translateY(-50%)', display: 'flex', flexDirection: 'column', gap: 12}}>
+                            <div style={{width: 140, display: 'flex', flexDirection: 'column', gap: 12, paddingRight: 16}}>
                                 {pieData.map((item, i) => (
-                                    <div key={i} style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 24}}>
+                                    <div key={i} style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12}}>
                                         <div style={{display: 'flex', alignItems: 'center', gap: 8}}>
-                                            <span style={{width: 8, height: 8, borderRadius: '50%', background: item.color}}></span>
-                                            <span style={{fontSize: 13, color: '#475569'}}>{item.name}</span>
+                                            <span style={{width: 10, height: 10, borderRadius: '50%', background: item.color}}></span>
+                                            <span style={{fontSize: 13, color: '#475569', fontWeight: 500}}>{item.name}</span>
                                         </div>
-                                        <span style={{fontSize: 13, fontWeight: 700, color: 'var(--rd-text-main)'}}>{item.value}</span>
+                                        <span style={{fontSize: 14, fontWeight: 700, color: 'var(--rd-text-main)'}}>{item.value}</span>
                                     </div>
                                 ))}
                             </div>
@@ -249,19 +254,6 @@ const StockKPICard = ({ title, val, trend, trendDir, color, data, icon: Icon }) 
                 </div>
                 <div className="rd-kpi-icon-box" style={{width: 40, height: 40}}>
                     <Icon size={20} color="#fff" />
-                </div>
-            </div>
-            <div style={{display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: 16, position: 'relative', zIndex: 2}}>
-                <div style={{display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 600}}>
-                    {trend && (trendDir === 'up' ? <ArrowUpRight size={16} /> : <ArrowDownRight size={16} />)}
-                    {trend} {trend && <span style={{opacity: 0.7, fontWeight: 400, marginLeft: 4}}>of inventory</span>}
-                </div>
-                <div style={{width: 60, height: 30}}>
-                    <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={data}>
-                            <Line type="monotone" dataKey="v" stroke="#fff" strokeWidth={2} dot={false} />
-                        </LineChart>
-                    </ResponsiveContainer>
                 </div>
             </div>
         </div>

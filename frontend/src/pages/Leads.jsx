@@ -70,7 +70,7 @@ const Leads = () => {
         return `₹${val.toLocaleString()}`;
     };
 
-    const makeBarData = (base) => Array.from({length: 7}, () => ({v: Math.max(1, base + Math.floor(Math.random() * (base * 0.4) - (base * 0.2)))}));
+    
 
     if (loading) return <div className="flex-center" style={{height:'100vh'}}><div className="loader"></div></div>;
 
@@ -91,20 +91,20 @@ const Leads = () => {
                 </div>
 
                 <div className="rd-kpi-row">
-                    <LeadKPICard title="Total Leads" val={leads.length} trend="+22%" color="blue" icon={Target} data={makeBarData(leads.length || 5)} />
-                    <LeadKPICard title="Hot Leads (≥80)" val={hotLeads.length} trend="+15%" color="red" icon={Zap} data={makeBarData(hotLeads.length || 3)} />
-                    <LeadKPICard title="In Negotiation" val={inNegotiation.length} trend="+7%" color="purple" icon={Handshake} data={makeBarData(inNegotiation.length || 2)} />
-                    <LeadKPICard title="Pipeline Value" val={formatCurrency(pipelineValue)} trend="+31%" color="green" icon={DollarSign} data={makeBarData(pipelineValue / 10000 || 5)} />
+                    <LeadKPICard title="Total Leads" val={leads.length} color="blue" icon={Target} />
+                    <LeadKPICard title="Hot Leads (≥80)" val={hotLeads.length} color="red" icon={Zap} />
+                    <LeadKPICard title="In Negotiation" val={inNegotiation.length} color="purple" icon={Handshake} />
+                    <LeadKPICard title="Pipeline Value" val={formatCurrency(pipelineValue)} color="green" icon={DollarSign} />
                 </div>
 
                 <div className="rd-table-card">
-                    <div className="rd-table-header" style={{borderBottom: '1px solid var(--rd-border)'}}>
+                    <div className="rd-table-header" style={{borderBottom: '1px solid var(--rd-border)', flexWrap: 'wrap', gap: 16}}>
                         <div>
                             <div className="rd-table-title">Lead Register</div>
                             <div className="rd-table-subtitle">Track and qualify incoming leads</div>
                         </div>
-                        <div className="rd-table-actions">
-                            <div className="rd-search-bar" style={{width: 250, background: '#f8fafc'}}>
+                        <div className="rd-table-actions" style={{flexWrap: 'wrap'}}>
+                            <div className="rd-search-bar" style={{minWidth: 250, flexShrink: 0, background: '#f8fafc'}}>
                                 <Search size={16} color="#94a3b8" />
                                 <input type="text" className="rd-search-input" placeholder="Search lead..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
                             </div>
@@ -124,9 +124,10 @@ const Leads = () => {
                         </div>
                     </div>
 
-                    <table className="rd-table">
-                        <thead>
-                            <tr>
+                    <div style={{overflowX: 'auto'}}>
+                        <table className="rd-table" style={{minWidth: 1000}}>
+                            <thead>
+                                <tr>
                                 <th>LEAD ID</th>
                                 <th>COMPANY</th>
                                 <th>CONTACT</th>
@@ -193,7 +194,8 @@ const Leads = () => {
                                 );
                             })}
                         </tbody>
-                    </table>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

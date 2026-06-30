@@ -1,16 +1,14 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/sequelize');
+const { makeBridgedModel } = require('../config/mongoose-bridge');
 
-const backupScheduleSchema = new mongoose.Schema({
-    frequency: { type: String, default: 'Daily' }, // Daily, Weekly, Monthly
-    time: { type: String, default: '23:00' },
-    storage: {
-        local: { type: Boolean, default: true },
-        gdrive: { type: Boolean, default: false },
-        onedrive: { type: Boolean, default: false },
-        s3: { type: Boolean, default: false }
-    },
-    enabled: { type: Boolean, default: true },
-    keepLast: { type: String, default: '30 Backups' }
+const BackupScheduleSequelize = sequelize.define('BackupSchedule', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    frequency: { type: DataTypes.STRING, defaultValue: 'Daily' },
+    time: { type: DataTypes.STRING, defaultValue: '23:00' },
+    storage: { type: DataTypes.JSON, defaultValue: { local: true, gdrive: false, onedrive: false, s3: false } },
+    enabled: { type: DataTypes.BOOLEAN, defaultValue: true },
+    keepLast: { type: DataTypes.STRING, defaultValue: '30 Backups' }
 }, { timestamps: true });
 
-module.exports = mongoose.model('BackupSchedule', backupScheduleSchema);
+module.exports = makeBridgedModel('BackupSchedule', BackupScheduleSequelize);

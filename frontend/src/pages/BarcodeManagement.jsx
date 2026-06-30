@@ -8,6 +8,8 @@ const BarcodeManagement = () => {
     const [materials, setMaterials] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [showScanModal, setShowScanModal] = useState(false);
+    const [showGenerateModal, setShowGenerateModal] = useState(false);
 
     useEffect(() => {
         const fetchMaterials = async () => {
@@ -57,7 +59,7 @@ const BarcodeManagement = () => {
     const totalScans = registryData.reduce((acc, curr) => acc + curr.scans, 0);
 
     // Dynamic Trend generators
-    const makeTrend = (base) => Array.from({length: 8}, () => ({v: Math.max(0, base + Math.floor(Math.random() * (base * 0.2) - (base * 0.1)))}));
+    
 
     return (
         <div className="rd-container">
@@ -78,21 +80,21 @@ const BarcodeManagement = () => {
 
                 {/* KPI Cards */}
                 <div className="rd-kpi-row">
-                    <BarcodeKPICard title="Labelled Items" val={totalItems} trend="+10%" trendDir="up" color="blue" data={makeTrend(totalItems || 10)} icon={Package} />
-                    <BarcodeKPICard title="Total Scans" val={totalScans} trend="+18%" trendDir="up" color="cyan" data={makeTrend(totalScans || 20)} icon={ScanLine} />
-                    <BarcodeKPICard title="Camera Scans" val={Math.floor(totalScans * 0.4)} trend="+5%" trendDir="up" color="purple" data={makeTrend(totalScans * 0.4 || 10)} icon={Camera} />
-                    <BarcodeKPICard title="Unlabelled" val="0" trend="-12%" trendDir="down" color="orange" data={makeTrend(10)} icon={AlertTriangle} />
+                    <BarcodeKPICard title="Labelled Items" val={totalItems} color="blue" icon={Package} />
+                    <BarcodeKPICard title="Total Scans" val={totalScans} color="cyan" icon={ScanLine} />
+                    <BarcodeKPICard title="Camera Scans" val={Math.floor(totalScans * 0.4)} color="purple" icon={Camera} />
+                    <BarcodeKPICard title="Unlabelled" val="0" color="orange" icon={AlertTriangle} />
                 </div>
 
                 {/* Table Section */}
                 <div className="rd-table-card">
-                    <div className="rd-table-header" style={{borderBottom: '1px solid var(--rd-border)'}}>
+                    <div className="rd-table-header" style={{borderBottom: '1px solid var(--rd-border)', flexWrap: 'wrap', gap: 16}}>
                         <div>
                             <div className="rd-table-title">Barcode & QR Registry</div>
                             <div className="rd-table-subtitle">Click any row to preview label • Live status from Inventory</div>
                         </div>
-                        <div className="rd-table-actions">
-                            <div className="rd-search-bar" style={{width: 250, background: '#f8fafc'}}>
+                        <div className="rd-table-actions" style={{flexWrap: 'wrap'}}>
+                            <div className="rd-search-bar" style={{minWidth: 250, flexShrink: 0, background: '#f8fafc'}}>
                                 <Search size={16} color="#94a3b8" />
                                 <input 
                                     type="text" 
@@ -102,18 +104,28 @@ const BarcodeManagement = () => {
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                 />
                             </div>
-                            <button className="rd-btn-solid" style={{background: '#a855f7', border: 'none'}}>
-                                <Camera size={16} style={{marginRight: 8, verticalAlign: 'middle'}}/>
+                            <button 
+                                className="rd-btn-solid" 
+                                style={{display: 'flex', alignItems: 'center', gap: 8, background: '#a855f7', border: 'none'}}
+                                onClick={() => setShowScanModal(true)}
+                            >
+                                <Camera size={16} />
                                 Scan Camera
                             </button>
-                            <button className="rd-btn-solid" style={{background: '#38bdf8', border: 'none'}}>
-                                + Generate Label
+                            <button 
+                                className="rd-btn-solid" 
+                                style={{display: 'flex', alignItems: 'center', gap: 8, background: '#38bdf8', border: 'none'}}
+                                onClick={() => setShowGenerateModal(true)}
+                            >
+                                <QrCode size={16} />
+                                Generate Label
                             </button>
                         </div>
                     </div>
                     
-                    <table className="rd-table">
-                        <thead>
+                    <div style={{overflowX: 'auto'}}>
+                        <table className="rd-table" style={{minWidth: 1000}}>
+                            <thead>
                             <tr>
                                 <th>MAT. ID</th>
                                 <th>MATERIAL</th>
@@ -160,9 +172,70 @@ const BarcodeManagement = () => {
                                 ))
                             )}
                         </tbody>
-                    </table>
+                        </table>
+                    </div>
                 </div>
             </div>
+
+            {/* Scan Camera Modal */}
+            {showScanModal && (
+                <div className="rd-modal-overlay">
+                    <div className="rd-modal-content" style={{maxWidth: 500}}>
+                        <div className="rd-modal-header">
+                            <h3 style={{margin: 0, fontSize: 18, color: 'var(--rd-text-main)'}}>Camera Scanner</h3>
+                            <button className="rd-modal-close" onClick={() => setShowScanModal(false)}>&times;</button>
+                        </div>
+                        <div className="rd-modal-body" style={{padding: 24, textAlign: 'center'}}>
+                            <div style={{background: '#000', width: '100%', height: 300, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden'}}>
+                                <ScanLine size={48} color="#22c55e" style={{opacity: 0.5}} />
+                                <div style={{position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: '80%', height: 2, background: '#22c55e', boxShadow: '0 0 10px #22c55e', animation: 'scan 2s infinite linear'}}></div>
+                            </div>
+                            <p style={{marginTop: 16, color: '#64748b'}}>Hold a barcode or QR code in front of your camera to scan.</p>
+                            <style>{`
+                                @keyframes scan {
+                                    0% { top: 0; }
+                                    50% { top: 100%; }
+                                    100% { top: 0; }
+                                }
+                            `}</style>
+                        </div>
+                        <div className="rd-modal-footer">
+                            <button className="rd-btn-outline" onClick={() => setShowScanModal(false)}>Close Scanner</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Generate Label Modal */}
+            {showGenerateModal && (
+                <div className="rd-modal-overlay">
+                    <div className="rd-modal-content" style={{maxWidth: 500}}>
+                        <div className="rd-modal-header">
+                            <h3 style={{margin: 0, fontSize: 18, color: 'var(--rd-text-main)'}}>Generate New Label</h3>
+                            <button className="rd-modal-close" onClick={() => setShowGenerateModal(false)}>&times;</button>
+                        </div>
+                        <div className="rd-modal-body" style={{padding: 24}}>
+                            <div className="rd-form-group">
+                                <label className="rd-label">Select Material</label>
+                                <select className="rd-input">
+                                    <option>Select a material to label...</option>
+                                    {materials.map(m => (
+                                        <option key={m._id}>{m.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="rd-form-group" style={{marginTop: 16}}>
+                                <label className="rd-label">Quantity of Labels</label>
+                                <input type="number" className="rd-input" defaultValue={1} min={1} max={100} />
+                            </div>
+                        </div>
+                        <div className="rd-modal-footer">
+                            <button className="rd-btn-outline" onClick={() => setShowGenerateModal(false)}>Cancel</button>
+                            <button className="rd-btn-solid" onClick={() => setShowGenerateModal(false)}>Generate & Print</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
@@ -206,17 +279,17 @@ const BarcodeKPICard = ({ title, val, trend, trendDir, color, data, icon: Icon }
                     <button style={{background: 'none', border: 'none', color: '#fff', opacity: 0.7, cursor: 'pointer'}}>•••</button>
                 </div>
             </div>
-            <div style={{display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: 16}}>
-                <div style={{width: '100%', height: 40, position: 'relative', zIndex: 2}}>
+            <div style={{display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: 16, position: 'relative', zIndex: 2}}>
+                <div style={{flex: 1, height: 40, marginRight: 16}}>
                     <ResponsiveContainer width="100%" height="100%">
                         <LineChart data={data}>
                             <Line type="monotone" dataKey="v" stroke="#fff" strokeWidth={3} dot={false} activeDot={{r: 4}} />
                         </LineChart>
                     </ResponsiveContainer>
                 </div>
-                <div style={{position: 'absolute', bottom: 20, right: 20, textAlign: 'right', zIndex: 1}}>
+                <div style={{textAlign: 'right', minWidth: 80}}>
                     <div style={{fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.6)'}}>VS LAST MO.</div>
-                    <div style={{fontSize: 14, fontWeight: 800, color: '#fff'}}>{trendDir === 'up' ? '+' : ''}{trend}</div>
+                    <div style={{fontSize: 15, fontWeight: 800, color: '#fff'}}>{trend}</div>
                 </div>
             </div>
         </div>

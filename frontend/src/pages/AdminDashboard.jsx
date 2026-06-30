@@ -7,7 +7,7 @@ import {
     Users, Search, Bell, CheckCircle, Calendar, DollarSign,
     Box, Briefcase, Activity, RefreshCw, BarChart2, TrendingUp, AlertTriangle, X
 } from 'lucide-react';
-import { BarChart, Bar, PieChart, Pie, Cell, ResponsiveContainer, XAxis, Tooltip, CartesianGrid } from 'recharts';
+import { AreaChart, Area, PieChart, Pie, Cell, ResponsiveContainer, XAxis, YAxis, Legend, Tooltip, CartesianGrid } from 'recharts';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 import CommandCenter from '../components/CommandCenter';
 
@@ -42,6 +42,7 @@ export const RDKPICard = ({ title, value, trend, trendValue, icon: Icon, color, 
 // --- Page Specific Components ---
 
 const AdminDashboard = () => {
+    const navigate = useNavigate();
     const { user } = useContext(AuthContext);
     const [isCommandCenterOpen, setIsCommandCenterOpen] = useState(false);
     const [dashboardData, setDashboardData] = useState(null);
@@ -92,9 +93,9 @@ const AdminDashboard = () => {
                         </div>
                         
                         <div className="rd-hero-actions">
-                            <button className="rd-btn-primary" onClick={() => navigate('/hrms/attendance')}><CheckCircle size={18}/> Check Attendance</button>
-                            <button className="rd-btn-outline" onClick={() => navigate('/hrms/leave')}><Calendar size={18}/> Leaves</button>
-                            <button className="rd-btn-outline" onClick={() => navigate('/hrms/payroll')}><DollarSign size={18}/> Payroll</button>
+                            <button className="rd-btn-primary" onClick={() => navigate('/attendance')}><CheckCircle size={18}/> Check Attendance</button>
+                            <button className="rd-btn-outline" onClick={() => navigate('/leave-management')}><Calendar size={18}/> Leaves</button>
+                            <button className="rd-btn-outline" onClick={() => navigate('/payroll')}><DollarSign size={18}/> Payroll</button>
                         </div>
                         
                         <div className="rd-hero-footer">
@@ -120,15 +121,15 @@ const AdminDashboard = () => {
                                 <span className="rd-circle-label">Sys Health</span>
                             </div>
                         </div>
-                        <div className="rd-circle-progress" style={{"--p": `${dashboardData?.totalOrders > 0 ? Math.round((dashboardData.totalOrders - dashboardData.activeOrdersCount) / dashboardData.totalOrders * 100) : 0}%`}}>
+                        <div className="rd-circle-progress" style={{"--p": `${dashboardData?.stats?.totalOrders > 0 ? Math.round((dashboardData.stats.totalOrders - dashboardData.stats.activeOrdersCount) / dashboardData.stats.totalOrders * 100) : 0}%`}}>
                             <div className="rd-circle-inner">
-                                <span className="rd-circle-val">{dashboardData?.totalOrders > 0 ? Math.round((dashboardData.totalOrders - dashboardData.activeOrdersCount) / dashboardData.totalOrders * 100) : 0}%</span>
+                                <span className="rd-circle-val">{dashboardData?.stats?.totalOrders > 0 ? Math.round((dashboardData.stats.totalOrders - dashboardData.stats.activeOrdersCount) / dashboardData.stats.totalOrders * 100) : 0}%</span>
                                 <span className="rd-circle-label">Order Completion</span>
                             </div>
                         </div>
                         <div className="rd-circle-progress" style={{"--p": "100%"}}>
                             <div className="rd-circle-inner">
-                                <span className="rd-circle-val">{dashboardData?.totalOrders || 0}</span>
+                                <span className="rd-circle-val">{dashboardData?.stats?.totalOrders || 0}</span>
                                 <span className="rd-circle-label">Total Orders</span>
                             </div>
                         </div>
@@ -137,10 +138,10 @@ const AdminDashboard = () => {
 
                 {/* KPI Row */}
                 <div className="rd-kpi-row">
-                    <RDKPICard title="HRMS (Total Employees)" value={dashboardData ? dashboardData.totalEmployees : 0} trend="up" trendValue="+5%" icon={Users} color="blue" subLabel="Active / Leave" bottomVal="0 / 0" />
-                    <RDKPICard title="MATERIAL (Total Items)" value={dashboardData ? dashboardData.totalMaterials : 0} trend="down" trendValue="-2%" icon={Box} color="orange" subLabel="Low / Out" bottomVal="0 / 0" />
-                    <RDKPICard title="CRM (Total Customers)" value={dashboardData ? dashboardData.totalCustomers : 0} trend="up" trendValue="+14%" icon={TrendingUp} color="green" subLabel="Active / Total" bottomVal={`${dashboardData?.activeCustomers || 0} / ${dashboardData?.totalCustomers || 0}`} />
-                    <RDKPICard title="ERP (Active Orders)" value={dashboardData ? dashboardData.activeOrdersCount : 0} trend="up" trendValue="+8%" icon={Briefcase} color="cyan" subLabel="Sales / Purchase" bottomVal={`${dashboardData?.totalSalesOrders || 0} / ${dashboardData?.totalPurchaseOrders || 0}`} />
+                    <RDKPICard title="HRMS (Total Employees)" value={dashboardData ? dashboardData.totalEmployees : 0} trendValue="+5%" icon={Users} color="blue" subLabel="Active / Leave" bottomVal={`${dashboardData?.hrStats?.presentToday || 0} / ${dashboardData?.hrStats?.onLeave || 0}`} />
+                    <RDKPICard title="MATERIAL (Total Items)" value={dashboardData ? dashboardData.totalMaterials : 0} trendValue="-2%" icon={Box} color="orange" subLabel="Low / Out" bottomVal={`${dashboardData?.lowStockItems || 0} / ${dashboardData?.materialStats?.outOfStockCount || 0}`} />
+                    <RDKPICard title="CRM (Total Customers)" value={dashboardData ? dashboardData.totalCustomers : 0} trendValue="+14%" icon={TrendingUp} color="green" subLabel="Active / Total" bottomVal={`${dashboardData?.activeCustomers || 0} / ${dashboardData?.totalCustomers || 0}`} />
+                    <RDKPICard title="ERP (Active Orders)" value={dashboardData ? dashboardData.stats?.activeOrdersCount : 0} trendValue="+8%" icon={Briefcase} color="cyan" subLabel="Sales / Purchase" bottomVal={`${dashboardData?.stats?.totalSalesOrders || 0} / ${dashboardData?.stats?.totalPurchaseOrders || 0}`} />
                 </div>
 
                 {/* Middle Section */}
@@ -148,15 +149,27 @@ const AdminDashboard = () => {
                     {/* Overview Summary */}
                     <div className="rd-card">
                         <div className="rd-card-title">Monthly Sales & Revenue</div>
-                        <div style={{height: 250}}>
+                        <div style={{height: 250, marginTop: 16}}>
                             <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={dashboardData?.charts?.monthlyStats || []} barGap={4}>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#64748b'}} />
-                                    <Tooltip cursor={{fill: '#f1f5f9'}} contentStyle={{borderRadius: 8, border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'}} />
-                                    <Bar dataKey="sales" fill="#3b82f6" radius={[4,4,0,0]} barSize={12} name="Sales Orders" />
-                                    <Bar dataKey="revenue" fill="#10b981" radius={[4,4,0,0]} barSize={12} name="Revenue" />
-                                </BarChart>
+                                <AreaChart data={dashboardData?.charts?.monthlyStats || []} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                                    <defs>
+                                        <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3}/>
+                                            <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
+                                        </linearGradient>
+                                        <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
+                                            <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                                        </linearGradient>
+                                    </defs>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={true} stroke="#f1f5f9" />
+                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#64748b'}} dy={10} />
+                                    <YAxis axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#64748b'}} tickFormatter={(val) => val >= 1000 ? `${(val/1000).toFixed(0)}k` : val} />
+                                    <Tooltip contentStyle={{borderRadius: 8, border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'}} />
+                                    <Legend verticalAlign="top" align="left" iconType="circle" wrapperStyle={{ paddingBottom: '20px', fontSize: 13, fontWeight: 500 }} />
+                                    <Area type="monotone" dataKey="revenue" stroke="#8b5cf6" strokeWidth={2} fillOpacity={1} fill="url(#colorSales)" name="Revenue" dot={{ r: 4, strokeWidth: 2, fill: '#fff', stroke: '#8b5cf6' }} activeDot={{ r: 6 }} />
+                                    <Area type="monotone" dataKey="sales" stroke="#10b981" strokeWidth={2} fillOpacity={1} fill="url(#colorRev)" name="Sales Orders" dot={{ r: 4, strokeWidth: 2, fill: '#fff', stroke: '#10b981' }} activeDot={{ r: 6 }} />
+                                </AreaChart>
                             </ResponsiveContainer>
                         </div>
                     </div>
@@ -165,10 +178,10 @@ const AdminDashboard = () => {
                     <div className="rd-card">
                         <div className="rd-card-title">Quick Actions</div>
                         <div className="rd-action-stack">
-                            <div className="rd-action-btn blue" onClick={() => navigate('/hrms/employees/new')}>Add New Employee <span>→</span></div>
+                            <div className="rd-action-btn blue" onClick={() => navigate('/employees/new')}>Add New Employee <span>→</span></div>
                             <div className="rd-action-btn green" onClick={() => navigate('/materials/new')}>Add New Material <span>→</span></div>
                             <div className="rd-action-btn purple" onClick={() => navigate('/customers/new')}>Add New Customer <span>→</span></div>
-                            <div className="rd-action-btn orange" onClick={() => navigate('/orders/new')}>Create New Order <span>→</span></div>
+                            <div className="rd-action-btn orange" onClick={() => navigate('/orders/select-type')}>Create New Order <span>→</span></div>
                             <div className="rd-action-btn cyan" onClick={() => navigate('/settings')}>System Settings <span>→</span></div>
                         </div>
                     </div>

@@ -68,7 +68,11 @@ const FarmakuSidebar = () => {
                     {loading ? (
                         <div style={{ padding: '20px', textAlign: 'center', color: '#64748b' }}>Loading menu...</div>
                     ) : (
-                        navigation.map((item, index) => (
+                        (() => {
+                            console.log('--- Sidebar Navigation Debug ---');
+                            console.log('Fetched Navigation Array:', navigation);
+                            console.log('Rendered Menu Items count:', navigation.length);
+                            return navigation.map((item, index) => (
                             <li key={index}>
                                 {item.children ? (
                                     <>
@@ -105,7 +109,8 @@ const FarmakuSidebar = () => {
                                     </NavLink>
                                 )}
                             </li>
-                        ))
+                        ));
+                        })()
                     )}
 
                     {/* Static Items that are not entirely permission driven in the same way (like Notifications, Support, Logout) */}

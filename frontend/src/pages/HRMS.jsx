@@ -57,7 +57,14 @@ const HRMS = () => {
     // Filtering
     const filteredEmployees = employees.filter(emp => {
         const name = `${emp.firstName || ''} ${emp.lastName || ''}`.toLowerCase();
-        const matchesSearch = !searchTerm || name.includes(searchTerm.toLowerCase()) || (emp.employeeId || '').toLowerCase().includes(searchTerm.toLowerCase()) || (emp.contact || '').toLowerCase().includes(searchTerm.toLowerCase());
+        const searchLower = searchTerm.toLowerCase();
+        const matchesSearch = !searchTerm || 
+            name.includes(searchLower) || 
+            (emp.employeeId || '').toLowerCase().includes(searchLower) || 
+            (emp.contact || '').toLowerCase().includes(searchLower) ||
+            (emp.phone || '').toLowerCase().includes(searchLower) ||
+            (emp.department || '').toLowerCase().includes(searchLower) ||
+            (emp.designation || '').toLowerCase().includes(searchLower);
         const matchesDept = deptFilter === 'All' || emp.department === deptFilter;
         // For status filter: check if the employee is currently on approved leave
         // We don't have a status field on the Employee model, so we derive it
@@ -76,7 +83,7 @@ const HRMS = () => {
     const leavePercent = totalEmployees > 0 ? Math.round((leaveCount / totalEmployees) * 100) : 0;
 
     // Mini trend data (based on real count, with slight variation for visual effect)
-    const makeTrend = (base) => Array.from({length: 8}, (_, i) => ({v: Math.max(0, base + Math.floor(Math.random() * 4 - 2))}));
+    
 
     const getStatusBadge = (status) => {
         if (status === 'Active') return <span className="rd-status-badge rd-status-green"><span className="rd-legend-dot" style={{background: '#10b981', display:'inline-block', marginRight: 6}}></span>Active</span>;
@@ -120,17 +127,17 @@ const HRMS = () => {
 
                 {/* KPI Cards — Real Data */}
                 <div className="rd-kpi-row">
-                    <HRMSKPICard title="Total Employees" val={totalEmployees} sub={`${totalEmployees} in database`} color="blue" data={makeTrend(totalEmployees)} icon={Users} />
-                    <HRMSKPICard title="Active" val={activeCount} sub={`↗ ${activePercent}% of workforce`} color="green" data={makeTrend(activeCount)} icon={CheckCircle} />
-                    <HRMSKPICard title="On Leave" val={leaveCount} sub={`${leavePercent}% of total`} color="orange" data={makeTrend(leaveCount)} icon={Clock} />
-                    <HRMSKPICard title="Inactive" val={0} sub="No inactive records" color="red" data={makeTrend(0)} icon={XCircle} />
+                    <HRMSKPICard title="Total Employees" val={totalEmployees} sub={`${totalEmployees} in database`} color="blue" icon={Users} />
+                    <HRMSKPICard title="Active" val={activeCount} sub={`↗ ${activePercent}% of workforce`} color="green" icon={CheckCircle} />
+                    <HRMSKPICard title="On Leave" val={leaveCount} sub={`${leavePercent}% of total`} color="orange" icon={Clock} />
+                    <HRMSKPICard title="Inactive" val={0} sub="No inactive records" color="red" icon={XCircle} />
                 </div>
 
                 {/* Table Section */}
                 <div className="rd-table-card">
-                    <div className="rd-table-header" style={{borderBottom: 'none'}}>
-                        <div style={{display: 'flex', gap: 16, alignItems: 'center'}}>
-                            <div className="rd-search-bar" style={{width: 250, background: '#fff'}}>
+                    <div className="rd-table-header" style={{borderBottom: 'none', flexWrap: 'wrap', gap: 16}}>
+                        <div style={{display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap'}}>
+                            <div className="rd-search-bar" style={{minWidth: 250, flexShrink: 0, background: '#fff'}}>
                                 <Search size={16} color="#94a3b8" />
                                 <input
                                     type="text"
@@ -165,12 +172,13 @@ const HRMS = () => {
                         </div>
                     </div>
                     
-                    <table className="rd-table">
-                        <thead>
-                            <tr>
-                                <th style={{width: 40}}>
-                                    <input type="checkbox" />
-                                </th>
+                    <div style={{overflowX: 'auto'}}>
+                        <table className="rd-table" style={{minWidth: 1000}}>
+                            <thead>
+                                <tr>
+                                    <th style={{width: 40}}>
+                                        <input type="checkbox" />
+                                    </th>
                                 <th>Employee</th>
                                 <th>Department</th>
                                 <th>Position</th>
@@ -228,7 +236,8 @@ const HRMS = () => {
                                 ))
                             )}
                         </tbody>
-                    </table>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

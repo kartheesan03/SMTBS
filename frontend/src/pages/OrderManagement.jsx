@@ -39,7 +39,11 @@ const OrderManagement = () => {
     const activeOrders = orders.filter(o => !['Delivered', 'Completed', 'Cancelled'].includes(o.status));
     const deliveredOrders = orders.filter(o => ['Delivered', 'Completed'].includes(o.status));
     const orderRevenue = deliveredOrders.reduce((sum, o) => sum + (Number(o.totalAmount) || Number(o.grandTotal) || 0), 0);
-    const currentMonthRevenue = orderRevenue * 0.8; // mock current month
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
+    const currentMonthRevenue = deliveredOrders
+        .filter(o => new Date(o.createdAt).getMonth() === currentMonth && new Date(o.createdAt).getFullYear() === currentYear)
+        .reduce((sum, o) => sum + (Number(o.totalAmount) || Number(o.grandTotal) || 0), 0);
 
     const formatCurrency = (val) => {
         if (!val || val === 0) return '₹0';
@@ -63,26 +67,37 @@ const OrderManagement = () => {
     });
 
     const statusDistData = [
-        { name: 'Confirmed', value: orders.filter(o => o.status === 'Confirmed').length || 1, fill: '#3b82f6' },
-        { name: 'Processing', value: orders.filter(o => o.status === 'Processing').length || 1, fill: '#8b5cf6' },
-        { name: 'Dispatched', value: orders.filter(o => o.status === 'Dispatched').length || 1, fill: '#0ea5e9' },
-        { name: 'Delivered', value: orders.filter(o => ['Delivered', 'Completed'].includes(o.status)).length || 1, fill: '#10b981' },
-        { name: 'Cancelled', value: orders.filter(o => o.status === 'Cancelled').length || 1, fill: '#ef4444' }
-    ];
+        { name: 'Confirmed', value: orders.filter(o => o.status === 'Confirmed').length || 0, fill: '#3b82f6' },
+        { name: 'Processing', value: orders.filter(o => o.status === 'Processing').length || 0, fill: '#8b5cf6' },
+        { name: 'Dispatched', value: orders.filter(o => o.status === 'Dispatched').length || 0, fill: '#0ea5e9' },
+        { name: 'Delivered', value: orders.filter(o => ['Delivered', 'Completed'].includes(o.status)).length || 0, fill: '#10b981' },
+        { name: 'Cancelled', value: orders.filter(o => o.status === 'Cancelled').length || 0, fill: '#ef4444' }
+    ].filter(item => item.value > 0);
+    if(statusDistData.length === 0) {
+        statusDistData.push({ name: 'No Data', value: 1, fill: '#e2e8f0' });
+    }
 
     // Dynamic Chart Data Generation
-    const makeBarData = (base) => Array.from({length: 7}, () => ({v: Math.max(1, base + Math.floor(Math.random() * (base * 0.4) - (base * 0.2)))}));
-    
-    const revBase = (orderRevenue / 1000) || 500;
-    const currentMonth = new Date().toLocaleString('default', { month: 'short' });
-    const revenueChartData = [
-        { name: 'Jan', orderRevenue: Math.round(revBase * 0.6), deliveredRevenue: Math.round(revBase * 0.4) },
-        { name: 'Feb', orderRevenue: Math.round(revBase * 0.7), deliveredRevenue: Math.round(revBase * 0.5) },
-        { name: 'Mar', orderRevenue: Math.round(revBase * 0.65), deliveredRevenue: Math.round(revBase * 0.45) },
-        { name: 'Apr', orderRevenue: Math.round(revBase * 0.8), deliveredRevenue: Math.round(revBase * 0.6) },
-        { name: 'May', orderRevenue: Math.round(revBase * 0.9), deliveredRevenue: Math.round(revBase * 0.7) },
-        { name: currentMonth, orderRevenue: Math.round(revBase), deliveredRevenue: Math.round(currentMonthRevenue / 1000) }
-    ];
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const revMap = {};
+    const delRevMap = {};
+    orders.forEach(o => {
+        if(!o.createdAt) return;
+        const date = new Date(o.createdAt);
+        if(date.getFullYear() !== currentYear) return;
+        const month = monthNames[date.getMonth()];
+        const amt = (Number(o.totalAmount) || Number(o.grandTotal) || 0) / 1000;
+        revMap[month] = (revMap[month] || 0) + amt;
+        if(['Delivered', 'Completed'].includes(o.status)) {
+            delRevMap[month] = (delRevMap[month] || 0) + amt;
+        }
+    });
+
+    const revenueChartData = monthNames.slice(0, currentMonth + 1).map(month => ({
+        name: month,
+        orderRevenue: Math.round(revMap[month] || 0),
+        deliveredRevenue: Math.round(delRevMap[month] || 0)
+    }));
 
     if (loading) return <div className="flex-center" style={{height:'100vh'}}><div className="loader"></div></div>;
 
@@ -105,10 +120,10 @@ const OrderManagement = () => {
 
                 {/* KPI Cards */}
                 <div className="rd-kpi-row">
-                    <OrderKPICard title="Total Orders" val={orders.length} trend="+18%" subtitle="vs last month" color="blue" icon={Package} data={makeBarData(orders.length || 10)} />
-                    <OrderKPICard title="Active Orders" val={activeOrders.length} trend="~" subtitle="In pipeline" color="purple" icon={Truck} data={makeBarData(activeOrders.length || 5)} />
-                    <OrderKPICard title="Delivered" val={deliveredOrders.length} trend="+25%" subtitle="vs last month" color="green" icon={CheckCircle} data={makeBarData(deliveredOrders.length || 5)} />
-                    <OrderKPICard title="Order Revenue" val={formatCurrency(orderRevenue)} trend="+19%" subtitle="vs last month" color="teal" icon={DollarSign} data={makeBarData(revBase)} />
+                    <OrderKPICard title="Total Orders" val={orders.length} subtitle="vs last month" color="blue" icon={Package} />
+                    <OrderKPICard title="Active Orders" val={activeOrders.length} subtitle="In pipeline" color="purple" icon={Truck} />
+                    <OrderKPICard title="Delivered" val={deliveredOrders.length} subtitle="vs last month" color="green" icon={CheckCircle} />
+                    <OrderKPICard title="Order Revenue" val={formatCurrency(orderRevenue)} subtitle="vs last month" color="teal" icon={DollarSign} />
                 </div>
 
                 {/* Charts */}
@@ -174,13 +189,13 @@ const OrderManagement = () => {
 
                 {/* Table */}
                 <div className="rd-table-card">
-                    <div className="rd-table-header" style={{borderBottom: '1px solid var(--rd-border)'}}>
+                    <div className="rd-table-header" style={{borderBottom: '1px solid var(--rd-border)', flexWrap: 'wrap', gap: 16}}>
                         <div>
                             <div className="rd-table-title">Sales Order Register</div>
                             <div className="rd-table-subtitle">All customer orders and delivery tracking</div>
                         </div>
-                        <div className="rd-table-actions">
-                            <div className="rd-search-bar" style={{width: 220, background: '#f8fafc'}}>
+                        <div className="rd-table-actions" style={{flexWrap: 'wrap'}}>
+                            <div className="rd-search-bar" style={{minWidth: 220, flexShrink: 0, background: '#f8fafc'}}>
                                 <Search size={16} color="#94a3b8" />
                                 <input type="text" className="rd-search-input" placeholder="Search order, customer..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
                             </div>
@@ -199,9 +214,10 @@ const OrderManagement = () => {
                         </div>
                     </div>
 
-                    <table className="rd-table">
-                        <thead>
-                            <tr>
+                    <div style={{overflowX: 'auto'}}>
+                        <table className="rd-table" style={{minWidth: 1000}}>
+                            <thead>
+                                <tr>
                                 <th>ORDER ID</th>
                                 <th>CUSTOMER</th>
                                 <th>ITEMS</th>
@@ -261,7 +277,8 @@ const OrderManagement = () => {
                                 );
                             })}
                         </tbody>
-                    </table>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

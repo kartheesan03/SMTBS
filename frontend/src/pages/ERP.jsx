@@ -101,21 +101,21 @@ const ERP = () => {
 
                 {/* KPI Cards */}
                 <div className="rd-kpi-row">
-                    <ProcKPICard title="Total POs" val={orders.length} trend="+14%" subtitle="vs last month" color="blue" icon={ShoppingCart} data={barData} />
-                    <ProcKPICard title="Pending Approval" val={pendingOrders.length} trend="" subtitle="Action required" subtitleColor="#ef4444" color="orange" icon={Clock} data={barData} />
-                    <ProcKPICard title="Approved" val={approvedOrders.length} trend="+21%" subtitle="vs last month" color="green" icon={CheckCircle} data={barData} />
-                    <ProcKPICard title="Total PO Value" val={formatCurrency(totalPOValue)} trend="+17%" subtitle="vs last month" color="purple" icon={DollarSign} data={barData} isCurrency />
+                    <ProcKPICard title="Total POs" val={orders.length} subtitle="vs last month" color="blue" icon={ShoppingCart} data={barData} />
+                    <ProcKPICard title="Pending Approval" val={pendingOrders.length} subtitle="Action required" subtitleColor="#ef4444" color="orange" icon={Clock} data={barData} />
+                    <ProcKPICard title="Approved" val={approvedOrders.length} subtitle="vs last month" color="green" icon={CheckCircle} data={barData} />
+                    <ProcKPICard title="Total PO Value" val={formatCurrency(totalPOValue)} subtitle="vs last month" color="purple" icon={DollarSign} data={barData} isCurrency />
                 </div>
 
                 {/* Table */}
                 <div className="rd-table-card">
-                    <div className="rd-table-header" style={{borderBottom: '1px solid var(--rd-border)'}}>
+                    <div className="rd-table-header" style={{borderBottom: '1px solid var(--rd-border)', flexWrap: 'wrap', gap: 16}}>
                         <div>
                             <div className="rd-table-title">Purchase Orders</div>
                             <div className="rd-table-subtitle">All procurement requests and approvals</div>
                         </div>
-                        <div className="rd-table-actions">
-                            <div className="rd-search-bar" style={{width: 220, background: '#f8fafc'}}>
+                        <div className="rd-table-actions" style={{flexWrap: 'wrap'}}>
+                            <div className="rd-search-bar" style={{minWidth: 220, flexShrink: 0, background: '#f8fafc'}}>
                                 <Search size={16} color="#94a3b8" />
                                 <input type="text" className="rd-search-input" placeholder="Search PO, vendor, item..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
                             </div>
@@ -134,10 +134,11 @@ const ERP = () => {
                         </div>
                     </div>
 
-                    <table className="rd-table">
-                        <thead>
-                            <tr>
-                                <th>PO ID</th>
+                    <div style={{overflowX: 'auto'}}>
+                        <table className="rd-table" style={{minWidth: 1000}}>
+                            <thead>
+                                <tr>
+                                    <th>PO ID</th>
                                 <th>VENDOR</th>
                                 <th>ITEM</th>
                                 <th>QTY</th>
@@ -183,7 +184,7 @@ const ERP = () => {
                                         <td><span style={{color: priorityColors[priority] || '#3b82f6', fontWeight: 600}}>{priority}</span></td>
                                         <td><span className={`rd-status-badge ${statusColors[status] || 'rd-status-blue'}`}>{status}</span></td>
                                         <td>
-                                            <button className="rd-btn-outline" style={{padding: '5px 10px', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4}}
+                                            <button className="rd-btn-outline" style={{padding: '5px 10px', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4, color: '#3b82f6', borderColor: '#bfdbfe'}}
                                                 onClick={() => navigate(`/orders/${order._id || order.id}/tracking`)}>
                                                 <Eye size={14} /> View
                                             </button>
@@ -192,7 +193,8 @@ const ERP = () => {
                                 );
                             })}
                         </tbody>
-                    </table>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

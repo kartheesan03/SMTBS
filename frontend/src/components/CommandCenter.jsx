@@ -26,14 +26,18 @@ const CommandCenter = ({ isOpen, onClose }) => {
 
     if (!isOpen) return null;
 
-    const dummyResults = [
-        { id: 1, type: 'Module', name: 'Add New Employee', icon: <Users size={16} />, path: '/hrms/add-employee' },
-        { id: 2, type: 'Module', name: 'Create Purchase Order', icon: <ShoppingCart size={16} />, path: '/orders/select-type' },
-        { id: 3, type: 'Report', name: 'Monthly Payroll Report', icon: <FileText size={16} />, path: '/hr-reports' },
-        { id: 4, type: 'Page', name: 'Performance Dashboard', icon: <Activity size={16} />, path: '/team-performance' },
+    const searchIndex = [
+        { id: 1, type: 'Module', name: 'Dashboard', icon: <Activity size={16} />, path: '/' },
+        { id: 2, type: 'Module', name: 'User Management', icon: <Users size={16} />, path: '/users' },
+        { id: 3, type: 'Module', name: 'Order Management', icon: <ShoppingCart size={16} />, path: '/orders' },
+        { id: 4, type: 'Module', name: 'Material Management', icon: <FileText size={16} />, path: '/materials' },
+        { id: 5, type: 'Module', name: 'HR Dashboard', icon: <Users size={16} />, path: '/hr' },
+        { id: 6, type: 'Module', name: 'Vendors', icon: <ShoppingCart size={16} />, path: '/vendors' },
+        { id: 7, type: 'Module', name: 'Settings', icon: <Activity size={16} />, path: '/settings' },
+        { id: 8, type: 'Module', name: 'Support', icon: <FileText size={16} />, path: '/support' }
     ];
 
-    const filtered = query ? dummyResults.filter(r => r.name.toLowerCase().includes(query.toLowerCase())) : dummyResults;
+    const filtered = query ? searchIndex.filter(r => r.name.toLowerCase().includes(query.toLowerCase())) : searchIndex.slice(0, 4);
 
     const handleNavigate = (path) => {
         navigate(path);

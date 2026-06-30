@@ -48,7 +48,7 @@ const Attendance = () => {
     }, [fetchData]);
 
     // Trend mock generator (for UI purposes since no historical trend API exists)
-    const makeTrend = (base) => Array.from({length: 8}, () => ({v: Math.max(0, base + Math.floor(Math.random() * 4 - 2))}));
+    
 
     const getStatusBadge = (status) => {
         if (status === 'Present' || status === 'Late') return <span className="rd-status-badge rd-status-green"><span className="rd-legend-dot" style={{background: '#10b981', display:'inline-block', marginRight: 6}}></span>{status}</span>;
@@ -112,17 +112,17 @@ const Attendance = () => {
 
                 {/* KPI Cards */}
                 <div className="rd-kpi-row">
-                    <HRMSKPICard title="Present / Late" val={stats.presentToday} sub={`${stats.totalEmployees > 0 ? Math.round((stats.presentToday / stats.totalEmployees) * 100) : 0}% of workforce`} color="green" data={makeTrend(stats.presentToday)} icon={CheckCircle} />
-                    <HRMSKPICard title="Not Checked In" val={stats.notCheckedInToday} sub="Action needed" color="orange" data={makeTrend(stats.notCheckedInToday)} icon={Clock} />
-                    <HRMSKPICard title="Absent" val={stats.absentToday} sub="Marked absent" color="red" data={makeTrend(stats.absentToday)} icon={XCircle} />
-                    <HRMSKPICard title="On Leave" val={stats.onLeaveToday} sub="Approved leaves" color="blue" data={makeTrend(stats.onLeaveToday)} icon={Home} />
+                    <HRMSKPICard title="Present / Late" val={stats.presentToday} sub={`${stats.totalEmployees > 0 ? Math.round((stats.presentToday / stats.totalEmployees) * 100) : 0}% of workforce`} color="green" icon={CheckCircle} />
+                    <HRMSKPICard title="Not Checked In" val={stats.notCheckedInToday} sub="Action needed" color="orange" icon={Clock} />
+                    <HRMSKPICard title="Absent" val={stats.absentToday} sub="Marked absent" color="red" icon={XCircle} />
+                    <HRMSKPICard title="On Leave" val={stats.onLeaveToday} sub="Approved leaves" color="blue" icon={Home} />
                 </div>
 
                 {/* Table Section */}
                 <div className="rd-table-card">
-                    <div className="rd-table-header" style={{borderBottom: 'none'}}>
-                        <div style={{display: 'flex', gap: 16, alignItems: 'center'}}>
-                            <div className="rd-search-bar" style={{width: 250, background: '#fff'}}>
+                    <div className="rd-table-header" style={{borderBottom: 'none', flexWrap: 'wrap', gap: 16}}>
+                        <div style={{display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap'}}>
+                            <div className="rd-search-bar" style={{minWidth: 250, flexShrink: 0, background: '#fff'}}>
                                 <Search size={16} color="#94a3b8" />
                                 <input
                                     type="text"
@@ -159,11 +159,12 @@ const Attendance = () => {
                         </div>
                     </div>
                     
-                    <table className="rd-table">
-                        <thead>
-                            <tr>
-                                <th style={{width: 40}}>
-                                    <input type="checkbox" />
+                    <div style={{overflowX: 'auto'}}>
+                        <table className="rd-table" style={{minWidth: 1000}}>
+                            <thead>
+                                <tr>
+                                    <th style={{width: 40}}>
+                                        <input type="checkbox" />
                                 </th>
                                 <th>Employee</th>
                                 <th>EMP ID</th>
@@ -216,7 +217,8 @@ const Attendance = () => {
                                 })
                             )}
                         </tbody>
-                    </table>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

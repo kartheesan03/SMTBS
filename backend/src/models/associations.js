@@ -81,6 +81,13 @@ function setupAssociations() {
     StockRequest.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'employeeId', as: 'employee' });
     StockRequest.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'managerId', as: 'manager' });
     StockRequest.sequelizeModel.belongsTo(Order.sequelizeModel, { foreignKey: 'orderId', as: 'order' });
+
+    // 17. Backup and RestoreLog
+    const Backup = require('./Backup');
+    const RestoreLog = require('./RestoreLog');
+    Backup.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'createdById', as: 'createdBy' });
+    RestoreLog.sequelizeModel.belongsTo(Backup.sequelizeModel, { foreignKey: 'backupIdField', as: 'backup' });
+    RestoreLog.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'restoredById', as: 'restoredBy' });
 }
 
 module.exports = setupAssociations;

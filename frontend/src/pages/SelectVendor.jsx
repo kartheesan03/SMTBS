@@ -70,9 +70,10 @@ const SelectVendor = () => {
                 ) : filteredVendors.length === 0 ? (
                     <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>No vendors found.</div>
                 ) : (
-                    <table className="enterprise-table">
-                        <thead>
-                            <tr>
+                    <div style={{overflowX: 'auto'}}>
+                        <table className="enterprise-table" style={{minWidth: 1000}}>
+                            <thead>
+                                <tr>
                                 <th>Company Name</th>
                                 <th>Contact Person</th>
                                 <th>Email</th>
@@ -112,7 +113,8 @@ const SelectVendor = () => {
                                 </tr>
                             ))}
                         </tbody>
-                    </table>
+                        </table>
+                    </div>
                 )}
             </div>
             

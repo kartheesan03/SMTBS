@@ -1,12 +1,15 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/sequelize');
+const { makeBridgedModel } = require('../config/mongoose-bridge');
 
-const backupSchema = new mongoose.Schema({
-    backupName: { type: String, required: true },
-    backupType: { type: String, required: true }, // 'Full', 'HR', 'Manager', 'Database', 'Files'
-    filePath: { type: String, required: true },
-    fileSize: { type: String },
-    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    status: { type: String, default: 'Success' }
+const BackupSequelize = sequelize.define('Backup', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    backupName: { type: DataTypes.STRING, allowNull: false },
+    backupType: { type: DataTypes.STRING, allowNull: false },
+    filePath: { type: DataTypes.STRING, allowNull: false },
+    fileSize: { type: DataTypes.STRING },
+    createdById: { type: DataTypes.INTEGER },
+    status: { type: DataTypes.STRING, defaultValue: 'Success' }
 }, { timestamps: true });
 
-module.exports = mongoose.model('Backup', backupSchema);
+module.exports = makeBridgedModel('Backup', BackupSequelize);

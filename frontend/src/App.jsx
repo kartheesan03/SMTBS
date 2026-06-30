@@ -281,7 +281,7 @@ const AppContent = () => {
                     <Route path="/erp/purchase" element={<ProtectedRoute><ERP /></ProtectedRoute>} />
                     <Route path="/erp/sales" element={<ProtectedRoute><ERP /></ProtectedRoute>} />
                     <Route path="/erp/inventory" element={<ProtectedRoute><ComingSoonPage title="Inventory" /></ProtectedRoute>} />
-                    <Route path="/erp/finance" element={<ProtectedRoute><ComingSoonPage title="Finance" /></ProtectedRoute>} />
+                    <Route path="/erp/finance" element={<ProtectedRoute><FinancialOperations /></ProtectedRoute>} />
                     <Route path="/erp/assets" element={<ProtectedRoute><ComingSoonPage title="Assets" /></ProtectedRoute>} />
                     
                     <Route path="/tasks/assigned" element={<ProtectedRoute><ComingSoonPage title="Assigned Tasks" /></ProtectedRoute>} />

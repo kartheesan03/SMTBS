@@ -96,7 +96,7 @@ const Materials = () => {
     ];
 
     // Dynamic Trend generator for UI
-    const makeTrend = (base) => Array.from({length: 8}, () => ({v: Math.max(0, base + Math.floor(Math.random() * (base * 0.2) - (base * 0.1)))}));
+    
 
     const totalItems = materialsData.length;
     const inStock = materialsData.filter(m => getComputedStatus(m) === 'In Stock').length;
@@ -120,10 +120,10 @@ const Materials = () => {
                 </div>
 
                 <div className="rd-kpi-row">
-                    <MaterialKPICard title="Total Items" val={totalItems} trend="" trendDir="up" color="blue" data={makeTrend(totalItems || 10)} icon={Package} />
-                    <MaterialKPICard title="In Stock" val={inStock} trend={`${totalItems ? Math.round((inStock/totalItems)*100) : 0}%`} trendDir="up" color="green" data={makeTrend(inStock || 10)} icon={CheckCircle} />
-                    <MaterialKPICard title="Low Stock" val={lowStock} trend={`${totalItems ? Math.round((lowStock/totalItems)*100) : 0}%`} trendDir="down" color="orange" data={makeTrend(lowStock || 10)} icon={AlertTriangle} />
-                    <MaterialKPICard title="Out of Stock" val={outOfStock} trend={`${totalItems ? Math.round((outOfStock/totalItems)*100) : 0}%`} trendDir="up" color="red" data={makeTrend(outOfStock || 10)} icon={XCircle} />
+                    <MaterialKPICard title="Total Items" val={totalItems} color="blue" icon={Package} />
+                    <MaterialKPICard title="In Stock" val={inStock} trend={`${totalItems ? Math.round((inStock/totalItems)*100) : 0}%`} color="green" icon={CheckCircle} />
+                    <MaterialKPICard title="Low Stock" val={lowStock} trend={`${totalItems ? Math.round((lowStock/totalItems)*100) : 0}%`} color="orange" icon={AlertTriangle} />
+                    <MaterialKPICard title="Out of Stock" val={outOfStock} trend={`${totalItems ? Math.round((outOfStock/totalItems)*100) : 0}%`} color="red" icon={XCircle} />
                 </div>
 
                 <div style={{ marginTop: '24px' }}>
@@ -152,7 +152,7 @@ const Materials = () => {
     );
 };
 
-const MaterialKPICard = ({ title, val, trend, trendDir, color, data, icon: Icon }) => {
+const MaterialKPICard = ({ title, val, color, icon: Icon }) => {
     return (
         <div className={`rd-kpi-card ${color}`} style={{minHeight: 140, padding: 20}}>
             <div className="rd-kpi-header">
@@ -164,20 +164,7 @@ const MaterialKPICard = ({ title, val, trend, trendDir, color, data, icon: Icon 
                     <Icon size={20} color="#fff" />
                 </div>
             </div>
-            <div style={{display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: 16}}>
-                <div style={{display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 600}}>
-                    {trend && (trendDir === 'up' ? <ArrowUpRight size={16} /> : <ArrowDownRight size={16} />)}
-                    {trend} {trend && <span style={{opacity: 0.7, fontWeight: 400, marginLeft: 4}}>of inventory</span>}
-                </div>
-                <div style={{width: 60, height: 30}}>
-                    <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={data}>
-                            <Line type="monotone" dataKey="v" stroke="#fff" strokeWidth={2} dot={false} />
-                        </LineChart>
-                    </ResponsiveContainer>
-                </div>
             </div>
-        </div>
     );
 };
 

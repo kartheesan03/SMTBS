@@ -254,27 +254,27 @@ const HRDashboard = () => {
                 <div className="erp-premium-kpi-grid">
                     <PremiumKPICard
                         title="Total Employees" value={totalEmployees} subtitle="Active Workforce"
-                        icon={Users} color="#3b82f6" trend="up" trendValue="+5%"
+                        icon={Users} color="#3b82f6" trendValue="+5%"
                     />
                     <PremiumKPICard
                         title="Present Today" value={presentToday} subtitle="Daily Attendance"
-                        icon={UserCheck} color="#10b981" trend="up" trendValue="+2%"
+                        icon={UserCheck} color="#10b981" trendValue="+2%"
                     />
                     <PremiumKPICard
                         title="On Leave" value={onLeave} subtitle="Currently Away"
-                        icon={Calendar} color="#f59e0b" trend="down" trendValue="-1%"
+                        icon={Calendar} color="#f59e0b" trendValue="-1%"
                     />
                     <PremiumKPICard
                         title="New Joiners" value={newJoiners} subtitle="Past 30 Days"
-                        icon={Briefcase} color="#8b5cf6" trend="up" trendValue="+12%"
+                        icon={Briefcase} color="#8b5cf6" trendValue="+12%"
                     />
                     <PremiumKPICard
                         title="Pending Approvals" value={pendingApprovals} subtitle="Needs Attention"
-                        icon={AlertCircle} color="#ef4444" trend="down" trendValue="-5%"
+                        icon={AlertCircle} color="#ef4444" trendValue="-5%"
                     />
                     <PremiumKPICard
                         title="Payroll Processed" value={payrollProcessed} subtitle="Current Month" isCurrency={false} prefix="" suffix="%"
-                        icon={DollarSign} color="#14b8a6" trend="up" trendValue="+1%"
+                        icon={DollarSign} color="#14b8a6" trendValue="+1%"
                     />
                 </div>
 

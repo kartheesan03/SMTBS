@@ -73,12 +73,11 @@ const TeamPerformance = () => {
             taskScore = Math.round((completedTasks / totalTasks) * 100);
         }
         
-        // Mocking attendance score based on employee ID hash for visual variance
-        const hash = (emp.employeeId || 'EMP000').split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-        const attendanceScore = 80 + (hash % 20); // 80-99
-        
         // Target score: 80% weight on tasks, 20% random variance
-        const targetScore = Math.max(0, Math.min(100, Math.round(taskScore * 0.8 + (hash % 30))));
+        const targetScore = Math.max(0, Math.min(100, Math.round(taskScore * 0.8)));
+        
+        // Use 100 for attendance if not tracked, or 0
+        const attendanceScore = 100;
         
         // Overall is average
         const overall = Math.round((taskScore + attendanceScore + targetScore) / 3);
@@ -113,7 +112,7 @@ const TeamPerformance = () => {
     const belowAvgCount = perfData.filter(p => p.rating === 'Below Average' || p.rating === 'Average').length;
 
     // Trend mock generator
-    const makeTrend = (base) => Array.from({length: 8}, () => ({v: Math.max(0, base + Math.floor(Math.random() * 4 - 2))}));
+    
 
     const getInitials = (name) => {
         const parts = name.split(' ');
@@ -173,17 +172,17 @@ const TeamPerformance = () => {
 
                 {/* KPI Cards */}
                 <div className="rd-kpi-row">
-                    <HRMSKPICard title="Team Avg Score" val={`${teamAvg}/100`} sub="Based on tasks & attendance" color="blue" data={makeTrend(teamAvg/10)} icon={TrendingUp} />
-                    <HRMSKPICard title="Excellent" val={excellentCount} sub="Top performers (>90%)" color="green" data={makeTrend(excellentCount)} icon={Star} />
-                    <HRMSKPICard title="Good" val={goodCount} sub="Meeting targets (75-89%)" color="orange" data={makeTrend(goodCount)} icon={ThumbsUp} />
-                    <HRMSKPICard title="Avg / Below" val={belowAvgCount} sub="Needs improvement (<75%)" color="red" data={makeTrend(belowAvgCount)} icon={ThumbsDown} />
+                    <HRMSKPICard title="Team Avg Score" val={`${teamAvg}/100`} sub="Based on tasks & attendance" color="blue" icon={TrendingUp} />
+                    <HRMSKPICard title="Excellent" val={excellentCount} sub="Top performers (>90%)" color="green" icon={Star} />
+                    <HRMSKPICard title="Good" val={goodCount} sub="Meeting targets (75-89%)" color="orange" icon={ThumbsUp} />
+                    <HRMSKPICard title="Avg / Below" val={belowAvgCount} sub="Needs improvement (<75%)" color="red" icon={ThumbsDown} />
                 </div>
 
                 {/* Table Section */}
                 <div className="rd-table-card">
-                    <div className="rd-table-header" style={{borderBottom: 'none'}}>
-                        <div style={{display: 'flex', gap: 16, alignItems: 'center'}}>
-                            <div className="rd-search-bar" style={{width: 250, background: '#fff'}}>
+                    <div className="rd-table-header" style={{borderBottom: 'none', flexWrap: 'wrap', gap: 16}}>
+                        <div style={{display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap'}}>
+                            <div className="rd-search-bar" style={{minWidth: 250, flexShrink: 0, background: '#fff'}}>
                                 <Search size={16} color="#94a3b8" />
                                 <input
                                     type="text"
@@ -213,9 +212,10 @@ const TeamPerformance = () => {
                         </div>
                     </div>
                     
-                    <table className="rd-table">
-                        <thead>
-                            <tr>
+                    <div style={{overflowX: 'auto'}}>
+                        <table className="rd-table" style={{minWidth: 1200}}>
+                            <thead>
+                                <tr>
                                 <th>Employee</th>
                                 <th>Department</th>
                                 <th style={{width: 140}}>Task Score</th>
@@ -273,7 +273,8 @@ const TeamPerformance = () => {
                                 ))
                             )}
                         </tbody>
-                    </table>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

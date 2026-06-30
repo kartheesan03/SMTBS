@@ -11,6 +11,16 @@ const getEmployees = async (req, res) => {
     }
 };
 
+const getEmployee = async (req, res) => {
+    try {
+        const employee = await Employee.findById(req.params.id).populate('userId', 'name email role');
+        if (!employee) return res.status(404).json({ message: 'Employee not found' });
+        res.json(employee);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 const createEmployee = async (req, res) => {
     try {
         const { employeeId, firstName, lastName, department, designation, contact, phone, address, joinDate, password } = req.body;
@@ -258,4 +268,4 @@ const updateMe = async (req, res) => {
     }
 };
 
-module.exports = { getEmployees, createEmployee, updateEmployee, deleteEmployee, getMe, updateMe };
+module.exports = { getEmployees, getEmployee, createEmployee, updateEmployee, deleteEmployee, getMe, updateMe };

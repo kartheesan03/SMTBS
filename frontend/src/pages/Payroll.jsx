@@ -30,13 +30,13 @@ const Payroll = () => {
         fetchSalaries();
     }, [fetchSalaries]);
 
-    const formatCurrency = (amount) => {
+    const formatCurrency = (amount, format) => {
         if (amount === undefined || amount === null) return '₹0';
         // Check if amount is >= 1,00,000 for 'L' format in KPIs, else format normally
-        if (amount >= 100000 && arguments[1] === 'short') {
+        if (amount >= 100000 && format === 'short') {
             return `₹${(amount / 100000).toFixed(1)}L`;
         }
-        if (amount >= 1000 && arguments[1] === 'short') {
+        if (amount >= 1000 && format === 'short') {
             return `₹${(amount / 1000).toFixed(1)}K`;
         }
         return new Intl.NumberFormat('en-IN', {
@@ -53,7 +53,7 @@ const Payroll = () => {
     const totalTax = salaries.reduce((sum, s) => sum + (s.deductions || 0) - ((s.basicSalary || 0) * 0.12), 0); // Remaining deductions as Tax
 
     // Trend mock generator
-    const makeTrend = (base) => Array.from({length: 8}, () => ({v: Math.max(0, base + Math.floor(Math.random() * 4 - 2))}));
+    
 
     const getStatusBadge = (status) => {
         if (status === 'Paid') return <span className="rd-status-badge rd-status-green"><span className="rd-legend-dot" style={{background: '#10b981', display:'inline-block', marginRight: 6}}></span>Paid</span>;
@@ -127,17 +127,17 @@ const Payroll = () => {
 
                 {/* KPI Cards */}
                 <div className="rd-kpi-row">
-                    <HRMSKPICard title="Total Gross Payroll" val={formatCurrency(totalGross, 'short')} sub="↗ Gross across records" color="blue" data={makeTrend(8)} icon={Briefcase} />
-                    <HRMSKPICard title="Total Net Pay" val={formatCurrency(totalNet, 'short')} sub="↗ After deductions" color="green" data={makeTrend(6)} icon={CreditCard} />
-                    <HRMSKPICard title="Est. PF Contributions" val={formatCurrency(totalPF, 'short')} sub="↗ 12% of basic salary" color="orange" data={makeTrend(4)} icon={User} />
-                    <HRMSKPICard title="Other Deductions" val={formatCurrency(totalTax > 0 ? totalTax : 0, 'short')} sub="↘ TDS/Other this cycle" color="red" data={makeTrend(3)} icon={FileText} />
+                    <HRMSKPICard title="Total Gross Payroll" val={formatCurrency(totalGross, 'short')} sub="↗ Gross across records" color="blue" icon={Briefcase} />
+                    <HRMSKPICard title="Total Net Pay" val={formatCurrency(totalNet, 'short')} sub="↗ After deductions" color="green" icon={CreditCard} />
+                    <HRMSKPICard title="Est. PF Contributions" val={formatCurrency(totalPF, 'short')} sub="↗ 12% of basic salary" color="orange" icon={User} />
+                    <HRMSKPICard title="Other Deductions" val={formatCurrency(totalTax > 0 ? totalTax : 0, 'short')} sub="↘ TDS/Other this cycle" color="red" icon={FileText} />
                 </div>
 
                 {/* Table Section */}
                 <div className="rd-table-card">
-                    <div className="rd-table-header" style={{borderBottom: 'none'}}>
-                        <div style={{display: 'flex', gap: 16, alignItems: 'center'}}>
-                            <div className="rd-search-bar" style={{width: 250, background: '#fff'}}>
+                    <div className="rd-table-header" style={{borderBottom: 'none', flexWrap: 'wrap', gap: 16}}>
+                        <div style={{display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap'}}>
+                            <div className="rd-search-bar" style={{minWidth: 250, flexShrink: 0, background: '#fff'}}>
                                 <Search size={16} color="#94a3b8" />
                                 <input
                                     type="text"
@@ -170,9 +170,10 @@ const Payroll = () => {
                         </div>
                     </div>
                     
-                    <table className="rd-table">
-                        <thead>
-                            <tr>
+                    <div style={{overflowX: 'auto'}}>
+                        <table className="rd-table" style={{minWidth: 1000}}>
+                            <thead>
+                                <tr>
                                 <th>Month</th>
                                 <th>Employee</th>
                                 <th>Department</th>
@@ -244,7 +245,8 @@ const Payroll = () => {
                                 })
                             )}
                         </tbody>
-                    </table>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

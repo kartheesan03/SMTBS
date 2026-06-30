@@ -126,26 +126,50 @@ const HRReports = () => {
                 setDownloading(null);
                 return;
             } else if (reportName === 'Employee Turnover Report') {
-                const headers = ['Month', 'Opening Headcount', 'Hires', 'Terminations', 'Ending Headcount', 'Turnover Rate (%)'];
-                const rows = [
-                    ['Jan 2026', '112', '5', '1', '116', '0.88%'],
-                    ['Feb 2026', '116', '4', '2', '118', '1.71%'],
-                    ['Mar 2026', '118', '6', '0', '124', '0.00%'],
-                    ['Apr 2026', '124', '3', '2', '125', '1.61%'],
-                    ['May 2026', '125', '5', '1', '129', '0.79%']
-                ];
+                const empRes = await API.get('/employees');
+                const employees = empRes.data || [];
+                const headers = ['Month', 'Total Employees at End of Month'];
+                
+                // Group employees by join date month
+                const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                const currentMonth = new Date().getMonth();
+                const counts = {};
+                employees.forEach(emp => {
+                    const d = new Date(emp.createdAt || new Date());
+                    if (d.getFullYear() === new Date().getFullYear()) {
+                        const m = monthNames[d.getMonth()];
+                        counts[m] = (counts[m] || 0) + 1;
+                    }
+                });
+                
+                const rows = monthNames.slice(0, currentMonth + 1).map(m => {
+                    return [`${m} ${new Date().getFullYear()}`, `${counts[m] || 0}`];
+                });
+
                 content = generateCSV(headers, rows);
                 filename = `Employee_Turnover_Report_${timestamp}.csv`;
             } else if (reportName === 'Leave Utilization Audit') {
                 const empRes = await API.get('/employees');
                 const employees = empRes.data || [];
-                const headers = ['Employee ID', 'Employee Name', 'Department', 'Annual Leave Used', 'Sick Leave Used', 'Casual Leave Used', 'Unpaid Leave Taken', 'Remaining Balance (Days)'];
-                const rows = employees.map(emp => [
-                    emp.employeeId || '-',
-                    `${emp.firstName || ''} ${emp.lastName || ''}`.trim(),
-                    emp.department || '-',
-                    '5', '2', '3', '0', '20'
-                ]);
+                // Simple leave fetch to correlate
+                let allLeaves = [];
+                try {
+                    const leavesRes = await API.get('/leaves');
+                    allLeaves = leavesRes.data || [];
+                } catch(e) {}
+                
+                const headers = ['Employee ID', 'Employee Name', 'Department', 'Total Leaves Taken', 'Remaining Balance (Days)'];
+                const rows = employees.map(emp => {
+                    const empLeaves = allLeaves.filter(l => l.employee && (l.employee._id === emp._id || l.employee.employeeId === emp.employeeId));
+                    const taken = empLeaves.reduce((sum, l) => sum + (l.duration || 1), 0);
+                    return [
+                        emp.employeeId || '-',
+                        `${emp.firstName || ''} ${emp.lastName || ''}`.trim(),
+                        emp.department || '-',
+                        `${taken}`,
+                        `${20 - taken > 0 ? 20 - taken : 0}`
+                    ];
+                });
                 content = generateCSV(headers, rows);
                 filename = `Leave_Utilization_Audit_${timestamp}.csv`;
             } else if (reportName === 'Payroll Disbursement Log') {

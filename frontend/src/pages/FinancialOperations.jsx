@@ -137,9 +137,9 @@ const FinancialOperations = () => {
                 {/* KPI Cards */}
                 <div className="rd-kpi-row">
                     <FinKPICard title="Revenue (Paid)" val={formatCurrency(revenue)} subtitle="This month" color="green" icon={TrendingUp} data={barData} />
-                    <FinKPICard title="Total Payables" val={formatCurrency(totalPayables)} trend="+6%" subtitle="vs last month" color="blue" icon={CreditCard} data={barData} />
+                    <FinKPICard title="Total Payables" val={formatCurrency(totalPayables)} subtitle="vs last month" color="blue" icon={CreditCard} data={barData} />
                     <FinKPICard title="Overdue" val={formatCurrency(overdueAmount)} subtitle="Needs attention" subtitleColor="#ef4444" color="red" icon={AlertTriangle} data={barData} />
-                    <FinKPICard title="Outstanding Recv." val={formatCurrency(outstandingRecv)} trend="+8%" subtitle="vs last month" color="orange" icon={DollarSign} data={barData} />
+                    <FinKPICard title="Outstanding Recv." val={formatCurrency(outstandingRecv)} subtitle="vs last month" color="orange" icon={DollarSign} data={barData} />
                 </div>
 
                 {/* Charts Section */}
@@ -223,8 +223,8 @@ const FinancialOperations = () => {
                             <div className="rd-table-title">Invoice Register</div>
                             <div className="rd-table-subtitle">Payables & receivables — all invoices</div>
                         </div>
-                        <div className="rd-table-actions">
-                            <div style={{display: 'flex', gap: 6}}>
+                        <div className="rd-table-actions" style={{flexWrap: 'wrap'}}>
+                            <div style={{display: 'flex', gap: 6, flexWrap: 'wrap'}}>
                                 {typeFilters.map(f => (
                                     <button key={f} onClick={() => setTypeFilter(f)}
                                         style={{
@@ -235,7 +235,7 @@ const FinancialOperations = () => {
                                         }}>{f}</button>
                                 ))}
                             </div>
-                            <div style={{display: 'flex', gap: 6}}>
+                            <div style={{display: 'flex', gap: 6, flexWrap: 'wrap'}}>
                                 {statusFilters.map(f => (
                                     <button key={f} onClick={() => setStatusFilter(f)}
                                         style={{
@@ -249,9 +249,10 @@ const FinancialOperations = () => {
                         </div>
                     </div>
 
-                    <table className="rd-table">
-                        <thead>
-                            <tr>
+                    <div style={{overflowX: 'auto'}}>
+                        <table className="rd-table" style={{minWidth: 1000}}>
+                            <thead>
+                                <tr>
                                 <th>INVOICE ID</th>
                                 <th>TYPE</th>
                                 <th>PARTY</th>
@@ -300,7 +301,8 @@ const FinancialOperations = () => {
                                 );
                             })}
                         </tbody>
-                    </table>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

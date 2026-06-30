@@ -81,9 +81,12 @@ const loginUser = async (req, res) => {
     // Validate role if requested
     if (requestedRole) {
         let isRoleValid = false;
-        if (requestedRole === role) {
+        const dbRole = (role || '').toLowerCase();
+        const reqRole = (requestedRole || '').toLowerCase();
+        
+        if (reqRole === dbRole) {
             isRoleValid = true;
-        } else if (requestedRole === 'Admin' && role === 'Super Admin') {
+        } else if (reqRole === 'admin' && dbRole === 'super admin') {
             isRoleValid = true;
         }
         

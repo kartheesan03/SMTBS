@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getEmployees, createEmployee, updateEmployee, deleteEmployee, getMe, updateMe } = require('../controllers/employeeController');
+const { getEmployees, getEmployee, createEmployee, updateEmployee, deleteEmployee, getMe, updateMe } = require('../controllers/employeeController');
 const { protect } = require('../middleware/authMiddleware');
 const { authorize } = require('../middleware/roleMiddleware');
 
@@ -13,6 +13,7 @@ router.route('/me')
     .put(protect, updateMe);
 
 router.route('/:id')
+    .get(protect, authorize('Admin', 'HR', 'Manager'), getEmployee)
     .put(protect, authorize('Admin', 'HR'), updateEmployee)
     .delete(protect, authorize('Admin', 'HR'), deleteEmployee);
 

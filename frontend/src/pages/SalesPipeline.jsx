@@ -143,7 +143,7 @@ const SalesPipeline = () => {
     const oppColors = ['#8b5cf6', '#f59e0b', '#0ea5e9', '#10b981'];
     const oppBgs = ['#faf5ff', '#fffbeb', '#f0f9ff', '#ecfdf5'];
 
-    const makeBarData = (base) => Array.from({length: 7}, () => ({v: Math.max(1, base + Math.floor(Math.random() * (base * 0.4) - (base * 0.2)))}));
+    
 
     if (loading) return <div className="flex-center" style={{height:'100vh'}}><div className="loader"></div></div>;
 
@@ -164,10 +164,10 @@ const SalesPipeline = () => {
                 </div>
 
                 <div className="rd-kpi-row">
-                    <PipelineKPICard title="Total Pipeline Value" val={formatShortCurrency(pipelineValue)} trend="+24%" color="blue" icon={BarChartIcon} data={makeBarData(dealCount || 5)} />
-                    <PipelineKPICard title="Deals in Pipeline" val={dealCount} trend="+11%" color="teal" icon={TrendingUp} data={makeBarData(dealCount || 5)} />
-                    <PipelineKPICard title="Avg. Deal Size" val={formatShortCurrency(avgDealSize)} trend="+9%" color="purple" icon={DollarSign} data={makeBarData(avgDealSize / 1000 || 5)} />
-                    <PipelineKPICard title="Win Rate" val={`${winRate}%`} trend="+6%" color="green" icon={Award} data={makeBarData(winRate || 10)} />
+                    <PipelineKPICard title="Total Pipeline Value" val={formatShortCurrency(pipelineValue)} color="blue" icon={BarChartIcon} />
+                    <PipelineKPICard title="Deals in Pipeline" val={dealCount} color="teal" icon={TrendingUp} />
+                    <PipelineKPICard title="Avg. Deal Size" val={formatShortCurrency(avgDealSize)} color="purple" icon={DollarSign} />
+                    <PipelineKPICard title="Win Rate" val={`${winRate}%`} color="green" icon={Award} />
                 </div>
 
                 {/* Stage Funnel Chart */}
@@ -430,17 +430,6 @@ const PipelineKPICard = ({ title, val, trend, color, icon: Icon, data }) => {
                         <div style={{fontSize: 13, fontWeight: 600, color: '#1e293b', marginTop: 6}}>{title}</div>
                     </div>
                 </div>
-                <div style={{width: 80, height: 50}}>
-                    <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={data}>
-                            <Bar dataKey="v" fill={barColors[color]} radius={[2,2,0,0]} />
-                        </BarChart>
-                    </ResponsiveContainer>
-                </div>
-            </div>
-            <div style={{display: 'flex', alignItems: 'center', gap: 6, marginTop: 10}}>
-                <span style={{fontSize: 12, fontWeight: 700, color: iconColors[color]}}>↗ {trend}</span>
-                <span style={{fontSize: 12, color: '#64748b', fontWeight: 500}}>vs last month</span>
             </div>
         </div>
     );

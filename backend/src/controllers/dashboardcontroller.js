@@ -8,10 +8,6 @@ const Attendance = require('../models/Attendance');
 const Leave = require('../models/Leave');
 
 
-const generateTrend = (base, count = 7) => {
-    return Array.from({length: count}, (_, i) => Math.max(0, base + Math.floor(Math.random() * 10 - 5)));
-};
-
 const getDashboardStats = async (req, res) => {
     try {
         const role = req.user.role;
@@ -36,13 +32,13 @@ const getDashboardStats = async (req, res) => {
                     activeCustomers, 
                     totalVendors,
                     trends: {
-                        employees: generateTrend(totalEmployees),
-                        materials: generateTrend(activeMaterialsCount),
-                        customers: generateTrend(totalCustomers),
-                        orders: generateTrend(totalOrders),
-                        revenue: generateTrend(50000), // Will be updated later
-                        attendance: generateTrend(85), // Percentage
-                        payroll: generateTrend(100000)
+                        employees: [],
+                        materials: [],
+                        customers: [],
+                        orders: [],
+                        revenue: [],
+                        attendance: [],
+                        payroll: []
                     }
                 };
         } catch (e) { console.error('Count Stats Error:', e); }
@@ -55,7 +51,7 @@ const getDashboardStats = async (req, res) => {
                 { $group: { _id: null, total: { $sum: "$totalAmount" } } }
             ]);
             revenue = (revenueResult && revenueResult.length > 0) ? revenueResult[0].total : 0;
-                if(stats.trends) stats.trends.revenue = generateTrend(revenue / 10);
+            if(stats.trends) stats.trends.revenue = [];
 
             const purchaseResult = await Order.aggregate([
                 { $match: { status: { $ne: 'Cancelled' }, orderType: 'purchase', totalAmount: { $exists: true } } },
@@ -78,6 +74,7 @@ const getDashboardStats = async (req, res) => {
         let lowStockMaterials = [];
         let totalStockQuantity = 0;
         let inTransitCount = 0;
+        let outOfStockCount = 0;
         let allMaterialsRaw = [];
         try {
             allMaterialsRaw = await Material.find();
@@ -87,11 +84,14 @@ const getDashboardStats = async (req, res) => {
                 if (m.quantity <= (m.lowStockThreshold || 0)) {
                     lowStockMaterials.push(m);
                 }
+                if ((m.quantity || 0) === 0) {
+                    outOfStockCount++;
+                }
             });
             
             // Calculate inTransitCount from Purchase Orders
             const purchaseOrders = await Order.find({ 
-                type: 'Purchase', 
+                orderType: 'purchase', 
                 status: { $in: ['Pending', 'Awaiting Approval', 'Approved'] } 
             });
             purchaseOrders.forEach(po => {
@@ -140,7 +140,11 @@ const getDashboardStats = async (req, res) => {
                     }
                 }
             ]);
-            monthlyStats = monthlyStatsRaw || [];
+            const allMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            monthlyStats = allMonths.map(monthName => {
+                const found = monthlyStatsRaw?.find(m => m.name === monthName);
+                return found || { name: monthName, sales: 0, revenue: 0 };
+            });
         } catch (e) { console.error('Monthly Stats Aggregation Error:', e); }
 
         let topSellingMaterials = [];
@@ -181,8 +185,6 @@ const getDashboardStats = async (req, res) => {
         let recentOrders = [];
         try {
             recentOrders = await Order.find()
-                .populate('customer', 'name')
-                .populate('vendor', 'name')
                 .sort({ createdAt: -1 })
                 .limit(5);
         } catch (e) { console.error('Recent Orders Find Error:', e); }
@@ -243,14 +245,15 @@ const getDashboardStats = async (req, res) => {
                 totalMaterialTypes: stats.totalMaterials || 0,
                 totalStockQuantity: totalStockQuantity,
                 lowStockCount: lowStockMaterials.length,
-                inTransitCount: inTransitCount
+                inTransitCount: inTransitCount,
+                outOfStockCount: outOfStockCount
             },
             charts: { 
                 monthlyStats, 
                 categoryData: categoryData || [],
                 hrmsDonut: [
                     { name: 'Active', value: stats.totalEmployees || 0, color: '#3b82f6' },
-                    { name: 'Pending', value: await Employee.countDocuments({status: 'Pending'}) || 0, color: '#f59e0b' }
+                    { name: 'Pending', value: 0, color: '#f59e0b' }
                 ],
                 matDonut: [
                     { name: 'In Stock', value: (stats.totalMaterials || 0) - lowStockMaterials.length, color: '#10b981' },
@@ -294,10 +297,10 @@ const getDashboardStats = async (req, res) => {
         // Payroll Data Chart
         try {
             const payrollRaw = await Salary.aggregate([
-                { $match: { status: 'Approved', payPeriod: { $exists: true } } },
+                { $match: { status: 'Approved', month: { $exists: true } } },
                 {
                     $group: {
-                        _id: "$payPeriod",
+                        _id: "$month",
                         amount: { $sum: "$netSalary" }
                     }
                 },
@@ -452,6 +455,93 @@ const getDashboardStats = async (req, res) => {
                  }
              } catch(e) { console.error('Employee Stats Error:', e); }
         }
+
+        // Analytics Payload Generation
+        try {
+            // 1. KPI Calculations
+            const completedSalesOrders = await Order.find({ orderType: 'sales', status: { $in: ['Delivered', 'Completed'] } });
+            const completedPurchaseOrders = await Order.find({ orderType: 'purchase', status: { $in: ['Delivered', 'Completed'] } });
+            
+            const totalAnalyticsRevenue = completedSalesOrders.reduce((sum, o) => sum + (Number(o.totalAmount) || Number(o.grandTotal) || 0), 0);
+            const totalAnalyticsExpenses = completedPurchaseOrders.reduce((sum, o) => sum + (Number(o.totalAmount) || Number(o.grandTotal) || 0), 0);
+            const netProfit = totalAnalyticsRevenue - totalAnalyticsExpenses;
+            
+            const currentMonth = new Date().getMonth();
+            const thisMonthRev = completedSalesOrders.filter(o => { const d = new Date(o.orderDate || o.createdAt); return !isNaN(d) && d.getMonth() === currentMonth; }).reduce((s, o) => s + (Number(o.totalAmount) || Number(o.grandTotal) || 0), 0);
+            const lastMonthRev = completedSalesOrders.filter(o => { const d = new Date(o.orderDate || o.createdAt); return !isNaN(d) && d.getMonth() === ((currentMonth - 1 + 12) % 12); }).reduce((s, o) => s + (Number(o.totalAmount) || Number(o.grandTotal) || 0), 0);
+            const revenueGrowth = lastMonthRev > 0 ? ((thisMonthRev - lastMonthRev) / lastMonthRev * 100).toFixed(1) : (thisMonthRev > 0 ? 100 : 0);
+
+            // 2. Trend Data (12 months YoY)
+            const trendData = [];
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const currentYear = new Date().getFullYear();
+            
+            // Check if we have historical data beyond the current month
+            const hasHistorical = completedSalesOrders.some(o => {
+                const d = new Date(o.orderDate || o.createdAt);
+                return !isNaN(d) && d.getMonth() !== currentMonth;
+            });
+
+            let currentYearTotalProfit = 0;
+            let lastYearTotalProfit = 0;
+
+            for (let i = 0; i < 12; i++) {
+                // Current Year
+                let cyRev = completedSalesOrders.filter(o => { const d = new Date(o.orderDate || o.createdAt); return !isNaN(d) && d.getMonth() === i && d.getFullYear() === currentYear; }).reduce((s, o) => s + (Number(o.totalAmount) || Number(o.grandTotal) || 0), 0);
+                let cyExp = completedPurchaseOrders.filter(o => { const d = new Date(o.orderDate || o.createdAt); return !isNaN(d) && d.getMonth() === i && d.getFullYear() === currentYear; }).reduce((s, o) => s + (Number(o.totalAmount) || Number(o.grandTotal) || 0), 0);
+                
+                // Last Year
+                let lyRev = completedSalesOrders.filter(o => { const d = new Date(o.orderDate || o.createdAt); return !isNaN(d) && d.getMonth() === i && d.getFullYear() === currentYear - 1; }).reduce((s, o) => s + (Number(o.totalAmount) || Number(o.grandTotal) || 0), 0);
+                let lyExp = completedPurchaseOrders.filter(o => { const d = new Date(o.orderDate || o.createdAt); return !isNaN(d) && d.getMonth() === i && d.getFullYear() === currentYear - 1; }).reduce((s, o) => s + (Number(o.totalAmount) || Number(o.grandTotal) || 0), 0);
+
+                const cyProfit = cyRev - cyExp;
+                const lyProfit = lyRev - lyExp;
+
+                if (i <= currentMonth || hasHistorical) currentYearTotalProfit += cyProfit;
+                lastYearTotalProfit += lyProfit;
+
+                trendData.push({
+                    name: monthNames[i],
+                    fullMonth: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][i],
+                    currentYearProfit: Math.round(cyProfit),
+                    lastYearProfit: Math.round(lyProfit)
+                });
+            }
+
+            // 3. Health Metrics
+            const totalMatCount = stats.totalMaterials || 0;
+            const materialHealth = totalMatCount > 0 ? Math.round(((totalMatCount - lowStockMaterials.length) / totalMatCount) * 100) : 0;
+            
+            let hrAttendanceRate = 0;
+            if (data.hrStats && data.hrStats.totalEmployees > 0) {
+                hrAttendanceRate = Math.round(((data.hrStats.presentToday || 0) / data.hrStats.totalEmployees) * 100);
+            }
+            
+            const totalOrderCount = await Order.countDocuments();
+            const fulfilledOrderCount = await Order.countDocuments({ status: { $in: ['Delivered', 'Completed'] } });
+            const orderFulfillment = totalOrderCount > 0 ? Math.round((fulfilledOrderCount / totalOrderCount) * 100) : 0;
+            
+            const totalCustCount = stats.totalCustomers || 0;
+            const customerRetention = totalCustCount > 0 ? Math.round(((stats.activeCustomers || 0) / totalCustCount) * 100) : 0;
+
+            data.analytics = {
+                kpis: {
+                    totalRevenue: totalAnalyticsRevenue,
+                    totalExpenses: totalAnalyticsExpenses,
+                    netProfit: netProfit,
+                    revenueGrowth: Number(revenueGrowth),
+                    currentYearTotalProfit,
+                    lastYearTotalProfit
+                },
+                trendData: trendData,
+                healthMetrics: {
+                    materialHealth,
+                    hrAttendanceRate,
+                    orderFulfillment,
+                    customerRetention
+                }
+            };
+        } catch (e) { console.error('Analytics Data Error:', e); }
 
         res.json(data);
     } catch (error) {

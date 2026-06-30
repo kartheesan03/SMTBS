@@ -134,7 +134,7 @@ const Customers = ({ directoryOnly }) => {
                     <CustomerKPICard title="Total Accounts" val={customers.length} icon={Users} color="blue" data={barData} />
                     <CustomerKPICard title="Active" val={activeAccounts.length} icon={UserCheck} color="green" data={barData} />
                     <CustomerKPICard title="At Risk" val={atRisk.length} icon={AlertCircle} color="orange" data={barData} />
-                    <CustomerKPICard title="LTV / Revenue" val={formatCurrency(totalRevenue)} icon={DollarSign} color="indigo" data={barData} />
+                    <CustomerKPICard title="LTV / Revenue" val={formatCurrency(totalRevenue)} icon={DollarSign} color="purple" data={barData} />
                 </div>
 
                 <div style={{ marginTop: '24px' }}>

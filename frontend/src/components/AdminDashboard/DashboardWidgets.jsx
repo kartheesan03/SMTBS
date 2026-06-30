@@ -160,24 +160,7 @@ export const TopWelcomeBar = ({ username, data }) => {
     );
 };
 
-// Helper for curved sparklines
-const MockSparkline = ({ color }) => {
-    const cid = color.replace('#', '');
-    return (
-        <svg viewBox="0 0 100 30" width="100%" height="100%" preserveAspectRatio="none">
-            <path d="M0,25 C10,15 20,30 30,20 C40,10 50,25 60,15 C70,5 80,20 90,10 C95,5 100,10 100,10" 
-                  fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
-            <path d="M0,25 C10,15 20,30 30,20 C40,10 50,25 60,15 C70,5 80,20 90,10 C95,5 100,10 100,10 L100,30 L0,30 Z" 
-                  fill={`url(#grad-${cid})`} stroke="none" />
-            <defs>
-                <linearGradient id={`grad-${cid}`} x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stopColor={color} stopOpacity="0.15" />
-                    <stop offset="100%" stopColor={color} stopOpacity="0" />
-                </linearGradient>
-            </defs>
-        </svg>
-    )
-};
+
 
 export const PremiumKPICard = ({ 
     title, subtitle, value, isCurrency, prefix, icon: Icon, color, trend, trendValue 
@@ -209,9 +192,6 @@ export const PremiumKPICard = ({
                 </div>
             )}
 
-            <div className="erp-kpi-premium-sparkline">
-                <MockSparkline color={color} />
-            </div>
         </motion.div>
     );
 };

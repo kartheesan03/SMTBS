@@ -30,10 +30,11 @@ const navigationConfig = [
     },
     {
         title: 'ERP',
-        icon: 'Briefcase',
+        icon: 'Database',
         permission: 'view_erp',
         children: [
             { title: 'Procurement', path: '/erp' },
+            { title: 'Purchase', path: '/erp/purchase' },
             { title: 'Vendor Management', path: '/vendors' },
             { title: 'Financial Tracking', path: '/erp/finance' },
             { title: 'Order Management', path: '/orders' }
@@ -45,10 +46,27 @@ const navigationConfig = [
         permission: 'view_crm',
         children: [
             { title: 'Customer Data', path: '/crm' },
-            { title: 'Lead Tracking', path: '/crm/leads' },
             { title: 'Sales Pipeline', path: '/crm/pipeline' },
+            { title: 'Leads', path: '/crm/leads' },
+            { title: 'Sales', path: '/erp/sales' },
             { title: 'Support Management', path: '/support' }
         ]
+    },
+    {
+        title: 'Tasks & Projects',
+        icon: 'CheckSquare',
+        permission: 'all',
+        children: [
+            { title: 'My Tasks', path: '/my-tasks' },
+            { title: 'Assigned Tasks', path: '/tasks/assigned' },
+            { title: 'Projects', path: '/projects' }
+        ]
+    },
+    {
+        title: 'Financial Operations',
+        icon: 'DollarSign',
+        path: '/finance',
+        permission: 'view_reports'
     },
     {
         title: 'Reports & Analytics',
@@ -58,13 +76,14 @@ const navigationConfig = [
     },
     {
         title: 'Settings',
-        icon: 'SettingsIcon',
+        icon: 'Settings',
         permission: 'view_settings',
         children: [
             { title: 'General Settings', path: '/settings' },
-            { title: 'User Management', path: '/settings/users' },
+            { title: 'User Management', path: '/users' },
             { title: 'Roles & Permissions', path: '/settings/roles' },
             { title: 'Audit Logs', path: '/settings/audit-logs' },
+            { title: 'Backup & Restore', path: '/settings/backup' },
             { title: 'Integrations', path: '/settings/integrations' }
         ]
     }
@@ -84,8 +103,9 @@ exports.getNavigation = async (req, res) => {
             }
         }
         
-        // If it's the super admin, they get everything
-        if (req.user.email === 'admin@smtbms.com') {
+        const roleName = req.user.role ? req.user.role.toLowerCase() : '';
+        // If it's the super admin or admin, they get everything
+        if (req.user.email === 'admin@smtbms.com' || roleName === 'admin' || roleName === 'super admin') {
             userPermissions.push('all');
         }
         

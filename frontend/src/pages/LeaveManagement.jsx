@@ -47,7 +47,7 @@ const LeaveManagement = () => {
     const approvalRate = totalRequests > 0 ? Math.round((approvedCount / totalRequests) * 100) : 0;
 
     // Trend generator for UI
-    const makeTrend = (base) => Array.from({length: 8}, () => ({v: Math.max(0, base + Math.floor(Math.random() * 4 - 2))}));
+    
 
     const getStatusBadge = (status) => {
         if (status === 'Approved') return <span className="rd-status-badge rd-status-green"><span className="rd-legend-dot" style={{background: '#10b981', display:'inline-block', marginRight: 6}}></span>Approved</span>;
@@ -109,17 +109,17 @@ const LeaveManagement = () => {
 
                 {/* KPI Cards */}
                 <div className="rd-kpi-row">
-                    <HRMSKPICard title="Total Requests" val={totalRequests} sub="All leave applications" color="blue" data={makeTrend(totalRequests)} icon={FileText} />
-                    <HRMSKPICard title="Pending" val={pendingCount} sub="Action required" color="orange" data={makeTrend(pendingCount)} icon={Clock} />
-                    <HRMSKPICard title="Approved" val={approvedCount} sub={`${approvalRate}% approval rate`} color="green" data={makeTrend(approvedCount)} icon={CheckCircle} />
-                    <HRMSKPICard title="Rejected" val={rejectedCount} sub="Not approved" color="red" data={makeTrend(rejectedCount)} icon={XCircle} />
+                    <HRMSKPICard title="Total Requests" val={totalRequests} sub="All leave applications" color="blue" icon={FileText} />
+                    <HRMSKPICard title="Pending" val={pendingCount} sub="Action required" color="orange" icon={Clock} />
+                    <HRMSKPICard title="Approved" val={approvedCount} sub={`${approvalRate}% approval rate`} color="green" icon={CheckCircle} />
+                    <HRMSKPICard title="Rejected" val={rejectedCount} sub="Not approved" color="red" icon={XCircle} />
                 </div>
 
                 {/* Table Section */}
                 <div className="rd-table-card">
-                    <div className="rd-table-header" style={{borderBottom: 'none'}}>
-                        <div style={{display: 'flex', gap: 16, alignItems: 'center'}}>
-                            <div className="rd-search-bar" style={{width: 250, background: '#fff'}}>
+                    <div className="rd-table-header" style={{borderBottom: 'none', flexWrap: 'wrap', gap: 16}}>
+                        <div style={{display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap'}}>
+                            <div className="rd-search-bar" style={{minWidth: 250, flexShrink: 0, background: '#fff'}}>
                                 <Search size={16} color="#94a3b8" />
                                 <input
                                     type="text"
@@ -143,9 +143,10 @@ const LeaveManagement = () => {
                         </div>
                     </div>
                     
-                    <table className="rd-table">
-                        <thead>
-                            <tr>
+                    <div style={{overflowX: 'auto'}}>
+                        <table className="rd-table" style={{minWidth: 1000}}>
+                            <thead>
+                                <tr>
                                 <th>Employee</th>
                                 <th>Dept</th>
                                 <th>Leave Type</th>
@@ -214,7 +215,8 @@ const LeaveManagement = () => {
                                 })
                             )}
                         </tbody>
-                    </table>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
