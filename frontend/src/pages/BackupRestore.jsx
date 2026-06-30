@@ -15,7 +15,8 @@ const BackupRestore = () => {
             setLoading(true);
             const [listRes, statsRes] = await Promise.all([
                 API.get('/backup/list'),
-                API.get('/backup/statistics')
+                API.get('/backup/statistics'),
+                new Promise(resolve => setTimeout(resolve, 600)) // Artificial delay for visual feedback
             ]);
             setHistoryData(listRes.data || []);
             setStats(statsRes.data || { totalBackups: 0, lastBackup: null, storageUsed: '0 MB' });
@@ -203,7 +204,7 @@ const BackupRestore = () => {
                                             <tr key={item._id || index}>
                                                 <td>
                                                     <div className="backup-name">{item.backupName}</div>
-                                                    <div className="backup-id">{item._id?.substring(0, 8) || `BK-${index}`}</div>
+                                                    <div className="backup-id">{String(item._id || '').substring(0, 8) || `BK-${index}`}</div>
                                                 </td>
                                                 <td>{item.backupType || 'Full'}</td>
                                                 <td>{item.fileSize || '-'}</td>
@@ -218,9 +219,17 @@ const BackupRestore = () => {
                                                     </span>
                                                 </td>
                                                 <td className="td-actions">
-                                                    <button className="action-btn download-btn" onClick={() => handleDownload(item._id, item.backupName)} title="Download"><CloudDownload size={16} /></button>
-                                                    <button className="action-btn restore-btn" onClick={() => handleRestore(item._id)} title="Restore" style={{ color: '#f59e0b', background: '#fffbeb', border: '1px solid #fef3c7', padding: '6px', borderRadius: '6px', cursor: 'pointer', marginLeft: '6px' }}><RefreshCw size={16} /></button>
-                                                    <button className="action-btn delete-btn" onClick={() => handleDelete(item._id)} title="Delete" style={{ marginLeft: '6px' }}><Trash2 size={16} /></button>
+                                                    <div className="td-actions-wrapper" style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '8px' }}>
+                                                        <button onClick={() => handleDownload(item._id, item.backupName)} title="Download" style={{ width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', border: 'none', background: '#eff6ff', color: '#3b82f6', cursor: 'pointer' }}>
+                                                            <CloudDownload size={16} style={{ width: '16px', height: '16px', minWidth: '16px', strokeWidth: 2, display: 'block' }} />
+                                                        </button>
+                                                        <button onClick={() => handleRestore(item._id)} title="Restore" style={{ width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', border: '1px solid #fef3c7', background: '#fffbeb', color: '#f59e0b', cursor: 'pointer' }}>
+                                                            <RefreshCw size={16} style={{ width: '16px', height: '16px', minWidth: '16px', strokeWidth: 2, display: 'block' }} />
+                                                        </button>
+                                                        <button onClick={() => handleDelete(item._id)} title="Delete" style={{ width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', border: 'none', background: '#fef2f2', color: '#ef4444', cursor: 'pointer' }}>
+                                                            <Trash2 size={16} style={{ width: '16px', height: '16px', minWidth: '16px', strokeWidth: 2, display: 'block' }} />
+                                                        </button>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         )

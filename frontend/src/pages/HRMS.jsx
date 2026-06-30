@@ -113,16 +113,12 @@ const HRMS = () => {
             <div className="rd-content">
                 {/* Module Header */}
                 <div className="rd-module-header">
-                    <div className="rd-module-icon" style={{background: 'linear-gradient(135deg, #4338ca 0%, #312e81 100%)'}}>
-                        <span style={{fontSize: 24, fontWeight: 800}}>ED</span>
-                    </div>
                     <div className="rd-module-info">
                         <div className="rd-module-title-row">
                             <span className="rd-module-title">Employee Directory</span>
-                            <span className="rd-module-badge" style={{background: '#eff6ff', color: '#3b82f6', borderColor: '#bfdbfe'}}>HRMS</span>
+                            <span className="rd-module-badge">HRMS</span>
                         </div>
-                        <div className="rd-module-desc">Manage all employee records, profiles and status</div>
-                    </div>
+                        </div>
                 </div>
 
                 {/* KPI Cards — Real Data */}

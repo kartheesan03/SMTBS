@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import API from '../api/axios';
+import { User } from 'lucide-react';
 import StandardPageLayout from '../components/StandardPageLayout/StandardPageLayout';
 import toast from 'react-hot-toast';
 import { FormSection, FormGroup, Input, Select } from '../components/ui';
@@ -111,7 +112,7 @@ const AddCustomer = ({ isEditMode = false }) => {
             infoCard={
                 <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
                     <div style={{ padding: '12px', background: '#e0e7ff', borderRadius: '50%', color: '#4f46e5' }}>
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                        <User size={24} />
                     </div>
                     <div>
                         <h4 style={{ margin: 0, color: '#1e293b', fontSize: '16px' }}>{isEditMode ? formData.name : 'New Customer'}</h4>

@@ -77,16 +77,12 @@ const TrackingDashboard = () => {
             <div className="rd-content">
                 {/* Module Header */}
                 <div className="rd-module-header">
-                    <div className="rd-module-icon">
-                        <Activity size={32} />
-                    </div>
                     <div className="rd-module-info">
                         <div className="rd-module-title-row">
-                            <span className="rd-module-badge" style={{background: '#fef2f2', color: '#ef4444', borderColor: '#fecaca'}}>MOVEMENTS</span>
                             <span className="rd-module-title">Movement Tracking</span>
+                            <span className="rd-module-badge">MOVEMENTS</span>
                         </div>
-                        <div className="rd-module-desc">Track all inventory IN/OUT activities, transfers, and historical movement logs.</div>
-                    </div>
+                        </div>
                 </div>
 
                 {/* KPI Cards */}

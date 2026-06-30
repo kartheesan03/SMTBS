@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, FileText, Clock, CheckCircle, XCircle, Plus } from 'lucide-react';
+import { Search, FileText, Clock, CheckCircle, XCircle, Plus , Calendar} from 'lucide-react';
 import API from '../api/axios';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 import { HRMSKPICard } from '../components/HRMSShared';
@@ -95,16 +95,12 @@ const LeaveManagement = () => {
             <div className="rd-content">
                 {/* Module Header */}
                 <div className="rd-module-header">
-                    <div className="rd-module-icon" style={{background: 'linear-gradient(135deg, #4338ca 0%, #312e81 100%)'}}>
-                        <span style={{fontSize: 24, fontWeight: 800}}>LM</span>
-                    </div>
                     <div className="rd-module-info">
                         <div className="rd-module-title-row">
                             <span className="rd-module-title">Leave Management</span>
-                            <span className="rd-module-badge" style={{background: '#eff6ff', color: '#3b82f6', borderColor: '#bfdbfe'}}>HRMS</span>
+                            <span className="rd-module-badge">HRMS</span>
                         </div>
-                        <div className="rd-module-desc">Approve, reject, and track employee leave requests</div>
-                    </div>
+                        </div>
                 </div>
 
                 {/* KPI Cards */}

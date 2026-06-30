@@ -1,7 +1,9 @@
 import React, { useContext, useState, useEffect, useRef } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { Bell, RefreshCw, Search, Grid, Plus, LogOut, User, Settings as SettingsIcon, ArrowLeft, X } from 'lucide-react';
+import { Bell, RefreshCw, Search, Grid, Plus, LogOut, User, Settings as SettingsIcon, ArrowLeft, X, Calendar } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import SmtbmsLogo from './SmtbmsLogo';
+import UserAvatar from './UserAvatar';
 
 const Topbar = ({ onOpenModuleLauncher, onOpenCommandCenter }) => {
     const { user, logout } = useContext(AuthContext);
@@ -39,10 +41,7 @@ const Topbar = ({ onOpenModuleLauncher, onOpenCommandCenter }) => {
         <header className="topbar">
             <div className="topbar-left">
                 <div className="topbar-brand" onClick={() => navigate('/')}>
-                    <div className="brand-logo-tb">
-                        <span>S</span>
-                    </div>
-                    <h2>SMTBMS</h2>
+                    <SmtbmsLogo size={26} textColor="#1e293b" />
                 </div>
                 
                 <button className="apps-toggle-btn" onClick={onOpenModuleLauncher} title="Modules">
@@ -60,7 +59,7 @@ const Topbar = ({ onOpenModuleLauncher, onOpenCommandCenter }) => {
 
             <div className="topbar-right">
                 <div className="datetime-pill">
-                    <span className="calendar-icon">📅</span>
+                    <Calendar size={14} />
                     <span className="date-text">{formattedDate}</span>
                     <span className="time-text">{formattedTime}</span>
                 </div>
@@ -83,7 +82,11 @@ const Topbar = ({ onOpenModuleLauncher, onOpenCommandCenter }) => {
                 <div className="profile-container" ref={profileRef}>
                     <div className="profile-dropdown" onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}>
                         <div className="profile-avatar">
-                            <img src={user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'System Admin')}&background=6366f1&color=fff`} alt={user?.name || 'System Admin'} style={{width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover'}} />
+                            <UserAvatar
+                                src={user?.picture || user?.avatar}
+                                name={user?.name || 'System Admin'}
+                                size={36}
+                            />
                         </div>
                         <div className="profile-info">
                             <span className="name">{user?.name || 'System Admin'}</span>
@@ -94,7 +97,11 @@ const Topbar = ({ onOpenModuleLauncher, onOpenCommandCenter }) => {
                     {isProfileMenuOpen && (
                         <div className="profile-menu">
                             <div className="pm-header">
-                                <img src={user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'System Admin')}&background=6366f1&color=fff`} alt="Avatar" />
+                                <UserAvatar
+                                    src={user?.picture || user?.avatar}
+                                    name={user?.name || 'System Admin'}
+                                    size={40}
+                                />
                                 <div className="pm-header-info">
                                     <span className="pm-name">{user?.name || 'System Admin'}</span>
                                     <span className="pm-email">{user?.email || 'admin@smtbms.com'}</span>

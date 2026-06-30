@@ -17,6 +17,7 @@ const Attendance = () => {
         absentToday: 0,
         onLeaveToday: 0
     });
+    const [myStatus, setMyStatus] = useState(null);
     const [loading, setLoading] = useState(true);
 
     // Filters
@@ -43,8 +44,40 @@ const Attendance = () => {
         }
     }, []);
 
+    const fetchMyStatus = async () => {
+        try {
+            const res = await API.get('/attendance/status');
+            setMyStatus(res.data);
+        } catch (err) {
+            console.error('Failed to fetch my status:', err);
+        }
+    };
+
+    const handleCheckIn = async () => {
+        try {
+            await API.post('/attendance/check-in');
+            alert('Checked in successfully!');
+            fetchMyStatus();
+            fetchData();
+        } catch (err) {
+            alert(err.response?.data?.message || 'Check in failed');
+        }
+    };
+
+    const handleCheckOut = async () => {
+        try {
+            await API.post('/attendance/check-out');
+            alert('Checked out successfully!');
+            fetchMyStatus();
+            fetchData();
+        } catch (err) {
+            alert(err.response?.data?.message || 'Check out failed');
+        }
+    };
+
     useEffect(() => {
         fetchData();
+        fetchMyStatus();
     }, [fetchData]);
 
     // Trend mock generator (for UI purposes since no historical trend API exists)
@@ -98,16 +131,12 @@ const Attendance = () => {
             <div className="rd-content">
                 {/* Module Header */}
                 <div className="rd-module-header">
-                    <div className="rd-module-icon" style={{background: 'linear-gradient(135deg, #4338ca 0%, #312e81 100%)'}}>
-                        <span style={{fontSize: 24, fontWeight: 800}}>AT</span>
-                    </div>
                     <div className="rd-module-info">
                         <div className="rd-module-title-row">
                             <span className="rd-module-title">Attendance Tracker</span>
-                            <span className="rd-module-badge" style={{background: '#eff6ff', color: '#3b82f6', borderColor: '#bfdbfe'}}>HRMS</span>
+                            <span className="rd-module-badge">HRMS</span>
                         </div>
-                        <div className="rd-module-desc">Daily attendance overview and records</div>
-                    </div>
+                        </div>
                 </div>
 
                 {/* KPI Cards */}
@@ -151,7 +180,15 @@ const Attendance = () => {
                                 <option value="On Leave">On Leave</option>
                             </select>
                         </div>
-                        <div className="rd-table-actions">
+                        <div className="rd-table-actions" style={{display: 'flex', gap: 12}}>
+                            <button className="rd-btn-solid" style={{background: myStatus?.checkIn ? '#94a3b8' : '#3b82f6', cursor: myStatus?.checkIn ? 'not-allowed' : 'pointer'}} onClick={handleCheckIn} disabled={myStatus?.checkIn}>
+                                <Clock size={16} style={{marginRight: 8, verticalAlign: 'middle'}}/>
+                                Check In
+                            </button>
+                            <button className="rd-btn-solid" style={{background: !myStatus?.checkIn || myStatus?.checkOut ? '#94a3b8' : '#ef4444', cursor: !myStatus?.checkIn || myStatus?.checkOut ? 'not-allowed' : 'pointer'}} onClick={handleCheckOut} disabled={!myStatus?.checkIn || myStatus?.checkOut}>
+                                <Clock size={16} style={{marginRight: 8, verticalAlign: 'middle'}}/>
+                                Check Out
+                            </button>
                             <button className="rd-btn-solid" style={{background: '#10b981'}} onClick={() => alert('Auto-mark absent logic runs automatically at 6 PM')}>
                                 <Check size={16} style={{marginRight: 8, verticalAlign: 'middle'}}/>
                                 Attendance Runs Automatically

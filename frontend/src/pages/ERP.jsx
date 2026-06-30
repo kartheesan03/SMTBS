@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import API from '../api/axios';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { ShoppingCart, Clock, CheckCircle, DollarSign, Search, Eye, Truck, FileText, Plus } from 'lucide-react';
+import { ShoppingCart, Clock, CheckCircle, DollarSign, Search, Eye, Truck, FileText, Plus , Briefcase} from 'lucide-react';
 import { BarChart, Bar, ResponsiveContainer } from 'recharts';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 import jsPDF from 'jspdf';
@@ -87,16 +87,12 @@ const ERP = () => {
             <div className="rd-content">
                 {/* Module Header */}
                 <div className="rd-module-header">
-                    <div className="rd-module-icon" style={{background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)'}}>
-                        <span style={{fontSize: 24, fontWeight: 800}}>PM</span>
-                    </div>
                     <div className="rd-module-info">
                         <div className="rd-module-title-row">
                             <span className="rd-module-title">Procurement Management</span>
-                            <span className="rd-module-badge" style={{background: '#eff6ff', color: '#3b82f6', borderColor: '#bfdbfe'}}>PROCUREMENT</span>
+                            <span className="rd-module-badge">PROCUREMENT</span>
                         </div>
-                        <div className="rd-module-desc">Streamline purchasing workflows, supplier coordination, and procurement efficiency.</div>
-                    </div>
+                        </div>
                 </div>
 
                 {/* KPI Cards */}

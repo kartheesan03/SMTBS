@@ -151,16 +151,12 @@ const SalesPipeline = () => {
         <div className="rd-container">
             <div className="rd-content">
                 <div className="rd-module-header">
-                    <div className="rd-module-icon" style={{background: 'linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)'}}>
-                        <span style={{fontSize: 24, fontWeight: 800}}>SP</span>
-                    </div>
                     <div className="rd-module-info">
                         <div className="rd-module-title-row">
                             <span className="rd-module-title">Sales Pipeline Overview</span>
-                            <span className="rd-module-badge" style={{background: '#eef2ff', color: '#4f46e5', borderColor: '#c7d2fe'}}>PIPELINE</span>
+                            <span className="rd-module-badge">PIPELINE</span>
                         </div>
-                        <div className="rd-module-desc">Track opportunities, deal progress, and revenue forecasts.</div>
-                    </div>
+                        </div>
                 </div>
 
                 <div className="rd-kpi-row">

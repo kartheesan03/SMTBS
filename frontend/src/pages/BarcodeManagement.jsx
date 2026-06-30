@@ -10,6 +10,7 @@ const BarcodeManagement = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [showScanModal, setShowScanModal] = useState(false);
     const [showGenerateModal, setShowGenerateModal] = useState(false);
+    const [previewItem, setPreviewItem] = useState(null);
 
     useEffect(() => {
         const fetchMaterials = async () => {
@@ -66,16 +67,12 @@ const BarcodeManagement = () => {
             <div className="rd-content">
                 {/* Module Header */}
                 <div className="rd-module-header">
-                    <div className="rd-module-icon" style={{background: 'linear-gradient(135deg, #4f46e5 0%, #312e81 100%)'}}>
-                        <span style={{fontSize: 24, fontWeight: 800}}>B&</span>
-                    </div>
                     <div className="rd-module-info">
                         <div className="rd-module-title-row">
                             <span className="rd-module-title">Barcode & QR Management</span>
-                            <span className="rd-module-badge" style={{background: '#f3e8ff', color: '#9333ea', borderColor: '#d8b4fe'}}>BARCODE / QR</span>
+                            <span className="rd-module-badge">BARCODE / QR</span>
                         </div>
-                        <div className="rd-module-desc">Generate, scan, and manage barcode and QR code labels for all tracked materials.</div>
-                    </div>
+                        </div>
                 </div>
 
                 {/* KPI Cards */}
@@ -164,8 +161,31 @@ const BarcodeManagement = () => {
                                         <td style={{color: '#94a3b8'}}>{item.last}</td>
                                         <td>
                                             <div style={{display: 'flex', gap: 8}}>
-                                                <button className="rd-btn-outline" style={{padding: '6px 12px', fontSize: 12, color: '#3b82f6', borderColor: '#bfdbfe'}}>Preview</button>
-                                                <button className="rd-btn-outline" style={{padding: '6px 12px', fontSize: 12, color: '#10b981', borderColor: '#a7f3d0'}}>Print</button>
+                                                <button 
+                                                    className="rd-btn-outline" 
+                                                    style={{padding: '6px 12px', fontSize: 12, color: '#3b82f6', borderColor: '#bfdbfe', cursor: 'pointer'}}
+                                                    onClick={(e) => { e.stopPropagation(); setPreviewItem(item); }}
+                                                >
+                                                    Preview
+                                                </button>
+                                                <button 
+                                                    className="rd-btn-outline" 
+                                                    style={{padding: '6px 12px', fontSize: 12, color: '#10b981', borderColor: '#a7f3d0', cursor: 'pointer'}}
+                                                    onClick={(e) => { 
+                                                        e.stopPropagation(); 
+                                                        setPreviewItem(item);
+                                                        setTimeout(() => {
+                                                            const printContent = document.getElementById('print-area').innerHTML;
+                                                            const originalContent = document.body.innerHTML;
+                                                            document.body.innerHTML = printContent;
+                                                            window.print();
+                                                            document.body.innerHTML = originalContent;
+                                                            window.location.reload();
+                                                        }, 500);
+                                                    }}
+                                                >
+                                                    Print
+                                                </button>
                                             </div>
                                         </td>
                                     </tr>
@@ -232,6 +252,39 @@ const BarcodeManagement = () => {
                         <div className="rd-modal-footer">
                             <button className="rd-btn-outline" onClick={() => setShowGenerateModal(false)}>Cancel</button>
                             <button className="rd-btn-solid" onClick={() => setShowGenerateModal(false)}>Generate & Print</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Preview Label Modal */}
+            {previewItem && (
+                <div className="rd-modal-overlay">
+                    <div className="rd-modal-content" style={{maxWidth: 400}}>
+                        <div className="rd-modal-header">
+                            <h3 style={{margin: 0, fontSize: 18, color: 'var(--rd-text-main)'}}>Label Preview</h3>
+                            <button className="rd-modal-close" onClick={() => setPreviewItem(null)}>&times;</button>
+                        </div>
+                        <div className="rd-modal-body" style={{padding: 24, textAlign: 'center'}}>
+                            <div id="print-area" style={{display: 'inline-block'}}>
+                                <div style={{border: '2px solid #000', padding: 20, borderRadius: 8, background: '#fff', textAlign: 'center', width: 250}}>
+                                    <h2 style={{margin: '0 0 15px 0', fontSize: 18, color: '#000'}}>{previewItem.name}</h2>
+                                    <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(previewItem.qr)}`} alt="QR Code" style={{marginBottom: 15}} />
+                                    <div style={{fontSize: 16, fontWeight: 'bold', color: '#000', letterSpacing: 2}}>{previewItem.barcode}</div>
+                                    <div style={{fontSize: 12, color: '#000', marginTop: 4}}>{previewItem.id}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="rd-modal-footer">
+                            <button className="rd-btn-outline" onClick={() => setPreviewItem(null)}>Close</button>
+                            <button className="rd-btn-solid" style={{background: '#10b981'}} onClick={() => {
+                                const printContent = document.getElementById('print-area').innerHTML;
+                                const originalContent = document.body.innerHTML;
+                                document.body.innerHTML = printContent;
+                                window.print();
+                                document.body.innerHTML = originalContent;
+                                window.location.reload();
+                            }}>Print Label</button>
                         </div>
                     </div>
                 </div>

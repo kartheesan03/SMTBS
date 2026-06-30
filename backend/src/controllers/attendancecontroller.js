@@ -289,8 +289,9 @@ const getAllAttendance = async (req, res) => {
 
             if (record) {
                 // Attach employee data manually since populate was removed
-                record.employee = employeeData;
-                return record;
+                const plainRecord = record.toJSON ? record.toJSON() : (record.toObject ? record.toObject() : { ...record });
+                plainRecord.employee = employeeData;
+                return plainRecord;
             }
             return {
                 employeeId: empId,

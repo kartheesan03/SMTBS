@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import API from '../api/axios';
+import { UserPlus } from 'lucide-react';
 import StandardPageLayout from '../components/StandardPageLayout/StandardPageLayout';
 import toast from 'react-hot-toast';
 
@@ -85,7 +86,7 @@ const AddEmployee = ({ isEditMode = false }) => {
             infoCard={
                 <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
                     <div style={{ padding: '12px', background: '#e0e7ff', borderRadius: '50%', color: '#4f46e5' }}>
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                        <UserPlus size={24} />
                     </div>
                     <div>
                         <h4 style={{ margin: 0, color: '#1e293b', fontSize: '16px' }}>{isEditMode ? `${formData.firstName} ${formData.lastName}` : 'New Employee Profile'}</h4>

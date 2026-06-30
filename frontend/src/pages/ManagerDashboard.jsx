@@ -15,15 +15,15 @@ import {
 } from '../components/AdminDashboard/DashboardWidgets';
 import { SalesAreaChart, InventoryStatusDonut } from '../components/AdminDashboard/AnalyticsCharts';
 import CommandCenter from '../components/CommandCenter';
+import UserAvatar from '../components/UserAvatar';
 import '../components/AdminDashboard/AdminDashboardPremium.css';
 
 const ManagerDashboard = () => {
     const { user, logout } = useContext(AuthContext);
 
     const displayName = user?.name || user?.user?.name || 'Manager';
-    const displayRole = user?.role || user?.user?.role || 'Management';
+    const displayRole = user?.role || user?.user?.role || 'Department Manager';
     const displayEmail = user?.email || user?.user?.email || 'manager@smtbms.com';
-    const displayAvatar = user?.picture || user?.avatar || user?.user?.picture || user?.user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=6366f1&color=fff`;
 
     const navigate = useNavigate();
     const [dashboardData, setDashboardData] = useState(null);
@@ -205,8 +205,12 @@ const ManagerDashboard = () => {
 
                     <div className="erp-profile-menu-container" style={{ position: 'relative' }}>
                         <div className="erp-profile-menu" style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer', paddingLeft: '24px', borderLeft: '1px solid #e2e8f0' }} onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}>
-                            <div className="erp-profile-avatar" style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#0f172a', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '600', fontSize: '14px', overflow: 'hidden' }}>
-                                <img src={displayAvatar} alt={displayName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            <div className="module-wb-avatar">
+                                <UserAvatar
+                                    src={user?.picture || user?.avatar || user?.user?.picture || user?.user?.avatar}
+                                    name={displayName}
+                                    size={48}
+                                />
                             </div>
                             <div className="erp-profile-info" style={{ display: 'flex', flexDirection: 'column' }}>
                                 <span className="erp-profile-name" style={{ fontSize: '14px', fontWeight: '600', color: '#1e293b' }}>{displayName}</span>

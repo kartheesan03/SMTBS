@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Package, Search, TrendingUp, AlertTriangle, XCircle, ExternalLink, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { Package, Search, TrendingUp, AlertTriangle, XCircle, ExternalLink, ArrowUpRight, ArrowDownRight , PackageCheck} from 'lucide-react';
 import { LineChart, Line, PieChart, Pie, Cell, ResponsiveContainer, XAxis, Tooltip, CartesianGrid } from 'recharts';
 import API from '../api/axios';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
@@ -77,16 +77,12 @@ const StockRequests = () => {
             <div className="rd-content">
                 {/* Module Header */}
                 <div className="rd-module-header">
-                    <div className="rd-module-icon" style={{background: 'linear-gradient(135deg, #4338ca 0%, #312e81 100%)'}}>
-                        <span style={{fontSize: 24, fontWeight: 800}}>SM</span>
-                    </div>
                     <div className="rd-module-info">
                         <div className="rd-module-title-row">
                             <span className="rd-module-title">Stock Monitoring</span>
-                            <span className="rd-module-badge" style={{background: '#eff6ff', color: '#3b82f6', borderColor: '#bfdbfe'}}>STOCK</span>
+                            <span className="rd-module-badge">STOCK</span>
                         </div>
-                        <div className="rd-module-desc">Live stock health alerts, trend analysis, and distribution overview.</div>
-                    </div>
+                        </div>
                 </div>
 
                 {/* KPI Cards */}

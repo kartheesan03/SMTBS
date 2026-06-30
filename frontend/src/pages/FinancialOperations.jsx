@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import API from '../api/axios';
-import { TrendingUp, CreditCard, AlertTriangle, DollarSign, Search } from 'lucide-react';
+import { TrendingUp, CreditCard, AlertTriangle, DollarSign, Search , Wallet} from 'lucide-react';
 import { LineChart, Line, PieChart, Pie, Cell, BarChart, Bar, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 import toast from 'react-hot-toast';
@@ -122,16 +122,12 @@ const FinancialOperations = () => {
             <div className="rd-content">
                 {/* Module Header */}
                 <div className="rd-module-header">
-                    <div className="rd-module-icon" style={{background: 'linear-gradient(135deg, #4f46e5 0%, #312e81 100%)'}}>
-                        <span style={{fontSize: 24, fontWeight: 800}}>FO</span>
-                    </div>
                     <div className="rd-module-info">
                         <div className="rd-module-title-row">
                             <span className="rd-module-title">Financial Operations</span>
-                            <span className="rd-module-badge" style={{background: '#eef2ff', color: '#4f46e5', borderColor: '#c7d2fe'}}>FINANCE</span>
+                            <span className="rd-module-badge">FINANCE</span>
                         </div>
-                        <div className="rd-module-desc">Manage budgets, expenses, transactions, and financial performance.</div>
-                    </div>
+                        </div>
                 </div>
 
                 {/* KPI Cards */}

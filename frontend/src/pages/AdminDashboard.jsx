@@ -79,6 +79,13 @@ const AdminDashboard = () => {
         return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: '#64748b' }}>Loading dashboard data...</div>;
     }
 
+    const getGreeting = () => {
+        const hour = new Date().getHours();
+        if (hour < 12) return 'Good Morning';
+        if (hour < 18) return 'Good Afternoon';
+        return 'Good Evening';
+    };
+
     return (
         <div className="rd-container">
             <div className="rd-content">
@@ -86,7 +93,7 @@ const AdminDashboard = () => {
                 <div className="rd-hero">
                     <div className="rd-hero-left">
                         <div className="rd-greeting">
-                            Good Morning, {user?.name?.split(' ')[0] || 'Admin'} <CheckCircle size={28} color="#fca5a5" />
+                            {getGreeting()}, {user?.name?.split(' ')[0] || 'Admin'} <span role="img" aria-label="wave">👋</span>
                         </div>
                         <div className="rd-subtitle">
                             {user?.role || 'Administrator'} • <span className="rd-badge-id">{user?.email || 'System'}</span> • Today's Status: Online
@@ -147,9 +154,9 @@ const AdminDashboard = () => {
                 {/* Middle Section */}
                 <div className="rd-middle-row">
                     {/* Overview Summary */}
-                    <div className="rd-card">
+                    <div className="rd-card" style={{ display: 'flex', flexDirection: 'column' }}>
                         <div className="rd-card-title">Monthly Sales & Revenue</div>
-                        <div style={{height: 250, marginTop: 16}}>
+                        <div style={{flex: 1, minHeight: 250, marginTop: 16}}>
                             <ResponsiveContainer width="100%" height="100%">
                                 <AreaChart data={dashboardData?.charts?.monthlyStats || []} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                                     <defs>
@@ -171,6 +178,26 @@ const AdminDashboard = () => {
                                     <Area type="monotone" dataKey="sales" stroke="#10b981" strokeWidth={2} fillOpacity={1} fill="url(#colorRev)" name="Sales Orders" dot={{ r: 4, strokeWidth: 2, fill: '#fff', stroke: '#10b981' }} activeDot={{ r: 6 }} />
                                 </AreaChart>
                             </ResponsiveContainer>
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginTop: 24, paddingTop: 16, borderTop: '1px solid var(--rd-border)' }}>
+                            <div>
+                                <div style={{ fontSize: 12, color: 'var(--rd-text-muted)', marginBottom: 4 }}>Total YTD Revenue</div>
+                                <div style={{ fontSize: 18, fontWeight: 700, color: '#8b5cf6' }}>
+                                    ₹{dashboardData?.charts?.monthlyStats?.reduce((sum, item) => sum + (item.revenue || 0), 0).toLocaleString() || 0}
+                                </div>
+                            </div>
+                            <div>
+                                <div style={{ fontSize: 12, color: 'var(--rd-text-muted)', marginBottom: 4 }}>Total Sales Orders</div>
+                                <div style={{ fontSize: 18, fontWeight: 700, color: '#10b981' }}>
+                                    {dashboardData?.charts?.monthlyStats?.reduce((sum, item) => sum + (item.sales || 0), 0).toLocaleString() || 0}
+                                </div>
+                            </div>
+                            <div>
+                                <div style={{ fontSize: 12, color: 'var(--rd-text-muted)', marginBottom: 4 }}>Avg. Monthly Rev.</div>
+                                <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--rd-text-main)' }}>
+                                    ₹{dashboardData?.charts?.monthlyStats?.length ? Math.round(dashboardData.charts.monthlyStats.reduce((sum, item) => sum + (item.revenue || 0), 0) / dashboardData.charts.monthlyStats.length).toLocaleString() : 0}
+                                </div>
+                            </div>
                         </div>
                     </div>
 

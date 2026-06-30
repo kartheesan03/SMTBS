@@ -288,6 +288,7 @@ const AppContent = () => {
                     <Route path="/tasks/completed" element={<ProtectedRoute><ComingSoonPage title="Completed Tasks" /></ProtectedRoute>} />
                     <Route path="/tasks/pending" element={<ProtectedRoute><ComingSoonPage title="Pending Tasks" /></ProtectedRoute>} />
                     <Route path="/tasks/calendar" element={<ProtectedRoute><ComingSoonPage title="Task Calendar" /></ProtectedRoute>} />
+                    <Route path="/projects" element={<ProtectedRoute><ComingSoonPage title="Projects" subtitle="Project management module is coming soon" /></ProtectedRoute>} />
                     
                     <Route path="/support/history" element={<ProtectedRoute><ComingSoonPage title="Ticket History" /></ProtectedRoute>} />
                     <Route path="/support/kb" element={<ProtectedRoute><ComingSoonPage title="Knowledge Base" /></ProtectedRoute>} />

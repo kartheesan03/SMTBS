@@ -296,7 +296,15 @@
 .backup-table {
     width: 100%;
     border-collapse: collapse;
+    table-layout: fixed;
 }
+
+.backup-table th:nth-child(1) { width: 35%; }
+.backup-table th:nth-child(2) { width: 10%; }
+.backup-table th:nth-child(3) { width: 10%; }
+.backup-table th:nth-child(4) { width: 15%; }
+.backup-table th:nth-child(5) { width: 12%; }
+.backup-table th:nth-child(6) { width: 18%; }
 
 .backup-table th {
     text-align: left;
@@ -322,6 +330,7 @@
     font-size: 14px;
     font-weight: 600;
     color: #1e293b;
+    word-break: break-all;
 }
 
 .backup-id {
@@ -382,13 +391,14 @@
     text-align: right;
 }
 
-.td-actions {
+.td-actions-wrapper {
     display: flex;
     justify-content: flex-end;
+    align-items: center;
     gap: 8px;
 }
 
-.action-btn {
+.br-action-btn {
     width: 32px;
     height: 32px;
     border-radius: 8px;
@@ -398,6 +408,13 @@
     justify-content: center;
     cursor: pointer;
     transition: all 0.2s;
+    padding: 0;
+}
+
+.br-action-btn svg {
+    stroke: currentColor;
+    width: 16px;
+    height: 16px;
 }
 
 .download-btn {
@@ -553,4 +570,14 @@ input:checked + .slider:before {
     color: #64748b;
     margin: 0;
     line-height: 1.5;
+}
+
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.spin-icon {
+    animation: spin 1s linear infinite;
 }

@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { NotificationContext } from '../context/NotificationContext';
 import { useNavigate } from 'react-router-dom';
+import UserAvatar from './UserAvatar';
 import {
     User, Calendar, Bell, Clock, CheckCircle, AlertTriangle,
     Package, ShoppingCart, Users, DollarSign, FileText, Plus,
@@ -106,9 +107,10 @@ const RightPanel = ({ isOpen, onClose }) => {
                 {/* ── User Profile Card ── */}
                 <div className="rp-profile-card" onClick={() => navigate('/settings')}>
                     <div className="rp-avatar-ring">
-                        <img
-                            src={`https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=2563eb&color=fff&bold=true`}
-                            alt="Avatar"
+                        <UserAvatar
+                            src={user?.picture || user?.avatar}
+                            name={user?.name || 'User'}
+                            size={44}
                         />
                         <span className="rp-online-dot"></span>
                     </div>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
-import { Building2, CheckCircle, AlertTriangle, DollarSign, Star, Plus, Eye, Edit, Trash2 } from 'lucide-react';
+import { Building2, CheckCircle, AlertTriangle, DollarSign, Star, Plus, Eye, Edit, Trash2 , Truck} from 'lucide-react';
 import { BarChart, Bar, ResponsiveContainer } from 'recharts';
 import toast from 'react-hot-toast';
 import { DataTable } from '../components/ui';
@@ -124,16 +124,12 @@ const Vendors = () => {
             
             <div className="rd-content">
                 <div className="rd-module-header">
-                    <div className="rd-module-icon" style={{background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)'}}>
-                        <span style={{fontSize: 24, fontWeight: 800, color: 'white'}}>VM</span>
-                    </div>
                     <div className="rd-module-info">
                         <div className="rd-module-title-row">
-                            <span className="rd-module-badge" style={{background: '#eff6ff', color: '#3b82f6', borderColor: '#bfdbfe'}}>VENDORS</span>
                             <span className="rd-module-title">Vendor Management</span>
+                            <span className="rd-module-badge">VENDORS</span>
                         </div>
-                        <div className="rd-module-desc">Manage supplier relationships, contracts, performance, and compliance.</div>
-                    </div>
+                        </div>
                 </div>
 
                 <div className="rd-kpi-row">

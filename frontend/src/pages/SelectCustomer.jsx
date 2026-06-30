@@ -72,7 +72,7 @@ const SelectCustomer = () => {
                     <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>No customers found.</div>
                 ) : (
                     <div style={{overflowX: 'auto'}}>
-                        <table className="enterprise-table" style={{minWidth: 1000}}>
+                        <table className="modern-table">
                             <thead>
                                 <tr>
                                 <th>Company Name</th>

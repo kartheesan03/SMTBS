@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import API from '../api/axios';
-import { User, Briefcase, Key, Bell, Activity, Settings as SettingsIcon, Shield, ShieldCheck } from 'lucide-react';
+import { User, Briefcase, Key, Bell, Activity, Settings as SettingsIcon, Shield, ShieldCheck, Camera } from 'lucide-react';
 import CustomerProfileSettings from './CustomerProfileSettings';
 
 const Profile = () => {
@@ -217,7 +217,7 @@ const Profile = () => {
                     </div>
                     <label className="avatar-upload-btn-premium" title="Change Picture">
                         <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handlePictureUpload} />
-                        📷
+                        <Camera size={13} color="#ffffff" />
                     </label>
                     <span className="status-dot-online-banner"></span>
                 </div>
@@ -539,23 +539,23 @@ const Profile = () => {
                     position: absolute;
                     bottom: -2px;
                     right: -2px;
-                    background: var(--bg-surface, #ffffff);
-                    border: 1px solid var(--border-subtle, #e2e8f0);
+                    background: #1e293b;
+                    border: 2px solid #ffffff;
                     border-radius: 50%;
-                    width: 28px;
-                    height: 28px;
+                    width: 26px;
+                    height: 26px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    font-size: 14px;
+                    font-size: 12px;
                     cursor: pointer;
-                    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-                    transition: all 0.2s;
-                    z-index: 2;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+                    transition: transform 0.2s, background 0.2s;
+                    z-index: 3;
                 }
                 .avatar-upload-btn-premium:hover {
-                    background: var(--bg-hover, #f8fafc);
-                    transform: scale(1.05);
+                    background: #3b82f6;
+                    transform: scale(1.1);
                 }
 
                 .status-dot-online-banner {

@@ -24,7 +24,6 @@ const EmployeeDashboard = () => {
     const displayName = user?.name || user?.user?.name || 'Employee';
     const displayRole = user?.role || user?.user?.role || 'Staff';
     const displayEmail = user?.email || user?.user?.email || 'employee@smtbms.com';
-    const displayAvatar = user?.picture || user?.avatar || user?.user?.picture || user?.user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=6366f1&color=fff`;
 
     const navigate = useNavigate();
     const [dashboardData, setDashboardData] = useState(null);

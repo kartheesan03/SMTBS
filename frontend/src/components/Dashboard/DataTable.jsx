@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, ChevronLeft, ChevronRight, SlidersHorizontal } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, SlidersHorizontal, Info } from 'lucide-react';
 
 const DataTable = ({ title, headers, data, renderRow, onViewAll, emptyText, searchable = true, itemsPerPage = 5 }) => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -45,7 +45,7 @@ const DataTable = ({ title, headers, data, renderRow, onViewAll, emptyText, sear
                 {filteredData.length === 0 ? (
                     <div style={{ padding: '60px 20px', textAlign: 'center', color: 'var(--text-muted)' }}>
                         <div style={{ marginBottom: '16px', opacity: 0.5 }}>
-                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                            <Info size={48} strokeWidth={1.5} />
                         </div>
                         <p style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-heading)', margin: '0 0 4px 0' }}>No records found</p>
                         <p style={{ fontSize: '13px', margin: 0 }}>{emptyText || 'Try adjusting your search criteria.'}</p>

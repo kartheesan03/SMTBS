@@ -4,6 +4,7 @@ import { AuthContext } from '../context/AuthContext';
 import { NotificationContext } from '../context/NotificationContext';
 import * as Icons from 'lucide-react';
 import API from '../api/axios';
+import SmtbmsLogo from './SmtbmsLogo';
 import './FarmakuSidebar.css';
 
 const FarmakuSidebar = () => {
@@ -52,15 +53,7 @@ const FarmakuSidebar = () => {
     return (
         <aside className="farmaku-sidebar">
             <div className="farmaku-sidebar-header">
-                <div className="farmaku-logo-container">
-                    <div className="farmaku-logo-icon">
-                        <Icons.Box size={24} strokeWidth={2.5} />
-                    </div>
-                    <div className="farmaku-logo-text-wrapper">
-                        <span className="farmaku-logo-text">SMTBMS</span>
-                        <span className="farmaku-logo-subtext">Smart Material Tracking &<br/>Business Management System</span>
-                    </div>
-                </div>
+                <SmtbmsLogo showTagline={true} taglineColor="#64748b" />
             </div>
 
             <div className="farmaku-sidebar-content" style={{ padding: '0 16px' }}>
@@ -68,11 +61,7 @@ const FarmakuSidebar = () => {
                     {loading ? (
                         <div style={{ padding: '20px', textAlign: 'center', color: '#64748b' }}>Loading menu...</div>
                     ) : (
-                        (() => {
-                            console.log('--- Sidebar Navigation Debug ---');
-                            console.log('Fetched Navigation Array:', navigation);
-                            console.log('Rendered Menu Items count:', navigation.length);
-                            return navigation.map((item, index) => (
+                        navigation.map((item, index) => (
                             <li key={index}>
                                 {item.children ? (
                                     <>
@@ -109,8 +98,7 @@ const FarmakuSidebar = () => {
                                     </NavLink>
                                 )}
                             </li>
-                        ));
-                        })()
+                        ))
                     )}
 
                     {/* Static Items that are not entirely permission driven in the same way (like Notifications, Support, Logout) */}

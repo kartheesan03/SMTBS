@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import API from '../api/axios';
-import { User, Building2, Key, MapPin, Globe, Phone, Mail, FileText, Activity, AlertTriangle, X, Calendar, Edit2, Save, ShieldCheck } from 'lucide-react';
+import { User, Building2, Key, MapPin, Globe, Phone, Mail, FileText, Activity, AlertTriangle, X, Calendar, Edit2, Save, ShieldCheck, Camera } from 'lucide-react';
 import CustomerForm from '../components/CustomerForm';
 
 const CustomerProfileSettings = () => {
@@ -163,7 +163,7 @@ const CustomerProfileSettings = () => {
                     </div>
                     <label className="avatar-upload-btn-premium" title="Change Picture">
                         <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handlePictureUpload} />
-                        📷
+                        <Camera size={14} color="#64748b" />
                     </label>
                     <span className="status-dot-online-banner"></span>
                 </div>

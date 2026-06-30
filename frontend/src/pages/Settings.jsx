@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import API from '../api/axios';
-import { User, Briefcase, Key, Bell, Activity, CreditCard, Plus, Edit, Trash2, Smartphone, ShieldCheck, Mail, MapPin } from 'lucide-react';
+import { User, Briefcase, Key, Bell, Activity, CreditCard, Plus, Edit, Trash2, Smartphone, ShieldCheck, Mail, MapPin, Camera } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import RolesPermissions from './RolesPermissions';
 import NotificationSettings from './NotificationSettings';
@@ -249,7 +249,7 @@ const Settings = () => {
                     </div>
                     <label className="avatar-upload-btn-premium" title="Change Picture">
                         <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handlePictureUpload} />
-                        📷
+                        <Camera size={13} color="#ffffff" />
                     </label>
                     <span className="status-dot-online-banner"></span>
                 </div>
@@ -266,11 +266,11 @@ const Settings = () => {
                 </div>
             </div>
 
-            {/* Main Grid */}
-            <div className="profile-grid">
+            {/* Row 1: Personal Info (wider) + Employment Details */}
+            <div className="profile-grid profile-grid-wide">
                 
                 {/* Left Column: Personal Information */}
-                <div className="profile-col-left">
+                <div className="profile-col-wide">
                     <div className="premium-card" style={{ padding: '24px' }}>
                         <div className="card-header">
                             <User size={18} className="header-icon purple-icon" />
@@ -292,18 +292,20 @@ const Settings = () => {
                                 <input type="email" value={formData.email} disabled className="input-disabled" />
                                 <span className="input-helper">Email cannot be changed</span>
                             </div>
-                            <div className="form-group">
-                                <label>Phone</label>
-                                <div className="input-with-icon">
-                                    <span className="input-icon">📞</span>
-                                    <input type="text" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} placeholder="Enter phone number" />
+                            <div className="form-row-2">
+                                <div className="form-group">
+                                    <label>Phone</label>
+                                    <div className="input-with-icon">
+                                        <span className="input-icon">📞</span>
+                                        <input type="text" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} placeholder="Enter phone number" />
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="form-group">
-                                <label>Address</label>
-                                <div className="input-with-icon">
-                                    <span className="input-icon">📍</span>
-                                    <input type="text" value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} placeholder="Enter address" />
+                                <div className="form-group">
+                                    <label>Address</label>
+                                    <div className="input-with-icon">
+                                        <span className="input-icon">📍</span>
+                                        <input type="text" value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} placeholder="Enter address" />
+                                    </div>
                                 </div>
                             </div>
                             
@@ -314,11 +316,9 @@ const Settings = () => {
                     </div>
                 </div>
 
-                {/* Right Column: Employment Details + Change Password */}
-                <div className="profile-col-right">
-                    
-                    {/* Employment Details */}
-                    <div className="premium-card mb-24" style={{ padding: '24px' }}>
+                {/* Right Column: Employment Details */}
+                <div className="profile-col-narrow">
+                    <div className="premium-card h-full" style={{ padding: '24px' }}>
                         <div className="card-header">
                             <Briefcase size={18} className="header-icon purple-icon" />
                             <h3 style={{ fontSize: '18px', fontWeight: 700 }}>Employment Details</h3>
@@ -346,91 +346,86 @@ const Settings = () => {
                             </div>
                         </div>
                     </div>
-
-                    {/* Change Password */}
-                    <div className="premium-card" style={{ padding: '24px' }}>
-                        <div className="card-header">
-                            <Key size={18} className="header-icon purple-icon" />
-                            <h3 style={{ fontSize: '18px', fontWeight: 700 }}>Change Password</h3>
-                        </div>
-                        <form className="ui-form" onSubmit={handlePasswordUpdate}>
-                            <div className="form-group">
-                                <label>Current Password</label>
-                                <input type="password" name="currentPass" placeholder="Enter current password" />
-                            </div>
-                            <div className="form-group">
-                                <label>New Password</label>
-                                <input type="password" name="newPass" placeholder="Enter new password" />
-                            </div>
-                            <button type="submit" className="btn-outline-purple">Update Password</button>
-                        </form>
-                    </div>
-
                 </div>
             </div>
 
-            {/* Bottom Grid: Notifications & Activity */}
-            <div className="profile-grid" style={{ marginTop: '24px' }}>
+            {/* Row 2: Change Password + Notifications + Recent Activity (3 columns) */}
+            <div className="profile-grid-three" style={{ marginTop: '24px' }}>
                 
+                {/* Change Password */}
+                <div className="premium-card" style={{ padding: '24px' }}>
+                    <div className="card-header">
+                        <Key size={18} className="header-icon purple-icon" />
+                        <h3 style={{ fontSize: '18px', fontWeight: 700 }}>Change Password</h3>
+                    </div>
+                    <form className="ui-form" onSubmit={handlePasswordUpdate}>
+                        <div className="form-group">
+                            <label>Current Password</label>
+                            <input type="password" name="currentPass" placeholder="Enter current password" />
+                        </div>
+                        <div className="form-group">
+                            <label>New Password</label>
+                            <input type="password" name="newPass" placeholder="Enter new password" />
+                        </div>
+                        <button type="submit" className="btn-outline-purple">Update Password</button>
+                    </form>
+                </div>
+
                 {/* Notifications Preferences */}
-                <div className="profile-col-left">
-                    <div className="premium-card h-full" style={{ padding: '24px' }}>
-                        <div className="card-header">
-                            <Bell size={18} className="header-icon purple-icon" />
-                            <h3 style={{ fontSize: '18px', fontWeight: 700 }}>Notifications</h3>
-                        </div>
-                        <div className="toggle-list">
-                            {[
-                                { key: 'emailSummaries', label: 'Email Summaries' },
-                                { key: 'pushAlerts', label: 'Push Alerts' },
-                                { key: 'taskAssignments', label: 'Task Assignments' },
-                                { key: 'systemUpdates', label: 'System Updates' }
-                            ].map((item, i) => (
-                                <div key={i} className="toggle-item">
-                                    <span className="toggle-label">{item.label}</span>
-                                    <label className="switch">
-                                        <input 
-                                            type="checkbox" 
-                                            checked={preferences[item.key]} 
-                                            onChange={() => handlePreferenceChange(item.key)} 
-                                        />
-                                        <span className="slider round"></span>
-                                    </label>
-                                </div>
-                            ))}
-                        </div>
+                <div className="premium-card" style={{ padding: '24px' }}>
+                    <div className="card-header">
+                        <Bell size={18} className="header-icon purple-icon" />
+                        <h3 style={{ fontSize: '18px', fontWeight: 700 }}>Notifications</h3>
+                    </div>
+                    <div className="toggle-list">
+                        {[
+                            { key: 'emailSummaries', label: 'Email Summaries' },
+                            { key: 'pushAlerts', label: 'Push Alerts' },
+                            { key: 'taskAssignments', label: 'Task Assignments' },
+                            { key: 'systemUpdates', label: 'System Updates' }
+                        ].map((item, i) => (
+                            <div key={i} className="toggle-item">
+                                <span className="toggle-label">{item.label}</span>
+                                <label className="switch">
+                                    <input 
+                                        type="checkbox" 
+                                        checked={preferences[item.key]} 
+                                        onChange={() => handlePreferenceChange(item.key)} 
+                                    />
+                                    <span className="slider round"></span>
+                                </label>
+                            </div>
+                        ))}
                     </div>
                 </div>
 
                 {/* Recent Activity */}
-                <div className="profile-col-right">
-                    <div className="premium-card h-full" style={{ padding: '24px' }}>
-                        <div className="card-header">
-                            <Activity size={18} className="header-icon purple-icon" />
-                            <h3 style={{ fontSize: '18px', fontWeight: 700 }}>Recent Activity</h3>
-                        </div>
-                        <div className="activity-timeline">
-                            {recentActivity.length === 0 ? (
-                                <p style={{ fontSize: '14px', color: '#64748b', margin: 0 }}>No recent activity found.</p>
-                            ) : recentActivity.map((act, i) => {
-                                const renderIcon = () => {
-                                    if (act.icon === 'SettingsIcon') return <SettingsIcon size={14} />;
-                                    if (act.icon === 'Shield') return <Shield size={14} />;
-                                    return <Activity size={14} />;
-                                };
-                                const iconClass = act.icon === 'SettingsIcon' ? 'blue' : act.icon === 'Shield' ? 'purple' : 'green';
-                                
-                                return (
-                                    <div key={i} className="timeline-item">
-                                        <div className={`timeline-icon ${iconClass}`}>{renderIcon()}</div>
-                                        <div className="timeline-content">
-                                            <p>{act.text}</p>
-                                            <span>{act.time}</span>
-                                        </div>
+                <div className="premium-card" style={{ padding: '24px' }}>
+                    <div className="card-header">
+                        <Activity size={18} className="header-icon purple-icon" />
+                        <h3 style={{ fontSize: '18px', fontWeight: 700 }}>Recent Activity</h3>
+                    </div>
+                    <div className="activity-timeline">
+                        {recentActivity.length === 0 ? (
+                            <p style={{ fontSize: '14px', color: '#64748b', margin: 0 }}>No recent activity found.</p>
+                        ) : recentActivity.map((act, i) => {
+                            const renderIcon = () => {
+                                if (act.icon === 'SettingsIcon') return <SettingsIcon size={14} />;
+                                if (act.icon === 'Shield') return <Shield size={14} />;
+                                return <Activity size={14} />;
+                            };
+                            const iconClass = act.icon === 'SettingsIcon' ? 'blue' : act.icon === 'Shield' ? 'purple' : 'green';
+                            
+                            return (
+                                <div key={i} className="timeline-item">
+                                    <div className={`timeline-icon ${iconClass}`}>{renderIcon()}</div>
+                                    <div className="timeline-content">
+                                        <p>{act.text}</p>
+                                        <span>{act.time}</span>
                                     </div>
-                                );
-                            })}
-                        </div>
+                                </div>
+                            );
+                        })}
                     </div>
                 </div>
 
@@ -490,6 +485,7 @@ const Settings = () => {
                     flex-shrink: 0;
                     width: 80px;
                     height: 80px;
+                    position: relative;
                 }
                 .premium-banner-avatar {
                     width: 80px;
@@ -521,20 +517,21 @@ const Settings = () => {
                     position: absolute;
                     bottom: -2px;
                     right: -2px;
-                    background: var(--bg-surface, #ffffff);
-                    border: 1px solid var(--border-subtle, #e2e8f0);
+                    background: #1e293b;
+                    border: 2px solid #ffffff;
                     border-radius: 50%;
-                    width: 28px;
-                    height: 28px;
+                    width: 26px;
+                    height: 26px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     cursor: pointer;
-                    font-size: 14px;
-                    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-                    transition: transform 0.2s;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+                    transition: transform 0.2s, background 0.2s;
+                    z-index: 3;
                 }
                 .avatar-upload-btn-premium:hover {
+                    background: #3b82f6;
                     transform: scale(1.1);
                 }
 
@@ -605,6 +602,15 @@ const Settings = () => {
                 .profile-grid {
                     display: grid;
                     grid-template-columns: 1fr 1fr;
+                    gap: 24px;
+                    align-items: start;
+                }
+                .profile-grid-wide {
+                    grid-template-columns: 3fr 2fr;
+                }
+                .profile-grid-three {
+                    display: grid;
+                    grid-template-columns: repeat(3, 1fr);
                     gap: 24px;
                     align-items: start;
                 }
@@ -790,6 +796,8 @@ const Settings = () => {
                 /* Responsive */
                 @media (max-width: 900px) {
                     .profile-grid { grid-template-columns: 1fr; }
+                    .profile-grid-wide { grid-template-columns: 1fr; }
+                    .profile-grid-three { grid-template-columns: 1fr; }
                 }
                 @media (max-width: 600px) {
                     .form-row-2 { grid-template-columns: 1fr; }

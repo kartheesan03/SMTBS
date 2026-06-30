@@ -8,6 +8,8 @@ import {
     HelpCircle, User, Activity, List, Key, Shield, PieChart, Info, Map, 
     BookOpen, Layers, Archive, PackageCheck, Target
 } from 'lucide-react';
+import SmtbmsLogo from './SmtbmsLogo';
+import UserAvatar from './UserAvatar';
 import './DualSidebar.css';
 
 const DualSidebar = () => {
@@ -261,12 +263,7 @@ const DualSidebar = () => {
 
             <div className="secondary-sidebar">
                 <div className="ss-header">
-                    <h2>
-                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight: 8}}>
-                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-                        </svg>
-                        SMTBMS
-                    </h2>
+                    <SmtbmsLogo size={26} />
                     <button className="ss-close-btn" onClick={() => setIsExpanded(false)}>
                         <ChevronLeft size={20} />
                     </button>
@@ -303,9 +300,11 @@ const DualSidebar = () => {
                     </div>
 
                     <div className="ss-profile-info">
-                        <div className="ps-avatar" style={{width: 40, height: 40}}>
-                            <img src={user?.avatar || "https://ui-avatars.com/api/?name=Admin"} alt={user?.name || 'User'} />
-                        </div>
+                        <UserAvatar
+                            src={user?.picture || user?.avatar}
+                            name={user?.name || 'Admin'}
+                            size={40}
+                        />
                         <div className="ss-profile-text">
                             <span className="ss-profile-name">{user?.name || 'System Admin'}</span>
                             <span className="ss-profile-role">{user?.role || 'Admin'}</span>

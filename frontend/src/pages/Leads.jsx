@@ -78,16 +78,12 @@ const Leads = () => {
         <div className="rd-container">
             <div className="rd-content">
                 <div className="rd-module-header">
-                    <div className="rd-module-icon" style={{background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)'}}>
-                        <span style={{fontSize: 24, fontWeight: 800}}>LM</span>
-                    </div>
                     <div className="rd-module-info">
                         <div className="rd-module-title-row">
                             <span className="rd-module-title">Lead Management Center</span>
-                            <span className="rd-module-badge" style={{background: '#eff6ff', color: '#3b82f6', borderColor: '#bfdbfe'}}>LEADS</span>
+                            <span className="rd-module-badge">LEADS</span>
                         </div>
-                        <div className="rd-module-desc">Capture, qualify, and convert prospects into valuable customers.</div>
-                    </div>
+                        </div>
                 </div>
 
                 <div className="rd-kpi-row">

@@ -118,16 +118,12 @@ const Customers = ({ directoryOnly }) => {
             
             <div className="rd-content">
                 <div className="rd-module-header">
-                    <div className="rd-module-icon" style={{background: 'linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)'}}>
-                        <span style={{fontSize: 24, fontWeight: 800, color: 'white'}}>CD</span>
-                    </div>
                     <div className="rd-module-info">
                         <div className="rd-module-title-row">
-                            <span className="rd-module-badge" style={{background: '#eef2ff', color: '#4f46e5', borderColor: '#c7d2fe'}}>CUSTOMERS</span>
                             <span className="rd-module-title">Customer Data Hub</span>
+                            <span className="rd-module-badge">CUSTOMERS</span>
                         </div>
-                        <div className="rd-module-desc">Manage customer profiles, account information, and relationship insights.</div>
-                    </div>
+                        </div>
                 </div>
 
                 <div className="rd-kpi-row">

@@ -34,7 +34,6 @@ const navigationConfig = [
         permission: 'view_erp',
         children: [
             { title: 'Procurement', path: '/erp' },
-            { title: 'Purchase', path: '/erp/purchase' },
             { title: 'Vendor Management', path: '/vendors' },
             { title: 'Financial Tracking', path: '/erp/finance' },
             { title: 'Order Management', path: '/orders' }

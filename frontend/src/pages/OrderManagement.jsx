@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
-import { Package, Truck, CheckCircle, DollarSign, Search, Plus, Eye, ArrowRight, Activity, TrendingUp } from 'lucide-react';
+import { Package, Truck, CheckCircle, DollarSign, Search, Plus, Eye, ArrowRight, Activity, TrendingUp , ShoppingCart} from 'lucide-react';
 import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell } from 'recharts';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 import toast from 'react-hot-toast';
@@ -106,16 +106,12 @@ const OrderManagement = () => {
             <div className="rd-content">
                 {/* Module Header */}
                 <div className="rd-module-header">
-                    <div className="rd-module-icon" style={{background: 'linear-gradient(135deg, #4f46e5 0%, #312e81 100%)'}}>
-                        <span style={{fontSize: 24, fontWeight: 800}}>OM</span>
-                    </div>
                     <div className="rd-module-info">
                         <div className="rd-module-title-row">
                             <span className="rd-module-title">Order Management</span>
-                            <span className="rd-module-badge" style={{background: '#eef2ff', color: '#4f46e5', borderColor: '#c7d2fe'}}>ORDERS</span>
+                            <span className="rd-module-badge">ORDERS</span>
                         </div>
-                        <div className="rd-module-desc">Track customer orders, fulfillment status, deliveries, and operational workflows.</div>
-                    </div>
+                        </div>
                 </div>
 
                 {/* KPI Cards */}
