@@ -36,7 +36,9 @@ const navigationConfig = [
             { title: 'Attendance', path: '/attendance' },
             { title: 'Leave Management', path: '/leave-management' },
             { title: 'Payroll', path: '/payroll' },
-            { title: 'Performance', path: '/team-performance' }
+            { title: 'Generate Payroll', path: '/payroll/generate', permission: 'manage_hrms' },
+            { title: 'Performance', path: '/team-performance' },
+            { title: 'My Salary', path: '/my-salary' }
         ]
     },
     {

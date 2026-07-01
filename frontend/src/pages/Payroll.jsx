@@ -159,6 +159,10 @@ const Payroll = () => {
                             </select>
                         </div>
                         <div className="rd-table-actions">
+                            <button className="rd-btn-solid" style={{background: '#6366f1'}} onClick={() => navigate('/payroll/generate')}>
+                                <DollarSign size={16} style={{marginRight: 8, verticalAlign: 'middle'}} />
+                                Generate Payroll
+                            </button>
                             <button className="rd-btn-solid" style={{background: '#10b981'}} onClick={handleProcessAll}>
                                 <Play size={16} style={{marginRight: 8, verticalAlign: 'middle'}} fill="currentColor" />
                                 Pay All Approved

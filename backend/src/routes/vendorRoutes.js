@@ -4,8 +4,8 @@ const { getVendors, getVendorById, createVendor, updateVendor, getMyVendorProfil
 const { protect, authorize } = require('../middleware/authMiddleware');
 
 router.route('/')
-    .get(protect, authorize('Manager', 'Sales', 'Employee'), getVendors)
-    .post(protect, authorize('Manager'), createVendor);
+    .get(protect, authorize('view_materials', 'view_erp'), getVendors)
+    .post(protect, authorize('manage_materials', 'manage_erp'), createVendor);
 
 router.route('/profile')
     .post(protect, createVendorProfile);
@@ -14,11 +14,11 @@ router.route('/my-profile')
     .get(protect, getMyVendorProfile);
 
 router.route('/:id/materials')
-    .get(protect, authorize('Manager', 'Sales', 'Employee', 'Admin', 'Super Admin'), getVendorMaterials);
+    .get(protect, authorize('view_materials', 'view_erp'), getVendorMaterials);
 
 router.route('/:id')
-    .get(protect, authorize('Manager', 'Sales', 'Employee'), getVendorById)
-    .put(protect, authorize('Manager'), updateVendor)
-    .delete(protect, authorize('Admin'), deleteVendor);
+    .get(protect, authorize('view_materials', 'view_erp'), getVendorById)
+    .put(protect, authorize('manage_materials', 'manage_erp'), updateVendor)
+    .delete(protect, authorize('manage_materials', 'manage_erp'), deleteVendor);
 
 module.exports = router;

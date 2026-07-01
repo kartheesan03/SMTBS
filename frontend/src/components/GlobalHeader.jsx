@@ -12,11 +12,23 @@ const GlobalHeader = ({ onRefresh, onOpenModuleLauncher, onOpenCommandCenter }) 
     
     const [currentTime, setCurrentTime] = useState(new Date());
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+    const [dateFormat, setDateFormat] = useState(localStorage.getItem('dateFormat') || 'DD/MM/YYYY');
+    const [timezone, setTimezone] = useState(localStorage.getItem('timezone') || 'Asia/Kolkata');
     const profileRef = useRef(null);
 
     useEffect(() => {
         const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-        return () => clearInterval(timer);
+        
+        const handleSettingsUpdate = () => {
+            setDateFormat(localStorage.getItem('dateFormat') || 'DD/MM/YYYY');
+            setTimezone(localStorage.getItem('timezone') || 'Asia/Kolkata');
+        };
+        window.addEventListener('settingsUpdated', handleSettingsUpdate);
+        
+        return () => {
+            clearInterval(timer);
+            window.removeEventListener('settingsUpdated', handleSettingsUpdate);
+        };
     }, []);
 
     // Close profile menu if clicked outside
@@ -46,6 +58,19 @@ const GlobalHeader = ({ onRefresh, onOpenModuleLauncher, onOpenCommandCenter }) 
         navigate('/login');
     };
 
+    const formatCurrentDate = () => {
+        if (dateFormat === 'YYYY-MM-DD') {
+            return new Intl.DateTimeFormat('en-CA', { timeZone: timezone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(currentTime);
+        }
+        if (dateFormat === 'MM/DD/YYYY') {
+            return new Intl.DateTimeFormat('en-US', { timeZone: timezone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(currentTime);
+        }
+        if (dateFormat === 'DD/MM/YYYY') {
+            return new Intl.DateTimeFormat('en-GB', { timeZone: timezone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(currentTime);
+        }
+        return currentTime.toLocaleDateString('en-US', { timeZone: timezone, weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+    };
+
     return (
         <header className="rd-header" style={{ position: 'sticky', top: 0, zIndex: 100, background: '#fff', borderBottom: '1px solid #e2e8f0', margin: 0, width: '100%', boxSizing: 'border-box' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -57,19 +82,18 @@ const GlobalHeader = ({ onRefresh, onOpenModuleLauncher, onOpenCommandCenter }) 
                 >
                     <Grid size={18} color="#64748b" />
                 </button>
-                <div className="rd-search-bar" onClick={onOpenCommandCenter} style={{ cursor: 'text' }}>
+                <div className="rd-search-bar">
                     <Search size={16} color="#94a3b8" />
-                    <input type="text" className="rd-search-input" placeholder="Search materials, PO, vendors..." onClick={onOpenCommandCenter} />
-                    <span className="rd-cmd-k">⌘K</span>
+                    <input type="text" className="rd-search-input" placeholder="Search materials, PO, vendors..." />
                 </div>
             </div>
             
             <div className="rd-header-actions">
                 <div className="rd-datetime-pill">
                     <Calendar size={16} />
-                    {currentTime.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
+                    {formatCurrentDate()}
                     <span style={{ color: '#fda4af', margin: '0 4px' }}>·</span>
-                    {currentTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
+                    {currentTime.toLocaleTimeString('en-US', { timeZone: timezone, hour: 'numeric', minute: '2-digit', hour12: true })}
                 </div>
                 
                 <button className="rd-icon-btn" onClick={handleRefresh} title="Refresh">

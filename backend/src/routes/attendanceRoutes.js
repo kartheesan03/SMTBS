@@ -11,14 +11,13 @@ const {
     getUserAttendance,
     editAttendance
 } = require('../controllers/attendanceController');
-const { protect } = require('../middleware/authMiddleware');
-const { authorize } = require('../middleware/roleMiddleware');
+const { protect, authorize } = require('../middleware/authMiddleware');
 
-router.get('/', protect, authorize('Admin', 'HR', 'Manager'), getAllAttendance);
-router.get('/all', protect, authorize('Admin', 'HR', 'Manager'), getAllAttendance); // Alias
+router.get('/', protect, authorize('view_attendance'), getAllAttendance);
+router.get('/all', protect, authorize('view_attendance'), getAllAttendance); // Alias
 
 router.get('/history', protect, getAttendanceHistory);
-router.get('/monthly-summary', protect, authorize('Admin', 'HR', 'Manager'), getMonthlySummary);
+router.get('/monthly-summary', protect, authorize('view_attendance'), getMonthlySummary);
 router.get('/status', protect, getAttendanceStatus);
 
 router.post('/check-in', protect, checkIn);
@@ -30,6 +29,6 @@ router.post('/checkout', protect, checkOut); // Alias
 router.get('/my-history', protect, getMyAttendanceHistory);
 router.get('/user/:id', protect, getUserAttendance);
 
-router.put('/edit', protect, authorize('Admin', 'HR'), editAttendance);
+router.put('/edit', protect, authorize('manage_attendance'), editAttendance);
 
 module.exports = router;

@@ -200,9 +200,6 @@ const Attendance = () => {
                         <table className="rd-table" style={{minWidth: 1000}}>
                             <thead>
                                 <tr>
-                                    <th style={{width: 40}}>
-                                        <input type="checkbox" />
-                                </th>
                                 <th>Employee</th>
                                 <th>EMP ID</th>
                                 <th>Department</th>
@@ -216,18 +213,17 @@ const Attendance = () => {
                         <tbody>
                             {loading ? (
                                 <tr>
-                                    <td colSpan={9} style={{textAlign: 'center', padding: 32, color: '#94a3b8'}}>Loading attendance data...</td>
+                                    <td colSpan={8} style={{textAlign: 'center', padding: 32, color: '#94a3b8'}}>Loading attendance data...</td>
                                 </tr>
                             ) : filteredData.length === 0 ? (
                                 <tr>
-                                    <td colSpan={9} style={{textAlign: 'center', padding: 32, color: '#94a3b8'}}>No attendance records match your filters</td>
+                                    <td colSpan={8} style={{textAlign: 'center', padding: 32, color: '#94a3b8'}}>No attendance records match your filters</td>
                                 </tr>
                             ) : (
                                 filteredData.map((record, i) => {
                                     const emp = record.employee || {};
                                     return (
                                         <tr key={record.id || record._id || i}>
-                                            <td><input type="checkbox" /></td>
                                             <td>
                                                 <div style={{display: 'flex', alignItems: 'center', gap: 12}}>
                                                     <div className="rd-avatar" style={{width: 32, height: 32, fontSize: 12, background: 'var(--rd-orange-grad)'}}>

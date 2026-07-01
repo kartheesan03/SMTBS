@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend } from 'recharts';
 import { AuthContext } from '../context/AuthContext';
 import { NotificationContext } from '../context/NotificationContext';
 import API from '../api/axios';
@@ -7,7 +8,7 @@ import {
     Users, Search, Bell, Moon, Target, ShoppingBag, Award,
     Briefcase, Activity, FileText, CheckCircle, ListTodo,
     Menu, Calendar, Clock, LogOut, Settings as SettingsIcon, User as UserIcon, DollarSign, TrendingUp,
-    ArrowUpRight, ArrowDownRight
+    ArrowUpRight, ArrowDownRight, Filter, Layers
 } from 'lucide-react';
 import {
     EmptyState, SkeletonCard,
@@ -16,7 +17,8 @@ import {
 } from '../components/AdminDashboard/DashboardWidgets';
 import { SalesAreaChart, InventoryStatusDonut } from '../components/AdminDashboard/AnalyticsCharts';
 import CommandCenter from '../components/CommandCenter';
-import '../components/AdminDashboard/AdminDashboardPremium.css';
+import '../components/AdminDashboard/AdminDashboardRedesign.css';
+import { RDKPICard } from './AdminDashboard';
 
 const SalesDashboard = () => {
     const { user, logout } = useContext(AuthContext);
@@ -116,13 +118,41 @@ const SalesDashboard = () => {
 
     const dashboard = dashboardData || {};
     const totalCustomers = customersData.length;
-    const totalSales = ordersData.filter(o => o.status === 'Delivered' || o.status === 'Paid').length;
+    const totalOrders = ordersData.length;
     
-    const revenue = ordersData
-        .filter(o => o.status === 'Delivered' || o.status === 'Paid')
-        .reduce((sum, o) => sum + (o.totalAmount || 0), 0);
+    // Filter only SALES orders (not purchase)
+    const salesOrders = ordersData.filter(o => {
+        const t = String(o.orderType || '').toLowerCase();
+        return t.includes('sales') || t === '';
+    });
+    const completedSalesOrders = salesOrders.filter(o => o.status === 'Delivered' || o.status === 'Paid' || o.status === 'Completed');
+    const totalSales = completedSalesOrders.length;
+    
+    // Revenue from completed sales orders only
+    const revenue = dashboard.totalRevenue || completedSalesOrders
+        .reduce((sum, o) => sum + (Number(o.totalAmount) || Number(o.grandTotal) || 0), 0);
+
+    // This month's revenue
+    const now = new Date();
+    const thisMonthSales = completedSalesOrders.filter(o => {
+        const d = new Date(o.orderDate || o.createdAt);
+        return !isNaN(d) && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    });
+    const thisMonthRevenue = thisMonthSales.reduce((sum, o) => sum + (Number(o.totalAmount) || Number(o.grandTotal) || 0), 0);
+
+    // Last month's revenue for growth
+    const lastMonthSales = completedSalesOrders.filter(o => {
+        const d = new Date(o.orderDate || o.createdAt);
+        const lastMonth = (now.getMonth() - 1 + 12) % 12;
+        const lastMonthYear = now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
+        return !isNaN(d) && d.getMonth() === lastMonth && d.getFullYear() === lastMonthYear;
+    });
+    const lastMonthRevenue = lastMonthSales.reduce((sum, o) => sum + (Number(o.totalAmount) || Number(o.grandTotal) || 0), 0);
 
     const activeLeads = leadsData.filter(l => l.status !== 'Converted' && l.status !== 'Lost').length;
+    const convertedLeads = leadsData.filter(l => l.status === 'Converted').length;
+    const lostLeads = leadsData.filter(l => l.status === 'Lost').length;
+    const totalLeads = leadsData.length;
     
     let completedTasksCount = 0;
     let pendingTasksCount = 0;
@@ -135,225 +165,207 @@ const SalesDashboard = () => {
         }
     });
 
-    const targetRevenue = 50000;
-    const targetAchieved = revenue > 0 ? Math.min(Math.round((revenue / targetRevenue) * 100), 100) : 0;
-    const conversionRate = (totalSales > 0 && activeLeads > 0) ? Math.round((totalSales / (totalSales + activeLeads)) * 100) : 15;
+    // Conversion rate from real data
+    const conversionRate = totalLeads > 0 ? Math.round((convertedLeads / totalLeads) * 100) : 0;
+    
+    // Target achieved — this month vs last month
+    const targetAchieved = lastMonthRevenue > 0 
+        ? Math.min(Math.round((thisMonthRevenue / lastMonthRevenue) * 100), 100) 
+        : (thisMonthRevenue > 0 ? 100 : 0);
 
-    const leadsStatusData = [
-        { name: 'Active', value: activeLeads, color: '#3b82f6' },
-        { name: 'Converted', value: leadsData.filter(l => l.status === 'Converted').length, color: '#10b981' },
-        { name: 'Lost', value: leadsData.filter(l => l.status === 'Lost').length, color: '#ef4444' }
-    ].filter(item => item.value > 0);
+    // Revenue growth from real data
+    const revenueGrowth = lastMonthRevenue > 0 
+        ? parseFloat(((thisMonthRevenue - lastMonthRevenue) / lastMonthRevenue * 100).toFixed(1))
+        : (thisMonthRevenue > 0 ? 100 : 0);
 
-    const recentOrdersData = ordersData
+    // Pending orders count
+    const pendingOrders = salesOrders.filter(o => !['Delivered', 'Completed', 'Cancelled', 'Paid'].includes(o.status)).length;
+
+    // Lead source data from real leads
+    const leadSources = leadsData.reduce((acc, lead) => {
+        const source = lead.source || 'Direct';
+        acc[source] = (acc[source] || 0) + 1;
+        return acc;
+    }, {});
+    const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
+    const leadSourceData = Object.keys(leadSources).map((key, index) => ({
+        name: key,
+        value: leadSources[key],
+        percentage: totalLeads > 0 ? Math.round((leadSources[key] / totalLeads) * 100) : 0,
+        color: colors[index % colors.length]
+    }));
+
+    // Recent orders from real data, sorted by date
+    const recentOrdersData = [...salesOrders]
+        .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
         .slice(0, 5)
         .map(o => ({
             id: o._id,
-            text: `Order ${o.orderNumber || ''} - $${o.totalAmount || 0} (${o.status})`,
-            time: new Date(o.createdAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            color: o.status === 'Paid' || o.status === 'Delivered' ? '#10b981' : '#3b82f6'
+            text: `${o.orderNumber || 'Order'} — ${formatINR(o.totalAmount || 0)} (${o.status})`,
+            time: new Date(o.createdAt || Date.now()).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }),
+            color: (o.status === 'Paid' || o.status === 'Delivered' || o.status === 'Completed') ? '#10b981' : '#3b82f6'
         }));
 
-    const todayData = {
-        revenue: revenue.toLocaleString(),
-        orders: totalSales,
-        attendance: targetAchieved, // Using attendance prop for target achieved %
-        alerts: activeLeads // Alerts showing active leads
+    function formatINR(num) {
+        if (!num) return '₹0';
+        return '₹' + Number(num).toLocaleString('en-IN');
+    }
+
+    const formatIndianCurrency = formatINR;
+
+    // Monthly stats from backend for chart
+    const monthlyChartData = (dashboard.charts?.monthlyStats || []).map(m => ({
+        name: m.name,
+        revenue: m.revenue || 0,
+        orders: m.sales || 0
+    }));
+
+    const formatYAxis = (tickItem) => {
+        if (tickItem >= 10000000) return `₹${(tickItem / 10000000).toFixed(1)}Cr`;
+        if (tickItem >= 100000) return `₹${(tickItem / 100000).toFixed(1)}L`;
+        if (tickItem >= 1000) return `₹${(tickItem / 1000).toFixed(0)}k`;
+        return `₹${tickItem}`;
+    };
+    const CustomTooltip = ({ active, payload, label }) => {
+        if (active && payload && payload.length) {
+            return (
+                <div style={{ background: '#fff', padding: '12px 16px', borderRadius: '10px', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', border: '1px solid #e2e8f0' }}>
+                    <div style={{ fontWeight: 700, color: '#1e293b', marginBottom: '6px', fontSize: '14px' }}>{label}</div>
+                    {payload.map((p, i) => (
+                        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2px' }}>
+                            <span style={{ width: 8, height: 8, borderRadius: '50%', background: p.color }}></span>
+                            <span style={{ color: '#64748b', fontSize: '13px' }}>{p.name}:</span>
+                            <span style={{ fontWeight: 600, color: '#1e293b', fontSize: '13px' }}>{p.name === 'Revenue' ? formatIndianCurrency(p.value) : p.value}</span>
+                        </div>
+                    ))}
+                </div>
+            );
+        }
+        return null;
     };
 
-    const kpiCards = [
-        { title: 'Total Revenue', value: `$${revenue.toLocaleString()}`, icon: DollarSign, color: '#10b981', trend: '+12%', trendType: 'up' },
-        { title: 'Sales Orders', value: totalSales, icon: ShoppingBag, color: '#3b82f6', trend: '+8%', trendType: 'up' },
-        { title: 'Active Leads', value: activeLeads, icon: Target, color: '#f59e0b', trend: '-2%', trendType: 'down' },
-        { title: 'Conversion Rate', value: `${conversionRate}%`, icon: TrendingUp, color: '#8b5cf6', trend: '+5%', trendType: 'up' }
-    ];
-
     return (
-        <div className="module-container">
-            {/* Actions & Title */}
-            <div className="module-actions-section">
-                <div className="module-title-block">
-                    <h1>Sales Overview</h1>
-                    <p>Pipeline & Revenue Dashboard</p>
-                </div>
-                <div className="action-buttons">
-                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'var(--bg-body)', border: '1px solid var(--border-subtle)', padding: '8px 16px', borderRadius: 'var(--radius-md)', fontSize: '13px', fontWeight: 600, color: 'var(--text-main)', boxShadow: 'var(--shadow-sm)' }}>
-                        <span style={{ width: '8px', height: '8px', background: 'var(--success)', borderRadius: '50%', boxShadow: '0 0 0 2px rgba(16, 185, 129, 0.2)' }}></span> Live Data System
-                    </span>
-                </div>
-            </div>
-
-            {/* Core KPIs */}
-            <div className="module-kpi-section" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
-                {kpiCards.map((kpi, idx) => (
-                    <div key={idx} className="kpi-card">
-                        <div className="kpi-header">
-                            <span className="kpi-title">{kpi.title}</span>
-                            <div className="kpi-icon-wrapper" style={{background: `${kpi.color}15`, color: kpi.color}}>
-                                <kpi.icon size={20} />
+        <div className="rd-container">
+            <div className="rd-content">
+                {/* Hero Banner */}
+                <div className="rd-hero">
+                    <div className="rd-hero-left">
+                        <div className="rd-greeting">
+                            {displayName} <span role="img" aria-label="wave">👋</span>
+                        </div>
+                        <div className="rd-subtitle">
+                            {displayRole} • <span className="rd-badge-id">{displayEmail}</span> • Status: Online
+                        </div>
+                        
+                        <div className="rd-hero-actions">
+                            <button className="rd-btn-primary" onClick={() => navigate('/crm/leads')}><Filter size={18}/> View Leads</button>
+                            <button className="rd-btn-outline" onClick={() => navigate('/analytics')}><DollarSign size={18}/> Revenue</button>
+                            <button className="rd-btn-outline" onClick={() => navigate('/crm/customers')}><Users size={18}/> Customers</button>
+                        </div>
+                        
+                        <div className="rd-hero-footer">
+                            <div className="rd-footer-item">
+                                <span className="rd-footer-label">Total Revenue</span>
+                                <span className="rd-footer-val">{formatINR(revenue)}</span>
+                            </div>
+                            <div className="rd-footer-item">
+                                <span className="rd-footer-label">Customers</span>
+                                <span className="rd-footer-val">{totalCustomers}</span>
+                            </div>
+                            <div className="rd-footer-item">
+                                <span className="rd-footer-label">Pending Orders</span>
+                                <span className="rd-footer-val">{pendingOrders}</span>
                             </div>
                         </div>
-                        <div className="kpi-value">{kpi.value}</div>
-                        <div className={`kpi-trend ${kpi.trendType === 'down' ? 'negative' : 'positive'}`}>
-                            {kpi.trendType === 'up' ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />} 
-                            {kpi.trend} vs last month
+                    </div>
+                    
+                    <div className="rd-hero-right">
+                        <div className="rd-circle-progress" style={{'--p': `${conversionRate}%`}}>
+                            <div className="rd-circle-inner">
+                                <span className="rd-circle-val">{conversionRate}%</span>
+                                <span className="rd-circle-label">Conversion</span>
+                            </div>
+                        </div>
+                        <div className="rd-circle-progress" style={{'--p': `${targetAchieved}%`}}>
+                            <div className="rd-circle-inner">
+                                <span className="rd-circle-val">{targetAchieved}%</span>
+                                <span className="rd-circle-label">Target</span>
+                            </div>
                         </div>
                     </div>
-                ))}
-            </div>
+                </div>
 
-            {/* Main Analytics */}
-            <div className="module-analytics-section" style={{ gridTemplateColumns: '4fr 5fr 3fr' }}>
-                
-                {/* Lead Sources */}
-                <div className="analytics-card" style={{ display: 'flex', flexDirection: 'column' }}>
-                    <div className="analytics-header">
-                        <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Activity size={18} /> Lead Sources</h3>
-                    </div>
-                    <div style={{ flex: 1, minHeight: '280px', display: 'flex', flexDirection: 'column' }}>
-                        {leadSourceData.length > 0 ? (
-                            <>
-                                <div style={{ position: 'relative', flex: 1 }}>
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <PieChart>
-                                            <Pie data={leadSourceData} cx="50%" cy="50%" innerRadius={60} outerRadius={85} paddingAngle={2} dataKey="value" stroke="none">
-                                                {leadSourceData.map((entry, index) => (
-                                                    <Cell key={`cell-${index}`} fill={entry.color} />
-                                                ))}
-                                            </Pie>
-                                            <RechartsTooltip contentStyle={{ borderRadius: '12px', border: '1px solid var(--border-light)', boxShadow: 'var(--shadow-lg)' }} />
-                                        </PieChart>
-                                    </ResponsiveContainer>
-                                    <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center', pointerEvents: 'none' }}>
-                                        <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-heading)', lineHeight: 1 }}>{totalLeads}</div>
-                                        <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 600, marginTop: '4px' }}>Leads</div>
-                                    </div>
+                {/* KPI Row */}
+                <div className="rd-kpi-row">
+                    <RDKPICard title="Total Revenue" value={formatINR(revenue)} trendValue={`${revenueGrowth >= 0 ? '+' : ''}${revenueGrowth}%`} icon={DollarSign} color="green" subLabel="All Time" bottomVal={`This Month: ${formatINR(thisMonthRevenue)}`} />
+                    <RDKPICard title="Sales Orders" value={salesOrders.length} trendValue={`${totalSales} done`} icon={ShoppingBag} color="blue" subLabel="Total" bottomVal={`${pendingOrders} pending`} />
+                    <RDKPICard title="Active Leads" value={activeLeads} trendValue={`${totalLeads} total`} icon={Target} color="orange" subLabel="Current" bottomVal={`${convertedLeads} converted`} />
+                    <RDKPICard title="Conversion Rate" value={`${conversionRate}%`} trendValue={`${convertedLeads}/${totalLeads}`} icon={TrendingUp} color="purple" subLabel="Overall" bottomVal={`${lostLeads} lost`} />
+                </div>
+
+                {/* Middle Section */}
+                <div className="rd-middle-row">
+                    {/* Monthly Revenue & Orders Bar Chart */}
+                    <div className="rd-card" style={{ display: 'flex', flexDirection: 'column' }}>
+                        <div className="rd-card-title">Monthly Revenue & Orders</div>
+                        <div style={{flex: 1, minHeight: 250, marginTop: 16}}>
+                            {monthlyChartData.some(m => m.revenue > 0 || m.orders > 0) ? (
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <BarChart data={monthlyChartData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} dy={10} />
+                                        <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} tickFormatter={formatYAxis} width={55} />
+                                        <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} width={30} />
+                                        <RechartsTooltip content={<CustomTooltip />} cursor={{fill: 'rgba(59,130,246,0.05)'}} />
+                                        <Legend verticalAlign="top" align="right" iconType="circle" wrapperStyle={{ paddingBottom: '12px', fontSize: 12, fontWeight: 500 }} />
+                                        <Bar yAxisId="left" dataKey="revenue" name="Revenue" fill="#10b981" radius={[6, 6, 0, 0]} barSize={20} />
+                                        <Bar yAxisId="right" dataKey="orders" name="Orders" fill="#3b82f6" radius={[6, 6, 0, 0]} barSize={20} />
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            ) : (
+                                <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#94a3b8', flexDirection: 'column', gap: '8px'}}>
+                                    <TrendingUp size={32} color="#cbd5e1" />
+                                    <span>Revenue data will appear as orders are created</span>
                                 </div>
-                                <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap', paddingTop: '16px' }}>
-                                    {leadSourceData.map((item, idx) => (
-                                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 600, color: 'var(--text-main)' }}>
-                                            <span style={{ width: '10px', height: '10px', borderRadius: '4px', background: item.color }}></span>
-                                            {item.name} ({item.percentage}%)
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Quick Actions */}
+                    <div className="rd-card">
+                        <div className="rd-card-title">Quick Actions</div>
+                        <div className="rd-action-stack">
+                            <div className="rd-action-btn blue" onClick={() => navigate('/crm/leads')}><span className="rd-action-text">Manage Leads</span> <span>→</span></div>
+                            <div className="rd-action-btn purple" onClick={() => navigate('/crm/pipeline')}><span className="rd-action-text">Sales Pipeline</span> <span>→</span></div>
+                            <div className="rd-action-btn green" onClick={() => navigate('/crm')}><span className="rd-action-text">Customers</span> <span>→</span></div>
+                            <div className="rd-action-btn orange" onClick={() => navigate('/orders')}><span className="rd-action-text">Orders</span> <span>→</span></div>
+                        </div>
+                    </div>
+
+                    {/* Recent Orders */}
+                    <div className="rd-card">
+                        <div className="rd-card-title">Recent Orders</div>
+                        <div className="rd-feed">
+                            {recentOrdersData.length > 0 ? (
+                                recentOrdersData.map((order, idx) => (
+                                    <div className="rd-feed-item" key={order.id || idx} style={{cursor: 'pointer'}} onClick={() => navigate(`/orders/${order.id}`)}>
+                                        <div className="rd-feed-icon" style={{background: `${order.color}15`, color: order.color}}>
+                                            <ShoppingBag size={16}/>
                                         </div>
-                                    ))}
-                                </div>
-                            </>
-                        ) : (
-                            <div className="flex-center" style={{ flex: 1, color: 'var(--text-muted)' }}>No Lead Data Available</div>
-                        )}
-                    </div>
-                </div>
-
-                {/* Revenue Trend */}
-                <div className="analytics-card" style={{ display: 'flex', flexDirection: 'column' }}>
-                    <div className="analytics-header">
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                            <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}><TrendingUp size={18} /> Revenue Trend</h3>
-                            <div style={{ textAlign: 'right' }}>
-                                <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>6-Month Total</div>
-                                <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--success)' }}>{formatIndianCurrency(trendTotalRevenue)}</div>
-                            </div>
+                                        <div className="rd-feed-content">
+                                            <div className="rd-feed-text" style={{fontSize: '12px'}}>{order.text}</div>
+                                            <div className="rd-feed-time">{order.time}</div>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <div style={{padding: '20px', textAlign: 'center', color: '#94a3b8'}}>No recent orders</div>
+                            )}
                         </div>
                     </div>
-                    <div style={{ flex: 1, minHeight: '280px', display: 'flex', flexDirection: 'column' }}>
-                        {monthsWithRevenue >= 2 ? (
-                            <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={revenueTrendData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
-                                    <defs>
-                                        <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="var(--success)" stopOpacity={0.3}/>
-                                            <stop offset="95%" stopColor="var(--success)" stopOpacity={0}/>
-                                        </linearGradient>
-                                    </defs>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-light)" />
-                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--text-secondary)' }} dy={10} />
-                                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--text-secondary)' }} tickFormatter={formatYAxis} width={60} />
-                                    <RechartsTooltip content={<CustomTooltip />} cursor={{fill: 'transparent'}} />
-                                    <Area type="monotone" dataKey="revenue" stroke="var(--success)" strokeWidth={2} fillOpacity={1} fill="url(#colorRevenue)" dot={{ r: 4, strokeWidth: 2, fill: '#fff' }} activeDot={{ r: 6 }} label={{ position: 'top', formatter: formatIndianCurrency, fill: 'var(--text-heading)', fontSize: 12, fontWeight: 600, dy: -5 }} />
-                                </AreaChart>
-                            </ResponsiveContainer>
-                        ) : monthsWithRevenue === 1 ? (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '0 20px', height: '100%', justifyContent: 'center' }}>
-                                <div style={{ padding: '16px', background: 'var(--bg-body)', borderRadius: 'var(--radius-md)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Current Revenue</div>
-                                    <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--success)' }}>{formatIndianCurrency(thisMonthRevenue)}</div>
-                                </div>
-                                <div style={{ padding: '16px', background: 'var(--bg-body)', borderRadius: 'var(--radius-md)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Growth Trend</div>
-                                    <div style={{ fontSize: '20px', fontWeight: 800, color: revGrowth >= 0 ? 'var(--success)' : 'var(--danger)' }}>{growthTrend}</div>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="flex-center" style={{ flex: 1, color: 'var(--text-muted)' }}>No Revenue Data</div>
-                        )}
-                    </div>
-                </div>
-
-                {/* Quick Actions */}
-                <div className="analytics-card" style={{ padding: '20px', display: 'flex', flexDirection: 'column' }}>
-                    <div className="analytics-header">
-                        <h3>Sales Actions</h3>
-                    </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', flex: 1 }}>
-                        {[
-                            { path: '/crm/leads', name: 'Leads', icon: Filter, color: '#3b82f6' },
-                            { path: '/crm/pipeline', name: 'Pipeline', icon: Layers, color: '#8b5cf6' },
-                            { path: '/crm/customers', name: 'Customers', icon: Users, color: '#10b981' },
-                            { path: '/sales/revenue', name: 'Revenue', icon: DollarSign, color: '#f59e0b' },
-                            { path: '/sales/goals', name: 'Goals', icon: Target, color: '#ec4899' },
-                            { path: '/quotations', name: 'Quotes', icon: FileText, color: '#64748b' }
-                        ].map((link, idx) => (
-                            <div onClick={() => navigate(link.path)} key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '16px 12px', background: 'var(--bg-body)', border: '1px solid var(--border-light)', borderRadius: 'var(--radius-md)', cursor: 'pointer', color: 'var(--text-heading)', fontWeight: 600, fontSize: '13px', transition: 'all 0.2s' }}>
-                                <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: `${link.color}15`, color: link.color, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '8px' }}>
-                                    <link.icon size={18} />
-                                </div>
-                                {link.name}
-                            </div>
-                        ))}
-                    </div>
                 </div>
             </div>
-
-            {/* Top Executives Table */}
-            <div className="analytics-card" style={{ marginTop: '24px' }}>
-                <div className="analytics-header">
-                    <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Award size={18} /> Top Sales Executives</h3>
-                </div>
-                <div style={{ padding: '0 20px 20px 20px' }}>
-                    {topExecutives.length > 0 ? (
-                        <table className="enterprise-table" style={{ margin: 0 }}>
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Orders</th>
-                                    <th>Revenue</th>
-                                    <th>Rank</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {topExecutives.map((exec, i) => (
-                                    <tr key={i}>
-                                        <td><strong>{exec.name}</strong></td>
-                                        <td>{exec.deliveries}</td>
-                                        <td><span style={{ color: 'var(--success)', fontWeight: 700 }}>{exec.revenue}</span></td>
-                                        <td>
-                                            <span style={{ 
-                                                padding: '4px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 600,
-                                                background: exec.rank === 1 ? 'rgba(245,158,11,0.1)' : 'var(--bg-surface-hover)', 
-                                                color: exec.rank === 1 ? '#F59E0B' : 'var(--text-muted)'
-                                            }}>
-                                                #{exec.rank}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    ) : (
-                        <div className="flex-center" style={{ padding: '40px 0', color: 'var(--text-muted)' }}>No Sales Performance Data Available</div>
-                    )}
-                </div>
-            </div>
+            {isCommandCenterOpen && <CommandCenter onClose={() => setIsCommandCenterOpen(false)} />}
         </div>
     );
 };

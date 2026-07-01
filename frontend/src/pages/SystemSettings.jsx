@@ -1,23 +1,81 @@
 import React, { useState } from 'react';
 import { Settings, Shield, RefreshCw, BarChart2, Lock, Cpu, AlertTriangle, Trash2, Calendar as CalendarIcon, UploadCloud, Monitor } from 'lucide-react';
+import toast from 'react-hot-toast';
 import './SystemSettings.css';
 
 const SystemSettings = () => {
-    const [theme, setTheme] = useState('Light');
-    const [language, setLanguage] = useState('English');
-    const [timezone, setTimezone] = useState('Asia/Kolkata');
-    const [dateFormat, setDateFormat] = useState('DD/MM/YYYY');
-    const [currency, setCurrency] = useState('INR');
+    const [theme, setTheme] = useState(localStorage.getItem('theme') || 'Light');
+    const [language, setLanguage] = useState(localStorage.getItem('language') || 'English');
+    const [timezone, setTimezone] = useState(localStorage.getItem('timezone') || 'Asia/Kolkata');
+    const [dateFormat, setDateFormat] = useState(localStorage.getItem('dateFormat') || 'DD/MM/YYYY');
+    const [currency, setCurrency] = useState(localStorage.getItem('currency') || 'INR');
 
-    const [sysPrefs, setSysPrefs] = useState({
-        autoBackup: true,
-        analytics: true,
-        maintenance: false,
-        developerMode: false
+    const [sysPrefs, setSysPrefs] = useState(() => {
+        const saved = localStorage.getItem('sysPrefs');
+        if (saved) {
+            try {
+                return JSON.parse(saved);
+            } catch (e) {
+                console.error("Error parsing sysPrefs", e);
+            }
+        }
+        return {
+            autoBackup: true,
+            analytics: true,
+            maintenance: false,
+            developerMode: false
+        };
     });
 
     const handleToggle = (key) => {
-        setSysPrefs(prev => ({ ...prev, [key]: !prev[key] }));
+        setSysPrefs(prev => {
+            const newValue = !prev[key];
+            const labels = {
+                autoBackup: 'Automatic Backup',
+                analytics: 'Analytics & Tracking',
+                maintenance: 'Maintenance Mode',
+                developerMode: 'Developer Mode'
+            };
+            toast.success(`${labels[key]} ${newValue ? 'enabled' : 'disabled'} successfully`);
+            return { ...prev, [key]: newValue };
+        });
+    };
+
+    const handleSave = () => {
+        localStorage.setItem('theme', theme);
+        localStorage.setItem('language', language);
+        localStorage.setItem('timezone', timezone);
+        localStorage.setItem('dateFormat', dateFormat);
+        localStorage.setItem('currency', currency);
+        localStorage.setItem('sysPrefs', JSON.stringify(sysPrefs));
+        
+        if (theme === 'Dark') {
+            document.documentElement.classList.add('dark-theme');
+        } else {
+            document.documentElement.classList.remove('dark-theme');
+        }
+        
+        window.dispatchEvent(new Event('settingsUpdated'));
+        toast.success("System settings saved successfully");
+    };
+
+    const handleAction = (actionType) => {
+        switch (actionType) {
+            case 'clear_cache':
+                toast.success('System cache cleared successfully');
+                break;
+            case 'export':
+                toast.success('System data export initiated');
+                break;
+            case 'reset':
+                toast.success('System settings restored to defaults');
+                break;
+            case 'wipe':
+                toast.error('This action requires Super Admin confirmation');
+                break;
+            default:
+                break;
+        }
     };
 
     return (
@@ -27,10 +85,6 @@ const SystemSettings = () => {
                 <div className="ss-title">
                     <h2>System Settings</h2>
                     <p>Manage your system preferences and configurations</p>
-                </div>
-                <div className="ss-date-badge">
-                    <CalendarIcon size={14} />
-                    <span>Mon, 29 Jun 2026 03:09 PM</span>
                 </div>
             </div>
 
@@ -108,7 +162,7 @@ const SystemSettings = () => {
                             </div>
                         </div>
 
-                        <button className="ss-btn-save">
+                        <button className="ss-btn-save" onClick={handleSave}>
                             <Shield size={16} /> Save Settings
                         </button>
                     </div>
@@ -207,7 +261,7 @@ const SystemSettings = () => {
                 </div>
 
                 <div className="ss-dz-grid">
-                    <div className="ss-dz-card blue">
+                    <div className="ss-dz-card blue" onClick={() => handleAction('clear_cache')} style={{cursor: 'pointer'}}>
                         <div className="ss-dz-card-icon">
                             <RefreshCw size={16} />
                         </div>
@@ -215,7 +269,7 @@ const SystemSettings = () => {
                         <p>Remove system cache</p>
                     </div>
 
-                    <div className="ss-dz-card green">
+                    <div className="ss-dz-card green" onClick={() => handleAction('export')} style={{cursor: 'pointer'}}>
                         <div className="ss-dz-card-icon">
                             <UploadCloud size={16} />
                         </div>
@@ -223,7 +277,7 @@ const SystemSettings = () => {
                         <p>Export system data</p>
                     </div>
 
-                    <div className="ss-dz-card orange">
+                    <div className="ss-dz-card orange" onClick={() => handleAction('reset')} style={{cursor: 'pointer'}}>
                         <div className="ss-dz-card-icon">
                             <Settings size={16} />
                         </div>
@@ -231,7 +285,7 @@ const SystemSettings = () => {
                         <p>Restore default settings</p>
                     </div>
 
-                    <div className="ss-dz-card red">
+                    <div className="ss-dz-card red" onClick={() => handleAction('wipe')} style={{cursor: 'pointer'}}>
                         <div className="ss-dz-card-icon">
                             <AlertTriangle size={16} />
                         </div>

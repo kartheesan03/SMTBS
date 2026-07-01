@@ -123,6 +123,7 @@
 .int-btn-connect {
     border: none;
     color: white;
+    background: #10b981; /* default green */
 }
 .int-btn-connect.orange { background: #f59e0b; }
 .int-btn-connect.orange:hover { background: #d97706; }
@@ -130,6 +131,8 @@
 .int-btn-connect.purple:hover { background: #7c3aed; }
 .int-btn-connect.blue { background: #3b82f6; }
 .int-btn-connect.blue:hover { background: #2563eb; }
+.int-btn-connect.green { background: #10b981; }
+.int-btn-connect.green:hover { background: #059669; }
 
 /* API Section */
 .int-api-section {

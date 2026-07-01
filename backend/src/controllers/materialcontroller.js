@@ -528,7 +528,42 @@ const getTimeline = async (req, res) => {
     }
 };
 
+// @desc    Get material by ID
+// @route   GET /api/materials/:id
+// @access  Private
+const getMaterialById = async (req, res) => {
+    try {
+        const id = req.params.id;
+        
+        // Basic ID validation for SQLite/Sequelize (integers)
+        if (!/^\d+$/.test(id)) {
+            return res.status(400).json({ message: 'Invalid material ID format' });
+        }
+
+        const material = await Material.findById(id);
+        
+        if (!material || material.isActive === false) {
+            return res.status(404).json({ message: 'Material not found' });
+        }
+        
+        // Populate vendor manually because of bridge model limitations
+        const Vendor = require('../models/Vendor');
+        let vendorData = null;
+        if (material.vendorId) {
+            const v = await Vendor.findById(material.vendorId);
+            if (v) vendorData = { name: v.name, email: v.email, phone: v.phone, contactPerson: v.contactPerson };
+        }
+        
+        const responseData = material.toJSON ? material.toJSON() : material;
+        responseData.vendor = vendorData;
+
+        res.json(responseData);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 module.exports = {
     getTimeline, getMaterials, createMaterial, updateMaterial, 
     deleteMaterial, getLowStockMaterials, recalculateStockStatus, getLowStockCount, getMaterialMovements, getAllMovements, 
-    getMaterialAnalytics, archiveMaterial, getMaterialList };
+    getMaterialAnalytics, archiveMaterial, getMaterialList, getMaterialById };

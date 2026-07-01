@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import API from '../api/axios';
 import toast from 'react-hot-toast';
-import { Package, Hash, Tag, Building2, TrendingUp, AlertTriangle, CheckCircle, Database, Edit } from 'lucide-react';
+import { Package, Hash, Tag, Building2, TrendingUp, AlertTriangle, CheckCircle, Database, Edit, ArrowLeft } from 'lucide-react';
 import { DetailViewContainer, ProfileHeader, Tabs, KeyValueCard, Timeline } from '../components/ui';
 
 const MaterialDetails = () => {
@@ -11,25 +11,42 @@ const MaterialDetails = () => {
     const [material, setMaterial] = useState(null);
     const [loading, setLoading] = useState(true);
     const [timeline, setTimeline] = useState([]);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         const fetchMaterialData = async () => {
             try {
                 const { data } = await API.get(`/materials/${id}`);
-            const timelineRes = await API.get(`/materials/${id}/timeline`).catch(e => ({ data: [] }));
-            setTimeline(timelineRes.data || []);
+                const timelineRes = await API.get(`/materials/${id}/timeline`).catch(e => ({ data: [] }));
+                setTimeline(timelineRes.data || []);
                 setMaterial(data);
             } catch (err) {
-                toast.error('Failed to load material details');
-                navigate('/materials');
+                console.error("Material details error:", err);
+                const errMsg = err.response?.data?.message || 'Failed to load material details. Please check if the material exists.';
+                toast.error(errMsg);
+                setError(errMsg);
             } finally {
                 setLoading(false);
             }
         };
         fetchMaterialData();
-    }, [id, navigate]);
+    }, [id]);
 
-    if (loading) return <div style={{textAlign: 'center', padding: '100px'}}>Loading...</div>;
+    if (loading) return <div className="flex-center" style={{ padding: '100px' }}><div className="loader"></div></div>;
+    
+    if (error) {
+        return (
+            <div style={{ textAlign: 'center', padding: '100px 24px', maxWidth: '600px', margin: '0 auto' }}>
+                <AlertTriangle size={48} color="#ef4444" style={{ marginBottom: '16px' }} />
+                <h2 style={{ marginBottom: '8px', color: '#0f172a' }}>Material Not Found</h2>
+                <p style={{ color: '#64748b', marginBottom: '24px' }}>{error}</p>
+                <button className="ui-btn-primary" onClick={() => navigate('/materials')}>
+                    Back to Inventory
+                </button>
+            </div>
+        );
+    }
+    
     if (!material) return null;
 
     const isLowStock = material.quantity <= (material.lowStockThreshold || 10);
@@ -86,6 +103,25 @@ const MaterialDetails = () => {
 
     return (
         <div style={{ padding: '24px' }}>
+            <div style={{ marginBottom: '16px' }}>
+                <button 
+                    onClick={() => navigate('/materials')} 
+                    style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '8px', 
+                        background: 'transparent', 
+                        border: 'none', 
+                        cursor: 'pointer', 
+                        color: '#64748b',
+                        fontWeight: '500',
+                        padding: '4px 0'
+                    }}
+                >
+                    <ArrowLeft size={18} />
+                    Back to Inventory
+                </button>
+            </div>
             <DetailViewContainer>
                 <ProfileHeader 
                     title={material.name}

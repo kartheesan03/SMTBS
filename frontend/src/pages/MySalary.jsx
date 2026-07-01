@@ -194,17 +194,19 @@ const MySalaryPage = () => {
                 .icon-btn:hover { background: var(--primary); color: white; }
 
                 .modal-backdrop { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; z-index: 2000; padding: 20px; }
-                .modal-container-salary { width: 100%; max-width: 550px; padding: 0; overflow: hidden; border: 1px solid var(--border); max-height: 90vh; overflow-y: auto; }
-                .modal-head { padding: 20px 25px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-                .btn-close { background: none; color: var(--text-muted); cursor: pointer; }
+                .modal-container-salary { width: 100%; max-width: 550px; padding: 0; overflow: hidden; border: 1px solid var(--border-subtle, #e2e8f0); max-height: 90vh; overflow-y: auto; background: var(--bg-surface, #ffffff); color: var(--text-main, #334155); border-radius: var(--radius-lg, 12px); }
+                .modal-head { padding: 20px 25px; border-bottom: 1px solid var(--border-subtle, #e2e8f0); display: flex; justify-content: space-between; align-items: center; }
+                .modal-head h3 { margin: 0; color: var(--text-heading, #0f172a); font-size: 18px; font-weight: 600; }
+                .btn-close { background: none; border: none; color: var(--text-muted, #64748b); cursor: pointer; display: flex; align-items: center; justify-content: center; }
                 
-                .modal-body { padding: 25px; }
+                .modal-body { padding: 25px; color: var(--text-main, #334155); }
                 .payslip-group { margin-bottom: 25px; }
-                .payslip-group h6 { font-size: 11px; color: var(--primary); margin-bottom: 12px; letter-spacing: 1.5px; }
+                .payslip-group h6 { font-size: 11px; color: var(--primary, #2563eb); margin-bottom: 12px; letter-spacing: 1.5px; font-weight: 700; text-transform: uppercase; }
                 .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 14px; }
-                .info-grid p span { color: var(--text-muted); margin-right: 5px; }
+                .info-grid p { margin: 0; }
+                .info-grid p span { color: var(--text-muted, #64748b); margin-right: 5px; font-weight: 500; }
                 
-                .row-between { display: flex; justify-content: space-between; padding: 10px 0; font-size: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+                .row-between { display: flex; justify-content: space-between; padding: 10px 0; font-size: 15px; border-bottom: 1px solid var(--border-subtle, #e2e8f0); }
                 .row-between.negative { color: #ef4444; }
                 
                 .payslip-footer-total { margin-top: 20px; padding: 20px; background: rgba(99, 102, 241, 0.1); border-radius: 12px; display: flex; justify-content: space-between; font-size: 22px; font-weight: 800; color: #10b981; }

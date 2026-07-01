@@ -126,7 +126,7 @@ const TrackingDashboard = () => {
                     </div>
                     
                     <div style={{overflowX: 'auto', width: '100%'}}>
-                        <table className="rd-table" style={{minWidth: 1200}}>
+                        <table className="rd-table" style={{ width: '100%', minWidth: '800px' }}>
                             <thead>
                                 <tr>
                                     <th>Tracking ID</th>

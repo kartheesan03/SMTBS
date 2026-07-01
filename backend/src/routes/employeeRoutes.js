@@ -1,20 +1,19 @@
 const express = require('express');
 const router = express.Router();
 const { getEmployees, getEmployee, createEmployee, updateEmployee, deleteEmployee, getMe, updateMe } = require('../controllers/employeeController');
-const { protect } = require('../middleware/authMiddleware');
-const { authorize } = require('../middleware/roleMiddleware');
+const { protect, authorize } = require('../middleware/authMiddleware');
 
 router.route('/')
-    .get(protect, authorize('Admin', 'HR', 'Manager'), getEmployees)
-    .post(protect, authorize('Admin', 'HR'), createEmployee);
+    .get(protect, authorize('view_hrms'), getEmployees)
+    .post(protect, authorize('manage_hrms'), createEmployee);
 
 router.route('/me')
     .get(protect, getMe)
     .put(protect, updateMe);
 
 router.route('/:id')
-    .get(protect, authorize('Admin', 'HR', 'Manager'), getEmployee)
-    .put(protect, authorize('Admin', 'HR'), updateEmployee)
-    .delete(protect, authorize('Admin', 'HR'), deleteEmployee);
+    .get(protect, authorize('view_hrms'), getEmployee)
+    .put(protect, authorize('manage_hrms'), updateEmployee)
+    .delete(protect, authorize('manage_hrms'), deleteEmployee);
 
 module.exports = router;

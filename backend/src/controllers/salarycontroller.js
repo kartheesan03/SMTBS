@@ -13,6 +13,9 @@ const getMySalaryHistory = async (req, res) => {
         // Show all salary records to the employee so they can track status
         const history = await Salary.find({ 
             employeeId: employee._id || employee.id
+        }).populate({
+            path: 'employee',
+            populate: { path: 'userId', select: 'name email' }
         }).sort({ createdAt: -1 });
         res.json(history);
     } catch (error) {
@@ -155,7 +158,7 @@ const paySalaryRecord = async (req, res) => {
             return res.status(400).json({ message: 'Salary must be approved or awaiting payment before payment. Current status: ' + salary.status });
         }
 
-        const { paymentMethod, paymentDetails, bankRef, notes } = req.body;
+        const { paymentMethod, paymentDetails, bankRef, notes } = req.body || {};
 
         // Generate or use provided transaction ID
         let txnId = `TXN-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substr(2, 4).toUpperCase()}`;

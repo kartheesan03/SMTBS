@@ -172,9 +172,6 @@ const HRMS = () => {
                         <table className="rd-table" style={{minWidth: 1000}}>
                             <thead>
                                 <tr>
-                                    <th style={{width: 40}}>
-                                        <input type="checkbox" />
-                                    </th>
                                 <th>Employee</th>
                                 <th>Department</th>
                                 <th>Position</th>
@@ -188,14 +185,13 @@ const HRMS = () => {
                         <tbody>
                             {filteredEmployees.length === 0 ? (
                                 <tr>
-                                    <td colSpan={9} style={{textAlign: 'center', padding: 32, color: '#94a3b8'}}>
+                                    <td colSpan={8} style={{textAlign: 'center', padding: 32, color: '#94a3b8'}}>
                                         {searchTerm || deptFilter !== 'All' ? 'No employees match your filters' : 'No employees found. Add your first employee!'}
                                     </td>
                                 </tr>
                             ) : (
                                 filteredEmployees.map(emp => (
                                     <tr key={emp.id || emp._id} onClick={() => navigate(`/employees/${emp.id || emp._id}`)} style={{cursor: 'pointer'}}>
-                                        <td onClick={(e) => e.stopPropagation()}><input type="checkbox" /></td>
                                         <td>
                                             <div style={{display: 'flex', alignItems: 'center', gap: 12}}>
                                                 <div className="rd-avatar" style={{width: 32, height: 32, fontSize: 12, background: 'var(--rd-purple-grad)'}}>

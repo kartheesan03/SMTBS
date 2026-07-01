@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { Code2, Cloud, MessageSquare, Smartphone, FileSpreadsheet, Box, Zap, Copy, RefreshCw, CheckCircle, ExternalLink } from 'lucide-react';
+import toast from 'react-hot-toast';
 import './IntegrationsSettings.css';
 
 const IntegrationsSettings = () => {
-    const integrations = [
+    const defaultIntegrations = [
         {
             id: 'github',
             name: 'GitHub',
             desc: 'Code repository & CI/CD',
             badge: 'DEV',
             connected: true,
+            btnColor: 'orange',
             icon: <Code2 size={32} color="#ea580c" />,
             iconBg: '#fff7ed'
         },
@@ -19,6 +21,7 @@ const IntegrationsSettings = () => {
             desc: 'Container management',
             badge: 'DEV',
             connected: true,
+            btnColor: 'blue',
             icon: <Box size={32} color="#0ea5e9" />,
             iconBg: '#f0f9ff'
         },
@@ -48,6 +51,7 @@ const IntegrationsSettings = () => {
             desc: 'Customer & vendor messaging',
             badge: 'COMMS',
             connected: true,
+            btnColor: 'green',
             icon: <Smartphone size={32} color="#10b981" />,
             iconBg: '#ecfdf5'
         },
@@ -65,12 +69,43 @@ const IntegrationsSettings = () => {
 
     const [apiKey, setApiKey] = useState('sk-smtbms-........................');
     const [webhookUrl, setWebhookUrl] = useState('https://your-app.com/webhook/smtbms');
+    const [intList, setIntList] = useState(defaultIntegrations);
+
+    const handleToggleConnect = (id) => {
+        setIntList(prev => prev.map(int => {
+            if (int.id === id) {
+                const newState = !int.connected;
+                toast.success(`${int.name} ${newState ? 'connected' : 'disconnected'} successfully`);
+                return { ...int, connected: newState };
+            }
+            return int;
+        }));
+    };
+
+    const handleRegenerateKey = () => {
+        const randomString = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+        setApiKey(`sk-smtbms-${randomString}`);
+        toast.success("API Key regenerated successfully");
+    };
+
+    const handleSaveWebhook = () => {
+        if (!webhookUrl.trim()) {
+            toast.error("Webhook URL cannot be empty");
+            return;
+        }
+        toast.success("Webhook URL saved successfully");
+    };
+
+    const copyToClipboard = () => {
+        navigator.clipboard.writeText(apiKey);
+        toast.success("API Key copied to clipboard");
+    };
 
     return (
         <div className="int-container">
             {/* Integrations Grid */}
             <div className="int-grid">
-                {integrations.map(int => (
+                {intList.map(int => (
                     <div key={int.id} className="int-card">
                         <div className="int-card-top">
                             <div className="int-icon" style={{ background: int.iconBg }}>
@@ -90,9 +125,9 @@ const IntegrationsSettings = () => {
                                 {int.connected ? 'Connected' : 'Not connected'}
                             </div>
                             {int.connected ? (
-                                <button className="int-btn-disconnect">Disconnect</button>
+                                <button className="int-btn-disconnect" onClick={() => handleToggleConnect(int.id)}>Disconnect</button>
                             ) : (
-                                <button className={`int-btn-connect ${int.btnColor}`}>Connect</button>
+                                <button className={`int-btn-connect ${int.btnColor}`} onClick={() => handleToggleConnect(int.id)}>Connect</button>
                             )}
                         </div>
                     </div>
@@ -113,9 +148,9 @@ const IntegrationsSettings = () => {
                         <label>API KEY</label>
                         <div className="int-input-wrapper">
                             <input type="text" value={apiKey} readOnly />
-                            <button className="int-copy-btn"><ExternalLink size={16} color="#94a3b8" /></button>
+                            <button className="int-copy-btn" onClick={copyToClipboard}><Copy size={16} color="#94a3b8" /></button>
                         </div>
-                        <button className="int-btn-regenerate">
+                        <button className="int-btn-regenerate" onClick={handleRegenerateKey}>
                             <RefreshCw size={14} /> Regenerate Key
                         </button>
                     </div>
@@ -129,7 +164,7 @@ const IntegrationsSettings = () => {
                                 onChange={(e) => setWebhookUrl(e.target.value)} 
                             />
                         </div>
-                        <button className="int-btn-save-webhook">
+                        <button className="int-btn-save-webhook" onClick={handleSaveWebhook}>
                             <CheckCircle size={14} /> Save Webhook
                         </button>
                     </div>

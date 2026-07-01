@@ -4,8 +4,7 @@ const {
     applyLeave, getMyLeaves, cancelLeave,
     getAllLeaves, reviewLeave, getLeaveBalance
 } = require('../controllers/leavecontroller');
-const { protect }   = require('../middleware/authMiddleware');
-const { authorize } = require('../middleware/roleMiddleware');
+const { protect, authorize } = require('../middleware/authMiddleware');
 
 router.use(protect);
 
@@ -15,7 +14,7 @@ router.post('/',           applyLeave);                                // POST /
 router.put('/:id/cancel',  cancelLeave);                              // PUT  /api/leaves/:id/cancel
 
 // Admin / HR only
-router.get('/',            authorize('Admin', 'HR'), getAllLeaves);    // GET  /api/leaves
-router.put('/:id/review',  authorize('Admin', 'HR'), reviewLeave);    // PUT  /api/leaves/:id/review
+router.get('/',            authorize('manage_hrms'), getAllLeaves);    // GET  /api/leaves
+router.put('/:id/review',  authorize('manage_hrms'), reviewLeave);    // PUT  /api/leaves/:id/review
 
 module.exports = router;

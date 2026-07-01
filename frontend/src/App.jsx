@@ -94,6 +94,14 @@ const AppContent = () => {
         } else {
             document.body.classList.remove('logged-in');
         }
+        
+        const theme = localStorage.getItem('theme');
+        if (theme === 'Dark') {
+            document.documentElement.classList.add('dark-theme');
+        } else {
+            document.documentElement.classList.remove('dark-theme');
+        }
+        
         return () => {
             document.body.classList.remove('logged-in');
         };
@@ -192,7 +200,7 @@ const AppContent = () => {
                     <Route path="/my-materials/requests" element={<ProtectedRoute requiredPermission="view_materials_self"><MyMaterials /></ProtectedRoute>} />
                     <Route path="/my-materials/stock" element={<ProtectedRoute requiredPermission="view_materials_self"><MyMaterials /></ProtectedRoute>} />
                     <Route path="/my-materials/barcode" element={<ProtectedRoute requiredPermission="view_materials_self"><ComingSoonPage title="Employee Barcode Scanner" subtitle="Self-service barcode scanning is coming soon." /></ProtectedRoute>} />
-                    <Route path="/payroll" element={<ProtectedRoute requiredPermission="manage_hrms"><Payroll /></ProtectedRoute>} />
+                    <Route path="/payroll" element={<ProtectedRoute requiredPermission="view_hrms"><Payroll /></ProtectedRoute>} />
                     <Route path="/payroll/generate" element={<ProtectedRoute requiredPermission="view_hrms"><GeneratePayroll /></ProtectedRoute>} />
                     <Route path="/payroll/payment/:id" element={<ProtectedRoute requiredPermission="view_hrms"><PayrollPayment /></ProtectedRoute>} />
                     <Route path="/payslips" element={<ProtectedRoute requiredPermission="view_hrms"><Payslips /></ProtectedRoute>} />

@@ -4,7 +4,7 @@ const { notifyManager } = require('../services/notificationService');
 
 exports.getVendors = async (req, res) => {
     try {
-        const vendors = await Vendor.find({}).populate('createdBy', 'name email');
+        const vendors = await Vendor.find({});
         console.log(`[API /vendors] Fetched ${vendors.length} vendors.`);
         res.status(200).json(vendors);
     } catch (error) {

@@ -17,10 +17,11 @@ const VendorDetails = () => {
         const fetchVendorData = async () => {
             try {
                 const { data: vendorData } = await API.get(`/vendors/${id}`);
-                setVendor(vendorData);
+                const actualVendor = vendorData.vendor || vendorData;
+                setVendor(actualVendor);
                 
                 const { data: materialsData } = await API.get('/materials');
-                const vId = String(vendorData.id || vendorData._id);
+                const vId = String(actualVendor.id || actualVendor._id);
                 const vMaterials = materialsData.filter(m => String(m.vendorId) === vId || String(m.vendor?.id || m.vendor?._id || m.vendor) === vId);
                 setMaterials(vMaterials);
             } catch (err) {
@@ -109,9 +110,9 @@ const VendorDetails = () => {
         <div style={{ padding: '24px' }}>
             <DetailViewContainer>
                 <ProfileHeader 
-                    title={vendor.name}
+                    title={vendor.name || 'Unnamed Vendor'}
                     subtitle={`Vendor ID: ${vendor._id || vendor.id}`}
-                    avatarText={vendor.name.substring(0, 2).toUpperCase()}
+                    avatarText={(vendor.name || 'V').substring(0, 2).toUpperCase()}
                     badges={badges}
                     actions={actions}
                 />

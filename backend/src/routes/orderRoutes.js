@@ -5,7 +5,7 @@ const { protect, authorize } = require('../middleware/authMiddleware');
 
 router.route('/')
     .get(protect, getOrders)
-    .post(protect, authorize('Admin', 'Manager', 'HR', 'Super Admin'), createOrder);
+    .post(protect, authorize('manage_crm'), createOrder);
 
 router.route('/customer')
     .get(protect, getMyCustomerOrders)
@@ -15,18 +15,18 @@ router.route('/:id/cancel')
     .put(protect, cancelCustomerOrder);
 
 router.route('/:id/status')
-    .put(protect, authorize('Admin', 'Manager', 'HR', 'Sales', 'Super Admin'), updateOrderStatus);
+    .put(protect, authorize('manage_crm'), updateOrderStatus);
 
 router.route('/:id/payment-status')
-    .put(protect, authorize('Admin', 'Manager', 'HR', 'Super Admin'), updatePaymentStatus);
+    .put(protect, authorize('manage_crm'), updatePaymentStatus);
 
 router.route('/:id/tracking')
-    .put(protect, authorize('Admin', 'Manager', 'Sales', 'HR', 'Super Admin'), updateTrackingStatus);
+    .put(protect, authorize('manage_crm'), updateTrackingStatus);
 
 router.route('/:id/employee-approve')
-    .post(protect, authorize('Super Admin', 'Admin', 'Manager', 'HR'), employeeApprovePurchaseOrder);
+    .post(protect, authorize('manage_crm'), employeeApprovePurchaseOrder);
 
 router.route('/:id')
-    .delete(protect, authorize('Admin', 'Manager', 'Super Admin'), deleteOrder);
+    .delete(protect, authorize('manage_crm'), deleteOrder);
 
 module.exports = router;

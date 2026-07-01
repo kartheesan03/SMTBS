@@ -265,15 +265,7 @@ const DataTable = ({
                 <table className="ui-table">
                     <thead>
                         <tr>
-                            {bulkActions.length > 0 && (
-                                <th style={{ width: '40px' }}>
-                                    <input 
-                                        type="checkbox" 
-                                        checked={currentData.length > 0 && selectedRows.size === currentData.length}
-                                        onChange={toggleAllSelect}
-                                    />
-                                </th>
-                            )}
+
                             {columns.filter(c => visibleColumns[c.key]).map((col) => (
                                 <th key={col.key} onClick={() => handleSort(col.key)} style={{ cursor: 'pointer' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -284,43 +276,32 @@ const DataTable = ({
                                     </div>
                                 </th>
                             ))}
-                            {actions.length > 0 && <th style={{ width: '60px', textAlign: 'right' }}>Actions</th>}
+                            {actions.length > 0 && <th style={{ width: '80px', textAlign: 'center' }}>Actions</th>}
                         </tr>
                     </thead>
                     <tbody>
                         {currentData.length > 0 ? currentData.map((row) => (
                             <tr key={row._id || row.id} className={selectedRows.has(row._id || row.id) ? 'selected' : ''}>
-                                {bulkActions.length > 0 && (
-                                    <td>
-                                        <input 
-                                            type="checkbox" 
-                                            checked={selectedRows.has(row._id || row.id)}
-                                            onChange={() => toggleRowSelect(row._id || row.id)}
-                                        />
-                                    </td>
-                                )}
+
                                 {columns.filter(c => visibleColumns[c.key]).map((col) => (
                                     <td key={col.key}>
                                         {col.render ? col.render(row[col.key], row) : row[col.key]}
                                     </td>
                                 ))}
                                 {actions.length > 0 && (
-                                    <td style={{ textAlign: 'right' }}>
-                                        <div className="ui-action-menu">
-                                            <button className="ui-action-btn">
-                                                <MoreVertical size={16} />
-                                            </button>
-                                            <div className="ui-action-dropdown">
-                                                {actions.map((action, idx) => (
-                                                    <button 
-                                                        key={idx} 
-                                                        className={`ui-dropdown-item ${action.color === 'danger' ? 'danger' : ''}`}
-                                                        onClick={() => action.onClick(row)}
-                                                    >
-                                                        {action.icon && <action.icon size={14} />} {action.label}
-                                                    </button>
-                                                ))}
-                                            </div>
+                                    <td style={{ textAlign: 'center' }}>
+                                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                                            {actions.map((action, idx) => (
+                                                <button 
+                                                    key={idx} 
+                                                    className="ui-action-btn"
+                                                    style={action.color === 'danger' ? { color: '#ef4444' } : { color: '#3b82f6' }}
+                                                    title={action.label}
+                                                    onClick={() => action.onClick(row)}
+                                                >
+                                                    {action.icon && <action.icon size={16} />}
+                                                </button>
+                                            ))}
                                         </div>
                                     </td>
                                 )}
