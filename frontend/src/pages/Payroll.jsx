@@ -99,15 +99,6 @@ const Payroll = () => {
         }
     };
 
-    const handlePay = async (id) => {
-        try {
-            await API.put(`/salaries/${id}/pay`);
-            fetchSalaries();
-        } catch (err) {
-            alert(err.response?.data?.message || 'Error processing payment');
-        }
-    };
-
     return (
         <div className="rd-container">
             <div className="rd-content">
@@ -171,7 +162,7 @@ const Payroll = () => {
                     </div>
                     
                     <div style={{overflowX: 'auto'}}>
-                        <table className="rd-table" style={{minWidth: 1000}}>
+                        <table className="rd-table" style={{ width: '100%' }}>
                             <thead>
                                 <tr>
                                 <th>Month</th>
@@ -232,7 +223,7 @@ const Payroll = () => {
                                                     </button>
                                                 )}
                                                 {record.status === 'Approved' && (
-                                                    <button onClick={() => handlePay(record._id || record.id)} style={{background: '#10b981', color: 'white', border: 'none', padding: '5px 12px', borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: 'pointer'}}>
+                                                    <button onClick={() => navigate(`/payroll/payment/${record._id || record.id}`)} style={{background: '#10b981', color: 'white', border: 'none', padding: '5px 12px', borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: 'pointer'}}>
                                                         Pay Now
                                                     </button>
                                                 )}

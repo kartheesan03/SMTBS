@@ -121,7 +121,7 @@ const Leads = () => {
                     </div>
 
                     <div style={{overflowX: 'auto'}}>
-                        <table className="rd-table" style={{minWidth: 1000}}>
+                        <table className="rd-table" style={{ width: '100%' }}>
                             <thead>
                                 <tr>
                                 <th>LEAD ID</th>

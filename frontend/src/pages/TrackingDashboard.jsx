@@ -126,7 +126,7 @@ const TrackingDashboard = () => {
                     </div>
                     
                     <div style={{overflowX: 'auto', width: '100%'}}>
-                        <table className="rd-table" style={{ width: '100%', minWidth: '800px' }}>
+                        <table className="rd-table" style={{ width: '100%' }}>
                             <thead>
                                 <tr>
                                     <th>Tracking ID</th>
@@ -141,11 +141,11 @@ const TrackingDashboard = () => {
                             <tbody>
                                 {loading ? (
                                     <tr>
-                                        <td colSpan={7} style={{textAlign: 'center', padding: 32, color: '#94a3b8'}}>Loading movement logs...</td>
+                                        <td colSpan={7} style={{textAlign: 'center', padding: 32, color: '#94a3b8', whiteSpace: 'normal'}}>Loading movement logs...</td>
                                     </tr>
                                 ) : filteredLogs.length === 0 ? (
                                     <tr>
-                                        <td colSpan={7} style={{textAlign: 'center', padding: 32, color: '#94a3b8'}}>No movements found</td>
+                                        <td colSpan={7} style={{textAlign: 'center', padding: 32, color: '#94a3b8', whiteSpace: 'normal'}}>No movements found</td>
                                     </tr>
                                 ) : (
                                     filteredLogs.map(log => {
@@ -159,7 +159,7 @@ const TrackingDashboard = () => {
                                                     <div style={{fontSize: 12, color: '#94a3b8', marginTop: 4}}>{d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
                                                 </td>
                                                 <td>
-                                                    <div style={{fontWeight: 600, color: 'var(--rd-text-main)'}}>{log.materialName}</div>
+                                                    <div style={{fontWeight: 600, color: 'var(--rd-text-main)', overflow: 'hidden', textOverflow: 'ellipsis'}}>{log.materialName}</div>
                                                     <div style={{fontSize: 11, color: '#94a3b8', marginTop: 2}}>{log.materialSku}</div>
                                                 </td>
                                                 <td>{getTypeBadge(log.type)}</td>
@@ -168,7 +168,7 @@ const TrackingDashboard = () => {
                                                 <td>
                                                     <button 
                                                         className="rd-btn-link" 
-                                                        style={{marginTop: 0, display: 'flex', alignItems: 'center', gap: 6}}
+                                                        style={{marginTop: 0, display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap'}}
                                                         onClick={() => {
                                                             setSelectedMovement(log);
                                                         }}

@@ -209,7 +209,7 @@ const TeamPerformance = () => {
                     </div>
                     
                     <div style={{overflowX: 'auto'}}>
-                        <table className="rd-table" style={{minWidth: 1200}}>
+                        <table className="rd-table" style={{ width: '100%' }}>
                             <thead>
                                 <tr>
                                 <th>Employee</th>
