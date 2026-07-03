@@ -9,6 +9,7 @@ import {
     Search, Eye, AlertCircle, Clock, Zap, Filter, ChevronDown,
     DollarSign, Calendar, Briefcase, Shield
 } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 // Map category → icon component & colors
 // Map module → icon component & colors
@@ -143,7 +144,12 @@ const NotificationsPage = () => {
 
     // ─── render ──────────────────────────────────────────────────────────────
     return (
-        <div className="page-container" style={{ paddingBottom: '40px' }}>
+        <motion.div 
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="page-container" style={{ paddingBottom: '40px' }}
+        >
 
             {/* Toast */}
             {toast && (
@@ -175,7 +181,12 @@ const NotificationsPage = () => {
             </div>
 
             {/* ===== KPI STATS ROW ===== */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '16px' }}>
+            <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.1, duration: 0.4 }}
+                style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '16px' }}
+            >
                 {[
                     { label: 'Total', value: notifications.length, icon: Bell, iconBg: '#f1f5f9', iconColor: '#475569' },
                     { label: 'Unread', value: unreadCount, icon: Clock, iconBg: '#eff6ff', iconColor: '#3b82f6' },
@@ -192,10 +203,15 @@ const NotificationsPage = () => {
                         </div>
                     </div>
                 ))}
-            </div>
+            </motion.div>
 
             {/* ===== SEARCH + FILTER BAR ===== */}
-            <div style={{ marginBottom: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2, duration: 0.4 }}
+                style={{ marginBottom: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}
+            >
                 {/* Search */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: '#fff', borderRadius: '10px', padding: '8px 16px', width: '100%', }}>
                     <Search size={16} color="#64748b" />
@@ -241,11 +257,16 @@ const NotificationsPage = () => {
                         </button>
                     ))}
                 </div>
-            </div>
+            </motion.div>
 
             {/* ===== NOTIFICATION LIST ===== */}
             {displayed.length === 0 ? (
-                <div className="premium-card" style={{ borderRadius: '14px', padding: '60px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '16px', color: '#94a3b8', textAlign: 'center' }}>
+                <motion.div 
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.3, duration: 0.4 }}
+                    className="premium-card" style={{ borderRadius: '14px', padding: '60px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '16px', color: '#94a3b8', textAlign: 'center' }}
+                >
                     <BellOff size={36} />
                     <div>
                         <p style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: 600, color: '#64748b' }}>
@@ -261,16 +282,19 @@ const NotificationsPage = () => {
                             <RefreshCw size={14} /> Load Notifications
                         </button>
                     )}
-                </div>
+                </motion.div>
             ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    {displayed.map((n) => {
+                    {displayed.map((n, index) => {
                         const catConfig = CATEGORY_CONFIG[n.module] || CATEGORY_CONFIG.system;
                         const typeStyle = TYPE_STYLES[n.type] || TYPE_STYLES.info;
                         const CatIcon = catConfig.icon;
 
                         return (
-                            <div
+                            <motion.div
+                                initial={{ opacity: 0, y: 15 }}
+                                animate={{ opacity: n.status === 'read' ? 0.6 : 1, y: 0 }}
+                                transition={{ delay: 0.2 + (index * 0.05), duration: 0.3 }}
                                 key={n._id}
                                 style={{
                                     display: 'flex', alignItems: 'center', gap: '16px',
@@ -279,7 +303,6 @@ const NotificationsPage = () => {
                                     border: '1px solid #e2e8f0',
                                     borderLeft: `4px solid ${typeStyle.color}`,
                                     minHeight: '76px',
-                                    opacity: n.status === 'read' ? 0.6 : 1,
                                     transition: 'all 0.2s ease',
                                     cursor: (n.module === 'Orders' || n.link) ? 'pointer' : 'default',
                                     position: 'relative',
@@ -347,7 +370,7 @@ const NotificationsPage = () => {
                                         <Trash2 size={17} strokeWidth={2.25} />
                                     </button>
                                 </div>
-                            </div>
+                            </motion.div>
                         );
                     })}
                 </div>
@@ -357,7 +380,7 @@ const NotificationsPage = () => {
             <style>{`
                 @keyframes spin { to { transform: rotate(360deg); } }
             `}</style>
-        </div>
+        </motion.div>
     );
 };
 

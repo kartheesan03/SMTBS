@@ -6,6 +6,7 @@ import {
     CheckCircle, Loader, AlertCircle, User, Calendar, DollarSign,
     Clock, Building2, Hash, MessageSquare
 } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const PayrollPayment = () => {
     const { id } = useParams();
@@ -140,7 +141,12 @@ const PayrollPayment = () => {
     // ── SUCCESS RECEIPT VIEW ──
     if (success && receipt) {
         return (
-            <div style={{ padding: '30px', maxWidth: '600px', margin: '0 auto' }}>
+            <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.4 }}
+                style={{ padding: '30px', maxWidth: '600px', margin: '0 auto' }}
+            >
                 {toast && (
                     <div style={{ position: 'fixed', top: '24px', right: '24px', zIndex: 9999, display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 20px', borderRadius: '10px', fontSize: '13px', fontWeight: 600, color: '#fff', background: toast.ok ? '#10b981' : '#ef4444', }}>
                         {toast.ok ? <CheckCircle size={15} /> : <AlertCircle size={15} />}
@@ -179,13 +185,18 @@ const PayrollPayment = () => {
                         </button>
                     </div>
                 </div>
-            </div>
+            </motion.div>
         );
     }
 
     // ── MAIN PAYMENT FORM VIEW ──
     return (
-        <div style={{ padding: '30px' }}>
+        <motion.div 
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            style={{ padding: '30px' }}
+        >
             {/* Toast */}
             {toast && (
                 <div style={{ position: 'fixed', top: '24px', right: '24px', zIndex: 9999, display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 20px', borderRadius: '10px', fontSize: '13px', fontWeight: 600, color: '#fff', background: toast.ok ? '#10b981' : '#ef4444', }}>
@@ -388,13 +399,13 @@ const PayrollPayment = () => {
                         </button>
                     </div>
                 </div>
-            </div>
+            </motion.div>
 
             <style jsx="true">{`
                 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
                 .spin-icon { animation: spin 1s linear infinite; }
             `}</style>
-        </div>
+        </motion.div>
     );
 };
 

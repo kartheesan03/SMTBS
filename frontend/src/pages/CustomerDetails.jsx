@@ -4,6 +4,7 @@ import API from '../api/axios';
 import toast from 'react-hot-toast';
 import { Mail, Phone, MapPin, Building2, Globe, FileText, Briefcase, Tag, Calendar, Activity, Edit, Users } from 'lucide-react';
 import { DetailViewContainer, ProfileHeader, Tabs, KeyValueCard, Timeline, DataTable } from '../components/ui';
+import { motion } from 'framer-motion';
 
 const CustomerDetails = () => {
     const navigate = useNavigate();
@@ -98,7 +99,12 @@ const CustomerDetails = () => {
     ];
 
     return (
-        <div style={{ padding: '24px' }}>
+        <motion.div 
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            style={{ padding: '24px' }}
+        >
             <DetailViewContainer>
                 <ProfileHeader 
                     title={customer.company || customer.name}
@@ -109,7 +115,7 @@ const CustomerDetails = () => {
                 />
                 <Tabs tabs={tabs} />
             </DetailViewContainer>
-        </div>
+        </motion.div>
     );
 };
 

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 import { Target, Zap, Handshake, DollarSign, Search, ArrowRight } from 'lucide-react';
 import { BarChart, Bar, ResponsiveContainer } from 'recharts';
+import { motion } from 'framer-motion';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 import toast from 'react-hot-toast';
 
@@ -75,7 +76,12 @@ const Leads = () => {
     if (loading) return <div className="flex-center" style={{height:'100vh'}}><div className="loader"></div></div>;
 
     return (
-        <div className="rd-container">
+        <motion.div 
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="rd-container"
+        >
             <div className="rd-content">
                 <div className="rd-module-header">
                     <div className="rd-module-info">
@@ -83,17 +89,27 @@ const Leads = () => {
                             <span className="rd-module-title">Lead Management Center</span>
                             <span className="rd-module-badge">LEADS</span>
                         </div>
-                        </div>
+                    </div>
                 </div>
 
-                <div className="rd-kpi-row">
+                <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.1, duration: 0.4 }}
+                    className="rd-kpi-row"
+                >
                     <LeadKPICard title="Total Leads" val={leads.length} color="blue" icon={Target} />
                     <LeadKPICard title="Hot Leads (≥80)" val={hotLeads.length} color="red" icon={Zap} />
                     <LeadKPICard title="In Negotiation" val={inNegotiation.length} color="purple" icon={Handshake} />
                     <LeadKPICard title="Pipeline Value" val={formatCurrency(pipelineValue)} color="green" icon={DollarSign} />
-                </div>
+                </motion.div>
 
-                <div className="rd-table-card">
+                <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2, duration: 0.4 }}
+                    className="rd-table-card"
+                >
                     <div className="rd-table-header" style={{borderBottom: '1px solid var(--rd-border)', flexWrap: 'wrap', gap: 16}}>
                         <div>
                             <div className="rd-table-title">Lead Register</div>
@@ -192,9 +208,9 @@ const Leads = () => {
                         </tbody>
                         </table>
                     </div>
-                </div>
+                    </motion.div>
             </div>
-        </div>
+        </motion.div>
     );
 };
 

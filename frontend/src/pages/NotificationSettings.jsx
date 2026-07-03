@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Bell, Settings, Send, Mail, MessageCircle, Smartphone, ShoppingCart, ArrowLeftRight, Users, Wallet, Briefcase, Calendar, Headphones, Zap } from 'lucide-react';
+import { motion } from 'framer-motion';
 import './NotificationSettings.css';
 
 const NotificationSettings = () => {
@@ -20,7 +21,12 @@ const NotificationSettings = () => {
     };
 
     return (
-        <div className="ns-container">
+        <motion.div 
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="ns-container"
+        >
             {/* Header Banner */}
             <div className="ns-header-banner">
                 <div className="ns-header-text">
@@ -42,7 +48,12 @@ const NotificationSettings = () => {
             {/* Grid */}
             <div className="ns-grid">
                 {/* Left Column */}
-                <div className="ns-card">
+                <motion.div 
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1, duration: 0.4 }}
+                    className="ns-card"
+                >
                     <div className="ns-card-header">
                         <div className="ns-icon-box ns-blue-light">
                             <Send size={18} color="#6366f1" />
@@ -106,10 +117,15 @@ const NotificationSettings = () => {
                     <button className="ns-btn-save">
                         <Bell size={16} /> Save Preferences
                     </button>
-                </div>
+                </motion.div>
 
                 {/* Right Column */}
-                <div className="ns-card">
+                <motion.div 
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2, duration: 0.4 }}
+                    className="ns-card"
+                >
                     <div className="ns-card-header">
                         <div className="ns-icon-box ns-pink-light">
                             <Zap size={18} color="#ec4899" />
@@ -218,11 +234,16 @@ const NotificationSettings = () => {
                         </div>
 
                     </div>
-                </div>
+                </motion.div>
             </div>
 
             {/* Footer Help */}
-            <div className="ns-footer">
+            <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.4 }}
+                className="ns-footer"
+            >
                 <div className="ns-footer-left">
                     <div className="ns-icon-box ns-indigo-light">
                         <Headphones size={20} color="#6366f1" />
@@ -235,8 +256,8 @@ const NotificationSettings = () => {
                 <button className="ns-btn-outline">
                     View Documentation <span>↗</span>
                 </button>
-            </div>
-        </div>
+            </motion.div>
+        </motion.div>
     );
 };
 

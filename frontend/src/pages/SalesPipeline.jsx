@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart as BarChartIcon, TrendingUp, DollarSign, Award, Users, Crosshair, ArrowUpRight, ArrowRight } from 'lucide-react';
 import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell } from 'recharts';
+import { motion } from 'framer-motion';
 import API from '../api/axios';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 import toast from 'react-hot-toast';
@@ -148,7 +149,12 @@ const SalesPipeline = () => {
     if (loading) return <div className="flex-center" style={{height:'100vh'}}><div className="loader"></div></div>;
 
     return (
-        <div className="rd-container">
+        <motion.div 
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="rd-container"
+        >
             <div className="rd-content">
                 <div className="rd-module-header">
                     <div className="rd-module-info">
@@ -156,18 +162,28 @@ const SalesPipeline = () => {
                             <span className="rd-module-title">Sales Pipeline Overview</span>
                             <span className="rd-module-badge">PIPELINE</span>
                         </div>
-                        </div>
+                    </div>
                 </div>
 
-                <div className="rd-kpi-row">
+                <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.1, duration: 0.4 }}
+                    className="rd-kpi-row"
+                >
                     <PipelineKPICard title="Total Pipeline Value" val={formatShortCurrency(pipelineValue)} color="blue" icon={BarChartIcon} />
                     <PipelineKPICard title="Deals in Pipeline" val={dealCount} color="teal" icon={TrendingUp} />
                     <PipelineKPICard title="Avg. Deal Size" val={formatShortCurrency(avgDealSize)} color="purple" icon={DollarSign} />
                     <PipelineKPICard title="Win Rate" val={`${winRate}%`} color="green" icon={Award} />
-                </div>
+                </motion.div>
 
                 {/* Stage Funnel Chart */}
-                <div className="rd-chart-card" style={{marginBottom: 24}}>
+                <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2, duration: 0.4 }}
+                    className="rd-chart-card" style={{marginBottom: 24}}
+                >
                     <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20}}>
                         <div style={{display: 'flex', alignItems: 'center', gap: 8}}>
                             <div style={{width: 32, height: 32, borderRadius: 8, background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
@@ -195,9 +211,14 @@ const SalesPipeline = () => {
                             </div>
                         ))}
                     </div>
-                </div>
+                </motion.div>
 
-                <div style={{display: 'flex', gap: 24, marginBottom: 24}}>
+                <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3, duration: 0.4 }}
+                    style={{display: 'flex', gap: 24, marginBottom: 24}}
+                >
                     {/* Monthly Revenue Trend */}
                     <div className="rd-chart-card" style={{flex: 1, display: 'flex', flexDirection: 'column'}}>
                         <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20}}>
@@ -345,10 +366,15 @@ const SalesPipeline = () => {
                             </button>
                         </div>
                     </div>
-                </div>
+                </motion.div>
 
                 {/* Top Open Opportunities */}
-                <div className="rd-chart-card">
+                <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4, duration: 0.4 }}
+                    className="rd-chart-card"
+                >
                     <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20}}>
                         <div style={{display: 'flex', alignItems: 'center', gap: 8}}>
                             <div style={{width: 32, height: 32, borderRadius: 8, background: '#f5f3ff', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
@@ -392,10 +418,10 @@ const SalesPipeline = () => {
                             );
                         })}
                     </div>
-                </div>
+                </motion.div>
 
             </div>
-        </div>
+        </motion.div>
     );
 };
 

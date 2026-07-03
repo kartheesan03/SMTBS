@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 import { ArrowLeft, CheckCircle, AlertCircle, Loader } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const GeneratePayroll = () => {
     const navigate = useNavigate();
@@ -86,7 +87,12 @@ const GeneratePayroll = () => {
     }
 
     return (
-        <div style={{ position: 'relative' }}>
+        <motion.div 
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            style={{ position: 'relative' }}
+        >
             {/* Toast */}
             {toast && (
                 <div style={{ position: 'fixed', top: '24px', right: '24px', zIndex: 9999, display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 20px', borderRadius: '10px', fontSize: '13px', fontWeight: 600, color: '#fff', background: toast.ok ? '#10b981' : '#ef4444', animation: 'slideIn 0.3s ease' }}>
@@ -249,7 +255,7 @@ const GeneratePayroll = () => {
                     </form>
                 </div>
             </div>
-        </div>
+        </motion.div>
     );
 };
 

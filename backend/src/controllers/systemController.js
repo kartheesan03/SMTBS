@@ -6,6 +6,12 @@ const navigationConfig = [
         permission: 'view_dashboard'
     },
     {
+        title: 'Attendance',
+        icon: 'CalendarCheck',
+        path: '/attendance',
+        permission: ''
+    },
+    {
         title: 'Material Tracking',
         icon: 'Box',
         permission: 'view_materials',
@@ -33,7 +39,7 @@ const navigationConfig = [
         permission: 'view_hrms',
         children: [
             { title: 'Employee Data', path: '/hrms' },
-            { title: 'Attendance', path: '/attendance' },
+            { title: 'Master Attendance', path: '/attendance/master' },
             { title: 'Leave Management', path: '/leave-management' },
             { title: 'Payroll', path: '/payroll' },
             { title: 'Generate Payroll', path: '/payroll/generate', permission: 'manage_hrms' },

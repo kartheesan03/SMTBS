@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 import { Building2, CheckCircle, AlertTriangle, DollarSign, Star, Plus, Eye, Edit, Trash2 , Truck} from 'lucide-react';
 import { BarChart, Bar, ResponsiveContainer } from 'recharts';
+import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { DataTable } from '../components/ui';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
@@ -120,7 +121,12 @@ const Vendors = () => {
     const barData = [{v:5},{v:7},{v:4},{v:8},{v:6},{v:9},{v:7}];
 
     return (
-        <div className="rd-container">
+        <motion.div 
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="rd-container"
+        >
             
             <div className="rd-content">
                 <div className="rd-module-header">
@@ -132,14 +138,24 @@ const Vendors = () => {
                         </div>
                 </div>
 
-                <div className="rd-kpi-row">
+                <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.1, duration: 0.4 }}
+                    className="rd-kpi-row"
+                >
                     <VendorKPICard title="Total Vendors" val={vendors.length} icon={Building2} color="blue" data={barData} />
                     <VendorKPICard title="Active" val={activeVendors.length} icon={CheckCircle} color="green" data={barData} />
                     <VendorKPICard title="On Hold" val={onHoldVendors.length} icon={AlertTriangle} color="orange" data={barData} />
                     <VendorKPICard title="Total Outstanding" val={formatCurrency(totalOutstanding)} icon={DollarSign} color="red" data={barData} />
-                </div>
+                </motion.div>
 
-                <div style={{ marginTop: '24px' }}>
+                <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2, duration: 0.4 }}
+                    style={{ marginTop: '24px' }}
+                >
                     {loading ? (
                         <div style={{ textAlign: 'center', padding: '40px', background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
                             Loading vendor data...
@@ -159,9 +175,9 @@ const Vendors = () => {
                             }}
                         />
                     )}
-                </div>
+                </motion.div>
             </div>
-        </div>
+        </motion.div>
     );
 };
 

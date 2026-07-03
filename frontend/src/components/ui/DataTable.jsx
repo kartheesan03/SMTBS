@@ -1,11 +1,12 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { 
     Search, ChevronDown, ChevronUp, MoreVertical, Download, 
-    FileText, FileSpreadsheet, Printer, Filter, EyeOff, Check, X
+    FileText, FileSpreadsheet, Printer, Filter, EyeOff, Check, X, Database
 } from 'lucide-react';
 import ExcelJS from 'exceljs';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import { motion, AnimatePresence } from 'framer-motion';
 import './DataTable.css';
 
 const DataTable = ({ 
@@ -17,7 +18,8 @@ const DataTable = ({
     bulkActions = [], // [{ label, icon: Icon, onClick, color }]
     searchPlaceholder = 'Search records...',
     primaryAction = null, // { label, icon: Icon, onClick }
-    pageSize = 10
+    pageSize = 10,
+    loading = false
 }) => {
     const [search, setSearch] = useState('');
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
@@ -280,38 +282,63 @@ const DataTable = ({
                         </tr>
                     </thead>
                     <tbody>
-                        {currentData.length > 0 ? currentData.map((row) => (
-                            <tr key={row._id || row.id} className={selectedRows.has(row._id || row.id) ? 'selected' : ''}>
-
-                                {columns.filter(c => visibleColumns[c.key]).map((col) => (
-                                    <td key={col.key}>
-                                        {col.render ? col.render(row[col.key], row) : row[col.key]}
-                                    </td>
-                                ))}
-                                {actions.length > 0 && (
-                                    <td style={{ textAlign: 'center' }}>
-                                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                                            {actions.map((action, idx) => (
-                                                <button 
-                                                    key={idx} 
-                                                    className="ui-action-btn"
-                                                    style={action.color === 'danger' ? { color: '#ef4444' } : { color: '#3b82f6' }}
-                                                    title={action.label}
-                                                    onClick={() => action.onClick(row)}
-                                                >
-                                                    {action.icon && <action.icon size={16} />}
-                                                </button>
-                                            ))}
+                        {loading ? (
+                            [...Array(pageSize)].map((_, idx) => (
+                                <tr key={`skeleton-${idx}`} style={{ animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' }}>
+                                    {columns.filter(c => visibleColumns[c.key]).map(col => (
+                                        <td key={`skeleton-col-${col.key}`}>
+                                            <div style={{height: 16, background: '#e2e8f0', borderRadius: 4, width: '70%'}}></div>
+                                        </td>
+                                    ))}
+                                    {actions.length > 0 && <td><div style={{height: 24, background: '#e2e8f0', borderRadius: 4, width: '60px', margin: '0 auto'}}></div></td>}
+                                </tr>
+                            ))
+                        ) : currentData.length > 0 ? (
+                            currentData.map((row) => (
+                                <motion.tr 
+                                    key={row._id || row.id} 
+                                    className={selectedRows.has(row._id || row.id) ? 'selected' : ''}
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    whileHover={{ backgroundColor: '#f8fafc' }}
+                                    transition={{ duration: 0.2 }}
+                                >
+                                    {columns.filter(c => visibleColumns[c.key]).map((col) => (
+                                        <td key={col.key}>
+                                            {col.render ? col.render(row[col.key], row) : row[col.key]}
+                                        </td>
+                                    ))}
+                                    {actions.length > 0 && (
+                                        <td style={{ textAlign: 'center' }}>
+                                            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                                                {actions.map((action, idx) => (
+                                                    <button 
+                                                        key={idx} 
+                                                        className="ui-action-btn"
+                                                        style={action.color === 'danger' ? { color: '#ef4444' } : { color: '#4f46e5' }}
+                                                        title={action.label}
+                                                        onClick={() => action.onClick(row)}
+                                                    >
+                                                        {action.icon && <action.icon size={16} />}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </td>
+                                    )}
+                                </motion.tr>
+                            ))
+                        ) : (
+                            <motion.tr initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                                <td colSpan={columns.filter(c => visibleColumns[c.key]).length + (actions.length ? 1 : 0)} style={{ textAlign: 'center', padding: '64px 20px', background: '#fafafa' }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+                                        <div style={{ width: 64, height: 64, background: '#f1f5f9', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.05)' }}>
+                                            <Database size={32} color="#94a3b8" />
                                         </div>
-                                    </td>
-                                )}
-                            </tr>
-                        )) : (
-                            <tr>
-                                <td colSpan={columns.length + (bulkActions.length ? 1 : 0) + (actions.length ? 1 : 0)} style={{ textAlign: 'center', padding: '40px', color: '#94a3b8' }}>
-                                    No records found.
+                                        <h4 style={{ margin: 0, fontSize: 16, color: '#0f172a', fontWeight: 600 }}>No records found</h4>
+                                        <p style={{ margin: 0, fontSize: 14, color: '#64748b', maxWidth: 300 }}>We couldn't find any data matching your current search criteria.</p>
+                                    </div>
                                 </td>
-                            </tr>
+                            </motion.tr>
                         )}
                     </tbody>
                 </table>

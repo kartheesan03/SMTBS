@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, TrendingUp, Star, ThumbsUp, ThumbsDown , Award} from 'lucide-react';
+import { motion } from 'framer-motion';
 import API from '../api/axios';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 import { HRMSKPICard } from '../components/HRMSShared';
@@ -154,7 +155,12 @@ const TeamPerformance = () => {
     });
 
     return (
-        <div className="rd-container">
+        <motion.div 
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="rd-container"
+        >
             <div className="rd-content">
                 {/* Module Header */}
                 <div className="rd-module-header">
@@ -167,15 +173,25 @@ const TeamPerformance = () => {
                 </div>
 
                 {/* KPI Cards */}
-                <div className="rd-kpi-row">
+                <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.1, duration: 0.4 }}
+                    className="rd-kpi-row"
+                >
                     <HRMSKPICard title="Team Avg Score" val={`${teamAvg}/100`} sub="Based on tasks & attendance" color="blue" icon={TrendingUp} />
                     <HRMSKPICard title="Excellent" val={excellentCount} sub="Top performers (>90%)" color="green" icon={Star} />
                     <HRMSKPICard title="Good" val={goodCount} sub="Meeting targets (75-89%)" color="orange" icon={ThumbsUp} />
                     <HRMSKPICard title="Avg / Below" val={belowAvgCount} sub="Needs improvement (<75%)" color="red" icon={ThumbsDown} />
-                </div>
+                </motion.div>
 
                 {/* Table Section */}
-                <div className="rd-table-card">
+                <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2, duration: 0.4 }}
+                    className="rd-table-card"
+                >
                     <div className="rd-table-header" style={{borderBottom: 'none', flexWrap: 'wrap', gap: 16}}>
                         <div style={{display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap'}}>
                             <div className="rd-search-bar" style={{minWidth: 250, flexShrink: 0, background: '#fff'}}>
@@ -271,9 +287,9 @@ const TeamPerformance = () => {
                         </tbody>
                         </table>
                     </div>
-                </div>
+                </motion.div>
             </div>
-        </div>
+        </motion.div>
     );
 };
 

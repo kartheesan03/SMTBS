@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 import { ArrowLeft, Search, Truck } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const SelectVendor = () => {
     const navigate = useNavigate();
@@ -33,7 +34,12 @@ const SelectVendor = () => {
     };
 
     return (
-        <div className="page-container">
+        <motion.div 
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="page-container"
+        >
             <div className="breadcrumb-nav">
                 <span className="crumb" onClick={() => navigate('/erp')}>ERP Operations</span>
                 <span className="separator">/</span>
@@ -64,7 +70,12 @@ const SelectVendor = () => {
                 </div>
             </header>
 
-            <div className="table-card" >
+            <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1, duration: 0.4 }}
+                className="table-card" 
+            >
                 {loading ? (
                     <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>Loading vendors...</div>
                 ) : filteredVendors.length === 0 ? (
@@ -137,7 +148,7 @@ const SelectVendor = () => {
                 .btn-icon { border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-primary); }
                 .btn-icon:hover { background: rgba(0,0,0,0.05) !important; }
             `}</style>
-        </div>
+        </motion.div>
     );
 };
 

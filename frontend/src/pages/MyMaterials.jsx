@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Package, AlertTriangle, Plus, CheckCircle, Clock, CornerUpLeft, Printer } from 'lucide-react';
+import { Package, AlertTriangle, Plus, CheckCircle, Clock, CornerUpLeft, Printer, FileText } from 'lucide-react';
 import API from '../api/axios';
 import { toast } from 'react-hot-toast';
 import { useLocation } from 'react-router-dom';
 import { DataTable } from '../components/ui';
+import { motion, AnimatePresence } from 'framer-motion';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 
 const MyMaterials = () => {
@@ -219,63 +220,89 @@ const MyMaterials = () => {
                 </div>
             </div>
 
-            {showModal && (
-                <div style={{
-                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-                    backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center'
-                }}>
-                    <div style={{
-                        backgroundColor: '#fff', borderRadius: '16px', padding: '32px',
-                        width: '100%', maxWidth: '500px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
-                    }}>
-                        <h2 className="rd-h2" style={{ marginBottom: '24px' }}>Submit Material Request</h2>
-                        <form onSubmit={handleCreateRequest} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                            <div>
-                                <label className="rd-label">Material</label>
-                                <select 
-                                    className="rd-input"
-                                    required
-                                    value={formData.materialId}
-                                    onChange={(e) => setFormData({...formData, materialId: e.target.value})}
-                                >
-                                    <option value="">Select a material</option>
-                                    {materialsList.map(m => (
-                                        <option key={m.id} value={m.id}>{m.name}</option>
-                                    ))}
-                                </select>
+            <AnimatePresence>
+                {showModal && (
+                    <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        style={{
+                            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                            backgroundColor: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(8px)', zIndex: 1000,
+                            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px'
+                        }}
+                        onClick={() => setShowModal(false)}
+                    >
+                        <motion.div 
+                            initial={{ scale: 0.95, y: 20, opacity: 0 }}
+                            animate={{ scale: 1, y: 0, opacity: 1 }}
+                            exit={{ scale: 0.95, y: 20, opacity: 0 }}
+                            onClick={e => e.stopPropagation()}
+                            style={{
+                                backgroundColor: '#fff', borderRadius: '24px', padding: '32px',
+                                width: '100%', maxWidth: '500px', boxShadow: '0 24px 60px rgba(0, 0, 0, 0.15)'
+                            }}
+                        >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '28px' }}>
+                                <div style={{ width: 48, height: 48, background: '#eef2ff', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <FileText size={24} color="#4f46e5" />
+                                </div>
+                                <div>
+                                    <h2 className="rd-h2" style={{ margin: 0, fontSize: '20px', fontWeight: 800, color: '#0f172a' }}>Submit Material Request</h2>
+                                    <p style={{ margin: 0, fontSize: '13px', color: '#64748b' }}>Fill in the details below to request a new material.</p>
+                                </div>
                             </div>
-                            <div>
-                                <label className="rd-label">Quantity</label>
-                                <input 
-                                    type="number"
-                                    className="rd-input"
-                                    min="1"
-                                    required
-                                    value={formData.requiredQuantity}
-                                    onChange={(e) => setFormData({...formData, requiredQuantity: e.target.value})}
-                                />
-                            </div>
-                            <div>
-                                <label className="rd-label">Reason / Justification</label>
-                                <textarea 
-                                    className="rd-input"
-                                    rows="3"
-                                    required
-                                    value={formData.reason}
-                                    onChange={(e) => setFormData({...formData, reason: e.target.value})}
-                                />
-                            </div>
-                            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '16px' }}>
-                                <button type="button" className="rd-btn secondary" onClick={() => setShowModal(false)}>Cancel</button>
-                                <button type="submit" className="rd-btn primary" disabled={submitting}>
-                                    {submitting ? 'Submitting...' : 'Submit Request'}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
+                            
+                            <form onSubmit={handleCreateRequest} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                                <div>
+                                    <label className="rd-label" style={{ fontWeight: 600, color: '#1e293b' }}>Material <span style={{ color: '#ef4444' }}>*</span></label>
+                                    <select 
+                                        className="rd-input"
+                                        required
+                                        value={formData.materialId}
+                                        onChange={(e) => setFormData({...formData, materialId: e.target.value})}
+                                        style={{ height: '48px', borderRadius: '12px', border: '1px solid #e2e8f0', background: '#f8fafc', width: '100%', padding: '0 16px', fontSize: '14px' }}
+                                    >
+                                        <option value="">Select a material</option>
+                                        {materialsList.map(m => (
+                                            <option key={m.id} value={m.id}>{m.name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="rd-label" style={{ fontWeight: 600, color: '#1e293b' }}>Quantity <span style={{ color: '#ef4444' }}>*</span></label>
+                                    <input 
+                                        type="number"
+                                        className="rd-input"
+                                        min="1"
+                                        required
+                                        value={formData.requiredQuantity}
+                                        onChange={(e) => setFormData({...formData, requiredQuantity: e.target.value})}
+                                        style={{ height: '48px', borderRadius: '12px', border: '1px solid #e2e8f0', background: '#f8fafc', width: '100%', padding: '0 16px', fontSize: '14px' }}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="rd-label" style={{ fontWeight: 600, color: '#1e293b' }}>Reason / Justification <span style={{ color: '#ef4444' }}>*</span></label>
+                                    <textarea 
+                                        className="rd-input"
+                                        rows="3"
+                                        required
+                                        value={formData.reason}
+                                        onChange={(e) => setFormData({...formData, reason: e.target.value})}
+                                        style={{ borderRadius: '12px', border: '1px solid #e2e8f0', background: '#f8fafc', width: '100%', padding: '16px', fontSize: '14px', resize: 'vertical', minHeight: '100px' }}
+                                    />
+                                </div>
+                                <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '16px' }}>
+                                    <button type="button" className="rd-btn secondary" onClick={() => setShowModal(false)} style={{ padding: '12px 24px', borderRadius: '10px', fontWeight: 600 }}>Cancel</button>
+                                    <button type="submit" className="rd-btn primary" disabled={submitting} style={{ padding: '12px 24px', borderRadius: '10px', fontWeight: 600, background: 'linear-gradient(135deg, #4f46e5, #6366f1)', border: 'none' }}>
+                                        {submitting ? 'Submitting...' : 'Submit Request'}
+                                    </button>
+                                </div>
+                            </form>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };

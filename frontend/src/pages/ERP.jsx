@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { ShoppingCart, Clock, CheckCircle, DollarSign, Search, Eye, Truck, FileText, Plus , Briefcase} from 'lucide-react';
 import { BarChart, Bar, ResponsiveContainer } from 'recharts';
+import { motion } from 'framer-motion';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 import jsPDF from 'jspdf';
 import toast from 'react-hot-toast';
@@ -82,7 +83,12 @@ const ERP = () => {
     if (loading) return <div className="flex-center" style={{height:'100vh'}}><div className="loader"></div></div>;
 
     return (
-        <div className="rd-container">
+        <motion.div 
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="rd-container"
+        >
             
             <div className="rd-content">
                 {/* Module Header */}
@@ -96,15 +102,25 @@ const ERP = () => {
                 </div>
 
                 {/* KPI Cards */}
-                <div className="rd-kpi-row">
+                <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.1, duration: 0.4 }}
+                    className="rd-kpi-row"
+                >
                     <ProcKPICard title="Total POs" val={orders.length} subtitle="vs last month" color="blue" icon={ShoppingCart} data={barData} />
                     <ProcKPICard title="Pending Approval" val={pendingOrders.length} subtitle="Action required" subtitleColor="#ef4444" color="orange" icon={Clock} data={barData} />
                     <ProcKPICard title="Approved" val={approvedOrders.length} subtitle="vs last month" color="green" icon={CheckCircle} data={barData} />
-                    <ProcKPICard title="Total PO Value" val={formatCurrency(totalPOValue)} subtitle="vs last month" color="purple" icon={DollarSign} data={barData} isCurrency />
-                </div>
+                    <ProcKPICard title="Total PO Value" val={formatCurrency(totalPOValue)} subtitle="pending & approved" color="green" icon={DollarSign} data={barData} />
+                </motion.div>
 
-                {/* Table */}
-                <div className="rd-table-card">
+                {/* Table Card */}
+                <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2, duration: 0.4 }}
+                    className="rd-table-card"
+                >
                     <div className="rd-table-header" style={{borderBottom: '1px solid var(--rd-border)', flexWrap: 'wrap', gap: 16}}>
                         <div>
                             <div className="rd-table-title">Purchase Orders</div>
@@ -191,9 +207,9 @@ const ERP = () => {
                         </tbody>
                         </table>
                     </div>
-                </div>
+                </motion.div>
             </div>
-        </div>
+        </motion.div>
     );
 };
 

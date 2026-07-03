@@ -218,7 +218,7 @@ const Register = () => {
                                 </div>
                             </div>
 
-                            <div className="input-group role-dropdown-container" ref={dropdownRef} style={{ marginBottom: '24px' }}>
+                            <div className="input-group role-dropdown-container" ref={dropdownRef} style={{ marginBottom: '10px' }}>
                                 <label className="section-label" style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', marginBottom: '8px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>SELECT YOUR ROLE</label>
                                 <div
                                     className={`custom-dropdown-header ${isRoleDropdownOpen ? 'open' : ''}`}
@@ -549,8 +549,8 @@ const Register = () => {
 
                 .login-form-wrapper {
                     flex: 1;
-                    min-width: 450px;
-                    max-width: 600px;
+                    min-width: 420px;
+                    max-width: 560px;
                     height: 100%;
                     display: flex;
                     flex-direction: column;
@@ -558,8 +558,11 @@ const Register = () => {
                     justify-content: center;
                     position: relative;
                     z-index: 20;
-                    padding: clamp(16px, 3vh, 20px);
-                    background: transparent;
+                    padding: clamp(16px, 3vh, 24px) clamp(24px, 4vw, 48px);
+                    background: #ffffff;
+                    border-top-left-radius: 32px;
+                    border-bottom-left-radius: 32px;
+                    box-shadow: -20px 0 60px rgba(0,0,0,0.3);
                     overflow-y: auto;
                 }
 
@@ -568,24 +571,23 @@ const Register = () => {
                 }
 
                 .form-card {
-                    background: #ffffff;
+                    background: transparent;
                     width: 100%;
                     max-width: 400px;
                     min-height: auto;
                     height: auto;
-                    border-radius: 20px;
-                    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.1);
-                    padding: clamp(20px, 3vh, 28px);
+                    box-shadow: none;
+                    padding: 0;
                     color: var(--text-primary);
                     position: relative;
-                    margin: auto 0;
+                    margin: 0;
                     display: flex;
                     flex-direction: column;
                 }
 
                 .form-header {
                     text-align: center;
-                    margin-bottom: clamp(12px, 2vh, 16px);
+                    margin-bottom: clamp(8px, 1.5vh, 12px);
                 }
 
                 .form-header h2 {
@@ -722,7 +724,7 @@ const Register = () => {
 
                 /* Inputs */
                 .input-group {
-                    margin-bottom: 10px;
+                    margin-bottom: 8px;
                 }
 
                 .input-group label {
@@ -773,7 +775,7 @@ const Register = () => {
                 /* Submit Button */
                 .submit-btn {
                     width: 100%;
-                    padding: 12px;
+                    padding: 11px;
                     background: #000000;
                     color: white;
                     border: none;
@@ -786,7 +788,7 @@ const Register = () => {
                     justify-content: center;
                     gap: 8px;
                     transition: all 0.2s ease;
-                    margin-top: 12px;
+                    margin-top: 8px;
                 }
 
                 .submit-btn:hover {
@@ -804,7 +806,7 @@ const Register = () => {
                     display: flex;
                     align-items: center;
                     text-align: center;
-                    margin: 24px 0;
+                    margin: 12px 0;
                 }
 
                 .divider::before, .divider::after {
@@ -849,7 +851,7 @@ const Register = () => {
                     font-size: 13px;
                     color: var(--text-secondary);
                     font-weight: 500;
-                    margin-top: 24px;
+                    margin-top: 16px;
                 }
 
                 .signup-link {

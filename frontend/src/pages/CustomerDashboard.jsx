@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import API from '../api/axios';
 import { ShoppingCart, Package, MapPin, Truck, CheckCircle, Plus, FileText, User, XCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 const CustomerDashboard = () => {
     const [profile, setProfile] = useState(null);
@@ -60,7 +61,12 @@ const CustomerDashboard = () => {
     const completedOrders = orders.filter(o => o.status === 'Delivered').length;
 
     return (
-        <div className="page-container">
+        <motion.div 
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="page-container"
+        >
             <div className="page-header">
                 <div>
                     <h1 className="page-title">Customer Dashboard</h1>
@@ -77,7 +83,12 @@ const CustomerDashboard = () => {
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '24px' }}>
                 {/* Stats Section */}
-                <div style={{ gridColumn: 'span 4', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1, duration: 0.4 }}
+                    style={{ gridColumn: 'span 4', display: 'flex', flexDirection: 'column', gap: '24px' }}
+                >
                     <div className="premium-card" style={{ padding: '24px', display: 'flex', alignItems: 'center', gap: '20px' }}>
                         <div className="kpi-icon-3d" style={{ width: '64px', height: '64px', borderRadius: '16px', background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.1), rgba(56, 189, 248, 0.05))', color: '#0ea5e9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                             <Package size={28} strokeWidth={2.5} />
@@ -107,10 +118,15 @@ const CustomerDashboard = () => {
                             <div style={{ fontSize: '32px', fontWeight: 800, color: 'var(--text-heading)', lineHeight: 1 }}>{completedOrders}</div>
                         </div>
                     </div>
-                </div>
+                </motion.div>
 
                 {/* Profile Profile Section */}
-                <div className="premium-card" style={{ gridColumn: 'span 8', padding: '24px', display: 'flex', flexDirection: 'column' }}>
+                <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2, duration: 0.4 }}
+                    className="premium-card" style={{ gridColumn: 'span 8', padding: '24px', display: 'flex', flexDirection: 'column' }}
+                >
                     <div className="card-header">
                         <h3><User size={18} /> My Profile Details</h3>
                     </div>
@@ -139,10 +155,15 @@ const CustomerDashboard = () => {
                             <Link to="/complete-profile" className="btn-secondary" style={{ marginTop: '10px', display: 'inline-block', textDecoration: 'none' }}>Complete Profile</Link>
                         </div>
                     )}
-                </div>
+                </motion.div>
 
                 {/* Order History Section */}
-                <div className="premium-card" style={{ gridColumn: 'span 12', padding: '24px', marginTop: '8px' }}>
+                <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3, duration: 0.4 }}
+                    className="premium-card" style={{ gridColumn: 'span 12', padding: '24px', marginTop: '8px' }}
+                >
                     <div className="card-header" style={{ marginBottom: '20px', paddingBottom: '0', borderBottom: 'none' }}>
                         <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: 'var(--text-heading)', display: 'flex', alignItems: 'center', gap: '8px' }}><FileText size={18} /> My Order History</h3>
                     </div>
@@ -217,7 +238,7 @@ const CustomerDashboard = () => {
                             </div>
                         )}
                     </div>
-                </div>
+                </motion.div>
             </div>
 
             {/* Order Details Modal */}
@@ -293,7 +314,7 @@ const CustomerDashboard = () => {
             )}
 
             
-        </div>
+        </motion.div>
     );
 };
 

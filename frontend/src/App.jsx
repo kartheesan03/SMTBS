@@ -34,6 +34,7 @@ const SalesDashboard = React.lazy(() => import('./pages/SalesDashboard'));
 const TeamPerformance = React.lazy(() => import('./pages/TeamPerformance'));
 const Payroll = React.lazy(() => import('./pages/Payroll'));
 const Attendance = React.lazy(() => import('./pages/Attendance'));
+const MasterAttendance = React.lazy(() => import('./pages/MasterAttendance'));
 const HRReports = React.lazy(() => import('./pages/HRReports'));
 const Settings = React.lazy(() => import('./pages/Settings'));
 const BackupRestore = React.lazy(() => import('./pages/BackupRestore'));
@@ -204,7 +205,8 @@ const AppContent = () => {
                     <Route path="/payroll/generate" element={<ProtectedRoute requiredPermission="view_hrms"><GeneratePayroll /></ProtectedRoute>} />
                     <Route path="/payroll/payment/:id" element={<ProtectedRoute requiredPermission="view_hrms"><PayrollPayment /></ProtectedRoute>} />
                     <Route path="/payslips" element={<ProtectedRoute requiredPermission="view_hrms"><Payslips /></ProtectedRoute>} />
-                    <Route path="/attendance" element={<ProtectedRoute requiredPermission="view_hrms"><Attendance /></ProtectedRoute>} />
+                    <Route path="/attendance" element={<ProtectedRoute><Attendance /></ProtectedRoute>} />
+                    <Route path="/attendance/master" element={<ProtectedRoute requiredPermission="view_hrms"><MasterAttendance /></ProtectedRoute>} />
                     <Route path="/hr-reports" element={<ProtectedRoute requiredPermission="view_hrms"><HRReports /></ProtectedRoute>} />
                     <Route path="/team-performance" element={<ProtectedRoute requiredPermission="view_hrms"><TeamPerformance /></ProtectedRoute>} />
                     <Route path="/erp" element={<ProtectedRoute requiredPermission="view_erp"><ERP /></ProtectedRoute>} />
@@ -249,7 +251,7 @@ const AppContent = () => {
                     <Route path="/users" element={<ProtectedRoute requiredPermission="view_settings"><UserManagement /></ProtectedRoute>} />
                     <Route path="/my-tasks" element={<ProtectedRoute><MyTasks /></ProtectedRoute>} />
                     <Route path="/tasks" element={<Navigate to="/my-tasks" replace />} />
-                    <Route path="/my-attendance" element={<ProtectedRoute><MyAttendance /></ProtectedRoute>} />
+                    <Route path="/my-attendance" element={<Navigate to="/attendance" replace />} />
                     <Route path="/my-salary" element={<ProtectedRoute><MySalaryPage /></ProtectedRoute>} />
                     <Route path="/leave-management" element={<ProtectedRoute><LeaveManagement /></ProtectedRoute>} />
                     <Route path="/leave-management/apply" element={<ProtectedRoute><ApplyLeave /></ProtectedRoute>} />

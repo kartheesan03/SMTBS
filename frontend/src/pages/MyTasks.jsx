@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import API from '../api/axios';
 import DataTable from '../components/Dashboard/DataTable';
 import { Search, Plus, CheckCircle2, Clock, PlayCircle, Loader, User, Users, Calendar, Trash2, Send, Bell, AlertCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const MyTasks = () => {
     const [tasks, setTasks] = useState([]);
@@ -141,7 +142,12 @@ const MyTasks = () => {
     const completedCount = allCompletions.filter(c => c.status === 'Completed').length;
 
     return (
-        <div className="page-container">
+        <motion.div 
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="page-container"
+        >
             {successMsg && (
                 <div className="toast-success animate-slide-down">
                     <CheckCircle2 size={18} /> {successMsg}
@@ -173,7 +179,12 @@ const MyTasks = () => {
 
             {/* Stats Cards for Manager/HR */}
             {isManager && (
-                <div className="task-stats" style={{ marginBottom: '24px' }}>
+                <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.1, duration: 0.4 }}
+                    className="task-stats" style={{ marginBottom: '24px' }}
+                >
                     <div className="premium-card stat-card">
                         <div className="stat-icon pending-icon"><Clock size={20} /></div>
                         <div className="stat-info">
@@ -202,10 +213,15 @@ const MyTasks = () => {
                             <span className="stat-label">Total Tasks</span>
                         </div>
                     </div>
-                </div>
+                </motion.div>
             )}
 
-            <div className="task-filters mt-20">
+            <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2, duration: 0.4 }}
+                className="task-filters mt-20"
+            >
                 {['All', 'Pending', 'In Progress', 'Completed'].map(f => (
                     <button 
                         key={f}
@@ -215,9 +231,14 @@ const MyTasks = () => {
                         {f === 'All' ? 'All Tasks' : f}
                     </button>
                 ))}
-            </div>
+            </motion.div>
 
-            <div className="module-content">
+            <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.4 }}
+                className="module-content"
+            >
                 {loading ? (
                     <div className="flex-center p-50"><Loader size={30} className="spin-icon"/></div>
                 ) : filteredTasks.length === 0 ? (
@@ -317,7 +338,7 @@ const MyTasks = () => {
                     />
                     </div>
                 )}
-            </div>
+            </motion.div>
 
             {/* Create Task Modal */}
             {showModal && (
@@ -583,7 +604,7 @@ const MyTasks = () => {
                     .task-stats { grid-template-columns: repeat(2, 1fr); }
                 }
             `}</style>
-        </div>
+        </motion.div>
     );
 };
 

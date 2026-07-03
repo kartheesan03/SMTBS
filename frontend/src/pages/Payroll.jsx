@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Briefcase, CreditCard, User, FileText, Play, CheckCircle , DollarSign} from 'lucide-react';
+import { motion } from 'framer-motion';
 import API from '../api/axios';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 import { HRMSKPICard } from '../components/HRMSShared';
@@ -100,7 +101,12 @@ const Payroll = () => {
     };
 
     return (
-        <div className="rd-container">
+        <motion.div 
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="rd-container"
+        >
             <div className="rd-content">
                 {/* Module Header */}
                 <div className="rd-module-header">
@@ -113,15 +119,25 @@ const Payroll = () => {
                 </div>
 
                 {/* KPI Cards */}
-                <div className="rd-kpi-row">
+                <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.1, duration: 0.4 }}
+                    className="rd-kpi-row"
+                >
                     <HRMSKPICard title="Total Gross Payroll" val={formatCurrency(totalGross, 'short')} sub="↗ Gross across records" color="blue" icon={Briefcase} />
                     <HRMSKPICard title="Total Net Pay" val={formatCurrency(totalNet, 'short')} sub="↗ After deductions" color="green" icon={CreditCard} />
                     <HRMSKPICard title="Est. PF Contributions" val={formatCurrency(totalPF, 'short')} sub="↗ 12% of basic salary" color="orange" icon={User} />
                     <HRMSKPICard title="Other Deductions" val={formatCurrency(totalTax > 0 ? totalTax : 0, 'short')} sub="↘ TDS/Other this cycle" color="red" icon={FileText} />
-                </div>
+                </motion.div>
 
                 {/* Table Section */}
-                <div className="rd-table-card">
+                <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2, duration: 0.4 }}
+                    className="rd-table-card"
+                >
                     <div className="rd-table-header" style={{borderBottom: 'none', flexWrap: 'wrap', gap: 16}}>
                         <div style={{display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap'}}>
                             <div className="rd-search-bar" style={{minWidth: 250, flexShrink: 0, background: '#fff'}}>
@@ -238,9 +254,9 @@ const Payroll = () => {
                         </tbody>
                         </table>
                     </div>
-                </div>
+                </motion.div>
             </div>
-        </div>
+        </motion.div>
     );
 };
 

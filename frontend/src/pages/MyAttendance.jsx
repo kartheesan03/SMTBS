@@ -4,6 +4,7 @@ import AttendanceHistoryTable from '../components/Dashboard/AttendanceHistoryTab
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip } from 'recharts';
 import { Clock, Calendar, CheckCircle, Play, Square, Timer, Activity, TrendingUp } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { motion } from 'framer-motion';
 import API from '../api/axios';
 import { AuthContext } from '../context/AuthContext';
 import './MyAttendance.css';
@@ -206,7 +207,12 @@ const MyAttendance = () => {
     };
 
     return (
-        <div className="attendance-page-container">
+        <motion.div 
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            className="attendance-page-container"
+        >
             <header className="attendance-page-header">
                 <div className="header-text-group">
                     <h1 className="page-title">Attendance & Time Tracking</h1>
@@ -239,7 +245,12 @@ const MyAttendance = () => {
 
             <div className="attendance-bento-grid">
                 {/* Hero Session Card */}
-                <div className={`bento-card hero-session-card ${isShiftActive ? 'active-shift' : isShiftCompleted ? 'completed-shift' : ''}`}>
+                <motion.div 
+                    initial={{ opacity: 0, scale: 0.98 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.1, duration: 0.4 }}
+                    className={`bento-card hero-session-card ${isShiftActive ? 'active-shift' : isShiftCompleted ? 'completed-shift' : ''}`}
+                >
                     <div className="session-card-content">
                         <div className="session-status-header">
                             <div className="icon-ring">
@@ -287,9 +298,15 @@ const MyAttendance = () => {
                                 <span className="kpi-suffix">/ Day</span>
                             </div>
                         </div>
-                    </div>
+                    </motion.div>
                     
-                    <div className="bento-card kpi-card emerald-glow">
+                    <motion.div 
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3, duration: 0.4 }}
+                        whileHover={{ y: -4, boxShadow: '0 12px 24px rgba(0,0,0,0.06)' }}
+                        className="bento-card kpi-card emerald-glow"
+                    >
                         <div className="kpi-icon-wrap text-emerald-500 bg-emerald-500/10">
                             <Calendar size={24} />
                         </div>
@@ -300,11 +317,16 @@ const MyAttendance = () => {
                                 <span className="kpi-suffix">This Month</span>
                             </div>
                         </div>
-                    </div>
+                    </motion.div>
                 </div>
 
                 {/* Work Hours Trend Chart */}
-                <div className="bento-card chart-card">
+                <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4, duration: 0.4 }}
+                    className="bento-card chart-card"
+                >
                     <div className="chart-header">
                         <TrendingUp size={20} className="text-indigo-500" />
                         <h3 className="chart-title">Work Hours Trend (Last 7 Days)</h3>
@@ -339,14 +361,19 @@ const MyAttendance = () => {
                             </AreaChart>
                         </ResponsiveContainer>
                     </div>
-                </div>
+                </motion.div>
             </div>
 
             {/* History Table */}
-            <div className="bento-card table-card">
+            <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5, duration: 0.4 }}
+                className="bento-card table-card"
+            >
                 <AttendanceHistoryTable isEmployeeView={true} />
-            </div>
-        </div>
+            </motion.div>
+        </motion.div>
     );
 };
 

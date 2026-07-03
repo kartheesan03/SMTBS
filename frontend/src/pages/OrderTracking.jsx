@@ -6,6 +6,7 @@ import {
     ArrowLeft, Package, Truck, CheckCircle, 
     MapPin, Calendar, Clock, Plus, Loader 
 } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const formatDateTime = (dateValue) => {
     if (!dateValue) return "-";
@@ -177,7 +178,12 @@ const OrderTracking = () => {
     };
 
     return (
-        <div className="tracking-page">
+        <motion.div 
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="tracking-page"
+        >
             <header className="page-header">
                 <button className="back-btn" onClick={() => navigate('/erp')}>
                     <ArrowLeft size={18} />
@@ -187,7 +193,12 @@ const OrderTracking = () => {
 
             <div className="tracking-container">
                 {/* Order Summary */}
-                <div className="tracking-summary-card">
+                <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1, duration: 0.4 }}
+                    className="tracking-summary-card"
+                >
                     <div className="card-header">
                         <h2>Order Tracking</h2>
                         <span className={`status-badge ${isCancelled ? 'danger' : (isDelivered ? 'success' : 'processing')}`}>
@@ -242,7 +253,7 @@ const OrderTracking = () => {
                             <p>Last updated: {timeline.length > 0 ? formatDateTime(timeline[timeline.length - 1].date) : formatDateTime(order.updatedAt)}</p>
                         </div>
                     </div>
-                </div>
+                </motion.div>
 
                 <div className="tracking-body">
                     {/* Timeline */}
@@ -433,7 +444,7 @@ const OrderTracking = () => {
                     .summary-grid { grid-template-columns: repeat(2, 1fr); }
                 }
             `}</style>
-        </div>
+        </motion.div>
     );
 };
 

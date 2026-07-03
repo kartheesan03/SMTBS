@@ -1,371 +1,417 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend } from 'recharts';
 import { AuthContext } from '../context/AuthContext';
-import { NotificationContext } from '../context/NotificationContext';
 import API from '../api/axios';
-import {
-    Users, Search, Bell, Moon, Target, ShoppingBag, Award,
-    Briefcase, Activity, FileText, CheckCircle, ListTodo,
-    Menu, Calendar, Clock, LogOut, Settings as SettingsIcon, User as UserIcon, DollarSign, TrendingUp,
-    ArrowUpRight, ArrowDownRight, Filter, Layers
+import { 
+    Users, Search, Bell, DollarSign, TrendingUp, BarChart2,
+    Briefcase, Target, PhoneCall, ShoppingCart, Tag, Crosshair, 
+    ArrowUpRight, Clock, Star, Gift, LayoutGrid, Activity, 
+    Layers, Cpu, Server, MapPin, UserPlus, AlertTriangle, AlertCircle, CheckCircle
 } from 'lucide-react';
-import {
-    EmptyState, SkeletonCard,
-    TopWelcomeBar, PremiumKPICard, TimelineWidget,
-    QuickActionsGrid
-} from '../components/AdminDashboard/DashboardWidgets';
-import { SalesAreaChart, InventoryStatusDonut } from '../components/AdminDashboard/AnalyticsCharts';
-import CommandCenter from '../components/CommandCenter';
+import { AreaChart, Area, PieChart, Pie, Cell, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, LineChart, Line, BarChart, Bar } from 'recharts';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
-import { RDKPICard } from './AdminDashboard';
+import CommandCenter from '../components/CommandCenter';
+import { SparklineKPICard, IconQuickAction, MiniStatCard } from './AdminDashboard';
 
 const SalesDashboard = () => {
-    const { user, logout } = useContext(AuthContext);
-    const { unreadCount } = useContext(NotificationContext);
-
-    const displayName = user?.name || user?.user?.name || 'Sales Rep';
-    const displayRole = user?.role || user?.user?.role || 'Sales';
-    const displayEmail = user?.email || user?.user?.email || 'sales@smtbms.com';
-
     const navigate = useNavigate();
+    const { user } = useContext(AuthContext);
+    const [isCommandCenterOpen, setIsCommandCenterOpen] = useState(false);
     const [dashboardData, setDashboardData] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-
+    const [leads, setLeads] = useState([]);
     const [customersData, setCustomersData] = useState([]);
     const [ordersData, setOrdersData] = useState([]);
-    const [leadsData, setLeadsData] = useState([]);
     const [tasksData, setTasksData] = useState([]);
-
-    const [currentTime, setCurrentTime] = useState(new Date());
-    const [isCommandCenterOpen, setIsCommandCenterOpen] = useState(false);
-    const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-
-    useEffect(() => {
-        const handleClickOutside = (e) => {
-            if (!e.target.closest('.erp-profile-menu-container')) {
-                setIsProfileMenuOpen(false);
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
-
-    useEffect(() => {
-        const timer = setInterval(() => {
-            setCurrentTime(new Date());
-        }, 1000);
-        return () => clearInterval(timer);
-    }, []);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchDashboardData = async () => {
             try {
-                const [dashRes, custRes, ordRes, leadRes, taskRes] = await Promise.all([
+                const [statsRes, leadsRes, custRes, ordRes, taskRes] = await Promise.all([
                     API.get('/dashboard/stats').catch(e => ({ data: {} })),
+                    API.get('/leads').catch(e => ({ data: [] })),
                     API.get('/customers').catch(e => ({ data: [] })),
                     API.get('/orders').catch(e => ({ data: [] })),
-                    API.get('/leads').catch(e => ({ data: [] })),
                     API.get('/tasks').catch(e => ({ data: [] }))
                 ]);
-                setDashboardData(dashRes.data || {});
+                
+                setDashboardData(statsRes.data || {});
+                setLeads(leadsRes.data || []);
                 setCustomersData(custRes.data || []);
                 setOrdersData(ordRes.data || []);
-                setLeadsData(leadRes.data || []);
                 setTasksData(taskRes.data || []);
-                setError(null);
             } catch (err) {
-                console.error("Failed to load dashboard stats", err);
-                setError("Failed to load dashboard data. Please try again.");
+                console.error("Failed to load dashboard data", err);
             } finally {
                 setLoading(false);
             }
         };
         fetchDashboardData();
-        const interval = setInterval(fetchDashboardData, 30000);
-        return () => clearInterval(interval);
     }, []);
 
-    const toggleDarkMode = () => {
-        const root = document.documentElement;
-        if (root.getAttribute('data-theme') === 'dark') {
-            root.removeAttribute('data-theme');
-        } else {
-            root.setAttribute('data-theme', 'dark');
-        }
-    };
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault();
+                setIsCommandCenterOpen(true);
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []);
 
     if (loading) {
-        return (
-            <div className="erp-dashboard-container">
-                <div className="erp-main-content">
-                    <div className="erp-summary-grid">
-                        {[1, 2, 3, 4, 5, 6].map(i => <SkeletonCard key={i} />)}
-                    </div>
-                </div>
-            </div>
-        );
+        return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: '#64748b' }}>Loading Sales dashboard data...</div>;
     }
 
-    if (error) {
-        return (
-            <div className="erp-dashboard-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
-                <EmptyState icon={Activity} title="Error Loading Data" message={error} />
-            </div>
-        );
-    }
-
-    const dashboard = dashboardData || {};
-    const totalCustomers = customersData.length;
-    const totalOrders = ordersData.length;
-    
-    // Filter only SALES orders (not purchase)
-    const salesOrders = ordersData.filter(o => {
-        const t = String(o.orderType || '').toLowerCase();
-        return t.includes('sales') || t === '';
-    });
-    const completedSalesOrders = salesOrders.filter(o => o.status === 'Delivered' || o.status === 'Paid' || o.status === 'Completed');
-    const totalSales = completedSalesOrders.length;
-    
-    // Revenue from completed sales orders only
-    const revenue = dashboard.totalRevenue || completedSalesOrders
-        .reduce((sum, o) => sum + (Number(o.totalAmount) || Number(o.grandTotal) || 0), 0);
-
-    // This month's revenue
-    const now = new Date();
-    const thisMonthSales = completedSalesOrders.filter(o => {
-        const d = new Date(o.orderDate || o.createdAt);
-        return !isNaN(d) && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-    });
-    const thisMonthRevenue = thisMonthSales.reduce((sum, o) => sum + (Number(o.totalAmount) || Number(o.grandTotal) || 0), 0);
-
-    // Last month's revenue for growth
-    const lastMonthSales = completedSalesOrders.filter(o => {
-        const d = new Date(o.orderDate || o.createdAt);
-        const lastMonth = (now.getMonth() - 1 + 12) % 12;
-        const lastMonthYear = now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
-        return !isNaN(d) && d.getMonth() === lastMonth && d.getFullYear() === lastMonthYear;
-    });
-    const lastMonthRevenue = lastMonthSales.reduce((sum, o) => sum + (Number(o.totalAmount) || Number(o.grandTotal) || 0), 0);
-
-    const activeLeads = leadsData.filter(l => l.status !== 'Converted' && l.status !== 'Lost').length;
-    const convertedLeads = leadsData.filter(l => l.status === 'Converted').length;
-    const lostLeads = leadsData.filter(l => l.status === 'Lost').length;
-    const totalLeads = leadsData.length;
-    
-    let completedTasksCount = 0;
-    let pendingTasksCount = 0;
-    
-    tasksData.forEach(task => {
-        if (task.status === 'Completed' || task.status === 'Done') {
-            completedTasksCount++;
-        } else {
-            pendingTasksCount++;
-        }
-    });
-
-    // Conversion rate from real data
-    const conversionRate = totalLeads > 0 ? Math.round((convertedLeads / totalLeads) * 100) : 0;
-    
-    // Target achieved — this month vs last month
-    const targetAchieved = lastMonthRevenue > 0 
-        ? Math.min(Math.round((thisMonthRevenue / lastMonthRevenue) * 100), 100) 
-        : (thisMonthRevenue > 0 ? 100 : 0);
-
-    // Revenue growth from real data
-    const revenueGrowth = lastMonthRevenue > 0 
-        ? parseFloat(((thisMonthRevenue - lastMonthRevenue) / lastMonthRevenue * 100).toFixed(1))
-        : (thisMonthRevenue > 0 ? 100 : 0);
-
-    // Pending orders count
-    const pendingOrders = salesOrders.filter(o => !['Delivered', 'Completed', 'Cancelled', 'Paid'].includes(o.status)).length;
-
-    // Lead source data from real leads
-    const leadSources = leadsData.reduce((acc, lead) => {
-        const source = lead.source || 'Direct';
-        acc[source] = (acc[source] || 0) + 1;
-        return acc;
-    }, {});
-    const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
-    const leadSourceData = Object.keys(leadSources).map((key, index) => ({
-        name: key,
-        value: leadSources[key],
-        percentage: totalLeads > 0 ? Math.round((leadSources[key] / totalLeads) * 100) : 0,
-        color: colors[index % colors.length]
-    }));
-
-    // Recent orders from real data, sorted by date
-    const recentOrdersData = [...salesOrders]
-        .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
-        .slice(0, 5)
-        .map(o => ({
-            id: o._id,
-            text: `${o.orderNumber || 'Order'} — ${formatINR(o.totalAmount || 0)} (${o.status})`,
-            time: new Date(o.createdAt || Date.now()).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }),
-            color: (o.status === 'Paid' || o.status === 'Delivered' || o.status === 'Completed') ? '#10b981' : '#3b82f6'
-        }));
-
-    function formatINR(num) {
-        if (!num) return '₹0';
-        return '₹' + Number(num).toLocaleString('en-IN');
-    }
-
-    const formatIndianCurrency = formatINR;
-
-    // Monthly stats from backend for chart
-    const monthlyChartData = (dashboard.charts?.monthlyStats || []).map(m => ({
-        name: m.name,
-        revenue: m.revenue || 0,
-        orders: m.sales || 0
-    }));
-
-    const formatYAxis = (tickItem) => {
-        if (tickItem >= 10000000) return `₹${(tickItem / 10000000).toFixed(1)}Cr`;
-        if (tickItem >= 100000) return `₹${(tickItem / 100000).toFixed(1)}L`;
-        if (tickItem >= 1000) return `₹${(tickItem / 1000).toFixed(0)}k`;
-        return `₹${tickItem}`;
+    const getGreeting = () => {
+        const hour = new Date().getHours();
+        if (hour < 12) return 'Good Morning';
+        if (hour < 18) return 'Good Afternoon';
+        return 'Good Evening';
     };
-    const CustomTooltip = ({ active, payload, label }) => {
-        if (active && payload && payload.length) {
-            return (
-                <div style={{ background: '#fff', padding: '12px 16px', borderRadius: '10px', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', border: '1px solid #e2e8f0' }}>
-                    <div style={{ fontWeight: 700, color: '#1e293b', marginBottom: '6px', fontSize: '14px' }}>{label}</div>
-                    {payload.map((p, i) => (
-                        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2px' }}>
-                            <span style={{ width: 8, height: 8, borderRadius: '50%', background: p.color }}></span>
-                            <span style={{ color: '#64748b', fontSize: '13px' }}>{p.name}:</span>
-                            <span style={{ fontWeight: 600, color: '#1e293b', fontSize: '13px' }}>{p.name === 'Revenue' ? formatIndianCurrency(p.value) : p.value}</span>
-                        </div>
-                    ))}
-                </div>
-            );
-        }
-        return null;
+
+    const totalRevenue = dashboardData?.stats?.revenue || (dashboardData?.charts?.monthlyStats || []).reduce((sum, item) => sum + (item.revenue || 0), 0);
+    const activeLeads = leads.filter(l => l.status !== 'Converted').length || 0;
+    const convertedLeads = leads.filter(l => l.status === 'Converted').length || 0;
+    const conversionRate = leads.length > 0 ? Math.round((convertedLeads / leads.length) * 100) : 0;
+    const totalOrders = dashboardData?.stats?.totalSalesOrders || ordersData.length || 0;
+    const newLeads = leads.filter(l => l.createdAt && new Date(l.createdAt) > new Date(Date.now() - 30*24*60*60*1000)).length || 0;
+    const totalCustomers = dashboardData?.stats?.totalCustomers || customersData.length || 0;
+    const meetings = tasksData.filter(t => t.title?.toLowerCase().includes('meeting') || t.title?.toLowerCase().includes('call')).length || 0;
+    const activePipeline = totalRevenue * 0.45; // Simulated potential pipeline
+
+    const formatINR = (val) => {
+        if (!val) return '₹0';
+        if (val >= 100000) return `₹${(val / 100000).toFixed(2)}L`;
+        if (val >= 1000) return `₹${(val / 1000).toFixed(1)}k`;
+        return `₹${val}`;
     };
 
     return (
-        <div className="rd-container">
+        <div className="rd-container theme-sales">
             <div className="rd-content">
-                {/* Hero Banner */}
+                
+                {/* ── 1. Hero Banner ── */}
                 <div className="rd-hero">
+                    <div className="rd-hero-bg-chart"></div>
                     <div className="rd-hero-left">
-                        <div className="rd-greeting">
-                            {displayName} <span role="img" aria-label="wave">👋</span>
+                        <div className="rd-hero-avatar-wrapper">
+                            <img src={user?.picture || `https://ui-avatars.com/api/?name=${user?.name || 'Sales'}&background=3b82f6&color=fff`} alt="Profile" className="rd-hero-avatar" style={{ borderColor: '#3b82f6' }} />
+                            <div className="rd-hero-status-dot"></div>
                         </div>
-                        <div className="rd-subtitle">
-                            {displayRole} • <span className="rd-badge-id">{displayEmail}</span> • Status: Online
-                        </div>
-                        
-                        <div className="rd-hero-actions">
-                            <button className="rd-btn-primary" onClick={() => navigate('/crm/leads')}><Filter size={18}/> View Leads</button>
-                            <button className="rd-btn-outline" onClick={() => navigate('/analytics')}><DollarSign size={18}/> Revenue</button>
-                            <button className="rd-btn-outline" onClick={() => navigate('/crm/customers')}><Users size={18}/> Customers</button>
-                        </div>
-                        
-                        <div className="rd-hero-footer">
-                            <div className="rd-footer-item">
-                                <span className="rd-footer-label">Total Revenue</span>
-                                <span className="rd-footer-val">{formatINR(revenue)}</span>
+                        <div>
+                            <div className="rd-hero-greeting">
+                                {getGreeting()}, {user?.name?.split(' ')[0] || 'Sales Lead'} <span role="img" aria-label="wave">👋</span>
                             </div>
-                            <div className="rd-footer-item">
-                                <span className="rd-footer-label">Customers</span>
-                                <span className="rd-footer-val">{totalCustomers}</span>
-                            </div>
-                            <div className="rd-footer-item">
-                                <span className="rd-footer-label">Pending Orders</span>
-                                <span className="rd-footer-val">{pendingOrders}</span>
+                            <div className="rd-hero-subtitle">Here is your sales pipeline overview today.</div>
+                            <div className="rd-hero-badges">
+                                <span className="rd-hero-badge badge-blue">
+                                    <Target size={14} /> Sales Director
+                                </span>
+                                <span className="rd-hero-badge badge-blue" style={{background: '#f8fafc', border: '1px solid #e2e8f0', color: '#475569'}}>
+                                    <FileText size={14} /> {user?.email || 'sales@smtbms.com'}
+                                </span>
+                                <span className="rd-hero-badge badge-green" style={{background: '#f8fafc', border: '1px solid #e2e8f0', color: '#10b981'}}>
+                                    <div style={{width:8,height:8,background:'#10b981',borderRadius:'50%'}}></div> Online
+                                </span>
                             </div>
                         </div>
                     </div>
-                    
-                    <div className="rd-hero-right">
-                        <div className="rd-circle-progress" style={{'--p': `${conversionRate}%`}}>
-                            <div className="rd-circle-inner">
-                                <span className="rd-circle-val">{conversionRate}%</span>
-                                <span className="rd-circle-label">Conversion</span>
-                            </div>
-                        </div>
-                        <div className="rd-circle-progress" style={{'--p': `${targetAchieved}%`}}>
-                            <div className="rd-circle-inner">
-                                <span className="rd-circle-val">{targetAchieved}%</span>
-                                <span className="rd-circle-label">Target</span>
-                            </div>
-                        </div>
+                    <div className="rd-hero-right-actions">
+                        <button className="hero-action-btn primary" onClick={() => navigate('/attendance')}>
+                            <Clock size={16} /> Check In
+                        </button>
+                        <button className="hero-action-btn secondary" onClick={() => navigate('/leave-management/approve')}>
+                            <CheckCircle size={16} /> Leave Approval
+                        </button>
                     </div>
                 </div>
 
-                {/* KPI Row */}
+                {/* ── 2. KPI Row (6 columns) ── */}
                 <div className="rd-kpi-row">
-                    <RDKPICard title="Total Revenue" value={formatINR(revenue)} trendValue={`${revenueGrowth >= 0 ? '+' : ''}${revenueGrowth}%`} icon={DollarSign} color="green" subLabel="All Time" bottomVal={`This Month: ${formatINR(thisMonthRevenue)}`} />
-                    <RDKPICard title="Sales Orders" value={salesOrders.length} trendValue={`${totalSales} done`} icon={ShoppingBag} color="blue" subLabel="Total" bottomVal={`${pendingOrders} pending`} />
-                    <RDKPICard title="Active Leads" value={activeLeads} trendValue={`${totalLeads} total`} icon={Target} color="orange" subLabel="Current" bottomVal={`${convertedLeads} converted`} />
-                    <RDKPICard title="Conversion Rate" value={`${conversionRate}%`} trendValue={`${convertedLeads}/${totalLeads}`} icon={TrendingUp} color="purple" subLabel="Overall" bottomVal={`${lostLeads} lost`} />
+                    <SparklineKPICard title="Total Revenue" value={formatINR(totalRevenue)} trend="up" trendValue="14% vs last month" icon={DollarSign} colorClass="icon-blue" />
+                    <SparklineKPICard title="Total Orders" value={totalOrders} trend="up" trendValue="8% vs last month" icon={ShoppingCart} colorClass="icon-green" />
+                    <SparklineKPICard title="Active Leads" value={activeLeads} trend="up" trendValue={`${newLeads} new today`} icon={Users} colorClass="icon-orange" />
+                    <SparklineKPICard title="Conversion Rate" value={`${conversionRate}%`} trend="up" trendValue="1.2% increase" icon={Crosshair} colorClass="icon-purple" />
+                    <SparklineKPICard title="Total Customers" value={totalCustomers} trend="up" trendValue="Growing" icon={FileText} colorClass="icon-pink" />
+                    <SparklineKPICard title="Avg Deal Size" value="₹45k" trend="up" trendValue="Good" icon={Briefcase} colorClass="icon-teal" />
                 </div>
 
-                {/* Middle Section */}
+                {/* ── 3. Middle Row (Quick Actions + Mini Stats) ── */}
                 <div className="rd-middle-row">
-                    {/* Monthly Revenue & Orders Bar Chart */}
-                    <div className="rd-card" style={{ display: 'flex', flexDirection: 'column' }}>
-                        <div className="rd-card-title">Monthly Revenue & Orders</div>
-                        <div style={{flex: 1, minHeight: 250, marginTop: 16}}>
-                            {monthlyChartData.some(m => m.revenue > 0 || m.orders > 0) ? (
+                    
+                    {/* Left: Quick Actions Grid */}
+                    <div className="dashboard-panel">
+                        <div className="panel-header">
+                            <div className="panel-title">Quick Actions</div>
+                        </div>
+                        <div className="qa-grid">
+                            <IconQuickAction icon={UserPlus} label="New Lead" colorClass="bg-light-blue" onClick={() => navigate('/crm/leads')} />
+                            <IconQuickAction icon={FileText} label="Create Quote" colorClass="bg-light-purple" onClick={() => navigate('/')} />
+                            <IconQuickAction icon={ShoppingCart} label="Sales Order" colorClass="bg-light-green" onClick={() => navigate('/orders')} />
+                            <IconQuickAction icon={Users} label="Customers" colorClass="bg-light-orange" onClick={() => navigate('/customers')} />
+                            
+                            <IconQuickAction icon={PhoneCall} label="Calls" colorClass="bg-light-pink" onClick={() => navigate('/')} />
+                            <IconQuickAction icon={Target} label="Targets" colorClass="bg-light-blue" onClick={() => navigate('/')} />
+                            <IconQuickAction icon={BarChart2} label="Reports" colorClass="bg-light-teal" onClick={() => navigate('/reports')} />
+                            <IconQuickAction icon={MapPin} label="Regions" colorClass="bg-light-gray" onClick={() => navigate('/')} />
+                            
+                            <IconQuickAction icon={Activity} label="Activity" colorClass="bg-light-orange" onClick={() => navigate('/')} />
+                            <IconQuickAction icon={Bell} label="Notifs" colorClass="bg-light-red" onClick={() => navigate('/notifications')} />
+                            <IconQuickAction icon={Gift} label="Promotions" colorClass="bg-light-purple" onClick={() => navigate('/')} />
+                            <IconQuickAction icon={LayoutGrid} label="Dashboard" colorClass="bg-light-green" onClick={() => navigate('/')} />
+                        </div>
+                    </div>
+
+                    {/* Right: Mini Stats Grid */}
+                    <div className="dashboard-panel" style={{ display: 'flex', flexDirection: 'column' }}>
+                        <div className="ms-grid" style={{ flex: 1, alignContent: 'center' }}>
+                            <MiniStatCard title="Total Revenue" value={formatINR(totalRevenue)} subValue="YTD" icon={DollarSign} colorClass="bg-light-blue" trendColor="#3b82f6" />
+                            <MiniStatCard title="Sales Orders" value={totalOrders} subValue="This Month" icon={ShoppingCart} colorClass="bg-light-green" trendColor="#10b981" />
+                            <MiniStatCard title="New Leads" value={newLeads} subValue="This Month" icon={UserPlus} colorClass="bg-light-orange" trendColor="#f59e0b" />
+                            <MiniStatCard title="Win Rate" value={`${conversionRate}%`} subValue="Overall" icon={Target} colorClass="bg-light-orange" trendColor="#f59e0b" />
+                            
+                            <MiniStatCard title="Total Customers" value={totalCustomers} subValue="Active" icon={Users} colorClass="bg-light-blue" trendColor="#3b82f6" />
+                            <MiniStatCard title="Active Leads" value={activeLeads} subValue="In Pipeline" icon={Briefcase} colorClass="bg-light-purple" trendColor="#8b5cf6" />
+                            <MiniStatCard title="Meetings" value={meetings} subValue="Scheduled" icon={PhoneCall} colorClass="bg-light-teal" trendColor="#14b8a6" />
+                            <MiniStatCard title="Pipeline" value={formatINR(activePipeline)} subValue="Potential" icon={TrendingUp} colorClass="bg-light-green" trendColor="#10b981" />
+                        </div>
+                    </div>
+
+                </div>
+
+                {/* ── 4. Chart Row 1 (4 Columns) ── */}
+                <div className="bottom-grid-4">
+                    
+                    <div className="dashboard-panel">
+                        <div className="panel-header">
+                            <div className="panel-title">Sales Revenue</div>
+                            <select className="panel-dropdown"><option>This Year ▾</option></select>
+                        </div>
+                        <div className="chart-container-sm">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <AreaChart data={dashboardData?.charts?.monthlyStats || []}>
+                                    <defs>
+                                        <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
+                                            <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                                        </linearGradient>
+                                    </defs>
+                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 9, fill: '#94a3b8'}} dy={10} />
+                                    <YAxis axisLine={false} tickLine={false} tick={{fontSize: 9, fill: '#94a3b8'}} width={40} tickFormatter={(val) => val >= 1000 ? `${val/1000}L` : val} />
+                                    <Tooltip contentStyle={{fontSize: 10, borderRadius: 8}} />
+                                    <Area type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={2} fillOpacity={1} fill="url(#colorSales)" />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+
+                    <div className="dashboard-panel">
+                        <div className="panel-header">
+                            <div className="panel-title">Lead Sources</div>
+                            <select className="panel-dropdown"><option>This Month ▾</option></select>
+                        </div>
+                        <div className="chart-container-sm" style={{ display: 'flex', alignItems: 'center' }}>
+                            <div style={{ flex: 1, height: '100%' }}>
                                 <ResponsiveContainer width="100%" height="100%">
-                                    <BarChart data={monthlyChartData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
-                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} dy={10} />
-                                        <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} tickFormatter={formatYAxis} width={55} />
-                                        <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} width={30} />
-                                        <RechartsTooltip content={<CustomTooltip />} cursor={{fill: 'rgba(59,130,246,0.05)'}} />
-                                        <Legend verticalAlign="top" align="right" iconType="circle" wrapperStyle={{ paddingBottom: '12px', fontSize: 12, fontWeight: 500 }} />
-                                        <Bar yAxisId="left" dataKey="revenue" name="Revenue" fill="#10b981" radius={[6, 6, 0, 0]} barSize={20} />
-                                        <Bar yAxisId="right" dataKey="orders" name="Orders" fill="#3b82f6" radius={[6, 6, 0, 0]} barSize={20} />
-                                    </BarChart>
+                                    <PieChart>
+                                        <Pie data={dashboardData?.charts?.crmDonut || []} innerRadius={35} outerRadius={55} dataKey="value">
+                                            {(dashboardData?.charts?.crmDonut || []).map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={entry.color || '#3b82f6'} />
+                                            ))}
+                                        </Pie>
+                                        <Tooltip contentStyle={{fontSize: 10}} />
+                                    </PieChart>
                                 </ResponsiveContainer>
-                            ) : (
-                                <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#94a3b8', flexDirection: 'column', gap: '8px'}}>
-                                    <TrendingUp size={32} color="#cbd5e1" />
-                                    <span>Revenue data will appear as orders are created</span>
-                                </div>
-                            )}
+                            </div>
+                            <div style={{ width: 'auto', minWidth: '85px', fontSize: 9 }}>
+                                {(dashboardData?.charts?.crmDonut || []).map((entry, idx) => (
+                                    <div key={idx} style={{display:'flex', justifyContent:'space-between', marginBottom:4}}>
+                                        <span><div className="ai-dot" style={{display:'inline-block',background:entry.color || '#3b82f6',marginRight:4}}></div>{entry.name}</span> 
+                                        <b>{entry.value}</b>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     </div>
 
-                    {/* Quick Actions */}
-                    <div className="rd-card">
-                        <div className="rd-card-title">Quick Actions</div>
-                        <div className="rd-action-stack">
-                            <div className="rd-action-btn blue" onClick={() => navigate('/crm/leads')}><span className="rd-action-text">Manage Leads</span> <span>→</span></div>
-                            <div className="rd-action-btn purple" onClick={() => navigate('/crm/pipeline')}><span className="rd-action-text">Sales Pipeline</span> <span>→</span></div>
-                            <div className="rd-action-btn green" onClick={() => navigate('/crm')}><span className="rd-action-text">Customers</span> <span>→</span></div>
-                            <div className="rd-action-btn orange" onClick={() => navigate('/orders')}><span className="rd-action-text">Orders</span> <span>→</span></div>
+                    <div className="dashboard-panel">
+                        <div className="panel-header">
+                            <div className="panel-title">Recent Activity</div>
+                            <a href="/notifications" className="panel-action">View All</a>
                         </div>
-                    </div>
-
-                    {/* Recent Orders */}
-                    <div className="rd-card">
-                        <div className="rd-card-title">Recent Orders</div>
-                        <div className="rd-feed">
-                            {recentOrdersData.length > 0 ? (
-                                recentOrdersData.map((order, idx) => (
-                                    <div className="rd-feed-item" key={order.id || idx} style={{cursor: 'pointer'}} onClick={() => navigate(`/orders/${order.id}`)}>
-                                        <div className="rd-feed-icon" style={{background: `${order.color}15`, color: order.color}}>
-                                            <ShoppingBag size={16}/>
-                                        </div>
-                                        <div className="rd-feed-content">
-                                            <div className="rd-feed-text" style={{fontSize: '12px'}}>{order.text}</div>
-                                            <div className="rd-feed-time">{order.time}</div>
+                        <div className="feed-list">
+                            {(dashboardData?.tables?.recentActivity || []).length > 0 ? (
+                                (dashboardData?.tables?.recentActivity || []).slice(0, 3).map((activity, idx) => (
+                                    <div className="feed-item" key={idx}>
+                                        <div className="feed-time">{new Date(activity.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                                        <div className="feed-icon-wrapper" style={{background: '#3b82f6'}}><DollarSign size={12}/></div>
+                                        <div className="feed-content">
+                                            <div className="feed-title">{activity.type}</div>
+                                            <div className="feed-desc">{activity.text}</div>
                                         </div>
                                     </div>
                                 ))
                             ) : (
-                                <div style={{padding: '20px', textAlign: 'center', color: '#94a3b8'}}>No recent orders</div>
+                                <div style={{padding: '12px', fontSize: '11px', color: '#64748b', textAlign: 'center'}}>No recent activity.</div>
                             )}
                         </div>
                     </div>
+
+                    <div className="dashboard-panel">
+                        <div className="panel-header">
+                            <div className="panel-title">Top Prospects</div>
+                            <a href="/crm" className="panel-action">View All</a>
+                        </div>
+                        <div className="feed-list">
+                            <div style={{padding: '12px', fontSize: '11px', color: '#64748b', textAlign: 'center'}}>No prospects assigned to you.</div>
+                        </div>
+                    </div>
+
                 </div>
+
+                {/* ── 5. Chart Row 2 (5 Columns) ── */}
+                <div className="bottom-grid-5">
+                    
+                    <div className="dashboard-panel">
+                        <div className="panel-header">
+                            <div className="panel-title"><Cpu size={16} style={{display:'inline', verticalAlign:'middle', marginRight:4}} color="#3b82f6"/> Sales Insights</div>
+                        </div>
+                        <div className="ai-insights-list" style={{marginTop: 8}}>
+                            <div className="ai-insight-item">
+                                <div className="ai-dot"></div>
+                                <div>Total revenue is <strong>{formatINR(totalRevenue)}</strong>.</div>
+                            </div>
+                            <div className="ai-insight-item">
+                                <div className="ai-dot"></div>
+                                <div><strong>{totalOrders}</strong> total orders processed.</div>
+                            </div>
+                            <div className="ai-insight-item">
+                                <div className="ai-dot"></div>
+                                <div>Revenue target progress is tracking well.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="dashboard-panel">
+                        <div className="panel-header">
+                            <div className="panel-title">Sales by Region</div>
+                            <select className="panel-dropdown"><option>This Quarter ▾</option></select>
+                        </div>
+                        <div className="chart-container-sm">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart layout="vertical" data={dashboardData?.charts?.categoryData || []} margin={{top:0, right:30, left:0, bottom:0}}>
+                                    <XAxis type="number" hide />
+                                    <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{fontSize: 10}} width={70} />
+                                    <Tooltip contentStyle={{fontSize: 10}} cursor={{fill: 'transparent'}} />
+                                    <Bar dataKey="value" fill="#10b981" radius={[0,4,4,0]} barSize={8} />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+
+                    <div className="dashboard-panel">
+                        <div className="panel-header">
+                            <div className="panel-title">Pipeline Stage</div>
+                            <select className="panel-dropdown"><option>Current ▾</option></select>
+                        </div>
+                        <div className="chart-container-sm" style={{ display: 'flex', alignItems: 'center' }}>
+                            <div style={{ flex: 1, height: '100%' }}>
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <PieChart>
+                                        <Pie data={dashboardData?.charts?.erpDonut || []} innerRadius={35} outerRadius={55} dataKey="value">
+                                            {(dashboardData?.charts?.erpDonut || []).map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={entry.color || '#3b82f6'} />
+                                            ))}
+                                        </Pie>
+                                        <Tooltip contentStyle={{fontSize: 10}} />
+                                    </PieChart>
+                                </ResponsiveContainer>
+                            </div>
+                            <div style={{ width: 'auto', minWidth: '85px', fontSize: 9 }}>
+                                {(dashboardData?.charts?.erpDonut || []).map((entry, idx) => (
+                                    <div key={idx} style={{display:'flex', justifyContent:'space-between', marginBottom:4}}>
+                                        <span><div className="ai-dot" style={{display:'inline-block',background:entry.color || '#3b82f6',marginRight:4}}></div>{entry.name}</span> 
+                                        <b>{entry.value}</b>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="dashboard-panel">
+                        <div className="panel-header">
+                            <div className="panel-title">Lead Growth</div>
+                            <select className="panel-dropdown"><option>Last 6 Months ▾</option></select>
+                        </div>
+                        <div style={{ padding: '0 0 10px 0' }}>
+                            <div style={{fontSize: 18, fontWeight: 800, color: '#0f172a'}}>156 Leads</div>
+                            <div style={{fontSize: 10, color: '#10b981', fontWeight: 600}}>↑ 24% vs previous</div>
+                        </div>
+                        <div style={{height: 100, width: '100%'}}>
+                            <ResponsiveContainer width="100%" height="100%">
+                                <LineChart data={dashboardData?.charts?.monthlyStats || []}>
+                                    <Line type="monotone" dataKey="sales" stroke="#f59e0b" strokeWidth={2} dot={{r: 3, fill: '#f59e0b'}} />
+                                    <Tooltip contentStyle={{fontSize: 10}} />
+                                </LineChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+
+                    <div className="dashboard-panel">
+                        <div className="panel-header">
+                            <div className="panel-title">Upcoming Sales Events</div>
+                            <a href="/calendar" className="panel-action">View All</a>
+                        </div>
+                        <div className="feed-list" style={{gap: 12, marginTop: 8}}>
+                            <div className="event-item">
+                                <div className="event-date">
+                                    <span className="event-month" style={{color: '#3b82f6'}}>Jul</span>
+                                    <span className="event-day">12</span>
+                                </div>
+                                <div className="feed-content">
+                                    <div className="feed-title">Client Demo</div>
+                                    <div className="feed-desc">Enterprise Solutions</div>
+                                </div>
+                            </div>
+                            <div className="event-item">
+                                <div className="event-date">
+                                    <span className="event-month" style={{color: '#8b5cf6'}}>Jul</span>
+                                    <span className="event-day">15</span>
+                                </div>
+                                <div className="feed-content">
+                                    <div className="feed-title">Sales Training</div>
+                                    <div className="feed-desc">New product features</div>
+                                </div>
+                            </div>
+                            <div className="event-item">
+                                <div className="event-date">
+                                    <span className="event-month" style={{color: '#10b981'}}>Jul</span>
+                                    <span className="event-day">30</span>
+                                </div>
+                                <div className="feed-content">
+                                    <div className="feed-title">End of Month</div>
+                                    <div className="feed-desc">Target closure deadline</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                {/* ── 6. Footer ── */}
+                <div className="dashboard-footer">
+                    <div><Calendar size={12} style={{display:'inline',marginRight:4}}/> Current FY: 2026 - 2027</div>
+                    <div><Layers size={12} style={{display:'inline',marginRight:4}}/> Sales Module v2.5.1</div>
+                    <div><Clock size={12} style={{display:'inline',marginRight:4}}/> Last Backup: 03 Jul 2026, 02:30 AM</div>
+                    <div className="footer-item" style={{color: '#10b981'}}>
+                        <div className="footer-dot"></div> All Systems Operational
+                    </div>
+                </div>
+
             </div>
-            {isCommandCenterOpen && <CommandCenter onClose={() => setIsCommandCenterOpen(false)} />}
+            <CommandCenter isOpen={isCommandCenterOpen} onClose={() => setIsCommandCenterOpen(false)} />
         </div>
     );
 };

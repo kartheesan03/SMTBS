@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { NotificationContext } from '../context/NotificationContext';
 import { Search, Bell, Calendar, RefreshCw, Grid, LogOut, User } from 'lucide-react';
-import './AdminDashboard/AdminDashboardRedesign.css';
+import './GlobalHeader.css';
 
 const GlobalHeader = ({ onRefresh, onOpenModuleLauncher, onOpenCommandCenter }) => {
     const { user, logout } = useContext(AuthContext);

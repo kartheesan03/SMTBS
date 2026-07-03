@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Users, Search, CheckCircle, Clock, XCircle, Plus } from 'lucide-react';
+import { motion } from 'framer-motion';
 import API from '../api/axios';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 import { HRMSKPICard } from '../components/HRMSShared';
@@ -109,7 +110,12 @@ const HRMS = () => {
     }
 
     return (
-        <div className="rd-container">
+        <motion.div 
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="rd-container"
+        >
             <div className="rd-content">
                 {/* Module Header */}
                 <div className="rd-module-header">
@@ -122,15 +128,25 @@ const HRMS = () => {
                 </div>
 
                 {/* KPI Cards — Real Data */}
-                <div className="rd-kpi-row">
+                <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.1, duration: 0.4 }}
+                    className="rd-kpi-row"
+                >
                     <HRMSKPICard title="Total Employees" val={totalEmployees} sub={`${totalEmployees} in database`} color="blue" icon={Users} />
                     <HRMSKPICard title="Active" val={activeCount} sub={`↗ ${activePercent}% of workforce`} color="green" icon={CheckCircle} />
                     <HRMSKPICard title="On Leave" val={leaveCount} sub={`${leavePercent}% of total`} color="orange" icon={Clock} />
                     <HRMSKPICard title="Inactive" val={0} sub="No inactive records" color="red" icon={XCircle} />
-                </div>
+                </motion.div>
 
                 {/* Table Section */}
-                <div className="rd-table-card">
+                <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2, duration: 0.4 }}
+                    className="rd-table-card"
+                >
                     <div className="rd-table-header" style={{borderBottom: 'none', flexWrap: 'wrap', gap: 16}}>
                         <div style={{display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap'}}>
                             <div className="rd-search-bar" style={{minWidth: 250, flexShrink: 0, background: '#fff'}}>
@@ -230,9 +246,9 @@ const HRMS = () => {
                         </tbody>
                         </table>
                     </div>
-                </div>
+                </motion.div>
             </div>
-        </div>
+        </motion.div>
     );
 };
 

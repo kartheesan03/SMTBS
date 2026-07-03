@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import API from '../api/axios';
 import { Package, Truck, CheckCircle, Store } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 const VendorDashboard = () => {
     const [profile, setProfile] = useState(null);
@@ -26,7 +27,12 @@ const VendorDashboard = () => {
     if (loading) return <div className="app-loading">Loading...</div>;
 
     return (
-        <div className="page-container">
+        <motion.div 
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="page-container"
+        >
             <div className="page-header">
                 <div>
                     <h1 className="page-title">Vendor Dashboard</h1>
@@ -34,7 +40,12 @@ const VendorDashboard = () => {
                 </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px', marginBottom: '24px' }}>
+            <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.1, duration: 0.4 }}
+                style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px', marginBottom: '24px' }}
+            >
                 <div className="premium-card" style={{ padding: '20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
                     <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(56, 189, 248, 0.1)', color: '#38bdf8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <Package size={24} />
@@ -53,9 +64,14 @@ const VendorDashboard = () => {
                         <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-heading)' }}>{profile?.status}</div>
                     </div>
                 </div>
-            </div>
+            </motion.div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
+            <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2, duration: 0.4 }}
+                style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}
+            >
                 <div className="premium-card" style={{ padding: '24px' }}>
                     <h3 style={{ margin: '0 0 20px 0', fontSize: '16px', fontWeight: 700, color: 'var(--text-heading)' }}>My Materials Catalog</h3>
                     <div className="table-responsive">
@@ -106,8 +122,8 @@ const VendorDashboard = () => {
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
+            </motion.div>
+        </motion.div>
     );
 };
 

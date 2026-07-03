@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 import { Users, UserCheck, AlertCircle, DollarSign, Plus, Eye, Edit, Trash2 } from 'lucide-react';
 import { BarChart, Bar, ResponsiveContainer } from 'recharts';
+import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { DataTable } from '../components/ui';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
@@ -114,7 +115,12 @@ const Customers = ({ directoryOnly }) => {
     const barData = [{v:5},{v:7},{v:4},{v:8},{v:6},{v:9},{v:7}];
 
     return (
-        <div className="rd-container">
+        <motion.div 
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="rd-container"
+        >
             
             <div className="rd-content">
                 <div className="rd-module-header">
@@ -126,14 +132,24 @@ const Customers = ({ directoryOnly }) => {
                         </div>
                 </div>
 
-                <div className="rd-kpi-row">
+                <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.1, duration: 0.4 }}
+                    className="rd-kpi-row"
+                >
                     <CustomerKPICard title="Total Accounts" val={customers.length} icon={Users} color="blue" data={barData} />
                     <CustomerKPICard title="Active" val={activeAccounts.length} icon={UserCheck} color="green" data={barData} />
                     <CustomerKPICard title="At Risk" val={atRisk.length} icon={AlertCircle} color="orange" data={barData} />
                     <CustomerKPICard title="LTV / Revenue" val={formatCurrency(totalRevenue)} icon={DollarSign} color="purple" data={barData} />
-                </div>
+                </motion.div>
 
-                <div style={{ marginTop: '24px' }}>
+                <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2, duration: 0.4 }}
+                    style={{ marginTop: '24px' }}
+                >
                     {loading ? (
                         <div style={{ textAlign: 'center', padding: '40px', background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
                             Loading customer data...
@@ -153,9 +169,9 @@ const Customers = ({ directoryOnly }) => {
                             }}
                         />
                     )}
-                </div>
+                </motion.div>
             </div>
-        </div>
+        </motion.div>
     );
 };
 

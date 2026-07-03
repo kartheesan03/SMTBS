@@ -3,6 +3,7 @@ import API from '../api/axios';
 import DataTable from '../components/Dashboard/DataTable';
 import { DollarSign, Download, Eye, X, FileText, CheckCircle, Clock, Loader2 } from 'lucide-react';
 import { generatePayslipPDF } from '../utils/pdfGenerator';
+import { motion } from 'framer-motion';
 
 const MySalaryPage = () => {
     const [history, setHistory] = useState([]);
@@ -61,7 +62,12 @@ const MySalaryPage = () => {
     );
 
     return (
-        <div className="page-container">
+        <motion.div 
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="page-container"
+        >
             <header className="page-header">
                 <div>
                     <h1 className="page-title">My Payslips</h1>
@@ -253,7 +259,7 @@ const MySalaryPage = () => {
                     .modal-actions button { width: 100%; }
                 }
             `}</style>
-        </div>
+        </motion.div>
     );
 };
 

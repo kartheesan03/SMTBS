@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import API from '../api/axios';
 import { DollarSign, Download, Eye, X, FileText, CheckCircle, Clock, Loader2, AlertCircle } from 'lucide-react';
 import { generatePayslipPDF } from '../utils/pdfGenerator';
+import { motion } from 'framer-motion';
 
 const Payslips = () => {
     const [history, setHistory] = useState([]);
@@ -60,7 +61,12 @@ const Payslips = () => {
     );
 
     return (
-        <div className="page-container">
+        <motion.div 
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="page-container"
+        >
             <header className="page-header">
                 <div>
                     <h1 className="page-title">Payslips</h1>
@@ -330,7 +336,7 @@ const Payslips = () => {
                     .modal-actions button { width: 100%; }
                 }
             `}</style>
-        </div>
+        </motion.div>
     );
 };
 

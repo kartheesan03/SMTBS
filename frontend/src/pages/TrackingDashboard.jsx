@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { RefreshCw, Search, Filter, ArrowUpRight, ArrowDownRight, Activity, ArrowRightLeft, Download, Eye, Layers, X } from 'lucide-react';
+import { RefreshCw, Search, Filter, ArrowUpRight, ArrowDownRight, Activity, ArrowRightLeft, Download, Eye, Layers, X, FileSearch } from 'lucide-react';
 import { LineChart, Line, ResponsiveContainer } from 'recharts';
 import API from '../api/axios';
+import { motion, AnimatePresence } from 'framer-motion';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 import toast from 'react-hot-toast';
 
@@ -140,43 +141,61 @@ const TrackingDashboard = () => {
                             </thead>
                             <tbody>
                                 {loading ? (
-                                    <tr>
-                                        <td colSpan={7} style={{textAlign: 'center', padding: 32, color: '#94a3b8', whiteSpace: 'normal'}}>Loading movement logs...</td>
-                                    </tr>
+                                    <>
+                                        <SkeletonRow />
+                                        <SkeletonRow />
+                                        <SkeletonRow />
+                                        <SkeletonRow />
+                                        <SkeletonRow />
+                                    </>
                                 ) : filteredLogs.length === 0 ? (
-                                    <tr>
-                                        <td colSpan={7} style={{textAlign: 'center', padding: 32, color: '#94a3b8', whiteSpace: 'normal'}}>No movements found</td>
-                                    </tr>
+                                    <motion.tr initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                                        <td colSpan={7} style={{textAlign: 'center', padding: '64px 20px', background: '#fafafa'}}>
+                                            <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12}}>
+                                                <div style={{width: 64, height: 64, background: '#f1f5f9', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.05)'}}>
+                                                    <FileSearch size={32} color="#94a3b8" />
+                                                </div>
+                                                <h4 style={{margin: 0, fontSize: 16, color: '#0f172a', fontWeight: 600}}>No movements found</h4>
+                                                <p style={{margin: 0, fontSize: 14, color: '#64748b', maxWidth: 300}}>We couldn't find any material movements matching your current filters. Try adjusting your search.</p>
+                                            </div>
+                                        </td>
+                                    </motion.tr>
                                 ) : (
                                     filteredLogs.map(log => {
                                         const d = new Date(log.createdAt || Date.now());
                                         const tStr = (log.type || '').toUpperCase();
                                         return (
-                                            <tr key={log.id || log._id}>
-                                                <td style={{fontWeight: 700, color: '#3b82f6'}}>TRK-{String(log.id || log._id).slice(-4).toUpperCase()}</td>
+                                            <motion.tr 
+                                                key={log.id || log._id}
+                                                initial={{ opacity: 0, y: 10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                whileHover={{ backgroundColor: '#f8fafc' }}
+                                                transition={{ duration: 0.2 }}
+                                            >
+                                                <td style={{fontWeight: 700, color: '#4f46e5'}}>TRK-{String(log.id || log._id).slice(-4).toUpperCase()}</td>
                                                 <td>
-                                                    <div style={{fontWeight: 600, color: 'var(--rd-text-main)'}}>{d.toLocaleDateString()}</div>
-                                                    <div style={{fontSize: 12, color: '#94a3b8', marginTop: 4}}>{d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                                                    <div style={{fontWeight: 600, color: '#1e293b'}}>{d.toLocaleDateString()}</div>
+                                                    <div style={{fontSize: 12, color: '#64748b', marginTop: 4}}>{d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
                                                 </td>
                                                 <td>
-                                                    <div style={{fontWeight: 600, color: 'var(--rd-text-main)', overflow: 'hidden', textOverflow: 'ellipsis'}}>{log.materialName}</div>
-                                                    <div style={{fontSize: 11, color: '#94a3b8', marginTop: 2}}>{log.materialSku}</div>
+                                                    <div style={{fontWeight: 600, color: '#1e293b', overflow: 'hidden', textOverflow: 'ellipsis'}}>{log.materialName}</div>
+                                                    <div style={{fontSize: 11, color: '#64748b', marginTop: 2}}>{log.materialSku}</div>
                                                 </td>
                                                 <td>{getTypeBadge(log.type)}</td>
-                                                <td style={{fontWeight: 700, fontSize: 16}}>{tStr === 'IN' ? '+' : tStr === 'OUT' ? '-' : ''}{log.quantity}</td>
+                                                <td style={{fontWeight: 800, fontSize: 15, color: '#0f172a'}}>{tStr === 'IN' ? '+' : tStr === 'OUT' ? '-' : ''}{log.quantity}</td>
                                                 <td style={{fontWeight: 500, color: '#64748b'}}>{getRefString(log)}</td>
                                                 <td>
                                                     <button 
                                                         className="rd-btn-link" 
-                                                        style={{marginTop: 0, display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap'}}
+                                                        style={{marginTop: 0, display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap', fontWeight: 600, color: '#4f46e5'}}
                                                         onClick={() => {
                                                             setSelectedMovement(log);
                                                         }}
                                                     >
-                                                        <Eye size={14} /> View Details
+                                                        <Eye size={16} /> View Details
                                                     </button>
                                                 </td>
-                                            </tr>
+                                            </motion.tr>
                                         );
                                     })
                                 )}
@@ -198,88 +217,130 @@ const TrackingDashboard = () => {
             </div>
 
             {/* Detailed View Modal */}
-            {selectedMovement && (
-                <div className="rd-modal-overlay" onClick={() => setSelectedMovement(null)}>
-                    <div className="rd-modal" onClick={e => e.stopPropagation()} style={{maxWidth: 500}}>
-                        <div className="rd-modal-header">
-                            <h3 style={{margin: 0, display: 'flex', alignItems: 'center', gap: 8}}>
-                                <Activity size={20} color="var(--rd-blue)" /> 
-                                Movement Details
-                            </h3>
-                            <button className="rd-icon-btn" onClick={() => setSelectedMovement(null)} style={{border: 'none'}}><X size={20} /></button>
-                        </div>
-                        <div className="rd-modal-body" style={{padding: 24}}>
-                            <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: 24}}>
-                                <div>
-                                    <div style={{fontSize: 12, color: '#64748b', fontWeight: 600, textTransform: 'uppercase'}}>Tracking ID</div>
-                                    <div style={{fontSize: 16, fontWeight: 700, color: '#0f172a'}}>TRK-{String(selectedMovement.id || selectedMovement._id).slice(-4).toUpperCase()}</div>
-                                </div>
-                                <div style={{textAlign: 'right'}}>
-                                    <div style={{fontSize: 12, color: '#64748b', fontWeight: 600, textTransform: 'uppercase'}}>Date & Time</div>
-                                    <div style={{fontSize: 14, fontWeight: 600, color: '#0f172a'}}>{new Date(selectedMovement.createdAt || Date.now()).toLocaleString()}</div>
-                                </div>
+            <AnimatePresence>
+                {selectedMovement && (
+                    <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="rd-modal-overlay" 
+                        onClick={() => setSelectedMovement(null)}
+                        style={{ backdropFilter: 'blur(8px)', background: 'rgba(15,23,42,0.4)' }}
+                    >
+                        <motion.div 
+                            initial={{ scale: 0.95, y: 20, opacity: 0 }}
+                            animate={{ scale: 1, y: 0, opacity: 1 }}
+                            exit={{ scale: 0.95, y: 20, opacity: 0 }}
+                            className="rd-modal" 
+                            onClick={e => e.stopPropagation()} 
+                            style={{maxWidth: 500, borderRadius: 24, boxShadow: '0 24px 60px rgba(0,0,0,0.15)'}}
+                        >
+                            <div className="rd-modal-header" style={{ borderBottom: '1px solid #f1f5f9', padding: '24px 28px' }}>
+                                <h3 style={{margin: 0, display: 'flex', alignItems: 'center', gap: 10, fontSize: 20, fontWeight: 800, color: '#0f172a'}}>
+                                    <div style={{ width: 40, height: 40, background: '#eef2ff', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        <Activity size={20} color="#4f46e5" /> 
+                                    </div>
+                                    Movement Details
+                                </h3>
+                                <button className="rd-icon-btn" onClick={() => setSelectedMovement(null)} style={{border: '1px solid #e2e8f0', background: '#f8fafc'}}><X size={18} color="#64748b" /></button>
                             </div>
-                            
-                            <div style={{background: '#f8fafc', padding: 16, borderRadius: 8, marginBottom: 24, border: '1px solid #e2e8f0'}}>
-                                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12}}>
-                                    <span style={{fontSize: 13, color: '#64748b', fontWeight: 500}}>Material</span>
-                                    <span style={{fontWeight: 700}}>{selectedMovement.materialName} ({selectedMovement.materialSku})</span>
+                            <div className="rd-modal-body" style={{padding: '28px'}}>
+                                <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: 28}}>
+                                    <div>
+                                        <div style={{fontSize: 12, color: '#64748b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4}}>Tracking ID</div>
+                                        <div style={{fontSize: 18, fontWeight: 800, color: '#0f172a'}}>TRK-{String(selectedMovement.id || selectedMovement._id).slice(-4).toUpperCase()}</div>
+                                    </div>
+                                    <div style={{textAlign: 'right'}}>
+                                        <div style={{fontSize: 12, color: '#64748b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4}}>Date & Time</div>
+                                        <div style={{fontSize: 15, fontWeight: 700, color: '#0f172a'}}>{new Date(selectedMovement.createdAt || Date.now()).toLocaleString()}</div>
+                                    </div>
                                 </div>
-                                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12}}>
-                                    <span style={{fontSize: 13, color: '#64748b', fontWeight: 500}}>Type</span>
-                                    {getTypeBadge(selectedMovement.type)}
+                                
+                                <div style={{background: '#f8fafc', padding: 20, borderRadius: 16, marginBottom: 28, border: '1px solid #e2e8f0'}}>
+                                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16}}>
+                                        <span style={{fontSize: 14, color: '#64748b', fontWeight: 600}}>Material</span>
+                                        <span style={{fontWeight: 700, color: '#0f172a'}}>{selectedMovement.materialName} <span style={{color: '#94a3b8', fontWeight: 500}}>({selectedMovement.materialSku})</span></span>
+                                    </div>
+                                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16}}>
+                                        <span style={{fontSize: 14, color: '#64748b', fontWeight: 600}}>Type</span>
+                                        {getTypeBadge(selectedMovement.type)}
+                                    </div>
+                                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                                        <span style={{fontSize: 14, color: '#64748b', fontWeight: 600}}>Quantity</span>
+                                        <span style={{fontWeight: 800, fontSize: 20, color: (selectedMovement.type || '').toUpperCase() === 'IN' ? '#10b981' : (selectedMovement.type || '').toUpperCase() === 'OUT' ? '#f59e0b' : '#4f46e5'}}>
+                                            {(selectedMovement.type || '').toUpperCase() === 'IN' ? '+' : (selectedMovement.type || '').toUpperCase() === 'OUT' ? '-' : ''}{selectedMovement.quantity}
+                                        </span>
+                                    </div>
                                 </div>
-                                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                                    <span style={{fontSize: 13, color: '#64748b', fontWeight: 500}}>Quantity</span>
-                                    <span style={{fontWeight: 800, fontSize: 18, color: (selectedMovement.type || '').toUpperCase() === 'IN' ? '#10b981' : (selectedMovement.type || '').toUpperCase() === 'OUT' ? '#f59e0b' : '#3b82f6'}}>
-                                        {(selectedMovement.type || '').toUpperCase() === 'IN' ? '+' : (selectedMovement.type || '').toUpperCase() === 'OUT' ? '-' : ''}{selectedMovement.quantity}
-                                    </span>
-                                </div>
-                            </div>
 
-                            <div style={{marginBottom: 24}}>
-                                <div style={{fontSize: 13, color: '#64748b', fontWeight: 600, marginBottom: 8}}>REFERENCE / REASON</div>
-                                <div style={{fontSize: 14, color: '#0f172a', background: '#fff', padding: 12, border: '1px solid #e2e8f0', borderRadius: 6}}>
-                                    {selectedMovement.referenceOrderId ? (
-                                        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                                            <span>Order ORD-{selectedMovement.referenceOrderId}</span>
-                                            <button 
-                                                className="rd-btn-primary" 
-                                                style={{padding: '6px 12px', fontSize: 12}}
-                                                onClick={() => navigate(`/orders/${selectedMovement.referenceOrderId}`)}
-                                            >
-                                                View Order
-                                            </button>
-                                        </div>
-                                    ) : (
-                                        selectedMovement.reason || 'Manual stock adjustment'
-                                    )}
+                                <div style={{marginBottom: 8}}>
+                                    <div style={{fontSize: 12, color: '#64748b', fontWeight: 700, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.5px'}}>REFERENCE / REASON</div>
+                                    <div style={{fontSize: 14, color: '#1e293b', background: '#fff', padding: 16, border: '1px solid #e2e8f0', borderRadius: 12, fontWeight: 500}}>
+                                        {selectedMovement.referenceOrderId ? (
+                                            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                                                <span>Order <span style={{fontWeight: 700, color: '#0f172a'}}>ORD-{selectedMovement.referenceOrderId}</span></span>
+                                                <button 
+                                                    className="rd-btn-primary" 
+                                                    style={{padding: '8px 16px', fontSize: 13, background: 'linear-gradient(135deg, #4f46e5, #6366f1)', border: 'none', borderRadius: 8}}
+                                                    onClick={() => navigate(`/orders/${selectedMovement.referenceOrderId}`)}
+                                                >
+                                                    View Order
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            selectedMovement.reason || 'Manual stock adjustment'
+                                        )}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div className="rd-modal-footer" style={{padding: '16px 24px', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'flex-end'}}>
-                            <button className="rd-btn-secondary" onClick={() => setSelectedMovement(null)}>Close</button>
-                        </div>
-                    </div>
-                </div>
-            )}
+                            <div className="rd-modal-footer" style={{padding: '20px 28px', borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'flex-end', background: '#f8fafc', borderBottomLeftRadius: 24, borderBottomRightRadius: 24}}>
+                                <button className="rd-btn-secondary" style={{padding: '10px 24px', borderRadius: 10, fontWeight: 600}} onClick={() => setSelectedMovement(null)}>Close</button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };
 
+const SkeletonRow = () => (
+    <tr style={{ animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' }}>
+        <td style={{padding: '16px 24px'}}><div style={{height: 16, background: '#e2e8f0', borderRadius: 4, width: '80%'}}></div></td>
+        <td style={{padding: '16px 24px'}}>
+            <div style={{height: 16, background: '#e2e8f0', borderRadius: 4, width: '90%', marginBottom: 6}}></div>
+            <div style={{height: 12, background: '#f1f5f9', borderRadius: 4, width: '60%'}}></div>
+        </td>
+        <td style={{padding: '16px 24px'}}>
+            <div style={{height: 16, background: '#e2e8f0', borderRadius: 4, width: '100%', marginBottom: 6}}></div>
+            <div style={{height: 12, background: '#f1f5f9', borderRadius: 4, width: '40%'}}></div>
+        </td>
+        <td style={{padding: '16px 24px'}}><div style={{height: 24, background: '#e2e8f0', borderRadius: 12, width: '80px'}}></div></td>
+        <td style={{padding: '16px 24px'}}><div style={{height: 20, background: '#e2e8f0', borderRadius: 4, width: '40%'}}></div></td>
+        <td style={{padding: '16px 24px'}}><div style={{height: 16, background: '#e2e8f0', borderRadius: 4, width: '70%'}}></div></td>
+        <td style={{padding: '16px 24px'}}><div style={{height: 32, background: '#e2e8f0', borderRadius: 6, width: '100px'}}></div></td>
+    </tr>
+);
+
 const TrackingKPICard = ({ title, val, color, icon: Icon }) => {
     return (
-        <div className={`rd-kpi-card ${color}`} style={{minHeight: 140, padding: 20}}>
+        <motion.div 
+            whileHover={{ y: -5, boxShadow: '0 12px 24px rgba(0,0,0,0.06)' }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={`rd-kpi-card ${color}`} 
+            style={{minHeight: 140, padding: 24, borderRadius: 20, border: '1px solid rgba(255,255,255,0.1)'}}
+        >
             <div className="rd-kpi-header">
-                <div style={{display: 'flex', flexDirection: 'column', gap: 4}}>
-                    <span style={{fontSize: 13, fontWeight: 600, opacity: 0.9}}>{title}</span>
-                    <span style={{fontSize: 28, fontWeight: 800}}>{val}</span>
+                <div style={{display: 'flex', flexDirection: 'column', gap: 6}}>
+                    <span style={{fontSize: 14, fontWeight: 600, opacity: 0.9, letterSpacing: '0.5px'}}>{title}</span>
+                    <span style={{fontSize: 32, fontWeight: 800, letterSpacing: '-0.5px'}}>{val}</span>
                 </div>
-                <div className="rd-kpi-icon-box" style={{width: 40, height: 40}}>
-                    <Icon size={20} color="#fff" />
+                <div className="rd-kpi-icon-box" style={{width: 48, height: 48, borderRadius: 14, background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                    <Icon size={24} color="#fff" />
                 </div>
             </div>
-        </div>
+        </motion.div>
     );
 };
 

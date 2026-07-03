@@ -1,8 +1,15 @@
+/* ─────────────────────────────────────────────
+   SMTBMS Sidebar — Light Theme (Matching Screenshot)
+   ───────────────────────────────────────────── */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+/* ── Sidebar Shell ── */
 .farmaku-sidebar {
     width: 260px;
-    background-color: #0f172a;
+    background: #ffffff;
     height: 100vh;
-    border-right: 1px solid #1e293b;
+    border-right: 1px solid #f1f5f9;
     display: flex;
     flex-direction: column;
     font-family: 'Inter', sans-serif;
@@ -13,21 +20,17 @@
     overflow: hidden;
 }
 
-/* Hide scrollbar for a cleaner look */
-.farmaku-sidebar::-webkit-scrollbar {
-    display: none;
-}
-.farmaku-sidebar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-}
+/* Hide scrollbar */
+.farmaku-sidebar::-webkit-scrollbar { display: none; }
+.farmaku-sidebar { -ms-overflow-style: none; scrollbar-width: none; }
 
+/* ── Logo / Header ── */
 .farmaku-sidebar-header {
-    padding: 24px;
+    padding: 24px 24px 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 8px;
+    flex-shrink: 0;
 }
 
 .farmaku-logo-container {
@@ -37,95 +40,71 @@
 }
 
 .farmaku-logo-icon {
-    color: #ffffff;
+    width: 38px;
+    height: 38px;
+    background: #6366f1;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
+    color: #fff;
+    flex-shrink: 0;
+}
+
+.farmaku-logo-icon svg {
+    width: 20px;
+    height: 20px;
 }
 
 .farmaku-logo-text-wrapper {
     display: flex;
     flex-direction: column;
+    gap: 2px;
 }
 
 .farmaku-logo-text {
     font-size: 18px;
     font-weight: 800;
-    color: #ffffff;
+    color: #1e293b;
     letter-spacing: -0.5px;
+    line-height: 1;
 }
 
 .farmaku-logo-subtext {
-    font-size: 8px;
-    color: #94a3b8;
-    line-height: 1.1;
-    margin-top: 2px;
-}
-
-.farmaku-collapse-btn {
-    background: none;
-    border: none;
-    color: #9ca3af;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 4px;
-    border-radius: 4px;
-}
-
-.farmaku-collapse-btn:hover {
-    background-color: #f1f5f9;
-}
-
-.farmaku-nav-group {
-    padding: 0 16px;
-    margin-bottom: 24px;
-}
-
-.farmaku-nav-title {
-    font-size: 11px;
-    font-weight: 600;
+    font-size: 10px;
     color: #64748b;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 12px;
-    padding: 0 12px;
+    line-height: 1.2;
 }
 
+/* ── Scrollable Content ── */
+.farmaku-sidebar-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px 16px 24px;
+}
+
+.farmaku-sidebar-content::-webkit-scrollbar { width: 4px; }
+.farmaku-sidebar-content::-webkit-scrollbar-track { background: transparent; }
+.farmaku-sidebar-content::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+
+/* ── Nav List ── */
 .farmaku-nav-list {
     list-style: none;
     padding: 0;
     margin: 0;
     display: flex;
     flex-direction: column;
+    gap: 4px;
 }
 
-.farmaku-sidebar-content {
-    flex: 1;
-    overflow-y: auto;
-    padding-bottom: 24px !important;
-}
-
-/* Custom Scrollbar for sidebar content */
-.farmaku-sidebar-content::-webkit-scrollbar {
-    width: 4px;
-}
-.farmaku-sidebar-content::-webkit-scrollbar-track {
-    background: transparent;
-}
-.farmaku-sidebar-content::-webkit-scrollbar-thumb {
-    background: #334155;
-    border-radius: 4px;
-}
-
+/* ── Nav Items ── */
 .farmaku-nav-item {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 10px 12px;
+    padding: 10px 16px;
     border-radius: 8px;
-    color: #94a3b8;
+    color: #475569;
     text-decoration: none;
     font-size: 14px;
     font-weight: 500;
@@ -134,125 +113,173 @@
 }
 
 .farmaku-nav-item:hover:not(.active) {
-    background-color: #1e293b;
-    color: #ffffff;
+    background: #f8fafc;
+    color: #1e293b;
 }
 
 .farmaku-nav-item.active {
-    background-color: #1d4ed8;
+    background: #6366f1;
     color: #ffffff;
+    box-shadow: 0 4px 12px rgba(99,102,241,0.25);
+    font-weight: 600;
 }
 
 .farmaku-nav-item svg {
     flex-shrink: 0;
+    opacity: 0.7;
 }
 
 .farmaku-nav-item.active svg {
-    color: #ffffff;
+    opacity: 1;
 }
 
-.farmaku-sidebar-footer {
-    margin-top: auto;
-    padding: 24px 16px;
+.farmaku-nav-item > svg:last-child {
+    margin-left: auto;
+    opacity: 0.5;
 }
 
-.farmaku-footer-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.farmaku-theme-toggle {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 12px;
-    border-radius: 8px;
-    color: #4b5563;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-.farmaku-theme-toggle:hover {
-    background-color: #f8fafc;
-}
-
-.farmaku-theme-toggle-left {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.farmaku-switch {
-    position: relative;
-    width: 32px;
-    height: 18px;
-    background-color: #e2e8f0;
-    border-radius: 20px;
-    transition: 0.3s;
-}
-
-.farmaku-switch::after {
-    content: '';
-    position: absolute;
-    top: 2px;
-    left: 2px;
-    width: 14px;
-    height: 14px;
-    background-color: #ffffff;
-    border-radius: 50%;
-    transition: 0.3s;
-}
-
-/* For accordion / submenu */
+/* ── Submenu ── */
 .farmaku-submenu {
-    padding-left: 36px;
+    padding-left: 0;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 2px;
     margin-top: 4px;
+    margin-bottom: 4px;
+    margin-left: 22px;
+    border-left: 1px solid #e2e8f0;
 }
 
 .farmaku-subnav-item {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 8px 12px;
-    border-radius: 6px;
-    color: #6b7280;
+    padding: 8px 12px 8px 16px;
+    color: #64748b;
     text-decoration: none;
     font-size: 13px;
     font-weight: 500;
     transition: all 0.2s ease;
 }
 
-.farmaku-subnav-item::before {
-    content: "•";
-    color: #94a3b8;
-    font-size: 16px;
-    line-height: 1;
-}
-
 .farmaku-subnav-item:hover {
-    background-color: #1e293b;
-    color: #ffffff;
+    color: #1e293b;
 }
 
 .farmaku-subnav-item.active {
-    color: #ffffff;
+    color: #6366f1;
+    font-weight: 600;
+}
+
+/* ── Notification Badge ── */
+.farmaku-badge {
+    margin-left: auto;
+    background: #ef4444;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 12px;
+    min-width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 6px;
+}
+
+/* ── Upgrade to Pro Card ── */
+.farmaku-pro-card {
+    margin: auto 16px 20px;
+    padding: 20px 16px;
+    background: #f8fafc;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.farmaku-pro-icon {
+    width: 40px;
+    height: 40px;
+    background: #fff;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    margin-bottom: 12px;
+    font-size: 20px;
+}
+
+.farmaku-pro-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 4px;
+}
+
+.farmaku-pro-desc {
+    font-size: 12px;
+    color: #64748b;
+    line-height: 1.4;
+    margin-bottom: 16px;
+}
+
+.farmaku-pro-btn {
+    width: 100%;
+    padding: 10px;
+    background: #6366f1;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.farmaku-pro-btn:hover {
+    background: #4f46e5;
+}
+
+/* ── Divider ── */
+.farmaku-divider {
+    height: 1px;
+    background: #f1f5f9;
+    margin: 12px 0;
+}
+
+/* ── Logout Item ── */
+.farmaku-logout-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    color: #ef4444;
+    text-decoration: none;
+    font-size: 14px;
     font-weight: 500;
-    background-color: #1e293b;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    margin-top: auto;
 }
 
-.farmaku-subnav-item.active::before {
-    color: #ffffff;
+.farmaku-logout-item:hover {
+    background: #fef2f2;
+    color: #dc2626;
 }
 
-/* Make sure the main layout accounts for the sidebar */
+.farmaku-logout-item svg {
+    flex-shrink: 0;
+}
+
+/* ── App Layout ── */
 body .app-layout {
     display: flex;
     min-height: 100vh;
@@ -260,8 +287,24 @@ body .app-layout {
 
 body .app-main {
     flex: 1;
-    margin-left: 260px; /* Width of the sidebar */
+    margin-left: 260px;
     width: calc(100% - 260px);
     display: flex;
     flex-direction: column;
+    background: #f8fafc;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+    .farmaku-sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+    .farmaku-sidebar.open {
+        transform: translateX(0);
+    }
+    body .app-main {
+        margin-left: 0;
+        width: 100%;
+    }
 }

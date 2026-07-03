@@ -1,0 +1,154 @@
+/* ── Global Header Styles ── */
+.rd-header {
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.rd-icon-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s;
+}
+
+.rd-icon-btn:hover {
+    background: #f1f5f9;
+    color: #1e293b;
+}
+
+.rd-search-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    padding: 0 16px;
+    height: 38px;
+    width: 300px;
+    transition: all 0.2s;
+}
+
+.rd-search-bar:focus-within {
+    background: #ffffff;
+    border-color: #cbd5e1;
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+}
+
+.rd-search-input {
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    color: #1e293b;
+    width: 100%;
+}
+
+.rd-search-input::placeholder {
+    color: #94a3b8;
+}
+
+.rd-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.rd-datetime-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 6px 14px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+}
+
+.rd-badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    background: #ef4444;
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    min-width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #ffffff;
+    padding: 0 4px;
+}
+
+.rd-profile-menu {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 8px 4px 4px;
+    border-radius: 20px;
+    transition: all 0.2s;
+}
+
+.rd-profile-menu:hover {
+    background: #f1f5f9;
+}
+
+.rd-avatar {
+    width: 36px;
+    height: 36px;
+    background: #ef4444;
+    color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.rd-profile-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.rd-profile-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+    line-height: 1.2;
+}
+
+.rd-profile-role {
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    text-transform: uppercase;
+}
+
+.rd-dot {
+    width: 6px;
+    height: 6px;
+    background: #10b981;
+    border-radius: 50%;
+}

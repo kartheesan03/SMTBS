@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import API from '../api/axios';
 import { DollarSign, TrendingUp, Calendar, ShoppingCart, ArrowUpRight, ArrowDownRight, Award } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
+import { motion } from 'framer-motion';
 
 const RevenueDashboard = () => {
     const [ordersData, setOrdersData] = useState([]);
@@ -92,7 +93,12 @@ const RevenueDashboard = () => {
     };
 
     return (
-        <div className="page-container">
+        <motion.div 
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="page-container"
+        >
             <div className="page-header">
                 <div>
                     <h1 className="page-title">Revenue Tracking</h1>
@@ -101,7 +107,12 @@ const RevenueDashboard = () => {
             </div>
 
             {/* KPI ROW */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px', marginBottom: '24px' }}>
+            <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.1, duration: 0.4 }}
+                style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px', marginBottom: '24px' }}
+            >
                 <div className="premium-card" style={{ position: 'relative', overflow: 'hidden', padding: '20px', display: 'flex', flexDirection: 'column', minHeight: '130px', justifyContent: 'space-between' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <div style={{ color: 'var(--text-muted)', fontSize: '13px', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Total Revenue</div>
@@ -162,10 +173,15 @@ const RevenueDashboard = () => {
                         </div>
                     </div>
                 </div>
-            </div>
+            </motion.div>
 
                 {/* Revenue Trend Chart */}
-                <div className="premium-card" style={{ padding: '24px' }}>
+                <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2, duration: 0.4 }}
+                    className="premium-card" style={{ padding: '24px' }}
+                >
                     <div style={{ marginBottom: '24px', borderBottom: '1px solid var(--border-light)', paddingBottom: '16px' }}>
                         <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: 'var(--text-heading)', display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <TrendingUp size={18} color="var(--success)" /> 6-Month Revenue Trend
@@ -193,8 +209,8 @@ const RevenueDashboard = () => {
                     ) : (
                         <div className="flex-center" style={{ height: '320px', color: 'var(--text-muted)', fontSize: '14px', fontWeight: 500 }}>No revenue data available</div>
                     )}
-                </div>
-        </div>
+                </motion.div>
+        </motion.div>
     );
 };
 

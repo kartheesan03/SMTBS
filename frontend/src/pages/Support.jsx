@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { LifeBuoy, MessageSquare, BookOpen, PlayCircle, FileText, Shield, Search, ChevronDown, ChevronUp, Send, PhoneCall, Globe, ExternalLink } from 'lucide-react';
+import { motion } from 'framer-motion';
 import './Support.css';
 
 const Support = () => {
@@ -34,7 +35,12 @@ const Support = () => {
     ];
 
     return (
-        <div className="support-container">
+        <motion.div 
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="support-container"
+        >
             {/* Header */}
             <div className="support-header-section">
                 <div className="support-header-left">
@@ -56,7 +62,12 @@ const Support = () => {
             </div>
 
             {/* Quick Links */}
-            <div className="support-quick-links">
+            <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.1, duration: 0.4 }}
+                className="support-quick-links"
+            >
                 <div className="quick-link-card link-blue">
                     <div className="ql-icon-box"><BookOpen size={20} /></div>
                     <h3>Admin Setup Guide</h3>
@@ -84,12 +95,17 @@ const Support = () => {
                     <p>Recommended settings for access control and data protection.</p>
                     <a href="#" className="ql-link">Open guide <ExternalLink size={14} /></a>
                 </div>
-            </div>
+            </motion.div>
 
             {/* Main Content */}
             <div className="support-main-grid">
                 {/* FAQ Section */}
-                <div className="support-faq-section">
+                <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2, duration: 0.4 }}
+                    className="support-faq-section"
+                >
                     <div className="faq-header">
                         <div className="faq-title-wrapper">
                             <LifeBuoy size={20} className="faq-title-icon" />
@@ -116,10 +132,15 @@ const Support = () => {
                             </div>
                         ))}
                     </div>
-                </div>
+                </motion.div>
 
                 {/* Contact Section */}
-                <div className="support-contact-section">
+                <motion.div 
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.3, duration: 0.4 }}
+                    className="support-contact-section"
+                >
                     <div className="contact-form-card">
                         <div className="card-header">
                             <Send size={20} className="card-title-icon-pink" />
@@ -176,9 +197,9 @@ const Support = () => {
                             </div>
                         </div>
                     </div>
-                </div>
+                </motion.div>
             </div>
-        </div>
+        </motion.div>
     );
 };
 

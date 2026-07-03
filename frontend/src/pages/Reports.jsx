@@ -11,6 +11,7 @@ import {
     ResponsiveContainer, ComposedChart, AreaChart, Area, LineChart, Line, BarChart, Bar,
     XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell 
 } from 'recharts';
+import { motion } from 'framer-motion';
 import './ReportsRedesign.css';
 
 const Reports = () => {
@@ -152,7 +153,12 @@ const Reports = () => {
     };
 
     return (
-        <div className="analytics-page">
+        <motion.div 
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="analytics-page"
+        >
             <div className="analytics-header">
                 <div className="header-left">
                     <h1>Reports & Analytics</h1>
@@ -188,7 +194,12 @@ const Reports = () => {
             ) : (
                 <>
                     {/* KPI Cards */}
-                    <div className="kpi-cards-grid">
+                    <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.1, duration: 0.4 }}
+                        className="kpi-cards-grid"
+                    >
                         {kpis.map((kpi, index) => (
                             <div key={index} className={`rd-kpi-card ${kpi.color}`}>
                                 <div className="kpi-top">
@@ -212,10 +223,15 @@ const Reports = () => {
                                 </div>
                             </div>
                         ))}
-                    </div>
+                    </motion.div>
 
                     {/* Chart Section */}
-                    <div className="rd-chart-card">
+                    <motion.div 
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2, duration: 0.4 }}
+                        className="rd-chart-card"
+                    >
                         <div className="chart-header-split">
                             <div className="chart-header-block">
                                 <div className="chart-header-title">
@@ -307,10 +323,15 @@ const Reports = () => {
                                 </AreaChart>
                             </ResponsiveContainer>
                         </div>
-                    </div>
+                    </motion.div>
 
                     {/* Health Metrics Bottom Row */}
-                    <div className="health-metrics-row">
+                    <motion.div 
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3, duration: 0.4 }}
+                        className="health-metrics-row"
+                    >
                         {healthMetrics.map((hm, idx) => (
                             <div key={idx} className="health-metric-card">
                                 <div className="hm-left">
@@ -330,10 +351,10 @@ const Reports = () => {
                                 </div>
                             </div>
                         ))}
-                    </div>
+                    </motion.div>
                 </>
             )}
-        </div>
+        </motion.div>
     );
 };
 

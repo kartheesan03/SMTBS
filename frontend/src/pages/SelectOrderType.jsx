@@ -1,12 +1,18 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ShoppingCart, PackageOpen, ArrowLeft } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const SelectOrderType = () => {
     const navigate = useNavigate();
 
     return (
-        <div className="page-container">
+        <motion.div 
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="page-container"
+        >
             <div className="breadcrumb-nav">
                 <span className="crumb" onClick={() => navigate('/erp')}>ERP Operations</span>
                 <span className="separator">/</span>
@@ -18,7 +24,12 @@ const SelectOrderType = () => {
                 <p className="header-subtitle">Select the type of order you wish to create.</p>
             </header>
 
-            <div className="module-content" style={{ display: 'flex', gap: '32px', flexWrap: 'wrap', justifyContent: 'center' }}>
+            <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.1, duration: 0.4 }}
+                className="module-content" style={{ display: 'flex', gap: '32px', flexWrap: 'wrap', justifyContent: 'center' }}
+            >
                 
                 {/* Sales Order Card */}
                 <div 
@@ -46,7 +57,7 @@ const SelectOrderType = () => {
                     <button className="select-btn purchase-btn">Select</button>
                 </div>
 
-            </div>
+            </motion.div>
 
             <style jsx="true">{`
                 .module-container {
@@ -155,7 +166,7 @@ const SelectOrderType = () => {
                     color: #ffffff;
                 }
             `}</style>
-        </div>
+        </motion.div>
     );
 };
 

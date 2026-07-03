@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 import { Loader, Check, AlertTriangle, ArrowLeft } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const ApplyLeave = () => {
     const navigate = useNavigate();
@@ -45,7 +46,13 @@ const ApplyLeave = () => {
     };
 
     return (
-        <div className="page-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <motion.div 
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="page-container" 
+            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+        >
             {toast && (
                 <div className={`lv-toast ${toast.ok ? 'ok' : 'err'}`}>
                     {toast.ok ? <Check size={15} /> : <AlertTriangle size={15} />}
@@ -181,7 +188,7 @@ const ApplyLeave = () => {
                     .lv-form-actions button { width: 100%; }
                 }
             `}</style>
-        </div>
+        </motion.div>
     );
 };
 
