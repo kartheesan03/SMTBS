@@ -121,7 +121,7 @@ const SelectCustomer = () => {
                         </table>
                     </div>
                 )}
-            </div>
+            </motion.div>
             
             <style jsx="true">{`
                 .module-container { padding: 24px; background-color: var(--bg-body); min-height: 100vh; color: var(--text-primary); }

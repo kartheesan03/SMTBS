@@ -343,7 +343,7 @@ const DailyTab = ({ canEdit }) => {
             {editRecord && (
                 <EditModal record={editRecord} onClose={() => setEditRecord(null)} onSave={fetchData} />
             )}
-        </>
+        </motion.div>
     );
 };
 
@@ -683,7 +683,7 @@ const HistoryTab = () => {
                     </div>
                 )}
             </div>
-        </motion.div>
+        </>
     );
 };
 

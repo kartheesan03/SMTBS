@@ -108,9 +108,18 @@ const Materials = () => {
             <div className="rd-content">
                 <div className="rd-module-header">
                     <div className="rd-module-info">
-                        <div className="rd-module-title-row">
-                            <span className="rd-module-title">Inventory Management</span>
-                            <span className="rd-module-badge">INVENTORY</span>
+                        <div className="rd-module-title-row" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <span className="rd-module-title" style={{ fontSize: '24px', fontWeight: '700', color: '#1e293b' }}>Inventory Management</span>
+                            <span className="rd-module-badge" style={{
+                                padding: '4px 10px', 
+                                background: 'linear-gradient(135deg, #3b82f6 0%, #1e40af 100%)', 
+                                color: '#ffffff', 
+                                borderRadius: '8px', 
+                                fontSize: '12px', 
+                                fontWeight: '700',
+                                letterSpacing: '0.5px',
+                                boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)'
+                            }}>INVENTORY</span>
                         </div>
                         </div>
                 </div>
@@ -159,25 +168,112 @@ const Materials = () => {
     );
 };
 
-const MaterialKPICard = ({ title, val, color, icon: Icon }) => {
+const MaterialKPICard = ({ title, val, color, icon: Icon, trend }) => {
+    const colorTokens = {
+        blue: { bg: '#eff6ff', text: '#1d4ed8', border: '#bfdbfe' },
+        green: { bg: '#f0fdf4', text: '#15803d', border: '#bbf7d0' },
+        purple: { bg: '#faf5ff', text: '#7e22ce', border: '#e9d5ff' },
+        orange: { bg: '#fff7ed', text: '#c2410c', border: '#fed7aa' },
+        red: { bg: '#fef2f2', text: '#b91c1c', border: '#fecaca' },
+        cyan: { bg: '#ecfeff', text: '#0e7490', border: '#a5f3fc' },
+    };
+    
+    const theme = colorTokens[color] || colorTokens.blue;
+
     return (
-        <motion.div 
-            whileHover={{ y: -5, boxShadow: '0 12px 24px rgba(0,0,0,0.06)' }}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className={`rd-kpi-card ${color}`} 
-            style={{minHeight: 140, padding: 24, borderRadius: 20, border: '1px solid rgba(255,255,255,0.1)'}}
+        <div style={{
+            background: '#ffffff',
+            borderRadius: '16px',
+            padding: '24px',
+            border: '1px solid #e2e8f0',
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            minHeight: '160px',
+            transition: 'all 0.3s ease',
+            cursor: 'default',
+            position: 'relative',
+            overflow: 'hidden'
+        }}
+        onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateY(-4px)';
+            e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';
+        }}
+        onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)';
+        }}
         >
-            <div className="rd-kpi-header">
-                <div style={{display: 'flex', flexDirection: 'column', gap: 6}}>
-                    <span style={{fontSize: 14, fontWeight: 600, opacity: 0.9, letterSpacing: '0.5px'}}>{title}</span>
-                    <span style={{fontSize: 32, fontWeight: 800, letterSpacing: '-0.5px'}}>{val}</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div>
+                    <h4 style={{ 
+                        margin: '0 0 8px 0', 
+                        fontSize: '13px', 
+                        fontWeight: 600, 
+                        color: '#64748b', 
+                        textTransform: 'uppercase', 
+                        letterSpacing: '0.5px' 
+                    }}>
+                        {title}
+                    </h4>
+                    <div style={{ 
+                        fontSize: '32px', 
+                        fontWeight: 800, 
+                        color: '#0f172a',
+                        letterSpacing: '-1px',
+                        lineHeight: 1
+                    }}>
+                        {val}
+                    </div>
                 </div>
-                <div className="rd-kpi-icon-box" style={{width: 48, height: 48, borderRadius: 14, background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                    <Icon size={24} color="#fff" />
-                </div>
+                {Icon && (
+                    <div style={{
+                        width: '48px',
+                        height: '48px',
+                        borderRadius: '12px',
+                        background: theme.bg,
+                        border: `1px solid ${theme.border}`,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: theme.text
+                    }}>
+                        <Icon size={24} strokeWidth={2.5} />
+                    </div>
+                )}
             </div>
-        </motion.div>
+
+            {/* Optional Trend or Data */}
+            <div style={{ marginTop: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                {trend && (
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        fontSize: '13px',
+                        fontWeight: 600,
+                        color: theme.text,
+                        background: theme.bg,
+                        padding: '4px 8px',
+                        borderRadius: '6px'
+                    }}>
+                        {trend} of Total Capacity
+                    </div>
+                )}
+            </div>
+            
+            {/* Subtle bottom border accent */}
+            <div style={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                height: '4px',
+                background: theme.text,
+                opacity: 0.8
+            }} />
+        </div>
     );
 };
 

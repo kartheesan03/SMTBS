@@ -122,17 +122,17 @@ const BarcodeManagement = () => {
                     
                     <div style={{overflowX: 'auto'}}>
                         <table className="rd-table" style={{ width: '100%' }}>
-                            <thead>
-                            <tr>
-                                <th>MAT. ID</th>
-                                <th>MATERIAL</th>
-                                <th>STOCK STATUS</th>
-                                <th>BARCODE NO.</th>
-                                <th>QR CODE STRING</th>
-                                <th>LOCATION</th>
-                                <th>SCANS</th>
-                                <th>LAST SCANNED</th>
-                                <th>ACTION</th>
+                        <thead>
+                            <tr style={{ background: '#1e293b' }}>
+                                <th style={{ padding: '13px 18px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', whiteSpace: 'nowrap', borderBottom: 'none' }}>MAT. ID</th>
+                                <th style={{ padding: '13px 18px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', whiteSpace: 'nowrap', borderBottom: 'none' }}>MATERIAL</th>
+                                <th style={{ padding: '13px 18px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', whiteSpace: 'nowrap', borderBottom: 'none' }}>STOCK STATUS</th>
+                                <th style={{ padding: '13px 18px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', whiteSpace: 'nowrap', borderBottom: 'none' }}>BARCODE NO.</th>
+                                <th style={{ padding: '13px 18px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', whiteSpace: 'nowrap', borderBottom: 'none' }}>QR CODE STRING</th>
+                                <th style={{ padding: '13px 18px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', whiteSpace: 'nowrap', borderBottom: 'none' }}>LOCATION</th>
+                                <th style={{ padding: '13px 18px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', whiteSpace: 'nowrap', borderBottom: 'none' }}>SCANS</th>
+                                <th style={{ padding: '13px 18px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', whiteSpace: 'nowrap', borderBottom: 'none' }}>LAST SCANNED</th>
+                                <th style={{ padding: '13px 18px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', whiteSpace: 'nowrap', borderBottom: 'none' }}>ACTION</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -293,58 +293,113 @@ const BarcodeManagement = () => {
     );
 };
 
+
+
 const BarcodeKPICard = ({ title, val, trend, trendDir, color, data, icon: Icon }) => {
-    const getBg = () => {
-        if (color === 'blue') return 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)';
-        if (color === 'cyan') return 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)';
-        if (color === 'purple') return 'linear-gradient(135deg, #a855f7 0%, #7e22ce 100%)';
-        if (color === 'orange') return 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
-        return '#fff';
+    const colorTokens = {
+        blue: { bg: '#eff6ff', text: '#1d4ed8', border: '#bfdbfe' },
+        green: { bg: '#f0fdf4', text: '#15803d', border: '#bbf7d0' },
+        purple: { bg: '#faf5ff', text: '#7e22ce', border: '#e9d5ff' },
+        orange: { bg: '#fff7ed', text: '#c2410c', border: '#fed7aa' },
+        red: { bg: '#fef2f2', text: '#b91c1c', border: '#fecaca' },
+        cyan: { bg: '#ecfeff', text: '#0e7490', border: '#a5f3fc' },
     };
+    
+    const theme = colorTokens[color] || colorTokens.blue;
 
     return (
         <div style={{
-            background: getBg(), 
-            borderRadius: 16, 
-            minHeight: 140, 
-            padding: 20, 
-            position: 'relative', 
-            overflow: 'hidden', 
-            boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06)'
-        }}>
-            <div style={{position: 'absolute', top: -20, right: -20, width: 100, height: 100, borderRadius: '50%', background: 'rgba(255,255,255,0.1)'}}></div>
+            background: '#ffffff',
+            borderRadius: '16px',
+            padding: '24px',
+            border: '1px solid #e2e8f0',
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            minHeight: '160px',
+            transition: 'all 0.3s ease',
+            cursor: 'default',
+            position: 'relative',
+            overflow: 'hidden'
+        }}
+        onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateY(-4px)';
+            e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';
+        }}
+        onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)';
+        }}
+        >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div>
+                    <h4 style={{ 
+                        margin: '0 0 8px 0', 
+                        fontSize: '13px', 
+                        fontWeight: 600, 
+                        color: '#64748b', 
+                        textTransform: 'uppercase', 
+                        letterSpacing: '0.5px' 
+                    }}>
+                        {title}
+                    </h4>
+                    <div style={{ 
+                        fontSize: '32px', 
+                        fontWeight: 800, 
+                        color: '#0f172a',
+                        letterSpacing: '-1px',
+                        lineHeight: 1
+                    }}>
+                        {val}
+                    </div>
+                </div>
+                {Icon && (
+                    <div style={{
+                        width: '48px',
+                        height: '48px',
+                        borderRadius: '12px',
+                        background: theme.bg,
+                        border: `1px solid ${theme.border}`,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: theme.text
+                    }}>
+                        <Icon size={24} strokeWidth={2.5} />
+                    </div>
+                )}
+            </div>
+
+            {/* Optional Trend or Data */}
+            <div style={{ marginTop: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                {trend && (
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        fontSize: '13px',
+                        fontWeight: 600,
+                        color: theme.text,
+                        background: theme.bg,
+                        padding: '4px 8px',
+                        borderRadius: '6px'
+                    }}>
+                        {trend} of Total Capacity
+                    </div>
+                )}
+            </div>
             
-            <div className="rd-kpi-header" style={{alignItems: 'flex-start'}}>
-                <div style={{display: 'flex', flexDirection: 'column', gap: 12}}>
-                    <div className="rd-kpi-icon-box" style={{width: 44, height: 44, background: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.3)'}}>
-                        <Icon size={22} color="#fff" />
-                    </div>
-                    <div>
-                        <div style={{fontSize: 32, fontWeight: 800, color: '#fff', lineHeight: 1}}>{val}</div>
-                        <div style={{fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.9)', marginTop: 4}}>{title}</div>
-                    </div>
-                </div>
-                
-                <div style={{display: 'flex', alignItems: 'center', gap: 8}}>
-                    <div style={{padding: '4px 10px', background: 'rgba(255,255,255,0.2)', borderRadius: 20, fontSize: 12, fontWeight: 700, color: '#fff', display: 'flex', alignItems: 'center', gap: 4}}>
-                        {trendDir === 'up' ? '▲' : '▼'} {trend}
-                    </div>
-                    <button style={{background: 'none', border: 'none', color: '#fff', opacity: 0.7, cursor: 'pointer'}}>•••</button>
-                </div>
-            </div>
-            <div style={{display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: 16, position: 'relative', zIndex: 2}}>
-                <div style={{flex: 1, height: 40, marginRight: 16}}>
-                    <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={data}>
-                            <Line type="monotone" dataKey="v" stroke="#fff" strokeWidth={3} dot={false} activeDot={{r: 4}} />
-                        </LineChart>
-                    </ResponsiveContainer>
-                </div>
-                <div style={{textAlign: 'right', minWidth: 80}}>
-                    <div style={{fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.6)'}}>VS LAST MO.</div>
-                    <div style={{fontSize: 15, fontWeight: 800, color: '#fff'}}>{trend}</div>
-                </div>
-            </div>
+            {/* Subtle bottom border accent */}
+            <div style={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                height: '4px',
+                background: theme.text,
+                opacity: 0.8
+            }} />
         </div>
     );
 };

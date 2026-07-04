@@ -283,7 +283,7 @@ const MyAttendance = () => {
                     {/* Decorative Background Elements */}
                     <div className="glass-blob blob-1"></div>
                     <div className="glass-blob blob-2"></div>
-                </div>
+                </motion.div>
 
                 {/* KPI Cards */}
                 <div className="kpi-vertical-stack">
@@ -298,7 +298,7 @@ const MyAttendance = () => {
                                 <span className="kpi-suffix">/ Day</span>
                             </div>
                         </div>
-                    </motion.div>
+                    </div>
                     
                     <motion.div 
                         initial={{ opacity: 0, y: 20 }}
