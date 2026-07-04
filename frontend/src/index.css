@@ -140,14 +140,14 @@ body.logged-in.sidebar-collapsed .main-content.with-sidebar {
   margin-left: 80px;
 }
 .page-container {
-  padding: 32px 48px;
+  padding: 24px 32px;
   max-width: 1600px;
   width: 100%;
   margin: 0 auto;
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 24px;
   min-width: 0 !important; 
 }
 
@@ -164,7 +164,7 @@ body.logged-in.sidebar-collapsed .main-content.with-sidebar {
   background: var(--bg-surface) !important;
   border: 1px solid var(--border-subtle) !important;
   border-radius: var(--radius-lg) !important;
-  padding: 28px !important;
+  padding: 24px !important;
   box-shadow: var(--shadow-sm) !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   position: relative;
@@ -175,6 +175,24 @@ body.logged-in.sidebar-collapsed .main-content.with-sidebar {
   box-shadow: var(--shadow-md) !important;
   transform: translateY(-2px) !important;
   border-color: var(--border-strong) !important;
+}
+
+/* Dashboard system cards must NOT be overridden by .premium-card !important */
+.rd-container .dashboard-panel,
+.rd-container .rd-kpi-card,
+.rd-container .rd-table-card {
+  background: #ffffff !important;
+  padding: 20px !important;
+  border-radius: 10px !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03) !important;
+  border: 1px solid #e2e8f0 !important;
+  transform: none !important;
+}
+.rd-container .rd-kpi-card:hover,
+.rd-container .dashboard-panel:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+  transform: translateY(-1px) !important;
+  border-color: #e2e8f0 !important;
 }
 
 /* 2. Glass Panels */
@@ -663,9 +681,18 @@ body:has(.dual-sidebar-container.expanded) .app-main {
 }
 
 .app-content {
-  padding: 32px;
+  padding: 24px;
   flex: 1;
   overflow-y: auto;
+}
+
+/* Dashboard pages fill full width — no extra container padding */
+.app-content:has(.rd-container) {
+  padding: 0;
+}
+/* Fallback for browsers without :has() */
+.app-content > .rd-container {
+  min-height: 100%;
 }
 
 /* Fix inner borders on all search inputs */

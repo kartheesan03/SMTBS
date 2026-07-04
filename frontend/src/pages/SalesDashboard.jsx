@@ -6,7 +6,7 @@ import {
     Users, Search, Bell, DollarSign, TrendingUp, BarChart2,
     Briefcase, Target, PhoneCall, ShoppingCart, Tag, Crosshair, 
     ArrowUpRight, Clock, Star, Gift, LayoutGrid, Activity, 
-    Layers, Cpu, Server, MapPin, UserPlus, AlertTriangle, AlertCircle, CheckCircle
+    Layers, Cpu, Server, MapPin, UserPlus, AlertTriangle, AlertCircle, CheckCircle, FileText, Calendar
 } from 'lucide-react';
 import { AreaChart, Area, PieChart, Pie, Cell, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, LineChart, Line, BarChart, Bar } from 'recharts';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';

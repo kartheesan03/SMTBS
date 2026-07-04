@@ -171,7 +171,7 @@ const ManagerDashboard = () => {
                             <MiniStatCard title="Pending Tasks" value={pendingTasks} subValue="Tasks" icon={AlertTriangle} colorClass="bg-light-red" trendColor="#ef4444" />
                             <MiniStatCard title="Completed" value={completedTasks} subValue="All time" icon={CheckSquare} colorClass="bg-light-green" trendColor="#10b981" />
                             
-                            <MiniStatCard title="Projects" value={totalProjects} subValue="Total" icon={Briefcase} colorClass="bg-light-purple" trendColor="#8b5cf6" />
+                            <MiniStatCard title="Projects" value={ordersData.length || 0} subValue="Total" icon={Briefcase} colorClass="bg-light-purple" trendColor="#8b5cf6" />
                             <MiniStatCard title="Active Projects" value={activeProjects} subValue="In Progress" icon={Clock} colorClass="bg-light-blue" trendColor="#3b82f6" />
                             <MiniStatCard title="Efficiency" value={`${teamProductivity}%`} subValue="Target 90%" icon={Target} colorClass="bg-light-teal" trendColor="#14b8a6" />
                             <MiniStatCard title="Approvals" value={pendingApprovals} subValue="Pending" icon={AlertCircle} colorClass="bg-light-pink" trendColor="#ec4899" />
@@ -186,7 +186,7 @@ const ManagerDashboard = () => {
                     <div className="dashboard-panel">
                         <div className="panel-header">
                             <div className="panel-title">Task Completion Trend</div>
-                            <select className="panel-dropdown"><option>This Week ▾</option></select>
+                            <select className="panel-dropdown"><option>This Week</option></select>
                         </div>
                         <div className="chart-container-sm">
                             <ResponsiveContainer width="100%" height="100%">
@@ -200,7 +200,7 @@ const ManagerDashboard = () => {
                                     <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 9, fill: '#94a3b8'}} dy={10} />
                                     <YAxis axisLine={false} tickLine={false} tick={{fontSize: 9, fill: '#94a3b8'}} width={40} />
                                     <Tooltip contentStyle={{fontSize: 10, borderRadius: 8}} />
-                                    <Area type="monotone" dataKey="orders" stroke="#10b981" strokeWidth={2} fillOpacity={1} fill="url(#colorTask)" />
+                                    <Area type="monotone" dataKey="sales" stroke="#10b981" strokeWidth={2} fillOpacity={1} fill="url(#colorTask)" />
                                 </AreaChart>
                             </ResponsiveContainer>
                         </div>
@@ -209,7 +209,7 @@ const ManagerDashboard = () => {
                     <div className="dashboard-panel">
                         <div className="panel-header">
                             <div className="panel-title">Project Status</div>
-                            <select className="panel-dropdown"><option>All Projects ▾</option></select>
+                            <select className="panel-dropdown"><option>All Projects</option></select>
                         </div>
                         <div className="chart-container-sm" style={{ display: 'flex', alignItems: 'center' }}>
                             <div style={{ flex: 1, height: '100%' }}>
@@ -295,8 +295,8 @@ const ManagerDashboard = () => {
 
                     <div className="dashboard-panel">
                         <div className="panel-header">
-                            <div className="panel-title">Resource Allocation</div>
-                            <select className="panel-dropdown"><option>This Week ▾</option></select>
+                            <div className="panel-title">Resource Utilization</div>
+                            <select className="panel-dropdown"><option>This Month</option></select>
                         </div>
                         <div className="chart-container-sm">
                             <ResponsiveContainer width="100%" height="100%">
@@ -346,7 +346,7 @@ const ManagerDashboard = () => {
                     <div className="dashboard-panel">
                         <div className="panel-header">
                             <div className="panel-title">Sprint Velocity</div>
-                            <select className="panel-dropdown"><option>Last 6 Sprints ▾</option></select>
+                            <select className="panel-dropdown"><option>Last 6 Sprints</option></select>
                         </div>
                         <div style={{ padding: '0 0 10px 0' }}>
                             <div style={{fontSize: 18, fontWeight: 800, color: '#0f172a'}}>42 Points</div>

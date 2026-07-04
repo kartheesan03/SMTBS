@@ -221,8 +221,11 @@ const AdminDashboard = () => {
                     </div>
 
                     {/* Right: Mini Stats Grid */}
-                    <div className="dashboard-panel" style={{ display: 'flex', flexDirection: 'column' }}>
-                        <div className="ms-grid" style={{ flex: 1, alignContent: 'center' }}>
+                    <div className="dashboard-panel">
+                        <div className="panel-header">
+                            <div className="panel-title">Inventory Summary</div>
+                        </div>
+                        <div className="ms-grid">
                             <MiniStatCard title="Overall Health" value="98%" subValue="System" icon={CheckCircle2} colorClass="bg-light-green" trendColor="#10b981" />
                             <MiniStatCard title="Total Vendors" value={totalVendors} subValue="Active" icon={Briefcase} colorClass="bg-light-blue" trendColor="#3b82f6" />
                             <MiniStatCard title="Total Materials" value={totalMaterials} subValue="Stock Items" icon={Box} colorClass="bg-light-orange" trendColor="#f59e0b" />
@@ -239,7 +242,7 @@ const AdminDashboard = () => {
 
 
                 {/* ── 4. Chart Row 1: Revenue Trend (wide) + Attendance Donut ── */}
-                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16 }}>
+                <div className="rd-chart-row-wide">
                     <div className="dashboard-panel">
                         <div className="panel-header">
                             <div className="panel-title">Revenue Trend</div>
@@ -269,11 +272,11 @@ const AdminDashboard = () => {
                             <div className="panel-title">Employee Attendance</div>
                             <select className="panel-dropdown"><option>This Week ▾</option></select>
                         </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, paddingTop: 8 }}>
-                            <div style={{ width: '100%', height: 155 }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+                            <div style={{ width: '100%', height: 170 }}>
                                 <ResponsiveContainer width="100%" height="100%">
                                     <PieChart>
-                                        <Pie data={dashboardData?.charts?.hrmsDonut || []} innerRadius={50} outerRadius={70} dataKey="value" cx="50%" cy="50%">
+                                        <Pie data={dashboardData?.charts?.hrmsDonut || []} innerRadius={55} outerRadius={75} dataKey="value" cx="50%" cy="50%">
                                             {(dashboardData?.charts?.hrmsDonut || []).map((entry, index) => (
                                                 <Cell key={`cell-${index}`} fill={entry.color || '#3b82f6'}/>
                                             ))}
@@ -296,7 +299,7 @@ const AdminDashboard = () => {
                 </div>
 
                 {/* ── 5. Activity Row: Recent Activity + Notifications (equal columns) ── */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                <div className="rd-two-col">
                     <div className="dashboard-panel">
                         <div className="panel-header">
                             <div className="panel-title">Recent Activity</div>
@@ -344,7 +347,7 @@ const AdminDashboard = () => {
                 </div>
 
                 {/* ── 6. Bottom Row: 5 panels in a 5-column grid ── */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.4fr 1fr 1fr 1.2fr', gap: 16 }}>
+                <div className="rd-five-col">
 
                     {/* AI Insights */}
                     <div className="dashboard-panel">
