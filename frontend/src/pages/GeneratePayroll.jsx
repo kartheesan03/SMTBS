@@ -104,8 +104,8 @@ const GeneratePayroll = () => {
             <div className="page-container" style={{ maxWidth: '800px', margin: '0 auto' }}>
                 <button 
                     onClick={() => navigate('/payroll')} 
-                    className="btn-secondary flex-center" 
-                    style={{ gap: '8px', marginBottom: '24px', padding: '8px 16px', background: '#fff', color: '#64748b', fontSize: '13px', fontWeight: 600 }}
+                    className="rd-back-btn" 
+                    style={{ marginBottom: '24px' }}
                 >
                     <ArrowLeft size={16} /> Back to Payroll
                 </button>

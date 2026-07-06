@@ -9,44 +9,52 @@ import {
     CheckCircle, Calendar, DollarSign, Box, Truck, Tag, 
     Layers, Cpu, PhoneCall, ListTodo, UserCheck, LayoutGrid, Clock, Target, Server, Activity, AlertCircle, AlertTriangle
 } from 'lucide-react';
-import { AreaChart, Area, PieChart, Pie, Cell, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, LineChart, Line, BarChart, Bar } from 'recharts';
+import { AreaChart, Area, PieChart, Pie, Cell, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, LineChart, Line, BarChart, Bar, Legend } from 'recharts';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 import CommandCenter from '../components/CommandCenter';
-
 // --- Reusable Components ---
 
-export const SparklineKPICard = ({ title, value, trend, trendValue, icon: Icon, colorClass }) => {
-    // Generate dummy sparkline data for visualization
-    const sparklineData = Array.from({length: 15}, () => ({ value: Math.floor(Math.random() * 100) + 20 }));
+export const SparklineKPICard = ({ title, value, trend, trendValue, icon: Icon, colorClass, data }) => {
+    // Generate a smooth trendline if no data provided
+    const sparklineData = data && data.length > 0 ? data : Array.from({length: 15}, (_, i) => ({ 
+        value: Math.sin((i + (title.length || 0)) * 0.5) * 30 + 50 
+    }));
     
-    // Extract raw color from class for stroke
-    const strokeColor = colorClass === 'icon-green' ? '#10b981' :
-                        colorClass === 'icon-purple' ? '#8b5cf6' :
-                        colorClass === 'icon-blue' ? '#3b82f6' :
-                        colorClass === 'icon-orange' ? '#f59e0b' :
-                        colorClass === 'icon-teal' ? '#14b8a6' :
-                        colorClass === 'icon-pink' ? '#ec4899' : '#3b82f6';
+    const strokeColor = colorClass === 'icon-green' ? 'var(--ent-color-success)' :
+                        colorClass === 'icon-purple' ? 'var(--ent-color-purple)' :
+                        colorClass === 'icon-blue' ? 'var(--ent-color-primary)' :
+                        colorClass === 'icon-orange' ? 'var(--ent-color-warning)' :
+                        colorClass === 'icon-teal' ? 'var(--ent-color-teal)' :
+                        colorClass === 'icon-pink' ? 'var(--ent-color-pink)' : 'var(--ent-color-primary)';
+
+    const themeClass = colorClass ? colorClass.replace('icon-', 'ent-theme-') : 'ent-theme-primary';
+
+    let isPositive = trend === 'up';
 
     return (
-        <div className="rd-kpi-card">
-            <div className="rd-kpi-header">
-                <div className={`rd-kpi-icon ${colorClass}`}>
-                    <Icon size={18} />
-                </div>
-                <div className="rd-kpi-info">
-                    <div className="rd-kpi-title">{title}</div>
-                    <div className="rd-kpi-value">{value}</div>
-                    <div className={`rd-kpi-trend ${trend === 'up' ? 'trend-up' : trend === 'down' ? 'trend-down' : 'trend-neutral'}`}>
-                        {trend === 'up' ? '↑' : trend === 'down' ? '↓' : '→'} {trendValue}
-                    </div>
+        <div className={`ent-module-card ${themeClass}`} style={{ gap: '8px' }}>
+            <div className="ent-card-header" style={{ marginBottom: 0 }}>
+                <span className="ent-card-title" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 'calc(100% - 40px)' }}>{title}</span>
+                <div className="ent-card-icon-wrapper" style={{ flexShrink: 0 }}>
+                    <Icon size={16} strokeWidth={2.5} />
                 </div>
             </div>
-            <div className="rd-kpi-sparkline">
-                <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={sparklineData}>
-                        <Line type="monotone" dataKey="value" stroke={strokeColor} strokeWidth={2} dot={false} isAnimationActive={false} />
-                    </LineChart>
-                </ResponsiveContainer>
+            
+            <div className="ent-card-value" style={{ marginBottom: 0, fontSize: '20px' }}>{value}</div>
+            
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                <div className="ent-card-status-badge" style={{ whiteSpace: 'nowrap', padding: '2px 6px', fontSize: '11px', flexShrink: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {isPositive ? <TrendingUp size={12} style={{ flexShrink: 0 }} /> : <TrendingDown size={12} style={{ flexShrink: 0 }} />}
+                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{trendValue || 'Stable'}</span>
+                </div>
+                
+                <div style={{ width: '50px', height: '25px', flexShrink: 0 }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={sparklineData}>
+                            <Line type="monotone" dataKey="value" stroke={strokeColor} strokeWidth={2} dot={false} isAnimationActive={false} />
+                        </LineChart>
+                    </ResponsiveContainer>
+                </div>
             </div>
         </div>
     );
@@ -66,7 +74,9 @@ export const MiniStatCard = ({ title, value, subValue, icon: Icon, colorClass, t
                         colorClass === 'bg-light-green' ? '#10b981' :
                         colorClass === 'bg-light-orange' ? '#f59e0b' :
                         colorClass === 'bg-light-purple' ? '#8b5cf6' :
-                        colorClass === 'bg-light-red' ? '#ef4444' : '#3b82f6';
+                        colorClass === 'bg-light-red' ? '#ef4444' : 
+                        colorClass === 'bg-light-teal' ? '#14b8a6' :
+                        colorClass === 'bg-light-indigo' ? '#6366f1' : '#3b82f6';
 
     return (
         <div className="ms-item">
@@ -91,20 +101,47 @@ const AdminDashboard = () => {
     const { user } = useContext(AuthContext);
     const [isCommandCenterOpen, setIsCommandCenterOpen] = useState(false);
     const [dashboardData, setDashboardData] = useState(null);
+    const [upcomingEvents, setUpcomingEvents] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [revenueTrendYear, setRevenueTrendYear] = useState('current');
 
     useEffect(() => {
-        const fetchDashboardData = async () => {
+        const fetchData = async () => {
             try {
-                const { data } = await API.get('/dashboard/stats');
-                setDashboardData(data);
+                const [dashRes, tasksRes] = await Promise.all([
+                    API.get('/dashboard/stats'),
+                    API.get('/tasks')
+                ]);
+                setDashboardData(dashRes.data);
+                
+                // Process tasks for upcoming events
+                const now = new Date();
+                const futureTasks = (tasksRes.data || [])
+                    .filter(t => t.dueDate && new Date(t.dueDate) >= now)
+                    .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
+                    .slice(0, 3)
+                    .map(t => {
+                        const d = new Date(t.dueDate);
+                        let col = '#4f46e5'; let bg = '#e0e7ff';
+                        if (t.priority === 'High') { col = '#ef4444'; bg = '#fee2e2'; }
+                        if (t.priority === 'Low') { col = '#10b981'; bg = '#d1fae5'; }
+                        return {
+                            day: String(d.getDate()).padStart(2, '0'),
+                            month: d.toLocaleString('default', { month: 'short' }).toUpperCase(),
+                            bg,
+                            col,
+                            title: t.title,
+                            desc: `${d.getDate()} ${d.toLocaleString('default', { month: 'long' })} • ${d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`
+                        };
+                    });
+                setUpcomingEvents(futureTasks);
             } catch (err) {
                 console.error("Failed to load dashboard data", err);
             } finally {
                 setLoading(false);
             }
         };
-        fetchDashboardData();
+        fetchData();
     }, []);
 
     useEffect(() => {
@@ -142,7 +179,9 @@ const AdminDashboard = () => {
     const totalEmployees = dashboardData?.stats?.totalEmployees || 0;
     const activeCustomers = dashboardData?.stats?.activeCustomers || 0;
     const totalOrders = dashboardData?.stats?.totalOrders || 0;
+    const activeOrdersCount = dashboardData?.stats?.activeOrdersCount || 0;
     const totalVendors = dashboardData?.stats?.totalVendors || 0;
+    const orderFulfillment = dashboardData?.analytics?.healthMetrics?.orderFulfillment || 0;
 
     return (
         <div className="rd-container theme-admin">
@@ -150,43 +189,39 @@ const AdminDashboard = () => {
                 
                 {/* ── 1. Hero Banner ── */}
                 <div className="rd-hero">
-                    <div className="rd-hero-bg-chart"></div>
                     <div className="rd-hero-left">
                         <div className="rd-hero-avatar-wrapper">
-                            <img src={user?.picture || 'https://ui-avatars.com/api/?name=Karthik&background=ef4444&color=fff'} alt="Profile" className="rd-hero-avatar" style={{ borderColor: '#ef4444' }} />
+                            <img src={user?.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'Admin')}&background=4F46E5&color=fff`} alt="Profile" className="rd-hero-avatar" />
                             <div className="rd-hero-status-dot"></div>
                         </div>
                         <div>
                             <div className="rd-hero-greeting">
-                                {getGreeting()}, {user?.name?.split(' ')[0] || 'Karthik'} <span role="img" aria-label="wave">👋</span>
+                                {getGreeting()}, {user?.name?.split(' ')[0] || 'Admin'} 👋
                             </div>
-                            <div className="rd-hero-subtitle">Here's what's happening with your business today.</div>
+                            <div className="rd-hero-subtitle">
+                                {new Date().toLocaleDateString('en-IN', {weekday:'long', day:'numeric', month:'long', year:'numeric'})} &nbsp;·&nbsp; Here's your business overview
+                            </div>
                             <div className="rd-hero-badges">
-                                <span className="rd-hero-badge badge-blue">
-                                    <UserCheck size={14} /> Admin
-                                </span>
-                                <span className="rd-hero-badge badge-blue" style={{background: '#f8fafc', border: '1px solid #e2e8f0', color: '#475569'}}>
-                                    <FileText size={14} /> {user?.email || 'admin@smtbms.com'}
-                                </span>
-                                <span className="rd-hero-badge badge-green" style={{background: '#f8fafc', border: '1px solid #e2e8f0', color: '#10b981'}}>
-                                    <div style={{width:8,height:8,background:'#10b981',borderRadius:'50%'}}></div> Online
-                                </span>
+                                <span className="rd-hero-badge badge-blue"><UserCheck size={12} /> Admin</span>
+                                <span className="rd-hero-badge badge-blue" style={{background:'rgba(255,255,255,0.15)'}}>📦 {activeOrdersCount} Active Orders</span>
+                                <span className="rd-hero-badge badge-green">🟢 All Systems Operational</span>
                             </div>
                         </div>
                     </div>
                     <div className="rd-hero-right-actions">
                         <button className="hero-action-btn primary" onClick={() => navigate('/attendance')}>
-                            <Clock size={16} /> Check In
+                            <Clock size={15} /> Check In
                         </button>
-                        <button className="hero-action-btn secondary" onClick={() => navigate('/leave-management/approve')}>
-                            <CheckCircle size={16} /> Leave Approval
+                        <button className="hero-action-btn secondary" onClick={() => navigate('/leave-management')}>
+                            <CheckCircle size={15} /> Apply Leave
                         </button>
                     </div>
                 </div>
 
+
                 {/* ── 2. KPI Row (6 columns) ── */}
                 <div className="rd-kpi-row">
-                    <SparklineKPICard title="Overall Health" value="98%" trend="up" trendValue="All Systems Go" icon={Activity} colorClass="icon-green" />
+                    <SparklineKPICard title="Order Fulfillment" value={`${orderFulfillment}%`} trend="up" trendValue="Successfully Delivered" icon={Activity} colorClass="icon-green" />
                     <SparklineKPICard title="Total Orders" value={totalOrders} trend="up" trendValue="12% vs last month" icon={ShoppingCart} colorClass="icon-purple" />
                     <SparklineKPICard title="Total Revenue" value={formatINR(totalRevenue)} trend="up" trendValue="8% vs last month" icon={DollarSign} colorClass="icon-blue" />
                     <SparklineKPICard title="Total Materials" value={totalMaterials} trend="neutral" trendValue="Stock stable" icon={Box} colorClass="icon-orange" />
@@ -226,7 +261,7 @@ const AdminDashboard = () => {
                             <div className="panel-title">Inventory Summary</div>
                         </div>
                         <div className="ms-grid">
-                            <MiniStatCard title="Overall Health" value="98%" subValue="System" icon={CheckCircle2} colorClass="bg-light-green" trendColor="#10b981" />
+
                             <MiniStatCard title="Total Vendors" value={totalVendors} subValue="Active" icon={Briefcase} colorClass="bg-light-blue" trendColor="#3b82f6" />
                             <MiniStatCard title="Total Materials" value={totalMaterials} subValue="Stock Items" icon={Box} colorClass="bg-light-orange" trendColor="#f59e0b" />
                             <MiniStatCard title="Total Orders" value={totalOrders} subValue="Sales" icon={ShoppingCart} colorClass="bg-light-purple" trendColor="#8b5cf6" />
@@ -235,6 +270,7 @@ const AdminDashboard = () => {
                             <MiniStatCard title="Total Staff" value={totalEmployees} subValue="Active" icon={Users} colorClass="bg-light-teal" trendColor="#14b8a6" />
                             <MiniStatCard title="Total Clients" value={activeCustomers} subValue="Served" icon={Target} colorClass="bg-light-blue" trendColor="#3b82f6" />
                             <MiniStatCard title="Total Revenue" value={formatINR(totalRevenue)} subValue="YTD" icon={DollarSign} colorClass="bg-light-green" trendColor="#10b981" />
+                            <MiniStatCard title="Active Orders" value={activeOrdersCount} subValue="Processing" icon={ListTodo} colorClass="bg-light-indigo" trendColor="#6366f1" />
                         </div>
                     </div>
 
@@ -246,53 +282,78 @@ const AdminDashboard = () => {
                     <div className="dashboard-panel">
                         <div className="panel-header">
                             <div className="panel-title">Revenue Trend</div>
-                            <select className="panel-dropdown"><option>This Month ▾</option></select>
+                            <select 
+                                className="panel-dropdown" 
+                                style={{ paddingRight: '24px', width: 'auto' }}
+                                value={revenueTrendYear} 
+                                onChange={(e) => setRevenueTrendYear(e.target.value)}
+                            >
+                                <option value="current">This Year</option>
+                                <option value="last">Last Year</option>
+                            </select>
                         </div>
                         <div style={{ height: 220, width: '100%' }}>
                             <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={dashboardData?.charts?.monthlyStats || []} margin={{top:4, right:10, left:0, bottom:0}}>
-                                    <defs>
-                                        <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.25}/>
-                                            <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
-                                        </linearGradient>
-                                    </defs>
+                                <LineChart data={dashboardData?.analytics?.trendData || []} margin={{top:4, right:10, left:0, bottom:0}}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false}/>
                                     <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 11, fill: '#94a3b8'}} dy={8}/>
                                     <YAxis axisLine={false} tickLine={false} tick={{fontSize: 11, fill: '#94a3b8'}} width={48} tickFormatter={(val) => val >= 1000 ? `${(val/1000).toFixed(0)}k` : val}/>
-                                    <Tooltip contentStyle={{fontSize: 12, borderRadius: 8, border: '1px solid #e2e8f0'}} formatter={(val) => [`₹${val.toLocaleString()}`, 'Revenue']}/>
-                                    <Area type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={2} fillOpacity={1} fill="url(#colorRev)"/>
-                                </AreaChart>
+                                    <Tooltip contentStyle={{fontSize: 12, borderRadius: 8, border: '1px solid #e2e8f0'}} formatter={(val, name) => [`₹${val.toLocaleString()}`, name]} />
+                                    <Legend iconType="circle" wrapperStyle={{fontSize: '12px'}} verticalAlign="top" height={36} />
+                                    <Line 
+                                        type="monotone" 
+                                        dataKey={revenueTrendYear === 'current' ? "revenue" : "lastYearRevenue"} 
+                                        name="Revenue" 
+                                        stroke="#3b82f6" 
+                                        strokeWidth={2} 
+                                        dot={false} 
+                                        activeDot={{ r: 6 }} 
+                                    />
+                                    <Line 
+                                        type="monotone" 
+                                        dataKey={revenueTrendYear === 'current' ? "expenses" : "lastYearExpenses"} 
+                                        name="Expenses" 
+                                        stroke="#f59e0b" 
+                                        strokeWidth={2} 
+                                        dot={false} 
+                                        activeDot={{ r: 6 }} 
+                                    />
+                                    <Line 
+                                        type="monotone" 
+                                        dataKey={revenueTrendYear === 'current' ? "currentYearProfit" : "lastYearProfit"} 
+                                        name="Net Profit" 
+                                        stroke="#10b981" 
+                                        strokeWidth={2} 
+                                        dot={false} 
+                                        activeDot={{ r: 6 }} 
+                                    />
+                                </LineChart>
                             </ResponsiveContainer>
                         </div>
                     </div>
 
                     <div className="dashboard-panel">
                         <div className="panel-header">
-                            <div className="panel-title">Employee Attendance</div>
-                            <select className="panel-dropdown"><option>This Week ▾</option></select>
+                            <div className="panel-title">Total Employees</div>
+                            <select className="panel-dropdown" style={{ paddingRight: '24px', width: 'auto' }}>
+                                <option>By Department</option>
+                            </select>
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
                             <div style={{ width: '100%', height: 170 }}>
                                 <ResponsiveContainer width="100%" height="100%">
-                                    <PieChart>
-                                        <Pie data={dashboardData?.charts?.hrmsDonut || []} innerRadius={55} outerRadius={75} dataKey="value" cx="50%" cy="50%">
-                                            {(dashboardData?.charts?.hrmsDonut || []).map((entry, index) => (
+                                    <BarChart data={dashboardData?.hrStats?.employeeDistribution || []} margin={{top:10, right:10, left:-20, bottom:0}}>
+                                        <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false}/>
+                                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 11, fill: '#94a3b8'}} dy={8}/>
+                                        <YAxis axisLine={false} tickLine={false} tick={{fontSize: 11, fill: '#94a3b8'}} allowDecimals={false} />
+                                        <Tooltip contentStyle={{fontSize: 12, borderRadius: 8, border: '1px solid #e2e8f0'}} cursor={{fill: '#f1f5f9'}} />
+                                        <Bar dataKey="value" radius={[4, 4, 0, 0]} maxBarSize={40}>
+                                            {(dashboardData?.hrStats?.employeeDistribution || []).map((entry, index) => (
                                                 <Cell key={`cell-${index}`} fill={entry.color || '#3b82f6'}/>
                                             ))}
-                                        </Pie>
-                                        <Tooltip contentStyle={{fontSize: 11}}/>
-                                    </PieChart>
+                                        </Bar>
+                                    </BarChart>
                                 </ResponsiveContainer>
-                            </div>
-                            <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', justifyContent: 'center' }}>
-                                {(dashboardData?.charts?.hrmsDonut || []).map((entry, idx) => (
-                                    <div key={idx} style={{display:'flex', alignItems:'center', gap: 6, fontSize: 12}}>
-                                        <div style={{width:9,height:9,borderRadius:'50%',background:entry.color||'#3b82f6', flexShrink:0}}></div>
-                                        <span style={{color:'#475569'}}>{entry.name}</span>
-                                        <strong style={{color:'#0f172a'}}>{entry.value}</strong>
-                                    </div>
-                                ))}
                             </div>
                         </div>
                     </div>
@@ -420,7 +481,7 @@ const AdminDashboard = () => {
                     <div className="dashboard-panel">
                         <div className="panel-header">
                             <div className="panel-title">Monthly Profit</div>
-                            <select className="panel-dropdown"><option>This Month ▾</option></select>
+                            <select className="panel-dropdown" style={{ paddingRight: '24px', width: 'auto' }}><option>This Month</option></select>
                         </div>
                         <div style={{ marginBottom: 10 }}>
                             <div style={{fontSize: 22, fontWeight: 800, color: '#0f172a', letterSpacing: '-0.5px'}}>{formatINR(dashboardData?.analytics?.kpis?.netProfit || totalRevenue)}</div>
@@ -440,14 +501,10 @@ const AdminDashboard = () => {
                     <div className="dashboard-panel">
                         <div className="panel-header">
                             <div className="panel-title">Upcoming Events</div>
-                            <a href="/calendar" className="panel-action">View Calendar</a>
+                            <span onClick={() => navigate('/tasks/calendar')} className="panel-action" style={{cursor: 'pointer'}}>View Calendar</span>
                         </div>
                         <div className="feed-list" style={{gap: 14}}>
-                            {[
-                                {day:'05', month:'JUL', bg:'#e0e7ff', col:'#4f46e5', title:'Payroll Processing', desc:'05 July, 2026'},
-                                {day:'10', month:'JUL', bg:'#fef3c7', col:'#d97706', title:'Management Meeting', desc:'10 July • 10:00 AM'},
-                                {day:'15', month:'JUL', bg:'#dcfce7', col:'#059669', title:'Monthly Audit', desc:'15 July • 11:00 AM'}
-                            ].map((ev, i) => (
+                            {upcomingEvents.length > 0 ? upcomingEvents.map((ev, i) => (
                                 <div className="event-item" key={i}>
                                     <div style={{background: ev.bg, borderRadius: 8, padding: '4px 8px', textAlign:'center', flexShrink:0, minWidth:36}}>
                                         <div style={{color: ev.col, fontSize:9, fontWeight:700, textTransform:'uppercase'}}>{ev.month}</div>
@@ -458,17 +515,21 @@ const AdminDashboard = () => {
                                         <div className="feed-desc">{ev.desc}</div>
                                     </div>
                                 </div>
-                            ))}
+                            )) : (
+                                <div style={{textAlign: 'center', color: '#64748b', fontSize: 14, padding: '20px 0'}}>
+                                    No upcoming events
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
 
                 {/* ── 6. Footer ── */}
                 <div className="dashboard-footer">
-                    <div><Calendar size={12} style={{display:'inline',marginRight:4}}/> Current FY: 2026 - 2027</div>
-                    <div><Layers size={12} style={{display:'inline',marginRight:4}}/> ERP Version: v2.5.1</div>
-                    <div><Server size={12} style={{display:'inline',marginRight:4}}/> Database Size: 1.28 GB</div>
-                    <div><Clock size={12} style={{display:'inline',marginRight:4}}/> Last Backup: 03 Jul 2026, 02:30 AM</div>
+                    <div><Calendar size={12} style={{display:'inline',marginRight:4}}/> Current FY: {dashboardData?.systemInfo?.currentFY || "2026 - 2027"}</div>
+                    <div><Layers size={12} style={{display:'inline',marginRight:4}}/> ERP Version: {dashboardData?.systemInfo?.erpVersion || "v2.5.1"}</div>
+                    <div><Server size={12} style={{display:'inline',marginRight:4}}/> Database Size: {dashboardData?.systemInfo?.dbSize || "1.28 GB"}</div>
+                    <div><Clock size={12} style={{display:'inline',marginRight:4}}/> Last Backup: {dashboardData?.systemInfo?.lastBackup || "03 Jul 2026, 02:30 AM"}</div>
                     <div className="footer-item" style={{color: '#10b981'}}>
                         <div className="footer-dot"></div> All Systems Operational
                     </div>

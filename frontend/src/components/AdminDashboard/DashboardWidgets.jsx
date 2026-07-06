@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, useSpring, useTransform } from 'framer-motion';
 import { TrendingUp, TrendingDown, Minus, Smile, Zap, DollarSign, ShoppingCart, AlertCircle, Users, Search, Bell, Moon, Briefcase, Activity, Package, FileText, CheckSquare, UserPlus, FilePlus, CheckCircle, RefreshCw, BarChart2 } from 'lucide-react';
 import './AdminDashboardPremium.css';
+import './AdminDashboardRedesign.css';
 
 // Animated Counter Component
 const AnimatedCounter = ({ value, prefix = '', suffix = '', isCurrency = false }) => {
@@ -49,26 +50,22 @@ export const EnterpriseKPICard = ({
     isCurrency = false,
     prefix = ''
 }) => {
+    const themeClass = 'ent-theme-indigo';
     return (
-        <motion.div 
-            className="erp-card erp-kpi-card"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-        >
-            <div className="erp-kpi-header">
-                <div className="erp-kpi-title-wrapper">
-                    <h3 className="erp-kpi-title">{title}</h3>
-                    {subtitle && <p className="erp-kpi-subtitle">{subtitle}</p>}
+        <div className={`ent-module-card ${themeClass}`} style={{ gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                <div className="ent-card-icon-wrapper">
+                    <Activity size={16} strokeWidth={2.5} />
                 </div>
             </div>
-            
             <div>
-                <h2 className="erp-kpi-main-metric">
+                <div className="ent-card-value">
                     <AnimatedCounter value={value} isCurrency={isCurrency} prefix={prefix} />
-                </h2>
+                </div>
+                <div className="ent-card-title">{title}</div>
+                <div style={{ fontSize: '12px', color: 'var(--ent-text-secondary)', marginTop: '4px' }}>{subtitle}</div>
             </div>
-        </motion.div>
+        </div>
     );
 };
 
@@ -165,34 +162,36 @@ export const TopWelcomeBar = ({ username, data }) => {
 export const PremiumKPICard = ({ 
     title, subtitle, value, isCurrency, prefix, icon: Icon, color, trend, trendValue 
 }) => {
-    return (
-        <motion.div 
-            className="erp-card erp-kpi-premium-card"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-        >
-            <div className="erp-kpi-premium-header">
-                <div className="erp-kpi-premium-icon" style={{ backgroundColor: `${color}15`, color: color }}>
-                    {Icon && <Icon size={18} strokeWidth={2.5} />}
-                </div>
-                <div className="erp-kpi-premium-title-group">
-                    <span className="erp-kpi-premium-title">{title}</span>
-                    <span className="erp-kpi-premium-subtitle">{subtitle}</span>
-                </div>
-            </div>
-            
-            <div className="erp-kpi-premium-value">
-                <AnimatedCounter value={value} isCurrency={isCurrency} prefix={prefix} />
-            </div>
-            
-            {trendValue && (
-                <div className={`erp-trend-indicator ${trend === 'up' ? 'erp-trend-up' : 'erp-trend-down'}`}>
-                    {trend === 'up' ? '↑' : '↓'} {trendValue}
-                </div>
-            )}
+    // Map existing colors to pec colors
+    const mappedColor = color === '#10b981' ? 'green' :
+                        color === '#8b5cf6' ? 'purple' :
+                        color === '#f59e0b' ? 'orange' :
+                        color === '#ef4444' ? 'red' : 
+                        color === '#ec4899' ? 'pink' :
+                        color === '#14b8a6' ? 'teal' : 'blue';
 
-        </motion.div>
+    const themeClass = mappedColor ? `ent-theme-${mappedColor === 'green' ? 'success' : mappedColor === 'red' ? 'danger' : mappedColor === 'orange' ? 'warning' : mappedColor === 'purple' ? 'purple' : 'primary'}` : 'ent-theme-primary';
+
+    return (
+        <div className={`ent-module-card ${themeClass}`} style={{ gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                <div className="ent-card-icon-wrapper">
+                    <Icon size={16} strokeWidth={2.5} />
+                </div>
+                {trendValue && (
+                    <div className="ent-card-status-badge">
+                        {trendValue} {trend === 'up' ? '↑' : trend === 'down' ? '↓' : ''}
+                    </div>
+                )}
+            </div>
+            <div>
+                <div className="ent-card-value">
+                    <AnimatedCounter value={value} isCurrency={isCurrency} prefix={prefix} />
+                </div>
+                <div className="ent-card-title">{title}</div>
+                <div style={{ fontSize: '12px', color: 'var(--ent-text-secondary)', marginTop: '4px' }}>{subtitle}</div>
+            </div>
+        </div>
     );
 };
 

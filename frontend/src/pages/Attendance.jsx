@@ -514,7 +514,7 @@ const MonthlyTab = ({ myHistory }) => {
                     </div>
                     <div style={{ display:'flex', alignItems:'center', gap:8, border:'1px solid #e2e8f0', borderRadius:8, padding:'6px 12px', background:'#f8fafc' }}>
                         <Search size={13} color="#94a3b8" />
-                        <input placeholder="Filter by date or status…" value={search} onChange={e=>setSearch(e.target.value)}
+                        <input placeholder="Search..." value={search} onChange={e=>setSearch(e.target.value)}
                             style={{ border:'none', background:'transparent', outline:'none', fontSize:13, color:'#1e293b', width:200 }} />
                     </div>
                 </div>

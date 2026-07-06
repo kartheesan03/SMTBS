@@ -84,7 +84,7 @@ const GlobalHeader = ({ onRefresh, onOpenModuleLauncher, onOpenCommandCenter }) 
                 </button>
                 <div className="rd-search-bar">
                     <Search size={16} color="#94a3b8" />
-                    <input type="text" className="rd-search-input" placeholder="Search materials, PO, vendors..." />
+                    <input type="text" className="rd-search-input" placeholder="Search..." />
                 </div>
             </div>
             

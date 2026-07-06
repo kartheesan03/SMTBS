@@ -7,7 +7,6 @@ import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { DataTable } from '../components/ui';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
-
 const Vendors = () => {
     const navigate = useNavigate();
     const [vendors, setVendors] = useState([]);
@@ -181,24 +180,29 @@ const Vendors = () => {
     );
 };
 
-const VendorKPICard = ({ title, val, icon: Icon, color, data }) => {
+const VendorKPICard = ({ title, val, color, icon: Icon, data }) => {
+    const themeClass = color ? `ent-theme-${color}` : 'ent-theme-primary';
+    
     return (
-        <div className={`rd-kpi-card ${color}`} style={{minHeight: 130, padding: 20}}>
-            <div className="rd-kpi-header">
-                <div style={{display: 'flex', flexDirection: 'column', gap: 4}}>
-                    <span style={{fontSize: 13, fontWeight: 600, opacity: 0.9}}>{title}</span>
-                    <span style={{fontSize: 26, fontWeight: 800}}>{val}</span>
+        <div className={`ent-module-card ${typeof themeClass !== 'undefined' ? themeClass : (color ? `ent-theme-${color}` : 'ent-theme-primary')}`}>
+            <div>
+                <div className="ent-card-header">
+                    <span className="ent-card-title">{title}</span>
+                    <div className="ent-card-icon-wrapper">
+                        {Icon && <Icon size={18} strokeWidth={2.5} />}
+                    </div>
                 </div>
-                <div className="rd-kpi-icon-box" style={{width: 42, height: 42, opacity: 0.9}}>
-                    <Icon size={22} color="#fff" />
+                <div className="ent-card-value">{val}</div>
+                <div style={{ fontSize: '13px', fontWeight: 500, color: 'var(--ent-text-secondary)', marginBottom: '12px' }}>
+                    {'Monitoring Level'}
                 </div>
             </div>
-            <div style={{marginTop: 16, height: 30, opacity: 0.6}}>
-                <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={data}>
-                        <Bar dataKey="v" fill="#fff" radius={[2,2,0,0]} barSize={6} />
-                    </BarChart>
-                </ResponsiveContainer>
+            
+            <div>
+                <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'currentColor' }}></div>
+                    Updated Today
+                </div>
             </div>
         </div>
     );

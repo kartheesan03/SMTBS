@@ -1,9 +1,9 @@
 import React from 'react';
 
 /**
- * SmtbmsLogo - Professional brand logo component
- * Renders a clean SVG logomark (stylized hexagonal S with gradient)
- * alongside the brand name and optional tagline.
+ * SmtbmsLogo - Premium Unique Brand Logo Component
+ * Features an exploding isometric 3D cube revealing a smart glowing core,
+ * representing "Smart Material Tracking & Business Management".
  *
  * Props:
  *  - size: icon size in px (default: 28)
@@ -22,57 +22,73 @@ const SmtbmsLogo = ({
     collapsed = false
 }) => {
     return (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, userSelect: 'none' }}>
-            {/* SVG Logomark — Hexagonal S */}
-            <svg
-                width={size}
-                height={size}
-                viewBox="0 0 32 32"
-                fill="none"
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, userSelect: 'none' }}>
+            {/* Premium Custom SVG Logomark */}
+            <svg 
+                width={size} 
+                height={size} 
+                viewBox="0 0 40 40" 
+                fill="none" 
                 xmlns="http://www.w3.org/2000/svg"
-                style={{ flexShrink: 0 }}
-                aria-label="SMTBMS Logo"
+                style={{ flexShrink: 0, filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.15))' }}
             >
                 <defs>
-                    <linearGradient id="smtbms-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#3b82f6" />
-                        <stop offset="100%" stopColor="#8b5cf6" />
+                    <linearGradient id="top-face" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#38bdf8"/>
+                        <stop offset="100%" stopColor="#3b82f6"/>
                     </linearGradient>
-                    <linearGradient id="smtbms-s-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#ffffff" stopOpacity="1" />
-                        <stop offset="100%" stopColor="#c7d2fe" stopOpacity="0.9" />
+                    <linearGradient id="left-face" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stopColor="#818cf8"/>
+                        <stop offset="100%" stopColor="#4f46e5"/>
                     </linearGradient>
+                    <linearGradient id="right-face" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stopColor="#a78bfa"/>
+                        <stop offset="100%" stopColor="#7c3aed"/>
+                    </linearGradient>
+                    <radialGradient id="core-glow" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stopColor="#ffffff" stopOpacity="1"/>
+                        <stop offset="30%" stopColor="#c084fc" stopOpacity="0.8"/>
+                        <stop offset="100%" stopColor="#7c3aed" stopOpacity="0"/>
+                    </radialGradient>
+                    <filter id="inner-shadow" x="-20%" y="-20%" width="140%" height="140%">
+                        <feDropShadow dx="0" dy="2" stdDeviation="2" floodColor="#000000" floodOpacity="0.2" />
+                    </filter>
                 </defs>
-                {/* Hexagon background */}
-                <path
-                    d="M16 2L28.124 9V23L16 30L3.876 23V9L16 2Z"
-                    fill="url(#smtbms-grad)"
-                />
-                {/* Subtle inner glow ring */}
-                <path
-                    d="M16 4.5L26.124 10.25V21.75L16 27.5L5.876 21.75V10.25L16 4.5Z"
-                    fill="none"
-                    stroke="rgba(255,255,255,0.15)"
-                    strokeWidth="1"
-                />
-                {/* Stylized S letterform */}
-                <path
-                    d="M20.5 11.5C20.5 10.5 19.5 9.5 16 9.5C12.5 9.5 11.5 10.8 11.5 12.2C11.5 13.6 12.5 14.3 15.5 14.8L16.8 15C19.6 15.5 21 16.5 21 18.2C21 20 19.5 22.5 16 22.5C12.5 22.5 11 21 11 19.5"
-                    stroke="url(#smtbms-s-grad)"
-                    strokeWidth="2.2"
-                    strokeLinecap="round"
-                    fill="none"
-                />
+                
+                {/* Background soft plate */}
+                <rect width="40" height="40" rx="10" fill="#ffffff" fillOpacity="0.05" />
+
+                {/* Glowing Core */}
+                <circle cx="20" cy="21" r="11" fill="url(#core-glow)" />
+                
+                {/* Floating Faces (Exploding Isometric Cube) */}
+                
+                {/* Top Face */}
+                <path d="M20 3 L8.5 9.5 L20 16 L31.5 9.5 Z" fill="url(#top-face)" filter="url(#inner-shadow)" opacity="0.95" />
+                
+                {/* Left Face */}
+                <path d="M6 14.5 L17.5 21 L17.5 34 L6 27.5 Z" fill="url(#left-face)" filter="url(#inner-shadow)" opacity="0.95" />
+                
+                {/* Right Face */}
+                <path d="M34 14.5 L34 27.5 L22.5 34 L22.5 21 Z" fill="url(#right-face)" filter="url(#inner-shadow)" opacity="0.95" />
+
+                {/* Connection Lines (Network/Tracking) */}
+                <path d="M20 16 L20 21" stroke="#ffffff" strokeWidth="1.5" strokeDasharray="2 2" opacity="0.7" />
+                <path d="M17.5 21 L20 21" stroke="#ffffff" strokeWidth="1.5" strokeDasharray="2 2" opacity="0.7" />
+                <path d="M22.5 21 L20 21" stroke="#ffffff" strokeWidth="1.5" strokeDasharray="2 2" opacity="0.7" />
+                
+                {/* Core dot */}
+                <circle cx="20" cy="21" r="2.5" fill="#ffffff" />
             </svg>
 
             {/* Brand text */}
             {!collapsed && showText && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                     <span style={{
-                        fontSize: 17,
+                        fontSize: Math.max(16, size * 0.6),
                         fontWeight: 800,
                         color: textColor,
-                        letterSpacing: '-0.4px',
+                        letterSpacing: '-0.5px',
                         lineHeight: 1,
                         fontFamily: "'Inter', sans-serif"
                     }}>
@@ -80,11 +96,11 @@ const SmtbmsLogo = ({
                     </span>
                     {showTagline && (
                         <span style={{
-                            fontSize: 8.5,
+                            fontSize: Math.max(9, size * 0.35),
                             color: taglineColor,
                             lineHeight: 1.3,
                             fontWeight: 500,
-                            letterSpacing: '0.2px',
+                            letterSpacing: '0px',
                             fontFamily: "'Inter', sans-serif"
                         }}>
                             Smart Material Tracking &<br />Business Management System

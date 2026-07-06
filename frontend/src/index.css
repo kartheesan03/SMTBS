@@ -1,66 +1,76 @@
 @import './dashboard-layout.css';
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap');
+@import './styles/design-tokens.css';
 
 :root {
-  /* ─── Modern Premium Color Palette ─── */
-  --primary: #2563eb;       /* Blue 600 - Highly professional */
-  --primary-hover: #1d4ed8; /* Blue 700 */
-  --primary-light: #eff6ff; /* Blue 50 */
-  --primary-glow: rgba(37, 99, 235, 0.25);
-  
-  --secondary: #0f172a;     /* Slate 900 */
-  --secondary-hover: #1e293b; /* Slate 800 */
-  
+  /* ─── Primary Brand ─── */
+  --primary: #4F46E5;
+  --primary-hover: #4338CA;
+  --primary-light: #EEF2FF;
+  --primary-glow: rgba(79, 70, 229, 0.2);
+
+  --secondary: #111827;
+  --secondary-hover: #1F2937;
+
   /* ─── Status Colors ─── */
-  --success: #10b981;
-  --success-bg: #ecfdf5;
-  --warning: #f59e0b;
-  --warning-bg: #fffbeb;
-  --danger: #ef4444;
-  --danger-bg: #fef2f2;
-  --info: #3b82f6;
-  --info-bg: #eff6ff;
+  --success: #10B981;
+  --success-bg: #ECFDF5;
+  --success-text: #065F46;
+  --warning: #F59E0B;
+  --warning-bg: #FFFBEB;
+  --warning-text: #92400E;
+  --danger: #EF4444;
+  --danger-bg: #FEF2F2;
+  --danger-text: #991B1B;
+  --info: #3B82F6;
+  --info-bg: #EFF6FF;
+  --info-text: #1E40AF;
 
   /* ─── Neutrals & Surfaces ─── */
-  --bg-app: #f8fafc;        /* Slate 50 - Cleaner background */
-  --bg-surface: #ffffff;    /* Pure white cards */
-  --bg-hover: #f1f5f9;      /* Slate 100 */
-  --bg-active: #e2e8f0;     /* Slate 200 */
-  --bg-input: #ffffff;      
+  --bg-app: #F8FAFC;
+  --bg-surface: #FFFFFF;
+  --bg-hover: #F1F5F9;
+  --bg-active: #E2E8F0;
+  --bg-subtle: #F8FAFC;
+  --bg-input: #FFFFFF;
   --bg-body: var(--bg-app);
 
   /* ─── Borders ─── */
-  --border-light: #f1f5f9;
-  --border-subtle: #e2e8f0; 
-  --border-strong: #cbd5e1;
-  --border-focus: #3b82f6;
+  --border-light: #F1F5F9;
+  --border-subtle: #E2E8F0;
+  --border-strong: #CBD5E1;
+  --border-focus: #4F46E5;
 
-  /* ─── Text Colors ─── */
-  --text-heading: #0f172a;  /* Slate 900 */
-  --text-main: #334155;     /* Slate 700 */
-  --text-muted: #64748b;    /* Slate 500 */
-  --text-disabled: #94a3b8; /* Slate 400 */
+  /* ─── Text ─── */
+  --text-heading: #111827;
+  --text-main: #374151;
+  --text-muted: #6B7280;
+  --text-disabled: #9CA3AF;
   --text-primary: var(--text-heading);
   --text-secondary: var(--text-main);
 
-  /* ─── Premium Shadows ─── */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+  /* ─── Shadows ─── */
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.03);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -1px rgba(0,0,0,0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.07), 0 4px 6px -2px rgba(0,0,0,0.04);
+  --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.08), 0 10px 10px -5px rgba(0,0,0,0.03);
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03);
+  --shadow-card-hover: 0 8px 24px rgba(0,0,0,0.09);
   --shadow-glow: 0 8px 16px -4px var(--primary-glow);
-  --ring-focus: 0 0 0 3px rgba(37, 99, 235, 0.2);
+  --ring-focus: 0 0 0 3px rgba(79, 70, 229, 0.18);
 
-  /* ─── Layout & Sizing ─── */
-  --sidebar-width: 280px;
-  --header-height: 72px;
-  
+  /* ─── Layout ─── */
+  --sidebar-width: 260px;
+  --header-height: 60px;
+
   /* ─── Radii ─── */
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-2xl: 28px;
 }
 
 :root.dark-theme, .dark-theme {
@@ -261,25 +271,32 @@ body.logged-in.sidebar-collapsed .main-content.with-sidebar {
 }
 
 /* 4. Inputs & Forms */
+/* Hide default browser password reveal icon (Edge, etc) */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
+}
+
 .input-field, .form-control, input[type="text"], input[type="email"], input[type="password"], input[type="number"], select, textarea, .ui-input {
-  width: 100% !important;
+  width: 100%;
   padding: 12px 16px;
-  font-family: 'Inter', sans-serif !important; font-size: 14px !important;
-  color: var(--text-heading) !important;
-  background-color: var(--bg-surface) !important;
-  border: 1px solid var(--border-strong) !important;
-  border-radius: var(--radius-md) !important;
-  transition: all 0.2s ease !important;
-  min-height: 44px !important;
-  box-shadow: var(--shadow-sm) !important;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: var(--text-heading);
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  transition: all 0.2s ease;
+  min-height: 44px;
+  box-shadow: var(--shadow-sm);
 }
 .input-field:hover, .form-control:hover, input:hover, select:hover, textarea:hover, .ui-input:hover {
-  border-color: #94a3b8 !important;
+  border-color: #94a3b8;
 }
 .input-field:focus, .form-control:focus, input:focus, select:focus, textarea:focus, .ui-input:focus {
-  outline: none !important;
-  border-color: var(--primary) !important;
-  box-shadow: var(--ring-focus) !important;
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: var(--ring-focus);
 }
 .form-label, label {
   display: block !important; font-size: 13px !important; font-weight: 500 !important;
@@ -731,4 +748,117 @@ body:has(.dual-sidebar-container.expanded) .app-main {
   font-weight: 700 !important; 
   color: var(--text-heading) !important;
   font-family: 'Outfit', sans-serif !important;
+}
+
+/* ─── ENTERPRISE KPI CARD REDESIGN ─── */
+.ent-kpi-card {
+    background: #FFFFFF !important;
+    border-radius: 18px !important;
+    padding: 24px !important;
+    padding-bottom: 55px !important;
+    box-shadow: 0 8px 30px rgba(15,23,42,.08) !important;
+    border: 1px solid #E5E7EB !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 140px;
+    cursor: default;
+}
+.ent-kpi-card:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: 0 20px 45px rgba(0,0,0,.10) !important;
+}
+
+/* The thin accent border on top */
+.ent-kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+}
+.ent-kpi-card.color-blue::before { background: #2563EB; }
+.ent-kpi-card.color-green::before { background: #10B981; }
+.ent-kpi-card.color-orange::before { background: #F59E0B; }
+.ent-kpi-card.color-red::before { background: #EF4444; }
+.ent-kpi-card.color-purple::before { background: #7C3AED; }
+.ent-kpi-card.color-pink::before { background: #EC4899; }
+.ent-kpi-card.color-teal::before { background: #0D9488; }
+.ent-kpi-card.color-indigo::before { background: #4F46E5; }
+
+/* Top section: Title and Icon */
+.ent-kpi-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+    z-index: 1;
+}
+.ent-kpi-title {
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #64748B !important;
+    letter-spacing: 0.2px;
+    text-transform: capitalize;
+}
+.ent-kpi-icon {
+    color: #64748B;
+    opacity: 0.7;
+    transition: transform 0.3s ease;
+}
+.ent-kpi-card:hover .ent-kpi-icon {
+    transform: scale(1.15);
+    opacity: 1;
+}
+
+/* Middle section: Value and Status */
+.ent-kpi-mid {
+    z-index: 1;
+    margin-bottom: 12px;
+}
+.ent-kpi-value {
+    font-size: 42px !important;
+    font-weight: 800 !important;
+    color: #0F172A !important;
+    line-height: 1;
+    font-family: 'Outfit', sans-serif !important;
+    margin-bottom: 6px;
+}
+.ent-kpi-status {
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.ent-kpi-status.color-blue { color: #2563EB; }
+.ent-kpi-status.color-green { color: #10B981; }
+.ent-kpi-status.color-orange { color: #F59E0B; }
+.ent-kpi-status.color-red { color: #EF4444; }
+.ent-kpi-status.color-purple { color: #7C3AED; }
+.ent-kpi-status.color-pink { color: #EC4899; }
+.ent-kpi-status.color-teal { color: #0D9488; }
+.ent-kpi-status.color-indigo { color: #4F46E5; }
+
+/* Bottom section: Sparkline */
+.ent-kpi-sparkline {
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    right: 0;
+    height: 45px;
+    opacity: 0.3;
+    transition: opacity 0.3s ease;
+    z-index: 0;
+    pointer-events: none;
+}
+.ent-kpi-card:hover .ent-kpi-sparkline {
+    opacity: 0.6;
 }

@@ -62,12 +62,8 @@ const ApplyLeave = () => {
 
             <div style={{ width: '100%', maxWidth: '600px', marginBottom: '20px' }}>
                 <button 
+                    className="rd-back-btn"
                     onClick={() => navigate('/leave-management')}
-                    style={{
-                        background: 'none', border: 'none', color: 'var(--text-muted)', 
-                        display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer',
-                        fontWeight: '600', fontSize: '14px', padding: 0
-                    }}
                 >
                     <ArrowLeft size={16} /> Back to Leave Management
                 </button>

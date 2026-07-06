@@ -19,15 +19,10 @@ const AccessDenied = () => {
                 You do not have the required permissions to view this page.
             </p>
             <button 
+                className="rd-back-btn"
                 onClick={() => navigate('/')}
-                style={{
-                    display: 'flex', alignItems: 'center', gap: '8px',
-                    padding: '12px 24px', background: '#3b82f6', color: '#fff',
-                    border: 'none', borderRadius: '8px', cursor: 'pointer',
-                    fontSize: '1rem', fontWeight: '500'
-                }}
             >
-                <ArrowLeft size={20} />
+                <ArrowLeft size={16} />
                 Return to Dashboard
             </button>
         </div>

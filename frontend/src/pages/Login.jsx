@@ -8,6 +8,7 @@ import {
     Box, BarChart2, Settings, ShieldCheck, CheckCircle2,
     Layers, Activity, Globe, Fingerprint, Hexagon, ChevronDown, Eye, EyeOff
 } from 'lucide-react';
+import SmtbmsLogo from '../components/SmtbmsLogo';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -117,13 +118,9 @@ const Login = () => {
                 <div className="login-banner">
                     <div className="banner-content">
                         <div className="brand">
-                            <div className="brand-logo">
-                                <div className="orbital-core"></div>
-                                <div className="orbital-ring ring-1"></div>
-                                <div className="orbital-ring ring-2"></div>
-                                <div className="orbital-ring ring-3"></div>
-                            </div>
-                            <div className="brand-text">
+                            <SmtbmsLogo size={56} showText={false} />
+                            <div className="brand-text" style={{ marginLeft: 6 }}>
+                                <h1>SMTBMS</h1>
                                 <h2>Smart Material Tracking &</h2>
                                 <h2>Business Management System</h2>
                             </div>
@@ -375,70 +372,30 @@ const Login = () => {
                     margin-bottom: clamp(32px, 5vh, 56px);
                 }
 
-                /* Animated orbital logo */
-                .brand-logo {
+                /* Logo container is handled by SmtbmsLogo, text margin added inline */
+
+                .brand-text {
                     display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    width: 56px;
-                    height: 56px;
-                    background: rgba(255,255,255,0.06);
-                    backdrop-filter: blur(12px);
-                    border: 1px solid rgba(255,255,255,0.15);
-                    border-radius: 16px;
-                    position: relative;
-                    box-shadow: 0 8px 32px rgba(0,0,0,0.2), 0 0 0 1px rgba(99,102,241,0.3);
-                    perspective: 200px;
+                    flex-direction: column;
+                    gap: 2px;
                 }
 
-                .orbital-core {
-                    width: 10px;
-                    height: 10px;
-                    background: #818cf8;
-                    border-radius: 50%;
-                    box-shadow: 0 0 10px #818cf8, 0 0 20px #6366f1;
-                    animation: pulseCore 2s infinite alternate;
-                }
-
-                .orbital-ring {
-                    position: absolute;
-                    border-radius: 50%;
-                    border: 1.5px solid transparent;
-                    border-top-color: #a5b4fc;
-                    border-bottom-color: #6366f1;
-                    top: 50%;
-                    left: 50%;
-                    transform-origin: 50% 50%;
-                }
-
-                .ring-1 { width: 32px; height: 32px; animation: spin1 3s linear infinite; }
-                .ring-2 { width: 40px; height: 40px; border-left-color: #818cf8; border-right-color: #4f46e5; border-top-color: transparent; border-bottom-color: transparent; animation: spin2 4s linear infinite; }
-                .ring-3 { width: 48px; height: 48px; border-top-color: #c7d2fe; border-bottom-color: #3730a3; animation: spin3 5s linear infinite; }
-
-                @keyframes pulseCore {
-                    0%   { transform: scale(1); opacity: 0.8; }
-                    100% { transform: scale(1.4); opacity: 1; box-shadow: 0 0 20px #a5b4fc, 0 0 35px #6366f1; }
-                }
-                @keyframes spin1 {
-                    0%   { transform: translate(-50%,-50%) rotateX(65deg) rotateY(35deg) rotateZ(0deg); }
-                    100% { transform: translate(-50%,-50%) rotateX(65deg) rotateY(35deg) rotateZ(360deg); }
-                }
-                @keyframes spin2 {
-                    0%   { transform: translate(-50%,-50%) rotateX(45deg) rotateY(-45deg) rotateZ(0deg); }
-                    100% { transform: translate(-50%,-50%) rotateX(45deg) rotateY(-45deg) rotateZ(-360deg); }
-                }
-                @keyframes spin3 {
-                    0%   { transform: translate(-50%,-50%) rotateX(-55deg) rotateY(25deg) rotateZ(0deg); }
-                    100% { transform: translate(-50%,-50%) rotateX(-55deg) rotateY(25deg) rotateZ(360deg); }
+                .brand-text h1 {
+                    font-size: 28px;
+                    font-weight: 800;
+                    margin: 0 0 2px 0;
+                    color: #ffffff;
+                    letter-spacing: -0.5px;
+                    line-height: 1;
                 }
 
                 .brand-text h2 {
-                    font-size: 18px;
-                    font-weight: 700;
+                    font-size: 15px;
+                    font-weight: 500;
                     margin: 0;
-                    color: rgba(255,255,255,0.9);
+                    color: rgba(255,255,255,0.85);
                     line-height: 1.3;
-                    letter-spacing: -0.2px;
+                    letter-spacing: 0px;
                 }
 
                 /* Hero headline */

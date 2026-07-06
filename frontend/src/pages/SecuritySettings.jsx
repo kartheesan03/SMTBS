@@ -2,6 +2,36 @@ import React, { useState } from 'react';
 import { ClipboardList, RefreshCw, Download, ArrowUpRight, Users, FileText, Target, Shield, Search, ChevronDown, LogIn, Edit, Trash2 } from 'lucide-react';
 import './SecuritySettings.css';
 
+import '../components/AdminDashboard/AdminDashboardRedesign.css';
+
+const SecurityKPICard = ({ title, val, subtitle, icon: Icon, color, trendValue }) => {
+    const themeClass = color ? `ent-theme-${color === 'green' ? 'success' : color === 'red' ? 'danger' : color === 'orange' ? 'warning' : color === 'purple' ? 'purple' : 'primary'}` : 'ent-theme-primary';
+
+    return (
+        <div className={`ent-module-card ${typeof themeClass !== 'undefined' ? themeClass : (color ? `ent-theme-${color}` : 'ent-theme-primary')}`}>
+            <div>
+                <div className="ent-card-header">
+                    <span className="ent-card-title">{title}</span>
+                    <div className="ent-card-icon-wrapper">
+                        {Icon && <Icon size={18} strokeWidth={2.5} />}
+                    </div>
+                </div>
+                <div className="ent-card-value">{val}</div>
+                <div style={{ fontSize: '13px', fontWeight: 500, color: 'var(--ent-text-secondary)', marginBottom: '12px' }}>
+                    {subtitle || trendValue || 'Active Tracking'}
+                </div>
+            </div>
+            
+            <div>
+                <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'currentColor' }}></div>
+                    Updated Today
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const SecuritySettings = () => {
     const [searchTerm, setSearchTerm] = useState('');
 
@@ -64,73 +94,50 @@ const SecuritySettings = () => {
 
             {/* KPI Cards */}
             <div className="sec-kpi-grid">
-                {/* Total Events */}
-                <div className="sec-kpi-card purple">
-                    <div className="sec-kpi-top">
-                        <span className="sec-kpi-title">TOTAL EVENTS (24H)</span>
-                        <div className="sec-kpi-arrow"><ArrowUpRight size={14} /></div>
-                    </div>
-                    <div className="sec-kpi-content">
-                        <div className="sec-kpi-info">
-                            <h3>12</h3>
-                            <p>Across all modules</p>
-                        </div>
-                        <div className="sec-kpi-icon-large">
-                            <Users size={48} />
-                        </div>
-                    </div>
-                </div>
+                <SecurityKPICard 
+                    title="TOTAL EVENTS (24H)"
+                    val="12"
+                    subtitle="Across all modules"
+                    icon={Target}
+                    color="purple"
+                    trendValue="Active"
+                />
 
-                {/* Failed Logins */}
-                <div className="sec-kpi-card pink">
-                    <div className="sec-kpi-top">
-                        <span className="sec-kpi-title">FAILED LOGINS</span>
-                        <div className="sec-kpi-arrow"><ArrowUpRight size={14} /></div>
-                    </div>
-                    <div className="sec-kpi-content">
-                        <div className="sec-kpi-info">
-                            <h3>2</h3>
-                            <p>Flagged for review</p>
-                        </div>
-                        <div className="sec-kpi-icon-large">
-                            <FileText size={48} />
-                        </div>
-                    </div>
-                </div>
+                <SecurityKPICard 
+                    title="TOTAL LOGINS"
+                    val="4"
+                    subtitle="System access events"
+                    icon={Users}
+                    color="green"
+                    trendValue="Active"
+                />
 
-                {/* Records Created */}
-                <div className="sec-kpi-card blue">
-                    <div className="sec-kpi-top">
-                        <span className="sec-kpi-title">RECORDS CREATED</span>
-                        <div className="sec-kpi-arrow"><ArrowUpRight size={14} /></div>
-                    </div>
-                    <div className="sec-kpi-content">
-                        <div className="sec-kpi-info">
-                            <h3>2</h3>
-                            <p>New entries added</p>
-                        </div>
-                        <div className="sec-kpi-icon-large">
-                            <Target size={48} />
-                        </div>
-                    </div>
-                </div>
+                <SecurityKPICard 
+                    title="RECORDS UPDATED"
+                    val="5"
+                    subtitle="Modified recently"
+                    icon={FileText}
+                    color="purple"
+                    trendValue="Recent"
+                />
 
-                {/* Records Deleted */}
-                <div className="sec-kpi-card yellow">
-                    <div className="sec-kpi-top">
-                        <span className="sec-kpi-title">RECORDS DELETED</span>
-                        <div className="sec-kpi-arrow"><ArrowUpRight size={14} /></div>
-                    </div>
-                    <div className="sec-kpi-content">
-                        <div className="sec-kpi-info">
-                            <h3>1</h3>
-                            <p>Removed by admins</p>
-                        </div>
-                        <div className="sec-kpi-icon-large">
-                            <Shield size={48} />
-                        </div>
-                    </div>
-                </div>
+                <SecurityKPICard 
+                    title="RECORDS CREATED"
+                    val="2"
+                    subtitle="New entries added"
+                    icon={Target}
+                    color="blue"
+                    trendValue="Recent"
+                />
+
+                <SecurityKPICard 
+                    title="RECORDS DELETED"
+                    val="1"
+                    subtitle="Removed by admins"
+                    icon={Shield}
+                    color="orange"
+                    trendValue="Alert"
+                />
             </div>
 
             {/* Logs List Section */}

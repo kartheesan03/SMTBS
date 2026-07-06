@@ -107,6 +107,7 @@ const FarmakuSidebar = () => {
             ) : (
                 <NavLink
                     to={item.path}
+                    end={item.path === '/'}
                     className={({ isActive }) => isActive ? "farmaku-nav-item active" : "farmaku-nav-item"}
                 >
                     {renderIcon(item.icon, item.title)}
@@ -123,9 +124,10 @@ const FarmakuSidebar = () => {
             <div className="farmaku-sidebar-header">
                 <div className="farmaku-logo-container">
                     <div className="farmaku-logo-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M12 2l8 4.5v9L12 22l-8-4.5v-9L12 2z" opacity="0.3"/>
-                            <path d="M9 9l3-2 3 2v4l-3 2-3-2z" fill="currentColor"/>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                            <polygon points="12 2 22 8.5 12 15 2 8.5 12 2" fill="currentColor" opacity="0.9"/>
+                            <polyline points="2 14 12 20.5 22 14" opacity="0.6"/>
+                            <polyline points="2 11 12 17.5 22 11" opacity="0.35"/>
                         </svg>
                     </div>
                     <div className="farmaku-logo-text-wrapper">

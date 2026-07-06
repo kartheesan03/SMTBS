@@ -30,10 +30,13 @@
 
 /* Stat Cards */
 .farmaku-stats-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    display: flex;
+    flex-wrap: wrap;
     gap: 20px;
     margin-bottom: 24px;
+}
+.farmaku-stats-grid > * {
+    flex: 1 1 250px;
 }
 
 .farmaku-stat-card {
@@ -77,10 +80,16 @@
 
 /* Charts Area Grid */
 .farmaku-charts-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
+    display: flex;
+    flex-wrap: wrap;
     gap: 24px;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
+}
+.farmaku-charts-grid > *:first-child {
+    flex: 2 1 400px;
+}
+.farmaku-charts-grid > *:last-child {
+    flex: 1 1 300px;
 }
 
 /* Common Card Style */
@@ -115,9 +124,15 @@
 
 /* Bottom Grid */
 .farmaku-bottom-grid {
-    display: grid;
-    grid-template-columns: 1fr 2fr;
+    display: flex;
+    flex-wrap: wrap;
     gap: 24px;
+}
+.farmaku-bottom-grid > *:first-child {
+    flex: 1 1 300px;
+}
+.farmaku-bottom-grid > *:last-child {
+    flex: 2 1 400px;
 }
 
 /* Table Styles */
@@ -175,14 +190,9 @@
 
 /* Responsive adjustments */
 @media (max-width: 1024px) {
-    .farmaku-charts-grid,
-    .farmaku-bottom-grid {
-        grid-template-columns: 1fr;
-    }
+    /* Flexbox handles responsiveness automatically now */
 }
 
 @media (max-width: 768px) {
-    .farmaku-stats-grid {
-        grid-template-columns: 1fr;
-    }
+    /* Flexbox handles responsiveness automatically now */
 }

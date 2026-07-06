@@ -128,8 +128,8 @@ const CustomerNewOrder = () => {
             <header className="module-header glass-card">
                 <div className="header-top">
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                        <button className="btn-icon" onClick={() => navigate('/')} style={{ background: 'var(--bg-hover)', border: 'none', borderRadius: '50%', padding: '8px', cursor: 'pointer', color: 'var(--text-primary)' }}>
-                            <ArrowLeft size={20} />
+                        <button className="rd-back-btn icon-only" onClick={() => navigate('/')}>
+                            <ArrowLeft size={18} />
                         </button>
                         <div>
                             <h1>Create New Order</h1>

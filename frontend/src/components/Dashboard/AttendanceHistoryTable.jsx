@@ -3,7 +3,7 @@ import API from '../../api/axios';
 import { Calendar, Search, Filter, Download, CheckCircle, XCircle, Clock, Loader } from 'lucide-react';
 import ExcelJS from 'exceljs';
 
-const AttendanceHistoryTable = ({ isEmployeeView = false }) => {
+const AttendanceHistoryTable = ({ isEmployeeView = false, hideHeader = false }) => {
     const [logs, setLogs] = useState([]);
     const [loading, setLoading] = useState(true);
     
@@ -148,48 +148,52 @@ const AttendanceHistoryTable = ({ isEmployeeView = false }) => {
     };
 
     return (
-        <div className="attendance-history-card glass-card">
-            <div className="ah-header">
-                <h3>{isEmployeeView ? 'My Attendance History' : 'Employee Attendance History'}</h3>
-                <button className="btn-primary flex-center gap-10" onClick={handleExport} disabled={loading || logs.length === 0}>
-                    <Download size={16} /> Export
-                </button>
-            </div>
-            
-            <div className="ah-filters">
-                <div className="filter-group">
-                    <Calendar size={16} className="filter-icon" />
-                    <input type="date" name="fromDate" value={filters.fromDate} onChange={handleFilterChange} title="From Date" />
-                    <span style={{ color: 'var(--text-muted)' }}>-</span>
-                    <input type="date" name="toDate" value={filters.toDate} onChange={handleFilterChange} title="To Date" />
-                </div>
-
-                {!isEmployeeView && (
-                    <>
-                        <div className="filter-group search-group">
-                            <Search size={16} className="filter-icon" />
-                            <input type="text" name="employeeName" placeholder="Search employee..." value={filters.employeeName} onChange={handleFilterChange} />
+        <div className={`attendance-history-card ${hideHeader ? '' : 'glass-card'}`}>
+            {!hideHeader && (
+                <>
+                    <div className="ah-header">
+                        <h3>{isEmployeeView ? 'My Attendance History' : 'Employee Attendance History'}</h3>
+                        <button className="btn-primary flex-center gap-10" onClick={handleExport} disabled={loading || logs.length === 0}>
+                            <Download size={16} /> Export
+                        </button>
+                    </div>
+                    
+                    <div className="ah-filters">
+                        <div className="filter-group">
+                            <Calendar size={16} className="filter-icon" />
+                            <input type="date" name="fromDate" value={filters.fromDate} onChange={handleFilterChange} title="From Date" />
+                            <span style={{ color: 'var(--text-muted)' }}>-</span>
+                            <input type="date" name="toDate" value={filters.toDate} onChange={handleFilterChange} title="To Date" />
                         </div>
+
+                        {!isEmployeeView && (
+                            <>
+                                <div className="filter-group search-group">
+                                    <Search size={16} className="filter-icon" />
+                                    <input type="text" name="employeeName" placeholder="Search employee..." value={filters.employeeName} onChange={handleFilterChange} />
+                                </div>
+                                <div className="filter-group">
+                                    <Filter size={16} className="filter-icon" />
+                                    <select name="department" value={filters.department} onChange={handleFilterChange}>
+                                        {departments.map(d => <option key={d} value={d}>{d}</option>)}
+                                    </select>
+                                </div>
+                            </>
+                        )}
+
                         <div className="filter-group">
                             <Filter size={16} className="filter-icon" />
-                            <select name="department" value={filters.department} onChange={handleFilterChange}>
-                                {departments.map(d => <option key={d} value={d}>{d}</option>)}
+                            <select name="status" value={filters.status} onChange={handleFilterChange}>
+                                <option value="All">All Statuses</option>
+                                <option value="Present">Present</option>
+                                <option value="Late">Late</option>
+                                <option value="On Leave">On Leave</option>
+                                <option value="Absent">Absent</option>
                             </select>
                         </div>
-                    </>
-                )}
-
-                <div className="filter-group">
-                    <Filter size={16} className="filter-icon" />
-                    <select name="status" value={filters.status} onChange={handleFilterChange}>
-                        <option value="All">All Statuses</option>
-                        <option value="Present">Present</option>
-                        <option value="Late">Late</option>
-                        <option value="On Leave">On Leave</option>
-                        <option value="Absent">Absent</option>
-                    </select>
-                </div>
-            </div>
+                    </div>
+                </>
+            )}
 
             <div className="ah-body">
                 {loading ? (

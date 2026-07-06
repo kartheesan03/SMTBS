@@ -118,7 +118,7 @@ const Leads = () => {
                         <div className="rd-table-actions" style={{flexWrap: 'wrap'}}>
                             <div className="rd-search-bar" style={{minWidth: 250, flexShrink: 0, background: '#f8fafc'}}>
                                 <Search size={16} color="#94a3b8" />
-                                <input type="text" className="rd-search-input" placeholder="Search lead..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+                                <input type="text" className="rd-search-input" placeholder="Search..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
                             </div>
                             <select 
                                 value={activeFilter} 
@@ -226,32 +226,28 @@ const LeadKPICard = ({ title, val, trend, color, icon: Icon, data }) => {
     const barColors = { blue: '#93c5fd', red: '#fca5a5', purple: '#d8b4fe', green: '#99f6e4' };
     const valColors = { blue: '#1d4ed8', red: '#dc2626', purple: '#7e22ce', green: '#0f766e' };
 
-    return (
-        <div style={{
-            background: gradients[color], borderRadius: 16, padding: 20, position: 'relative', overflow: 'hidden',
-            border: '1px solid rgba(0,0,0,0.04)', minHeight: 130, boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
-        }}>
-            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start'}}>
-                <div style={{display: 'flex', flexDirection: 'column', gap: 12}}>
-                    <div style={{width: 40, height: 40, borderRadius: 10, background: iconBgs[color], display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                        <Icon size={20} color={iconColors[color]} />
-                    </div>
-                    <div>
-                        <div style={{fontSize: 28, fontWeight: 800, color: valColors[color], lineHeight: 1}}>{val}</div>
-                        <div style={{fontSize: 13, fontWeight: 600, color: '#1e293b', marginTop: 6}}>{title}</div>
+    
+    const themeClass = color ? `ent-theme-${color}` : 'ent-theme-primary';
+return (
+        <div className={`ent-module-card ${typeof themeClass !== 'undefined' ? themeClass : (color ? `ent-theme-${color}` : 'ent-theme-primary')}`}>
+            <div>
+                <div className="ent-card-header">
+                    <span className="ent-card-title">{title}</span>
+                    <div className="ent-card-icon-wrapper">
+                        {Icon && <Icon size={18} strokeWidth={2.5} />}
                     </div>
                 </div>
-                <div style={{width: 80, height: 50}}>
-                    <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={data}>
-                            <Bar dataKey="v" fill={barColors[color]} radius={[2,2,0,0]} />
-                        </BarChart>
-                    </ResponsiveContainer>
+                <div className="ent-card-value">{val}</div>
+                <div style={{ fontSize: '13px', fontWeight: 500, color: 'var(--ent-text-secondary)', marginBottom: '12px' }}>
+                    {'Monitoring Level'}
                 </div>
             </div>
-            <div style={{display: 'flex', alignItems: 'center', gap: 6, marginTop: 10}}>
-                <span style={{fontSize: 12, fontWeight: 700, color: iconColors[color]}}>↗ {trend}</span>
-                <span style={{fontSize: 12, color: '#64748b', fontWeight: 500}}>vs last month</span>
+            
+            <div>
+                <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'currentColor' }}></div>
+                    Updated Today
+                </div>
             </div>
         </div>
     );

@@ -14,6 +14,36 @@ import {
 import { motion } from 'framer-motion';
 import './ReportsRedesign.css';
 
+import '../components/AdminDashboard/AdminDashboardRedesign.css';
+
+const ReportKPICard = ({ title, val, isUp, trend, subtitle, icon: Icon, color }) => {
+    const themeClass = color ? `ent-theme-${color === 'green' ? 'success' : color === 'red' ? 'danger' : color === 'orange' ? 'warning' : 'primary'}` : 'ent-theme-primary';
+
+    return (
+        <div className={`ent-module-card ${typeof themeClass !== 'undefined' ? themeClass : (color ? `ent-theme-${color}` : 'ent-theme-primary')}`}>
+            <div>
+                <div className="ent-card-header">
+                    <span className="ent-card-title">{title}</span>
+                    <div className="ent-card-icon-wrapper">
+                        {Icon && <Icon size={18} strokeWidth={2.5} />}
+                    </div>
+                </div>
+                <div className="ent-card-value">{val}</div>
+                <div style={{ fontSize: '13px', fontWeight: 500, color: 'var(--ent-text-secondary)', marginBottom: '12px' }}>
+                    {subtitle || trendValue || 'Active Tracking'}
+                </div>
+            </div>
+            
+            <div>
+                <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'currentColor' }}></div>
+                    Updated Today
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const Reports = () => {
     const [activeTab, setActiveTab] = useState('Overview');
     const [loading, setLoading] = useState(true);
@@ -200,28 +230,17 @@ const Reports = () => {
                         transition={{ delay: 0.1, duration: 0.4 }}
                         className="kpi-cards-grid"
                     >
-                        {kpis.map((kpi, index) => (
-                            <div key={index} className={`rd-kpi-card ${kpi.color}`}>
-                                <div className="kpi-top">
-                                    <div className="kpi-icon-box">
-                                        {kpi.icon}
-                                    </div>
-                                    {kpi.trend > 0 && (
-                                        <div className={`kpi-trend ${kpi.isUp ? 'up' : 'down'}`}>
-                                            {kpi.isUp ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
-                                            {kpi.trend}%
-                                        </div>
-                                    )}
-                                </div>
-                                <div className="kpi-content">
-                                    <h3>{kpi.value}</h3>
-                                    <p className="kpi-title">{kpi.title}</p>
-                                    <div className="kpi-mini-bar-bg">
-                                        <div className="kpi-mini-bar-fill" style={{ width: `${Math.min(100, (kpi.trend || 0) * 5 + 50)}%` }}></div>
-                                    </div>
-                                    <p className="kpi-subtitle">{kpi.subtitle}</p>
-                                </div>
-                            </div>
+                        {kpis.map((kpi, idx) => (
+                            <ReportKPICard 
+                                key={idx}
+                                title={kpi.title}
+                                val={kpi.value}
+                                subtitle={kpi.subtitle}
+                                icon={kpi.icon.type}
+                                color={kpi.color}
+                                trend={kpi.trend}
+                                isUp={kpi.isUp}
+                            />
                         ))}
                     </motion.div>
 

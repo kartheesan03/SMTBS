@@ -77,6 +77,8 @@ import ErrorBoundary from './components/ErrorBoundary';
 const CompleteCustomerProfile = React.lazy(() => import('./pages/CompleteCustomerProfile'));
 const CompleteVendorProfile = React.lazy(() => import('./pages/CompleteVendorProfile'));
 const ComingSoonPage = React.lazy(() => import('./pages/ComingSoonPage'));
+const TaskCalendar = React.lazy(() => import('./pages/TaskCalendar'));
+const Projects = React.lazy(() => import('./pages/Projects'));
 const CustomerDashboard = React.lazy(() => import('./pages/CustomerDashboard'));
 const VendorDashboard = React.lazy(() => import('./pages/VendorDashboard'));
 const RevenueDashboard = React.lazy(() => import('./pages/RevenueDashboard'));
@@ -301,11 +303,11 @@ const AppContent = () => {
                     <Route path="/erp/finance" element={<ProtectedRoute><FinancialOperations /></ProtectedRoute>} />
                     <Route path="/erp/assets" element={<ProtectedRoute><ComingSoonPage title="Assets" /></ProtectedRoute>} />
                     
-                    <Route path="/tasks/assigned" element={<ProtectedRoute><ComingSoonPage title="Assigned Tasks" /></ProtectedRoute>} />
-                    <Route path="/tasks/completed" element={<ProtectedRoute><ComingSoonPage title="Completed Tasks" /></ProtectedRoute>} />
-                    <Route path="/tasks/pending" element={<ProtectedRoute><ComingSoonPage title="Pending Tasks" /></ProtectedRoute>} />
-                    <Route path="/tasks/calendar" element={<ProtectedRoute><ComingSoonPage title="Task Calendar" /></ProtectedRoute>} />
-                    <Route path="/projects" element={<ProtectedRoute><ComingSoonPage title="Projects" subtitle="Project management module is coming soon" /></ProtectedRoute>} />
+                    <Route path="/tasks/assigned" element={<ProtectedRoute><MyTasks /></ProtectedRoute>} />
+                    <Route path="/tasks/completed" element={<ProtectedRoute><MyTasks /></ProtectedRoute>} />
+                    <Route path="/tasks/pending" element={<ProtectedRoute><MyTasks /></ProtectedRoute>} />
+                    <Route path="/tasks/calendar" element={<ProtectedRoute><TaskCalendar /></ProtectedRoute>} />
+                    <Route path="/projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
                     
                     <Route path="/support/history" element={<ProtectedRoute><ComingSoonPage title="Ticket History" /></ProtectedRoute>} />
                     <Route path="/support/kb" element={<ProtectedRoute><ComingSoonPage title="Knowledge Base" /></ProtectedRoute>} />

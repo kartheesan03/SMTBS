@@ -327,43 +327,28 @@ const FinancialOperations = () => {
 };
 
 const FinKPICard = ({ title, val, trend, subtitle, subtitleColor, color, icon: Icon, data }) => {
-    const gradients = {
-        green: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)',
-        blue: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
-        red: 'linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%)',
-        orange: 'linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)'
-    };
-    const iconBgs = { green: '#d1fae5', blue: '#dbeafe', red: '#ffe4e6', orange: '#ffedd5' };
-    const iconColors = { green: '#10b981', blue: '#3b82f6', red: '#ef4444', orange: '#f59e0b' };
-    const barColors = { green: '#6ee7b7', blue: '#93c5fd', red: '#fca5a5', orange: '#fdba74' };
-    const valColors = { green: '#059669', blue: '#1d4ed8', red: '#dc2626', orange: '#ea580c' };
-
+    const themeClass = color ? `ent-theme-${color === 'green' ? 'success' : color === 'red' ? 'danger' : color === 'orange' ? 'warning' : 'primary'}` : 'ent-theme-primary';
+    
     return (
-        <div style={{
-            background: gradients[color], borderRadius: 16, padding: 20, position: 'relative', overflow: 'hidden',
-            border: '1px solid rgba(0,0,0,0.04)', minHeight: 130, boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
-        }}>
-            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start'}}>
-                <div style={{display: 'flex', flexDirection: 'column', gap: 12}}>
-                    <div style={{width: 40, height: 40, borderRadius: 10, background: iconBgs[color], display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                        <Icon size={20} color={iconColors[color]} />
-                    </div>
-                    <div>
-                        <div style={{fontSize: 28, fontWeight: 800, color: valColors[color], lineHeight: 1}}>{val}</div>
-                        <div style={{fontSize: 13, fontWeight: 600, color: '#475569', marginTop: 6}}>{title}</div>
+        <div className={`ent-module-card ${typeof themeClass !== 'undefined' ? themeClass : (color ? `ent-theme-${color}` : 'ent-theme-primary')}`}>
+            <div>
+                <div className="ent-card-header">
+                    <span className="ent-card-title">{title}</span>
+                    <div className="ent-card-icon-wrapper">
+                        {Icon && <Icon size={18} strokeWidth={2.5} />}
                     </div>
                 </div>
-                <div style={{width: 80, height: 50}}>
-                    <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={data}>
-                            <Bar dataKey="v" fill={barColors[color]} radius={[2,2,0,0]} />
-                        </BarChart>
-                    </ResponsiveContainer>
+                <div className="ent-card-value">{val}</div>
+                <div style={{ fontSize: '13px', fontWeight: 500, color: 'var(--ent-text-secondary)', marginBottom: '12px' }}>
+                    {subtitle || trendValue || 'Active Tracking'}
                 </div>
             </div>
-            <div style={{display: 'flex', alignItems: 'center', gap: 6, marginTop: 10}}>
-                {trend && <span style={{fontSize: 12, fontWeight: 700, color: iconColors[color]}}>↗ {trend}</span>}
-                <span style={{fontSize: 12, color: subtitleColor || '#94a3b8'}}>{subtitle}</span>
+            
+            <div>
+                <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'currentColor' }}></div>
+                    Updated Today
+                </div>
             </div>
         </div>
     );

@@ -36,11 +36,13 @@
 
 .cmd-input-container input {
     flex: 1;
-    border: none;
-    outline: none;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
     font-size: 18px;
     color: #0f172a;
-    background: transparent;
+    background: transparent !important;
+    padding: 0 !important;
 }
 
 .cmd-input-container input::placeholder {

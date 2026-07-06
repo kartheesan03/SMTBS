@@ -1,9 +1,40 @@
 import React, { useState, useEffect } from 'react';
 import API from '../api/axios';
 import toast from 'react-hot-toast';
-import { Database, Download, ArrowUpRight, CloudDownload, Trash2, ShieldAlert, FileText, Settings, AlertTriangle, RefreshCw } from 'lucide-react';
-import './BackupRestore.css';
+import { 
+    Database, Download, RefreshCw, Upload, ShieldCheck, Server, AlertCircle, FileText, CheckCircle, Clock, Trash2, ShieldAlert, ArrowUpRight, CheckSquare 
+} from 'lucide-react';
 
+import './BackupRestore.css';
+import '../components/AdminDashboard/AdminDashboardRedesign.css';
+
+const BackupKPICard = ({ title, val, subtitle, icon: Icon, color, trendValue }) => {
+    const themeClass = color ? `ent-theme-${color === 'green' ? 'success' : color === 'red' ? 'danger' : color === 'orange' ? 'warning' : color === 'purple' ? 'purple' : 'primary'}` : 'ent-theme-primary';
+
+    return (
+        <div className={`ent-module-card ${typeof themeClass !== 'undefined' ? themeClass : (color ? `ent-theme-${color}` : 'ent-theme-primary')}`}>
+            <div>
+                <div className="ent-card-header">
+                    <span className="ent-card-title">{title}</span>
+                    <div className="ent-card-icon-wrapper">
+                        {Icon && <Icon size={18} strokeWidth={2.5} />}
+                    </div>
+                </div>
+                <div className="ent-card-value">{val}</div>
+                <div style={{ fontSize: '13px', fontWeight: 500, color: 'var(--ent-text-secondary)', marginBottom: '12px' }}>
+                    {subtitle || trendValue || 'Active Tracking'}
+                </div>
+            </div>
+            
+            <div>
+                <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'currentColor' }}></div>
+                    Updated Today
+                </div>
+            </div>
+        </div>
+    );
+};
 const BackupRestore = () => {
     const [autoBackup, setAutoBackup] = useState(true);
     const [historyData, setHistoryData] = useState([]);
@@ -122,53 +153,41 @@ const BackupRestore = () => {
 
             {/* KPI Cards */}
             <div className="backup-kpi-grid">
-                <div className="backup-kpi-card kpi-green">
-                    <div className="kpi-top">
-                        <span className="kpi-title">LAST SUCCESSFUL BACKUP</span>
-                        <div className="kpi-arrow"><ArrowUpRight size={16} /></div>
-                    </div>
-                    <div className="kpi-value">
-                        <div className="kpi-main">{lastBackupInfo.date.replace(/ /g, '\n')}</div>
-                        <div className="kpi-sub">{lastBackupInfo.time}</div>
-                    </div>
-                    <div className="kpi-bg-icon kpi-bg-database"></div>
-                </div>
+                <BackupKPICard 
+                    title="TOTAL BACKUPS"
+                    val={stats.totalBackups || 0}
+                    subtitle="In repository"
+                    icon={Database}
+                    color="blue"
+                    trendValue="Active"
+                />
 
-                <div className="backup-kpi-card kpi-teal">
-                    <div className="kpi-top">
-                        <span className="kpi-title">TOTAL STORAGE USED</span>
-                        <div className="kpi-arrow"><ArrowUpRight size={16} /></div>
-                    </div>
-                    <div className="kpi-value">
-                        <div className="kpi-main">{stats.storageUsed.replace(' ', '\n')}</div>
-                        <div className="kpi-sub">{stats.totalBackups} snapshots stored</div>
-                    </div>
-                    <div className="kpi-bg-icon kpi-bg-storage"></div>
-                </div>
+                <BackupKPICard 
+                    title="LAST BACKUP"
+                    val={lastBackupInfo.date}
+                    subtitle={`At ${lastBackupInfo.time}`}
+                    icon={Clock}
+                    color="green"
+                    trendValue="Healthy"
+                />
 
-                <div className="backup-kpi-card kpi-blue">
-                    <div className="kpi-top">
-                        <span className="kpi-title">BACKUP FREQUENCY</span>
-                        <div className="kpi-arrow"><ArrowUpRight size={16} /></div>
-                    </div>
-                    <div className="kpi-value">
-                        <div className="kpi-main-single">Daily</div>
-                        <div className="kpi-sub">Automated backups on</div>
-                    </div>
-                    <div className="kpi-bg-icon kpi-bg-stack"></div>
-                </div>
+                <BackupKPICard 
+                    title="STORAGE USED"
+                    val={stats.storageUsed || '0 MB'}
+                    subtitle="Of 50 GB limit"
+                    icon={Server}
+                    color="purple"
+                    trendValue="Optimal"
+                />
 
-                <div className="backup-kpi-card kpi-purple">
-                    <div className="kpi-top">
-                        <span className="kpi-title">RETENTION POLICY</span>
-                        <div className="kpi-arrow"><ArrowUpRight size={16} /></div>
-                    </div>
-                    <div className="kpi-value">
-                        <div className="kpi-main-single">30<br/>days</div>
-                        <div className="kpi-sub">Older backups auto-purged</div>
-                    </div>
-                    <div className="kpi-bg-icon kpi-bg-circle"></div>
-                </div>
+                <BackupKPICard 
+                    title="SYSTEM HEALTH"
+                    val="99.9%"
+                    subtitle="Uptime"
+                    icon={ShieldCheck}
+                    color="orange"
+                    trendValue="Protected"
+                />
             </div>
 
             {/* Main Content */}

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, Save, FileText } from 'lucide-react';
+import { ArrowLeft, Save, FileText } from 'lucide-react';
 import './StandardPageLayout.css';
 
 const StandardPageLayout = ({ 
@@ -29,8 +29,8 @@ const StandardPageLayout = ({
         <div className="standard-page-container">
             <div className="standard-page-header-wrapper">
                 <div className="standard-page-breadcrumbs">
-                    <button className="breadcrumb-back-btn" onClick={handleBack}>
-                        <ChevronLeft size={16} /> Back
+                    <button className="rd-back-btn" onClick={handleBack} style={{ marginLeft: '-12px', marginRight: '8px' }}>
+                        <ArrowLeft size={16} /> Back
                     </button>
                     {breadcrumbs.map((crumb, index) => (
                         <React.Fragment key={index}>

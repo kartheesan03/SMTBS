@@ -185,8 +185,8 @@ const OrderTracking = () => {
             className="tracking-page"
         >
             <header className="page-header">
-                <button className="back-btn" onClick={() => navigate('/erp')}>
-                    <ArrowLeft size={18} />
+                <button className="rd-back-btn" onClick={() => navigate('/erp')}>
+                    <ArrowLeft size={16} />
                     <span>Back to Orders</span>
                 </button>
             </header>

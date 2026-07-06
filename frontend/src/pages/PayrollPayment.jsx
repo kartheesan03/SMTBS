@@ -126,7 +126,7 @@ const PayrollPayment = () => {
                     <AlertCircle size={48} style={{ color: '#ef4444', marginBottom: '16px' }} />
                     <h2 style={{ color: '#0f172a', fontSize: '20px', marginBottom: '8px' }}>Payroll Record Not Found</h2>
                     <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '24px' }}>The requested payroll record does not exist or has been deleted.</p>
-                    <button onClick={() => navigate('/payroll')} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 24px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>
+                    <button onClick={() => navigate('/payroll')} className="rd-back-btn" style={{ background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', padding: '10px 24px', margin: '0 auto' }}>
                         <ArrowLeft size={16} /> Back to Payroll
                     </button>
                 </div>
@@ -180,7 +180,7 @@ const PayrollPayment = () => {
                     </div>
 
                     <div style={{ padding: '16px 28px 28px', display: 'flex', gap: '12px' }}>
-                        <button onClick={() => navigate('/payroll')} style={{ flex: 1, padding: '12px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                        <button onClick={() => navigate('/payroll')} className="rd-back-btn" style={{ background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', padding: '12px', flex: 1, justifyContent: 'center' }}>
                             <ArrowLeft size={16} /> Back to Payroll
                         </button>
                     </div>
@@ -207,10 +207,8 @@ const PayrollPayment = () => {
 
             {/* Back Button + Title */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
-                <button onClick={() => navigate('/payroll')} style={{ width: '40px', height: '40px', borderRadius: '10px', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#475569', transition: 'all 0.2s' }}
-                    onMouseEnter={e => { e.currentTarget.style.background = '#f1f5f9'; e.currentTarget.style.color = '#0f172a'; }}
-                    onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.color = '#475569'; }}>
-                    <ArrowLeft size={20} />
+                <button onClick={() => navigate('/payroll')} className="rd-back-btn icon-only">
+                    <ArrowLeft size={18} />
                 </button>
                 <div>
                     <h1 style={{ fontSize: '22px', fontWeight: 800, color: '#0f172a', margin: '0 0 2px 0', letterSpacing: '-0.5px' }}>Process Salary Payment</h1>

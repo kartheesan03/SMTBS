@@ -33,9 +33,9 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    border-radius: 20px;
+    background: #F9FAFB;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
     padding: 0 16px;
     height: 38px;
     width: 300px;
@@ -44,17 +44,19 @@
 
 .rd-search-bar:focus-within {
     background: #ffffff;
-    border-color: #cbd5e1;
-    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+    border-color: #4F46E5;
+    box-shadow: 0 0 0 3px rgba(79,70,229,0.12);
 }
 
 .rd-search-input {
-    background: transparent;
-    border: none;
-    outline: none;
-    font-size: 14px;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+    font-size: 13.5px !important;
     color: #1e293b;
     width: 100%;
+    padding: 0 !important;
 }
 
 .rd-search-input::placeholder {

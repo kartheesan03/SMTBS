@@ -51,7 +51,7 @@ const SelectVendor = () => {
             <header className="module-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '4px' }}>
-                        <button className="btn-icon" onClick={() => navigate('/orders/select-type')} style={{ background: 'var(--bg-hover)', borderRadius: '50%', padding: '8px' }}>
+                        <button className="rd-back-btn icon-only" onClick={() => navigate('/orders/select-type')}>
                             <ArrowLeft size={18} />
                         </button>
                         <h1 className="header-title" style={{ margin: 0 }}>Select Vendor / Supplier</h1>

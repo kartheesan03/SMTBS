@@ -6,7 +6,7 @@ import {
     Users, Search, Bell, CheckCircle, Calendar, DollarSign,
     Box, Briefcase, Activity, RefreshCw, BarChart2, TrendingUp, AlertTriangle, UserCheck, CheckSquare, ListTodo, Target, Shield, FileText, Quote, LayoutGrid, Clock, Settings, Layers, Cpu, Server, AlertCircle
 } from 'lucide-react';
-import { AreaChart, Area, PieChart, Pie, Cell, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, LineChart, Line, BarChart, Bar } from 'recharts';
+import { AreaChart, Area, PieChart, Pie, Cell, ResponsiveContainer, XAxis, YAxis, Legend, Tooltip, CartesianGrid, LineChart, Line, BarChart, Bar } from 'recharts';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 import CommandCenter from '../components/CommandCenter';
 import { SparklineKPICard, IconQuickAction, MiniStatCard } from './AdminDashboard';
@@ -16,10 +16,12 @@ const ManagerDashboard = () => {
     const { user } = useContext(AuthContext);
     const [isCommandCenterOpen, setIsCommandCenterOpen] = useState(false);
     const [dashboardData, setDashboardData] = useState(null);
+    const [revenueTrendYear, setRevenueTrendYear] = useState('current');
     const [tasks, setTasks] = useState([]);
     const [employeesData, setEmployeesData] = useState([]);
     const [ordersData, setOrdersData] = useState([]);
     const [attendanceData, setAttendanceData] = useState(null);
+    const [upcomingEvents, setUpcomingEvents] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -38,6 +40,28 @@ const ManagerDashboard = () => {
                 setEmployeesData(empRes.data || []);
                 setOrdersData(ordersRes.data || []);
                 setAttendanceData(attRes.data || null);
+                
+                // Process tasks for upcoming events
+                const now = new Date();
+                const futureTasks = (tasksRes.data || [])
+                    .filter(t => t.dueDate && new Date(t.dueDate) >= now)
+                    .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
+                    .slice(0, 3)
+                    .map(t => {
+                        const d = new Date(t.dueDate);
+                        let col = '#4f46e5'; let bg = '#e0e7ff';
+                        if (t.priority === 'High') { col = '#ef4444'; bg = '#fee2e2'; }
+                        if (t.priority === 'Low') { col = '#10b981'; bg = '#d1fae5'; }
+                        return {
+                            day: String(d.getDate()).padStart(2, '0'),
+                            month: d.toLocaleString('default', { month: 'short' }).toUpperCase(),
+                            bg,
+                            col,
+                            title: t.title,
+                            desc: `${d.getDate()} ${d.toLocaleString('default', { month: 'long' })} • ${d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`
+                        };
+                    });
+                setUpcomingEvents(futureTasks);
             } catch (err) {
                 console.error("Failed to load dashboard data", err);
             } finally {
@@ -59,7 +83,7 @@ const ManagerDashboard = () => {
     }, []);
 
     if (loading) {
-        return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: '#64748b' }}>Loading Manager dashboard data...</div>;
+        return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: '#64748b' }}>Loading your dashboard...</div>;
     }
 
     const getGreeting = () => {
@@ -93,48 +117,44 @@ const ManagerDashboard = () => {
                 
                 {/* ── 1. Hero Banner ── */}
                 <div className="rd-hero">
-                    <div className="rd-hero-bg-chart"></div>
                     <div className="rd-hero-left">
                         <div className="rd-hero-avatar-wrapper">
-                            <img src={user?.picture || `https://ui-avatars.com/api/?name=${user?.name || 'Manager'}&background=f59e0b&color=fff`} alt="Profile" className="rd-hero-avatar" style={{ borderColor: '#f59e0b' }} />
+                            <img src={user?.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'Manager')}&background=D97706&color=fff`} alt="Profile" className="rd-hero-avatar" />
                             <div className="rd-hero-status-dot"></div>
                         </div>
                         <div>
                             <div className="rd-hero-greeting">
-                                {getGreeting()}, {user?.name?.split(' ')[0] || 'Manager'} <span role="img" aria-label="wave">👋</span>
+                                {getGreeting()}, {user?.name?.split(' ')[0] || 'Manager'} 👋
                             </div>
-                            <div className="rd-hero-subtitle">Here is your team's performance overview today.</div>
+                            <div className="rd-hero-subtitle">
+                                {new Date().toLocaleDateString('en-IN', {weekday:'long', day:'numeric', month:'long', year:'numeric'})} &nbsp;·&nbsp; Team Performance Overview
+                            </div>
                             <div className="rd-hero-badges">
-                                <span className="rd-hero-badge badge-blue">
-                                    <Target size={14} /> Department Manager
-                                </span>
-                                <span className="rd-hero-badge badge-blue" style={{background: '#f8fafc', border: '1px solid #e2e8f0', color: '#475569'}}>
-                                    <FileText size={14} /> {user?.email || 'manager@smtbms.com'}
-                                </span>
-                                <span className="rd-hero-badge badge-green" style={{background: '#f8fafc', border: '1px solid #e2e8f0', color: '#10b981'}}>
-                                    <div style={{width:8,height:8,background:'#10b981',borderRadius:'50%'}}></div> Online
-                                </span>
+                                <span className="rd-hero-badge badge-blue"><Target size={12} /> Manager</span>
+                                <span className="rd-hero-badge badge-blue" style={{background:'rgba(255,255,255,0.15)'}}>Team: {myTeamSize} Members</span>
+                                <span className="rd-hero-badge badge-green">🟢 {activeProjects} Active Projects</span>
                             </div>
                         </div>
                     </div>
                     <div className="rd-hero-right-actions">
                         <button className="hero-action-btn primary" onClick={() => navigate('/attendance')}>
-                            <Clock size={16} /> Check In
+                            <Clock size={15} /> Check In
                         </button>
-                        <button className="hero-action-btn secondary" onClick={() => navigate('/leave-management/approve')}>
-                            <CheckCircle size={16} /> Leave Approval
+                        <button className="hero-action-btn secondary" onClick={() => navigate('/leave-management')}>
+                            <CheckCircle size={15} /> Apply Leave
                         </button>
                     </div>
                 </div>
 
+
                 {/* ── 2. KPI Row (6 columns) ── */}
                 <div className="rd-kpi-row">
-                    <SparklineKPICard title="Team Members" value={myTeamSize} trend="up" trendValue="1 new" icon={Users} colorClass="icon-blue" />
-                    <SparklineKPICard title="Active Projects" value={activeProjects} trend="up" trendValue="On Track" icon={Briefcase} colorClass="icon-purple" />
-                    <SparklineKPICard title="Completed Tasks" value={completedTasks} trend="up" trendValue="12% vs yesterday" icon={CheckSquare} colorClass="icon-green" />
-                    <SparklineKPICard title="Pending Tasks" value={pendingTasks} trend="down" trendValue="5 due soon" icon={ListTodo} colorClass="icon-orange" />
-                    <SparklineKPICard title="Team Efficiency" value={`${teamProductivity}%`} trend="up" trendValue="Excellent" icon={TrendingUp} colorClass="icon-teal" />
-                    <SparklineKPICard title="Pending Approvals" value={pendingApprovals} trend="neutral" trendValue="Requires Action" icon={AlertCircle} colorClass="icon-pink" />
+                    <SparklineKPICard title="My Team Size" value={myTeamSize} trend="neutral" trendValue="Active members" icon={Users} colorClass="icon-teal" />
+                    <SparklineKPICard title="Active Projects" value={activeProjects} trend="up" trendValue="In progress" icon={Briefcase} colorClass="icon-blue" />
+                    <SparklineKPICard title="Completed Tasks" value={completedTasks} trend="up" trendValue="This week" icon={CheckCircle} colorClass="icon-green" />
+                    <SparklineKPICard title="Pending Tasks" value={pendingTasks} trend="neutral" trendValue="Needs attention" icon={Clock} colorClass="icon-orange" />
+                    <SparklineKPICard title="Pending Approvals" value={pendingApprovals} trend="down" trendValue="Awaiting action" icon={AlertCircle} colorClass="icon-pink" />
+                    <SparklineKPICard title="Team Productivity" value={`${teamProductivity}%`} trend="up" trendValue="Efficiency rate" icon={TrendingUp} colorClass="icon-purple" />
                 </div>
 
                 {/* ── 3. Middle Row (Quick Actions + Mini Stats) ── */}
@@ -149,7 +169,7 @@ const ManagerDashboard = () => {
                             <IconQuickAction icon={CheckSquare} label="Assign Task" colorClass="bg-light-blue" onClick={() => navigate('/tasks')} />
                             <IconQuickAction icon={Briefcase} label="New Project" colorClass="bg-light-purple" onClick={() => navigate('/crm')} />
                             <IconQuickAction icon={BarChart2} label="Team Perf." colorClass="bg-light-green" onClick={() => navigate('/reports')} />
-                            <IconQuickAction icon={Calendar} label="Time Off" colorClass="bg-light-orange" onClick={() => navigate('/leave-management')} />
+                            <IconQuickAction icon={Calendar} label="Apply Leave" colorClass="bg-light-orange" onClick={() => navigate('/leave-management')} />
                             
                             <IconQuickAction icon={CheckCircle} label="Approvals" colorClass="bg-light-pink" onClick={() => navigate('/')} />
                             <IconQuickAction icon={Users} label="My Team" colorClass="bg-light-blue" onClick={() => navigate('/employees')} />
@@ -164,8 +184,11 @@ const ManagerDashboard = () => {
                     </div>
 
                     {/* Right: Mini Stats Grid */}
-                    <div className="dashboard-panel" style={{ display: 'flex', flexDirection: 'column' }}>
-                        <div className="ms-grid" style={{ flex: 1, alignContent: 'center' }}>
+                    <div className="dashboard-panel">
+                        <div className="panel-header">
+                            <div className="panel-title">Manager Summary</div>
+                        </div>
+                        <div className="ms-grid">
                             <MiniStatCard title="Total Team" value={myTeamSize} subValue="Active" icon={Users} colorClass="bg-light-blue" trendColor="#3b82f6" />
                             <MiniStatCard title="On Leave" value={onLeaveCount} subValue="Today" icon={UserCheck} colorClass="bg-light-orange" trendColor="#f59e0b" />
                             <MiniStatCard title="Pending Tasks" value={pendingTasks} subValue="Tasks" icon={AlertTriangle} colorClass="bg-light-red" trendColor="#ef4444" />
@@ -180,61 +203,101 @@ const ManagerDashboard = () => {
 
                 </div>
 
-                {/* ── 4. Chart Row 1 (4 Columns) ── */}
-                <div className="bottom-grid-4">
-                    
+                {/* ── 4. Chart Row 1: Task Trend (wide) + Task Distribution ── */}
+                <div className="rd-chart-row-wide">
                     <div className="dashboard-panel">
                         <div className="panel-header">
-                            <div className="panel-title">Task Completion Trend</div>
-                            <select className="panel-dropdown"><option>This Week</option></select>
+                            <div className="panel-title">Team Performance</div>
+                            <select 
+                                className="panel-dropdown" 
+                                style={{ paddingRight: '24px', width: 'auto' }}
+                                value={revenueTrendYear} 
+                                onChange={(e) => setRevenueTrendYear(e.target.value)}
+                            >
+                                <option value="current">This Year</option>
+                                <option value="last">Last Year</option>
+                            </select>
                         </div>
-                        <div className="chart-container-sm">
+                        <div style={{ height: 220, width: '100%' }}>
                             <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={dashboardData?.charts?.monthlyStats || []}>
-                                    <defs>
-                                        <linearGradient id="colorTask" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
-                                            <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
-                                        </linearGradient>
-                                    </defs>
-                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 9, fill: '#94a3b8'}} dy={10} />
-                                    <YAxis axisLine={false} tickLine={false} tick={{fontSize: 9, fill: '#94a3b8'}} width={40} />
-                                    <Tooltip contentStyle={{fontSize: 10, borderRadius: 8}} />
-                                    <Area type="monotone" dataKey="sales" stroke="#10b981" strokeWidth={2} fillOpacity={1} fill="url(#colorTask)" />
-                                </AreaChart>
+                                <LineChart data={dashboardData?.analytics?.managerTrend || []} margin={{top:4, right:10, left:0, bottom:0}}>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false}/>
+                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 11, fill: '#94a3b8'}} dy={8}/>
+                                    <YAxis axisLine={false} tickLine={false} tick={{fontSize: 11, fill: '#94a3b8'}} width={48} tickFormatter={(val) => val >= 1000 ? `${(val/1000).toFixed(0)}k` : val}/>
+                                    <Tooltip contentStyle={{fontSize: 12, borderRadius: 8, border: '1px solid #e2e8f0'}} />
+                                    <Legend iconType="circle" wrapperStyle={{fontSize: '12px'}} verticalAlign="top" height={36} />
+                                    <Line 
+                                        type="monotone" 
+                                        dataKey={revenueTrendYear === 'current' ? "completedProjects" : "lastCompletedProjects"} 
+                                        name="Completed Projects" 
+                                        stroke="#3b82f6" 
+                                        strokeWidth={2} 
+                                        dot={false} 
+                                        activeDot={{ r: 6 }} 
+                                    />
+                                    <Line 
+                                        type="monotone" 
+                                        dataKey={revenueTrendYear === 'current' ? "pendingProjects" : "lastPendingProjects"} 
+                                        name="Pending Projects" 
+                                        stroke="#f59e0b" 
+                                        strokeWidth={2} 
+                                        dot={false} 
+                                        activeDot={{ r: 6 }} 
+                                    />
+                                    <Line 
+                                        type="monotone" 
+                                        dataKey={revenueTrendYear === 'current' ? "overdueProjects" : "lastOverdueProjects"} 
+                                        name="Overdue Projects" 
+                                        stroke="#10b981" 
+                                        strokeWidth={2} 
+                                        dot={false} 
+                                        activeDot={{ r: 6 }} 
+                                    />
+                                </LineChart>
                             </ResponsiveContainer>
                         </div>
                     </div>
 
                     <div className="dashboard-panel">
                         <div className="panel-header">
-                            <div className="panel-title">Project Status</div>
-                            <select className="panel-dropdown"><option>All Projects</option></select>
+                            <div className="panel-title">Task Distribution</div>
+                            <select className="panel-dropdown" style={{ paddingRight: '24px', width: 'auto' }}>
+                                <option>By Member</option>
+                            </select>
                         </div>
-                        <div className="chart-container-sm" style={{ display: 'flex', alignItems: 'center' }}>
-                            <div style={{ flex: 1, height: '100%' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+                            <div style={{ width: '100%', height: 170 }}>
                                 <ResponsiveContainer width="100%" height="100%">
                                     <PieChart>
-                                        <Pie data={dashboardData?.charts?.crmDonut || []} innerRadius={40} outerRadius={60} dataKey="value">
-                                            {(dashboardData?.charts?.crmDonut || []).map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill={entry.color || '#10b981'} />
-                                            ))}
+                                        <Pie data={dashboardData?.charts?.erpDonut || []} innerRadius={50} outerRadius={75} dataKey="value" cx="50%" cy="50%">
+                                            {(dashboardData?.charts?.erpDonut || []).map((entry, index) => {
+                                                const colors = ['#3b82f6', '#ef4444', '#f59e0b', '#8b5cf6'];
+                                                return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
+                                            })}
                                         </Pie>
-                                        <Tooltip contentStyle={{fontSize: 10}} />
+                                        <Tooltip contentStyle={{fontSize: 12}} />
                                     </PieChart>
                                 </ResponsiveContainer>
                             </div>
-                            <div style={{ width: '80px', fontSize: 10 }}>
-                                {(dashboardData?.charts?.crmDonut || []).map((entry, idx) => (
-                                    <div key={idx} style={{display:'flex', alignItems:'center', gap:4, marginBottom:6}}>
-                                        <div style={{width:8,height:8,borderRadius:'50%',background:entry.color || '#10b981'}}></div> 
-                                        <span><b>{entry.name}</b><br/>{entry.value}</span>
-                                    </div>
-                                ))}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 5, width: '100%' }}>
+                                {(dashboardData?.charts?.erpDonut || []).map((entry, idx) => {
+                                    const colors = ['#3b82f6', '#ef4444', '#f59e0b', '#8b5cf6'];
+                                    return (
+                                        <div key={idx} style={{display:'flex', alignItems:'center', justifyContent:'space-between', fontSize: 11}}>
+                                            <span style={{display:'flex', alignItems:'center', gap:5, color:'#475569'}}>
+                                                <div style={{width:8,height:8,borderRadius:'50%',background:colors[idx%colors.length]}}></div>{entry.name}
+                                            </span>
+                                            <strong style={{color:'#0f172a'}}>{entry.value}</strong>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         </div>
                     </div>
+                </div>
 
+                {/* ── 5. Activity Row: Team Activity + Approvals (equal columns) ── */}
+                <div className="rd-two-col">
                     <div className="dashboard-panel">
                         <div className="panel-header">
                             <div className="panel-title">Team Activity</div>
@@ -242,7 +305,7 @@ const ManagerDashboard = () => {
                         </div>
                         <div className="feed-list">
                             {(dashboardData?.tables?.recentActivity || []).length > 0 ? (
-                                (dashboardData?.tables?.recentActivity || []).slice(0, 3).map((activity, idx) => (
+                                (dashboardData?.tables?.recentActivity || []).slice(0, 5).map((activity, idx) => (
                                     <div className="feed-item" key={idx}>
                                         <div className="feed-time">{new Date(activity.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
                                         <div className="feed-icon-wrapper" style={{background: '#3b82f6'}}><CheckCircle size={12}/></div>
@@ -253,7 +316,7 @@ const ManagerDashboard = () => {
                                     </div>
                                 ))
                             ) : (
-                                <div style={{padding: '12px', fontSize: '11px', color: '#64748b', textAlign: 'center'}}>No recent activity.</div>
+                                <div style={{padding: '20px', fontSize: '13px', color: '#94a3b8', textAlign: 'center'}}>No recent activity.</div>
                             )}
                         </div>
                     </div>
@@ -264,20 +327,20 @@ const ManagerDashboard = () => {
                             <a href="/" className="panel-action">View All</a>
                         </div>
                         <div className="feed-list">
-                            <div style={{padding: '12px', fontSize: '11px', color: '#64748b', textAlign: 'center'}}>No pending approvals.</div>
+                            <div style={{padding: '20px', fontSize: '13px', color: '#94a3b8', textAlign: 'center'}}>No pending approvals.</div>
                         </div>
                     </div>
-
                 </div>
 
-                {/* ── 5. Chart Row 2 (5 Columns) ── */}
-                <div className="bottom-grid-5">
-                    
+                {/* ── 6. Bottom Row: 5 panels in a 5-column grid ── */}
+                <div className="rd-five-col">
+
+                    {/* AI Insights */}
                     <div className="dashboard-panel">
                         <div className="panel-header">
-                            <div className="panel-title"><Cpu size={16} style={{display:'inline', verticalAlign:'middle', marginRight:4}} color="#3b82f6"/> AI Insights</div>
+                            <div className="panel-title"><Cpu size={15} style={{display:'inline', verticalAlign:'middle', marginRight:5}} color="#3b82f6"/> AI Insights</div>
                         </div>
-                        <div className="ai-insights-list" style={{marginTop: 8}}>
+                        <div className="ai-insights-list">
                             <div className="ai-insight-item">
                                 <div className="ai-dot"></div>
                                 <div>Your team has <strong>{myTeamSize}</strong> active members.</div>
@@ -293,111 +356,97 @@ const ManagerDashboard = () => {
                         </div>
                     </div>
 
+                    {/* Resource Utilization */}
                     <div className="dashboard-panel">
                         <div className="panel-header">
-                            <div className="panel-title">Resource Utilization</div>
-                            <select className="panel-dropdown"><option>This Month</option></select>
+                            <div className="panel-title">Resource Use</div>
+                            <select className="panel-dropdown"><option>Month</option></select>
                         </div>
-                        <div className="chart-container-sm">
+                        <div style={{ height: 180 }}>
                             <ResponsiveContainer width="100%" height="100%">
-                                <BarChart layout="vertical" data={dashboardData?.charts?.categoryData || []} margin={{top:0, right:30, left:0, bottom:0}}>
+                                <BarChart layout="vertical" data={dashboardData?.charts?.categoryData || []} margin={{top:0, right:20, left:0, bottom:0}}>
                                     <XAxis type="number" hide />
-                                    <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{fontSize: 10}} width={70} />
-                                    <Tooltip contentStyle={{fontSize: 10}} cursor={{fill: 'transparent'}} />
-                                    <Bar dataKey="value" fill="#f59e0b" radius={[0,4,4,0]} barSize={8} />
+                                    <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{fontSize: 11, fill: '#475569'}} width={80} />
+                                    <Tooltip contentStyle={{fontSize: 11}} cursor={{fill: '#f8fafc'}} />
+                                    <Bar dataKey="value" fill="#f59e0b" radius={[0,4,4,0]} barSize={10} />
                                 </BarChart>
                             </ResponsiveContainer>
                         </div>
                     </div>
 
+                    {/* Project Status */}
                     <div className="dashboard-panel">
                         <div className="panel-header">
-                            <div className="panel-title">Task Distribution</div>
-                            <select className="panel-dropdown"><option>This Month ▾</option></select>
+                            <div className="panel-title">Projects</div>
+                            <select className="panel-dropdown"><option>All ▾</option></select>
                         </div>
-                        <div className="chart-container-sm" style={{ display: 'flex', alignItems: 'center' }}>
-                            <div style={{ flex: 1, height: '100%' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+                            <div style={{ width: '100%', height: 130 }}>
                                 <ResponsiveContainer width="100%" height="100%">
                                     <PieChart>
-                                        <Pie data={dashboardData?.charts?.erpDonut || []} innerRadius={35} outerRadius={55} dataKey="value">
-                                            {(dashboardData?.charts?.erpDonut || []).map((entry, index) => {
-                                                const colors = ['#3b82f6', '#ef4444', '#f59e0b', '#8b5cf6'];
-                                                return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
-                                            })}
+                                        <Pie data={dashboardData?.charts?.crmDonut || []} innerRadius={38} outerRadius={56} dataKey="value" cx="50%" cy="50%">
+                                            {(dashboardData?.charts?.crmDonut || []).map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={entry.color || '#10b981'} />
+                                            ))}
                                         </Pie>
-                                        <Tooltip contentStyle={{fontSize: 10}} />
+                                        <Tooltip contentStyle={{fontSize: 11}} />
                                     </PieChart>
                                 </ResponsiveContainer>
                             </div>
-                            <div style={{ width: 'auto', minWidth: '85px', fontSize: 9 }}>
-                                {(dashboardData?.charts?.erpDonut || []).map((entry, idx) => {
-                                    const colors = ['#3b82f6', '#ef4444', '#f59e0b', '#8b5cf6'];
-                                    return (
-                                        <div key={idx} style={{display:'flex', justifyContent:'space-between', marginBottom:4}}>
-                                            <span><div className="ai-dot" style={{display:'inline-block',background:colors[idx % colors.length],marginRight:4}}></div>{entry.name}</span> 
-                                            <b>{entry.value}</b>
-                                        </div>
-                                    );
-                                })}
+                            <div style={{ width: '100%', fontSize: 10, display:'grid', gridTemplateColumns:'1fr 1fr', gap:4 }}>
+                                {(dashboardData?.charts?.crmDonut || []).map((entry, idx) => (
+                                    <div key={idx} style={{display:'flex', alignItems:'center', gap:4}}>
+                                        <div style={{width:8,height:8,borderRadius:'50%',background:entry.color || '#10b981'}}></div> 
+                                        <span><b>{entry.value}</b> {entry.name}</span>
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     </div>
 
+                    {/* Sprint Velocity */}
                     <div className="dashboard-panel">
                         <div className="panel-header">
-                            <div className="panel-title">Sprint Velocity</div>
-                            <select className="panel-dropdown"><option>Last 6 Sprints</option></select>
+                            <div className="panel-title">Velocity</div>
+                            <select className="panel-dropdown"><option>Last 6</option></select>
                         </div>
-                        <div style={{ padding: '0 0 10px 0' }}>
-                            <div style={{fontSize: 18, fontWeight: 800, color: '#0f172a'}}>42 Points</div>
-                            <div style={{fontSize: 10, color: '#10b981', fontWeight: 600}}>↑ 5% avg increase</div>
+                        <div style={{ padding: '5px 0' }}>
+                            <div style={{fontSize: 20, fontWeight: 800, color: '#0f172a'}}>42 Points</div>
+                            <div style={{fontSize: 11, color: '#10b981', fontWeight: 600}}>↑ 5% avg increase</div>
                         </div>
                         <div style={{height: 100, width: '100%'}}>
                             <ResponsiveContainer width="100%" height="100%">
                                 <LineChart data={dashboardData?.charts?.monthlyStats || []}>
                                     <Line type="monotone" dataKey="sales" stroke="#3b82f6" strokeWidth={2} dot={{r: 3, fill: '#3b82f6'}} />
-                                    <Tooltip contentStyle={{fontSize: 10}} />
+                                    <Tooltip contentStyle={{fontSize: 11}} />
                                 </LineChart>
                             </ResponsiveContainer>
                         </div>
                     </div>
 
+                    {/* Upcoming Deadlines */}
                     <div className="dashboard-panel">
                         <div className="panel-header">
-                            <div className="panel-title">Upcoming Deadlines</div>
-                            <a href="/calendar" className="panel-action">View All</a>
+                            <div className="panel-title">Deadlines</div>
+                            <span onClick={() => navigate('/tasks/calendar')} className="panel-action" style={{cursor: 'pointer'}}>View All</span>
                         </div>
                         <div className="feed-list" style={{gap: 12, marginTop: 8}}>
-                            <div className="event-item">
-                                <div className="event-date">
-                                    <span className="event-month" style={{color: '#ef4444'}}>Jul</span>
-                                    <span className="event-day">12</span>
+                            {upcomingEvents.length > 0 ? upcomingEvents.map((ev, i) => (
+                                <div className="event-item" key={i}>
+                                    <div className="event-date" style={{ background: ev.bg, color: ev.col, padding: '4px 6px' }}>
+                                        <span className="event-month" style={{fontSize: 10}}>{ev.month}</span>
+                                        <span className="event-day" style={{color: ev.col, fontSize: 13}}>{ev.day}</span>
+                                    </div>
+                                    <div className="feed-content">
+                                        <div className="feed-title" style={{fontSize: 13}}>{ev.title}</div>
+                                        <div className="feed-desc" style={{fontSize: 11}}>{ev.desc}</div>
+                                    </div>
                                 </div>
-                                <div className="feed-content">
-                                    <div className="feed-title">Sprint Demo</div>
-                                    <div className="feed-desc">Frontend team demo</div>
+                            )) : (
+                                <div style={{ fontSize: '13px', color: 'var(--text-muted)', textAlign: 'center', padding: '20px 0' }}>
+                                    No upcoming events
                                 </div>
-                            </div>
-                            <div className="event-item">
-                                <div className="event-date">
-                                    <span className="event-month" style={{color: '#f59e0b'}}>Jul</span>
-                                    <span className="event-day">18</span>
-                                </div>
-                                <div className="feed-content">
-                                    <div className="feed-title">Release v2.5.2</div>
-                                    <div className="feed-desc">Production deployment</div>
-                                </div>
-                            </div>
-                            <div className="event-item">
-                                <div className="event-date">
-                                    <span className="event-month" style={{color: '#3b82f6'}}>Jul</span>
-                                    <span className="event-day">25</span>
-                                </div>
-                                <div className="feed-content">
-                                    <div className="feed-title">Quarterly Review</div>
-                                    <div className="feed-desc">Q3 planning session</div>
-                                </div>
-                            </div>
+                            )}
                         </div>
                     </div>
 

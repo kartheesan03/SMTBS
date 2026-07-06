@@ -247,7 +247,7 @@ const DailyTab = ({ canEdit }) => {
 
                         <div className="rd-search-bar" style={{ minWidth: 220, background: '#f8fafc' }}>
                             <Search size={15} color="#94a3b8" />
-                            <input className="rd-search-input" placeholder="Search employee…"
+                            <input className="rd-search-input" placeholder="Search..."
                                 value={search} onChange={e => setSearch(e.target.value)} />
                         </div>
 
@@ -429,7 +429,7 @@ const MonthlyTab = () => {
 
                         <div className="rd-search-bar" style={{ minWidth: 220, background: '#f8fafc' }}>
                             <Search size={15} color="#94a3b8" />
-                            <input className="rd-search-input" placeholder="Search employee…" value={search} onChange={e => setSearch(e.target.value)} />
+                            <input className="rd-search-input" placeholder="Search..." value={search} onChange={e => setSearch(e.target.value)} />
                         </div>
                     </div>
 
@@ -581,7 +581,7 @@ const HistoryTab = () => {
 
                         <div className="rd-search-bar" style={{ minWidth: 200, background: '#f8fafc', alignSelf: 'flex-end' }}>
                             <Search size={15} color="#94a3b8" />
-                            <input className="rd-search-input" placeholder="Employee name…" value={search} onChange={e => setSearch(e.target.value)} />
+                            <input className="rd-search-input" placeholder="Search..." value={search} onChange={e => setSearch(e.target.value)} />
                         </div>
 
                         <div style={{ alignSelf: 'flex-end' }}>

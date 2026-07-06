@@ -8,7 +8,7 @@ import {
     ArrowUpRight, Clock, Star, Gift, LayoutGrid, Activity, 
     Layers, Cpu, Server, MapPin, UserPlus, AlertTriangle, AlertCircle, CheckCircle, FileText, Calendar
 } from 'lucide-react';
-import { AreaChart, Area, PieChart, Pie, Cell, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, LineChart, Line, BarChart, Bar } from 'recharts';
+import { AreaChart, Area, PieChart, Pie, Cell, ResponsiveContainer, XAxis, YAxis, Legend, Tooltip, CartesianGrid, LineChart, Line, BarChart, Bar } from 'recharts';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 import CommandCenter from '../components/CommandCenter';
 import { SparklineKPICard, IconQuickAction, MiniStatCard } from './AdminDashboard';
@@ -18,10 +18,12 @@ const SalesDashboard = () => {
     const { user } = useContext(AuthContext);
     const [isCommandCenterOpen, setIsCommandCenterOpen] = useState(false);
     const [dashboardData, setDashboardData] = useState(null);
+    const [revenueTrendYear, setRevenueTrendYear] = useState('current');
     const [leads, setLeads] = useState([]);
     const [customersData, setCustomersData] = useState([]);
     const [ordersData, setOrdersData] = useState([]);
     const [tasksData, setTasksData] = useState([]);
+    const [upcomingEvents, setUpcomingEvents] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -40,6 +42,28 @@ const SalesDashboard = () => {
                 setCustomersData(custRes.data || []);
                 setOrdersData(ordRes.data || []);
                 setTasksData(taskRes.data || []);
+                
+                // Process tasks for upcoming events
+                const now = new Date();
+                const futureTasks = (taskRes.data || [])
+                    .filter(t => t.dueDate && new Date(t.dueDate) >= now)
+                    .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
+                    .slice(0, 3)
+                    .map(t => {
+                        const d = new Date(t.dueDate);
+                        let col = '#4f46e5'; let bg = '#e0e7ff';
+                        if (t.priority === 'High') { col = '#ef4444'; bg = '#fee2e2'; }
+                        if (t.priority === 'Low') { col = '#10b981'; bg = '#d1fae5'; }
+                        return {
+                            day: String(d.getDate()).padStart(2, '0'),
+                            month: d.toLocaleString('default', { month: 'short' }).toUpperCase(),
+                            bg,
+                            col,
+                            title: t.title,
+                            desc: `${d.getDate()} ${d.toLocaleString('default', { month: 'long' })} • ${d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`
+                        };
+                    });
+                setUpcomingEvents(futureTasks);
             } catch (err) {
                 console.error("Failed to load dashboard data", err);
             } finally {
@@ -61,7 +85,7 @@ const SalesDashboard = () => {
     }, []);
 
     if (loading) {
-        return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: '#64748b' }}>Loading Sales dashboard data...</div>;
+        return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: '#64748b' }}>Loading your dashboard...</div>;
     }
 
     const getGreeting = () => {
@@ -94,48 +118,44 @@ const SalesDashboard = () => {
                 
                 {/* ── 1. Hero Banner ── */}
                 <div className="rd-hero">
-                    <div className="rd-hero-bg-chart"></div>
                     <div className="rd-hero-left">
                         <div className="rd-hero-avatar-wrapper">
-                            <img src={user?.picture || `https://ui-avatars.com/api/?name=${user?.name || 'Sales'}&background=3b82f6&color=fff`} alt="Profile" className="rd-hero-avatar" style={{ borderColor: '#3b82f6' }} />
+                            <img src={user?.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'Sales')}&background=DC2626&color=fff`} alt="Profile" className="rd-hero-avatar" />
                             <div className="rd-hero-status-dot"></div>
                         </div>
                         <div>
                             <div className="rd-hero-greeting">
-                                {getGreeting()}, {user?.name?.split(' ')[0] || 'Sales Lead'} <span role="img" aria-label="wave">👋</span>
+                                {getGreeting()}, {user?.name?.split(' ')[0] || 'Sales Lead'} 👋
                             </div>
-                            <div className="rd-hero-subtitle">Here is your sales pipeline overview today.</div>
+                            <div className="rd-hero-subtitle">
+                                {new Date().toLocaleDateString('en-IN', {weekday:'long', day:'numeric', month:'long', year:'numeric'})} &nbsp;·&nbsp; Sales Pipeline Overview
+                            </div>
                             <div className="rd-hero-badges">
-                                <span className="rd-hero-badge badge-blue">
-                                    <Target size={14} /> Sales Director
-                                </span>
-                                <span className="rd-hero-badge badge-blue" style={{background: '#f8fafc', border: '1px solid #e2e8f0', color: '#475569'}}>
-                                    <FileText size={14} /> {user?.email || 'sales@smtbms.com'}
-                                </span>
-                                <span className="rd-hero-badge badge-green" style={{background: '#f8fafc', border: '1px solid #e2e8f0', color: '#10b981'}}>
-                                    <div style={{width:8,height:8,background:'#10b981',borderRadius:'50%'}}></div> Online
-                                </span>
+                                <span className="rd-hero-badge badge-blue"><Target size={12} /> Sales Director</span>
+                                <span className="rd-hero-badge badge-blue" style={{background:'rgba(255,255,255,0.15)'}}>📈 {formatINR(totalRevenue)} Revenue</span>
+                                <span className="rd-hero-badge badge-green">🟢 {activeLeads} Active Leads</span>
                             </div>
                         </div>
                     </div>
                     <div className="rd-hero-right-actions">
                         <button className="hero-action-btn primary" onClick={() => navigate('/attendance')}>
-                            <Clock size={16} /> Check In
+                            <Clock size={15} /> Check In
                         </button>
-                        <button className="hero-action-btn secondary" onClick={() => navigate('/leave-management/approve')}>
-                            <CheckCircle size={16} /> Leave Approval
+                        <button className="hero-action-btn secondary" onClick={() => navigate('/leave-management')}>
+                            <CheckCircle size={15} /> Apply Leave
                         </button>
                     </div>
                 </div>
 
+
                 {/* ── 2. KPI Row (6 columns) ── */}
                 <div className="rd-kpi-row">
-                    <SparklineKPICard title="Total Revenue" value={formatINR(totalRevenue)} trend="up" trendValue="14% vs last month" icon={DollarSign} colorClass="icon-blue" />
-                    <SparklineKPICard title="Total Orders" value={totalOrders} trend="up" trendValue="8% vs last month" icon={ShoppingCart} colorClass="icon-green" />
-                    <SparklineKPICard title="Active Leads" value={activeLeads} trend="up" trendValue={`${newLeads} new today`} icon={Users} colorClass="icon-orange" />
-                    <SparklineKPICard title="Conversion Rate" value={`${conversionRate}%`} trend="up" trendValue="1.2% increase" icon={Crosshair} colorClass="icon-purple" />
-                    <SparklineKPICard title="Total Customers" value={totalCustomers} trend="up" trendValue="Growing" icon={FileText} colorClass="icon-pink" />
-                    <SparklineKPICard title="Avg Deal Size" value="₹45k" trend="up" trendValue="Good" icon={Briefcase} colorClass="icon-teal" />
+                    <SparklineKPICard title="Total Revenue" value={formatINR(totalRevenue)} trend="up" trendValue="This month" icon={DollarSign} colorClass="icon-blue" />
+                    <SparklineKPICard title="Active Leads" value={activeLeads} trend="up" trendValue="In pipeline" icon={Target} colorClass="icon-purple" />
+                    <SparklineKPICard title="Conversion Rate" value={`${conversionRate}%`} trend="up" trendValue="Lead to deal" icon={TrendingUp} colorClass="icon-green" />
+                    <SparklineKPICard title="Total Customers" value={totalCustomers} trend="neutral" trendValue="Active" icon={Users} colorClass="icon-teal" />
+                    <SparklineKPICard title="Sales Meetings" value={meetings} trend="neutral" trendValue="Scheduled" icon={CheckCircle} colorClass="icon-orange" />
+                    <SparklineKPICard title="Total Orders" value={totalOrders} trend="up" trendValue="Completed" icon={ShoppingCart} colorClass="icon-pink" />
                 </div>
 
                 {/* ── 3. Middle Row (Quick Actions + Mini Stats) ── */}
@@ -165,8 +185,11 @@ const SalesDashboard = () => {
                     </div>
 
                     {/* Right: Mini Stats Grid */}
-                    <div className="dashboard-panel" style={{ display: 'flex', flexDirection: 'column' }}>
-                        <div className="ms-grid" style={{ flex: 1, alignContent: 'center' }}>
+                    <div className="dashboard-panel">
+                        <div className="panel-header">
+                            <div className="panel-title">Sales Summary</div>
+                        </div>
+                        <div className="ms-grid">
                             <MiniStatCard title="Total Revenue" value={formatINR(totalRevenue)} subValue="YTD" icon={DollarSign} colorClass="bg-light-blue" trendColor="#3b82f6" />
                             <MiniStatCard title="Sales Orders" value={totalOrders} subValue="This Month" icon={ShoppingCart} colorClass="bg-light-green" trendColor="#10b981" />
                             <MiniStatCard title="New Leads" value={newLeads} subValue="This Month" icon={UserPlus} colorClass="bg-light-orange" trendColor="#f59e0b" />
@@ -181,28 +204,57 @@ const SalesDashboard = () => {
 
                 </div>
 
-                {/* ── 4. Chart Row 1 (4 Columns) ── */}
-                <div className="bottom-grid-4">
-                    
+                {/* ── 4. Chart Row 1: Sales Revenue (wide) + Lead Sources ── */}
+                <div className="rd-chart-row-wide">
                     <div className="dashboard-panel">
                         <div className="panel-header">
-                            <div className="panel-title">Sales Revenue</div>
-                            <select className="panel-dropdown"><option>This Year ▾</option></select>
+                            <div className="panel-title">Sales Pipeline Trend</div>
+                            <select 
+                                className="panel-dropdown" 
+                                style={{ paddingRight: '24px', width: 'auto' }}
+                                value={revenueTrendYear} 
+                                onChange={(e) => setRevenueTrendYear(e.target.value)}
+                            >
+                                <option value="current">This Year</option>
+                                <option value="last">Last Year</option>
+                            </select>
                         </div>
-                        <div className="chart-container-sm">
+                        <div style={{ height: 220, width: '100%' }}>
                             <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={dashboardData?.charts?.monthlyStats || []}>
-                                    <defs>
-                                        <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
-                                            <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
-                                        </linearGradient>
-                                    </defs>
-                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 9, fill: '#94a3b8'}} dy={10} />
-                                    <YAxis axisLine={false} tickLine={false} tick={{fontSize: 9, fill: '#94a3b8'}} width={40} tickFormatter={(val) => val >= 1000 ? `${val/1000}L` : val} />
-                                    <Tooltip contentStyle={{fontSize: 10, borderRadius: 8}} />
-                                    <Area type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={2} fillOpacity={1} fill="url(#colorSales)" />
-                                </AreaChart>
+                                <LineChart data={dashboardData?.analytics?.salesTrend || []} margin={{top:4, right:10, left:0, bottom:0}}>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false}/>
+                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 11, fill: '#94a3b8'}} dy={8}/>
+                                    <YAxis axisLine={false} tickLine={false} tick={{fontSize: 11, fill: '#94a3b8'}} width={48} tickFormatter={(val) => val >= 1000 ? `${(val/1000).toFixed(0)}k` : val}/>
+                                    <Tooltip contentStyle={{fontSize: 12, borderRadius: 8, border: '1px solid #e2e8f0'}} />
+                                    <Legend iconType="circle" wrapperStyle={{fontSize: '12px'}} verticalAlign="top" height={36} />
+                                    <Line 
+                                        type="monotone" 
+                                        dataKey={revenueTrendYear === 'current' ? "newLeads" : "lastNewLeads"} 
+                                        name="New Leads" 
+                                        stroke="#3b82f6" 
+                                        strokeWidth={2} 
+                                        dot={false} 
+                                        activeDot={{ r: 6 }} 
+                                    />
+                                    <Line 
+                                        type="monotone" 
+                                        dataKey={revenueTrendYear === 'current' ? "meetings" : "lastMeetings"} 
+                                        name="Meetings" 
+                                        stroke="#f59e0b" 
+                                        strokeWidth={2} 
+                                        dot={false} 
+                                        activeDot={{ r: 6 }} 
+                                    />
+                                    <Line 
+                                        type="monotone" 
+                                        dataKey={revenueTrendYear === 'current' ? "dealsClosed" : "lastDealsClosed"} 
+                                        name="Deals Closed" 
+                                        stroke="#10b981" 
+                                        strokeWidth={2} 
+                                        dot={false} 
+                                        activeDot={{ r: 6 }} 
+                                    />
+                                </LineChart>
                             </ResponsiveContainer>
                         </div>
                     </div>
@@ -210,32 +262,39 @@ const SalesDashboard = () => {
                     <div className="dashboard-panel">
                         <div className="panel-header">
                             <div className="panel-title">Lead Sources</div>
-                            <select className="panel-dropdown"><option>This Month ▾</option></select>
+                            <select className="panel-dropdown" style={{ paddingRight: '24px', width: 'auto' }}>
+                                <option>This Month ▾</option>
+                            </select>
                         </div>
-                        <div className="chart-container-sm" style={{ display: 'flex', alignItems: 'center' }}>
-                            <div style={{ flex: 1, height: '100%' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+                            <div style={{ width: '100%', height: 170 }}>
                                 <ResponsiveContainer width="100%" height="100%">
                                     <PieChart>
-                                        <Pie data={dashboardData?.charts?.crmDonut || []} innerRadius={35} outerRadius={55} dataKey="value">
+                                        <Pie data={dashboardData?.charts?.crmDonut || []} innerRadius={50} outerRadius={75} dataKey="value" cx="50%" cy="50%">
                                             {(dashboardData?.charts?.crmDonut || []).map((entry, index) => (
                                                 <Cell key={`cell-${index}`} fill={entry.color || '#3b82f6'} />
                                             ))}
                                         </Pie>
-                                        <Tooltip contentStyle={{fontSize: 10}} />
+                                        <Tooltip contentStyle={{fontSize: 12}} />
                                     </PieChart>
                                 </ResponsiveContainer>
                             </div>
-                            <div style={{ width: 'auto', minWidth: '85px', fontSize: 9 }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 5, width: '100%' }}>
                                 {(dashboardData?.charts?.crmDonut || []).map((entry, idx) => (
-                                    <div key={idx} style={{display:'flex', justifyContent:'space-between', marginBottom:4}}>
-                                        <span><div className="ai-dot" style={{display:'inline-block',background:entry.color || '#3b82f6',marginRight:4}}></div>{entry.name}</span> 
-                                        <b>{entry.value}</b>
+                                    <div key={idx} style={{display:'flex', alignItems:'center', justifyContent:'space-between', fontSize: 11}}>
+                                        <span style={{display:'flex', alignItems:'center', gap:5, color:'#475569'}}>
+                                            <div style={{width:8,height:8,borderRadius:'50%',background:entry.color || '#3b82f6'}}></div>{entry.name}
+                                        </span>
+                                        <strong style={{color:'#0f172a'}}>{entry.value}</strong>
                                     </div>
                                 ))}
                             </div>
                         </div>
                     </div>
+                </div>
 
+                {/* ── 5. Activity Row: Recent Activity + Top Prospects ── */}
+                <div className="rd-two-col">
                     <div className="dashboard-panel">
                         <div className="panel-header">
                             <div className="panel-title">Recent Activity</div>
@@ -243,7 +302,7 @@ const SalesDashboard = () => {
                         </div>
                         <div className="feed-list">
                             {(dashboardData?.tables?.recentActivity || []).length > 0 ? (
-                                (dashboardData?.tables?.recentActivity || []).slice(0, 3).map((activity, idx) => (
+                                (dashboardData?.tables?.recentActivity || []).slice(0, 5).map((activity, idx) => (
                                     <div className="feed-item" key={idx}>
                                         <div className="feed-time">{new Date(activity.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
                                         <div className="feed-icon-wrapper" style={{background: '#3b82f6'}}><DollarSign size={12}/></div>
@@ -254,7 +313,7 @@ const SalesDashboard = () => {
                                     </div>
                                 ))
                             ) : (
-                                <div style={{padding: '12px', fontSize: '11px', color: '#64748b', textAlign: 'center'}}>No recent activity.</div>
+                                <div style={{padding: '20px', fontSize: '13px', color: '#94a3b8', textAlign: 'center'}}>No recent activity.</div>
                             )}
                         </div>
                     </div>
@@ -265,20 +324,20 @@ const SalesDashboard = () => {
                             <a href="/crm" className="panel-action">View All</a>
                         </div>
                         <div className="feed-list">
-                            <div style={{padding: '12px', fontSize: '11px', color: '#64748b', textAlign: 'center'}}>No prospects assigned to you.</div>
+                            <div style={{padding: '20px', fontSize: '13px', color: '#94a3b8', textAlign: 'center'}}>No prospects assigned to you.</div>
                         </div>
                     </div>
-
                 </div>
 
-                {/* ── 5. Chart Row 2 (5 Columns) ── */}
-                <div className="bottom-grid-5">
+                {/* ── 6. Bottom Row: 5 panels in a 5-column grid ── */}
+                <div className="rd-five-col">
                     
+                    {/* Sales Insights */}
                     <div className="dashboard-panel">
                         <div className="panel-header">
-                            <div className="panel-title"><Cpu size={16} style={{display:'inline', verticalAlign:'middle', marginRight:4}} color="#3b82f6"/> Sales Insights</div>
+                            <div className="panel-title"><Cpu size={15} style={{display:'inline', verticalAlign:'middle', marginRight:5}} color="#3b82f6"/> Sales Insights</div>
                         </div>
-                        <div className="ai-insights-list" style={{marginTop: 8}}>
+                        <div className="ai-insights-list">
                             <div className="ai-insight-item">
                                 <div className="ai-dot"></div>
                                 <div>Total revenue is <strong>{formatINR(totalRevenue)}</strong>.</div>
@@ -294,107 +353,97 @@ const SalesDashboard = () => {
                         </div>
                     </div>
 
+                    {/* Sales by Region */}
                     <div className="dashboard-panel">
                         <div className="panel-header">
-                            <div className="panel-title">Sales by Region</div>
-                            <select className="panel-dropdown"><option>This Quarter ▾</option></select>
+                            <div className="panel-title">By Region</div>
+                            <select className="panel-dropdown"><option>Quarter ▾</option></select>
                         </div>
-                        <div className="chart-container-sm">
+                        <div style={{ height: 180 }}>
                             <ResponsiveContainer width="100%" height="100%">
-                                <BarChart layout="vertical" data={dashboardData?.charts?.categoryData || []} margin={{top:0, right:30, left:0, bottom:0}}>
+                                <BarChart layout="vertical" data={dashboardData?.charts?.categoryData || []} margin={{top:0, right:20, left:0, bottom:0}}>
                                     <XAxis type="number" hide />
-                                    <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{fontSize: 10}} width={70} />
-                                    <Tooltip contentStyle={{fontSize: 10}} cursor={{fill: 'transparent'}} />
-                                    <Bar dataKey="value" fill="#10b981" radius={[0,4,4,0]} barSize={8} />
+                                    <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{fontSize: 11, fill: '#475569'}} width={80} />
+                                    <Tooltip contentStyle={{fontSize: 11}} cursor={{fill: '#f8fafc'}} />
+                                    <Bar dataKey="value" fill="#10b981" radius={[0,4,4,0]} barSize={10} />
                                 </BarChart>
                             </ResponsiveContainer>
                         </div>
                     </div>
 
+                    {/* Pipeline Stage */}
                     <div className="dashboard-panel">
                         <div className="panel-header">
-                            <div className="panel-title">Pipeline Stage</div>
+                            <div className="panel-title">Pipeline</div>
                             <select className="panel-dropdown"><option>Current ▾</option></select>
                         </div>
-                        <div className="chart-container-sm" style={{ display: 'flex', alignItems: 'center' }}>
-                            <div style={{ flex: 1, height: '100%' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+                            <div style={{ width: '100%', height: 130 }}>
                                 <ResponsiveContainer width="100%" height="100%">
                                     <PieChart>
-                                        <Pie data={dashboardData?.charts?.erpDonut || []} innerRadius={35} outerRadius={55} dataKey="value">
+                                        <Pie data={dashboardData?.charts?.erpDonut || []} innerRadius={38} outerRadius={56} dataKey="value" cx="50%" cy="50%">
                                             {(dashboardData?.charts?.erpDonut || []).map((entry, index) => (
                                                 <Cell key={`cell-${index}`} fill={entry.color || '#3b82f6'} />
                                             ))}
                                         </Pie>
-                                        <Tooltip contentStyle={{fontSize: 10}} />
+                                        <Tooltip contentStyle={{fontSize: 11}} />
                                     </PieChart>
                                 </ResponsiveContainer>
                             </div>
-                            <div style={{ width: 'auto', minWidth: '85px', fontSize: 9 }}>
+                            <div style={{ width: '100%', fontSize: 10, display:'grid', gridTemplateColumns:'1fr 1fr', gap:4 }}>
                                 {(dashboardData?.charts?.erpDonut || []).map((entry, idx) => (
-                                    <div key={idx} style={{display:'flex', justifyContent:'space-between', marginBottom:4}}>
-                                        <span><div className="ai-dot" style={{display:'inline-block',background:entry.color || '#3b82f6',marginRight:4}}></div>{entry.name}</span> 
-                                        <b>{entry.value}</b>
+                                    <div key={idx} style={{display:'flex', alignItems:'center', gap:4}}>
+                                        <div style={{width:8,height:8,borderRadius:'50%',background:entry.color || '#3b82f6'}}></div> 
+                                        <span><b>{entry.value}</b> {entry.name}</span>
                                     </div>
                                 ))}
                             </div>
                         </div>
                     </div>
 
+                    {/* Lead Growth */}
                     <div className="dashboard-panel">
                         <div className="panel-header">
                             <div className="panel-title">Lead Growth</div>
-                            <select className="panel-dropdown"><option>Last 6 Months ▾</option></select>
+                            <select className="panel-dropdown"><option>Last 6 ▾</option></select>
                         </div>
-                        <div style={{ padding: '0 0 10px 0' }}>
-                            <div style={{fontSize: 18, fontWeight: 800, color: '#0f172a'}}>156 Leads</div>
-                            <div style={{fontSize: 10, color: '#10b981', fontWeight: 600}}>↑ 24% vs previous</div>
+                        <div style={{ padding: '5px 0' }}>
+                            <div style={{fontSize: 20, fontWeight: 800, color: '#0f172a'}}>156 Leads</div>
+                            <div style={{fontSize: 11, color: '#10b981', fontWeight: 600}}>↑ 24% vs previous</div>
                         </div>
                         <div style={{height: 100, width: '100%'}}>
                             <ResponsiveContainer width="100%" height="100%">
                                 <LineChart data={dashboardData?.charts?.monthlyStats || []}>
                                     <Line type="monotone" dataKey="sales" stroke="#f59e0b" strokeWidth={2} dot={{r: 3, fill: '#f59e0b'}} />
-                                    <Tooltip contentStyle={{fontSize: 10}} />
+                                    <Tooltip contentStyle={{fontSize: 11}} />
                                 </LineChart>
                             </ResponsiveContainer>
                         </div>
                     </div>
 
+                    {/* Upcoming Sales Events */}
                     <div className="dashboard-panel">
                         <div className="panel-header">
-                            <div className="panel-title">Upcoming Sales Events</div>
-                            <a href="/calendar" className="panel-action">View All</a>
+                            <div className="panel-title">Sales Events</div>
+                            <span onClick={() => navigate('/tasks/calendar')} className="panel-action" style={{cursor: 'pointer'}}>View All</span>
                         </div>
                         <div className="feed-list" style={{gap: 12, marginTop: 8}}>
-                            <div className="event-item">
-                                <div className="event-date">
-                                    <span className="event-month" style={{color: '#3b82f6'}}>Jul</span>
-                                    <span className="event-day">12</span>
+                            {upcomingEvents.length > 0 ? upcomingEvents.map((ev, i) => (
+                                <div className="event-item" key={i}>
+                                    <div className="event-date" style={{ background: ev.bg, color: ev.col, padding: '4px 6px' }}>
+                                        <span className="event-month" style={{fontSize: 10}}>{ev.month}</span>
+                                        <span className="event-day" style={{color: ev.col, fontSize: 13}}>{ev.day}</span>
+                                    </div>
+                                    <div className="feed-content">
+                                        <div className="feed-title" style={{fontSize: 13}}>{ev.title}</div>
+                                        <div className="feed-desc" style={{fontSize: 11}}>{ev.desc}</div>
+                                    </div>
                                 </div>
-                                <div className="feed-content">
-                                    <div className="feed-title">Client Demo</div>
-                                    <div className="feed-desc">Enterprise Solutions</div>
+                            )) : (
+                                <div style={{ fontSize: '13px', color: 'var(--text-muted)', textAlign: 'center', padding: '20px 0' }}>
+                                    No upcoming events
                                 </div>
-                            </div>
-                            <div className="event-item">
-                                <div className="event-date">
-                                    <span className="event-month" style={{color: '#8b5cf6'}}>Jul</span>
-                                    <span className="event-day">15</span>
-                                </div>
-                                <div className="feed-content">
-                                    <div className="feed-title">Sales Training</div>
-                                    <div className="feed-desc">New product features</div>
-                                </div>
-                            </div>
-                            <div className="event-item">
-                                <div className="event-date">
-                                    <span className="event-month" style={{color: '#10b981'}}>Jul</span>
-                                    <span className="event-day">30</span>
-                                </div>
-                                <div className="feed-content">
-                                    <div className="feed-title">End of Month</div>
-                                    <div className="feed-desc">Target closure deadline</div>
-                                </div>
-                            </div>
+                            )}
                         </div>
                     </div>
 

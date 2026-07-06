@@ -27,6 +27,7 @@ const stockRequestRoutes = require('./src/routes/stockRequestRoutes');
 const backupRoutes = require('./src/routes/backupRoutes');
 const systemRoutes = require('./src/routes/systemRoutes');
 const roleRoutes = require('./src/routes/roleRoutes');
+const projectRoutes = require('./src/routes/projectRoutes');
 
 const app = express();
 
@@ -59,6 +60,7 @@ app.use('/api/stock-requests', stockRequestRoutes);
 app.use('/api/backup', backupRoutes);
 app.use('/api/system', systemRoutes);
 app.use('/api/roles', roleRoutes);
+app.use('/api/projects', projectRoutes);
 
 // 404 Handler
 app.use((req, res, next) => {

@@ -105,18 +105,8 @@ const MaterialDetails = () => {
         <div style={{ padding: '24px' }}>
             <div style={{ marginBottom: '16px' }}>
                 <button 
-                    onClick={() => navigate('/materials')} 
-                    style={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        gap: '8px', 
-                        background: 'transparent', 
-                        border: 'none', 
-                        cursor: 'pointer', 
-                        color: '#64748b',
-                        fontWeight: '500',
-                        padding: '4px 0'
-                    }}
+                    className="rd-back-btn"
+                    onClick={() => navigate('/materials')}
                 >
                     <ArrowLeft size={18} />
                     Back to Inventory

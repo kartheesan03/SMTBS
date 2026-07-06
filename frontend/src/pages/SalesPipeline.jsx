@@ -425,32 +425,28 @@ const SalesPipeline = () => {
     );
 };
 
-const PipelineKPICard = ({ title, val, trend, color, icon: Icon, data }) => {
-    const gradients = {
-        blue: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
-        teal: 'linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%)',
-        purple: 'linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%)',
-        green: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)'
-    };
-    const iconBgs = { blue: '#dbeafe', teal: '#ccfbf1', purple: '#f3e8ff', green: '#d1fae5' };
-    const iconColors = { blue: '#3b82f6', teal: '#14b8a6', purple: '#a855f7', green: '#10b981' };
-    const barColors = { blue: '#93c5fd', teal: '#99f6e4', purple: '#d8b4fe', green: '#6ee7b7' };
-    const valColors = { blue: '#1d4ed8', teal: '#0f766e', purple: '#7e22ce', green: '#059669' };
+const PipelineKPICard = ({ title, val, color, icon: Icon }) => {
+    const themeClass = color ? `ent-theme-${color}` : 'ent-theme-primary';
 
     return (
-        <div style={{
-            background: gradients[color], borderRadius: 16, padding: 20, position: 'relative', overflow: 'hidden',
-            border: '1px solid rgba(0,0,0,0.04)', minHeight: 130, boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
-        }}>
-            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start'}}>
-                <div style={{display: 'flex', flexDirection: 'column', gap: 12}}>
-                    <div style={{width: 40, height: 40, borderRadius: 10, background: iconBgs[color], display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                        <Icon size={20} color={iconColors[color]} />
+        <div className={`ent-module-card ${typeof themeClass !== 'undefined' ? themeClass : (color ? `ent-theme-${color}` : 'ent-theme-primary')}`}>
+            <div>
+                <div className="ent-card-header">
+                    <span className="ent-card-title">{title}</span>
+                    <div className="ent-card-icon-wrapper">
+                        {Icon && <Icon size={18} strokeWidth={2.5} />}
                     </div>
-                    <div>
-                        <div style={{fontSize: 28, fontWeight: 800, color: valColors[color], lineHeight: 1}}>{val}</div>
-                        <div style={{fontSize: 13, fontWeight: 600, color: '#1e293b', marginTop: 6}}>{title}</div>
-                    </div>
+                </div>
+                <div className="ent-card-value">{val}</div>
+                <div style={{ fontSize: '13px', fontWeight: 500, color: 'var(--ent-text-secondary)', marginBottom: '12px' }}>
+                    {'Monitoring Level'}
+                </div>
+            </div>
+            
+            <div>
+                <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'currentColor' }}></div>
+                    Updated Today
                 </div>
             </div>
         </div>
