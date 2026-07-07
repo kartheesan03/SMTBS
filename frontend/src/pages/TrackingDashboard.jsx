@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { RefreshCw, Search, Filter, ArrowUpRight, ArrowDownRight, Activity, ArrowRightLeft, Download, Eye, Layers, X, FileSearch } from 'lucide-react';
-import { LineChart, Line, ResponsiveContainer } from 'recharts';
+import { ResponsiveContainer } from 'recharts';
 import API from '../api/axios';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ModuleKPICard } from '../components/ui';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 import toast from 'react-hot-toast';
 
@@ -87,7 +88,7 @@ const TrackingDashboard = () => {
                 </div>
 
                 {/* KPI Cards */}
-                <div className="rd-kpi-row">
+                <div className="rd-kpi-row-4">
                     <TrackingKPICard title="Total Movements" val={totalMovements.toLocaleString()} color="purple" icon={Layers} />
                     <TrackingKPICard title="Units IN" val={unitsIn.toLocaleString()} color="green" icon={ArrowDownRight} />
                     <TrackingKPICard title="Units OUT" val={unitsOut.toLocaleString()} color="orange" icon={ArrowUpRight} />
@@ -322,30 +323,35 @@ const SkeletonRow = () => (
     </tr>
 );
 
+// ── Stock Movements KPI Card ──────────────────────────────────
+// Unique footer: sparkline (movement volume) + directional flow badge
 const TrackingKPICard = ({ title, val, color, icon: Icon }) => {
-    const themeClass = color ? `ent-theme-${color}` : 'ent-theme-primary';
+    // Build directional badge from card type
+    const badgeMap = {
+        'Total Movements': { text: `${val} ⇔`,  dir: 'flat' },
+        'Units IN':        { text: `+${val} ↗`,  dir: 'up'   },
+        'Units OUT':       { text: `-${val} ↘`,  dir: 'down' },
+        'Adjusted/Transfer': { text: `${val} ⇆`, dir: 'flat' },
+    };
+    const badge = badgeMap[title] || { text: `${val}`, dir: 'flat' };
+
+    const subtitleMap = {
+        'Total Movements':   'All stock movements',
+        'Units IN':          'Inbound stock flow',
+        'Units OUT':         'Outbound stock flow',
+        'Adjusted/Transfer': 'Adjustments & transfers',
+    };
+
     return (
-        <div className={`ent-module-card ${typeof themeClass !== 'undefined' ? themeClass : (color ? `ent-theme-${color}` : 'ent-theme-primary')}`}>
-            <div>
-                <div className="ent-card-header">
-                    <span className="ent-card-title">{title}</span>
-                    <div className="ent-card-icon-wrapper">
-                        {Icon && <Icon size={18} strokeWidth={2.5} />}
-                    </div>
-                </div>
-                <div className="ent-card-value">{val}</div>
-                <div style={{ fontSize: '13px', fontWeight: 500, color: 'var(--ent-text-secondary)', marginBottom: '12px' }}>
-                    {'Monitoring Level'}
-                </div>
-            </div>
-            
-            <div>
-                <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'currentColor' }}></div>
-                    Updated Today
-                </div>
-            </div>
-        </div>
+        <ModuleKPICard
+            color={color}
+            icon={Icon}
+            title={title}
+            value={val}
+            subtitle={subtitleMap[title] || 'Monitoring Level'}
+            badgeText={badge.text}
+            badgeDir={badge.dir}
+        />
     );
 };
 

@@ -2,100 +2,132 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import API from '../api/axios';
-import { 
-    Users, Briefcase, ShoppingCart, MessageSquare, Plus,
-    BarChart2, Shield, Search, TrendingUp, TrendingDown,
-    Quote, Bell, UserPlus, Settings, FileText, CheckCircle2,
-    CheckCircle, Calendar, DollarSign, Box, Truck, Tag, 
-    Layers, Cpu, PhoneCall, ListTodo, UserCheck, LayoutGrid, Clock, Target, Server, Activity, AlertCircle, AlertTriangle
+import {
+    Users, Briefcase, ShoppingCart, Plus,
+    BarChart2, Search, TrendingUp, TrendingDown,
+    Bell, UserPlus, FileText, CheckCircle2,
+    CheckCircle, Calendar, DollarSign, Box, Truck, Tag,
+    Layers, Cpu, PhoneCall, ListTodo, UserCheck, LayoutGrid, Clock, Target, Server, Activity, AlertCircle, AlertTriangle,
+    ArrowUpRight, Package, BarChart as BarChartIcon, Zap
 } from 'lucide-react';
 import { AreaChart, Area, PieChart, Pie, Cell, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, LineChart, Line, BarChart, Bar, Legend } from 'recharts';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 import CommandCenter from '../components/CommandCenter';
-// --- Reusable Components ---
 
-export const SparklineKPICard = ({ title, value, trend, trendValue, icon: Icon, colorClass, data }) => {
-    // Generate a smooth trendline if no data provided
-    const sparklineData = data && data.length > 0 ? data : Array.from({length: 15}, (_, i) => ({ 
-        value: Math.sin((i + (title.length || 0)) * 0.5) * 30 + 50 
+// ─── Unified KPI Card ────────────────────────────────────────────────────────
+// Accent colors are functional: green=good/performance, purple=business metric,
+// orange=inventory/stock, teal=people, blue=informational
+const KPI_THEMES = {
+    green:  { main: '#637D68', bg: 'rgba(99,125,104,0.03)', border: 'rgba(99,125,104,0.2)', iconBg: 'rgba(99,125,104,0.1)' },
+    purple: { main: '#64748B', bg: 'rgba(100,116,139,0.03)', border: 'rgba(100,116,139,0.2)', iconBg: 'rgba(100,116,139,0.1)' },
+    orange: { main: '#A37F39', bg: 'rgba(163,127,57,0.03)', border: 'rgba(163,127,57,0.2)', iconBg: 'rgba(163,127,57,0.1)' },
+    teal:   { main: '#52797B', bg: 'rgba(82,121,123,0.03)', border: 'rgba(82,121,123,0.2)', iconBg: 'rgba(82,121,123,0.1)' },
+    blue:   { main: '#8D806F', bg: 'rgba(141,128,111,0.03)', border: 'rgba(141,128,111,0.2)', iconBg: 'rgba(141,128,111,0.1)' },
+    pink:   { main: '#846274', bg: 'rgba(132,98,116,0.03)', border: 'rgba(132,98,116,0.2)', iconBg: 'rgba(132,98,116,0.1)' },
+};
+
+export const DashboardKPICard = ({ title, value, icon: Icon, theme = 'purple', trendValue, trendUp = true, sparklineData }) => {
+    const t = KPI_THEMES[theme] || KPI_THEMES.purple;
+    // Each card gets a distinct sparkline shape via its seed
+    const defaultData = sparklineData || Array.from({ length: 12 }, (_, i) => ({
+        v: 40 + Math.sin((i + title.charCodeAt(0)) * 0.7) * 20 + (trendUp ? i * 1.5 : -i * 1)
     }));
-    
-    const strokeColor = colorClass === 'icon-green' ? 'var(--ent-color-success)' :
-                        colorClass === 'icon-purple' ? 'var(--ent-color-purple)' :
-                        colorClass === 'icon-blue' ? 'var(--ent-color-primary)' :
-                        colorClass === 'icon-orange' ? 'var(--ent-color-warning)' :
-                        colorClass === 'icon-teal' ? 'var(--ent-color-teal)' :
-                        colorClass === 'icon-pink' ? 'var(--ent-color-pink)' : 'var(--ent-color-primary)';
 
-    const themeClass = colorClass ? colorClass.replace('icon-', 'ent-theme-') : 'ent-theme-primary';
-
-    let isPositive = trend === 'up';
+    const gradId = `spark-${title.replace(/\s+/g, '-')}`;
 
     return (
-        <div className={`ent-module-card ${themeClass}`} style={{ gap: '8px' }}>
-            <div className="ent-card-header" style={{ marginBottom: 0 }}>
-                <span className="ent-card-title" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 'calc(100% - 40px)' }}>{title}</span>
-                <div className="ent-card-icon-wrapper" style={{ flexShrink: 0 }}>
-                    <Icon size={16} strokeWidth={2.5} />
+        <div className="dash-kpi-card" style={{ backgroundColor: t.bg, borderColor: t.border }}>
+            {/* Header: label left, icon right */}
+            <div className="dash-kpi-header">
+                <span className="dash-kpi-eyebrow" style={{ color: t.main }}>{title}</span>
+                <div className="dash-kpi-icon-badge" style={{ background: t.iconBg }}>
+                    <Icon size={16} strokeWidth={2.5} color={t.main} />
                 </div>
             </div>
-            
-            <div className="ent-card-value" style={{ marginBottom: 0, fontSize: '20px' }}>{value}</div>
-            
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
-                <div className="ent-card-status-badge" style={{ whiteSpace: 'nowrap', padding: '2px 6px', fontSize: '11px', flexShrink: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {isPositive ? <TrendingUp size={12} style={{ flexShrink: 0 }} /> : <TrendingDown size={12} style={{ flexShrink: 0 }} />}
-                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{trendValue || 'Stable'}</span>
-                </div>
-                
-                <div style={{ width: '50px', height: '25px', flexShrink: 0 }}>
-                    <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={sparklineData}>
-                            <Line type="monotone" dataKey="value" stroke={strokeColor} strokeWidth={2} dot={false} isAnimationActive={false} />
-                        </LineChart>
-                    </ResponsiveContainer>
-                </div>
+
+            {/* Big number */}
+            <div className="dash-kpi-value">{value}</div>
+
+            {/* Caption: Plain text, wraps to 2 lines, never truncates. Semantic color for trend. */}
+            <div className="dash-kpi-trend-badge" style={{ color: trendUp ? '#059669' : '#DC2626' }}>
+                {trendUp ? <TrendingUp size={11} strokeWidth={3} style={{ flexShrink: 0 }} /> : <TrendingDown size={11} strokeWidth={3} style={{ flexShrink: 0 }} />}
+                <span>{trendValue}</span>
+            </div>
+
+            {/* Sparkline — Area chart with gradient */}
+            <div className="dash-kpi-sparkline-row">
+                <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={defaultData}>
+                        <defs>
+                            <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor={t.main} stopOpacity={0.2} />
+                                <stop offset="95%" stopColor={t.main} stopOpacity={0} />
+                            </linearGradient>
+                        </defs>
+                        <Area type="monotone" dataKey="v" stroke={t.main} strokeWidth={1.5} fillOpacity={1} fill={`url(#${gradId})`} isAnimationActive={false} />
+                    </AreaChart>
+                </ResponsiveContainer>
             </div>
         </div>
     );
 };
 
+// ─── Quick Action Item ────────────────────────────────────────────────────────
 export const IconQuickAction = ({ icon: Icon, label, colorClass, onClick }) => (
     <div className="qa-item" onClick={onClick}>
         <div className={`qa-icon-wrapper ${colorClass}`}>
-            <Icon size={22} />
+            <Icon size={20} strokeWidth={2} />
         </div>
         <div className="qa-label">{label}</div>
     </div>
 );
 
-export const MiniStatCard = ({ title, value, subValue, icon: Icon, colorClass, trendColor }) => {
-    const strokeColor = colorClass === 'bg-light-blue' ? '#3b82f6' :
-                        colorClass === 'bg-light-green' ? '#10b981' :
-                        colorClass === 'bg-light-orange' ? '#f59e0b' :
-                        colorClass === 'bg-light-purple' ? '#8b5cf6' :
-                        colorClass === 'bg-light-red' ? '#ef4444' : 
-                        colorClass === 'bg-light-teal' ? '#14b8a6' :
-                        colorClass === 'bg-light-indigo' ? '#6366f1' : '#3b82f6';
-
-    return (
-        <div className="ms-item">
-            <div className={`ms-icon ${colorClass}`} style={{ color: strokeColor }}>
-                <Icon size={16} />
-            </div>
-            <div className="ms-info">
-                <div className="ms-title">{title}</div>
-                <div className="ms-value-row">
-                    <span className="ms-value">{value}</span>
-                </div>
-                <div className="ms-trend" style={{ color: trendColor || '#64748b' }}>
-                    {subValue}
-                </div>
-            </div>
+// ─── Inventory Row Item ───────────────────────────────────────────────────────
+const InvRow = ({ icon: Icon, iconBg, iconColor, label, value, caption, isAlert }) => (
+    <div className="inv-row">
+        <div className="inv-row-icon" style={{ background: iconBg }}>
+            <Icon size={14} strokeWidth={2.5} color={iconColor} />
         </div>
+        <div className="inv-row-info">
+            <span className="inv-row-label">{label}</span>
+            {caption && <span className="inv-row-caption">{caption}</span>}
+        </div>
+        <div className="inv-row-value" style={{ color: isAlert ? '#DC2626' : '#0f172a' }}>
+            {value}
+        </div>
+    </div>
+);
+
+// ─── Legacy exports (still used by other dashboard pages) ────────────────────
+export const SparklineKPICard = ({ title, value, trend, trendValue, icon: Icon, colorClass }) => {
+    const themeMap = { 'icon-green': 'green', 'icon-purple': 'purple', 'icon-orange': 'orange',
+                       'icon-teal': 'teal', 'icon-blue': 'blue', 'icon-pink': 'purple', 'icon-dark': 'purple' };
+    return (
+        <DashboardKPICard
+            title={title} value={value} icon={Icon}
+            theme={themeMap[colorClass] || 'purple'}
+            trendValue={trendValue} trendUp={trend !== 'down'}
+        />
     );
 };
 
+export const MiniStatCard = ({ title, value, subValue, icon: Icon, colorClass, trendColor }) => {
+    const colorMap = {
+        'bg-light-blue': { bg: '#eff6ff', color: '#2563EB' },
+        'bg-light-green': { bg: '#ecfdf5', color: '#059669' },
+        'bg-light-orange': { bg: '#fffbeb', color: '#D97706' },
+        'bg-light-purple': { bg: '#f5f3ff', color: '#7C3AED' },
+        'bg-light-red': { bg: '#fef2f2', color: '#DC2626' },
+        'bg-light-teal': { bg: '#f0fdfa', color: '#0D9488' },
+        'bg-light-indigo': { bg: '#eef2ff', color: '#4338CA' },
+    };
+    const c = colorMap[colorClass] || { bg: '#f3f4f6', color: '#6b7280' };
+    return (
+        <InvRow icon={Icon} iconBg={c.bg} iconColor={c.color} label={title} value={value} caption={subValue} />
+    );
+};
+
+// ─── Main Component ───────────────────────────────────────────────────────────
 const AdminDashboard = () => {
     const navigate = useNavigate();
     const { user } = useContext(AuthContext);
@@ -113,8 +145,7 @@ const AdminDashboard = () => {
                     API.get('/tasks')
                 ]);
                 setDashboardData(dashRes.data);
-                
-                // Process tasks for upcoming events
+
                 const now = new Date();
                 const futureTasks = (tasksRes.data || [])
                     .filter(t => t.dueDate && new Date(t.dueDate) >= now)
@@ -128,15 +159,14 @@ const AdminDashboard = () => {
                         return {
                             day: String(d.getDate()).padStart(2, '0'),
                             month: d.toLocaleString('default', { month: 'short' }).toUpperCase(),
-                            bg,
-                            col,
+                            bg, col,
                             title: t.title,
-                            desc: `${d.getDate()} ${d.toLocaleString('default', { month: 'long' })} • ${d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`
+                            desc: `${d.getDate()} ${d.toLocaleString('default', { month: 'long' })} · ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
                         };
                     });
                 setUpcomingEvents(futureTasks);
             } catch (err) {
-                console.error("Failed to load dashboard data", err);
+                console.error('Failed to load dashboard data', err);
             } finally {
                 setLoading(false);
             }
@@ -160,9 +190,9 @@ const AdminDashboard = () => {
     }
 
     const getGreeting = () => {
-        const hour = new Date().getHours();
-        if (hour < 12) return 'Good Morning';
-        if (hour < 18) return 'Good Afternoon';
+        const h = new Date().getHours();
+        if (h < 12) return 'Good Morning';
+        if (h < 18) return 'Good Afternoon';
         return 'Good Evening';
     };
 
@@ -173,119 +203,201 @@ const AdminDashboard = () => {
         return `₹${val}`;
     };
 
-    const totalRevenue = dashboardData?.stats?.revenue || 0;
-    const totalMaterials = dashboardData?.stats?.totalMaterials || 0;
-    const lowStock = dashboardData?.tables?.lowStock || [];
-    const totalEmployees = dashboardData?.stats?.totalEmployees || 0;
-    const activeCustomers = dashboardData?.stats?.activeCustomers || 0;
-    const totalOrders = dashboardData?.stats?.totalOrders || 0;
-    const activeOrdersCount = dashboardData?.stats?.activeOrdersCount || 0;
-    const totalVendors = dashboardData?.stats?.totalVendors || 0;
-    const orderFulfillment = dashboardData?.analytics?.healthMetrics?.orderFulfillment || 0;
+    // KPI data
+    const totalRevenue       = dashboardData?.stats?.revenue || 0;
+    const totalMaterials     = dashboardData?.stats?.totalMaterials || 0;
+    const lowStock           = dashboardData?.tables?.lowStock || [];
+    const totalEmployees     = dashboardData?.stats?.totalEmployees || 0;
+    const activeCustomers    = dashboardData?.stats?.activeCustomers || 0;
+    const totalOrders        = dashboardData?.stats?.totalOrders || 0;
+    const activeOrdersCount  = dashboardData?.stats?.activeOrdersCount || 0;
+    const totalVendors       = dashboardData?.stats?.totalVendors || 0;
+    const orderFulfillment   = dashboardData?.analytics?.healthMetrics?.orderFulfillment || 0;
+    const pendingOrders      = dashboardData?.stats?.pendingOrders || 0;
+
+    // Distinct sparkline shapes per card (mocked trend shapes)
+    const sparkShapes = {
+        fulfillment: [40,42,39,44,43,46,44,48,47,50,52,55].map(v => ({ v })),
+        orders:      [30,35,33,38,40,36,42,44,43,48,46,50].map(v => ({ v })),
+        revenue:     [50,48,52,54,51,56,58,55,60,62,59,65].map(v => ({ v })),
+        materials:   [45,46,44,45,46,44,45,44,46,45,44,45].map(v => ({ v })), // flat/stable
+        employees:   [30,30,32,32,34,34,36,36,38,38,40,42].map(v => ({ v })), // gradual step-up
+        customers:   [38,40,39,42,44,43,46,48,47,50,52,54].map(v => ({ v })),
+    };
 
     return (
         <div className="rd-container theme-admin">
-            <div className="rd-content">
-                
+            <div className="rd-content" style={{ gap: '24px' }}>
+
                 {/* ── 1. Hero Banner ── */}
                 <div className="rd-hero">
                     <div className="rd-hero-left">
                         <div className="rd-hero-avatar-wrapper">
-                            <img src={user?.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'Admin')}&background=4F46E5&color=fff`} alt="Profile" className="rd-hero-avatar" />
+                            <img
+                                src={user?.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'Admin')}&background=1E293B&color=fff`}
+                                alt="Profile"
+                                className="rd-hero-avatar"
+                            />
                             <div className="rd-hero-status-dot"></div>
                         </div>
                         <div>
                             <div className="rd-hero-greeting">
-                                {getGreeting()}, {user?.name?.split(' ')[0] || 'Admin'} 👋
+                                {getGreeting()}, {user?.name?.split(' ')[0] || 'Admin'}
                             </div>
                             <div className="rd-hero-subtitle">
-                                {new Date().toLocaleDateString('en-IN', {weekday:'long', day:'numeric', month:'long', year:'numeric'})} &nbsp;·&nbsp; Here's your business overview
+                                {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                                &nbsp;·&nbsp; Here's your business overview
                             </div>
                             <div className="rd-hero-badges">
-                                <span className="rd-hero-badge badge-blue"><UserCheck size={12} /> Admin</span>
-                                <span className="rd-hero-badge badge-blue" style={{background:'rgba(255,255,255,0.15)'}}>📦 {activeOrdersCount} Active Orders</span>
-                                <span className="rd-hero-badge badge-green">🟢 All Systems Operational</span>
+                                <span className="rd-hero-badge badge-neutral">
+                                    <Package size={14} /> {activeOrdersCount} Active Orders
+                                </span>
+                                <span className="rd-hero-badge badge-status">
+                                    <div className="status-dot-inline"></div> All Systems Operational
+                                </span>
                             </div>
                         </div>
                     </div>
                     <div className="rd-hero-right-actions">
-                        <button className="hero-action-btn primary" onClick={() => navigate('/attendance')}>
+                        <button className="hero-action-btn secondary" onClick={() => navigate('/attendance')}>
                             <Clock size={15} /> Check In
                         </button>
-                        <button className="hero-action-btn secondary" onClick={() => navigate('/leave-management')}>
+                        <button className="hero-action-btn primary" onClick={() => navigate('/leave-management')}>
                             <CheckCircle size={15} /> Apply Leave
                         </button>
                     </div>
                 </div>
 
-
-                {/* ── 2. KPI Row (6 columns) ── */}
+                {/* ── 2. KPI Row ── */}
                 <div className="rd-kpi-row">
-                    <SparklineKPICard title="Order Fulfillment" value={`${orderFulfillment}%`} trend="up" trendValue="Successfully Delivered" icon={Activity} colorClass="icon-green" />
-                    <SparklineKPICard title="Total Orders" value={totalOrders} trend="up" trendValue="12% vs last month" icon={ShoppingCart} colorClass="icon-purple" />
-                    <SparklineKPICard title="Total Revenue" value={formatINR(totalRevenue)} trend="up" trendValue="8% vs last month" icon={DollarSign} colorClass="icon-blue" />
-                    <SparklineKPICard title="Total Materials" value={totalMaterials} trend="neutral" trendValue="Stock stable" icon={Box} colorClass="icon-orange" />
-                    <SparklineKPICard title="Total Employees" value={totalEmployees} trend="up" trendValue="2 new hires" icon={Users} colorClass="icon-teal" />
-                    <SparklineKPICard title="Active Customers" value={activeCustomers} trend="up" trendValue="5% increase" icon={Target} colorClass="icon-pink" />
+                    <DashboardKPICard
+                        title="Order Fulfillment" value={`${orderFulfillment}%`}
+                        theme="green" icon={Activity}
+                        trendValue="Successfully delivered" trendUp={true}
+                        sparklineData={sparkShapes.fulfillment}
+                    />
+                    <DashboardKPICard
+                        title="Total Orders" value={totalOrders}
+                        theme="purple" icon={ShoppingCart}
+                        trendValue="12% vs last month" trendUp={true}
+                        sparklineData={sparkShapes.orders}
+                    />
+                    <DashboardKPICard
+                        title="Total Revenue" value={formatINR(totalRevenue)}
+                        theme="blue" icon={DollarSign}
+                        trendValue="8% vs last month" trendUp={true}
+                        sparklineData={sparkShapes.revenue}
+                    />
+                    <DashboardKPICard
+                        title="Total Materials" value={totalMaterials}
+                        theme="orange" icon={Box}
+                        trendValue="Stock stable" trendUp={true}
+                        sparklineData={sparkShapes.materials}
+                    />
+                    <DashboardKPICard
+                        title="Total Employees" value={totalEmployees}
+                        theme="teal" icon={Users}
+                        trendValue="2 new hires" trendUp={true}
+                        sparklineData={sparkShapes.employees}
+                    />
+                    <DashboardKPICard
+                        title="Active Customers" value={activeCustomers}
+                        theme="pink" icon={Target}
+                        trendValue="5% increase" trendUp={true}
+                        sparklineData={sparkShapes.customers}
+                    />
                 </div>
 
-                {/* ── 3. Middle Row (Quick Actions + Mini Stats) ── */}
-                <div className="rd-middle-row">
-                    
-                    {/* Left: Quick Actions Grid */}
+                {/* ── 3. Middle Row: Quick Actions + Inventory Summary ── */}
+                <div className="rd-middle-row" style={{ alignItems: 'stretch' }}>
+
+                    {/* Quick Actions */}
                     <div className="dashboard-panel">
                         <div className="panel-header">
                             <div className="panel-title">Quick Actions</div>
                         </div>
                         <div className="qa-grid">
-                            <IconQuickAction icon={CheckCircle2} label="Check Attendance" colorClass="bg-light-red" onClick={() => navigate('/attendance')} />
-                            <IconQuickAction icon={Calendar} label="Leaves" colorClass="bg-light-green" onClick={() => navigate('/leave-management')} />
-                            <IconQuickAction icon={DollarSign} label="Payroll" colorClass="bg-light-purple" onClick={() => navigate('/payroll')} />
-                            <IconQuickAction icon={Box} label="Material Tracking" colorClass="bg-light-orange" onClick={() => navigate('/materials')} />
-                            
-                            <IconQuickAction icon={Truck} label="Vendors" colorClass="bg-light-blue" onClick={() => navigate('/vendors')} />
-                            <IconQuickAction icon={ShoppingCart} label="Purchase Orders" colorClass="bg-light-green" onClick={() => navigate('/orders/purchase')} />
-                            <IconQuickAction icon={Tag} label="Sales Orders" colorClass="bg-light-red" onClick={() => navigate('/orders')} />
-                            <IconQuickAction icon={FileText} label="Reports" colorClass="bg-light-purple" onClick={() => navigate('/reports')} />
-                            
-                            <IconQuickAction icon={Users} label="HRMS" colorClass="bg-light-blue" onClick={() => navigate('/employees')} />
-                            <IconQuickAction icon={Layers} label="ERP" colorClass="bg-light-cyan" onClick={() => navigate('/')} />
-                            <IconQuickAction icon={Target} label="CRM" colorClass="bg-light-pink" onClick={() => navigate('/crm')} />
-                            <IconQuickAction icon={ListTodo} label="Tasks" colorClass="bg-light-orange" onClick={() => navigate('/tasks')} />
+                            <IconQuickAction icon={CheckCircle2} label="Attendance"     colorClass="bg-light-red"    onClick={() => navigate('/attendance')} />
+                            <IconQuickAction icon={Calendar}    label="Leave Mgmt"      colorClass="bg-light-green"  onClick={() => navigate('/leave-management')} />
+                            <IconQuickAction icon={DollarSign}  label="Payroll"          colorClass="bg-light-purple" onClick={() => navigate('/payroll')} />
+                            <IconQuickAction icon={Box}         label="Materials"        colorClass="bg-light-orange" onClick={() => navigate('/materials')} />
+                            <IconQuickAction icon={Truck}       label="Vendors"          colorClass="bg-light-blue"   onClick={() => navigate('/vendors')} />
+                            <IconQuickAction icon={ShoppingCart} label="Purchase Orders" colorClass="bg-light-green"  onClick={() => navigate('/orders/purchase')} />
+                            <IconQuickAction icon={Tag}         label="Sales Orders"     colorClass="bg-light-red"    onClick={() => navigate('/orders')} />
+                            <IconQuickAction icon={FileText}    label="Reports"          colorClass="bg-light-purple" onClick={() => navigate('/reports')} />
+                            <IconQuickAction icon={Users}       label="HRMS"             colorClass="bg-light-blue"   onClick={() => navigate('/employees')} />
+                            <IconQuickAction icon={Layers}      label="ERP"              colorClass="bg-light-cyan"   onClick={() => navigate('/')} />
+                            <IconQuickAction icon={Target}      label="CRM"              colorClass="bg-light-pink"   onClick={() => navigate('/crm')} />
+                            <IconQuickAction icon={ListTodo}    label="Tasks"            colorClass="bg-light-orange" onClick={() => navigate('/tasks')} />
                         </div>
                     </div>
 
-                    {/* Right: Mini Stats Grid */}
+                    {/* Inventory Summary — complementary data, NOT repeating KPI row */}
                     <div className="dashboard-panel">
                         <div className="panel-header">
-                            <div className="panel-title">Inventory Summary</div>
+                            <div className="panel-title">Inventory &amp; Operations</div>
+                            <span
+                                className="panel-action"
+                                style={{ cursor: 'pointer', fontSize: 12, color: '#7C3AED', fontWeight: 600 }}
+                                onClick={() => navigate('/materials')}
+                            >
+                                View All →
+                            </span>
                         </div>
-                        <div className="ms-grid">
-
-                            <MiniStatCard title="Total Vendors" value={totalVendors} subValue="Active" icon={Briefcase} colorClass="bg-light-blue" trendColor="#3b82f6" />
-                            <MiniStatCard title="Total Materials" value={totalMaterials} subValue="Stock Items" icon={Box} colorClass="bg-light-orange" trendColor="#f59e0b" />
-                            <MiniStatCard title="Total Orders" value={totalOrders} subValue="Sales" icon={ShoppingCart} colorClass="bg-light-purple" trendColor="#8b5cf6" />
-                            
-                            <MiniStatCard title="Low Stock Items" value={lowStock.length} subValue="Alerts" icon={AlertCircle} colorClass="bg-light-red" trendColor="#ef4444" />
-                            <MiniStatCard title="Total Staff" value={totalEmployees} subValue="Active" icon={Users} colorClass="bg-light-teal" trendColor="#14b8a6" />
-                            <MiniStatCard title="Total Clients" value={activeCustomers} subValue="Served" icon={Target} colorClass="bg-light-blue" trendColor="#3b82f6" />
-                            <MiniStatCard title="Total Revenue" value={formatINR(totalRevenue)} subValue="YTD" icon={DollarSign} colorClass="bg-light-green" trendColor="#10b981" />
-                            <MiniStatCard title="Active Orders" value={activeOrdersCount} subValue="Processing" icon={ListTodo} colorClass="bg-light-indigo" trendColor="#6366f1" />
+                        <div className="inv-grid">
+                            <InvRow
+                                icon={Briefcase} iconBg="#eff6ff" iconColor="#2563EB"
+                                label="Total Vendors" value={totalVendors}
+                                caption="Active partners"
+                            />
+                            <InvRow
+                                icon={AlertCircle} iconBg="#fef2f2" iconColor="#DC2626"
+                                label="Low Stock Alerts" value={lowStock.length}
+                                caption="Items below threshold" isAlert={lowStock.length > 0}
+                            />
+                            <InvRow
+                                icon={Clock} iconBg="#fffbeb" iconColor="#D97706"
+                                label="Active Orders" value={activeOrdersCount}
+                                caption="Currently in processing"
+                            />
+                            <InvRow
+                                icon={AlertTriangle} iconBg="#fef3c7" iconColor="#D97706"
+                                label="Pending Approvals" value={pendingOrders}
+                                caption="Orders awaiting review" isAlert={pendingOrders > 0}
+                            />
+                            <InvRow
+                                icon={Users} iconBg="#f0fdfa" iconColor="#0D9488"
+                                label="Total Staff" value={totalEmployees}
+                                caption="Active employees"
+                            />
+                            <InvRow
+                                icon={Target} iconBg="#ecfdf5" iconColor="#059669"
+                                label="Total Clients" value={activeCustomers}
+                                caption="Customers served"
+                            />
+                            <InvRow
+                                icon={DollarSign} iconBg="#f5f3ff" iconColor="#7C3AED"
+                                label="Revenue YTD" value={formatINR(totalRevenue)}
+                                caption="Year to date"
+                            />
+                            <InvRow
+                                icon={BarChartIcon} iconBg="#ecfdf5" iconColor="#059669"
+                                label="Fulfillment Rate" value={`${orderFulfillment}%`}
+                                caption="Orders delivered"
+                            />
                         </div>
                     </div>
-
                 </div>
 
-
-                {/* ── 4. Chart Row 1: Revenue Trend (wide) + Attendance Donut ── */}
+                {/* ── 4. Chart Row: Revenue Trend + Employee Distribution ── */}
                 <div className="rd-chart-row-wide">
                     <div className="dashboard-panel">
                         <div className="panel-header">
                             <div className="panel-title">Revenue Trend</div>
-                            <select 
-                                className="panel-dropdown" 
+                            <select
+                                className="panel-dropdown"
                                 style={{ paddingRight: '24px', width: 'auto' }}
-                                value={revenueTrendYear} 
+                                value={revenueTrendYear}
                                 onChange={(e) => setRevenueTrendYear(e.target.value)}
                             >
                                 <option value="current">This Year</option>
@@ -294,39 +406,15 @@ const AdminDashboard = () => {
                         </div>
                         <div style={{ height: 220, width: '100%' }}>
                             <ResponsiveContainer width="100%" height="100%">
-                                <LineChart data={dashboardData?.analytics?.trendData || []} margin={{top:4, right:10, left:0, bottom:0}}>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false}/>
-                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 11, fill: '#94a3b8'}} dy={8}/>
-                                    <YAxis axisLine={false} tickLine={false} tick={{fontSize: 11, fill: '#94a3b8'}} width={48} tickFormatter={(val) => val >= 1000 ? `${(val/1000).toFixed(0)}k` : val}/>
-                                    <Tooltip contentStyle={{fontSize: 12, borderRadius: 8, border: '1px solid #e2e8f0'}} formatter={(val, name) => [`₹${val.toLocaleString()}`, name]} />
-                                    <Legend iconType="circle" wrapperStyle={{fontSize: '12px'}} verticalAlign="top" height={36} />
-                                    <Line 
-                                        type="monotone" 
-                                        dataKey={revenueTrendYear === 'current' ? "revenue" : "lastYearRevenue"} 
-                                        name="Revenue" 
-                                        stroke="#3b82f6" 
-                                        strokeWidth={2} 
-                                        dot={false} 
-                                        activeDot={{ r: 6 }} 
-                                    />
-                                    <Line 
-                                        type="monotone" 
-                                        dataKey={revenueTrendYear === 'current' ? "expenses" : "lastYearExpenses"} 
-                                        name="Expenses" 
-                                        stroke="#f59e0b" 
-                                        strokeWidth={2} 
-                                        dot={false} 
-                                        activeDot={{ r: 6 }} 
-                                    />
-                                    <Line 
-                                        type="monotone" 
-                                        dataKey={revenueTrendYear === 'current' ? "currentYearProfit" : "lastYearProfit"} 
-                                        name="Net Profit" 
-                                        stroke="#10b981" 
-                                        strokeWidth={2} 
-                                        dot={false} 
-                                        activeDot={{ r: 6 }} 
-                                    />
+                                <LineChart data={dashboardData?.analytics?.trendData || []} margin={{ top: 4, right: 10, left: 0, bottom: 0 }}>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94a3b8' }} dy={8} />
+                                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94a3b8' }} width={48} tickFormatter={(val) => val >= 1000 ? `${(val / 1000).toFixed(0)}k` : val} />
+                                    <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #e2e8f0' }} formatter={(val, name) => [`₹${val.toLocaleString()}`, name]} />
+                                    <Legend iconType="circle" wrapperStyle={{ fontSize: '12px' }} verticalAlign="top" height={36} />
+                                    <Line type="monotone" dataKey={revenueTrendYear === 'current' ? 'revenue' : 'lastYearRevenue'} name="Revenue" stroke="#7C3AED" strokeWidth={2} dot={false} activeDot={{ r: 6 }} />
+                                    <Line type="monotone" dataKey={revenueTrendYear === 'current' ? 'expenses' : 'lastYearExpenses'} name="Expenses" stroke="#D97706" strokeWidth={2} dot={false} activeDot={{ r: 6 }} />
+                                    <Line type="monotone" dataKey={revenueTrendYear === 'current' ? 'currentYearProfit' : 'lastYearProfit'} name="Net Profit" stroke="#059669" strokeWidth={2} dot={false} activeDot={{ r: 6 }} />
                                 </LineChart>
                             </ResponsiveContainer>
                         </div>
@@ -334,7 +422,7 @@ const AdminDashboard = () => {
 
                     <div className="dashboard-panel">
                         <div className="panel-header">
-                            <div className="panel-title">Total Employees</div>
+                            <div className="panel-title">Employees by Dept.</div>
                             <select className="panel-dropdown" style={{ paddingRight: '24px', width: 'auto' }}>
                                 <option>By Department</option>
                             </select>
@@ -342,14 +430,14 @@ const AdminDashboard = () => {
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
                             <div style={{ width: '100%', height: 170 }}>
                                 <ResponsiveContainer width="100%" height="100%">
-                                    <BarChart data={dashboardData?.hrStats?.employeeDistribution || []} margin={{top:10, right:10, left:-20, bottom:0}}>
-                                        <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false}/>
-                                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 11, fill: '#94a3b8'}} dy={8}/>
-                                        <YAxis axisLine={false} tickLine={false} tick={{fontSize: 11, fill: '#94a3b8'}} allowDecimals={false} />
-                                        <Tooltip contentStyle={{fontSize: 12, borderRadius: 8, border: '1px solid #e2e8f0'}} cursor={{fill: '#f1f5f9'}} />
+                                    <BarChart data={dashboardData?.hrStats?.employeeDistribution || []} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                        <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94a3b8' }} dy={8} />
+                                        <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94a3b8' }} allowDecimals={false} />
+                                        <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #e2e8f0' }} cursor={{ fill: '#f1f5f9' }} />
                                         <Bar dataKey="value" radius={[4, 4, 0, 0]} maxBarSize={40}>
                                             {(dashboardData?.hrStats?.employeeDistribution || []).map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill={entry.color || '#3b82f6'}/>
+                                                <Cell key={`cell-${index}`} fill={entry.color || '#7C3AED'} />
                                             ))}
                                         </Bar>
                                     </BarChart>
@@ -359,7 +447,7 @@ const AdminDashboard = () => {
                     </div>
                 </div>
 
-                {/* ── 5. Activity Row: Recent Activity + Notifications (equal columns) ── */}
+                {/* ── 5. Activity + Notifications ── */}
                 <div className="rd-two-col">
                     <div className="dashboard-panel">
                         <div className="panel-header">
@@ -370,16 +458,18 @@ const AdminDashboard = () => {
                             {(dashboardData?.tables?.recentActivity || []).length > 0 ? (
                                 (dashboardData?.tables?.recentActivity || []).slice(0, 5).map((activity, idx) => (
                                     <div className="feed-item" key={idx}>
-                                        <div className="feed-time">{new Date(activity.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
-                                        <div className="feed-icon-wrapper" style={{background: activity.type === 'warning' ? '#f59e0b' : '#3b82f6'}}><Activity size={12}/></div>
+                                        <div className="feed-time">{new Date(activity.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                                        <div className="feed-icon-wrapper" style={{ background: activity.type === 'warning' ? '#fef3c7' : '#eff6ff', color: activity.type === 'warning' ? '#D97706' : '#2563EB' }}>
+                                            <Activity size={12} />
+                                        </div>
                                         <div className="feed-content">
-                                            <div className="feed-title" style={{textTransform:'capitalize'}}>{activity.type}</div>
+                                            <div className="feed-title" style={{ textTransform: 'capitalize' }}>{activity.type}</div>
                                             <div className="feed-desc">{activity.text}</div>
                                         </div>
                                     </div>
                                 ))
                             ) : (
-                                <div style={{padding: '20px', fontSize: '13px', color: '#94a3b8', textAlign: 'center'}}>No recent activity.</div>
+                                <div style={{ padding: '20px', fontSize: '13px', color: '#94a3b8', textAlign: 'center' }}>No recent activity.</div>
                             )}
                         </div>
                     </div>
@@ -393,27 +483,28 @@ const AdminDashboard = () => {
                             {(dashboardData?.tables?.recentActivity || []).length > 0 ? (
                                 (dashboardData?.tables?.recentActivity || []).slice(0, 5).map((notif, idx) => (
                                     <div className="feed-item" key={idx}>
-                                        <div className="feed-icon-wrapper" style={{background: '#ede9fe', color: '#7c3aed', flexShrink: 0}}><Bell size={14}/></div>
-                                        <div className="feed-content" style={{flex: 1}}>
-                                            <div className="feed-desc" style={{fontSize: 12, color: '#334155', whiteSpace: 'normal'}}>{notif.text}</div>
+                                        <div className="feed-icon-wrapper" style={{ background: '#f5f3ff', color: '#7c3aed', flexShrink: 0 }}>
+                                            <Bell size={14} />
                                         </div>
-                                        <div className="feed-time" style={{width: 'auto', flexShrink: 0}}>{new Date(notif.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                                        <div className="feed-content" style={{ flex: 1 }}>
+                                            <div className="feed-desc" style={{ fontSize: 12, color: '#334155', whiteSpace: 'normal' }}>{notif.text}</div>
+                                        </div>
+                                        <div className="feed-time" style={{ width: 'auto', flexShrink: 0 }}>{new Date(notif.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                                     </div>
                                 ))
                             ) : (
-                                <div style={{padding: '20px', fontSize: '13px', color: '#94a3b8', textAlign: 'center'}}>No notifications.</div>
+                                <div style={{ padding: '20px', fontSize: '13px', color: '#94a3b8', textAlign: 'center' }}>No notifications.</div>
                             )}
                         </div>
                     </div>
                 </div>
 
-                {/* ── 6. Bottom Row: 5 panels in a 5-column grid ── */}
+                {/* ── 6. Bottom Row: 5 panels ── */}
                 <div className="rd-five-col">
-
                     {/* AI Insights */}
                     <div className="dashboard-panel">
                         <div className="panel-header">
-                            <div className="panel-title"><Cpu size={15} style={{display:'inline', verticalAlign:'middle', marginRight:5}} color="#3b82f6"/> AI Insights</div>
+                            <div className="panel-title"><Cpu size={15} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 5 }} color="#7C3AED" /> AI Insights</div>
                         </div>
                         <div className="ai-insights-list">
                             <div className="ai-insight-item"><div className="ai-dot"></div><div>Revenue is <strong>{dashboardData?.analytics?.kpis?.revenueGrowth || 0}%</strong> vs last month.</div></div>
@@ -431,17 +522,17 @@ const AdminDashboard = () => {
                         </div>
                         <div style={{ height: 180 }}>
                             <ResponsiveContainer width="100%" height="100%">
-                                <BarChart layout="vertical" data={dashboardData?.tables?.topSellingMaterials || []} margin={{top:0, right:20, left:0, bottom:0}}>
-                                    <XAxis type="number" hide/>
-                                    <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{fontSize: 11, fill: '#475569'}} width={80}/>
-                                    <Tooltip contentStyle={{fontSize: 11}} cursor={{fill: '#f8fafc'}}/>
-                                    <Bar dataKey="sales" fill="#3b82f6" radius={[0,4,4,0]} barSize={10}/>
+                                <BarChart layout="vertical" data={dashboardData?.tables?.topSellingMaterials || []} margin={{ top: 0, right: 20, left: 0, bottom: 0 }}>
+                                    <XAxis type="number" hide />
+                                    <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#475569' }} width={80} />
+                                    <Tooltip contentStyle={{ fontSize: 11 }} cursor={{ fill: '#f8fafc' }} />
+                                    <Bar dataKey="sales" fill="#7C3AED" radius={[0, 4, 4, 0]} barSize={10} />
                                 </BarChart>
                             </ResponsiveContainer>
                         </div>
                     </div>
 
-                    {/* Sales Analytics Donut */}
+                    {/* Sales Analytics */}
                     <div className="dashboard-panel">
                         <div className="panel-header">
                             <div className="panel-title">Sales Analytics</div>
@@ -453,23 +544,23 @@ const AdminDashboard = () => {
                                     <PieChart>
                                         <Pie data={dashboardData?.charts?.categoryData || []} innerRadius={38} outerRadius={56} dataKey="value" cx="50%" cy="50%">
                                             {(dashboardData?.charts?.categoryData || []).map((entry, index) => {
-                                                const colors = ['#3b82f6','#f59e0b','#10b981','#8b5cf6'];
-                                                return <Cell key={`cell-${index}`} fill={colors[index%colors.length]}/>;
+                                                const colors = ['#7C3AED', '#D97706', '#059669', '#2563EB'];
+                                                return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
                                             })}
                                         </Pie>
-                                        <Tooltip contentStyle={{fontSize: 11}}/>
+                                        <Tooltip contentStyle={{ fontSize: 11 }} />
                                     </PieChart>
                                 </ResponsiveContainer>
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 5, width: '100%' }}>
                                 {(dashboardData?.charts?.categoryData || []).map((entry, idx) => {
-                                    const colors = ['#3b82f6','#f59e0b','#10b981','#8b5cf6'];
+                                    const colors = ['#7C3AED', '#D97706', '#059669', '#2563EB'];
                                     return (
-                                        <div key={idx} style={{display:'flex', alignItems:'center', justifyContent:'space-between', fontSize: 11}}>
-                                            <span style={{display:'flex', alignItems:'center', gap:5, color:'#475569'}}>
-                                                <div style={{width:8,height:8,borderRadius:'50%',background:colors[idx%colors.length]}}></div>{entry.name}
+                                        <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 11 }}>
+                                            <span style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#475569' }}>
+                                                <div style={{ width: 8, height: 8, borderRadius: '50%', background: colors[idx % colors.length] }}></div>{entry.name}
                                             </span>
-                                            <strong style={{color:'#0f172a'}}>{entry.value}</strong>
+                                            <strong style={{ color: '#0f172a' }}>{entry.value}</strong>
                                         </div>
                                     );
                                 })}
@@ -484,14 +575,14 @@ const AdminDashboard = () => {
                             <select className="panel-dropdown" style={{ paddingRight: '24px', width: 'auto' }}><option>This Month</option></select>
                         </div>
                         <div style={{ marginBottom: 10 }}>
-                            <div style={{fontSize: 22, fontWeight: 800, color: '#0f172a', letterSpacing: '-0.5px'}}>{formatINR(dashboardData?.analytics?.kpis?.netProfit || totalRevenue)}</div>
-                            <div style={{fontSize: 12, color: '#10b981', fontWeight: 600, marginTop: 3}}>↑ {dashboardData?.analytics?.kpis?.revenueGrowth || 0}% vs last month</div>
+                            <div style={{ fontSize: 22, fontWeight: 800, color: '#0f172a', letterSpacing: '-0.5px' }}>{formatINR(dashboardData?.analytics?.kpis?.netProfit || totalRevenue)}</div>
+                            <div style={{ fontSize: 12, color: '#059669', fontWeight: 600, marginTop: 3 }}>↑ {dashboardData?.analytics?.kpis?.revenueGrowth || 0}% vs last month</div>
                         </div>
-                        <div style={{height: 110}}>
+                        <div style={{ height: 110 }}>
                             <ResponsiveContainer width="100%" height="100%">
-                                <LineChart data={dashboardData?.charts?.monthlyStats || []} margin={{top:4, right:4, left:0, bottom:0}}>
-                                    <Line type="monotone" dataKey="revenue" stroke="#10b981" strokeWidth={2} dot={{r: 3, fill: '#10b981'}}/>
-                                    <Tooltip contentStyle={{fontSize: 11}} formatter={(val) => [`₹${val.toLocaleString()}`, 'Revenue']}/>
+                                <LineChart data={dashboardData?.charts?.monthlyStats || []} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
+                                    <Line type="monotone" dataKey="revenue" stroke="#059669" strokeWidth={2} dot={{ r: 3, fill: '#059669' }} />
+                                    <Tooltip contentStyle={{ fontSize: 11 }} formatter={(val) => [`₹${val.toLocaleString()}`, 'Revenue']} />
                                 </LineChart>
                             </ResponsiveContainer>
                         </div>
@@ -501,14 +592,14 @@ const AdminDashboard = () => {
                     <div className="dashboard-panel">
                         <div className="panel-header">
                             <div className="panel-title">Upcoming Events</div>
-                            <span onClick={() => navigate('/tasks/calendar')} className="panel-action" style={{cursor: 'pointer'}}>View Calendar</span>
+                            <span onClick={() => navigate('/tasks/calendar')} className="panel-action" style={{ cursor: 'pointer' }}>View Calendar</span>
                         </div>
-                        <div className="feed-list" style={{gap: 14}}>
+                        <div className="feed-list" style={{ gap: 14 }}>
                             {upcomingEvents.length > 0 ? upcomingEvents.map((ev, i) => (
                                 <div className="event-item" key={i}>
-                                    <div style={{background: ev.bg, borderRadius: 8, padding: '4px 8px', textAlign:'center', flexShrink:0, minWidth:36}}>
-                                        <div style={{color: ev.col, fontSize:9, fontWeight:700, textTransform:'uppercase'}}>{ev.month}</div>
-                                        <div style={{color:'#0f172a', fontSize:16, fontWeight:800, lineHeight:1.1}}>{ev.day}</div>
+                                    <div style={{ background: ev.bg, borderRadius: 8, padding: '4px 8px', textAlign: 'center', flexShrink: 0, minWidth: 36 }}>
+                                        <div style={{ color: ev.col, fontSize: 9, fontWeight: 700, textTransform: 'uppercase' }}>{ev.month}</div>
+                                        <div style={{ color: '#0f172a', fontSize: 16, fontWeight: 800, lineHeight: 1.1 }}>{ev.day}</div>
                                     </div>
                                     <div className="feed-content">
                                         <div className="feed-title">{ev.title}</div>
@@ -516,7 +607,7 @@ const AdminDashboard = () => {
                                     </div>
                                 </div>
                             )) : (
-                                <div style={{textAlign: 'center', color: '#64748b', fontSize: 14, padding: '20px 0'}}>
+                                <div style={{ textAlign: 'center', color: '#64748b', fontSize: 14, padding: '20px 0' }}>
                                     No upcoming events
                                 </div>
                             )}
@@ -524,13 +615,13 @@ const AdminDashboard = () => {
                     </div>
                 </div>
 
-                {/* ── 6. Footer ── */}
+                {/* ── Footer ── */}
                 <div className="dashboard-footer">
-                    <div><Calendar size={12} style={{display:'inline',marginRight:4}}/> Current FY: {dashboardData?.systemInfo?.currentFY || "2026 - 2027"}</div>
-                    <div><Layers size={12} style={{display:'inline',marginRight:4}}/> ERP Version: {dashboardData?.systemInfo?.erpVersion || "v2.5.1"}</div>
-                    <div><Server size={12} style={{display:'inline',marginRight:4}}/> Database Size: {dashboardData?.systemInfo?.dbSize || "1.28 GB"}</div>
-                    <div><Clock size={12} style={{display:'inline',marginRight:4}}/> Last Backup: {dashboardData?.systemInfo?.lastBackup || "03 Jul 2026, 02:30 AM"}</div>
-                    <div className="footer-item" style={{color: '#10b981'}}>
+                    <div><Calendar size={12} style={{ display: 'inline', marginRight: 4 }} />Current FY: {dashboardData?.systemInfo?.currentFY || '2026 - 2027'}</div>
+                    <div><Layers size={12} style={{ display: 'inline', marginRight: 4 }} />ERP Version: {dashboardData?.systemInfo?.erpVersion || 'v2.5.1'}</div>
+                    <div><Server size={12} style={{ display: 'inline', marginRight: 4 }} />Database Size: {dashboardData?.systemInfo?.dbSize || '1.28 GB'}</div>
+                    <div><Clock size={12} style={{ display: 'inline', marginRight: 4 }} />Last Backup: {dashboardData?.systemInfo?.lastBackup || '03 Jul 2026, 02:30 AM'}</div>
+                    <div className="footer-item" style={{ color: '#059669' }}>
                         <div className="footer-dot"></div> All Systems Operational
                     </div>
                 </div>

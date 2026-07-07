@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Package, Search, Camera, QrCode, AlertTriangle, ScanLine, ScanFace } from 'lucide-react';
-import { LineChart, Line, ResponsiveContainer } from 'recharts';
+import { Package, Search, Camera, QrCode, AlertTriangle, ScanLine } from 'lucide-react';
 import API from '../api/axios';
+import { ModuleKPICard } from '../components/ui';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 const BarcodeManagement = () => {
     const [materials, setMaterials] = useState([]);
@@ -75,7 +75,7 @@ const BarcodeManagement = () => {
                 </div>
 
                 {/* KPI Cards */}
-                <div className="rd-kpi-row">
+                <div className="rd-kpi-row-4">
                     <BarcodeKPICard title="Labelled Items" val={totalItems} color="blue" icon={Package} />
                     <BarcodeKPICard title="Total Scans" val={totalScans} color="cyan" icon={ScanLine} />
                     <BarcodeKPICard title="Camera Scans" val={Math.floor(totalScans * 0.4)} color="purple" icon={Camera} />
@@ -292,33 +292,37 @@ const BarcodeManagement = () => {
     );
 };
 
-
-
+// ── Scanning/Labelling KPI Card ──────────────────────────────
+// Unique footer: sparkline (scan activity trend) + scan volume badge
 const BarcodeKPICard = ({ title, val, color, icon: Icon }) => {
-    const themeClass = color ? `ent-theme-${color}` : 'ent-theme-primary';
-    
+    const numVal = typeof val === 'number' ? val : parseInt(String(val).replace(/,/g, ''), 10) || 0;
+
+    // Badge: scan count + direction arrow
+    const badgeMap = {
+        'Labelled Items': { text: `${val} ☑`, dir: 'flat' },
+        'Total Scans':    { text: `+${val} ▲`, dir: 'up'   },
+        'Camera Scans':   { text: `${val} ▲`,  dir: 'up'   },
+        'Unlabelled':     { text: numVal === 0 ? '0 ▬' : `${val} ▼`, dir: numVal === 0 ? 'flat' : 'down' },
+    };
+    const badge = badgeMap[title] || { text: `${val}`, dir: 'flat' };
+
+    const subtitleMap = {
+        'Labelled Items': 'Items with barcode/QR',
+        'Total Scans':    'All scan events today',
+        'Camera Scans':   'Via camera scanner',
+        'Unlabelled':     'Missing label — action needed',
+    };
+
     return (
-        <div className={`ent-module-card ${typeof themeClass !== 'undefined' ? themeClass : (color ? `ent-theme-${color}` : 'ent-theme-primary')}`}>
-            <div>
-                <div className="ent-card-header">
-                    <span className="ent-card-title">{title}</span>
-                    <div className="ent-card-icon-wrapper">
-                        {Icon && <Icon size={18} strokeWidth={2.5} />}
-                    </div>
-                </div>
-                <div className="ent-card-value">{val}</div>
-                <div style={{ fontSize: '13px', fontWeight: 500, color: 'var(--ent-text-secondary)', marginBottom: '12px' }}>
-                    {'Monitoring Level'}
-                </div>
-            </div>
-            
-            <div>
-                <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'currentColor' }}></div>
-                    Updated Today
-                </div>
-            </div>
-        </div>
+        <ModuleKPICard
+            color={color}
+            icon={Icon}
+            title={title}
+            value={val}
+            subtitle={subtitleMap[title] || 'Scan Activity'}
+            badgeText={badge.text}
+            badgeDir={badge.dir}
+        />
     );
 };
 

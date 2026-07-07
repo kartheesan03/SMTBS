@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import API from '../api/axios';
 import toast from 'react-hot-toast';
 import { 
-    Database, Download, RefreshCw, Upload, ShieldCheck, Server, AlertCircle, FileText, CheckCircle, Clock, Trash2, ShieldAlert, ArrowUpRight, CheckSquare 
+    Database, Download, RefreshCw, Upload, ShieldCheck, Server, AlertCircle, FileText, CheckCircle, Clock, Trash2, ShieldAlert, ArrowUpRight, CheckSquare, Settings
 } from 'lucide-react';
 
 import './BackupRestore.css';
@@ -12,21 +12,18 @@ const BackupKPICard = ({ title, val, subtitle, icon: Icon, color, trendValue }) 
     const themeClass = color ? `ent-theme-${color === 'green' ? 'success' : color === 'red' ? 'danger' : color === 'orange' ? 'warning' : color === 'purple' ? 'purple' : 'primary'}` : 'ent-theme-primary';
 
     return (
-        <div className={`ent-module-card ${typeof themeClass !== 'undefined' ? themeClass : (color ? `ent-theme-${color}` : 'ent-theme-primary')}`}>
-            <div>
-                <div className="ent-card-header">
-                    <span className="ent-card-title">{title}</span>
-                    <div className="ent-card-icon-wrapper">
-                        {Icon && <Icon size={18} strokeWidth={2.5} />}
-                    </div>
-                </div>
+        <div className={`ent-module-card ${themeClass}`}>
+            <div className="ent-card-icon-wrapper">
+                {Icon && <Icon size={20} strokeWidth={2.5} />}
+            </div>
+            <div className="ent-card-title" title={title}>{title}</div>
+            <div className="ent-card-value-area">
                 <div className="ent-card-value">{val}</div>
-                <div style={{ fontSize: '13px', fontWeight: 500, color: 'var(--ent-text-secondary)', marginBottom: '12px' }}>
+                <div className="ent-card-status-badge" style={{ backgroundColor: 'transparent', padding: 0, color: 'var(--ent-text-secondary)', fontWeight: 500 }}>
                     {subtitle || trendValue || 'Active Tracking'}
                 </div>
             </div>
-            
-            <div>
+            <div className="ent-card-footer">
                 <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}>
                     <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'currentColor' }}></div>
                     Updated Today

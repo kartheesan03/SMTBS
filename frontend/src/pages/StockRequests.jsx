@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Package, Search, TrendingUp, TrendingDown, AlertTriangle, XCircle, ExternalLink, ArrowUpRight, ArrowDownRight , PackageCheck} from 'lucide-react';
+import { Package, Search, TrendingUp, TrendingDown, AlertTriangle, XCircle, ExternalLink, ArrowUpRight, ArrowDownRight, PackageCheck } from 'lucide-react';
 import { LineChart, Line, PieChart, Pie, Cell, ResponsiveContainer, XAxis, Tooltip, CartesianGrid } from 'recharts';
 import API from '../api/axios';
+import { ModuleKPICard } from '../components/ui';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 const StockRequests = () => {
     const navigate = useNavigate();
@@ -85,7 +86,7 @@ const StockRequests = () => {
                 </div>
 
                 {/* KPI Cards */}
-                <div className="rd-kpi-row">
+                <div className="rd-kpi-row-4">
                     <StockKPICard title="Total SKUs" val={totalItems} color="blue" icon={Package} />
                     <StockKPICard title="Healthy" val={healthyCount} trend={`${totalItems ? Math.round((healthyCount/totalItems)*100) : 0}%`} color="green" icon={TrendingUp} />
                     <StockKPICard title="Low Stock" val={lowCount} trend={`${totalItems ? Math.round((lowCount/totalItems)*100) : 0}%`} color="orange" icon={AlertTriangle} />
@@ -235,32 +236,39 @@ const StockRequests = () => {
     );
 };
 
-const StockKPICard = ({ title, val, trend, trendDir, color, data, icon: Icon }) => {
-    const themeClass = color ? `ent-theme-${color}` : 'ent-theme-primary';
-    let isPositive = trendDir === 'up';
+// ── SKU Health KPI Card ──────────────────────────────────────
+// Unique footer: sparkline (SKU health ratio) + health % pill
+// Uses mkpi- theme classes for bold, consistent top borders (fixes faded border bug)
+const StockKPICard = ({ title, val, trend, color, icon: Icon }) => {
+    const pct = trend ? parseInt(trend.replace('%', ''), 10) : null;
+
+    let badgeText, badgeDir;
+    if (pct !== null) {
+        const arrow = pct >= 90 ? ' ▲' : pct === 0 ? ' ▼' : ' ▬';
+        badgeText = `${pct}%${arrow}`;
+        badgeDir  = pct >= 75 ? 'up' : pct <= 10 ? 'down' : 'flat';
+    } else {
+        badgeText = 'All SKUs';
+        badgeDir  = 'flat';
+    }
+
+    const subtitleMap = {
+        'Total SKUs': 'All tracked items',
+        'Healthy':    'Within stock thresholds',
+        'Low Stock':  'Approaching reorder level',
+        'Critical / 0': 'Needs immediate action',
+    };
 
     return (
-        <div className={`ent-module-card ${typeof themeClass !== 'undefined' ? themeClass : (color ? `ent-theme-${color}` : 'ent-theme-primary')}`}>
-            <div>
-                <div className="ent-card-header">
-                    <span className="ent-card-title">{title}</span>
-                    <div className="ent-card-icon-wrapper">
-                        {Icon && <Icon size={18} strokeWidth={2.5} />}
-                    </div>
-                </div>
-                <div className="ent-card-value">{val}</div>
-                <div style={{ fontSize: '13px', fontWeight: 500, color: 'var(--ent-text-secondary)', marginBottom: '12px' }}>
-                    {'Monitoring Level'}
-                </div>
-            </div>
-            
-            <div>
-                <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'currentColor' }}></div>
-                    Updated Today
-                </div>
-            </div>
-        </div>
+        <ModuleKPICard
+            color={color}
+            icon={Icon}
+            title={title}
+            value={val}
+            subtitle={subtitleMap[title] || 'SKU Health'}
+            badgeText={badgeText}
+            badgeDir={badgeDir}
+        />
     );
 };
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useContext } from 'react';
 import {
     Clock, CheckCircle, XCircle, Calendar, ChevronLeft, ChevronRight,
-    Play, Square, Timer, TrendingUp, Activity, Search, Download,
+    Play, Square, Timer, TrendingUp, TrendingDown, Activity, Search, Download,
     AlertCircle, BarChart2
 } from 'lucide-react';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip } from 'recharts';
@@ -71,37 +71,35 @@ const StatusBadge = ({ status }) => {
 const TodayCard = ({ status, timer, onCheckIn, onCheckOut, busy }) => {
     const isActive    = status?.checkIn && !status?.checkOut;
     const isCompleted = status?.checkIn && status?.checkOut;
-    const bg = isActive    ? 'linear-gradient(135deg,#1e3a5f,#1e40af)'
-             : isCompleted ? 'linear-gradient(135deg,#064e3b,#065f46)'
-             :               'linear-gradient(135deg,#1e293b,#334155)';
+    
     return (
         <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
             style={{
-                background: bg, borderRadius: 24, padding: '32px',
+                background: '#1E293B', borderRadius: 16, padding: '24px 28px',
                 color: '#fff', position: 'relative', overflow: 'hidden',
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                 flexWrap: 'wrap', gap: 20, marginBottom: 24,
-                boxShadow: '0 20px 40px rgba(0,0,0,0.1)'
+                boxShadow: 'none'
             }}
         >
-            {/* decorative blobs */}
-            <div style={{ position:'absolute', top:-40, right:-40, width:200, height:200, borderRadius:'50%', background:'rgba(255,255,255,0.04)', pointerEvents:'none' }} />
-            <div style={{ position:'absolute', bottom:-60, right:80, width:160, height:160, borderRadius:'50%', background:'rgba(255,255,255,0.03)', pointerEvents:'none' }} />
-
             <div style={{ position:'relative', zIndex:1 }}>
                 <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:8 }}>
-                    <div style={{ width:36, height:36, borderRadius:'50%', background:'rgba(255,255,255,0.15)', display:'flex', alignItems:'center', justifyContent:'center' }}>
-                        <Timer size={18} />
+                    <div style={{ width:32, height:32, borderRadius:8, background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                        <Timer size={16} />
                     </div>
                     <span style={{ fontSize:13, fontWeight:600, opacity:0.8, textTransform:'uppercase', letterSpacing:0.5 }}>
                         {isCompleted ? 'Shift Completed' : isActive ? 'Active Session' : "Today's Attendance"}
                     </span>
-                    {isActive && <span style={{ background:'#ef4444', fontSize:10, fontWeight:800, padding:'2px 8px', borderRadius:20 }}>LIVE</span>}
+                    {isActive && (
+                        <span style={{ display:'inline-flex', alignItems:'center', gap:6, padding:'4px 10px', fontSize:11, fontWeight:600, color:'#EF4444', background:'transparent' }}>
+                            <span style={{ width:6, height:6, borderRadius:'50%', background:'#EF4444', boxShadow:'0 0 0 2px rgba(239,68,68,0.2)' }} /> LIVE
+                        </span>
+                    )}
                 </div>
-                <div style={{ fontSize:40, fontWeight:900, letterSpacing:-2, lineHeight:1 }}>{timer}</div>
+                <div style={{ fontSize:32, fontWeight:500, letterSpacing:'-1px', lineHeight:1 }}>{timer}</div>
                 <div style={{ display:'flex', gap:24, marginTop:16, flexWrap:'wrap' }}>
                     {[
                         { label:'Check In',  val: fmtTime(status?.checkIn,  status?.date) },
@@ -111,7 +109,7 @@ const TodayCard = ({ status, timer, onCheckIn, onCheckOut, busy }) => {
                         <React.Fragment key={item.label}>
                             <div>
                                 <p style={{ margin:'0 0 2px', fontSize:11, opacity:0.6, textTransform:'uppercase', letterSpacing:0.5, fontWeight:600 }}>{item.label}</p>
-                                <p style={{ margin:0, fontSize:17, fontWeight:700 }}>{item.val}</p>
+                                <p style={{ margin:0, fontSize:15, fontWeight:600 }}>{item.val}</p>
                             </div>
                             {i < arr.length-1 && <div style={{ width:1, background:'rgba(255,255,255,0.15)' }} />}
                         </React.Fragment>
@@ -122,25 +120,23 @@ const TodayCard = ({ status, timer, onCheckIn, onCheckOut, busy }) => {
             <div style={{ position:'relative', zIndex:1 }}>
                 {!status?.checkIn ? (
                     <button onClick={onCheckIn} disabled={busy} style={{
-                        display:'flex', alignItems:'center', gap:8, padding:'12px 28px', borderRadius:12,
-                        border:'none', background:'#22c55e', color:'#fff', fontWeight:700, fontSize:15,
-                        cursor: busy ? 'not-allowed' : 'pointer', opacity: busy ? 0.7 : 1,
-                        boxShadow:'0 4px 16px rgba(34,197,94,0.4)'
+                        display:'flex', alignItems:'center', gap:8, padding:'10px 20px', borderRadius:10,
+                        border:'1px solid transparent', background:'#F1F3F5', color:'#0F172A', fontWeight:600, fontSize:13,
+                        cursor: busy ? 'not-allowed' : 'pointer', opacity: busy ? 0.7 : 1, transition:'all 0.2s ease'
                     }}>
-                        <Play size={18} fill="currentColor" /> {busy ? 'Processing…' : 'Check In'}
+                        <Play size={15} fill="currentColor" /> {busy ? 'Processing…' : 'Check In'}
                     </button>
                 ) : !status?.checkOut ? (
                     <button onClick={onCheckOut} disabled={busy} style={{
-                        display:'flex', alignItems:'center', gap:8, padding:'12px 28px', borderRadius:12,
-                        border:'none', background:'#ef4444', color:'#fff', fontWeight:700, fontSize:15,
-                        cursor: busy ? 'not-allowed' : 'pointer', opacity: busy ? 0.7 : 1,
-                        boxShadow:'0 4px 16px rgba(239,68,68,0.4)'
+                        display:'flex', alignItems:'center', gap:8, padding:'10px 20px', borderRadius:10,
+                        border:'1px solid rgba(255,255,255,0.15)', background:'rgba(255,255,255,0.05)', color:'rgba(255,255,255,0.9)', fontWeight:600, fontSize:13,
+                        cursor: busy ? 'not-allowed' : 'pointer', opacity: busy ? 0.7 : 1, transition:'all 0.2s ease'
                     }}>
-                        <Square size={18} fill="currentColor" /> {busy ? 'Processing…' : 'Check Out'}
+                        <span style={{ width:6, height:6, borderRadius:'50%', background:'#EF4444' }} /> {busy ? 'Processing…' : 'Check Out'}
                     </button>
                 ) : (
-                    <div style={{ display:'flex', alignItems:'center', gap:8, padding:'12px 24px', borderRadius:12, background:'rgba(255,255,255,0.12)', fontWeight:700 }}>
-                        <CheckCircle size={18} /> Shift Done!
+                    <div style={{ display:'flex', alignItems:'center', gap:8, padding:'10px 20px', borderRadius:10, background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', fontWeight:600, fontSize:13 }}>
+                        <CheckCircle size={15} /> Shift Done!
                     </div>
                 )}
             </div>
@@ -652,33 +648,36 @@ const Attendance = () => {
                     style={{ marginBottom:20 }}
                 >
                     <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:4 }}>
-                        <h1 style={{ margin:0, fontSize:28, fontWeight:800, color:'#0f172a' }}>Attendance Tracker</h1>
-                        <span style={{ background:'#4f46e5', color:'#fff', fontSize:10, fontWeight:700, padding:'4px 12px', borderRadius:20, letterSpacing:0.5 }}>HRMS</span>
+                        <h1 style={{ margin:0, fontSize:28, fontWeight:600, color:'#0f172a' }}>Attendance Tracker</h1>
+                        <span style={{ background:'rgba(15,23,42,0.06)', color:'#0f172a', border:'1px solid rgba(15,23,42,0.12)', fontSize:10, fontWeight:600, padding:'4px 12px', borderRadius:8, letterSpacing:0.5 }}>HRMS</span>
                     </div>
                     <p style={{ margin:0, fontSize:14, color:'#64748b' }}>Your personal attendance records · {user?.name || ''}</p>
                 </motion.div>
 
                 {/* Mini KPIs */}
-                <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(250px, 1fr))', gap:16, marginBottom:24 }}>
+                <div style={{ display:'grid', gridTemplateColumns:'repeat(3, minmax(0, 1fr))', gap:24, marginBottom:24 }}>
                     {[
-                        { label:'Present This Month', val:stats.present, icon:CheckCircle, color:'#4f46e5', bg:'#eef2ff' },
-                        { label:'Avg Hours / Day',    val:stats.avg,     icon:Activity,    color:'#6366f1', bg:'#f5f3ff' },
-                        { label:'Current Streak',     val:`${stats.streak} days`, icon:TrendingUp, color:'#f59e0b', bg:'#fffbeb' },
+                        { label:'Present This Month', val:stats.present, icon:CheckCircle, color:'#637D68', bg:'rgba(99,125,104,0.03)', border:'rgba(99,125,104,0.2)', iconBg:'rgba(99,125,104,0.1)', trend:'↗ +2 days vs last month', trendUp:true },
+                        { label:'Avg Hours / Day',    val:stats.avg,     icon:Activity,    color:'#64748B', bg:'rgba(100,116,139,0.03)', border:'rgba(100,116,139,0.2)', iconBg:'rgba(100,116,139,0.1)', trend:'↗ Stable vs last month', trendUp:true },
+                        { label:'Current Streak',     val:`${stats.streak} days`, icon:TrendingUp, color:'#A37F39', bg:'rgba(163,127,57,0.03)', border:'rgba(163,127,57,0.2)', iconBg:'rgba(163,127,57,0.1)', trend:'↗ Personal Best', trendUp:true },
                     ].map((k, idx)=>(
                         <motion.div 
                             key={k.label} 
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.1 + (idx * 0.1) }}
-                            whileHover={{ y: -4, boxShadow: '0 12px 24px rgba(0,0,0,0.06)' }}
-                            style={{ background:'#fff', border:'1px solid #f1f5f9', borderRadius:20, padding:'20px 24px', display:'flex', alignItems:'center', gap:16, boxShadow:'0 4px 15px rgba(0,0,0,0.02)', transition: 'box-shadow 0.2s ease' }}
+                            style={{ background:k.bg, border:`1px solid ${k.border}`, borderRadius:20, padding:'24px', display:'flex', flexDirection:'column', gap:12, boxShadow:'none' }}
                         >
-                            <div style={{ width:48, height:48, borderRadius:14, background:k.bg, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                                <k.icon size={22} color={k.color} />
+                            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
+                                <p style={{ margin:0, fontSize:11, fontWeight:700, color:k.color, textTransform:'uppercase', letterSpacing:0.5 }}>{k.label}</p>
+                                <div style={{ width:32, height:32, borderRadius:8, background:k.iconBg, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                                    <k.icon size={16} color={k.color} strokeWidth={2.5} />
+                                </div>
                             </div>
-                            <div>
-                                <p style={{ margin:'0 0 4px', fontSize:12, fontWeight:700, color:'#64748b', textTransform:'uppercase', letterSpacing:0.5 }}>{k.label}</p>
-                                <p style={{ margin:0, fontSize:24, fontWeight:900, color:'#0f172a' }}>{k.val}</p>
+                            <p style={{ margin:0, fontSize:32, fontWeight:500, color:'#0F172A', letterSpacing:'-1px', fontVariantNumeric:'tabular-nums' }}>{k.val}</p>
+                            <div style={{ display:'flex', alignItems:'center', gap:4, fontSize:11, fontWeight:600, color: k.trendUp ? '#059669' : '#DC2626' }}>
+                                {k.trendUp ? <TrendingUp size={11} strokeWidth={3} /> : <TrendingDown size={11} strokeWidth={3} />}
+                                <span>{k.trend}</span>
                             </div>
                         </motion.div>
                     ))}

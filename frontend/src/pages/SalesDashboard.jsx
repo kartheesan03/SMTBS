@@ -11,6 +11,7 @@ import {
 import { AreaChart, Area, PieChart, Pie, Cell, ResponsiveContainer, XAxis, YAxis, Legend, Tooltip, CartesianGrid, LineChart, Line, BarChart, Bar } from 'recharts';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 import CommandCenter from '../components/CommandCenter';
+import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
 import { SparklineKPICard, IconQuickAction, MiniStatCard } from './AdminDashboard';
 
 const SalesDashboard = () => {
@@ -149,14 +150,14 @@ const SalesDashboard = () => {
 
 
                 {/* ── 2. KPI Row (6 columns) ── */}
-                <div className="rd-kpi-row">
-                    <SparklineKPICard title="Total Revenue" value={formatINR(totalRevenue)} trend="up" trendValue="This month" icon={DollarSign} colorClass="icon-blue" />
-                    <SparklineKPICard title="Active Leads" value={activeLeads} trend="up" trendValue="In pipeline" icon={Target} colorClass="icon-purple" />
-                    <SparklineKPICard title="Conversion Rate" value={`${conversionRate}%`} trend="up" trendValue="Lead to deal" icon={TrendingUp} colorClass="icon-green" />
-                    <SparklineKPICard title="Total Customers" value={totalCustomers} trend="neutral" trendValue="Active" icon={Users} colorClass="icon-teal" />
-                    <SparklineKPICard title="Sales Meetings" value={meetings} trend="neutral" trendValue="Scheduled" icon={CheckCircle} colorClass="icon-orange" />
-                    <SparklineKPICard title="Total Orders" value={totalOrders} trend="up" trendValue="Completed" icon={ShoppingCart} colorClass="icon-pink" />
-                </div>
+                <PastelKPIGrid>
+                    <PastelKPICard title="Total Revenue" value={formatINR(totalRevenue)} colorTheme="blue" icon={DollarSign} trendValue="This month" trendPositive={true} />
+                    <PastelKPICard title="Active Leads" value={activeLeads} colorTheme="purple" icon={Target} trendValue="In pipeline" trendPositive={true} />
+                    <PastelKPICard title="Conversion Rate" value={`${conversionRate}%`} colorTheme="mint" icon={TrendingUp} trendValue="Lead to deal" trendPositive={true} />
+                    <PastelKPICard title="Total Customers" value={totalCustomers} colorTheme="yellow" icon={Users} trendValue="Active" trendPositive={true} />
+                    <PastelKPICard title="Sales Meetings" value={meetings} colorTheme="peach" icon={CheckCircle} trendValue="Scheduled" trendPositive={true} />
+                    <PastelKPICard title="Total Orders" value={totalOrders} colorTheme="pink" icon={ShoppingCart} trendValue="Completed" trendPositive={true} />
+                </PastelKPIGrid>
 
                 {/* ── 3. Middle Row (Quick Actions + Mini Stats) ── */}
                 <div className="rd-middle-row">

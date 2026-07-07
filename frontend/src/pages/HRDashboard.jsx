@@ -7,7 +7,9 @@ import {
     Box, Briefcase, Activity, RefreshCw, BarChart2, TrendingUp, TrendingDown, AlertTriangle, UserCheck, Moon, AlertCircle, UserPlus, FileText, Settings, Shield, Plus, Quote, LayoutGrid, ListTodo, Target, Layers, Cpu, Server, Clock, Truck, ShoppingCart, Tag
 } from 'lucide-react';
 import { AreaChart, Area, PieChart, Pie, Cell, ResponsiveContainer, XAxis, YAxis, Legend, Tooltip, CartesianGrid, LineChart, Line, BarChart, Bar } from 'recharts';
+import { motion } from 'framer-motion';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
+import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
 import CommandCenter from '../components/CommandCenter';
 import { SparklineKPICard, IconQuickAction, MiniStatCard } from './AdminDashboard';
 
@@ -141,14 +143,14 @@ const HRDashboard = () => {
                 </div>
 
                 {/* ── 2. KPI Row (6 columns) ── */}
-                <div className="rd-kpi-row">
-                    <SparklineKPICard title="Total Employees" value={totalEmployees} trend="up" trendValue={`${newJoiners} new joiners`} icon={Users} colorClass="icon-teal" />
-                    <SparklineKPICard title="Attendance Rate" value={hrStats.attendanceRate || '98%'} trend="up" trendValue="vs last month" icon={UserCheck} colorClass="icon-blue" />
-                    <SparklineKPICard title="New Joiners" value={newJoiners} trend="up" trendValue="This month" icon={UserPlus} colorClass="icon-green" />
-                    <SparklineKPICard title="Pending Leaves" value={pendingLeaves} trend="neutral" trendValue="Awaiting approval" icon={Calendar} colorClass="icon-orange" />
-                    <SparklineKPICard title="Payroll Processed" value={`${payrollProcessed}%`} trend="up" trendValue="This month" icon={DollarSign} colorClass="icon-purple" />
-                    <SparklineKPICard title="On Leave Today" value={onLeave} trend="down" trendValue="vs average" icon={Moon} colorClass="icon-pink" />
-                </div>
+                <PastelKPIGrid>
+                    <PastelKPICard title="Total Employees" value={totalEmployees} colorTheme="blue" icon={Users} trendValue={`${newJoiners} new joiners`} trendPositive={true} />
+                    <PastelKPICard title="Attendance Rate" value={hrStats.attendanceRate || '98%'} colorTheme="mint" icon={UserCheck} trendValue="vs last month" trendPositive={true} />
+                    <PastelKPICard title="New Joiners" value={newJoiners} colorTheme="peach" icon={UserPlus} trendValue="This month" trendPositive={true} />
+                    <PastelKPICard title="Pending Leaves" value={pendingLeaves} colorTheme="purple" icon={Calendar} trendValue="Awaiting approval" trendPositive={false} />
+                    <PastelKPICard title="Payroll Processed" value={`${payrollProcessed}%`} colorTheme="pink" icon={DollarSign} trendValue="This month" trendPositive={true} />
+                    <PastelKPICard title="On Leave Today" value={onLeave} colorTheme="yellow" icon={Moon} trendValue="vs average" trendPositive={true} />
+                </PastelKPIGrid>
 
                 {/* ── 3. Middle Row (Quick Actions + Mini Stats) ── */}
                 <div className="rd-middle-row">

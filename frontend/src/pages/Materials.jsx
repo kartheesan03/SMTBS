@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Package, AlertTriangle, XCircle, ArrowUpRight, ArrowDownRight, Edit, Trash2, Eye, Plus, CheckCircle, Database } from 'lucide-react';
-import { LineChart, Line, ResponsiveContainer } from 'recharts';
+import { Package, AlertTriangle, XCircle, Edit, Trash2, Eye, Plus, CheckCircle } from 'lucide-react';
 import API from '../api/axios';
 import { toast } from 'react-hot-toast';
-import { DataTable } from '../components/ui';
+import { DataTable, ModuleKPICard } from '../components/ui';
 import { motion } from 'framer-motion';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 
@@ -114,7 +113,7 @@ const Materials = () => {
                         </div>
                 </div>
 
-                <div className="rd-kpi-row">
+                <div className="rd-kpi-row-4">
                     <MaterialKPICard title="Total Items" val={totalItems} color="blue" icon={Package} />
                     <MaterialKPICard title="In Stock" val={inStock} trend={`${totalItems ? Math.round((inStock/totalItems)*100) : 0}%`} color="green" icon={CheckCircle} />
                     <MaterialKPICard title="Low Stock" val={lowStock} trend={`${totalItems ? Math.round((lowStock/totalItems)*100) : 0}%`} color="orange" icon={AlertTriangle} />
@@ -158,54 +157,41 @@ const Materials = () => {
     );
 };
 
+// ── Inventory Overview KPI Card ────────────────────────────────────
+// Unique footer: sparkline (stock trend) + capacity % pill
 const MaterialKPICard = ({ title, val, color, icon: Icon, trend }) => {
-    let statusText = 'Monitoring Level';
-    if (title === 'Total Items') {
-        statusText = 'Inventory Tracking Active';
-    } else if (title === 'In Stock') {
-        statusText = 'Fully Stocked';
-    } else if (title === 'Low Stock') {
-        statusText = 'Monitor Inventory';
-    } else if (title === 'Out of Stock') {
-        statusText = 'Immediate Replenishment Required';
+    const capacityPct = trend ? parseInt(trend.replace('%', ''), 10) : null;
+
+    // Subtitle text
+    const subtitleMap = {
+        'Total Items': 'Inventory Tracking Active',
+        'In Stock':    'Fully Stocked',
+        'Low Stock':   'Monitor Inventory',
+        'Out of Stock':'Immediate Replenishment',
+    };
+    const subtitle = subtitleMap[title] || 'Monitoring Level';
+
+    // Badge text: capacity % + directional arrow
+    let badgeText, badgeDir;
+    if (capacityPct !== null) {
+        const arrow = capacityPct >= 90 ? ' ▲' : capacityPct === 0 ? ' ▬' : ' ▼';
+        badgeText = `${capacityPct}%${arrow}`;
+        badgeDir  = capacityPct >= 75 ? 'up' : capacityPct === 0 ? 'down' : 'flat';
+    } else {
+        badgeText = 'Live ●';
+        badgeDir  = 'flat';
     }
 
-    const themeClass = color ? `ent-theme-${color}` : 'ent-theme-primary';
-    const capacityPercent = trend ? parseInt(trend.replace('%', '')) : null;
-
     return (
-        <div className={`ent-module-card ${themeClass}`}>
-            <div>
-                <div className="ent-card-header">
-                    <span className="ent-card-title">{title}</span>
-                    <div className="ent-card-icon-wrapper">
-                        <Icon size={18} strokeWidth={2.5} />
-                    </div>
-                </div>
-                <div className="ent-card-value">{val}</div>
-                <div style={{ fontSize: '13px', fontWeight: 500, color: 'var(--ent-text-secondary)', marginBottom: '12px' }}>
-                    {statusText}
-                </div>
-            </div>
-            
-            <div>
-                {capacityPercent !== null && (
-                    <div style={{ marginBottom: '12px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>
-                            <span>Capacity</span>
-                            <span>{capacityPercent}%</span>
-                        </div>
-                        <div className="ent-progress-container">
-                            <div className="ent-progress-fill" style={{ width: `${capacityPercent}%` }}></div>
-                        </div>
-                    </div>
-                )}
-                <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'currentColor' }}></div>
-                    Updated Today
-                </div>
-            </div>
-        </div>
+        <ModuleKPICard
+            color={color}
+            icon={Icon}
+            title={title}
+            value={val}
+            subtitle={subtitle}
+            badgeText={badgeText}
+            badgeDir={badgeDir}
+        />
     );
 };
 

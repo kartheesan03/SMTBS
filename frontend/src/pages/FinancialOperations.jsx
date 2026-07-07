@@ -4,6 +4,7 @@ import { TrendingUp, CreditCard, AlertTriangle, DollarSign, Search , Wallet} fro
 import { LineChart, Line, PieChart, Pie, Cell, BarChart, Bar, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { motion } from 'framer-motion';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
+import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
 import toast from 'react-hot-toast';
 
 const FinancialOperations = () => {
@@ -137,17 +138,12 @@ const FinancialOperations = () => {
                 </div>
 
                 {/* KPI Cards */}
-                <motion.div 
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.1, duration: 0.4 }}
-                    className="rd-kpi-row"
-                >
-                    <FinKPICard title="Revenue (Paid)" val={formatCurrency(revenue)} subtitle="This month" color="green" icon={TrendingUp} data={barData} />
-                    <FinKPICard title="Total Payables" val={formatCurrency(totalPayables)} subtitle="vs last month" color="blue" icon={CreditCard} data={barData} />
-                    <FinKPICard title="Overdue" val={formatCurrency(overdueAmount)} subtitle="Needs attention" subtitleColor="#ef4444" color="red" icon={AlertTriangle} data={barData} />
-                    <FinKPICard title="Outstanding Recv." val={formatCurrency(outstandingRecv)} subtitle="vs last month" color="orange" icon={DollarSign} data={barData} />
-                </motion.div>
+                <PastelKPIGrid>
+                    <PastelKPICard title="Revenue (Paid)" value={formatCurrency(revenue)} colorTheme="mint" icon={TrendingUp} trendValue="+14% vs last month" trendPositive={true} />
+                    <PastelKPICard title="Total Payables" value={formatCurrency(totalPayables)} colorTheme="blue" icon={CreditCard} trendValue="Expected outflow" trendPositive={false} />
+                    <PastelKPICard title="Overdue" value={formatCurrency(overdueAmount)} colorTheme="pink" icon={AlertTriangle} trendValue="Immediate attention" trendPositive={false} />
+                    <PastelKPICard title="Outstanding Recv." value={formatCurrency(outstandingRecv)} colorTheme="peach" icon={DollarSign} trendValue="Pending inflow" trendPositive={true} />
+                </PastelKPIGrid>
 
                 {/* Charts Section */}
                 <motion.div 
@@ -330,21 +326,18 @@ const FinKPICard = ({ title, val, trend, subtitle, subtitleColor, color, icon: I
     const themeClass = color ? `ent-theme-${color === 'green' ? 'success' : color === 'red' ? 'danger' : color === 'orange' ? 'warning' : 'primary'}` : 'ent-theme-primary';
     
     return (
-        <div className={`ent-module-card ${typeof themeClass !== 'undefined' ? themeClass : (color ? `ent-theme-${color}` : 'ent-theme-primary')}`}>
-            <div>
-                <div className="ent-card-header">
-                    <span className="ent-card-title">{title}</span>
-                    <div className="ent-card-icon-wrapper">
-                        {Icon && <Icon size={18} strokeWidth={2.5} />}
-                    </div>
-                </div>
+        <div className={`ent-module-card ${themeClass}`}>
+            <div className="ent-card-icon-wrapper">
+                {Icon && <Icon size={20} strokeWidth={2.5} />}
+            </div>
+            <div className="ent-card-title" title={title}>{title}</div>
+            <div className="ent-card-value-area">
                 <div className="ent-card-value">{val}</div>
-                <div style={{ fontSize: '13px', fontWeight: 500, color: 'var(--ent-text-secondary)', marginBottom: '12px' }}>
-                    {subtitle || trendValue || 'Active Tracking'}
+                <div className="ent-card-status-badge" style={{ backgroundColor: 'transparent', padding: 0, color: subtitleColor || 'var(--ent-text-secondary)', fontWeight: 500 }}>
+                    {subtitle || trend || 'Active Tracking'}
                 </div>
             </div>
-            
-            <div>
+            <div className="ent-card-footer">
                 <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}>
                     <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'currentColor' }}></div>
                     Updated Today

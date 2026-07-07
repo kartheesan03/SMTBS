@@ -5,6 +5,7 @@ import { Package, Truck, CheckCircle, DollarSign, Search, Plus, Eye, ArrowRight,
 import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell } from 'recharts';
 import { motion } from 'framer-motion';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
+import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
 import toast from 'react-hot-toast';
 
 const OrderManagement = () => {
@@ -121,17 +122,12 @@ const OrderManagement = () => {
                 </div>
 
                 {/* KPI Cards */}
-                <motion.div 
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.1, duration: 0.4 }}
-                    className="rd-kpi-row"
-                >
-                    <OrderKPICard title="Total Orders" val={orders.length} subtitle="vs last month" color="blue" icon={Package} />
-                    <OrderKPICard title="Active Orders" val={activeOrders.length} subtitle="In pipeline" color="purple" icon={Truck} />
-                    <OrderKPICard title="Delivered" val={deliveredOrders.length} subtitle="vs last month" color="green" icon={CheckCircle} />
-                    <OrderKPICard title="Order Revenue" val={formatCurrency(orderRevenue)} subtitle="vs last month" color="teal" icon={DollarSign} />
-                </motion.div>
+                <PastelKPIGrid>
+                    <PastelKPICard title="Total Orders" value={orders.length} colorTheme="purple" icon={Package} trendValue="+18% vs last month" trendPositive={true} />
+                    <PastelKPICard title="Active Orders" value={activeOrders.length} colorTheme="blue" icon={Truck} trendValue="In pipeline" trendPositive={true} />
+                    <PastelKPICard title="Delivered" value={deliveredOrders.length} colorTheme="mint" icon={CheckCircle} trendValue="+12% vs last month" trendPositive={true} />
+                    <PastelKPICard title="Order Revenue" value={formatCurrency(orderRevenue)} colorTheme="yellow" icon={DollarSign} trendValue="+22% vs last month" trendPositive={true} />
+                </PastelKPIGrid>
 
                 {/* Charts */}
                 <motion.div 
@@ -306,21 +302,18 @@ const OrderKPICard = ({ title, val, trend, subtitle, color, icon: Icon, data }) 
     const themeClass = color ? `ent-theme-${color}` : 'ent-theme-primary';
 
     return (
-        <div className={`ent-module-card ${typeof themeClass !== 'undefined' ? themeClass : (color ? `ent-theme-${color}` : 'ent-theme-primary')}`}>
-            <div>
-                <div className="ent-card-header">
-                    <span className="ent-card-title">{title}</span>
-                    <div className="ent-card-icon-wrapper">
-                        {Icon && <Icon size={18} strokeWidth={2.5} />}
-                    </div>
-                </div>
+        <div className={`ent-module-card ${themeClass}`}>
+            <div className="ent-card-icon-wrapper">
+                {Icon && <Icon size={20} strokeWidth={2.5} />}
+            </div>
+            <div className="ent-card-title" title={title}>{title}</div>
+            <div className="ent-card-value-area">
                 <div className="ent-card-value">{val}</div>
-                <div style={{ fontSize: '13px', fontWeight: 500, color: 'var(--ent-text-secondary)', marginBottom: '12px' }}>
-                    {subtitle || trendValue || 'Active Tracking'}
+                <div className="ent-card-status-badge" style={{ backgroundColor: 'transparent', padding: 0, color: 'var(--ent-text-secondary)', fontWeight: 500 }}>
+                    {subtitle || trend || 'Active Tracking'}
                 </div>
             </div>
-            
-            <div>
+            <div className="ent-card-footer">
                 <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}>
                     <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'currentColor' }}></div>
                     Updated Today

@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { DataTable } from '../components/ui';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
+import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
 const Vendors = () => {
     const navigate = useNavigate();
     const [vendors, setVendors] = useState([]);
@@ -137,17 +138,12 @@ const Vendors = () => {
                         </div>
                 </div>
 
-                <motion.div 
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.1, duration: 0.4 }}
-                    className="rd-kpi-row"
-                >
-                    <VendorKPICard title="Total Vendors" val={vendors.length} icon={Building2} color="blue" data={barData} />
-                    <VendorKPICard title="Active" val={activeVendors.length} icon={CheckCircle} color="green" data={barData} />
-                    <VendorKPICard title="On Hold" val={onHoldVendors.length} icon={AlertTriangle} color="orange" data={barData} />
-                    <VendorKPICard title="Total Outstanding" val={formatCurrency(totalOutstanding)} icon={DollarSign} color="red" data={barData} />
-                </motion.div>
+                <PastelKPIGrid>
+                    <PastelKPICard title="Total Vendors" value={vendors.length} colorTheme="blue" icon={Building2} trendValue="All partners" trendPositive={true} />
+                    <PastelKPICard title="Active" value={activeVendors.length} colorTheme="mint" icon={CheckCircle} trendValue="Good standing" trendPositive={true} />
+                    <PastelKPICard title="On Hold" value={onHoldVendors.length} colorTheme="peach" icon={AlertTriangle} trendValue="Needs attention" trendPositive={false} />
+                    <PastelKPICard title="Total Outstanding" value={formatCurrency(totalOutstanding)} colorTheme="pink" icon={DollarSign} trendValue="Unpaid balance" trendPositive={false} />
+                </PastelKPIGrid>
 
                 <motion.div 
                     initial={{ opacity: 0, y: 20 }}
@@ -184,21 +180,16 @@ const VendorKPICard = ({ title, val, color, icon: Icon, data }) => {
     const themeClass = color ? `ent-theme-${color}` : 'ent-theme-primary';
     
     return (
-        <div className={`ent-module-card ${typeof themeClass !== 'undefined' ? themeClass : (color ? `ent-theme-${color}` : 'ent-theme-primary')}`}>
-            <div>
-                <div className="ent-card-header">
-                    <span className="ent-card-title">{title}</span>
-                    <div className="ent-card-icon-wrapper">
-                        {Icon && <Icon size={18} strokeWidth={2.5} />}
-                    </div>
-                </div>
-                <div className="ent-card-value">{val}</div>
-                <div style={{ fontSize: '13px', fontWeight: 500, color: 'var(--ent-text-secondary)', marginBottom: '12px' }}>
-                    {'Monitoring Level'}
-                </div>
+        <div className={`ent-module-card ${themeClass}`}>
+            <div className="ent-card-icon-wrapper">
+                {Icon && <Icon size={20} strokeWidth={2.5} />}
             </div>
-            
-            <div>
+            <div className="ent-card-title" title={title}>{title}</div>
+            <div className="ent-card-value-area">
+                <div className="ent-card-value">{val}</div>
+                <div className="ent-card-status-badge" style={{ backgroundColor: 'transparent', padding: 0, color: 'var(--ent-text-secondary)', fontWeight: 500 }}>Monitoring Level</div>
+            </div>
+            <div className="ent-card-footer">
                 <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}>
                     <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'currentColor' }}></div>
                     Updated Today

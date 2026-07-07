@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 import { Target, Zap, Handshake, DollarSign, Search, ArrowRight } from 'lucide-react';
-import { BarChart, Bar, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import { motion } from 'framer-motion';
-import '../components/AdminDashboard/AdminDashboardRedesign.css';
 import toast from 'react-hot-toast';
+import '../components/AdminDashboard/AdminDashboardRedesign.css';
+import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
 
 const Leads = () => {
     const navigate = useNavigate();
@@ -92,17 +93,12 @@ const Leads = () => {
                     </div>
                 </div>
 
-                <motion.div 
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.1, duration: 0.4 }}
-                    className="rd-kpi-row"
-                >
-                    <LeadKPICard title="Total Leads" val={leads.length} color="blue" icon={Target} />
-                    <LeadKPICard title="Hot Leads (≥80)" val={hotLeads.length} color="red" icon={Zap} />
-                    <LeadKPICard title="In Negotiation" val={inNegotiation.length} color="purple" icon={Handshake} />
-                    <LeadKPICard title="Pipeline Value" val={formatCurrency(pipelineValue)} color="green" icon={DollarSign} />
-                </motion.div>
+                <PastelKPIGrid>
+                    <PastelKPICard title="Total Leads" value={leads.length} colorTheme="blue" icon={Target} trendValue="All leads" trendPositive={true} />
+                    <PastelKPICard title="Hot Leads (≥80)" value={hotLeads.length} colorTheme="pink" icon={Zap} trendValue="High priority" trendPositive={true} />
+                    <PastelKPICard title="In Negotiation" value={inNegotiation.length} colorTheme="purple" icon={Handshake} trendValue="Active talks" trendPositive={true} />
+                    <PastelKPICard title="Pipeline Value" value={formatCurrency(pipelineValue)} colorTheme="mint" icon={DollarSign} trendValue="Potential revenue" trendPositive={true} />
+                </PastelKPIGrid>
 
                 <motion.div 
                     initial={{ opacity: 0, y: 20 }}
@@ -215,35 +211,20 @@ const Leads = () => {
 };
 
 const LeadKPICard = ({ title, val, trend, color, icon: Icon, data }) => {
-    const gradients = {
-        blue: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
-        red: 'linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%)',
-        purple: 'linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%)',
-        green: 'linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%)'
-    };
-    const iconBgs = { blue: '#dbeafe', red: '#ffe4e6', purple: '#f3e8ff', green: '#ccfbf1' };
-    const iconColors = { blue: '#3b82f6', red: '#ef4444', purple: '#a855f7', green: '#14b8a6' };
-    const barColors = { blue: '#93c5fd', red: '#fca5a5', purple: '#d8b4fe', green: '#99f6e4' };
-    const valColors = { blue: '#1d4ed8', red: '#dc2626', purple: '#7e22ce', green: '#0f766e' };
-
-    
     const themeClass = color ? `ent-theme-${color}` : 'ent-theme-primary';
-return (
-        <div className={`ent-module-card ${typeof themeClass !== 'undefined' ? themeClass : (color ? `ent-theme-${color}` : 'ent-theme-primary')}`}>
-            <div>
-                <div className="ent-card-header">
-                    <span className="ent-card-title">{title}</span>
-                    <div className="ent-card-icon-wrapper">
-                        {Icon && <Icon size={18} strokeWidth={2.5} />}
-                    </div>
-                </div>
+    return (
+        <div className={`ent-module-card ${themeClass}`}>
+            <div className="ent-card-icon-wrapper">
+                {Icon && <Icon size={20} strokeWidth={2.5} />}
+            </div>
+            <div className="ent-card-title" title={title}>{title}</div>
+            <div className="ent-card-value-area">
                 <div className="ent-card-value">{val}</div>
-                <div style={{ fontSize: '13px', fontWeight: 500, color: 'var(--ent-text-secondary)', marginBottom: '12px' }}>
-                    {'Monitoring Level'}
+                <div className="ent-card-status-badge" style={{ backgroundColor: 'transparent', padding: 0, color: 'var(--ent-text-secondary)', fontWeight: 500 }}>
+                    {trend || 'Monitoring Level'}
                 </div>
             </div>
-            
-            <div>
+            <div className="ent-card-footer">
                 <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}>
                     <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'currentColor' }}></div>
                     Updated Today

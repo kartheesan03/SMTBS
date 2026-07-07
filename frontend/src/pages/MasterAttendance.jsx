@@ -8,7 +8,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import API from '../api/axios';
 import { AuthContext } from '../context/AuthContext';
-import { HRMSKPICard } from '../components/HRMSShared';
+import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 
 /* ─── Helper Utilities ─────────────────────────── */
@@ -224,15 +224,12 @@ const DailyTab = ({ canEdit }) => {
 
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
-            {/* KPIs */}
-            <div className="rd-kpi-row">
-                <HRMSKPICard title="Present / Late" val={stats.presentToday}
-                    sub={`${stats.totalEmployees > 0 ? Math.round((stats.presentToday / stats.totalEmployees) * 100) : 0}% of workforce`}
-                    color="green" icon={CheckCircle} />
-                <HRMSKPICard title="Not Checked In" val={stats.notCheckedInToday} sub="Action needed" color="orange" icon={Clock} />
-                <HRMSKPICard title="Absent" val={stats.absentToday} sub="Marked absent" color="red" icon={XCircle} />
-                <HRMSKPICard title="On Leave" val={stats.onLeaveToday} sub="Approved leaves" color="blue" icon={Home} />
-            </div>
+            <PastelKPIGrid>
+                <PastelKPICard title="Present Today" value={stats.presentToday} colorTheme="mint" icon={CheckCircle} trendValue={stats.totalEmployees > 0 ? `${Math.round((stats.presentToday/stats.totalEmployees)*100)}% workforce` : '—'} trendPositive={true} />
+                <PastelKPICard title="Not Checked In" value={stats.notCheckedInToday} colorTheme="peach" icon={Clock} trendValue="Expected today" trendPositive={false} />
+                <PastelKPICard title="Absent" value={stats.absentToday} colorTheme="pink" icon={XCircle} trendValue="No record" trendPositive={false} />
+                <PastelKPICard title="On Leave" value={stats.onLeaveToday} colorTheme="purple" icon={Users} trendValue="Approved leave" trendPositive={true} />
+            </PastelKPIGrid>
 
             <div className="rd-table-card">
                 {/* Toolbar */}

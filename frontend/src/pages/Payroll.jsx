@@ -4,7 +4,7 @@ import { Search, Briefcase, CreditCard, User, FileText, Play, CheckCircle , Doll
 import { motion } from 'framer-motion';
 import API from '../api/axios';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
-import { HRMSKPICard } from '../components/HRMSShared';
+import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
 
 const Payroll = () => {
     const navigate = useNavigate();
@@ -119,17 +119,12 @@ const Payroll = () => {
                 </div>
 
                 {/* KPI Cards */}
-                <motion.div 
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.1, duration: 0.4 }}
-                    className="rd-kpi-row"
-                >
-                    <HRMSKPICard title="Total Gross Payroll" val={formatCurrency(totalGross, 'short')} sub="↗ Gross across records" color="blue" icon={Briefcase} />
-                    <HRMSKPICard title="Total Net Pay" val={formatCurrency(totalNet, 'short')} sub="↗ After deductions" color="green" icon={CreditCard} />
-                    <HRMSKPICard title="Est. PF Contributions" val={formatCurrency(totalPF, 'short')} sub="↗ 12% of basic salary" color="orange" icon={User} />
-                    <HRMSKPICard title="Other Deductions" val={formatCurrency(totalTax > 0 ? totalTax : 0, 'short')} sub="↘ TDS/Other this cycle" color="red" icon={FileText} />
-                </motion.div>
+                <PastelKPIGrid>
+                    <PastelKPICard title="Gross Payroll" value={formatCurrency(totalGross, 'short')} colorTheme="blue" icon={Briefcase} trendValue="Total payout" trendPositive={true} />
+                    <PastelKPICard title="Net Payroll" value={formatCurrency(totalNet, 'short')} colorTheme="mint" icon={CreditCard} trendValue="After deductions" trendPositive={true} />
+                    <PastelKPICard title="Provident Fund" value={formatCurrency(totalPF, 'short')} colorTheme="purple" icon={DollarSign} trendValue="12% PF" trendPositive={true} />
+                    <PastelKPICard title="Tax & Deductions" value={formatCurrency(totalTax > 0 ? totalTax : 0, 'short')} colorTheme="peach" icon={FileText} trendValue="Other deductions" trendPositive={false} />
+                </PastelKPIGrid>
 
                 {/* Table Section */}
                 <motion.div 

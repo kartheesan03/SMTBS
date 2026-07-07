@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart as BarChartIcon, TrendingUp, DollarSign, Award, Users, Crosshair, ArrowUpRight, ArrowRight } from 'lucide-react';
-import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell } from 'recharts';
+import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, Legend, Cell, PieChart, Pie } from 'recharts';
 import { motion } from 'framer-motion';
-import API from '../api/axios';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
+import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
 import toast from 'react-hot-toast';
+import API from '../api/axios';
 
 const SalesPipeline = () => {
     const [orders, setOrders] = useState([]);
@@ -169,12 +170,13 @@ const SalesPipeline = () => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.1, duration: 0.4 }}
-                    className="rd-kpi-row"
                 >
-                    <PipelineKPICard title="Total Pipeline Value" val={formatShortCurrency(pipelineValue)} color="blue" icon={BarChartIcon} />
-                    <PipelineKPICard title="Deals in Pipeline" val={dealCount} color="teal" icon={TrendingUp} />
-                    <PipelineKPICard title="Avg. Deal Size" val={formatShortCurrency(avgDealSize)} color="purple" icon={DollarSign} />
-                    <PipelineKPICard title="Win Rate" val={`${winRate}%`} color="green" icon={Award} />
+                    <PastelKPIGrid>
+                        <PastelKPICard title="Total Pipeline Value" value={formatShortCurrency(pipelineValue)} colorTheme="blue" icon={BarChartIcon} trendValue="+5% vs last month" trendPositive={true} />
+                        <PastelKPICard title="Deals in Pipeline" value={dealCount} colorTheme="mint" icon={TrendingUp} trendValue="Active" trendPositive={true} />
+                        <PastelKPICard title="Avg. Deal Size" value={formatShortCurrency(avgDealSize)} colorTheme="purple" icon={DollarSign} trendValue="Steady" trendPositive={true} />
+                        <PastelKPICard title="Win Rate" value={`${winRate}%`} colorTheme="peach" icon={Award} trendValue="Lead conversion" trendPositive={true} />
+                    </PastelKPIGrid>
                 </motion.div>
 
                 {/* Stage Funnel Chart */}
@@ -429,21 +431,16 @@ const PipelineKPICard = ({ title, val, color, icon: Icon }) => {
     const themeClass = color ? `ent-theme-${color}` : 'ent-theme-primary';
 
     return (
-        <div className={`ent-module-card ${typeof themeClass !== 'undefined' ? themeClass : (color ? `ent-theme-${color}` : 'ent-theme-primary')}`}>
-            <div>
-                <div className="ent-card-header">
-                    <span className="ent-card-title">{title}</span>
-                    <div className="ent-card-icon-wrapper">
-                        {Icon && <Icon size={18} strokeWidth={2.5} />}
-                    </div>
-                </div>
-                <div className="ent-card-value">{val}</div>
-                <div style={{ fontSize: '13px', fontWeight: 500, color: 'var(--ent-text-secondary)', marginBottom: '12px' }}>
-                    {'Monitoring Level'}
-                </div>
+        <div className={`ent-module-card ${themeClass}`}>
+            <div className="ent-card-icon-wrapper">
+                {Icon && <Icon size={20} strokeWidth={2.5} />}
             </div>
-            
-            <div>
+            <div className="ent-card-title" title={title}>{title}</div>
+            <div className="ent-card-value-area">
+                <div className="ent-card-value">{val}</div>
+                <div className="ent-card-status-badge" style={{ backgroundColor: 'transparent', padding: 0, color: 'var(--ent-text-secondary)', fontWeight: 500 }}>Monitoring Level</div>
+            </div>
+            <div className="ent-card-footer">
                 <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}>
                     <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'currentColor' }}></div>
                     Updated Today

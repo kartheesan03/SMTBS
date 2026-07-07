@@ -370,7 +370,7 @@ const OrderTracking = () => {
                 .status-badge.danger { background: #fee2e2; color: #ef4444; }
                 
                 .summary-grid {
-                    display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px;
+                    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px;
                     padding-bottom: 20px; border-bottom: 1px solid #f1f5f9; margin-bottom: 20px;
                 }
                 .summary-item { display: flex; flex-direction: column; gap: 4px; }

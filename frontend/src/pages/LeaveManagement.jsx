@@ -4,7 +4,7 @@ import { Search, FileText, Clock, CheckCircle, XCircle, Plus , Calendar} from 'l
 import { motion } from 'framer-motion';
 import API from '../api/axios';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
-import { HRMSKPICard } from '../components/HRMSShared';
+import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
 
 const LeaveManagement = () => {
     const navigate = useNavigate();
@@ -109,18 +109,12 @@ const LeaveManagement = () => {
                         </div>
                 </div>
 
-                {/* KPI Cards */}
-                <motion.div 
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.1, duration: 0.4 }}
-                    className="rd-kpi-row"
-                >
-                    <HRMSKPICard title="Total Requests" val={totalRequests} sub="All time" color="blue" icon={FileText} />
-                    <HRMSKPICard title="Pending" val={pendingCount} sub="Action required" color="orange" icon={Clock} />
-                    <HRMSKPICard title="Approved" val={approvedCount} sub={`${approvalRate}% approval rate`} color="green" icon={CheckCircle} />
-                    <HRMSKPICard title="Rejected" val={rejectedCount} sub="Declined leaves" color="red" icon={XCircle} />
-                </motion.div>
+                <PastelKPIGrid>
+                    <PastelKPICard title="Total Requests" value={totalRequests} colorTheme="blue" icon={FileText} trendValue="All time" trendPositive={true} />
+                    <PastelKPICard title="Pending" value={pendingCount} colorTheme="peach" icon={Clock} trendValue="Action required" trendPositive={false} />
+                    <PastelKPICard title="Approved" value={approvedCount} colorTheme="mint" icon={CheckCircle} trendValue={`${approvalRate}% approved`} trendPositive={true} />
+                    <PastelKPICard title="Rejected" value={rejectedCount} colorTheme="pink" icon={XCircle} trendValue="Declined leaves" trendPositive={false} />
+                </PastelKPIGrid>
 
                 {/* Table Section */}
                 <motion.div 

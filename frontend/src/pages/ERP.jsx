@@ -6,6 +6,7 @@ import { ShoppingCart, Clock, CheckCircle, DollarSign, Search, Eye, Truck, FileT
 import { BarChart, Bar, ResponsiveContainer } from 'recharts';
 import { motion } from 'framer-motion';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
+import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
 import jsPDF from 'jspdf';
 import toast from 'react-hot-toast';
 
@@ -102,17 +103,12 @@ const ERP = () => {
                 </div>
 
                 {/* KPI Cards */}
-                <motion.div 
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.1, duration: 0.4 }}
-                    className="rd-kpi-row"
-                >
-                    <ProcKPICard title="Total POs" val={orders.length} subtitle="vs last month" color="blue" icon={ShoppingCart} data={barData} />
-                    <ProcKPICard title="Pending Approval" val={pendingOrders.length} subtitle="Action required" subtitleColor="#ef4444" color="orange" icon={Clock} data={barData} />
-                    <ProcKPICard title="Approved" val={approvedOrders.length} subtitle="vs last month" color="green" icon={CheckCircle} data={barData} />
-                    <ProcKPICard title="Total PO Value" val={formatCurrency(totalPOValue)} subtitle="pending & approved" color="green" icon={DollarSign} data={barData} />
-                </motion.div>
+                <PastelKPIGrid>
+                    <PastelKPICard title="Total POs" value={orders.length} colorTheme="blue" icon={ShoppingCart} trendValue="+12% vs last month" trendPositive={true} />
+                    <PastelKPICard title="Pending Approval" value={pendingOrders.length} colorTheme="peach" icon={Clock} trendValue="Action required" trendPositive={false} />
+                    <PastelKPICard title="Approved" value={approvedOrders.length} colorTheme="mint" icon={CheckCircle} trendValue="+5% vs last month" trendPositive={true} />
+                    <PastelKPICard title="Total PO Value" value={formatCurrency(totalPOValue)} colorTheme="purple" icon={DollarSign} trendValue="+8% vs last month" trendPositive={true} />
+                </PastelKPIGrid>
 
                 {/* Table Card */}
                 <motion.div 
@@ -214,36 +210,20 @@ const ERP = () => {
 };
 
 const ProcKPICard = ({ title, val, trend, subtitle, subtitleColor, color, icon: Icon, data, isCurrency }) => {
-    const gradients = {
-        blue: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
-        orange: 'linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)',
-        green: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)',
-        purple: 'linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%)'
-    };
-    const iconBgs = { blue: '#dbeafe', orange: '#ffedd5', green: '#d1fae5', purple: '#f3e8ff' };
-    const iconColors = { blue: '#3b82f6', orange: '#f59e0b', green: '#10b981', purple: '#8b5cf6' };
-    const barColors = { blue: '#93c5fd', orange: '#fdba74', green: '#6ee7b7', purple: '#c4b5fd' };
-    const valColors = { blue: '#1d4ed8', orange: '#ea580c', green: '#059669', purple: '#7c3aed' };
-    const trendColors = { blue: '#3b82f6', orange: '#f59e0b', green: '#10b981', purple: '#8b5cf6' };
-
-    
     const themeClass = color ? `ent-theme-${color}` : 'ent-theme-primary';
-return (
-        <div className={`ent-module-card ${typeof themeClass !== 'undefined' ? themeClass : (color ? `ent-theme-${color}` : 'ent-theme-primary')}`}>
-            <div>
-                <div className="ent-card-header">
-                    <span className="ent-card-title">{title}</span>
-                    <div className="ent-card-icon-wrapper">
-                        {Icon && <Icon size={18} strokeWidth={2.5} />}
-                    </div>
-                </div>
+    return (
+        <div className={`ent-module-card ${themeClass}`}>
+            <div className="ent-card-icon-wrapper">
+                {Icon && <Icon size={20} strokeWidth={2.5} />}
+            </div>
+            <div className="ent-card-title" title={title}>{title}</div>
+            <div className="ent-card-value-area">
                 <div className="ent-card-value">{val}</div>
-                <div style={{ fontSize: '13px', fontWeight: 500, color: 'var(--ent-text-secondary)', marginBottom: '12px' }}>
-                    {subtitle || trendValue || 'Active Tracking'}
+                <div className="ent-card-status-badge" style={{ backgroundColor: 'transparent', padding: 0, color: subtitleColor || 'var(--ent-text-secondary)', fontWeight: 500 }}>
+                    {subtitle || trend || 'Active Tracking'}
                 </div>
             </div>
-            
-            <div>
+            <div className="ent-card-footer">
                 <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}>
                     <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'currentColor' }}></div>
                     Updated Today

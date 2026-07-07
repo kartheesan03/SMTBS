@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 import { Users, UserCheck, AlertCircle, DollarSign, Plus, Eye, Edit, Trash2 } from 'lucide-react';
-import { BarChart, Bar, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
+import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
 import { DataTable } from '../components/ui';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 const Customers = ({ directoryOnly }) => {
@@ -131,17 +132,12 @@ const Customers = ({ directoryOnly }) => {
                         </div>
                 </div>
 
-                <motion.div 
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.1, duration: 0.4 }}
-                    className="rd-kpi-row"
-                >
-                    <CustomerKPICard title="Total Accounts" val={customers.length} icon={Users} color="blue" data={barData} />
-                    <CustomerKPICard title="Active" val={activeAccounts.length} icon={UserCheck} color="green" data={barData} />
-                    <CustomerKPICard title="At Risk" val={atRisk.length} icon={AlertCircle} color="orange" data={barData} />
-                    <CustomerKPICard title="LTV / Revenue" val={formatCurrency(totalRevenue)} icon={DollarSign} color="purple" data={barData} />
-                </motion.div>
+                <PastelKPIGrid>
+                    <PastelKPICard title="Total Accounts" value={customers.length} colorTheme="blue" icon={Users} trendValue="All customers" trendPositive={true} />
+                    <PastelKPICard title="Active" value={activeAccounts.length} colorTheme="mint" icon={UserCheck} trendValue="Ordering" trendPositive={true} />
+                    <PastelKPICard title="At Risk" value={atRisk.length} colorTheme="peach" icon={AlertCircle} trendValue="Churn warning" trendPositive={false} />
+                    <PastelKPICard title="LTV / Revenue" value={formatCurrency(totalRevenue)} colorTheme="purple" icon={DollarSign} trendValue="Lifetime" trendPositive={true} />
+                </PastelKPIGrid>
 
                 <motion.div 
                     initial={{ opacity: 0, y: 20 }}
@@ -175,33 +171,30 @@ const Customers = ({ directoryOnly }) => {
 };
 
 const CustomerKPICard = ({ title, val, icon: Icon, color, data }) => {
-    const mappedColor = color === 'blue-bg' ? 'primary' :
-                        color === 'green-bg' ? 'success' :
-                        color === 'red-bg' ? 'danger' :
-                        color === 'yellow-bg' ? 'warning' :
-                        color === 'purple-bg' ? 'purple' : 'primary';
-
-    const themeClass = `ent-theme-${mappedColor}`;
+    const colorMap = { 'blue-bg': 'primary', 'green-bg': 'success', 'red-bg': 'danger', 'yellow-bg': 'warning', 'purple-bg': 'purple' };
+    const themeClass = `ent-theme-${colorMap[color] || color || 'primary'}`;
 
     return (
-        <div className={`ent-module-card ${typeof themeClass !== 'undefined' ? themeClass : (color ? `ent-theme-${color}` : 'ent-theme-primary')}`}>
-            <div>
-                <div className="ent-card-header">
-                    <span className="ent-card-title">{title}</span>
-                    <div className="ent-card-icon-wrapper">
-                        {Icon && <Icon size={18} strokeWidth={2.5} />}
-                    </div>
-                </div>
+        <div className={`ent-module-card ${themeClass}`}>
+            <div className="ent-card-icon-wrapper">
+                {Icon && <Icon size={20} strokeWidth={2.5} />}
+            </div>
+            
+            <div className="ent-card-title" title={title}>{title}</div>
+            
+            <div className="ent-card-value-area">
                 <div className="ent-card-value">{val}</div>
-                <div style={{ fontSize: '13px', fontWeight: 500, color: 'var(--ent-text-secondary)', marginBottom: '12px' }}>
-                    {'Monitoring Level'}
+                <div className="ent-card-status-badge" style={{ backgroundColor: 'transparent', padding: 0, color: 'var(--ent-text-secondary)', fontWeight: 500 }}>
+                    Monitoring Level
                 </div>
             </div>
             
-            <div>
-                <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'currentColor' }}></div>
-                    Updated Today
+            <div className="ent-card-footer">
+                <div style={{ display: 'flex', alignItems: 'center', height: '18px' }}>
+                    <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'currentColor' }}></div>
+                        Updated Today
+                    </div>
                 </div>
             </div>
         </div>
