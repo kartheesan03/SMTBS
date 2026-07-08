@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { LifeBuoy, MessageSquare, BookOpen, PlayCircle, FileText, Shield, Search, ChevronDown, ChevronUp, Send, PhoneCall, Globe, ExternalLink } from 'lucide-react';
 import { motion } from 'framer-motion';
+import PageHeader from '../components/PageHeader';
 import './Support.css';
 
 const Support = () => {
@@ -42,18 +43,9 @@ const Support = () => {
             className="support-container"
         >
             {/* Header */}
-            <div className="support-header-section">
-                <div className="support-header-left">
-                    <div className="support-header-icon">
-                        <LifeBuoy size={28} className="header-icon" />
-                    </div>
-                    <div className="support-header-text">
-                        <span className="support-eyebrow">SUPPORT CENTER</span>
-                        <h1>Help & Support</h1>
-                        <p>Find answers, browse guides, or reach the SMTBMS support team directly.</p>
-                    </div>
-                </div>
-                <div className="support-header-actions">
+            <div className="support-header-section" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <PageHeader title="Help & Support" badge="SUPPORT" subtitle="Find answers, browse guides, or reach the SMTBMS support team directly." />
+                <div className="support-header-actions" style={{ marginTop: '0' }}>
                     <button className="btn-live-chat">
                         <MessageSquare size={18} />
                         Live Chat

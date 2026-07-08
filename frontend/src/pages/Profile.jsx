@@ -3,6 +3,7 @@ import { AuthContext } from '../context/AuthContext';
 import API from '../api/axios';
 import { User, Briefcase, Key, Bell, Activity, Settings as SettingsIcon, Shield, ShieldCheck, Camera } from 'lucide-react';
 import CustomerProfileSettings from './CustomerProfileSettings';
+import PageHeader from '../components/PageHeader';
 
 const Profile = () => {
     const { user, updateUser } = useContext(AuthContext);
@@ -218,6 +219,7 @@ const Profile = () => {
 
     return (
         <div className="profile-page-wrapper">
+            <PageHeader title="My Profile" badge="PROFILE" subtitle="Personal information & account details" />
             {/* Top Banner Card */}
             <div className="premium-profile-banner">
                 <div className="premium-banner-avatar-wrapper">

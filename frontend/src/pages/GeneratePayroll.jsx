@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
-import { ArrowLeft, CheckCircle, AlertCircle, Loader } from 'lucide-react';
+import { ArrowLeft, CheckCircle, AlertCircle, Loader, Calculator, Info } from 'lucide-react';
 import { motion } from 'framer-motion';
+import PageHeader from '../components/PageHeader';
 
 const GeneratePayroll = () => {
     const navigate = useNavigate();
@@ -112,12 +113,7 @@ const GeneratePayroll = () => {
 
                 <div className="premium-card" style={{ padding: '32px' }}>
                     <div style={{ marginBottom: '24px' }}>
-                        <h1 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-heading)', margin: '0 0 8px 0', letterSpacing: '-0.5px' }}>
-                            Generate New Payroll Entry
-                        </h1>
-                        <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0 }}>
-                            Create employee salary record for selected month
-                        </p>
+                        <PageHeader title="Generate New Payroll Entry" badge="HRMS" subtitle="Create employee salary record for selected month" />
                     </div>
 
                     <form onSubmit={handleGenerate}>

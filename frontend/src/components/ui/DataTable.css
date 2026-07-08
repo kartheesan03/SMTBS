@@ -296,6 +296,13 @@
     color: #6B7280;
 }
 
+.ui-pagination-controls {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+}
+
 /* ── Loading Skeleton ── */
 .ui-table-skeleton td {
     padding: 16px 18px;

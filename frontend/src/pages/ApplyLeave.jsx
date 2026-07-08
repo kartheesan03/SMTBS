@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 import { Loader, Check, AlertTriangle, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
+import PageHeader from '../components/PageHeader';
 
 const ApplyLeave = () => {
     const navigate = useNavigate();
@@ -69,9 +70,13 @@ const ApplyLeave = () => {
                 </button>
             </div>
 
+            <div style={{ marginBottom: '24px' }}>
+                <PageHeader title="New Leave Application" badge="HRMS" subtitle="Submit a new request for time off" />
+            </div>
+
             <div className="premium-card lv-form-card" style={{ padding: '32px', width: '100%', maxWidth: '600px', margin: '0 auto' }}>
                 <div className="lv-form-head">
-                    <h3>New Leave Application</h3>
+                    <h3 style={{ display: 'none' }}>New Leave Application</h3>
                 </div>
                 <form onSubmit={handleSubmit} className="lv-form">
                     <div className="lv-form-grid">

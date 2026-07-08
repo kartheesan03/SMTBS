@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { TrendingUp, TrendingDown, ArrowRight } from 'lucide-react';
 
@@ -40,8 +40,7 @@ export const PastelKPICard = ({ title, value, icon: Icon, colorTheme = 'blue', t
             boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
             display: 'flex',
             flexDirection: 'column',
-            gap: '16px',
-            minWidth: '200px'
+            gap: '16px'
         }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div style={{ fontSize: '14px', fontWeight: 600, color: '#334155' }}>
@@ -90,13 +89,17 @@ export const PastelKPICard = ({ title, value, icon: Icon, colorTheme = 'blue', t
     );
 };
 
-export const PastelKPIGrid = ({ children }) => (
-    <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', 
-        gap: '16px',
-        marginBottom: '24px'
-    }}>
-        {children}
-    </div>
-);
+export const PastelKPIGrid = ({ children, columns }) => {
+    const cols = columns
+        ? `repeat(${columns}, 1fr)`
+        : 'repeat(auto-fit, minmax(200px, 1fr))';
+    return (
+        <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: cols,
+            gap: '16px'
+        }}>
+            {children}
+        </div>
+    );
+};

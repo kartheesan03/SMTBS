@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Lock, Plus, FileText, ArrowRight, ShieldCheck, HelpCircle } from 'lucide-react';
 import API from '../api/axios';
 import './RolesPermissions.css';
+import PageHeader from '../components/PageHeader';
 import toast from 'react-hot-toast';
 
 const RolesPermissions = () => {
@@ -35,16 +36,8 @@ const RolesPermissions = () => {
 
     return (
         <div className="rp-container">
-            <div className="rp-header">
-                <div className="rp-title-section">
-                    <div className="rp-icon-box">
-                        <Lock size={20} />
-                    </div>
-                    <div>
-                        <h3>Roles & Permissions</h3>
-                        <p>Manage system access levels and module permissions for different user roles.</p>
-                    </div>
-                </div>
+            <div className="rp-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <PageHeader title="Roles & Permissions" badge="SYSTEM" subtitle="Manage system access levels and module permissions for different user roles." />
                 <button className="rp-btn-primary" onClick={() => toast.success('Create role dialog opening...')}>
                     <Plus size={16} /> Create New Role
                 </button>

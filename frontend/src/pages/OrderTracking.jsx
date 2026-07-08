@@ -7,6 +7,8 @@ import {
     MapPin, Calendar, Clock, Plus, Loader 
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import jsPDF from 'jspdf';
+import PageHeader from '../components/PageHeader';
 
 const formatDateTime = (dateValue) => {
     if (!dateValue) return "-";
@@ -184,7 +186,8 @@ const OrderTracking = () => {
             transition={{ duration: 0.4 }}
             className="tracking-page"
         >
-            <header className="page-header">
+            <header className="page-header" style={{ marginBottom: 0 }}>
+                <PageHeader title="Order Tracking" badge="ERP" subtitle="Track real-time status of your orders" />
                 <button className="rd-back-btn" onClick={() => navigate('/erp')}>
                     <ArrowLeft size={16} />
                     <span>Back to Orders</span>

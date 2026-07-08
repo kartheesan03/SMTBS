@@ -185,11 +185,10 @@ const HRMS = () => {
                             <thead>
                                 <tr>
                                 <th>Employee</th>
-                                <th>Department</th>
                                 <th>Position</th>
                                 <th>Email</th>
                                 <th>Phone</th>
-                                <th>Level</th>
+                                <th>Role / Dept</th>
                                 <th>Status</th>
                                 <th style={{width: 40}}></th>
                             </tr>
@@ -215,17 +214,12 @@ const HRMS = () => {
                                                 </div>
                                             </div>
                                         </td>
-                                        <td>
-                                            <span style={{background: '#f1f5f9', color: '#0f172a', padding: '4px 10px', borderRadius: 6, fontSize: 12, fontWeight: 600}}>
-                                                {emp.department || '—'}
-                                            </span>
-                                        </td>
                                         <td style={{fontWeight: 500}}>{emp.designation || '—'}</td>
                                         <td style={{color: 'var(--rd-blue)'}}>{emp.contact || '—'}</td>
                                         <td style={{color: '#64748b'}}>{emp.phone || '—'}</td>
                                         <td>
                                             <span style={{background: '#f1f5f9', color: '#64748b', padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600}}>
-                                                {emp.designation?.includes('Manager') ? 'Manager' : emp.designation?.includes('Senior') ? 'Senior' : 'Staff'}
+                                                {emp.department || 'Employee'}
                                             </span>
                                         </td>
                                         <td>{getStatusBadge('Active')}</td>

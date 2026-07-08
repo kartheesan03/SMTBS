@@ -3,6 +3,7 @@ import API from '../api/axios';
 import { DollarSign, TrendingUp, Calendar, ShoppingCart, ArrowUpRight, ArrowDownRight, Award } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
 import { motion } from 'framer-motion';
+import PageHeader from '../components/PageHeader';
 
 const RevenueDashboard = () => {
     const [ordersData, setOrdersData] = useState([]);
@@ -99,11 +100,8 @@ const RevenueDashboard = () => {
             transition={{ duration: 0.4 }}
             className="page-container"
         >
-            <div className="page-header">
-                <div>
-                    <h1 className="page-title">Revenue Tracking</h1>
-                    <p className="page-subtitle">Detailed financial breakdown and historical trends.</p>
-                </div>
+            <div className="page-header" style={{ marginBottom: 0 }}>
+                <PageHeader title="Revenue Tracking" badge="FINANCE" subtitle="Detailed financial breakdown and historical trends." />
             </div>
 
             {/* KPI ROW */}

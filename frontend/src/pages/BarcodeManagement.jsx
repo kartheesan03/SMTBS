@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Package, Search, Camera, QrCode, AlertTriangle, ScanLine } from 'lucide-react';
 import API from '../api/axios';
-import { ModuleKPICard } from '../components/ui';
+import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 const BarcodeManagement = () => {
     const [materials, setMaterials] = useState([]);
@@ -75,12 +75,32 @@ const BarcodeManagement = () => {
                 </div>
 
                 {/* KPI Cards */}
-                <div className="rd-kpi-row-4">
-                    <BarcodeKPICard title="Labelled Items" val={totalItems} color="blue" icon={Package} />
-                    <BarcodeKPICard title="Total Scans" val={totalScans} color="cyan" icon={ScanLine} />
-                    <BarcodeKPICard title="Camera Scans" val={Math.floor(totalScans * 0.4)} color="purple" icon={Camera} />
-                    <BarcodeKPICard title="Unlabelled" val="0" color="orange" icon={AlertTriangle} />
-                </div>
+                <PastelKPIGrid>
+                    <PastelKPICard
+                        title="Labelled Items" value={totalItems}
+                        colorTheme="blue" icon={Package}
+                        trendValue="Items with barcode/QR"
+                        trendPositive={true}
+                    />
+                    <PastelKPICard
+                        title="Total Scans" value={totalScans}
+                        colorTheme="mint" icon={ScanLine}
+                        trendValue="All scan events today"
+                        trendPositive={true}
+                    />
+                    <PastelKPICard
+                        title="Camera Scans" value={Math.floor(totalScans * 0.4)}
+                        colorTheme="purple" icon={Camera}
+                        trendValue="Via camera scanner"
+                        trendPositive={true}
+                    />
+                    <PastelKPICard
+                        title="Unlabelled" value={0}
+                        colorTheme="yellow" icon={AlertTriangle}
+                        trendValue="No missing labels"
+                        trendPositive={true}
+                    />
+                </PastelKPIGrid>
 
                 {/* Table Section */}
                 <div className="rd-table-card">
@@ -289,40 +309,6 @@ const BarcodeManagement = () => {
                 </div>
             )}
         </div>
-    );
-};
-
-// ── Scanning/Labelling KPI Card ──────────────────────────────
-// Unique footer: sparkline (scan activity trend) + scan volume badge
-const BarcodeKPICard = ({ title, val, color, icon: Icon }) => {
-    const numVal = typeof val === 'number' ? val : parseInt(String(val).replace(/,/g, ''), 10) || 0;
-
-    // Badge: scan count + direction arrow
-    const badgeMap = {
-        'Labelled Items': { text: `${val} ☑`, dir: 'flat' },
-        'Total Scans':    { text: `+${val} ▲`, dir: 'up'   },
-        'Camera Scans':   { text: `${val} ▲`,  dir: 'up'   },
-        'Unlabelled':     { text: numVal === 0 ? '0 ▬' : `${val} ▼`, dir: numVal === 0 ? 'flat' : 'down' },
-    };
-    const badge = badgeMap[title] || { text: `${val}`, dir: 'flat' };
-
-    const subtitleMap = {
-        'Labelled Items': 'Items with barcode/QR',
-        'Total Scans':    'All scan events today',
-        'Camera Scans':   'Via camera scanner',
-        'Unlabelled':     'Missing label — action needed',
-    };
-
-    return (
-        <ModuleKPICard
-            color={color}
-            icon={Icon}
-            title={title}
-            value={val}
-            subtitle={subtitleMap[title] || 'Scan Activity'}
-            badgeText={badge.text}
-            badgeDir={badge.dir}
-        />
     );
 };
 

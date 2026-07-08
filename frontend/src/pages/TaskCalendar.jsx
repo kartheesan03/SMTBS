@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Plus, Calendar as CalendarIcon, Clock, MapPin, User, FileText, X } from 'lucide-react';
 import API from '../api/axios';
+import PageHeader from '../components/PageHeader';
 
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 
@@ -121,11 +122,8 @@ const TaskCalendar = () => {
     return (
         <div className="content-area" style={{ padding: '24px', backgroundColor: '#f8fafc', minHeight: 'calc(100vh - 70px)' }}>
                     
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-                        <div>
-                            <h1 style={{ fontSize: 24, fontWeight: 700, color: '#0f172a', margin: 0 }}>Task Calendar</h1>
-                            <p style={{ color: '#64748b', margin: '4px 0 0 0', fontSize: 14 }}>Schedule and manage your upcoming events and tasks.</p>
-                        </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
+                        <PageHeader title="Task Calendar" badge="TASKS" subtitle="Schedule and manage your upcoming events and tasks." />
                         <button onClick={handleNewEventClick} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 16px', backgroundColor: '#3b82f6', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 14 }}>
                             <Plus size={16} /> New Event
                         </button>

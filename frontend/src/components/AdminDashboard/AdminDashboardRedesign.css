@@ -14,13 +14,16 @@
   --card-border: #E8ECF1;
   --card-shadow: 0 2px 10px rgba(15,23,42,0.06);
   --card-shadow-hover: 0 8px 28px rgba(15,23,42,0.12);
-  --section-gap: 24px;
+  --section-gap: 28px;
   --text-heading: #0F172A;
   --text-body: #374151;
   --text-muted: #6B7280;
   --text-dim: #9CA3AF;
   --bg-app: #F8FAFC;
   --bg-card: #FFFFFF;
+  --cta-primary-bg: #EDEFF2; /* Soft off-white to prevent glare on dark navy */
+  --cta-primary-hover: #E2E8F0;
+  --cta-primary-text: #0F172A;
   --transition: all 0.2s ease;
 }
 
@@ -35,7 +38,7 @@
 }
 
 .rd-content {
-  padding: 20px 24px;
+  padding: var(--section-gap) 24px;
   display: flex;
   flex-direction: column;
   gap: var(--section-gap);
@@ -100,7 +103,7 @@
 .rd-hero {
   background: #1E293B; /* Deep slate / indigo */
   border-radius: 16px;
-  padding: 24px 28px; /* Reduced vertical padding */
+  padding: 28px; /* Even padding on all sides */
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -218,12 +221,13 @@
 }
 
 .hero-action-btn.primary {
-  background: #F1F3F5; /* Soft off-white to prevent glare */
-  color: #0F172A;
+  /* Uses explicit design token instead of hardcoding #FFFFFF to prevent glare */
+  background: var(--cta-primary-bg);
+  color: var(--cta-primary-text);
   border: 1px solid transparent;
 }
 .hero-action-btn.primary:hover {
-  background: #E2E8F0; /* Slightly darker on hover */
+  background: var(--cta-primary-hover);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
@@ -1034,26 +1038,28 @@
 .rd-module-title-row {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .rd-module-title {
-  font-size: 24px;
-  font-weight: 700;
-  color: #1e293b;
+  font-size: 28px;
+  font-weight: 600;
+  color: #0f172a;
+  font-family: 'Inter', system-ui, sans-serif;
 }
 
 .rd-module-badge {
-  padding: 4px 10px;
-  background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
-  color: #ffffff;
-  font-size: 12px;
-  font-weight: 700;
+  padding: 4px 12px;
+  background: rgba(15, 23, 42, 0.06);
+  color: #0f172a;
+  font-size: 10px;
+  font-weight: 600;
   border-radius: 8px;
   letter-spacing: 0.5px;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  box-shadow: none;
   text-transform: uppercase;
-  border: none;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  white-space: nowrap;
 }
 
 .rd-table-header {

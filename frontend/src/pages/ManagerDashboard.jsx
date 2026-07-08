@@ -8,8 +8,10 @@ import {
 } from 'lucide-react';
 import { AreaChart, Area, PieChart, Pie, Cell, ResponsiveContainer, XAxis, YAxis, Legend, Tooltip, CartesianGrid, LineChart, Line, BarChart, Bar } from 'recharts';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
+import PageHeader from '../components/PageHeader';
 import CommandCenter from '../components/CommandCenter';
-import { SparklineKPICard, IconQuickAction, MiniStatCard } from './AdminDashboard';
+import { SparklineKPICard, IconQuickAction, InvRow } from './AdminDashboard';
+import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
 
 const ManagerDashboard = () => {
     const navigate = useNavigate();
@@ -115,6 +117,9 @@ const ManagerDashboard = () => {
         <div className="rd-container theme-manager">
             <div className="rd-content">
                 
+                {/* ── Page Header ── */}
+                <PageHeader title="Manager Dashboard" badge="MGMT" subtitle="Team performance & project management overview" />
+
                 {/* ── 1. Hero Banner ── */}
                 <div className="rd-hero">
                     <div className="rd-hero-left">
@@ -124,23 +129,26 @@ const ManagerDashboard = () => {
                         </div>
                         <div>
                             <div className="rd-hero-greeting">
-                                {getGreeting()}, {user?.name?.split(' ')[0] || 'Manager'} 👋
+                                {getGreeting()}, {user?.name?.split(' ')[0] || 'Manager'}
                             </div>
                             <div className="rd-hero-subtitle">
                                 {new Date().toLocaleDateString('en-IN', {weekday:'long', day:'numeric', month:'long', year:'numeric'})} &nbsp;·&nbsp; Team Performance Overview
                             </div>
                             <div className="rd-hero-badges">
-                                <span className="rd-hero-badge badge-blue"><Target size={12} /> Manager</span>
-                                <span className="rd-hero-badge badge-blue" style={{background:'rgba(255,255,255,0.15)'}}>Team: {myTeamSize} Members</span>
-                                <span className="rd-hero-badge badge-green">🟢 {activeProjects} Active Projects</span>
+                                <span className="rd-hero-badge badge-neutral">
+                                    <Users size={14} /> {myTeamSize} Team Members
+                                </span>
+                                <span className="rd-hero-badge badge-status">
+                                    <div className="status-dot-inline"></div> {activeProjects} Active Projects
+                                </span>
                             </div>
                         </div>
                     </div>
                     <div className="rd-hero-right-actions">
-                        <button className="hero-action-btn primary" onClick={() => navigate('/attendance')}>
+                        <button className="hero-action-btn secondary" onClick={() => navigate('/attendance')}>
                             <Clock size={15} /> Check In
                         </button>
-                        <button className="hero-action-btn secondary" onClick={() => navigate('/leave-management')}>
+                        <button className="hero-action-btn primary" onClick={() => navigate('/leave-management')}>
                             <CheckCircle size={15} /> Apply Leave
                         </button>
                     </div>
@@ -148,14 +156,14 @@ const ManagerDashboard = () => {
 
 
                 {/* ── 2. KPI Row (6 columns) ── */}
-                <div className="rd-kpi-row">
-                    <SparklineKPICard title="My Team Size" value={myTeamSize} trend="neutral" trendValue="Active members" icon={Users} colorClass="icon-teal" />
-                    <SparklineKPICard title="Active Projects" value={activeProjects} trend="up" trendValue="In progress" icon={Briefcase} colorClass="icon-blue" />
-                    <SparklineKPICard title="Completed Tasks" value={completedTasks} trend="up" trendValue="This week" icon={CheckCircle} colorClass="icon-green" />
-                    <SparklineKPICard title="Pending Tasks" value={pendingTasks} trend="neutral" trendValue="Needs attention" icon={Clock} colorClass="icon-orange" />
-                    <SparklineKPICard title="Pending Approvals" value={pendingApprovals} trend="down" trendValue="Awaiting action" icon={AlertCircle} colorClass="icon-pink" />
-                    <SparklineKPICard title="Team Productivity" value={`${teamProductivity}%`} trend="up" trendValue="Efficiency rate" icon={TrendingUp} colorClass="icon-purple" />
-                </div>
+                <PastelKPIGrid columns={6}>
+                    <PastelKPICard title="My Team Size" value={myTeamSize} colorTheme="blue" icon={Users} trendValue="Active members" trendPositive={true} />
+                    <PastelKPICard title="Active Projects" value={activeProjects} colorTheme="purple" icon={Briefcase} trendValue="In progress" trendPositive={true} />
+                    <PastelKPICard title="Completed Tasks" value={completedTasks} colorTheme="mint" icon={CheckCircle} trendValue="This week" trendPositive={true} />
+                    <PastelKPICard title="Pending Tasks" value={pendingTasks} colorTheme="peach" icon={Clock} trendValue="Needs attention" trendPositive={false} />
+                    <PastelKPICard title="Pending Approvals" value={pendingApprovals} colorTheme="pink" icon={AlertCircle} trendValue="Awaiting action" trendPositive={false} />
+                    <PastelKPICard title="Team Productivity" value={`${teamProductivity}%`} colorTheme="yellow" icon={TrendingUp} trendValue="Efficiency rate" trendPositive={true} />
+                </PastelKPIGrid>
 
                 {/* ── 3. Middle Row (Quick Actions + Mini Stats) ── */}
                 <div className="rd-middle-row">
@@ -183,21 +191,21 @@ const ManagerDashboard = () => {
                         </div>
                     </div>
 
-                    {/* Right: Mini Stats Grid */}
+                    {/* Right: Manager Summary Grid */}
                     <div className="dashboard-panel">
                         <div className="panel-header">
                             <div className="panel-title">Manager Summary</div>
                         </div>
-                        <div className="ms-grid">
-                            <MiniStatCard title="Total Team" value={myTeamSize} subValue="Active" icon={Users} colorClass="bg-light-blue" trendColor="#3b82f6" />
-                            <MiniStatCard title="On Leave" value={onLeaveCount} subValue="Today" icon={UserCheck} colorClass="bg-light-orange" trendColor="#f59e0b" />
-                            <MiniStatCard title="Pending Tasks" value={pendingTasks} subValue="Tasks" icon={AlertTriangle} colorClass="bg-light-red" trendColor="#ef4444" />
-                            <MiniStatCard title="Completed" value={completedTasks} subValue="All time" icon={CheckSquare} colorClass="bg-light-green" trendColor="#10b981" />
+                        <div className="inv-grid">
+                            <InvRow icon={Users} iconBg="#eff6ff" iconColor="#2563EB" label="Total Team" value={myTeamSize} caption="Active" />
+                            <InvRow icon={UserCheck} iconBg="#fffbeb" iconColor="#D97706" label="On Leave" value={onLeaveCount} caption="Today" isAlert={onLeaveCount > 2} />
+                            <InvRow icon={AlertTriangle} iconBg="#fef2f2" iconColor="#DC2626" label="Pending Tasks" value={pendingTasks} caption="Tasks" isAlert={pendingTasks > 0} />
+                            <InvRow icon={CheckSquare} iconBg="#ecfdf5" iconColor="#059669" label="Completed" value={completedTasks} caption="All time" />
                             
-                            <MiniStatCard title="Projects" value={ordersData.length || 0} subValue="Total" icon={Briefcase} colorClass="bg-light-purple" trendColor="#8b5cf6" />
-                            <MiniStatCard title="Active Projects" value={activeProjects} subValue="In Progress" icon={Clock} colorClass="bg-light-blue" trendColor="#3b82f6" />
-                            <MiniStatCard title="Efficiency" value={`${teamProductivity}%`} subValue="Target 90%" icon={Target} colorClass="bg-light-teal" trendColor="#14b8a6" />
-                            <MiniStatCard title="Approvals" value={pendingApprovals} subValue="Pending" icon={AlertCircle} colorClass="bg-light-pink" trendColor="#ec4899" />
+                            <InvRow icon={Briefcase} iconBg="#f3e8ff" iconColor="#9333ea" label="Projects" value={ordersData.length || 0} caption="Total" />
+                            <InvRow icon={Clock} iconBg="#e0f2fe" iconColor="#0284c7" label="Active Projects" value={activeProjects} caption="In Progress" />
+                            <InvRow icon={Target} iconBg="#f0fdfa" iconColor="#0D9488" label="Efficiency" value={`${teamProductivity}%`} caption="Target 90%" />
+                            <InvRow icon={AlertCircle} iconBg="#fdf2f8" iconColor="#DB2777" label="Approvals" value={pendingApprovals} caption="Pending" isAlert={pendingApprovals > 0} />
                         </div>
                     </div>
 

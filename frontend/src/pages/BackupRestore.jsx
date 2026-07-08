@@ -4,6 +4,8 @@ import toast from 'react-hot-toast';
 import { 
     Database, Download, RefreshCw, Upload, ShieldCheck, Server, AlertCircle, FileText, CheckCircle, Clock, Trash2, ShieldAlert, ArrowUpRight, CheckSquare, Settings
 } from 'lucide-react';
+import { motion } from 'framer-motion';
+import PageHeader from '../components/PageHeader';
 
 import './BackupRestore.css';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
@@ -125,17 +127,8 @@ const BackupRestore = () => {
     return (
         <div className="backup-restore-container">
             {/* Header */}
-            <div className="backup-header-section">
-                <div className="backup-header-left">
-                    <div className="backup-header-icon">
-                        <Database size={28} className="header-icon" />
-                    </div>
-                    <div className="backup-header-text">
-                        <span className="backup-eyebrow">DATA PROTECTION</span>
-                        <h1>Backup & Restore</h1>
-                        <p>Protect your data with scheduled backups and one-click restores.</p>
-                    </div>
-                </div>
+            <div className="backup-header-section" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <PageHeader title="Backup & Restore" badge="SYSTEM" subtitle="Protect your data with scheduled backups and one-click restores." />
                 <div className="backup-header-actions">
                     <button className="btn-download-latest" onClick={fetchBackups} disabled={loading}>
                         <RefreshCw size={18} className={loading ? 'spin-icon' : ''} />

@@ -3,6 +3,7 @@ import API from '../api/axios';
 import { ShoppingCart, Package, MapPin, Truck, CheckCircle, Plus, FileText, User, XCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import PageHeader from '../components/PageHeader';
 
 const CustomerDashboard = () => {
     const [profile, setProfile] = useState(null);
@@ -67,13 +68,12 @@ const CustomerDashboard = () => {
             transition={{ duration: 0.4 }}
             className="page-container"
         >
-            <div className="page-header">
-                <div>
-                    <h1 className="page-title">Customer Dashboard</h1>
-                    <p className="page-subtitle">
-                        Welcome back, {profile?.name || 'Valued Customer'}. Here's an overview of your account.
-                    </p>
-                </div>
+            <div className="page-header" style={{ marginBottom: 0 }}>
+                <PageHeader 
+                    title="Customer Dashboard" 
+                    badge="CRM" 
+                    subtitle={`Welcome back, ${profile?.name || 'Valued Customer'}. Here's an overview of your account.`}
+                />
                 <div>
                     <Link to="/customer/new-order" className="btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
                         <Plus size={18} /> New Order

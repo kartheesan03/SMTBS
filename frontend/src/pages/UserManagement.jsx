@@ -5,6 +5,7 @@ import {
     MoreVertical, Edit2, Lock, Trash2, Clock, User as UserIcon,
     ChevronDown, ChevronLeft, ChevronRight
 } from 'lucide-react';
+import PageHeader from '../components/PageHeader';
 import './UserManagement.css';
 
 import toast from 'react-hot-toast';
@@ -85,7 +86,8 @@ const UserManagement = () => {
     };
 
     return (
-        <div>
+        <div className="page-container">
+            <PageHeader title="User Management" badge="ADMIN" subtitle="Manage employee access and system roles" />
             {/* The rest of the component was likely missing a return statement in the original file. Since it was truncated, I'll close the UserManagement function. */}
         </div>
     );

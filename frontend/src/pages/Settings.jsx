@@ -9,6 +9,7 @@ import NotificationSettings from './NotificationSettings';
 import SystemSettings from './SystemSettings';
 import SecuritySettings from './SecuritySettings';
 import IntegrationsSettings from './IntegrationsSettings';
+import PageHeader from '../components/PageHeader';
 
 const Settings = () => {
     const { user, updateUser } = useContext(AuthContext);
@@ -265,6 +266,7 @@ const Settings = () => {
             {activeTab === 'Integrations' && isAdminOrManager && <IntegrationsSettings />}
 
             <div style={{ display: activeTab === 'Profile' ? 'block' : 'none' }}>
+                <PageHeader title="Settings" badge="SETTINGS" subtitle="Manage your account preferences and configurations" />
                 {/* Top Banner Card */}
             <div className="premium-profile-banner">
                 <div className="premium-banner-avatar-wrapper">

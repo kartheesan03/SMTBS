@@ -96,6 +96,7 @@ const FarmakuSidebar = () => {
                                 <NavLink
                                     key={cIndex}
                                     to={child.path}
+                                    end
                                     className={({ isActive }) => isActive ? "farmaku-subnav-item active" : "farmaku-subnav-item"}
                                 >
                                     {child.title}

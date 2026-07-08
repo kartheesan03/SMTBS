@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { Package, AlertTriangle, XCircle, Edit, Trash2, Eye, Plus, CheckCircle } from 'lucide-react';
 import API from '../api/axios';
 import { toast } from 'react-hot-toast';
-import { DataTable, ModuleKPICard } from '../components/ui';
+import { DataTable } from '../components/ui';
 import { motion } from 'framer-motion';
+import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 
 const Materials = () => {
@@ -113,12 +114,36 @@ const Materials = () => {
                         </div>
                 </div>
 
-                <div className="rd-kpi-row-4">
-                    <MaterialKPICard title="Total Items" val={totalItems} color="blue" icon={Package} />
-                    <MaterialKPICard title="In Stock" val={inStock} trend={`${totalItems ? Math.round((inStock/totalItems)*100) : 0}%`} color="green" icon={CheckCircle} />
-                    <MaterialKPICard title="Low Stock" val={lowStock} trend={`${totalItems ? Math.round((lowStock/totalItems)*100) : 0}%`} color="orange" icon={AlertTriangle} />
-                    <MaterialKPICard title="Out of Stock" val={outOfStock} trend={`${totalItems ? Math.round((outOfStock/totalItems)*100) : 0}%`} color="red" icon={XCircle} />
-                </div>
+                <PastelKPIGrid>
+                    <PastelKPICard
+                        title="Total Items" value={totalItems}
+                        colorTheme="blue" icon={Package}
+                        trendValue="Inventory tracking active"
+                        trendPositive={true}
+                        onClick={() => navigate('/materials')}
+                    />
+                    <PastelKPICard
+                        title="In Stock" value={inStock}
+                        colorTheme="mint" icon={CheckCircle}
+                        trendValue={`${totalItems ? Math.round((inStock/totalItems)*100) : 0}% of inventory`}
+                        trendPositive={true}
+                        onClick={() => navigate('/materials')}
+                    />
+                    <PastelKPICard
+                        title="Low Stock" value={lowStock}
+                        colorTheme="yellow" icon={AlertTriangle}
+                        trendValue={`${totalItems ? Math.round((lowStock/totalItems)*100) : 0}% need attention`}
+                        trendPositive={false}
+                        onClick={() => navigate('/materials')}
+                    />
+                    <PastelKPICard
+                        title="Out of Stock" value={outOfStock}
+                        colorTheme="peach" icon={XCircle}
+                        trendValue={`${totalItems ? Math.round((outOfStock/totalItems)*100) : 0}% critical`}
+                        trendPositive={false}
+                        onClick={() => navigate('/materials')}
+                    />
+                </PastelKPIGrid>
 
                 <div style={{ marginTop: '24px' }}>
                     {loading ? (
@@ -154,44 +179,6 @@ const Materials = () => {
                 </div>
             </div>
         </div>
-    );
-};
-
-// ── Inventory Overview KPI Card ────────────────────────────────────
-// Unique footer: sparkline (stock trend) + capacity % pill
-const MaterialKPICard = ({ title, val, color, icon: Icon, trend }) => {
-    const capacityPct = trend ? parseInt(trend.replace('%', ''), 10) : null;
-
-    // Subtitle text
-    const subtitleMap = {
-        'Total Items': 'Inventory Tracking Active',
-        'In Stock':    'Fully Stocked',
-        'Low Stock':   'Monitor Inventory',
-        'Out of Stock':'Immediate Replenishment',
-    };
-    const subtitle = subtitleMap[title] || 'Monitoring Level';
-
-    // Badge text: capacity % + directional arrow
-    let badgeText, badgeDir;
-    if (capacityPct !== null) {
-        const arrow = capacityPct >= 90 ? ' ▲' : capacityPct === 0 ? ' ▬' : ' ▼';
-        badgeText = `${capacityPct}%${arrow}`;
-        badgeDir  = capacityPct >= 75 ? 'up' : capacityPct === 0 ? 'down' : 'flat';
-    } else {
-        badgeText = 'Live ●';
-        badgeDir  = 'flat';
-    }
-
-    return (
-        <ModuleKPICard
-            color={color}
-            icon={Icon}
-            title={title}
-            value={val}
-            subtitle={subtitle}
-            badgeText={badgeText}
-            badgeDir={badgeDir}
-        />
     );
 };
 

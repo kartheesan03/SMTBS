@@ -3,6 +3,7 @@ import API from '../api/axios';
 import { Package, Truck, CheckCircle, Store } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import PageHeader from '../components/PageHeader';
 
 const VendorDashboard = () => {
     const [profile, setProfile] = useState(null);
@@ -33,11 +34,12 @@ const VendorDashboard = () => {
             transition={{ duration: 0.4 }}
             className="page-container"
         >
-            <div className="page-header">
-                <div>
-                    <h1 className="page-title">Vendor Dashboard</h1>
-                    <p className="page-subtitle">Welcome back, {profile?.name}</p>
-                </div>
+            <div className="page-header" style={{ marginBottom: 0 }}>
+                <PageHeader 
+                    title="Vendor Dashboard" 
+                    badge="VENDOR" 
+                    subtitle={`Welcome back, ${profile?.name || 'Vendor'}`}
+                />
             </div>
 
             <motion.div 

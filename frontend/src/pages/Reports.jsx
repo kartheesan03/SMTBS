@@ -15,6 +15,7 @@ import { motion } from 'framer-motion';
 import './ReportsRedesign.css';
 
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
+import PageHeader from '../components/PageHeader';
 
 const ReportKPICard = ({ title, val, isUp, trend, subtitle, icon: Icon, color }) => {
     const themeClass = color ? `ent-theme-${color === 'green' ? 'success' : color === 'red' ? 'danger' : color === 'orange' ? 'warning' : 'primary'}` : 'ent-theme-primary';
@@ -188,7 +189,7 @@ const Reports = () => {
         >
             <div className="analytics-header">
                 <div className="header-left">
-                    <h1>Reports & Analytics</h1>
+                    <PageHeader title="Reports & Analytics" badge="ANALYTICS" subtitle="Business intelligence & performance reporting" />
                     <div className="filter-tabs">
                         {tabs.map(tab => (
                             <button 

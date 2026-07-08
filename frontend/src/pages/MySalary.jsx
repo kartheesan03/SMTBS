@@ -4,6 +4,7 @@ import DataTable from '../components/Dashboard/DataTable';
 import { DollarSign, Download, Eye, X, FileText, CheckCircle, Clock, Loader2 } from 'lucide-react';
 import { generatePayslipPDF } from '../utils/pdfGenerator';
 import { motion } from 'framer-motion';
+import PageHeader from '../components/PageHeader';
 
 const MySalaryPage = () => {
     const [history, setHistory] = useState([]);
@@ -68,11 +69,8 @@ const MySalaryPage = () => {
             transition={{ duration: 0.4 }}
             className="page-container"
         >
-            <header className="page-header">
-                <div>
-                    <h1 className="page-title">My Payslips</h1>
-                    <p className="page-subtitle">Review your payment history and download official payslips.</p>
-                </div>
+            <header className="page-header" style={{ marginBottom: 0 }}>
+                <PageHeader title="My Payslips" badge="FINANCE" subtitle="Review your payment history and download official payslips." />
             </header>
 
             <div className="module-content">

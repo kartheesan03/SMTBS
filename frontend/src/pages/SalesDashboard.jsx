@@ -10,9 +10,10 @@ import {
 } from 'lucide-react';
 import { AreaChart, Area, PieChart, Pie, Cell, ResponsiveContainer, XAxis, YAxis, Legend, Tooltip, CartesianGrid, LineChart, Line, BarChart, Bar } from 'recharts';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
+import PageHeader from '../components/PageHeader';
 import CommandCenter from '../components/CommandCenter';
 import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
-import { SparklineKPICard, IconQuickAction, MiniStatCard } from './AdminDashboard';
+import { SparklineKPICard, IconQuickAction, MiniStatCard, InvRow } from './AdminDashboard';
 
 const SalesDashboard = () => {
     const navigate = useNavigate();
@@ -117,6 +118,9 @@ const SalesDashboard = () => {
         <div className="rd-container theme-sales">
             <div className="rd-content">
                 
+                {/* ── Page Header ── */}
+                <PageHeader title="Sales Dashboard" badge="CRM" subtitle="Pipeline overview & customer management" />
+
                 {/* ── 1. Hero Banner ── */}
                 <div className="rd-hero">
                     <div className="rd-hero-left">
@@ -126,23 +130,26 @@ const SalesDashboard = () => {
                         </div>
                         <div>
                             <div className="rd-hero-greeting">
-                                {getGreeting()}, {user?.name?.split(' ')[0] || 'Sales Lead'} 👋
+                                {getGreeting()}, {user?.name?.split(' ')[0] || 'Sales Lead'}
                             </div>
                             <div className="rd-hero-subtitle">
                                 {new Date().toLocaleDateString('en-IN', {weekday:'long', day:'numeric', month:'long', year:'numeric'})} &nbsp;·&nbsp; Sales Pipeline Overview
                             </div>
                             <div className="rd-hero-badges">
-                                <span className="rd-hero-badge badge-blue"><Target size={12} /> Sales Director</span>
-                                <span className="rd-hero-badge badge-blue" style={{background:'rgba(255,255,255,0.15)'}}>📈 {formatINR(totalRevenue)} Revenue</span>
-                                <span className="rd-hero-badge badge-green">🟢 {activeLeads} Active Leads</span>
+                                <span className="rd-hero-badge badge-neutral">
+                                    <Target size={14} /> {formatINR(totalRevenue)} Revenue
+                                </span>
+                                <span className="rd-hero-badge badge-status">
+                                    <div className="status-dot-inline"></div> {activeLeads} Active Leads
+                                </span>
                             </div>
                         </div>
                     </div>
                     <div className="rd-hero-right-actions">
-                        <button className="hero-action-btn primary" onClick={() => navigate('/attendance')}>
+                        <button className="hero-action-btn secondary" onClick={() => navigate('/attendance')}>
                             <Clock size={15} /> Check In
                         </button>
-                        <button className="hero-action-btn secondary" onClick={() => navigate('/leave-management')}>
+                        <button className="hero-action-btn primary" onClick={() => navigate('/leave-management')}>
                             <CheckCircle size={15} /> Apply Leave
                         </button>
                     </div>
@@ -150,7 +157,7 @@ const SalesDashboard = () => {
 
 
                 {/* ── 2. KPI Row (6 columns) ── */}
-                <PastelKPIGrid>
+                <PastelKPIGrid columns={6}>
                     <PastelKPICard title="Total Revenue" value={formatINR(totalRevenue)} colorTheme="blue" icon={DollarSign} trendValue="This month" trendPositive={true} />
                     <PastelKPICard title="Active Leads" value={activeLeads} colorTheme="purple" icon={Target} trendValue="In pipeline" trendPositive={true} />
                     <PastelKPICard title="Conversion Rate" value={`${conversionRate}%`} colorTheme="mint" icon={TrendingUp} trendValue="Lead to deal" trendPositive={true} />
@@ -185,21 +192,21 @@ const SalesDashboard = () => {
                         </div>
                     </div>
 
-                    {/* Right: Mini Stats Grid */}
+                    {/* Right: Sales Summary (InvRow style matching Admin Dashboard) */}
                     <div className="dashboard-panel">
                         <div className="panel-header">
                             <div className="panel-title">Sales Summary</div>
+                            <span className="panel-action" style={{ cursor: 'pointer' }} onClick={() => navigate('/crm')}>View All →</span>
                         </div>
-                        <div className="ms-grid">
-                            <MiniStatCard title="Total Revenue" value={formatINR(totalRevenue)} subValue="YTD" icon={DollarSign} colorClass="bg-light-blue" trendColor="#3b82f6" />
-                            <MiniStatCard title="Sales Orders" value={totalOrders} subValue="This Month" icon={ShoppingCart} colorClass="bg-light-green" trendColor="#10b981" />
-                            <MiniStatCard title="New Leads" value={newLeads} subValue="This Month" icon={UserPlus} colorClass="bg-light-orange" trendColor="#f59e0b" />
-                            <MiniStatCard title="Win Rate" value={`${conversionRate}%`} subValue="Overall" icon={Target} colorClass="bg-light-orange" trendColor="#f59e0b" />
-                            
-                            <MiniStatCard title="Total Customers" value={totalCustomers} subValue="Active" icon={Users} colorClass="bg-light-blue" trendColor="#3b82f6" />
-                            <MiniStatCard title="Active Leads" value={activeLeads} subValue="In Pipeline" icon={Briefcase} colorClass="bg-light-purple" trendColor="#8b5cf6" />
-                            <MiniStatCard title="Meetings" value={meetings} subValue="Scheduled" icon={PhoneCall} colorClass="bg-light-teal" trendColor="#14b8a6" />
-                            <MiniStatCard title="Pipeline" value={formatINR(activePipeline)} subValue="Potential" icon={TrendingUp} colorClass="bg-light-green" trendColor="#10b981" />
+                        <div className="inv-grid">
+                            <InvRow icon={DollarSign} iconBg="#eff6ff" iconColor="#2563EB" label="Total Revenue" value={formatINR(totalRevenue)} caption="Year to date" />
+                            <InvRow icon={ShoppingCart} iconBg="#ecfdf5" iconColor="#059669" label="Total Orders" value={totalOrders} caption="This month" />
+                            <InvRow icon={Target} iconBg="#f3e8ff" iconColor="#9333ea" label="Active Leads" value={activeLeads} caption="In pipeline" />
+                            <InvRow icon={TrendingUp} iconBg="#fef9c3" iconColor="#ca8a04" label="Conversion Rate" value={`${conversionRate}%`} caption="Lead to deal" />
+                            <InvRow icon={Users} iconBg="#e0f2fe" iconColor="#0284c7" label="Total Customers" value={totalCustomers} caption="Active accounts" />
+                            <InvRow icon={CheckCircle} iconBg="#fce7f3" iconColor="#db2777" label="Sales Meetings" value={meetings} caption="Scheduled" />
+                            <InvRow icon={UserPlus} iconBg="#ffedd5" iconColor="#ea580c" label="New Leads" value={newLeads} caption="This month" isAlert={newLeads === 0} />
+                            <InvRow icon={Activity} iconBg="#f0fdfa" iconColor="#0D9488" label="Pipeline Value" value={formatINR(activePipeline)} caption="Potential revenue" />
                         </div>
                     </div>
 

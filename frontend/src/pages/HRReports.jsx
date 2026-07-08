@@ -4,10 +4,10 @@ import {
     FileText, Download, BarChart2, Users, Calendar, 
     RefreshCw, CheckCircle, X, Clock, Award, Briefcase, TrendingUp, AlertTriangle
 } from 'lucide-react';
-import { 
-    ResponsiveContainer, AreaChart, Area, BarChart, Bar, 
-    XAxis, YAxis, CartesianGrid, Tooltip, Cell 
-} from 'recharts';
+import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area } from 'recharts';
+import { motion } from 'framer-motion';
+import * as XLSX from 'xlsx';
+import PageHeader from '../components/PageHeader';
 import ExcelJS from 'exceljs';
 
 const HRReports = () => {
@@ -278,13 +278,12 @@ const HRReports = () => {
             )}
 
             {/* Premium Light Header */}
-            <header className="page-header">
-                <div>
-                    <h1 className="page-title">
-                        HR Reports & Analytics
-                    </h1>
-                    <p className="page-subtitle">Export comprehensive workforce data, compliance audits, and deep demographic insights.</p>
-                </div>
+            <header className="page-header" style={{ marginBottom: 0 }}>
+                <PageHeader 
+                    title="HR Reports & Analytics" 
+                    badge="HRMS" 
+                    subtitle="Export comprehensive workforce data, compliance audits, and deep demographic insights." 
+                />
                 <div style={{ display: 'flex', gap: '12px' }}>
                     <button 
                         className="btn-primary flex-center gap-8" 

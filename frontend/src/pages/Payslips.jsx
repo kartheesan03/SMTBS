@@ -3,6 +3,7 @@ import API from '../api/axios';
 import { DollarSign, Download, Eye, X, FileText, CheckCircle, Clock, Loader2, AlertCircle } from 'lucide-react';
 import { generatePayslipPDF } from '../utils/pdfGenerator';
 import { motion } from 'framer-motion';
+import PageHeader from '../components/PageHeader';
 
 const Payslips = () => {
     const [history, setHistory] = useState([]);
@@ -67,11 +68,8 @@ const Payslips = () => {
             transition={{ duration: 0.4 }}
             className="page-container"
         >
-            <header className="page-header">
-                <div>
-                    <h1 className="page-title">Payslips</h1>
-                    <p className="page-subtitle">Review employee payment history and download official payslips.</p>
-                </div>
+            <header className="page-header" style={{ marginBottom: 0 }}>
+                <PageHeader title="Payslips" badge="HRMS" subtitle="Review employee payment history and download official payslips." />
             </header>
 
             <div className="module-content">

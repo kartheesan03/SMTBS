@@ -10,6 +10,7 @@ import {
     DollarSign, Calendar, Briefcase, Shield
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import PageHeader from '../components/PageHeader';
 
 // Map category → icon component & colors
 // Map module → icon component & colors
@@ -160,11 +161,12 @@ const NotificationsPage = () => {
             )}
 
             {/* ===== HEADER ===== */}
-            <div className="page-header">
-                <div>
-                    <h1 className="page-title">Notification Center</h1>
-                    <p className="page-subtitle">Manage alerts, updates, and system notifications</p>
-                </div>
+            <div className="page-header" style={{ marginBottom: 0 }}>
+                <PageHeader 
+                    title="Notification Center" 
+                    badge="NOTIFICATIONS" 
+                    subtitle="Manage alerts, updates, and system notifications" 
+                />
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     {canAdmin && (
                         <button className="btn-secondary" onClick={handleSeed} disabled={seeding}>

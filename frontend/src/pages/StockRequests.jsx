@@ -4,6 +4,7 @@ import { Package, Search, TrendingUp, TrendingDown, AlertTriangle, XCircle, Exte
 import { LineChart, Line, PieChart, Pie, Cell, ResponsiveContainer, XAxis, Tooltip, CartesianGrid } from 'recharts';
 import API from '../api/axios';
 import { ModuleKPICard } from '../components/ui';
+import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 const StockRequests = () => {
     const navigate = useNavigate();
@@ -86,12 +87,36 @@ const StockRequests = () => {
                 </div>
 
                 {/* KPI Cards */}
-                <div className="rd-kpi-row-4">
-                    <StockKPICard title="Total SKUs" val={totalItems} color="blue" icon={Package} />
-                    <StockKPICard title="Healthy" val={healthyCount} trend={`${totalItems ? Math.round((healthyCount/totalItems)*100) : 0}%`} color="green" icon={TrendingUp} />
-                    <StockKPICard title="Low Stock" val={lowCount} trend={`${totalItems ? Math.round((lowCount/totalItems)*100) : 0}%`} color="orange" icon={AlertTriangle} />
-                    <StockKPICard title="Critical / 0" val={outCount} trend={`${totalItems ? Math.round((outCount/totalItems)*100) : 0}%`} color="red" icon={XCircle} />
-                </div>
+                <PastelKPIGrid>
+                    <PastelKPICard
+                        title="Total SKUs" value={totalItems}
+                        colorTheme="blue" icon={Package}
+                        trendValue="All tracked items"
+                        trendPositive={true}
+                        onClick={() => navigate('/stock-requests')}
+                    />
+                    <PastelKPICard
+                        title="Healthy" value={healthyCount}
+                        colorTheme="mint" icon={TrendingUp}
+                        trendValue={`${totalItems ? Math.round((healthyCount/totalItems)*100) : 0}% within thresholds`}
+                        trendPositive={true}
+                        onClick={() => navigate('/stock-requests')}
+                    />
+                    <PastelKPICard
+                        title="Low Stock" value={lowCount}
+                        colorTheme="yellow" icon={AlertTriangle}
+                        trendValue={`${totalItems ? Math.round((lowCount/totalItems)*100) : 0}% approaching reorder`}
+                        trendPositive={false}
+                        onClick={() => navigate('/stock-requests')}
+                    />
+                    <PastelKPICard
+                        title="Critical / 0" value={outCount}
+                        colorTheme="peach" icon={XCircle}
+                        trendValue={`${totalItems ? Math.round((outCount/totalItems)*100) : 0}% need action`}
+                        trendPositive={false}
+                        onClick={() => navigate('/stock-requests')}
+                    />
+                </PastelKPIGrid>
 
                 {/* Charts Section */}
                 <div style={{display: 'flex', gap: 24, marginBottom: 24}}>
@@ -233,42 +258,6 @@ const StockRequests = () => {
                 </div>
             </div>
         </div>
-    );
-};
-
-// ── SKU Health KPI Card ──────────────────────────────────────
-// Unique footer: sparkline (SKU health ratio) + health % pill
-// Uses mkpi- theme classes for bold, consistent top borders (fixes faded border bug)
-const StockKPICard = ({ title, val, trend, color, icon: Icon }) => {
-    const pct = trend ? parseInt(trend.replace('%', ''), 10) : null;
-
-    let badgeText, badgeDir;
-    if (pct !== null) {
-        const arrow = pct >= 90 ? ' ▲' : pct === 0 ? ' ▼' : ' ▬';
-        badgeText = `${pct}%${arrow}`;
-        badgeDir  = pct >= 75 ? 'up' : pct <= 10 ? 'down' : 'flat';
-    } else {
-        badgeText = 'All SKUs';
-        badgeDir  = 'flat';
-    }
-
-    const subtitleMap = {
-        'Total SKUs': 'All tracked items',
-        'Healthy':    'Within stock thresholds',
-        'Low Stock':  'Approaching reorder level',
-        'Critical / 0': 'Needs immediate action',
-    };
-
-    return (
-        <ModuleKPICard
-            color={color}
-            icon={Icon}
-            title={title}
-            value={val}
-            subtitle={subtitleMap[title] || 'SKU Health'}
-            badgeText={badgeText}
-            badgeDir={badgeDir}
-        />
     );
 };
 

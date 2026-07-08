@@ -3,6 +3,7 @@ import API from '../api/axios';
 import DataTable from '../components/Dashboard/DataTable';
 import { Search, Plus, CheckCircle2, Clock, PlayCircle, Loader, User, Users, Calendar, Trash2, Send, Bell, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
+import PageHeader from '../components/PageHeader';
 
 const MyTasks = () => {
     const [tasks, setTasks] = useState([]);
@@ -155,10 +156,11 @@ const MyTasks = () => {
             )}
 
             <header className="page-header">
-                <div>
-                    <h1 className="page-title">{isManager ? '📋 Task Management Center' : 'My Assigned Tasks'}</h1>
-                    <p className="page-subtitle">{isManager ? 'Assign tasks to employees and sales teams with instant notifications.' : 'Track your daily responsibilities and project milestones.'}</p>
-                </div>
+                <PageHeader
+                    title={isManager ? 'Task Management' : 'My Tasks'}
+                    badge="TASKS"
+                    subtitle={isManager ? 'Assign and track tasks across employees and sales teams.' : 'Track your daily responsibilities and project milestones.'}
+                />
                 <div className="header-actions">
                     <div className="search-bar-sm glass-card">
                         <Search size={16} />

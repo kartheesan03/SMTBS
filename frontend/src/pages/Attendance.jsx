@@ -7,8 +7,10 @@ import {
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip } from 'recharts';
 import { toast } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
-import API from '../api/axios';
+import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import PageHeader from '../components/PageHeader';
+import API from '../api/axios';
 
 /* ─────────────────────────── helpers ─────────────────────────── */
 const MONTHS = ['January','February','March','April','May','June',
@@ -635,23 +637,21 @@ const Attendance = () => {
         <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="attendance-module"
-            style={{ fontFamily:'Inter,sans-serif', background:'#f8fafc', minHeight:'100vh', padding:'28px 32px', boxSizing:'border-box' }}
+            className="rd-container theme-hrms"
         >
-            <div style={{ maxWidth:1100, margin:'0 auto' }}>
+            <div className="rd-content">
 
                 {/* Page Header */}
                 <motion.div 
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.1 }}
-                    style={{ marginBottom:20 }}
                 >
-                    <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:4 }}>
-                        <h1 style={{ margin:0, fontSize:28, fontWeight:600, color:'#0f172a' }}>Attendance Tracker</h1>
-                        <span style={{ background:'rgba(15,23,42,0.06)', color:'#0f172a', border:'1px solid rgba(15,23,42,0.12)', fontSize:10, fontWeight:600, padding:'4px 12px', borderRadius:8, letterSpacing:0.5 }}>HRMS</span>
-                    </div>
-                    <p style={{ margin:0, fontSize:14, color:'#64748b' }}>Your personal attendance records · {user?.name || ''}</p>
+                    <PageHeader 
+                        title="Attendance Tracker" 
+                        badge="HRMS" 
+                        subtitle={`Your personal attendance records · ${user?.name || ''}`} 
+                    />
                 </motion.div>
 
                 {/* Mini KPIs */}

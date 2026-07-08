@@ -12,7 +12,9 @@ import {
 } from 'lucide-react';
 import { AreaChart, Area, PieChart, Pie, Cell, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, LineChart, Line, BarChart, Bar, Legend } from 'recharts';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
+import PageHeader from '../components/PageHeader';
 import CommandCenter from '../components/CommandCenter';
+import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
 
 // ─── Unified KPI Card ────────────────────────────────────────────────────────
 // Accent colors are functional: green=good/performance, purple=business metric,
@@ -83,7 +85,7 @@ export const IconQuickAction = ({ icon: Icon, label, colorClass, onClick }) => (
 );
 
 // ─── Inventory Row Item ───────────────────────────────────────────────────────
-const InvRow = ({ icon: Icon, iconBg, iconColor, label, value, caption, isAlert }) => (
+export const InvRow = ({ icon: Icon, iconBg, iconColor, label, value, caption, isAlert }) => (
     <div className="inv-row">
         <div className="inv-row-icon" style={{ background: iconBg }}>
             <Icon size={14} strokeWidth={2.5} color={iconColor} />
@@ -214,6 +216,8 @@ const AdminDashboard = () => {
     const totalVendors       = dashboardData?.stats?.totalVendors || 0;
     const orderFulfillment   = dashboardData?.analytics?.healthMetrics?.orderFulfillment || 0;
     const pendingOrders      = dashboardData?.stats?.pendingOrders || 0;
+    const completedTasks     = dashboardData?.stats?.completedTasks || 0;
+    const pendingTasks       = dashboardData?.stats?.pendingTasks || 0;
 
     // Distinct sparkline shapes per card (mocked trend shapes)
     const sparkShapes = {
@@ -227,14 +231,17 @@ const AdminDashboard = () => {
 
     return (
         <div className="rd-container theme-admin">
-            <div className="rd-content" style={{ gap: '24px' }}>
+            <div className="rd-content">
+
+                {/* ── Page Header ── */}
+                <PageHeader title="Admin Dashboard" badge="ADMIN" subtitle="Business overview & operations" />
 
                 {/* ── 1. Hero Banner ── */}
                 <div className="rd-hero">
                     <div className="rd-hero-left">
                         <div className="rd-hero-avatar-wrapper">
                             <img
-                                src={user?.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'Admin')}&background=1E293B&color=fff`}
+                                src={user?.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'Admin')}&background=2563EB&color=fff`}
                                 alt="Profile"
                                 className="rd-hero-avatar"
                             />
@@ -269,44 +276,14 @@ const AdminDashboard = () => {
                 </div>
 
                 {/* ── 2. KPI Row ── */}
-                <div className="rd-kpi-row">
-                    <DashboardKPICard
-                        title="Order Fulfillment" value={`${orderFulfillment}%`}
-                        theme="green" icon={Activity}
-                        trendValue="Successfully delivered" trendUp={true}
-                        sparklineData={sparkShapes.fulfillment}
-                    />
-                    <DashboardKPICard
-                        title="Total Orders" value={totalOrders}
-                        theme="purple" icon={ShoppingCart}
-                        trendValue="12% vs last month" trendUp={true}
-                        sparklineData={sparkShapes.orders}
-                    />
-                    <DashboardKPICard
-                        title="Total Revenue" value={formatINR(totalRevenue)}
-                        theme="blue" icon={DollarSign}
-                        trendValue="8% vs last month" trendUp={true}
-                        sparklineData={sparkShapes.revenue}
-                    />
-                    <DashboardKPICard
-                        title="Total Materials" value={totalMaterials}
-                        theme="orange" icon={Box}
-                        trendValue="Stock stable" trendUp={true}
-                        sparklineData={sparkShapes.materials}
-                    />
-                    <DashboardKPICard
-                        title="Total Employees" value={totalEmployees}
-                        theme="teal" icon={Users}
-                        trendValue="2 new hires" trendUp={true}
-                        sparklineData={sparkShapes.employees}
-                    />
-                    <DashboardKPICard
-                        title="Active Customers" value={activeCustomers}
-                        theme="pink" icon={Target}
-                        trendValue="5% increase" trendUp={true}
-                        sparklineData={sparkShapes.customers}
-                    />
-                </div>
+                <PastelKPIGrid columns={6}>
+                    <PastelKPICard title="Order Fulfillment" value={`${orderFulfillment}%`} colorTheme="mint" icon={Activity} trendValue="Successfully delivered" trendPositive={true} />
+                    <PastelKPICard title="Total Orders" value={totalOrders} colorTheme="purple" icon={ShoppingCart} trendValue="12% vs last month" trendPositive={true} />
+                    <PastelKPICard title="Total Revenue" value={formatINR(totalRevenue)} colorTheme="blue" icon={DollarSign} trendValue="8% vs last month" trendPositive={true} />
+                    <PastelKPICard title="Total Materials" value={totalMaterials} colorTheme="peach" icon={Box} trendValue="Stock stable" trendPositive={true} />
+                    <PastelKPICard title="Total Employees" value={totalEmployees} colorTheme="mint" icon={Users} trendValue="Across all branches" trendPositive={true} />
+                    <PastelKPICard title="Total Tasks" value={completedTasks + pendingTasks} colorTheme="pink" icon={ListTodo} trendValue="High priority pending" trendPositive={false} />
+                </PastelKPIGrid>
 
                 {/* ── 3. Middle Row: Quick Actions + Inventory Summary ── */}
                 <div className="rd-middle-row" style={{ alignItems: 'stretch' }}>

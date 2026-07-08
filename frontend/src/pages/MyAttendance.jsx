@@ -9,6 +9,7 @@ import { motion } from 'framer-motion';
 import API from '../api/axios';
 import { AuthContext } from '../context/AuthContext';
 import './MyAttendance.css';
+import PageHeader from '../components/PageHeader';
 
 const AttendanceKPICard = ({ title, value, subtitle, icon: Icon, color }) => {
     const themeClass = color ? `ent-theme-${color}` : 'ent-theme-primary';
@@ -235,6 +236,7 @@ const MyAttendance = () => {
             animate={{ opacity: 1 }}
             className="attendance-page-container"
         >
+            <PageHeader title="My Attendance" badge="HRMS" subtitle={`Your personal attendance records · ${firstName}`} />
             <div className="att-main-grid">
                 
                 {/* ── LEFT COLUMN: HERO ── */}

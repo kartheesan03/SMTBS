@@ -5,6 +5,7 @@ import { ResponsiveContainer } from 'recharts';
 import API from '../api/axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ModuleKPICard } from '../components/ui';
+import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 import toast from 'react-hot-toast';
 
@@ -88,12 +89,32 @@ const TrackingDashboard = () => {
                 </div>
 
                 {/* KPI Cards */}
-                <div className="rd-kpi-row-4">
-                    <TrackingKPICard title="Total Movements" val={totalMovements.toLocaleString()} color="purple" icon={Layers} />
-                    <TrackingKPICard title="Units IN" val={unitsIn.toLocaleString()} color="green" icon={ArrowDownRight} />
-                    <TrackingKPICard title="Units OUT" val={unitsOut.toLocaleString()} color="orange" icon={ArrowUpRight} />
-                    <TrackingKPICard title="Adjusted/Transfer" val={transferred.toLocaleString()} color="blue" icon={ArrowRightLeft} />
-                </div>
+                <PastelKPIGrid>
+                    <PastelKPICard
+                        title="Total Movements" value={totalMovements.toLocaleString()}
+                        colorTheme="purple" icon={Layers}
+                        trendValue="All stock movements"
+                        trendPositive={true}
+                    />
+                    <PastelKPICard
+                        title="Units IN" value={unitsIn.toLocaleString()}
+                        colorTheme="mint" icon={ArrowDownRight}
+                        trendValue="Inbound stock flow"
+                        trendPositive={true}
+                    />
+                    <PastelKPICard
+                        title="Units OUT" value={unitsOut.toLocaleString()}
+                        colorTheme="peach" icon={ArrowUpRight}
+                        trendValue="Outbound stock flow"
+                        trendPositive={false}
+                    />
+                    <PastelKPICard
+                        title="Adjusted/Transfer" value={transferred.toLocaleString()}
+                        colorTheme="blue" icon={ArrowRightLeft}
+                        trendValue="Adjustments & transfers"
+                        trendPositive={true}
+                    />
+                </PastelKPIGrid>
 
                 {/* Table Section */}
                 <div className="rd-table-card">
@@ -322,37 +343,5 @@ const SkeletonRow = () => (
         <td style={{padding: '16px 24px'}}><div style={{height: 32, background: '#e2e8f0', borderRadius: 6, width: '100px'}}></div></td>
     </tr>
 );
-
-// ── Stock Movements KPI Card ──────────────────────────────────
-// Unique footer: sparkline (movement volume) + directional flow badge
-const TrackingKPICard = ({ title, val, color, icon: Icon }) => {
-    // Build directional badge from card type
-    const badgeMap = {
-        'Total Movements': { text: `${val} ⇔`,  dir: 'flat' },
-        'Units IN':        { text: `+${val} ↗`,  dir: 'up'   },
-        'Units OUT':       { text: `-${val} ↘`,  dir: 'down' },
-        'Adjusted/Transfer': { text: `${val} ⇆`, dir: 'flat' },
-    };
-    const badge = badgeMap[title] || { text: `${val}`, dir: 'flat' };
-
-    const subtitleMap = {
-        'Total Movements':   'All stock movements',
-        'Units IN':          'Inbound stock flow',
-        'Units OUT':         'Outbound stock flow',
-        'Adjusted/Transfer': 'Adjustments & transfers',
-    };
-
-    return (
-        <ModuleKPICard
-            color={color}
-            icon={Icon}
-            title={title}
-            value={val}
-            subtitle={subtitleMap[title] || 'Monitoring Level'}
-            badgeText={badge.text}
-            badgeDir={badge.dir}
-        />
-    );
-};
 
 export default TrackingDashboard;

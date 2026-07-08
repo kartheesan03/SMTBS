@@ -7,6 +7,7 @@ import {
     Clock, Building2, Hash, MessageSquare
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import PageHeader from '../components/PageHeader';
 
 const PayrollPayment = () => {
     const { id } = useParams();
@@ -211,8 +212,7 @@ const PayrollPayment = () => {
                     <ArrowLeft size={18} />
                 </button>
                 <div>
-                    <h1 style={{ fontSize: '22px', fontWeight: 800, color: '#0f172a', margin: '0 0 2px 0', letterSpacing: '-0.5px' }}>Process Salary Payment</h1>
-                    <p style={{ fontSize: '13px', color: '#64748b', margin: 0 }}>Complete payment details and confirm disbursement</p>
+                    <PageHeader title="Process Salary Payment" badge="HRMS" subtitle="Complete payment details and confirm disbursement" />
                 </div>
             </div>
 

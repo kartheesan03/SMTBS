@@ -5,12 +5,14 @@ import API from '../api/axios';
 import { 
     CheckCircle, CheckCircle2, Calendar, FileText, Clock, UserCheck, 
     AlertCircle, Quote, Star, Award, Shield, CheckSquare, 
-    Activity, Book, MapPin, Coffee, MessageSquare, LayoutGrid, Bell, Cpu, Layers, Server, ListTodo, AlertTriangle
+    Activity, Book, MapPin, Coffee, MessageSquare, LayoutGrid, Bell, Cpu, Layers, Server, ListTodo, AlertTriangle, TrendingUp
 } from 'lucide-react';
 import { AreaChart, Area, PieChart, Pie, Cell, ResponsiveContainer, XAxis, YAxis, Legend, Tooltip, CartesianGrid, LineChart, Line, BarChart, Bar } from 'recharts';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
+import PageHeader from '../components/PageHeader';
 import CommandCenter from '../components/CommandCenter';
-import { SparklineKPICard, IconQuickAction, MiniStatCard } from './AdminDashboard';
+import { SparklineKPICard, IconQuickAction, InvRow } from './AdminDashboard';
+import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
 
 const EmployeeDashboard = () => {
     const navigate = useNavigate();
@@ -106,6 +108,9 @@ const EmployeeDashboard = () => {
         <div className="rd-container theme-employee">
             <div className="rd-content">
                 
+                {/* ── Page Header ── */}
+                <PageHeader title="My Dashboard" badge="EMPLOYEE" subtitle="Your daily performance & attendance overview" />
+
                 {/* ── 1. Hero Banner ── */}
                 <div className="rd-hero">
                     <div className="rd-hero-left">
@@ -115,23 +120,26 @@ const EmployeeDashboard = () => {
                         </div>
                         <div>
                             <div className="rd-hero-greeting">
-                                {getGreeting()}, {user?.name?.split(' ')[0] || 'Employee'} 👋
+                                {getGreeting()}, {user?.name?.split(' ')[0] || 'Employee'}
                             </div>
                             <div className="rd-hero-subtitle">
                                 {new Date().toLocaleDateString('en-IN', {weekday:'long', day:'numeric', month:'long', year:'numeric'})} &nbsp;·&nbsp; Your Daily Overview
                             </div>
                             <div className="rd-hero-badges">
-                                <span className="rd-hero-badge badge-blue"><Star size={12} /> Top Performer</span>
-                                <span className="rd-hero-badge badge-blue" style={{background:'rgba(255,255,255,0.15)'}}>✅ {attendanceRate}% Attendance</span>
-                                <span className="rd-hero-badge badge-green">🟢 {leaveBalance} Leave Days Left</span>
+                                <span className="rd-hero-badge badge-neutral">
+                                    <Activity size={14} /> {attendanceRate}% Attendance
+                                </span>
+                                <span className="rd-hero-badge badge-status">
+                                    <div className="status-dot-inline"></div> {leaveBalance} Leave Days Left
+                                </span>
                             </div>
                         </div>
                     </div>
                     <div className="rd-hero-right-actions">
-                        <button className="hero-action-btn primary" onClick={() => navigate('/attendance')}>
+                        <button className="hero-action-btn secondary" onClick={() => navigate('/attendance')}>
                             <Clock size={15} /> Check In
                         </button>
-                        <button className="hero-action-btn secondary" onClick={() => navigate('/leave-management')}>
+                        <button className="hero-action-btn primary" onClick={() => navigate('/leave-management')}>
                             <CheckCircle size={15} /> Apply Leave
                         </button>
                     </div>
@@ -139,14 +147,14 @@ const EmployeeDashboard = () => {
 
 
                 {/* ── 2. KPI Row (6 columns) ── */}
-                <div className="rd-kpi-row">
-                    <SparklineKPICard title="Completed Tasks" value={completedTasks} trend="up" trendValue="This week" icon={CheckCircle} colorClass="icon-teal" />
-                    <SparklineKPICard title="Pending Tasks" value={pendingTasks} trend="neutral" trendValue="Requires attention" icon={Clock} colorClass="icon-orange" />
-                    <SparklineKPICard title="Attendance Rate" value={`${attendanceRate}%`} trend="up" trendValue="Excellent" icon={Activity} colorClass="icon-green" />
-                    <SparklineKPICard title="Leave Balance" value={leaveBalance} trend="neutral" trendValue="Days remaining" icon={Calendar} colorClass="icon-blue" />
-                    <SparklineKPICard title="Current Streak" value={`${currentStreak} days`} trend="up" trendValue="Without absence" icon={TrendingUp} colorClass="icon-purple" />
-                    <SparklineKPICard title="Pending Leaves" value={pendingLeaves} trend="down" trendValue="Awaiting approval" icon={AlertCircle} colorClass="icon-pink" />
-                </div>
+                <PastelKPIGrid columns={6}>
+                    <PastelKPICard title="Completed Tasks" value={completedTasks} colorTheme="mint" icon={CheckCircle} trendValue="This week" trendPositive={true} />
+                    <PastelKPICard title="Pending Tasks" value={pendingTasks} colorTheme="peach" icon={Clock} trendValue="Requires attention" trendPositive={false} />
+                    <PastelKPICard title="Attendance Rate" value={`${attendanceRate}%`} colorTheme="blue" icon={Activity} trendValue="Excellent" trendPositive={true} />
+                    <PastelKPICard title="Leave Balance" value={leaveBalance} colorTheme="purple" icon={Calendar} trendValue="Days remaining" trendPositive={true} />
+                    <PastelKPICard title="Current Streak" value={`${currentStreak} days`} colorTheme="yellow" icon={TrendingUp} trendValue="Without absence" trendPositive={true} />
+                    <PastelKPICard title="Pending Leaves" value={pendingLeaves} colorTheme="pink" icon={AlertCircle} trendValue="Awaiting approval" trendPositive={false} />
+                </PastelKPIGrid>
 
                 {/* ── 3. Middle Row (Quick Actions + Mini Stats) ── */}
                 <div className="rd-middle-row">
@@ -174,21 +182,21 @@ const EmployeeDashboard = () => {
                         </div>
                     </div>
 
-                    {/* Right: Mini Stats Grid */}
+                    {/* Right: Personal Summary Grid */}
                     <div className="dashboard-panel">
                         <div className="panel-header">
                             <div className="panel-title">Personal Summary</div>
                         </div>
-                        <div className="ms-grid">
-                            <MiniStatCard title="Total Tasks" value={myTasks.length} subValue="Assigned" icon={CheckSquare} colorClass="bg-light-blue" trendColor="#3b82f6" />
-                            <MiniStatCard title="Overdue" value="0" subValue="Tasks" icon={AlertCircle} colorClass="bg-light-red" trendColor="#10b981" />
-                            <MiniStatCard title="On Time" value="100%" subValue="Delivery" icon={Star} colorClass="bg-light-green" trendColor="#10b981" />
-                            <MiniStatCard title="Meetings" value="2" subValue="Today" icon={Clock} colorClass="bg-light-purple" trendColor="#8b5cf6" />
+                        <div className="inv-grid">
+                            <InvRow icon={CheckSquare} iconBg="#eff6ff" iconColor="#2563EB" label="Total Tasks" value={myTasks.length} caption="Assigned" />
+                            <InvRow icon={AlertCircle} iconBg="#fef2f2" iconColor="#DC2626" label="Overdue" value="0" caption="Tasks" />
+                            <InvRow icon={Star} iconBg="#ecfdf5" iconColor="#059669" label="On Time" value="100%" caption="Delivery" />
+                            <InvRow icon={Clock} iconBg="#f3e8ff" iconColor="#9333ea" label="Meetings" value="2" caption="Today" />
                             
-                            <MiniStatCard title="Leave Taken" value={leaveTaken} subValue="Days" icon={Calendar} colorClass="bg-light-orange" trendColor="#f59e0b" />
-                            <MiniStatCard title="Kudos" value="12" subValue="Received" icon={Award} colorClass="bg-light-pink" trendColor="#ec4899" />
-                            <MiniStatCard title="Training" value="85%" subValue="Completed" icon={Book} colorClass="bg-light-teal" trendColor="#14b8a6" />
-                            <MiniStatCard title="Perf Score" value="4.8" subValue="/ 5.0" icon={Activity} colorClass="bg-light-blue" trendColor="#3b82f6" />
+                            <InvRow icon={Calendar} iconBg="#fffbeb" iconColor="#D97706" label="Leave Taken" value={leaveTaken} caption="Days" />
+                            <InvRow icon={Award} iconBg="#fdf2f8" iconColor="#DB2777" label="Kudos" value="12" caption="Received" />
+                            <InvRow icon={Book} iconBg="#f0fdfa" iconColor="#0D9488" label="Training" value="85%" caption="Completed" />
+                            <InvRow icon={Activity} iconBg="#eff6ff" iconColor="#2563EB" label="Perf Score" value="4.8" caption="/ 5.0" />
                         </div>
                     </div>
 
