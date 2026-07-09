@@ -140,13 +140,32 @@ const HRDashboard = () => {
                             </div>
                         </div>
                     </div>
-                    <div className="rd-hero-right-actions">
-                        <button className="hero-action-btn secondary" onClick={() => navigate('/attendance')}>
-                            <Clock size={15} /> Check In
-                        </button>
-                        <button className="hero-action-btn primary" onClick={() => navigate('/leave-management')}>
-                            <CheckCircle size={15} /> Apply Leave
-                        </button>
+                    <div className="rd-hero-right">
+                        <div className="rd-hero-visual">
+                            <div className="rd-visual-card">
+                                <div className="rd-vc-label">Attendance</div>
+                                <div className="rd-vc-value">{hrStats.attendanceRate || '98%'}</div>
+                                <div className="rd-vc-chart"></div>
+                            </div>
+                            <div className="rd-visual-card">
+                                <div className="rd-vc-label">Activity</div>
+                                <div className="rd-vc-bars">
+                                    <div className="rd-vc-bar" style={{height: '90%'}}></div>
+                                    <div className="rd-vc-bar" style={{height: '70%'}}></div>
+                                    <div className="rd-vc-bar" style={{height: '80%'}}></div>
+                                    <div className="rd-vc-bar" style={{height: '100%'}}></div>
+                                    <div className="rd-vc-bar" style={{height: '60%'}}></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="rd-hero-actions-col">
+                            <button className="hero-action-btn primary" onClick={() => navigate('/leave-management')}>
+                                <CheckCircle size={15} /> Apply Leave
+                            </button>
+                            <button className="hero-action-btn secondary" onClick={() => navigate('/attendance')}>
+                                <Clock size={15} /> Check In
+                            </button>
+                        </div>
                     </div>
                 </div>
 

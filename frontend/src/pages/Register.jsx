@@ -3,20 +3,23 @@ import { useNavigate, Link } from 'react-router-dom';
 import API from '../api/axios';
 import { AuthContext } from '../context/AuthContext';
 import { useGoogleLogin } from '@react-oauth/google';
-import {
-    Shield, Users, Monitor, User, TrendingUp,
-    Box, BarChart2, Settings, ShieldCheck, CheckCircle2,
-    Layers, Activity, Globe, Fingerprint, ChevronDown, Hexagon
-} from 'lucide-react';
+import { Shield, Users, Monitor, User, TrendingUp, Eye, EyeOff, Mail, Lock, Activity, Map, Box, CheckCircle, UserPlus } from 'lucide-react';
 import SmtbmsLogo from '../components/SmtbmsLogo';
 
 const Register = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
-    const [phone, setPhone] = useState('');
     const [role, setRole] = useState('Admin');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirm, setShowConfirm] = useState(false);
+    const [agreeTerms, setAgreeTerms] = useState(false);
+    const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+
+    const { login } = useContext(AuthContext);
+    const navigate = useNavigate();
 
     const roles = [
         { id: 'Admin', icon: Shield },
@@ -25,23 +28,6 @@ const Register = () => {
         { id: 'Employee', icon: User },
         { id: 'Sales', icon: TrendingUp }
     ];
-    const [error, setError] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
-    const [isRoleDropdownOpen, setIsRoleDropdownOpen] = useState(false);
-    const dropdownRef = useRef(null);
-
-    const { login } = useContext(AuthContext);
-    const navigate = useNavigate();
-
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-                setIsRoleDropdownOpen(false);
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
 
     useEffect(() => {
         const html = document.documentElement;
@@ -51,7 +37,7 @@ const Register = () => {
         body.style.overflow = 'hidden';
         body.style.height = '100%';
         body.style.minHeight = 'unset';
-        body.style.backgroundColor = '#081028';
+        body.style.backgroundColor = '#FFFFFF';
         return () => {
             html.style.overflow = '';
             html.style.height = '';
@@ -64,7 +50,11 @@ const Register = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+        
+        if (!agreeTerms) {
+            setError('Please agree to the Terms & Privacy Policy');
+            return;
+        }
         if (password !== confirmPassword) {
             setError('Passwords do not match');
             return;
@@ -72,8 +62,7 @@ const Register = () => {
 
         setIsLoading(true);
         try {
-            const payload = { name, email, phone, role, password };
-            const { data } = await API.post('/auth/register', payload);
+            const { data } = await API.post('/auth/register', { name, email, role, password });
             login(data, false);
             setError('');
             if (data.isProfileComplete === false) {
@@ -82,8 +71,7 @@ const Register = () => {
                 navigate('/');
             }
         } catch (err) {
-            const errorMsg = err.response?.data?.error || err.response?.data?.message || 'Registration failed';
-            setError(errorMsg);
+            setError(err.response?.data?.error || err.response?.data?.message || 'Registration failed');
         } finally {
             setIsLoading(false);
         }
@@ -97,9 +85,8 @@ const Register = () => {
                 const { data } = await API.post('/auth/google', {
                     access_token: tokenResponse.access_token,
                     mode: 'signup',
-                    role: role
+                    role
                 });
-
                 login(data, false);
                 if (data.isProfileComplete === false) {
                     navigate(data.role === 'Customer' ? '/complete-customer-profile' : '/complete-vendor-profile');
@@ -107,8 +94,7 @@ const Register = () => {
                     navigate('/');
                 }
             } catch (err) {
-                const msg = err.response?.data?.message || err.message;
-                setError(msg || 'Google Sign-up failed');
+                setError(err.response?.data?.message || err.message || 'Google Sign-up failed');
             } finally {
                 setIsLoading(false);
             }
@@ -118,69 +104,117 @@ const Register = () => {
     });
 
     return (
-        <div className="login-wrapper">
-            <div className="login-split">
+        <div className="auth-split-layout">
+            
+            {/* LEFT PANEL - Brand & Floating Dashboard Cards (Identical to Login) */}
+            <div className="auth-brand-panel">
+                <div className="brand-header">
+                    <div className="logo-icon-wrap">
+                        <SmtbmsLogo size={24} showText={false} />
+                    </div>
+                    <span className="brand-text">SMTBMS</span>
+                </div>
 
-                {/* Left Side: Dark Hero Section */}
-                <div className="login-banner">
-                    <div className="banner-content">
-                        <div className="brand">
-                            <SmtbmsLogo size={56} showText={false} />
-                            <div className="brand-text" style={{ marginLeft: 6 }}>
-                                <h1>SMTBMS</h1>
-                                <h2>Smart Material Tracking &</h2>
-                                <h2>Business Management System</h2>
-                            </div>
+                <div className="brand-content">
+                    <h1 className="brand-headline">Every material,<br/>tracked in real time.</h1>
+                    <p className="brand-subheadline">
+                        Command your operations with precision. Live GPS, automated inventory, and unified workforce management.
+                    </p>
+
+                    <div className="features-compact-grid">
+                        <div className="feature-item">
+                            <Map size={16} className="feature-icon" />
+                            <span>Live GPS Tracking</span>
                         </div>
-
-                        <div className="hero-text">
-                            <h1>Manage.<br />Track.<br />Optimize. <span className="highlight">Grow.</span></h1>
-                            <p>A smart platform to streamline your materials, operations, and business in one place.</p>
+                        <div className="feature-item">
+                            <Box size={16} className="feature-icon" />
+                            <span>Smart Replenishment</span>
                         </div>
-
-                        <div className="features-grid">
-                            <div className="feature-item">
-                                <div className="feature-icon"><Layers size={22} /></div>
-                                <h3>Smart Inventory</h3>
-                                <p>AI-driven stock optimization and real-time tracking.</p>
-                            </div>
-                            <div className="feature-item">
-                                <div className="feature-icon"><Activity size={22} /></div>
-                                <h3>Live Operations</h3>
-                                <p>Monitor workflows and operational bottlenecks instantly.</p>
-                            </div>
-                            <div className="feature-item">
-                                <div className="feature-icon"><Globe size={22} /></div>
-                                <h3>Global Supply</h3>
-                                <p>Seamlessly connect vendors, suppliers, and fulfillment.</p>
-                            </div>
-                            <div className="feature-item">
-                                <div className="feature-icon"><Fingerprint size={22} /></div>
-                                <h3>Bank-Grade Security</h3>
-                                <p>Enterprise-level encryption and role-based access.</p>
-                            </div>
+                        <div className="feature-item">
+                            <Activity size={16} className="feature-icon" />
+                            <span>Real-time Analytics</span>
+                        </div>
+                        <div className="feature-item">
+                            <CheckCircle size={16} className="feature-icon" />
+                            <span>Unified HR & Payroll</span>
                         </div>
                     </div>
                 </div>
 
-                {/* Right Side: Form */}
-                <div className="login-form-wrapper">
-                    <div className="form-card">
-                        <div className="form-header">
-                            <h2>Create Account</h2>
-                            <p>Register with your role to get started</p>
+                <div className="floating-cards-container">
+                    <div className="float-card card-table">
+                        <div className="fc-header">Recent Movements</div>
+                        <div className="fc-row"><div className="fc-dot blue"></div><div className="fc-line long"></div></div>
+                        <div className="fc-row"><div className="fc-dot green"></div><div className="fc-line short"></div></div>
+                        <div className="fc-row"><div className="fc-dot purple"></div><div className="fc-line med"></div></div>
+                    </div>
+
+                    <div className="float-card card-kpi">
+                        <div className="fc-kpi-val">99.8%</div>
+                        <div className="fc-kpi-label">Fulfillment Rate</div>
+                        <svg className="fc-sparkline" viewBox="0 0 100 30" fill="none">
+                            <path d="M0 25 Q 20 5 40 20 T 80 10 T 100 15" stroke="url(#sparkGradient)" strokeWidth="3" strokeLinecap="round" />
+                            <defs>
+                                <linearGradient id="sparkGradient" x1="0" y1="0" x2="1" y2="0">
+                                    <stop offset="0%" stopColor="#4F46E5" />
+                                    <stop offset="100%" stopColor="#818CF8" />
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                    </div>
+
+                    <div className="float-card card-map">
+                        <div className="fc-map-bg"></div>
+                        <div className="fc-pin" style={{top: '30%', left: '40%'}}></div>
+                        <div className="fc-pin" style={{top: '60%', left: '70%'}}></div>
+                        <svg className="fc-route" viewBox="0 0 100 100" fill="none">
+                            <path d="M40 30 Q 60 40 70 60" stroke="#5B47C2" strokeWidth="2" strokeDasharray="4 4" />
+                        </svg>
+                        <div className="fc-map-badge">Active Route</div>
+                    </div>
+                </div>
+            </div>
+
+            {/* RIGHT PANEL - Form */}
+            <div className="auth-form-panel">
+                <div className="auth-form-container">
+                    
+                    <div className="form-header">
+                        <h2>Create your account</h2>
+                        <p>Get started with SMTBMS</p>
+                    </div>
+
+                    {error && (
+                        <div className="error-alert">
+                            {error}
+                        </div>
+                    )}
+
+                    <form onSubmit={handleSubmit} className="login-form">
+                        
+                        {/* Role Selector Pills */}
+                        <div className="form-group">
+                            <label className="input-label">Select Role</label>
+                            <div className="role-pills-container">
+                                {roles.map((r) => (
+                                    <button
+                                        key={r.id}
+                                        type="button"
+                                        className={`role-pill ${role === r.id ? 'active' : ''}`}
+                                        onClick={() => setRole(r.id)}
+                                    >
+                                        <r.icon size={14} />
+                                        <span>{r.id}</span>
+                                    </button>
+                                ))}
+                            </div>
                         </div>
 
-                        {error && (
-                            <div className="error-alert">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
-                                <span>{error}</span>
-                            </div>
-                        )}
-
-                        <form onSubmit={handleSubmit} className="auth-form">
-                            <div className="input-group">
-                                <label>Full Name</label>
+                        {/* Name Input */}
+                        <div className="form-group">
+                            <label className="input-label">Full Name</label>
+                            <div className="input-with-icon">
+                                <UserPlus size={16} className="input-icon" />
                                 <input
                                     type="text"
                                     placeholder="John Doe"
@@ -189,661 +223,422 @@ const Register = () => {
                                     required
                                 />
                             </div>
+                        </div>
 
-                            <div className="input-row">
-                                <div className="input-group">
-                                    <label>Email Address</label>
-                                    <input
-                                        type="email"
-                                        placeholder="name@company.com"
-                                        value={email}
-                                        onChange={(e) => { setEmail(e.target.value); setError(''); }}
-                                        required
-                                        autoComplete="email"
-                                    />
-                                </div>
-                                <div className="input-group">
-                                    <label>Phone Number</label>
-                                    <input
-                                        type="tel"
-                                        placeholder="+1 234 567 890"
-                                        value={phone}
-                                        onChange={(e) => { setPhone(e.target.value); setError(''); }}
-                                        required
-                                        autoComplete="tel"
-                                    />
-                                </div>
+                        {/* Email Input */}
+                        <div className="form-group">
+                            <label className="input-label">Email Address</label>
+                            <div className="input-with-icon">
+                                <Mail size={16} className="input-icon" />
+                                <input
+                                    type="email"
+                                    placeholder="name@company.com"
+                                    value={email}
+                                    onChange={(e) => { setEmail(e.target.value); setError(''); }}
+                                    required
+                                />
                             </div>
+                        </div>
 
-                            <div className="input-group role-dropdown-container" ref={dropdownRef} style={{ marginBottom: '10px' }}>
-                                <label className="section-label" style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', marginBottom: '8px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>SELECT YOUR ROLE</label>
-                                <div
-                                    className={`custom-dropdown-header ${isRoleDropdownOpen ? 'open' : ''}`}
-                                    onClick={() => setIsRoleDropdownOpen(!isRoleDropdownOpen)}
-                                >
-                                    <div className="selected-role-display">
-                                        {roles.find(r => r.id === role)?.icon && React.createElement(roles.find(r => r.id === role).icon, { size: 18, className: "selected-role-icon" })}
-                                        <span>{role}</span>
-                                    </div>
-                                    <ChevronDown size={18} className="dropdown-arrow" />
-                                </div>
-
-                                {isRoleDropdownOpen && (
-                                    <div className="custom-dropdown-list">
-                                        {roles.map((r) => (
-                                            <div
-                                                key={r.id}
-                                                className={`custom-dropdown-item ${role === r.id ? 'active' : ''}`}
-                                                onClick={() => {
-                                                    setRole(r.id);
-                                                    setIsRoleDropdownOpen(false);
-                                                }}
-                                            >
-                                                <r.icon size={16} className="dropdown-item-icon" />
-                                                <span>{r.id}</span>
-                                                {role === r.id && <CheckCircle2 size={16} className="dropdown-check" />}
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className="input-row">
-                                <div className="input-group">
-                                    <label>Password</label>
+                        <div className="field-row">
+                            {/* Password Input */}
+                            <div className="form-group" style={{flex: 1}}>
+                                <label className="input-label">Password</label>
+                                <div className="input-with-icon">
+                                    <Lock size={16} className="input-icon" />
                                     <input
-                                        type="password"
+                                        type={showPassword ? "text" : "password"}
                                         placeholder="••••••••"
                                         value={password}
                                         onChange={(e) => { setPassword(e.target.value); setError(''); }}
                                         required
-                                        minLength={6}
-                                        autoComplete="new-password"
                                     />
+                                    <button type="button" className="eye-toggle" onClick={() => setShowPassword(!showPassword)}>
+                                        {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                                    </button>
                                 </div>
-                                <div className="input-group">
-                                    <label>Confirm Password</label>
+                            </div>
+
+                            {/* Confirm Password Input */}
+                            <div className="form-group" style={{flex: 1}}>
+                                <label className="input-label">Confirm</label>
+                                <div className="input-with-icon">
+                                    <Lock size={16} className="input-icon" />
                                     <input
-                                        type="password"
+                                        type={showConfirm ? "text" : "password"}
                                         placeholder="••••••••"
                                         value={confirmPassword}
                                         onChange={(e) => { setConfirmPassword(e.target.value); setError(''); }}
                                         required
-                                        minLength={6}
-                                        autoComplete="new-password"
                                     />
+                                    <button type="button" className="eye-toggle" onClick={() => setShowConfirm(!showConfirm)}>
+                                        {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
+                                    </button>
                                 </div>
                             </div>
+                        </div>
 
-                            <button type="submit" className="submit-btn" disabled={isLoading} style={{ marginTop: '12px' }}>
-                                {isLoading ? 'Creating Account...' : 'Sign Up'}
-                            </button>
-
-                            <div className="divider">
-                                <span>or</span>
+                        {/* Agree to Terms Toggle */}
+                        <div className="toggle-row" onClick={() => setAgreeTerms(!agreeTerms)}>
+                            <div className={`custom-toggle ${agreeTerms ? 'active' : ''}`}>
+                                <div className="toggle-thumb"></div>
                             </div>
+                            <span className="toggle-label">I agree to the Terms & Privacy Policy</span>
+                        </div>
 
-                            <button type="button" className="google-btn" onClick={() => handleGoogleSignup()}>
-                                <svg viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
-                                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-                                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
-                                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+                        {/* Submit */}
+                        <button type="submit" className="btn-primary" disabled={isLoading}>
+                            {isLoading ? 'Creating account...' : 'Create account'}
+                        </button>
+
+                        {/* Divider */}
+                        <div className="social-divider">
+                            <span>OR CONTINUE WITH</span>
+                        </div>
+
+                        {/* Social Buttons */}
+                        <div className="social-buttons">
+                            <button type="button" className="btn-social" onClick={() => handleGoogleSignup()}>
+                                <svg viewBox="0 0 24 24" width="16" height="16">
+                                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
                                 </svg>
-                                Sign up with Google
+                                Google
                             </button>
+                            <button type="button" className="btn-social">
+                                <svg viewBox="0 0 21 21" width="16" height="16">
+                                    <rect x="1" y="1" width="9" height="9" fill="#F25022"/>
+                                    <rect x="11" y="1" width="9" height="9" fill="#7FBA00"/>
+                                    <rect x="1" y="11" width="9" height="9" fill="#00A4EF"/>
+                                    <rect x="11" y="11" width="9" height="9" fill="#FFB900"/>
+                                </svg>
+                                Microsoft
+                            </button>
+                        </div>
 
-                            <div className="signup-link-wrapper">
-                                Already have an account? <Link to="/login" className="signup-link">Sign in</Link>
-                            </div>
-                        </form>
+                    </form>
+
+                    <div className="form-footer">
+                        Already have an account? <Link to="/login">Sign in</Link>
                     </div>
 
-                    <div className="login-footer">
-                        <a href="#">Terms of Use</a>
-                        <span className="footer-dot">•</span>
-                        <a href="#">Privacy & Cookies</a>
-                        <span className="footer-dot">•</span>
-                        <span>&copy; {new Date().getFullYear()} SMTBMS</span>
-                    </div>
                 </div>
             </div>
 
             <style jsx="true">{`
-                :root {
-                    --bg-app: #f8fafc;
-                    --bg-body: #f1f5f9;
-                    --border-subtle: #e2e8f0;
-                    --border-strong: #cbd5e1;
-                    --text-primary: #0f172a;
-                    --text-secondary: #334155;
-                    --text-muted: #64748b;
-                    --danger: #ef4444;
-                    --danger-bg: #fef2f2;
-                }
+                @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-                .login-wrapper {
-                    width: 100vw;
-                    height: 100vh;
-                    margin: 0;
-                    padding: 0;
+                .auth-split-layout {
                     display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
                     position: fixed;
-                    top: 0;
-                    left: 0;
-                }
-
-                .login-wrapper::before {
-                    content: '';
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    bottom: 0;
-                    background-image: url('/login_bg_new.png');
-                    background-size: cover;
-                    background-position: center;
-                    background-repeat: no-repeat;
-                    overflow: hidden;
-                }
-
-                .login-wrapper::after {
-                    content: '';
-                    position: absolute;
-                    inset: 0;
-                    background: linear-gradient(90deg, rgba(8, 16, 40, 0.9) 0%, rgba(8, 16, 40, 0.3) 100%);
-                    z-index: 1;
-                }
-
-                .login-split {
-                    display: flex;
+                    top: 0; left: 0; right: 0; bottom: 0;
                     width: 100vw;
                     height: 100vh;
-                    position: relative;
-                    z-index: 2;
-                }
-
-                .login-banner {
-                    flex: 1.2;
-                    position: relative;
-                    display: flex;
-                    flex-direction: column;
-                    padding: clamp(20px, 4vh, 40px) 60px;
-                    color: #ffffff;
+                    z-index: 9999;
+                    background: #FFFFFF;
+                    font-family: 'Inter', sans-serif;
                     overflow: hidden;
                 }
 
-                .login-banner::-webkit-scrollbar {
-                    display: none;
-                }
-
-                .banner-content {
-                    position: relative;
-                    z-index: 10;
-                    max-width: 800px;
-                    margin: auto 0;
-                }
-
-                .brand {
-                    display: flex;
-                    align-items: center;
-                    gap: 16px;
-                    margin-bottom: clamp(20px, 4vh, 40px);
-                }
-
-                /* Logo container is handled by SmtbmsLogo, text margin added inline */
-
-                .brand-text {
+                /* ================= LEFT PANEL ================= */
+                .auth-brand-panel {
+                    flex: 1;
+                    background: linear-gradient(135deg, #1C113A 0%, #311E66 50%, #4B35A6 100%);
                     display: flex;
                     flex-direction: column;
-                    gap: 2px;
+                    padding: 48px;
+                    position: relative;
+                    overflow: hidden;
+                    color: white;
                 }
 
-                .brand-text h1 {
-                    font-size: 28px;
-                    font-weight: 800;
-                    margin: 0 0 2px 0;
-                    color: #ffffff;
+                .brand-header {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    z-index: 10;
+                }
+                .logo-icon-wrap {
+                    width: 40px; height: 40px;
+                    background: rgba(255,255,255,0.1);
+                    backdrop-filter: blur(10px);
+                    border-radius: 10px;
+                    border: 1px solid rgba(255,255,255,0.2);
+                    display: flex; align-items: center; justify-content: center;
+                }
+                .brand-text {
+                    font-size: 20px;
+                    font-weight: 700;
                     letter-spacing: -0.5px;
-                    line-height: 1;
                 }
 
-                .brand-text h2 {
-                    font-size: 15px;
-                    font-weight: 500;
-                    margin: 0;
-                    color: rgba(255,255,255,0.85);
-                    line-height: 1.3;
-                    letter-spacing: 0px;
-                }
-
-                .hero-text {
-                    margin-bottom: clamp(20px, 5vh, 50px);
-                }
-
-                .hero-text h1 {
-                    font-size: clamp(48px, 5vw, 72px);
-                    font-weight: 800;
-                    line-height: 1.25;
-                    margin: 0 0 clamp(16px, 2vh, 24px) 0;
-                    color: #ffffff;
-                    letter-spacing: -1px;
-                }
-
-                .hero-text .highlight {
-                    color: #3b82f6;
-                }
-
-                .hero-text p {
-                    font-size: 18px;
-                    color: #94a3b8;
-                    line-height: 1.6;
-                    margin: 0;
+                .brand-content {
+                    margin-top: 80px;
+                    margin-bottom: auto;
                     max-width: 480px;
+                    z-index: 10;
+                    position: relative;
+                }
+                    z-index: 10;
+                    position: relative;
                 }
 
-                .features-grid {
+                .brand-headline {
+                    font-size: 48px;
+                    font-weight: 700;
+                    line-height: 1.1;
+                    margin: 0 0 16px 0;
+                    letter-spacing: -1.5px;
+                }
+
+                .brand-subheadline {
+                    font-size: 16px;
+                    line-height: 1.5;
+                    color: rgba(255,255,255,0.7);
+                    margin: 0 0 40px 0;
+                }
+
+                .features-compact-grid {
                     display: grid;
-                    grid-template-columns: repeat(4, 1fr);
+                    grid-template-columns: 1fr 1fr;
                     gap: 16px;
                 }
 
                 .feature-item {
                     display: flex;
-                    flex-direction: column;
-                    gap: 8px;
-                }
-
-                .feature-icon {
-                    width: 36px;
-                    height: 36px;
-                    display: flex;
                     align-items: center;
-                    justify-content: center;
-                    color: #60a5fa;
-                    border: 1px solid rgba(59, 130, 246, 0.3);
-                    border-radius: 8px;
-                }
-
-                .feature-item h3 {
+                    gap: 10px;
                     font-size: 14px;
-                    font-weight: 600;
-                    color: #ffffff;
-                    margin: 0;
+                    color: rgba(255,255,255,0.9);
+                    font-weight: 500;
+                }
+                .feature-icon {
+                    color: #8B77E3;
                 }
 
-                .feature-item p {
-                    font-size: 12px;
-                    color: #94a3b8;
-                    margin: 0;
-                    line-height: 1.5;
+                /* Floating Cards Composition */
+                .floating-cards-container {
+                    position: absolute;
+                    bottom: -20px;
+                    right: -20px; /* Anchored to bottom right */
+                    transform: scale(0.75);
+                    transform-origin: bottom right;
+                    width: 440px;
+                    height: 480px;
+                    z-index: 5;
+                    pointer-events: none;
                 }
 
-                .login-form-wrapper {
-                    flex: 1;
-                    min-width: 420px;
-                    max-width: 560px;
-                    height: 100%;
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    justify-content: center;
+                .float-card {
+                    position: absolute;
+                    background: rgba(255, 255, 255, 0.98);
+                    border-radius: 16px;
+                    border: 1px solid rgba(255,255,255,0.4);
+                }
+
+                /* Data Table Card (Back) */
+                .card-table {
+                    width: 320px; height: 180px;
+                    top: 30px; right: 40px;
+                    transform: rotate(-6deg);
+                    padding: 24px;
+                    display: flex; flex-direction: column; gap: 14px;
+                    z-index: 1;
+                    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+                }
+                .fc-header { font-size: 12px; font-weight: 600; color: #4B5563; margin-bottom: 4px; }
+                .fc-row { display: flex; align-items: center; gap: 12px; }
+                .fc-dot { width: 8px; height: 8px; border-radius: 50%; }
+                .fc-dot.blue { background: #3B82F6; }
+                .fc-dot.green { background: #10B981; }
+                .fc-dot.purple { background: #8B5CF6; }
+                .fc-line { height: 8px; background: #E5E7EB; border-radius: 4px; }
+                .fc-line.long { width: 80%; }
+                .fc-line.med { width: 60%; }
+                .fc-line.short { width: 40%; }
+
+                /* KPI Card (Middle) */
+                .card-kpi {
+                    width: 200px; height: 150px;
+                    top: 170px; left: 0px;
+                    transform: rotate(5deg);
+                    padding: 24px;
+                    z-index: 2;
+                    box-shadow: 0 24px 48px rgba(0,0,0,0.3);
+                }
+                .fc-kpi-val { font-size: 32px; font-weight: 700; color: #111827; line-height: 1; }
+                .fc-kpi-label { font-size: 12px; color: #6B7280; margin-top: 4px; margin-bottom: 16px; }
+                .fc-sparkline { width: 100%; height: 30px; }
+
+                /* Map Card (Front) */
+                .card-map {
+                    width: 260px; height: 220px;
+                    top: 230px; right: 10px;
+                    transform: rotate(-3deg);
+                    padding: 8px;
+                    z-index: 3;
+                    box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+                }
+                .fc-map-bg {
+                    width: 100%; height: 100%;
+                    border-radius: 12px;
+                    background-image: radial-gradient(#E5E7EB 1px, transparent 1px);
+                    background-size: 20px 20px;
+                    background-color: #F9FAFB;
                     position: relative;
-                    z-index: 20;
-                    padding: clamp(16px, 3vh, 24px) clamp(24px, 4vw, 48px);
-                    background: #ffffff;
-                    border-top-left-radius: 32px;
-                    border-bottom-left-radius: 32px;
-                    box-shadow: -20px 0 60px rgba(0,0,0,0.3);
+                    overflow: hidden;
+                }
+                .fc-pin {
+                    position: absolute; width: 12px; height: 12px;
+                    background: #5B47C2; border-radius: 50%;
+                    border: 2px solid white;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                }
+                .fc-route { position: absolute; inset: 0; width: 100%; height: 100%; }
+                .fc-map-badge {
+                    position: absolute; bottom: 20px; left: 20px;
+                    background: white; padding: 6px 12px; border-radius: 20px;
+                    font-size: 11px; font-weight: 600; color: #374151;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                }
+
+
+                .auth-form-panel {
+                    flex: 1;
+                    background: #FFFFFF;
+                    display: flex;
+                    align-items: flex-start;
+                    justify-content: center;
                     overflow-y: auto;
                 }
 
-                .login-form-wrapper::-webkit-scrollbar {
-                    display: none;
-                }
-
-                .form-card {
-                    background: transparent;
+                .auth-form-container {
                     width: 100%;
-                    max-width: 400px;
-                    min-height: auto;
-                    height: auto;
-                    box-shadow: none;
-                    padding: 0;
-                    color: var(--text-primary);
-                    position: relative;
-                    margin: 0;
-                    display: flex;
-                    flex-direction: column;
+                    max-width: 440px;
+                    padding: 40px;
+                    margin: auto 0;
                 }
 
-                .form-header {
-                    text-align: center;
-                    margin-bottom: clamp(8px, 1.5vh, 12px);
-                }
+                .form-header { margin-bottom: 32px; }
+                .form-header h2 { font-size: 28px; font-weight: 700; color: #111827; margin: 0 0 8px 0; letter-spacing: -0.5px; }
+                .form-header p { font-size: 15px; color: #6B7280; margin: 0; }
 
-                .form-header h2 {
-                    font-size: 24px;
-                    font-weight: 800;
-                    color: #ea580c;
-                    margin: 0 0 4px 0;
-                    letter-spacing: -0.5px;
-                }
-
-                .form-header p {
-                    font-size: 13px;
-                    color: var(--text-muted);
-                    margin: 0;
-                    font-weight: 500;
-                }
-
-                /* Custom Dropdown */
-                .role-dropdown-container {
-                    position: relative;
-                    margin-bottom: 14px;
-                }
-
-                .custom-dropdown-header {
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    padding: 10px 14px;
-                    border: 1px solid var(--border-subtle);
-                    border-radius: 8px;
-                    background: var(--bg-body);
-                    cursor: pointer;
-                    transition: all 0.2s ease;
-                }
-
-                .custom-dropdown-header:hover, .custom-dropdown-header.open {
-                    background: #ffffff;
-                    border-color: #000000;
-                }
-
-                .custom-dropdown-header.open {
-                    box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
-                }
-
-                .selected-role-display {
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    font-size: 14px;
-                    font-weight: 500;
-                    color: var(--text-primary);
-                }
-
-                .selected-role-icon {
-                    color: #ea580c;
-                }
-
-                .dropdown-arrow {
-                    color: var(--text-muted);
-                    transition: transform 0.2s ease;
-                }
-
-                .custom-dropdown-header.open .dropdown-arrow {
-                    transform: rotate(180deg);
-                }
-
-                .custom-dropdown-list {
-                    position: absolute;
-                    top: calc(100% + 4px);
-                    left: 0;
-                    right: 0;
-                    background: #ffffff;
-                    border: 1px solid var(--border-subtle);
-                    border-radius: 8px;
-                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-                    z-index: 50;
-                    overflow: hidden;
-                }
-
-                .custom-dropdown-item {
-                    display: flex;
-                    align-items: center;
-                    padding: 10px 14px;
-                    gap: 10px;
-                    cursor: pointer;
-                    transition: all 0.2s ease;
-                    font-size: 14px;
-                    color: var(--text-primary);
-                }
-
-                .custom-dropdown-item:hover {
-                    background: var(--bg-body);
-                }
-
-                .custom-dropdown-item.active {
-                    background: rgba(234, 88, 12, 0.05);
-                    color: #ea580c;
-                    font-weight: 600;
-                }
-
-                .dropdown-item-icon {
-                    color: var(--text-muted);
-                }
-
-                .custom-dropdown-item.active .dropdown-item-icon {
-                    color: #ea580c;
-                }
-
-                .dropdown-check {
-                    margin-left: auto;
-                    color: #ea580c;
-                }
-
-                /* Error Alert */
                 .error-alert {
+                    background: #FEF2F2; color: #DC2626; padding: 12px 16px;
+                    border-radius: 8px; font-size: 14px; font-weight: 500; margin-bottom: 24px;
+                    border: 1px solid #FECACA;
+                }
+
+                .login-form { display: flex; flex-direction: column; gap: 16px; }
+                .form-group { display: flex; flex-direction: column; }
+                .field-row { display: flex; gap: 12px; }
+                
+                .input-label { font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 8px; }
+
+                /* Role Pills */
+                .role-pills-container {
                     display: flex;
-                    align-items: center;
+                    flex-wrap: wrap;
                     gap: 10px;
-                    background: var(--danger-bg);
-                    border: 1px solid rgba(255,0,0,0.1);
-                    color: var(--danger);
-                    padding: 10px 14px;
-                    border-radius: 8px;
-                    font-size: 12px;
-                    font-weight: 500;
-                    margin-bottom: 20px;
+                }
+                .role-pill {
+                    display: flex; align-items: center; gap: 6px;
+                    padding: 8px 14px;
+                    border-radius: 20px;
+                    border: 1px solid #E5E7EB;
+                    background: #FFFFFF;
+                    color: #4B5563;
+                    font-size: 13px; font-weight: 500; font-family: inherit;
+                    cursor: pointer; transition: all 0.2s;
+                }
+                .role-pill:hover { border-color: #D1D5DB; background: #F9FAFB; }
+                .role-pill.active {
+                    background: #5B47C2;
+                    border-color: #5B47C2;
+                    color: #FFFFFF;
+                    box-shadow: 0 2px 8px rgba(91,71,194,0.3);
                 }
 
-                .input-row {
-                    display: grid;
-                    grid-template-columns: 1fr 1fr;
-                    gap: 10px;
+                /* Inputs with Icon */
+                .input-with-icon { position: relative; display: flex; align-items: center; }
+                .input-icon { position: absolute; left: 14px; color: #9CA3AF; z-index: 2; }
+                .input-with-icon input {
+                    width: 100%; height: 44px;
+                    border: 1px solid #D1D5DB; border-radius: 10px;
+                    padding: 0 14px 0 40px; /* Space for icon */
+                    font-size: 14px; color: #111827; font-family: inherit;
+                    transition: all 0.2s; outline: none; background: #FFFFFF;
                 }
-
-                /* Inputs */
-                .input-group {
-                    margin-bottom: 8px;
-                }
-
-                .input-group label {
-                    display: block;
-                    font-size: 10px;
-                    font-weight: 700;
-                    color: var(--text-secondary);
-                    margin-bottom: 3px;
-                    letter-spacing: 0.5px;
-                    text-transform: uppercase;
-                }
-
-                .input-group input, .select-wrapper select {
-                    width: 100%;
-                    padding: 9px 12px;
-                    border: 1px solid var(--border-subtle);
-                    border-radius: 8px;
-                    font-size: 13px;
-                    font-weight: 400;
-                    color: var(--text-primary);
-                    background: var(--bg-body);
-                    transition: all 0.2s ease;
-                    outline: none;
-                    box-sizing: border-box;
-                }
-
-                .input-group input:focus, .select-wrapper select:focus {
-                    background: #ffffff;
-                    border-color: #000000;
-                    box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
-                }
-
-                .input-group input::placeholder {
-                    color: var(--text-muted);
-                    font-weight: 400;
-                }
-
-                .select-wrapper select {
-                    appearance: none;
-                    cursor: pointer;
-                    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%239CA3AF%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
-                    background-repeat: no-repeat;
-                    background-position: right 14px top 50%;
-                    background-size: 10px auto;
-                    padding-right: 32px;
-                }
-
-                /* Submit Button */
-                .submit-btn {
-                    width: 100%;
-                    padding: 11px;
-                    background: #000000;
-                    color: white;
-                    border: none;
-                    border-radius: 8px;
-                    font-size: 14px;
-                    font-weight: 600;
-                    cursor: pointer;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 8px;
-                    transition: all 0.2s ease;
-                    margin-top: 8px;
-                }
-
-                .submit-btn:hover {
-                    background: #333333;
-                }
-
-                .submit-btn:disabled {
-                    opacity: 0.7;
-                    cursor: not-allowed;
-                    background: #666666;
-                }
-
-                /* Social Logins */
-                .divider {
-                    display: flex;
-                    align-items: center;
-                    text-align: center;
-                    margin: 12px 0;
-                }
-
-                .divider::before, .divider::after {
-                    content: '';
-                    flex: 1;
-                    border-bottom: 1px solid var(--border-subtle);
-                }
-
-                .divider span {
-                    padding: 0 16px;
-                    font-size: 11px;
-                    font-weight: 600;
-                    color: var(--text-muted);
-                    letter-spacing: 0.5px;
-                }
-
-                .google-btn {
-                    width: 100%;
-                    background: var(--bg-body);
-                    border: 1px solid var(--border-subtle);
-                    color: var(--text-primary);
-                    padding: 12px;
-                    border-radius: 8px;
-                    font-size: 13px;
-                    font-weight: 600;
-                    cursor: pointer;
-                    transition: all 0.2s ease;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 12px;
-                }
-
-                .google-btn:hover {
-                    background: #e2e8f0;
-                    border-color: var(--border-strong);
-                }
-
-                /* Footer link */
-                .signup-link-wrapper {
-                    text-align: center;
-                    font-size: 13px;
-                    color: var(--text-secondary);
-                    font-weight: 500;
-                    margin-top: 16px;
-                }
-
-                .signup-link {
-                    color: #000000;
-                    font-weight: 700;
-                    text-decoration: none;
-                    margin-left: 6px;
-                }
-
-                .signup-link:hover {
-                    text-decoration: underline;
+                .input-with-icon input:focus { border-color: #5B47C2; box-shadow: 0 0 0 3px rgba(91,71,194,0.1); }
+                .input-with-icon input:-webkit-autofill {
+                    -webkit-box-shadow: 0 0 0 30px white inset !important;
+                    -webkit-text-fill-color: #111827 !important;
                 }
                 
-                .login-footer {
-                    display: none;
+                .eye-toggle {
+                    position: absolute; right: 14px;
+                    background: none; border: none; padding: 0;
+                    color: #9CA3AF; cursor: pointer; display: flex; align-items: center; z-index: 2;
                 }
+                .eye-toggle:hover { color: #5B47C2; }
 
-                @media (max-width: 1200px) {
-                    .login-banner {
-                        padding: 40px;
-                    }
+                /* Custom Toggle */
+                .toggle-row { display: flex; align-items: center; gap: 10px; cursor: pointer; margin-top: 4px; margin-bottom: 4px;}
+                .custom-toggle {
+                    width: 36px; height: 20px;
+                    background: #E5E7EB; border-radius: 20px;
+                    position: relative; transition: background 0.2s;
                 }
+                .custom-toggle.active { background: #5B47C2; }
+                .toggle-thumb {
+                    position: absolute; top: 2px; left: 2px;
+                    width: 16px; height: 16px;
+                    background: #FFFFFF; border-radius: 50%;
+                    transition: transform 0.2s;
+                    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+                }
+                .custom-toggle.active .toggle-thumb { transform: translateX(16px); }
+                .toggle-label { font-size: 13px; color: #4B5563; font-weight: 500; }
 
-                @media (max-width: 1024px) {
-                    .login-split {
-                        flex-direction: column;
-                        height: auto;
-                        overflow-y: auto;
-                    }
-                    .login-banner {
-                        padding: 40px;
-                    }
-                    .hero-text h1 {
-                        font-size: 36px;
-                    }
-                    .login-form-wrapper {
-                        min-width: 100%;
-                        padding: 20px;
-                    }
-                    .form-card {
-                        max-height: none;
-                    }
+                /* Buttons */
+                .btn-primary {
+                    height: 44px; background: #5B47C2; color: #FFF;
+                    border: none; border-radius: 10px;
+                    font-size: 14.5px; font-weight: 600; font-family: inherit;
+                    cursor: pointer; transition: background 0.2s;
+                    margin-top: 4px;
                 }
+                .btn-primary:hover:not(:disabled) { background: #4B38B2; }
+                .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
 
-                @media (max-width: 600px) {
-                    .input-row {
-                        grid-template-columns: 1fr;
-                    }
+                /* Social */
+                .social-divider {
+                    display: flex; align-items: center; gap: 12px; margin: 4px 0;
                 }
-            /* Fix Chrome Autofill white background in light mode */
-            input:-webkit-autofill,
-            input:-webkit-autofill:hover, 
-            input:-webkit-autofill:focus, 
-            input:-webkit-autofill:active {
-                -webkit-box-shadow: 0 0 0 30px #ffffff inset !important;
-                -webkit-text-fill-color: #111827 !important;
-            }
+                .social-divider::before, .social-divider::after {
+                    content: ''; flex: 1; height: 1px; background: #E5E7EB;
+                }
+                .social-divider span { font-size: 11px; font-weight: 600; color: #9CA3AF; letter-spacing: 0.5px;}
+
+                .social-buttons { display: flex; gap: 12px; }
+                .btn-social {
+                    flex: 1; height: 44px;
+                    background: #FFF; border: 1px solid #D1D5DB; border-radius: 10px;
+                    display: flex; align-items: center; justify-content: center; gap: 8px;
+                    font-size: 14px; font-weight: 500; color: #374151; font-family: inherit;
+                    cursor: pointer; transition: all 0.2s;
+                }
+                .btn-social:hover { background: #F9FAFB; border-color: #9CA3AF; }
+
+                .form-footer { margin-top: 32px; text-align: center; font-size: 14px; color: #6B7280; }
+                .form-footer a { color: #5B47C2; font-weight: 600; text-decoration: none; }
+                .form-footer a:hover { text-decoration: underline; }
+
+                @media (max-width: 900px) {
+                    .auth-brand-panel { display: none; }
+                }
             `}</style>
         </div>
     );
