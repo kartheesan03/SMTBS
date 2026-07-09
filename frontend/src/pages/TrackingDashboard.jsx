@@ -148,17 +148,17 @@ const TrackingDashboard = () => {
                         ))}
                     </div>
                     
-                    <div style={{overflowX: 'auto', width: '100%'}}>
-                        <table className="rd-table" style={{ width: '100%' }}>
+                    <div className="rd-table-scroll">
+                        <table className="rd-table rd-table-responsive" style={{ width: '100%' }}>
                             <thead>
                                 <tr>
                                     <th>Tracking ID</th>
                                     <th>Date & Time</th>
                                     <th>Material / Item</th>
                                     <th>Movement Type</th>
-                                    <th>Quantity</th>
+                                    <th style={{textAlign: 'right'}}>Quantity</th>
                                     <th>Reference</th>
-                                    <th>Actions</th>
+                                    <th style={{textAlign: 'center', width: 100}}>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -194,27 +194,26 @@ const TrackingDashboard = () => {
                                                 whileHover={{ backgroundColor: '#f8fafc' }}
                                                 transition={{ duration: 0.2 }}
                                             >
-                                                <td style={{fontWeight: 700, color: '#4f46e5'}}>TRK-{String(log.id || log._id).slice(-4).toUpperCase()}</td>
-                                                <td>
+                                                <td style={{fontWeight: 700, color: '#4f46e5'}} data-label="Tracking ID">TRK-{String(log.id || log._id).slice(-4).toUpperCase()}</td>
+                                                <td data-label="Date & Time">
                                                     <div style={{fontWeight: 600, color: '#1e293b'}}>{d.toLocaleDateString()}</div>
                                                     <div style={{fontSize: 12, color: '#64748b', marginTop: 4}}>{d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
                                                 </td>
-                                                <td>
+                                                <td data-label="Material">
                                                     <div style={{fontWeight: 600, color: '#1e293b', overflow: 'hidden', textOverflow: 'ellipsis'}}>{log.materialName}</div>
                                                     <div style={{fontSize: 11, color: '#64748b', marginTop: 2}}>{log.materialSku}</div>
                                                 </td>
-                                                <td>{getTypeBadge(log.type)}</td>
-                                                <td style={{fontWeight: 800, fontSize: 15, color: '#0f172a'}}>{tStr === 'IN' ? '+' : tStr === 'OUT' ? '-' : ''}{log.quantity}</td>
-                                                <td style={{fontWeight: 500, color: '#64748b'}}>{getRefString(log)}</td>
-                                                <td>
+                                                <td data-label="Movement Type">{getTypeBadge(log.type)}</td>
+                                                <td style={{fontWeight: 800, fontSize: 15, color: '#0f172a', textAlign: 'right'}} data-label="Quantity">{tStr === 'IN' ? '+' : tStr === 'OUT' ? '-' : ''}{log.quantity}</td>
+                                                <td style={{fontWeight: 500, color: '#64748b'}} data-label="Reference">{getRefString(log)}</td>
+                                                <td style={{textAlign: 'center'}} data-label="Actions">
                                                     <button 
-                                                        className="rd-btn-link" 
-                                                        style={{marginTop: 0, display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap', fontWeight: 600, color: '#4f46e5'}}
+                                                        className="rd-btn-compact outline" 
                                                         onClick={() => {
                                                             setSelectedMovement(log);
                                                         }}
                                                     >
-                                                        <Eye size={16} /> View Details
+                                                        <Eye size={14} /> View
                                                     </button>
                                                 </td>
                                             </motion.tr>

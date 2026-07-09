@@ -280,8 +280,8 @@ const DailyTab = ({ canEdit }) => {
                     Showing <strong style={{ color: '#1e293b' }}>{filtered.length}</strong> of {data.length} employees
                 </div>
 
-                <div style={{ overflowX: 'auto' }}>
-                    <table className="rd-table" style={{ width: '100%' }}>
+                <div className="rd-table-scroll">
+                    <table className="rd-table rd-table-responsive" style={{ width: '100%' }}>
                         <thead>
                             <tr>
                                 <th>Employee</th>
@@ -303,7 +303,7 @@ const DailyTab = ({ canEdit }) => {
                                 const emp = r.employee || {};
                                 return (
                                     <tr key={r._id || r.id || i}>
-                                        <td>
+                                        <td data-label="Employee">
                                             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                                                 <div className="rd-avatar" style={{ width: 32, height: 32, fontSize: 12, background: 'var(--rd-orange-grad)', flexShrink: 0 }}>
                                                     {getInitials(emp.firstName, emp.lastName)}
@@ -313,18 +313,18 @@ const DailyTab = ({ canEdit }) => {
                                                 </span>
                                             </div>
                                         </td>
-                                        <td style={{ color: '#94a3b8', fontSize: 13 }}>{emp.employeeId || '—'}</td>
-                                        <td style={{ color: '#64748b' }}>{emp.department || '—'}</td>
-                                        <td style={{ fontWeight: 500, color: '#1e293b' }}>{formatTime(r.checkIn)}</td>
-                                        <td style={{ fontWeight: 500, color: '#1e293b' }}>{formatTime(r.checkOut)}</td>
-                                        <td>
+                                        <td style={{ color: '#94a3b8', fontSize: 13 }} data-label="Emp ID">{emp.employeeId || '—'}</td>
+                                        <td style={{ color: '#64748b' }} data-label="Department">{emp.department || '—'}</td>
+                                        <td style={{ fontWeight: 500, color: '#1e293b' }} data-label="Check In">{formatTime(r.checkIn)}</td>
+                                        <td style={{ fontWeight: 500, color: '#1e293b' }} data-label="Check Out">{formatTime(r.checkOut)}</td>
+                                        <td data-label="Hours">
                                             <span style={{ fontWeight: 700, color: '#3b82f6' }}>{calcHours(r.checkIn, r.checkOut)}</span>
                                         </td>
-                                        <td><StatusBadge status={r.status} /></td>
-                                        <td style={{ textAlign: 'center' }}>
+                                        <td data-label="Status"><StatusBadge status={r.status} /></td>
+                                        <td style={{ textAlign: 'center' }} data-label="Action">
                                             {canEdit && (
                                                 <button onClick={() => setEditRecord(r)}
-                                                    style={{ background: 'transparent', border: '1px solid #e2e8f0', borderRadius: 6, padding: '5px 10px', cursor: 'pointer', color: '#64748b', display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 600 }}>
+                                                    className="rd-btn-compact outline">
                                                     <Edit2 size={12} /> Edit
                                                 </button>
                                             )}
@@ -442,8 +442,8 @@ const MonthlyTab = () => {
                     </div>
                 </div>
 
-                <div style={{ overflowX: 'auto' }}>
-                    <table className="rd-table" style={{ width: '100%' }}>
+                <div className="rd-table-scroll">
+                    <table className="rd-table rd-table-responsive" style={{ width: '100%' }}>
                         <thead>
                             <tr>
                                 <th>Employee</th>
@@ -466,7 +466,7 @@ const MonthlyTab = () => {
                                 const barColor = pct >= 90 ? '#10b981' : pct >= 75 ? '#f59e0b' : '#ef4444';
                                 return (
                                     <tr key={r.id || i}>
-                                        <td>
+                                        <td data-label="Employee">
                                             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                                                 <div className="rd-avatar" style={{ width: 32, height: 32, fontSize: 12, background: 'var(--rd-blue-grad)', flexShrink: 0 }}>
                                                     {(r.name || '??')[0].toUpperCase()}
@@ -474,19 +474,19 @@ const MonthlyTab = () => {
                                                 <span style={{ fontWeight: 600, color: '#1e293b' }}>{r.name || '—'}</span>
                                             </div>
                                         </td>
-                                        <td style={{ color: '#94a3b8', fontSize: 13 }}>{r.id || '—'}</td>
-                                        <td style={{ color: '#64748b' }}>{r.dept || '—'}</td>
-                                        <td style={{ textAlign: 'center', fontWeight: 600 }}>{r.workDays || 0}</td>
-                                        <td style={{ textAlign: 'center' }}>
+                                        <td style={{ color: '#94a3b8', fontSize: 13 }} data-label="Emp ID">{r.id || '—'}</td>
+                                        <td style={{ color: '#64748b' }} data-label="Department">{r.dept || '—'}</td>
+                                        <td style={{ textAlign: 'center', fontWeight: 600 }} data-label="Work Days">{r.workDays || 0}</td>
+                                        <td style={{ textAlign: 'center' }} data-label="Present">
                                             <span style={{ color: '#10b981', fontWeight: 700 }}>{r.present || 0}</span>
                                         </td>
-                                        <td style={{ textAlign: 'center' }}>
+                                        <td style={{ textAlign: 'center' }} data-label="Absent">
                                             <span style={{ color: '#ef4444', fontWeight: 700 }}>{r.absent || 0}</span>
                                         </td>
-                                        <td style={{ textAlign: 'center' }}>
+                                        <td style={{ textAlign: 'center' }} data-label="Leave">
                                             <span style={{ color: '#3b82f6', fontWeight: 700 }}>{r.leaves || 0}</span>
                                         </td>
-                                        <td style={{ textAlign: 'center' }}>
+                                        <td style={{ textAlign: 'center' }} data-label="Attendance %">
                                             <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center' }}>
                                                 <div style={{ width: 60, height: 6, background: '#f1f5f9', borderRadius: 3, overflow: 'hidden' }}>
                                                     <div style={{ width: `${pct}%`, height: '100%', background: barColor, borderRadius: 3, transition: 'width 0.5s ease' }} />
@@ -609,8 +609,8 @@ const HistoryTab = () => {
                     <strong style={{ color: '#1e293b' }}>{data.length}</strong> records found · Page {page} of {totalPages || 1}
                 </div>
 
-                <div style={{ overflowX: 'auto' }}>
-                    <table className="rd-table" style={{ width: '100%' }}>
+                <div className="rd-table-scroll">
+                    <table className="rd-table rd-table-responsive" style={{ width: '100%' }}>
                         <thead>
                             <tr>
                                 <th>Date</th>
@@ -632,8 +632,8 @@ const HistoryTab = () => {
                                 const emp = r.employee || {};
                                 return (
                                     <tr key={r._id || i}>
-                                        <td style={{ fontWeight: 500, color: '#64748b', whiteSpace: 'nowrap' }}>{formatDate(r.date)}</td>
-                                        <td>
+                                        <td style={{ fontWeight: 500, color: '#64748b', whiteSpace: 'nowrap' }} data-label="Date">{formatDate(r.date)}</td>
+                                        <td data-label="Employee">
                                             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                                                 <div className="rd-avatar" style={{ width: 30, height: 30, fontSize: 11, background: 'var(--rd-purple-grad)', flexShrink: 0 }}>
                                                     {getInitials(emp.firstName, emp.lastName)}
@@ -643,12 +643,12 @@ const HistoryTab = () => {
                                                 </span>
                                             </div>
                                         </td>
-                                        <td style={{ color: '#94a3b8', fontSize: 13 }}>{emp.employeeId || '—'}</td>
-                                        <td style={{ color: '#64748b' }}>{emp.department || '—'}</td>
-                                        <td style={{ fontWeight: 500 }}>{formatTime(r.checkIn)}</td>
-                                        <td style={{ fontWeight: 500 }}>{formatTime(r.checkOut)}</td>
-                                        <td><span style={{ fontWeight: 700, color: '#3b82f6' }}>{calcHours(r.checkIn, r.checkOut)}</span></td>
-                                        <td><StatusBadge status={r.status} /></td>
+                                        <td style={{ color: '#94a3b8', fontSize: 13 }} data-label="Emp ID">{emp.employeeId || '—'}</td>
+                                        <td style={{ color: '#64748b' }} data-label="Department">{emp.department || '—'}</td>
+                                        <td style={{ fontWeight: 500 }} data-label="Check In">{formatTime(r.checkIn)}</td>
+                                        <td style={{ fontWeight: 500 }} data-label="Check Out">{formatTime(r.checkOut)}</td>
+                                        <td data-label="Hours"><span style={{ fontWeight: 700, color: '#3b82f6' }}>{calcHours(r.checkIn, r.checkOut)}</span></td>
+                                        <td data-label="Status"><StatusBadge status={r.status} /></td>
                                     </tr>
                                 );
                             })}

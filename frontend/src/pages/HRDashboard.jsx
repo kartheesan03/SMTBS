@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { useDashboardData } from '../hooks/useDashboardData';
 import API from '../api/axios';
 import { 
     Users, Search, Bell, CheckCircle, CheckCircle2, Calendar, DollarSign,
@@ -13,12 +14,15 @@ import PageHeader from '../components/PageHeader';
 import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
 import CommandCenter from '../components/CommandCenter';
 import { SparklineKPICard, IconQuickAction, InvRow } from './AdminDashboard';
+import { LoadingState, ErrorState, EmptyState } from '../components/DataStates';
 
 const HRDashboard = () => {
     const navigate = useNavigate();
     const { user } = useContext(AuthContext);
     const [isCommandCenterOpen, setIsCommandCenterOpen] = useState(false);
-    const [dashboardData, setDashboardData] = useState(null);
+    
+    const { data: dashboardData, loading: dashLoading, error: dashError } = useDashboardData();
+    
     const [revenueTrendYear, setRevenueTrendYear] = useState('current');
     const [employees, setEmployees] = useState([]);
     const [leavesData, setLeavesData] = useState([]);
@@ -29,15 +33,13 @@ const HRDashboard = () => {
     useEffect(() => {
         const fetchDashboardData = async () => {
             try {
-                const [statsRes, empRes, leavesRes, salariesRes, tasksRes] = await Promise.all([
-                    API.get('/dashboard/stats').catch(e => ({ data: {} })),
+                const [empRes, leavesRes, salariesRes, tasksRes] = await Promise.all([
                     API.get('/employees').catch(e => ({ data: [] })),
                     API.get('/leaves').catch(e => ({ data: [] })),
                     API.get('/salaries').catch(e => ({ data: [] })),
                     API.get('/tasks').catch(e => ({ data: [] }))
                 ]);
                 
-                setDashboardData(statsRes.data || {});
                 setEmployees(empRes.data || []);
                 setLeavesData(leavesRes.data || []);
                 setSalariesData(salariesRes.data || []);
@@ -83,9 +85,8 @@ const HRDashboard = () => {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, []);
 
-    if (loading) {
-        return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: '#64748b' }}>Loading your dashboard...</div>;
-    }
+    if (dashLoading || loading) return <LoadingState message="Loading HR overview..." height="100vh" />;
+    if (dashError) return <ErrorState message="Failed to load HR data. Please try again." height="100vh" />;
 
     const getGreeting = () => {
         const hour = new Date().getHours();
@@ -222,42 +223,46 @@ const HRDashboard = () => {
                             </select>
                         </div>
                         <div style={{ height: 220, width: '100%' }}>
-                            <ResponsiveContainer width="100%" height="100%">
-                                <LineChart data={dashboardData?.analytics?.hrTrend || []} margin={{top:4, right:10, left:0, bottom:0}}>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false}/>
-                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 11, fill: '#94a3b8'}} dy={8}/>
-                                    <YAxis axisLine={false} tickLine={false} tick={{fontSize: 11, fill: '#94a3b8'}} width={48} tickFormatter={(val) => val >= 1000 ? `${(val/1000).toFixed(0)}k` : val}/>
-                                    <Tooltip contentStyle={{fontSize: 12, borderRadius: 8, border: '1px solid #e2e8f0'}} />
-                                    <Legend iconType="circle" wrapperStyle={{fontSize: '12px'}} verticalAlign="top" height={36} />
-                                    <Line 
-                                        type="monotone" 
-                                        dataKey={revenueTrendYear === 'current' ? "newHires" : "lastNewHires"} 
-                                        name="New Hires" 
-                                        stroke="#3b82f6" 
-                                        strokeWidth={2} 
-                                        dot={false} 
-                                        activeDot={{ r: 6 }} 
-                                    />
-                                    <Line 
-                                        type="monotone" 
-                                        dataKey={revenueTrendYear === 'current' ? "attrition" : "lastAttrition"} 
-                                        name="Attrition" 
-                                        stroke="#f59e0b" 
-                                        strokeWidth={2} 
-                                        dot={false} 
-                                        activeDot={{ r: 6 }} 
-                                    />
-                                    <Line 
-                                        type="monotone" 
-                                        dataKey={revenueTrendYear === 'current' ? "trainingHours" : "lastTrainingHours"} 
-                                        name="Training Hours" 
-                                        stroke="#10b981" 
-                                        strokeWidth={2} 
-                                        dot={false} 
-                                        activeDot={{ r: 6 }} 
-                                    />
-                                </LineChart>
-                            </ResponsiveContainer>
+                            {(!dashboardData?.analytics?.hrTrend || dashboardData.analytics.hrTrend.length === 0) ? (
+                                <EmptyState title="No Trend Data" message="No workforce trend data available yet." height={220} />
+                            ) : (
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <LineChart data={dashboardData.analytics.hrTrend} margin={{top:4, right:10, left:0, bottom:0}}>
+                                        <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false}/>
+                                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 11, fill: '#94a3b8'}} dy={8}/>
+                                        <YAxis axisLine={false} tickLine={false} tick={{fontSize: 11, fill: '#94a3b8'}} width={48} tickFormatter={(val) => val >= 1000 ? `${(val/1000).toFixed(0)}k` : val}/>
+                                        <Tooltip contentStyle={{fontSize: 12, borderRadius: 8, border: '1px solid #e2e8f0'}} />
+                                        <Legend iconType="circle" wrapperStyle={{fontSize: '12px'}} verticalAlign="top" height={36} />
+                                        <Line 
+                                            type="monotone" 
+                                            dataKey={revenueTrendYear === 'current' ? "newHires" : "lastNewHires"} 
+                                            name="New Hires" 
+                                            stroke="#3b82f6" 
+                                            strokeWidth={2} 
+                                            dot={false} 
+                                            activeDot={{ r: 6 }} 
+                                        />
+                                        <Line 
+                                            type="monotone" 
+                                            dataKey={revenueTrendYear === 'current' ? "attrition" : "lastAttrition"} 
+                                            name="Attrition" 
+                                            stroke="#f59e0b" 
+                                            strokeWidth={2} 
+                                            dot={false} 
+                                            activeDot={{ r: 6 }} 
+                                        />
+                                        <Line 
+                                            type="monotone" 
+                                            dataKey={revenueTrendYear === 'current' ? "trainingHours" : "lastTrainingHours"} 
+                                            name="Training Hours" 
+                                            stroke="#10b981" 
+                                            strokeWidth={2} 
+                                            dot={false} 
+                                            activeDot={{ r: 6 }} 
+                                        />
+                                    </LineChart>
+                                </ResponsiveContainer>
+                            )}
                         </div>
                     </div>
 
@@ -270,26 +275,30 @@ const HRDashboard = () => {
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
                             <div style={{ width: '100%', height: 170 }}>
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <PieChart>
-                                        <Pie data={[
-                                            {name: 'Present', value: presentToday || 10}, 
-                                            {name: 'Absent', value: absentToday || 1}, 
-                                            {name: 'Leave', value: onLeave || 1}
-                                        ]} innerRadius={50} outerRadius={75} dataKey="value" cx="50%" cy="50%">
-                                            <Cell fill="#10b981" />
-                                            <Cell fill="#ef4444" />
-                                            <Cell fill="#f59e0b" />
-                                        </Pie>
-                                        <Tooltip contentStyle={{fontSize: 12}} />
-                                    </PieChart>
-                                </ResponsiveContainer>
+                                {(!presentToday && !absentToday && !onLeave) ? (
+                                    <EmptyState title="No Attendance Data" message="No logs for today." height={170} />
+                                ) : (
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <PieChart>
+                                            <Pie data={[
+                                                {name: 'Present', value: presentToday}, 
+                                                {name: 'Absent', value: absentToday}, 
+                                                {name: 'Leave', value: onLeave}
+                                            ]} innerRadius={50} outerRadius={75} dataKey="value" cx="50%" cy="50%">
+                                                <Cell fill="#10b981" />
+                                                <Cell fill="#ef4444" />
+                                                <Cell fill="#f59e0b" />
+                                            </Pie>
+                                            <Tooltip contentStyle={{fontSize: 12}} />
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                )}
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 5, width: '100%' }}>
-                                {[
-                                    {name: 'Present', value: presentToday || 10}, 
-                                    {name: 'Absent', value: absentToday || 1}, 
-                                    {name: 'Leave', value: onLeave || 1}
+                                {(!presentToday && !absentToday && !onLeave) ? null : [
+                                    {name: 'Present', value: presentToday}, 
+                                    {name: 'Absent', value: absentToday}, 
+                                    {name: 'Leave', value: onLeave}
                                 ].map((entry, idx) => {
                                     const colors = ['#10b981', '#ef4444', '#f59e0b'];
                                     return (
@@ -326,7 +335,7 @@ const HRDashboard = () => {
                                     </div>
                                 ))
                             ) : (
-                                <div style={{padding: '20px', fontSize: '13px', color: '#94a3b8', textAlign: 'center'}}>No recent HR activity.</div>
+                                <EmptyState title="No Recent Activity" message="System activity will appear here." height={150} />
                             )}
                         </div>
                     </div>
@@ -348,7 +357,7 @@ const HRDashboard = () => {
                                     </div>
                                 ))
                             ) : (
-                                <div style={{padding: '20px', fontSize: '13px', color: '#94a3b8', textAlign: 'center'}}>No recent hires.</div>
+                                <EmptyState title="No Recent Hires" message="No new employees have joined recently." height={150} icon={UserPlus} />
                             )}
                         </div>
                     </div>
@@ -389,14 +398,18 @@ const HRDashboard = () => {
                             <select className="panel-dropdown"><option>Current ▾</option></select>
                         </div>
                         <div style={{ height: 180 }}>
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart layout="vertical" data={dashboardData?.hrStats?.employeeDistribution || []} margin={{top:0, right:20, left:0, bottom:0}}>
-                                    <XAxis type="number" hide />
-                                    <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{fontSize: 11, fill: '#475569'}} width={80} />
-                                    <Tooltip contentStyle={{fontSize: 11}} cursor={{fill: '#f8fafc'}} />
-                                    <Bar dataKey="value" fill="#8b5cf6" radius={[0,4,4,0]} barSize={10} />
-                                </BarChart>
-                            </ResponsiveContainer>
+                            {(!dashboardData?.hrStats?.employeeDistribution || dashboardData.hrStats.employeeDistribution.length === 0) ? (
+                                <EmptyState title="No Headcount Data" message="No department data available." height={180} />
+                            ) : (
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <BarChart layout="vertical" data={dashboardData.hrStats.employeeDistribution} margin={{top:0, right:20, left:0, bottom:0}}>
+                                        <XAxis type="number" hide />
+                                        <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{fontSize: 11, fill: '#475569'}} width={80} />
+                                        <Tooltip contentStyle={{fontSize: 11}} cursor={{fill: '#f8fafc'}} />
+                                        <Bar dataKey="value" fill="#8b5cf6" radius={[0,4,4,0]} barSize={10} />
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            )}
                         </div>
                     </div>
 
@@ -408,20 +421,24 @@ const HRDashboard = () => {
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
                             <div style={{ width: '100%', height: 130 }}>
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <PieChart>
-                                        <Pie data={dashboardData?.charts?.hrmsDonut || []} innerRadius={38} outerRadius={56} dataKey="value" cx="50%" cy="50%">
-                                            {(dashboardData?.charts?.hrmsDonut || []).map((entry, index) => {
-                                                const colors = ['#3b82f6', '#ec4899', '#f59e0b'];
-                                                return <Cell key={`cell-${index}`} fill={entry.color || colors[index % colors.length]} />;
-                                            })}
-                                        </Pie>
-                                        <Tooltip contentStyle={{fontSize: 11}} />
-                                    </PieChart>
-                                </ResponsiveContainer>
+                                {(!dashboardData?.charts?.hrmsDonut || dashboardData.charts.hrmsDonut.length === 0) ? (
+                                    <EmptyState title="No Diversity Data" message="Data unavailable." height={130} />
+                                ) : (
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <PieChart>
+                                            <Pie data={dashboardData.charts.hrmsDonut} innerRadius={38} outerRadius={56} dataKey="value" cx="50%" cy="50%">
+                                                {dashboardData.charts.hrmsDonut.map((entry, index) => {
+                                                    const colors = ['#3b82f6', '#ec4899', '#f59e0b'];
+                                                    return <Cell key={`cell-${index}`} fill={entry.color || colors[index % colors.length]} />;
+                                                })}
+                                            </Pie>
+                                            <Tooltip contentStyle={{fontSize: 11}} />
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                )}
                             </div>
                             <div style={{ width: '100%', fontSize: 10, display:'grid', gridTemplateColumns:'1fr 1fr', gap:4 }}>
-                                {(dashboardData?.charts?.hrmsDonut || []).map((entry, idx) => {
+                                {(!dashboardData?.charts?.hrmsDonut || dashboardData.charts.hrmsDonut.length === 0) ? null : dashboardData.charts.hrmsDonut.map((entry, idx) => {
                                     const colors = ['#3b82f6', '#ec4899', '#f59e0b'];
                                     return (
                                         <div key={idx} style={{display:'flex', alignItems:'center', gap:4}}>
@@ -445,12 +462,16 @@ const HRDashboard = () => {
                             <div style={{fontSize: 11, color: '#10b981', fontWeight: 600}}>This Month</div>
                         </div>
                         <div style={{height: 100, width: '100%'}}>
-                            <ResponsiveContainer width="100%" height="100%">
-                                <LineChart data={dashboardData?.charts?.monthlyStats || []}>
-                                    <Line type="monotone" dataKey="sales" stroke="#10b981" strokeWidth={2} dot={{r: 3, fill: '#10b981'}} />
-                                    <Tooltip contentStyle={{fontSize: 11}} />
-                                </LineChart>
-                            </ResponsiveContainer>
+                            {(!dashboardData?.charts?.monthlyStats || dashboardData.charts.monthlyStats.length === 0) ? (
+                                <EmptyState title="No Trend Data" message="No data." height={100} />
+                            ) : (
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <LineChart data={dashboardData.charts.monthlyStats}>
+                                        <Line type="monotone" dataKey="sales" stroke="#10b981" strokeWidth={2} dot={{r: 3, fill: '#10b981'}} />
+                                        <Tooltip contentStyle={{fontSize: 11}} />
+                                    </LineChart>
+                                </ResponsiveContainer>
+                            )}
                         </div>
                     </div>
 
@@ -473,9 +494,7 @@ const HRDashboard = () => {
                                     </div>
                                 </div>
                             )) : (
-                                <div style={{ fontSize: '13px', color: 'var(--text-muted)', textAlign: 'center', padding: '20px 0' }}>
-                                    No upcoming events
-                                </div>
+                                <EmptyState title="No Upcoming Events" message="Your schedule is clear." height={150} icon={Calendar} />
                             )}
                         </div>
                     </div>

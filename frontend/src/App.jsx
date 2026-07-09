@@ -61,6 +61,7 @@ const SelectOrderType = React.lazy(() => import('./pages/SelectOrderType'));
 const SelectCustomer = React.lazy(() => import('./pages/SelectCustomer'));
 const SelectVendor = React.lazy(() => import('./pages/SelectVendor'));
 const BarcodeManagement = React.lazy(() => import('./pages/BarcodeManagement'));
+const GPSTracking = React.lazy(() => import('./pages/GPSTracking'));
 const AccessDenied = React.lazy(() => import('./pages/AccessDenied'));
 const CustomerDetails = React.lazy(() => import('./pages/CustomerDetails'));
 const CustomerProfileSettings = React.lazy(() => import('./pages/CustomerProfileSettings'));
@@ -195,6 +196,8 @@ const AppContent = () => {
                     {/* Role Specific Protected Routes */}
                     <Route path="/materials/new" element={<ProtectedRoute requiredPermission="view_hrms"><AddMaterial /></ProtectedRoute>} />
                     <Route path="/materials/barcode" element={<ProtectedRoute><BarcodeManagement /></ProtectedRoute>} />
+                    <Route path="/materials/gps" element={<ProtectedRoute><GPSTracking /></ProtectedRoute>} />
+                    <Route path="/my-materials/gps" element={<ProtectedRoute requiredPermission="view_materials_self"><ComingSoonPage title="GPS Tracking" subtitle="GPS location tracking is available for admin users." /></ProtectedRoute>} />
                     <Route path="/materials/:id/edit" element={<ProtectedRoute requiredPermission="manage_materials"><AddMaterial isEditMode={true} /></ProtectedRoute>} />
                     <Route path="/materials/:id" element={<ProtectedRoute requiredPermission="view_materials"><MaterialDetails /></ProtectedRoute>} />
                     <Route path="/materials" element={<ProtectedRoute requiredPermission="view_materials"><Materials /></ProtectedRoute>} />

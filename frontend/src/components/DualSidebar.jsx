@@ -6,7 +6,7 @@ import {
     ChevronLeft, ChevronRight, LogOut, Home, BarChart2, CheckSquare, Bell,
     UserPlus, FileText, DollarSign, Box, Truck, Clock, Calendar, Wallet,
     HelpCircle, User, Activity, List, Key, Shield, PieChart, Info, Map, 
-    BookOpen, Layers, Archive, PackageCheck, Target
+    BookOpen, Layers, Archive, PackageCheck, Target, MapPin, ScanLine, TrendingUp
 } from 'lucide-react';
 import SmtbmsLogo from './SmtbmsLogo';
 import UserAvatar from './UserAvatar';
@@ -104,7 +104,9 @@ const DualSidebar = () => {
                         { name: 'Materials', path: '/materials', icon: <Box /> },
                         { name: 'Material Tracking', path: '/tracking-overview', icon: <Map /> },
                         { name: 'Stock Request', path: '/stock-requests', icon: <Truck /> },
-                        { name: 'Vendors', path: '/vendors', icon: <Users /> }
+                        { name: 'Vendors', path: '/vendors', icon: <Users /> },
+                        { name: 'Barcode / QR', path: '/materials/barcode', icon: <ScanLine /> },
+                        { name: 'GPS Tracking', path: '/materials/gps', icon: <MapPin /> },
                     ]
                 }
             ]

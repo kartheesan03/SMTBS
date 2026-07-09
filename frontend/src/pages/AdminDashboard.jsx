@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { useDashboardData } from '../hooks/useDashboardData';
 import API from '../api/axios';
 import {
     Users, Briefcase, ShoppingCart, Plus,
@@ -15,6 +16,7 @@ import '../components/AdminDashboard/AdminDashboardRedesign.css';
 import PageHeader from '../components/PageHeader';
 import CommandCenter from '../components/CommandCenter';
 import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
+import { LoadingState, ErrorState } from '../components/DataStates';
 
 // ─── Unified KPI Card ────────────────────────────────────────────────────────
 // Accent colors are functional: green=good/performance, purple=business metric,
@@ -134,20 +136,17 @@ const AdminDashboard = () => {
     const navigate = useNavigate();
     const { user } = useContext(AuthContext);
     const [isCommandCenterOpen, setIsCommandCenterOpen] = useState(false);
-    const [dashboardData, setDashboardData] = useState(null);
+    
+    // Centralized Data Fetch
+    const { data: dashboardData, loading, error } = useDashboardData();
+    
     const [upcomingEvents, setUpcomingEvents] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [revenueTrendYear, setRevenueTrendYear] = useState('current');
 
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchTasks = async () => {
             try {
-                const [dashRes, tasksRes] = await Promise.all([
-                    API.get('/dashboard/stats'),
-                    API.get('/tasks')
-                ]);
-                setDashboardData(dashRes.data);
-
+                const tasksRes = await API.get('/tasks');
                 const now = new Date();
                 const futureTasks = (tasksRes.data || [])
                     .filter(t => t.dueDate && new Date(t.dueDate) >= now)
@@ -168,12 +167,10 @@ const AdminDashboard = () => {
                     });
                 setUpcomingEvents(futureTasks);
             } catch (err) {
-                console.error('Failed to load dashboard data', err);
-            } finally {
-                setLoading(false);
+                console.error('Failed to load upcoming tasks', err);
             }
         };
-        fetchData();
+        fetchTasks();
     }, []);
 
     useEffect(() => {
@@ -187,9 +184,8 @@ const AdminDashboard = () => {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, []);
 
-    if (loading) {
-        return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: '#64748b' }}>Loading dashboard data...</div>;
-    }
+    if (loading) return <LoadingState message="Loading business overview..." height="100vh" />;
+    if (error) return <ErrorState message="Failed to load dashboard data. Please try again." height="100vh" />;
 
     const getGreeting = () => {
         const h = new Date().getHours();
@@ -219,15 +215,7 @@ const AdminDashboard = () => {
     const completedTasks     = dashboardData?.stats?.completedTasks || 0;
     const pendingTasks       = dashboardData?.stats?.pendingTasks || 0;
 
-    // Distinct sparkline shapes per card (mocked trend shapes)
-    const sparkShapes = {
-        fulfillment: [40,42,39,44,43,46,44,48,47,50,52,55].map(v => ({ v })),
-        orders:      [30,35,33,38,40,36,42,44,43,48,46,50].map(v => ({ v })),
-        revenue:     [50,48,52,54,51,56,58,55,60,62,59,65].map(v => ({ v })),
-        materials:   [45,46,44,45,46,44,45,44,46,45,44,45].map(v => ({ v })), // flat/stable
-        employees:   [30,30,32,32,34,34,36,36,38,38,40,42].map(v => ({ v })), // gradual step-up
-        customers:   [38,40,39,42,44,43,46,48,47,50,52,54].map(v => ({ v })),
-    };
+
 
     return (
         <div className="rd-container theme-admin">
@@ -382,18 +370,22 @@ const AdminDashboard = () => {
                             </select>
                         </div>
                         <div style={{ height: 220, width: '100%' }}>
-                            <ResponsiveContainer width="100%" height="100%">
-                                <LineChart data={dashboardData?.analytics?.trendData || []} margin={{ top: 4, right: 10, left: 0, bottom: 0 }}>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
-                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94a3b8' }} dy={8} />
-                                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94a3b8' }} width={48} tickFormatter={(val) => val >= 1000 ? `${(val / 1000).toFixed(0)}k` : val} />
-                                    <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #e2e8f0' }} formatter={(val, name) => [`₹${val.toLocaleString()}`, name]} />
-                                    <Legend iconType="circle" wrapperStyle={{ fontSize: '12px' }} verticalAlign="top" height={36} />
-                                    <Line type="monotone" dataKey={revenueTrendYear === 'current' ? 'revenue' : 'lastYearRevenue'} name="Revenue" stroke="#7C3AED" strokeWidth={2} dot={false} activeDot={{ r: 6 }} />
-                                    <Line type="monotone" dataKey={revenueTrendYear === 'current' ? 'expenses' : 'lastYearExpenses'} name="Expenses" stroke="#D97706" strokeWidth={2} dot={false} activeDot={{ r: 6 }} />
-                                    <Line type="monotone" dataKey={revenueTrendYear === 'current' ? 'currentYearProfit' : 'lastYearProfit'} name="Net Profit" stroke="#059669" strokeWidth={2} dot={false} activeDot={{ r: 6 }} />
-                                </LineChart>
-                            </ResponsiveContainer>
+                            {(!dashboardData?.analytics?.trendData || dashboardData.analytics.trendData.length === 0) ? (
+                                <EmptyState title="No Revenue Data" message="No historical revenue data available." height={220} />
+                            ) : (
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <LineChart data={dashboardData.analytics.trendData} margin={{ top: 4, right: 10, left: 0, bottom: 0 }}>
+                                        <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94a3b8' }} dy={8} />
+                                        <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94a3b8' }} width={48} tickFormatter={(val) => val >= 1000 ? `${(val / 1000).toFixed(0)}k` : val} />
+                                        <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #e2e8f0' }} formatter={(val, name) => [`₹${val.toLocaleString()}`, name]} />
+                                        <Legend iconType="circle" wrapperStyle={{ fontSize: '12px' }} verticalAlign="top" height={36} />
+                                        <Line type="monotone" dataKey={revenueTrendYear === 'current' ? 'revenue' : 'lastYearRevenue'} name="Revenue" stroke="#7C3AED" strokeWidth={2} dot={false} activeDot={{ r: 6 }} />
+                                        <Line type="monotone" dataKey={revenueTrendYear === 'current' ? 'expenses' : 'lastYearExpenses'} name="Expenses" stroke="#D97706" strokeWidth={2} dot={false} activeDot={{ r: 6 }} />
+                                        <Line type="monotone" dataKey={revenueTrendYear === 'current' ? 'currentYearProfit' : 'lastYearProfit'} name="Net Profit" stroke="#059669" strokeWidth={2} dot={false} activeDot={{ r: 6 }} />
+                                    </LineChart>
+                                </ResponsiveContainer>
+                            )}
                         </div>
                     </div>
 
@@ -406,19 +398,23 @@ const AdminDashboard = () => {
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
                             <div style={{ width: '100%', height: 170 }}>
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <BarChart data={dashboardData?.hrStats?.employeeDistribution || []} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                                        <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
-                                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94a3b8' }} dy={8} />
-                                        <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94a3b8' }} allowDecimals={false} />
-                                        <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #e2e8f0' }} cursor={{ fill: '#f1f5f9' }} />
-                                        <Bar dataKey="value" radius={[4, 4, 0, 0]} maxBarSize={40}>
-                                            {(dashboardData?.hrStats?.employeeDistribution || []).map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill={entry.color || '#7C3AED'} />
-                                            ))}
-                                        </Bar>
-                                    </BarChart>
-                                </ResponsiveContainer>
+                                {(!dashboardData?.hrStats?.employeeDistribution || dashboardData.hrStats.employeeDistribution.length === 0) ? (
+                                    <EmptyState title="No Employee Data" message="No department data available." height={170} />
+                                ) : (
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <BarChart data={dashboardData.hrStats.employeeDistribution} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                                            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94a3b8' }} dy={8} />
+                                            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94a3b8' }} allowDecimals={false} />
+                                            <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #e2e8f0' }} cursor={{ fill: '#f1f5f9' }} />
+                                            <Bar dataKey="value" radius={[4, 4, 0, 0]} maxBarSize={40}>
+                                                {dashboardData.hrStats.employeeDistribution.map((entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={entry.color || '#7C3AED'} />
+                                                ))}
+                                            </Bar>
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -446,7 +442,7 @@ const AdminDashboard = () => {
                                     </div>
                                 ))
                             ) : (
-                                <div style={{ padding: '20px', fontSize: '13px', color: '#94a3b8', textAlign: 'center' }}>No recent activity.</div>
+                                <EmptyState title="No Recent Activity" message="System activity will appear here." height={150} />
                             )}
                         </div>
                     </div>
@@ -470,7 +466,7 @@ const AdminDashboard = () => {
                                     </div>
                                 ))
                             ) : (
-                                <div style={{ padding: '20px', fontSize: '13px', color: '#94a3b8', textAlign: 'center' }}>No notifications.</div>
+                                <EmptyState title="No Notifications" message="You're all caught up!" height={150} icon={Bell} />
                             )}
                         </div>
                     </div>

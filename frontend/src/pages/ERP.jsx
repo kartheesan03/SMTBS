@@ -142,32 +142,44 @@ const ERP = () => {
                         </div>
                     </div>
 
-                    <div style={{overflowX: 'auto'}}>
-                        <table className="rd-table" style={{ width: '100%' }}>
+                    <div className="rd-table-scroll">
+                        <table className="rd-table rd-table-responsive" style={{ width: '100%' }}>
                             <thead>
                                 <tr>
-                                    <th>PO ID</th>
-                                <th>VENDOR</th>
-                                <th>ITEM</th>
-                                <th>QTY</th>
-                                <th>AMOUNT</th>
-                                <th>RAISED</th>
-                                <th>DELIVERY</th>
-                                <th>PRIORITY</th>
-                                <th>STATUS</th>
-                                <th>ACTIONS</th>
-                            </tr>
-                        </thead>
+                                    <th style={{ width: '15%' }}>PO ID</th>
+                                    <th style={{ width: '20%' }}>VENDOR</th>
+                                    <th style={{ width: '20%' }}>ITEM DESCRIPTION</th>
+                                    <th style={{ width: '12%', textAlign: 'right' }}>AMOUNT</th>
+                                    <th style={{ width: '10%' }}>RAISED</th>
+                                    <th style={{ width: '10%', textAlign: 'center' }}>DELIVERY</th>
+                                    <th style={{ width: '8%' }}>STATUS</th>
+                                    <th style={{ width: '5%', textAlign: 'center' }}>ACTIONS</th>
+                                </tr>
+                            </thead>
                         <tbody>
                             {filteredOrders.length === 0 ? (
-                                <tr><td colSpan={10} style={{textAlign: 'center', padding: 40, color: '#94a3b8'}}>No orders found</td></tr>
+                                <tr><td colSpan={8} style={{textAlign: 'center', padding: 40, color: '#94a3b8'}}>No orders found</td></tr>
                             ) : filteredOrders.map((order, i) => {
-                                const vendorName = order.vendor?.companyName || order.vendor?.name || order.customer?.company || order.customer?.name || 'Walk-in';
-                                const itemDesc = order.items?.[0] ? `${order.items[0].materialName || order.items[0].name || 'Item'} × ${order.items[0].quantity || 0} ${order.items[0].unit || 'pcs'}` : '-';
-                                const qty = order.items?.reduce((s, it) => s + (it.quantity || 0), 0) || 0;
-                                const amount = Number(order.totalAmount) || Number(order.grandTotal) || 0;
-                                const raised = order.orderDate || order.createdAt;
-                                const delivery = order.deliveryDate || order.expectedDelivery;
+                                const vendorName = order.vendor?.companyName || order.vendor?.name || order.vendorName || order.customer?.company || order.customer?.name || order.supplierName || '—';
+                                
+                                // Better item extraction
+                                let itemDesc = '—';
+                                if (order.items && order.items.length > 0) {
+                                    const firstItem = order.items[0];
+                                    const name = firstItem.materialName || firstItem.name || firstItem.productName || (firstItem.material && (firstItem.material.name || firstItem.material.materialName)) || 'Item';
+                                    const qty = firstItem.quantity || firstItem.qty || 0;
+                                    const unit = firstItem.unit || 'pcs';
+                                    itemDesc = `${name} × ${qty} ${unit}`;
+                                    if (order.items.length > 1) {
+                                        itemDesc += ` (+${order.items.length - 1} more)`;
+                                    }
+                                } else if (order.description || order.notes) {
+                                    itemDesc = (order.description || order.notes).substring(0, 30) + '...';
+                                }
+
+                                const amount = Number(order.totalAmount) || Number(order.grandTotal) || Number(order.amount) || 0;
+                                const raised = order.orderDate || order.createdAt || order.date;
+                                const delivery = order.deliveryDate || order.expectedDelivery || order.dueDate;
                                 const priority = order.priority || 'Normal';
                                 const status = order.status || 'Pending';
 
@@ -178,23 +190,28 @@ const ERP = () => {
                                     'Delivered': 'rd-status-green', 'Received': 'rd-status-green',
                                     'Cancelled': 'rd-status-red', 'Rejected': 'rd-status-red'
                                 };
-                                const priorityColors = { 'High': '#ef4444', 'Normal': '#3b82f6', 'Low': '#f59e0b', 'Urgent': '#dc2626' };
+                                const isHighPriority = priority === 'High' || priority === 'Urgent';
 
                                 return (
-                                    <tr key={order._id || i}>
-                                        <td style={{fontWeight: 700, color: '#3b82f6'}}>{order.orderNumber || `PO-${1200 + i}`}</td>
-                                        <td style={{fontWeight: 600, color: 'var(--rd-text-main)'}}>{vendorName}</td>
-                                        <td style={{color: '#64748b', maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{itemDesc}</td>
-                                        <td style={{color: '#64748b'}}>{qty} pcs</td>
-                                        <td style={{fontWeight: 700, color: 'var(--rd-text-main)'}}>₹{amount.toLocaleString()}</td>
-                                        <td style={{color: '#64748b'}}>{raised ? new Date(raised).toLocaleDateString('en-IN', {day: 'numeric', month: 'short', year: 'numeric'}) : '-'}</td>
-                                        <td style={{color: '#64748b'}}>{delivery ? new Date(delivery).toLocaleDateString('en-IN', {day: 'numeric', month: 'short', year: 'numeric'}) : '-'}</td>
-                                        <td><span style={{color: priorityColors[priority] || '#3b82f6', fontWeight: 600}}>{priority}</span></td>
-                                        <td><span className={`rd-status-badge ${statusColors[status] || 'rd-status-blue'}`}>{status}</span></td>
-                                        <td>
-                                            <button className="rd-btn-outline" style={{padding: '5px 10px', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4, color: '#3b82f6', borderColor: '#bfdbfe'}}
+                                    <tr key={order._id || i} style={{ height: '52px' }}>
+                                        <td style={{ verticalAlign: 'middle', fontWeight: 700, color: '#3b82f6', maxWidth: 110, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={order.orderNumber || order.poNumber || order.id || '—'} data-label="PO ID">{order.orderNumber || order.poNumber || order.id || '—'}</td>
+                                        <td style={{ verticalAlign: 'middle', fontWeight: 600, color: 'var(--rd-text-main)', maxWidth: 130, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={vendorName} data-label="Vendor">{vendorName}</td>
+                                        <td style={{ verticalAlign: 'middle', color: '#475569', maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={itemDesc} data-label="Item Description">{itemDesc}</td>
+                                        <td style={{ verticalAlign: 'middle', fontWeight: 700, color: 'var(--rd-text-main)', textAlign: 'right'}} data-label="Amount">₹{amount.toLocaleString()}</td>
+                                        <td style={{ verticalAlign: 'middle', color: '#64748b'}} data-label="Raised">{raised ? new Date(raised).toLocaleDateString('en-GB', {day: '2-digit', month: '2-digit', year: '2-digit'}) : '—'}</td>
+                                        <td style={{ verticalAlign: 'middle', color: '#64748b', textAlign: 'center'}} data-label="Delivery">{delivery ? new Date(delivery).toLocaleDateString('en-GB', {day: '2-digit', month: '2-digit', year: '2-digit'}) : '—'}</td>
+                                        <td style={{ verticalAlign: 'middle' }} data-label="Status">
+                                            <div style={{display: 'flex', alignItems: 'center', gap: '6px'}}>
+                                                <span className={`ui-badge ${statusColors[status] === 'rd-status-red' ? 'danger' : statusColors[status] === 'rd-status-green' ? 'success' : statusColors[status] === 'rd-status-orange' ? 'warning' : 'primary'}`}>
+                                                    {status}
+                                                </span>
+                                                {isHighPriority && <span title={`${priority} Priority`} style={{color: '#ef4444', fontSize: '14px'}}>🚩</span>}
+                                            </div>
+                                        </td>
+                                        <td style={{ verticalAlign: 'middle', textAlign: 'center'}} data-label="Actions">
+                                            <button className="rd-btn-compact outline" style={{padding: '6px'}} title="View Order"
                                                 onClick={() => navigate(`/orders/${order._id || order.id}/tracking`)}>
-                                                <Eye size={14} /> View
+                                                <Eye size={14} />
                                             </button>
                                         </td>
                                     </tr>

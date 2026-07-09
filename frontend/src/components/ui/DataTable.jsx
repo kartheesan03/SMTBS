@@ -19,15 +19,32 @@ const DataTable = ({
     searchPlaceholder = 'Search records...',
     primaryAction = null, // { label, icon: Icon, onClick }
     pageSize = 10,
-    loading = false
+    loading = false,
+    expandableRowRender = null // (row) => ReactNode
 }) => {
     const [search, setSearch] = useState('');
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
     const [currentPage, setCurrentPage] = useState(1);
     const [selectedRows, setSelectedRows] = useState(new Set());
-    const [visibleColumns, setVisibleColumns] = useState(
+    const [expandedRows, setExpandedRows] = useState(new Set());
+    const [visibleColumns, setVisibleColumns] = useState(() => 
         columns.reduce((acc, col) => ({ ...acc, [col.key]: true }), {})
     );
+
+    // Sync visibleColumns when columns prop changes (e.g. during HMR or dynamic column updates)
+    useEffect(() => {
+        setVisibleColumns(prev => {
+            let changed = false;
+            const next = { ...prev };
+            columns.forEach(col => {
+                if (next[col.key] === undefined) {
+                    next[col.key] = true;
+                    changed = true;
+                }
+            });
+            return changed ? next : prev;
+        });
+    }, [columns]);
     const [showColumnDropdown, setShowColumnDropdown] = useState(false);
     const [showExportDropdown, setShowExportDropdown] = useState(false);
 
@@ -89,6 +106,14 @@ const DataTable = ({
         if (newSelected.has(id)) newSelected.delete(id);
         else newSelected.add(id);
         setSelectedRows(newSelected);
+    };
+
+    const toggleRowExpand = (id, e) => {
+        if (e) e.stopPropagation();
+        const newExpanded = new Set(expandedRows);
+        if (newExpanded.has(id)) newExpanded.delete(id);
+        else newExpanded.add(id);
+        setExpandedRows(newExpanded);
     };
 
     const toggleAllSelect = () => {
@@ -264,13 +289,12 @@ const DataTable = ({
             )}
 
             <div className="ui-datatable-wrapper">
-                <table className="ui-table">
+                <table className="ui-datatable">
                     <thead>
                         <tr>
-
                             {columns.filter(c => visibleColumns[c.key]).map((col) => (
-                                <th key={col.key} onClick={() => handleSort(col.key)} style={{ cursor: 'pointer' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                <th key={col.key} onClick={() => handleSort(col.key)} style={{ cursor: 'pointer', textAlign: col.align || 'left' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', justifyContent: col.align === 'right' ? 'flex-end' : col.align === 'center' ? 'center' : 'flex-start' }}>
                                         {col.label}
                                         {sortConfig.key === col.key && (
                                             sortConfig.direction === 'asc' ? <ChevronUp size={14} /> : <ChevronDown size={14} />
@@ -279,6 +303,7 @@ const DataTable = ({
                                 </th>
                             ))}
                             {actions.length > 0 && <th style={{ width: '80px', textAlign: 'center' }}>Actions</th>}
+                            {expandableRowRender && <th style={{ width: '40px', textAlign: 'center' }}></th>}
                         </tr>
                     </thead>
                     <tbody>
@@ -291,45 +316,66 @@ const DataTable = ({
                                         </td>
                                     ))}
                                     {actions.length > 0 && <td><div style={{height: 24, background: '#e2e8f0', borderRadius: 4, width: '60px', margin: '0 auto'}}></div></td>}
+                                    {expandableRowRender && <td></td>}
                                 </tr>
                             ))
                         ) : currentData.length > 0 ? (
                             currentData.map((row) => (
-                                <motion.tr 
-                                    key={row._id || row.id} 
-                                    className={selectedRows.has(row._id || row.id) ? 'selected' : ''}
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    whileHover={{ backgroundColor: '#f8fafc' }}
-                                    transition={{ duration: 0.2 }}
-                                >
-                                    {columns.filter(c => visibleColumns[c.key]).map((col) => (
-                                        <td key={col.key}>
-                                            {col.render ? col.render(row[col.key], row) : row[col.key]}
-                                        </td>
-                                    ))}
-                                    {actions.length > 0 && (
-                                        <td style={{ textAlign: 'center' }}>
-                                            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                                                {actions.map((action, idx) => (
-                                                    <button 
-                                                        key={idx} 
-                                                        className="ui-action-btn"
-                                                        style={action.color === 'danger' ? { color: '#ef4444' } : { color: '#4f46e5' }}
-                                                        title={action.label}
-                                                        onClick={() => action.onClick(row)}
-                                                    >
-                                                        {action.icon && <action.icon size={16} />}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </td>
+                                <React.Fragment key={row._id || row.id}>
+                                    <motion.tr 
+                                        className={selectedRows.has(row._id || row.id) ? 'selected' : ''}
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        whileHover={{ backgroundColor: '#f8fafc' }}
+                                        transition={{ duration: 0.2 }}
+                                    >
+                                        {columns.filter(c => visibleColumns[c.key]).map((col) => (
+                                            <td key={col.key} style={{ textAlign: col.align || 'left' }}>
+                                                {col.render ? col.render(row[col.key], row) : row[col.key]}
+                                            </td>
+                                        ))}
+                                        {actions.length > 0 && (
+                                            <td style={{ textAlign: 'center' }}>
+                                                <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                                                    {actions.map((action, idx) => (
+                                                        <button 
+                                                            key={idx} 
+                                                            className="ui-action-btn"
+                                                            style={action.color === 'danger' ? { color: '#ef4444' } : { color: action.color || '#4f46e5' }}
+                                                            title={action.label}
+                                                            onClick={(e) => { e.stopPropagation(); action.onClick(row); }}
+                                                        >
+                                                            {action.icon && <action.icon size={16} />}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </td>
+                                        )}
+                                        {expandableRowRender && (
+                                            <td style={{ textAlign: 'center', cursor: 'pointer' }} onClick={(e) => toggleRowExpand(row._id || row.id, e)}>
+                                                {expandedRows.has(row._id || row.id) ? <ChevronUp size={16} color="#64748b" /> : <ChevronDown size={16} color="#64748b" />}
+                                            </td>
+                                        )}
+                                    </motion.tr>
+                                    {expandableRowRender && expandedRows.has(row._id || row.id) && (
+                                        <tr>
+                                            <td colSpan={columns.filter(c => visibleColumns[c.key]).length + (actions.length > 0 ? 1 : 0) + 1} style={{ padding: 0, backgroundColor: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                                                <motion.div 
+                                                    initial={{ height: 0, opacity: 0 }} 
+                                                    animate={{ height: 'auto', opacity: 1 }} 
+                                                    exit={{ height: 0, opacity: 0 }} 
+                                                    style={{ overflow: 'hidden' }}
+                                                >
+                                                    {expandableRowRender(row)}
+                                                </motion.div>
+                                            </td>
+                                        </tr>
                                     )}
-                                </motion.tr>
+                                </React.Fragment>
                             ))
                         ) : (
                             <motion.tr initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                                <td colSpan={columns.filter(c => visibleColumns[c.key]).length + (actions.length ? 1 : 0)} style={{ textAlign: 'center', padding: '64px 20px', background: '#fafafa' }}>
+                                <td colSpan={columns.filter(c => visibleColumns[c.key]).length + (actions.length ? 1 : 0) + (expandableRowRender ? 1 : 0)} style={{ textAlign: 'center', padding: '64px 20px', background: '#fafafa' }}>
                                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
                                         <div style={{ width: 64, height: 64, background: '#f1f5f9', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.05)' }}>
                                             <Database size={32} color="#94a3b8" />

@@ -49,6 +49,14 @@ const MaterialSequelize = sequelize.define('Material', {
         type: DataTypes.INTEGER,
         allowNull: true
     },
+    latitude: {
+        type: DataTypes.DOUBLE,
+        allowNull: true
+    },
+    longitude: {
+        type: DataTypes.DOUBLE,
+        allowNull: true
+    },
     isActive: {
         type: DataTypes.BOOLEAN,
         defaultValue: true

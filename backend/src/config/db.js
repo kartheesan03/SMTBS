@@ -300,6 +300,7 @@ const connectDB = async () => {
         // Ensure this runs gracefully
         await safelyRecreateTable('User');
         await safelyRecreateTable('Notification');
+        await safelyRecreateTable('Material');
 
         // 3. Synchronize Sequelize schemas with database safely (without alter: true)
         await sequelize.sync();

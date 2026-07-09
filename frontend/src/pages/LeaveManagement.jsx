@@ -155,20 +155,20 @@ const LeaveManagement = () => {
                         </div>
                     </div>
                     
-                    <div style={{overflowX: 'auto'}}>
-                        <table className="rd-table" style={{ width: '100%' }}>
+                    <div className="rd-table-scroll">
+                        <table className="rd-table rd-table-responsive" style={{ width: '100%' }}>
                             <thead>
                                 <tr>
-                                <th>Employee</th>
-                                <th>Dept</th>
-                                <th>Leave Type</th>
-                                <th>From</th>
-                                <th>To</th>
-                                <th>Days</th>
-                                <th>Status</th>
-                                <th style={{width: 140, textAlign: 'center'}}>Actions</th>
-                            </tr>
-                        </thead>
+                                    <th>Employee</th>
+                                    <th>Dept</th>
+                                    <th>Leave Type</th>
+                                    <th>From</th>
+                                    <th>To</th>
+                                    <th>Days</th>
+                                    <th>Status</th>
+                                    <th style={{width: 140, textAlign: 'center'}}>Actions</th>
+                                </tr>
+                            </thead>
                         <tbody>
                             {loading ? (
                                 <tr>
@@ -183,7 +183,7 @@ const LeaveManagement = () => {
                                     const emp = leave.employee || {};
                                     return (
                                         <tr key={leave._id || leave.id || i}>
-                                            <td>
+                                            <td data-label="Employee">
                                                 <div style={{display: 'flex', alignItems: 'center', gap: 12}}>
                                                     <div className="rd-avatar" style={{width: 32, height: 32, fontSize: 12, background: 'var(--rd-purple-grad)'}}>
                                                         {getInitials(emp.firstName, emp.lastName)}
@@ -194,26 +194,28 @@ const LeaveManagement = () => {
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td style={{color: '#64748b'}}>{emp.department || '—'}</td>
-                                            <td>{getTypePill(leave.type)}</td>
-                                            <td style={{fontWeight: 500}}>{formatDate(leave.startDate)}</td>
-                                            <td style={{fontWeight: 500}}>{formatDate(leave.endDate)}</td>
-                                            <td>
+                                            <td style={{color: '#64748b'}} data-label="Dept">{emp.department || '—'}</td>
+                                            <td data-label="Leave Type">{getTypePill(leave.type)}</td>
+                                            <td style={{fontWeight: 500}} data-label="From">{formatDate(leave.startDate)}</td>
+                                            <td style={{fontWeight: 500}} data-label="To">{formatDate(leave.endDate)}</td>
+                                            <td data-label="Days">
                                                 <span style={{fontWeight: 700, color: 'var(--rd-text-main)'}}>{calculateDays(leave.startDate, leave.endDate)}</span>
                                             </td>
-                                            <td>{getStatusBadge(leave.status)}</td>
-                                            <td style={{textAlign: 'center'}}>
+                                            <td data-label="Status">{getStatusBadge(leave.status)}</td>
+                                            <td style={{textAlign: 'center'}} data-label="Actions">
                                                 {leave.status === 'Pending' ? (
-                                                    <div style={{display: 'flex', gap: 8, justifyContent: 'center'}}>
+                                                    <div style={{display: 'flex', gap: 6, justifyContent: 'center'}}>
                                                         <button
+                                                            className="rd-btn-compact"
                                                             onClick={() => handleReview(leave._id || leave.id, 'Approved')}
-                                                            style={{background: '#ecfdf5', color: '#10b981', border: '1px solid #a7f3d0', padding: '4px 10px', borderRadius: 4, cursor: 'pointer', fontSize: 12, fontWeight: 600}}
+                                                            style={{background: '#ecfdf5', color: '#10b981', border: '1px solid #a7f3d0'}}
                                                         >
                                                             Approve
                                                         </button>
                                                         <button
+                                                            className="rd-btn-compact"
                                                             onClick={() => handleReview(leave._id || leave.id, 'Rejected')}
-                                                            style={{background: '#fef2f2', color: '#ef4444', border: '1px solid #fecaca', padding: '4px 10px', borderRadius: 4, cursor: 'pointer', fontSize: 12, fontWeight: 600}}
+                                                            style={{background: '#fef2f2', color: '#ef4444', border: '1px solid #fecaca'}}
                                                         >
                                                             Reject
                                                         </button>

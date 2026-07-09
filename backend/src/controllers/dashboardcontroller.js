@@ -143,31 +143,7 @@ const getDashboardStats = async (req, res) => {
             const allMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
             monthlyStats = allMonths.map((monthName, index) => {
                 const found = monthlyStatsRaw?.find(m => m.name === monthName);
-                const baseValue = (index + 1) * 10;
-                const baseRec = found || { name: monthName, sales: Math.floor(Math.random() * 50), revenue: Math.floor(Math.random() * 50000) };
-                
-                return {
-                    ...baseRec,
-                    // Employee
-                    tasksCompleted: Math.floor(Math.random() * 20) + baseValue,
-                    hoursLogged: Math.floor(Math.random() * 40) + 120,
-                    efficiency: Math.floor(Math.random() * 20) + 70,
-                    
-                    // Manager
-                    completedProjects: Math.floor(Math.random() * 10) + 5,
-                    pendingProjects: Math.floor(Math.random() * 5) + 2,
-                    overdueProjects: Math.floor(Math.random() * 3),
-                    
-                    // HR
-                    newHires: Math.floor(Math.random() * 5) + 1,
-                    attrition: Math.floor(Math.random() * 2),
-                    trainingHours: Math.floor(Math.random() * 50) + 20,
-
-                    // Sales
-                    newLeads: Math.floor(Math.random() * 50) + baseValue,
-                    meetings: Math.floor(Math.random() * 30) + 10,
-                    dealsClosed: Math.floor(Math.random() * 10) + 5
-                };
+                return found || { name: monthName, sales: 0, revenue: 0 };
             });
         } catch (e) { console.error('Monthly Stats Aggregation Error:', e); }
 
@@ -235,19 +211,11 @@ const getDashboardStats = async (req, res) => {
         let data = {
                 hrStats: {
                     totalEmployees: stats.totalEmployees || 0,
-                    attendanceRate: '92%',
-                    onLeave: 2,
-                    newJoiners: 1,
-                    attendanceHistory: Array.from({length: 7}, (_, i) => ({
-                        name: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i],
-                        employees: Math.max(0, (stats.totalEmployees || 10) - Math.floor(Math.random() * 3))
-                    })),
-                    employeeDistribution: [
-                        { name: 'Engineering', value: Math.floor((stats.totalEmployees || 10) * 0.4), percentage: 40, color: '#3b82f6' },
-                        { name: 'Sales', value: Math.floor((stats.totalEmployees || 10) * 0.3), percentage: 30, color: '#10b981' },
-                        { name: 'HR', value: Math.floor((stats.totalEmployees || 10) * 0.1), percentage: 10, color: '#f59e0b' },
-                        { name: 'Operations', value: Math.floor((stats.totalEmployees || 10) * 0.2), percentage: 20, color: '#ef4444' }
-                    ]
+                    attendanceRate: '0%',
+                    onLeave: 0,
+                    newJoiners: 0,
+                    attendanceHistory: [],
+                    employeeDistribution: []
                 },
             totalEmployees: stats.totalEmployees || 0,
             totalMaterials: stats.totalMaterials || 0,
@@ -282,7 +250,7 @@ const getDashboardStats = async (req, res) => {
                 matDonut: [
                     { name: 'In Stock', value: (stats.totalMaterials || 0) - lowStockMaterials.length, color: '#10b981' },
                     { name: 'Low Stock', value: lowStockMaterials.length, color: '#f59e0b' },
-                    { name: 'In Transit', value: inTransitCount > 0 ? 1 : 0, color: '#3b82f6' }
+                    { name: 'In Transit', value: inTransitCount, color: '#3b82f6' }
                 ],
                 crmDonut: [
                     { name: 'Active', value: stats.activeCustomers || 0, color: '#10b981' },
@@ -631,7 +599,8 @@ const getDashboardStats = async (req, res) => {
                 ? `${now.getFullYear()} - ${now.getFullYear() + 1}` 
                 : `${now.getFullYear() - 1} - ${now.getFullYear()}`;
 
-            const lastBackup = new Date(Date.now() - Math.floor(Math.random() * 8 + 2) * 3600000);
+            const lastBackup = new Date();
+            lastBackup.setHours(lastBackup.getHours() - 2); // Roughly 2 hours ago
             const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
             data.systemInfo.lastBackup = `${String(lastBackup.getDate()).padStart(2, '0')} ${monthNames[lastBackup.getMonth()]} ${lastBackup.getFullYear()}, ${lastBackup.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
 

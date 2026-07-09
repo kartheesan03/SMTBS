@@ -227,28 +227,28 @@ const OrderManagement = () => {
                         </div>
                     </div>
 
-                    <div style={{overflowX: 'auto'}}>
-                        <table className="rd-table" style={{ width: '100%' }}>
+                    <div className="rd-table-scroll">
+                        <table className="rd-table rd-table-responsive" style={{ width: '100%' }}>
                             <thead>
                                 <tr>
-                                <th>ORDER ID</th>
-                                <th>CUSTOMER</th>
-                                <th>ITEMS</th>
-                                <th>AMOUNT</th>
-                                <th>ORDERED</th>
-                                <th>DELIVERY</th>
-                                <th>PRIORITY</th>
-                                <th>STATUS</th>
-                                <th>MANAGER</th>
-                                <th>ACTION</th>
-                            </tr>
-                        </thead>
+                                    <th>ORDER ID</th>
+                                    <th>CUSTOMER</th>
+                                    <th style={{textAlign: 'right'}}>ITEMS</th>
+                                    <th style={{textAlign: 'right'}}>AMOUNT</th>
+                                    <th>ORDERED</th>
+                                    <th>DELIVERY</th>
+                                    <th>PRIORITY</th>
+                                    <th>STATUS</th>
+                                    <th>MANAGER</th>
+                                    <th style={{textAlign: 'center'}}>ACTION</th>
+                                </tr>
+                            </thead>
                         <tbody>
                             {filteredOrders.length === 0 ? (
                                 <tr><td colSpan={10} style={{textAlign: 'center', padding: 40, color: '#94a3b8'}}>No sales orders found</td></tr>
                             ) : filteredOrders.map((o, i) => {
-                                const orderId = o.orderNumber || `SO-${String(i + 1).padStart(4, '0')}`;
-                                const status = o.status || 'Confirmed';
+                                const orderId = o.orderNumber || '—';
+                                const status = o.status || '—';
                                 const statusColors = {
                                     'Confirmed': 'rd-status-blue',
                                     'Processing': 'rd-status-purple',
@@ -268,22 +268,26 @@ const OrderManagement = () => {
 
                                 return (
                                     <tr key={o._id || o.id || i} style={{cursor: 'pointer'}} onClick={() => navigate(`/orders/${o._id || o.id}/tracking`)}>
-                                        <td style={{fontWeight: 700, color: '#3b82f6'}}>{orderId}</td>
-                                        <td style={{fontWeight: 700, color: 'var(--rd-text-main)'}}>{o.customer?.company || o.customer?.name || '-'}</td>
-                                        <td style={{color: '#475569'}}>{o.items?.length || 1}</td>
-                                        <td style={{fontWeight: 700, color: 'var(--rd-text-main)'}}>₹{(Number(o.totalAmount) || Number(o.grandTotal) || 0).toLocaleString()}</td>
-                                        <td style={{color: '#64748b'}}>{o.createdAt ? new Date(o.createdAt).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) : '-'}</td>
-                                        <td style={{color: '#64748b'}}>{o.deliveryDate || o.expectedDelivery ? new Date(o.deliveryDate || o.expectedDelivery).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) : 'TBD'}</td>
-                                        <td>
+                                        <td style={{fontWeight: 700, color: '#3b82f6', maxWidth: 110, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={orderId} data-label="Order ID">{orderId}</td>
+                                        <td style={{fontWeight: 700, color: 'var(--rd-text-main)', maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={o.customer?.company || o.customer?.name || '—'} data-label="Customer">{o.customer?.company || o.customer?.name || '—'}</td>
+                                        <td style={{color: '#475569', textAlign: 'right'}} data-label="Items">{o.items?.length || '—'}</td>
+                                        <td style={{fontWeight: 700, color: 'var(--rd-text-main)', textAlign: 'right'}} data-label="Amount">₹{(Number(o.totalAmount) || Number(o.grandTotal) || 0).toLocaleString()}</td>
+                                        <td style={{color: '#64748b'}} data-label="Ordered">{o.createdAt ? new Date(o.createdAt).toLocaleDateString('en-GB', {day:'2-digit', month:'2-digit', year:'2-digit'}) : '—'}</td>
+                                        <td style={{color: '#64748b'}} data-label="Delivery">{o.deliveryDate || o.expectedDelivery ? new Date(o.deliveryDate || o.expectedDelivery).toLocaleDateString('en-GB', {day:'2-digit', month:'2-digit', year:'2-digit'}) : '—'}</td>
+                                        <td data-label="Priority">
                                             <span style={{padding: '4px 10px', borderRadius: 6, fontSize: 12, fontWeight: 700, background: priStyle.bg, color: priStyle.color}}>
                                                 {pri}
                                             </span>
                                         </td>
-                                        <td><span className={`rd-status-badge ${statusColors[status] || 'rd-status-gray'}`}>{status}</span></td>
-                                        <td style={{color: '#475569'}}>{o.manager || o.salesRep || 'Sales Team'}</td>
-                                        <td>
-                                            <button className="rd-btn-outline" style={{padding: '5px 12px', fontSize: 12, color: '#3b82f6', borderColor: '#bfdbfe', display: 'flex', alignItems: 'center', gap: 4}}>
-                                                <Eye size={14} /> View <ArrowRight size={14} />
+                                        <td data-label="Status">
+                                            <span className={`ui-badge ${statusColors[status] === 'rd-status-red' ? 'danger' : statusColors[status] === 'rd-status-green' ? 'success' : statusColors[status] === 'rd-status-orange' || statusColors[status] === 'rd-status-purple' ? 'warning' : 'primary'}`}>
+                                                {status}
+                                            </span>
+                                        </td>
+                                        <td style={{color: '#475569'}} data-label="Manager">{o.manager || o.salesRep || '—'}</td>
+                                        <td style={{textAlign: 'center'}} data-label="Action">
+                                            <button className="rd-btn-compact outline" style={{padding: '6px', display: 'inline-flex', alignItems: 'center'}} title="View Order">
+                                                <Eye size={14} />
                                             </button>
                                         </td>
                                     </tr>

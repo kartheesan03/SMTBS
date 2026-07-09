@@ -132,22 +132,22 @@ const Leads = () => {
                         </div>
                     </div>
 
-                    <div style={{overflowX: 'auto'}}>
-                        <table className="rd-table" style={{ width: '100%' }}>
+                    <div className="rd-table-scroll">
+                        <table className="rd-table rd-table-responsive" style={{ width: '100%' }}>
                             <thead>
                                 <tr>
-                                <th>LEAD ID</th>
-                                <th>COMPANY</th>
-                                <th>CONTACT</th>
-                                <th>SOURCE</th>
-                                <th>STAGE</th>
-                                <th>SCORE</th>
-                                <th>EST. VALUE</th>
-                                <th>ASSIGNED TO</th>
-                                <th>CREATED</th>
-                                <th>ACTION</th>
-                            </tr>
-                        </thead>
+                                    <th>LEAD ID</th>
+                                    <th>COMPANY</th>
+                                    <th>CONTACT</th>
+                                    <th>SOURCE</th>
+                                    <th>STAGE</th>
+                                    <th>SCORE</th>
+                                    <th style={{textAlign: 'right'}}>EST. VALUE</th>
+                                    <th>ASSIGNED TO</th>
+                                    <th>CREATED</th>
+                                    <th style={{textAlign: 'center'}}>ACTION</th>
+                                </tr>
+                            </thead>
                         <tbody>
                             {filteredLeads.length === 0 ? (
                                 <tr><td colSpan={10} style={{textAlign: 'center', padding: 40, color: '#94a3b8'}}>No leads found</td></tr>
@@ -167,34 +167,34 @@ const Leads = () => {
 
                                 return (
                                     <tr key={l._id || l.id || leadId}>
-                                        <td style={{fontWeight: 700, color: '#3b82f6'}}>{leadId}</td>
-                                        <td style={{fontWeight: 700, color: 'var(--rd-text-main)'}}>{l.company || l.name || '-'}</td>
-                                        <td>
+                                        <td style={{fontWeight: 700, color: '#3b82f6'}} data-label="Lead ID">{leadId}</td>
+                                        <td style={{fontWeight: 700, color: 'var(--rd-text-main)'}} data-label="Company">{l.company || l.name || '-'}</td>
+                                        <td data-label="Contact">
                                             <div style={{display: 'flex', flexDirection: 'column'}}>
                                                 <span style={{fontWeight: 600, color: '#475569'}}>{l.name || l.contactPerson || '-'}</span>
                                                 <span style={{fontSize: 12, color: '#94a3b8'}}>{l.email || '-'}</span>
                                             </div>
                                         </td>
-                                        <td>
+                                        <td data-label="Source">
                                             <span style={{padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600, background: '#eff6ff', color: '#3b82f6', border: '1px solid #bfdbfe'}}>
                                                 {l.source}
                                             </span>
                                         </td>
-                                        <td>
+                                        <td data-label="Stage">
                                             <span style={{padding: '4px 12px', borderRadius: 20, fontSize: 12, fontWeight: 600, color: stColor, border: `1.5px solid ${stColor}50`}}>
                                                 {l.stage}
                                             </span>
                                         </td>
-                                        <td>
+                                        <td data-label="Score">
                                             <div style={{width: 32, height: 32, borderRadius: 8, background: scoreBg, color: scoreColor, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 13}}>
                                                 {l.score}
                                             </div>
                                         </td>
-                                        <td style={{fontWeight: 700, color: '#10b981'}}>₹{(l.estValue || 0).toLocaleString()}</td>
-                                        <td style={{color: '#475569', fontWeight: 500}}>{l.assignedTo}</td>
-                                        <td style={{color: '#94a3b8'}}>{l.createdAt ? new Date(l.createdAt).toLocaleDateString('en-GB', {day: 'numeric', month: 'short', year: 'numeric'}) : '-'}</td>
-                                        <td>
-                                            <button className="rd-btn-solid" style={{padding: '6px 14px', fontSize: 13, background: '#0ea5e9'}}>
+                                        <td style={{fontWeight: 700, color: '#10b981', textAlign: 'right'}} data-label="Est. Value">₹{(l.estValue || 0).toLocaleString()}</td>
+                                        <td style={{color: '#475569', fontWeight: 500}} data-label="Assigned To">{l.assignedTo}</td>
+                                        <td style={{color: '#94a3b8'}} data-label="Created">{l.createdAt ? new Date(l.createdAt).toLocaleDateString('en-GB', {day: 'numeric', month: 'short', year: 'numeric'}) : '-'}</td>
+                                        <td style={{textAlign: 'center'}} data-label="Action">
+                                            <button className="rd-btn-compact" style={{background: '#0ea5e9', color: '#fff', border: 'none'}}>
                                                 Advance →
                                             </button>
                                         </td>

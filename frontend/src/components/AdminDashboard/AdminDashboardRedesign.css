@@ -692,6 +692,18 @@
   box-shadow: var(--card-shadow);
   border: 1px solid var(--card-border);
   overflow: hidden;
+  position: relative;
+}
+
+.rd-table-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+/* Removed scroll affordance as per redesign */
+
+.rd-table-scroll {
+  width: 100%;
 }
 
 .rd-table {
@@ -699,7 +711,7 @@
   border-collapse: collapse;
 }
 .rd-table thead th {
-  padding: 10px 16px;
+  padding: 8px 12px;
   font-size: 11px;
   font-weight: 600;
   color: var(--text-muted);
@@ -714,13 +726,95 @@
 }
 .rd-table tbody tr:hover { background: #F9FAFB; }
 .rd-table tbody td {
-  padding: 11px 16px;
+  padding: 10px 12px;
   font-size: 13px;
   color: var(--text-body);
   border-bottom: 1px solid #F3F4F6;
   vertical-align: middle;
 }
 .rd-table tbody tr:last-child td { border-bottom: none; }
+
+/* Sticky Column Support (Deprecating for single-row, but keeping for compatibility if needed) */
+.rd-sticky-col-right {
+  background: var(--bg-card, #fff);
+}
+.rd-table thead th.rd-sticky-col-right {
+  background: #F9FAFB;
+}
+.rd-table tbody tr:hover .rd-sticky-col-right {
+  background: #F9FAFB;
+}
+
+/* ════════════════════════════
+   9.5 COMPACT & RESPONSIVE TABLES
+   ════════════════════════════ */
+.rd-btn-compact {
+  padding: 4px 8px;
+  font-size: 11px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+.rd-btn-compact.outline {
+  background: transparent;
+  border-color: #E5E7EB;
+  color: #374151;
+}
+.rd-btn-compact.primary {
+  background: #3B82F6;
+  color: white;
+}
+
+@media (max-width: 1024px) {
+  .rd-table-responsive,
+  .rd-table-responsive thead,
+  .rd-table-responsive tbody,
+  .rd-table-responsive th,
+  .rd-table-responsive td,
+  .rd-table-responsive tr {
+    display: block;
+  }
+  .rd-table-responsive thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+  .rd-table-responsive tr {
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    padding: 8px;
+  }
+  .rd-table-responsive td {
+    border: none;
+    border-bottom: 1px solid #F3F4F6;
+    position: relative;
+    padding-left: 40%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    text-align: right;
+  }
+  .rd-table-responsive td:last-child {
+    border-bottom: none;
+  }
+  .rd-table-responsive td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 12px;
+    width: calc(40% - 20px);
+    white-space: nowrap;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-muted);
+    font-size: 11px;
+    text-transform: uppercase;
+  }
+}
 
 /* ════════════════════════════
    10. STATUS BADGES
@@ -1123,6 +1217,21 @@
   align-items: center;
   justify-content: center;
   z-index: 9999;
+  background: rgba(15, 23, 42, 0.6); /* Added backdrop color */
+  backdrop-filter: blur(4px);
+}
+
+.rd-modal-content {
+  background: var(--bg-card);
+  width: 100%;
+  max-width: 500px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+  border: 1px solid rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
 }
 
 .rd-modal {
@@ -1136,13 +1245,42 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
 }
 
+.rd-modal-close {
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  line-height: 1;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.rd-modal-close:hover {
+  color: #ef4444;
+}
+
+.rd-modal-body {
+  padding: 24px;
+  overflow-y: auto;
+  max-height: 70vh;
+}
 
 .rd-modal-footer {
   display: flex;
   justify-content: flex-end;
   align-items: center;
+  gap: 12px;
+  padding: 16px 24px;
+  background: #f8fafc;
+  border-top: 1px solid rgba(0,0,0,0.05);
 }
 
 /* ════════════════════════════

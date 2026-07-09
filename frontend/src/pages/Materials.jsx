@@ -52,46 +52,85 @@ const Materials = () => {
         return 'In Stock';
     };
 
-    // Columns configuration for DataTable
     const columns = [
-        { key: 'sku', label: 'Item Code', sortable: true },
+        { 
+            key: 'sku', 
+            label: 'Mat. ID', 
+            sortable: true,
+            render: (val) => <span style={{fontWeight: 700, color: '#3b82f6', cursor: 'pointer'}}>{val}</span>
+        },
         { 
             key: 'name', 
-            label: 'Material Name', 
+            label: 'Material', 
             sortable: true,
-            render: (val, row) => (
-                <div>
-                    <div style={{fontWeight: 600, color: '#0f172a'}}>{val}</div>
-                    <div style={{fontSize: 12, color: '#64748b'}}>Qty: {row.quantity} {row.unit || 'Units'}</div>
-                </div>
-            )
+            render: (val) => <span style={{fontWeight: 600, color: '#0f172a'}}>{val}</span>
         },
-        { key: 'category', label: 'Category', sortable: true },
+        { 
+            key: 'category', 
+            label: 'Category', 
+            sortable: true,
+            render: (val) => <span style={{color: '#64748b'}}>{val || '—'}</span>
+        },
+        {
+            key: 'quantity',
+            label: 'Quantity',
+            sortable: true,
+            align: 'right',
+            render: (val, row) => <div style={{fontWeight: 500}}>{val} <span style={{fontSize: 10, color: '#94a3b8'}}>{row.unit || 'units'}</span></div>
+        },
+        {
+            key: 'location',
+            label: 'Location',
+            sortable: true,
+            render: (val) => <span style={{color: '#64748b'}}>{val || 'Warehouse A'}</span>
+        },
+        { 
+            key: 'price', 
+            label: 'Unit Price', 
+            sortable: true,
+            align: 'right',
+            render: (val) => <div style={{color: '#64748b'}}>₹{val || 0}</div>
+        },
         { 
             key: 'status', 
-            label: 'Stock Status',
+            label: 'Status',
             render: (_, row) => {
                 const status = getComputedStatus(row);
                 let badgeClass = 'default';
                 if (status === 'In Stock') badgeClass = 'success';
                 else if (status === 'Low Stock') badgeClass = 'warning';
                 else if (status === 'Out of Stock') badgeClass = 'danger';
-                return <span className={`ui-badge ${badgeClass}`}>{status}</span>;
+                return <span className={`ui-badge ${badgeClass}`} style={{padding: '4px 8px', fontSize: 11}}>{status}</span>;
             }
         },
-        { 
-            key: 'price', 
-            label: 'Unit Price', 
-            sortable: true,
-            render: (val) => <span style={{fontWeight: 600}}>₹{val}</span>
+        {
+            key: 'lastUpdated',
+            label: 'Last Updated',
+            render: () => <span style={{fontSize: 11, color: '#94a3b8', whiteSpace: 'nowrap'}}>2 hours ago</span>
+        },
+        {
+            key: 'action',
+            label: 'Action',
+            align: 'center',
+            render: (_, row) => (
+                <div style={{display: 'flex', gap: 4, justifyContent: 'center'}}>
+                    <button 
+                        className="rd-btn-compact outline" 
+                        style={{padding: '4px 8px', fontSize: 11, borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', color: '#64748b', cursor: 'pointer'}}
+                        onClick={(e) => { e.stopPropagation(); navigate(`/materials/${row._id || row.id}`); }}
+                    >
+                        Preview
+                    </button>
+                    <button 
+                        className="rd-btn-compact outline" 
+                        style={{padding: '4px 8px', fontSize: 11, borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', color: '#64748b', cursor: 'pointer'}}
+                        onClick={(e) => { e.stopPropagation(); toast.success("Printing barcode..."); }}
+                    >
+                        Print
+                    </button>
+                </div>
+            )
         }
-    ];
-
-    // Action menu configuration
-    const actions = [
-        { label: 'View Details', icon: Eye, onClick: (row) => navigate(`/materials/${row._id || row.id}`) },
-        { label: 'Edit', icon: Edit, onClick: (row) => navigate(`/materials/${row._id || row.id}/edit`) },
-        { label: 'Delete', icon: Trash2, onClick: handleDelete, color: 'danger' }
     ];
 
     // Dynamic Trend generator for UI
@@ -167,8 +206,26 @@ const Materials = () => {
                             subtitle="Comprehensive list of all materials in stock"
                             columns={columns}
                             data={materialsData}
-                            actions={actions}
                             searchPlaceholder="Search by item code or name..."
+                            expandableRowRender={(row) => (
+                                <div style={{ padding: '16px 24px', display: 'flex', gap: '32px', fontSize: '13px', color: '#475569' }}>
+                                    <div>
+                                        <div style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', marginBottom: 4 }}>Supplier Info</div>
+                                        <div style={{ fontWeight: 500 }}>{row.vendor?.name || 'Local Vendor'}</div>
+                                        <div>{row.vendor?.contactPerson || 'Contact'} • {row.vendor?.phone || '+91 0000000000'}</div>
+                                    </div>
+                                    <div>
+                                        <div style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', marginBottom: 4 }}>Barcode Data</div>
+                                        <div style={{ fontFamily: 'monospace', background: '#f1f5f9', padding: '4px 8px', borderRadius: 4 }}>
+                                            {row.sku}-{row._id ? String(row._id).substring(0,6) : (row.id ? String(row.id).substring(0,6) : '100A')}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', marginBottom: 4 }}>Stock History</div>
+                                        <div>Last restocked on {new Date().toLocaleDateString()}</div>
+                                    </div>
+                                </div>
+                            )}
                             primaryAction={{
                                 label: 'Add Material',
                                 icon: Plus,

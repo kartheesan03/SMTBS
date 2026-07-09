@@ -41,12 +41,16 @@ const BarcodeManagement = () => {
         return {
             id: m.sku || `MAT-${m.id}`,
             name: m.name,
+            category: m.category || ['Steel', 'Electronics', 'Chemicals', 'Tools'][hash % 4],
+            quantity: m.quantity || 0,
+            unit: m.unit || ['kg', 'units', 'liters', 'pcs'][hash % 4],
             status: getStatus(m),
             barcode: m.sku ? `890${m.sku.replace(/\D/g,'').padStart(10, '0')}` : `89012345600${(m.id % 100).toString().padStart(2, '0')}`,
             qr: `SMTBMS-${m.sku || 'MAT-'+m.id}-STD`,
             loc: `Store ${String.fromCharCode(65 + (hash % 4))} / Shelf ${(hash % 5) + 1}`,
             scans: (hash % 50),
-            last: new Date(Date.now() - (hash % 10) * 86400000).toLocaleDateString()
+            scanned: (hash % 2 === 0),   // whether this item has been scanned at least once
+            last: new Date(Date.now() - (hash % 10) * 3600000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) // '2 hours ago' style time
         };
     });
 
@@ -60,6 +64,62 @@ const BarcodeManagement = () => {
 
     // Dynamic Trend generators
     
+    // ── Table style tokens ──────────────────────────────────────────────────
+    // Shared header cell style
+    const th = {
+        padding: '11px 10px',
+        textAlign: 'left',
+        fontSize: 10,
+        fontWeight: 700,
+        color: '#94a3b8',
+        textTransform: 'uppercase',
+        letterSpacing: '0.8px',
+        whiteSpace: 'nowrap',
+        borderBottom: 'none',
+        background: 'var(--rd-table-head-bg, #f8fafc)',
+    };
+    // Sticky-left header (Mat. ID)
+    const stickyLeft = {
+        ...th,
+        position: 'sticky',
+        left: 0,
+        zIndex: 2,
+        boxShadow: '2px 0 6px -2px rgba(0,0,0,0.08)',
+    };
+    // Sticky-right header (Action)
+    const stickyRight = {
+        ...th,
+        position: 'sticky',
+        right: 0,
+        zIndex: 2,
+        textAlign: 'left',
+        boxShadow: '-2px 0 6px -2px rgba(0,0,0,0.08)',
+    };
+    // Shared body cell style
+    const tdBase = {
+        padding: '10px 10px',
+        fontSize: 12,
+        verticalAlign: 'middle',
+    };
+    // Sticky-left body cell
+    const stickyLeftTd = {
+        ...tdBase,
+        position: 'sticky',
+        left: 0,
+        zIndex: 1,
+        background: 'var(--rd-card-bg, #fff)',
+        boxShadow: '2px 0 6px -2px rgba(0,0,0,0.07)',
+    };
+    // Sticky-right body cell
+    const stickyRightTd = {
+        ...tdBase,
+        position: 'sticky',
+        right: 0,
+        zIndex: 1,
+        background: 'var(--rd-card-bg, #fff)',
+        boxShadow: '-2px 0 6px -2px rgba(0,0,0,0.07)',
+    };
+    // ────────────────────────────────────────────────────────────────────────
 
     return (
         <div className="rd-container">
@@ -110,7 +170,7 @@ const BarcodeManagement = () => {
                             <div className="rd-table-subtitle">Click any row to preview label • Live status from Inventory</div>
                         </div>
                         <div className="rd-table-actions" style={{flexWrap: 'wrap'}}>
-                            <div className="rd-search-bar" style={{minWidth: 250, flexShrink: 0, background: '#f8fafc'}}>
+                            <div className="rd-search-bar" style={{minWidth: 220, flexShrink: 0, background: '#f8fafc'}}>
                                 <Search size={16} color="#94a3b8" />
                                 <input 
                                     type="text" 
@@ -138,79 +198,84 @@ const BarcodeManagement = () => {
                             </button>
                         </div>
                     </div>
-                    
-                    <div style={{overflowX: 'auto'}}>
-                        <table className="rd-table" style={{ width: '100%' }}>
-                        <thead>
-                            <tr style={{ background: '#1e293b' }}>
-                                <th style={{ padding: '13px 18px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', whiteSpace: 'nowrap', borderBottom: 'none' }}>MAT. ID</th>
-                                <th style={{ padding: '13px 18px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', whiteSpace: 'nowrap', borderBottom: 'none' }}>MATERIAL</th>
-                                <th style={{ padding: '13px 18px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', whiteSpace: 'nowrap', borderBottom: 'none' }}>STOCK STATUS</th>
-                                <th style={{ padding: '13px 18px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', whiteSpace: 'nowrap', borderBottom: 'none' }}>BARCODE NO.</th>
-                                <th style={{ padding: '13px 18px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', whiteSpace: 'nowrap', borderBottom: 'none' }}>QR CODE STRING</th>
-                                <th style={{ padding: '13px 18px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', whiteSpace: 'nowrap', borderBottom: 'none' }}>LOCATION</th>
-                                <th style={{ padding: '13px 18px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', whiteSpace: 'nowrap', borderBottom: 'none' }}>SCANS</th>
-                                <th style={{ padding: '13px 18px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', whiteSpace: 'nowrap', borderBottom: 'none' }}>LAST SCANNED</th>
-                                <th style={{ padding: '13px 18px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', whiteSpace: 'nowrap', borderBottom: 'none' }}>ACTION</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {loading ? (
-                                <tr>
-                                    <td colSpan={9} style={{textAlign: 'center', padding: 32, color: '#94a3b8'}}>Loading barcode registry...</td>
+
+                    <div className="rd-table-scroll">
+                        <table
+                            className="rd-table rd-table-responsive"
+                            style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'auto' }}
+                        >
+                            <thead>
+                                <tr style={{ background: 'var(--rd-table-head-bg, #f8fafc)' }}>
+                                    <th style={{padding: '11px 10px', textAlign: 'left', fontSize: 10, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', whiteSpace: 'nowrap'}}>MAT. ID</th>
+                                    <th style={{padding: '11px 10px', textAlign: 'left', fontSize: 10, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', whiteSpace: 'nowrap'}}>MATERIAL</th>
+                                    <th style={{padding: '11px 10px', textAlign: 'left', fontSize: 10, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', whiteSpace: 'nowrap'}}>CATEGORY</th>
+                                    <th style={{padding: '11px 10px', textAlign: 'right', fontSize: 10, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', whiteSpace: 'nowrap'}}>QTY</th>
+                                    <th style={{padding: '11px 10px', textAlign: 'left', fontSize: 10, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', whiteSpace: 'nowrap'}}>LOCATION</th>
+                                    <th style={{padding: '11px 10px', textAlign: 'left', fontSize: 10, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', whiteSpace: 'nowrap'}}>STOCK STATUS</th>
+                                    <th style={{padding: '11px 10px', textAlign: 'left', fontSize: 10, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', whiteSpace: 'nowrap'}}>UPDATED</th>
+                                    <th style={{padding: '11px 10px', textAlign: 'center', fontSize: 10, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', whiteSpace: 'nowrap'}}>ACTION</th>
                                 </tr>
-                            ) : filteredData.length === 0 ? (
-                                <tr>
-                                    <td colSpan={9} style={{textAlign: 'center', padding: 32, color: '#94a3b8'}}>No materials found matching search</td>
-                                </tr>
-                            ) : (
-                                filteredData.map((item, i) => (
-                                    <tr key={item.id || i} style={{cursor: 'pointer'}}>
-                                        <td style={{fontWeight: 700, color: '#3b82f6'}}>{item.id}</td>
-                                        <td style={{fontWeight: 700, color: 'var(--rd-text-main)'}}>{item.name}</td>
-                                        <td>
-                                            <span className={`rd-status-badge ${item.status === 'Low Stock' || item.status === 'Out of Stock' ? 'rd-status-orange' : 'rd-status-green'}`}>
-                                                {item.status}
-                                            </span>
-                                        </td>
-                                        <td style={{color: '#64748b'}}>{item.barcode}</td>
-                                        <td style={{color: '#a855f7'}}>{item.qr}</td>
-                                        <td style={{color: '#64748b'}}>{item.loc}</td>
-                                        <td style={{fontWeight: 700, color: '#0ea5e9'}}>{item.scans}</td>
-                                        <td style={{color: '#94a3b8'}}>{item.last}</td>
-                                        <td>
-                                            <div style={{display: 'flex', gap: 8}}>
-                                                <button 
-                                                    className="rd-btn-outline" 
-                                                    style={{padding: '6px 12px', fontSize: 12, color: '#3b82f6', borderColor: '#bfdbfe', cursor: 'pointer'}}
-                                                    onClick={(e) => { e.stopPropagation(); setPreviewItem(item); }}
-                                                >
-                                                    Preview
-                                                </button>
-                                                <button 
-                                                    className="rd-btn-outline" 
-                                                    style={{padding: '6px 12px', fontSize: 12, color: '#10b981', borderColor: '#a7f3d0', cursor: 'pointer'}}
-                                                    onClick={(e) => { 
-                                                        e.stopPropagation(); 
-                                                        setPreviewItem(item);
-                                                        setTimeout(() => {
-                                                            const printContent = document.getElementById('print-area').innerHTML;
-                                                            const originalContent = document.body.innerHTML;
-                                                            document.body.innerHTML = printContent;
-                                                            window.print();
-                                                            document.body.innerHTML = originalContent;
-                                                            window.location.reload();
-                                                        }, 500);
-                                                    }}
-                                                >
-                                                    Print
-                                                </button>
-                                            </div>
-                                        </td>
+                            </thead>
+                            <tbody>
+                                {loading ? (
+                                    <tr>
+                                        <td colSpan={8} style={{textAlign: 'center', padding: 32, color: '#94a3b8'}}>Loading barcode registry...</td>
                                     </tr>
-                                ))
-                            )}
-                        </tbody>
+                                ) : filteredData.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={8} style={{textAlign: 'center', padding: 32, color: '#94a3b8'}}>No materials found matching search</td>
+                                    </tr>
+                                ) : (
+                                    filteredData.map((item, i) => (
+                                        <tr key={item.id || i} style={{cursor: 'pointer'}} onClick={() => setPreviewItem(item)}>
+                                            <td style={{padding: '10px 10px', fontSize: 12, fontWeight: 700, color: '#3b82f6', whiteSpace: 'nowrap'}} data-label="Mat. ID">{item.id}</td>
+                                            <td style={{padding: '10px 10px', fontSize: 12, fontWeight: 600, color: 'var(--rd-text-main)', maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} data-label="Material" title={item.name}>{item.name}</td>
+                                            <td style={{padding: '10px 10px', fontSize: 12, color: '#64748b', whiteSpace: 'nowrap'}} data-label="Category">{item.category}</td>
+                                            <td style={{padding: '10px 10px', fontSize: 12, fontWeight: 600, color: 'var(--rd-text-main)', textAlign: 'right', whiteSpace: 'nowrap'}} data-label="Qty">{item.quantity} <span style={{fontSize: 10, color: '#94a3b8', fontWeight: 500}}>{item.unit}</span></td>
+                                            <td style={{padding: '10px 10px', fontSize: 12, color: '#64748b', whiteSpace: 'nowrap'}} data-label="Location">{item.loc}</td>
+                                            <td style={{padding: '10px 10px', fontSize: 12, whiteSpace: 'nowrap'}} data-label="Stock Status">
+                                                <span className={`ui-badge ${item.status === 'Low Stock' || item.status === 'Out of Stock' ? 'warning' : 'success'}`}>
+                                                    {item.status}
+                                                </span>
+                                            </td>
+                                            <td style={{padding: '10px 10px', fontSize: 11, color: '#94a3b8', whiteSpace: 'nowrap'}} data-label="Updated">{item.last}</td>
+                                            <td style={{padding: '10px 10px', textAlign: 'center'}} data-label="Action">
+                                                <div style={{display: 'flex', gap: 4, justifyContent: 'center'}}>
+                                                    <button 
+                                                        className="rd-btn-compact outline" 
+                                                        style={{padding: '4px 8px', fontSize: 11}}
+                                                        title="Preview"
+                                                        onClick={(e) => { e.stopPropagation(); setPreviewItem(item); }}
+                                                    >
+                                                        Preview
+                                                    </button>
+                                                    <button 
+                                                        className="rd-btn-compact primary" 
+                                                        style={{padding: '4px 8px', fontSize: 11, background: '#10b981'}}
+                                                        title="Print"
+                                                        onClick={(e) => { 
+                                                            e.stopPropagation(); 
+                                                            setPreviewItem(item);
+                                                            setTimeout(() => {
+                                                                const printContent = document.getElementById('print-area')?.innerHTML;
+                                                                if(printContent) {
+                                                                    const originalContent = document.body.innerHTML;
+                                                                    document.body.innerHTML = printContent;
+                                                                    window.print();
+                                                                    document.body.innerHTML = originalContent;
+                                                                    window.location.reload();
+                                                                }
+                                                            }, 500);
+                                                        }}
+                                                    >
+                                                        Print
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
                         </table>
                     </div>
                 </div>

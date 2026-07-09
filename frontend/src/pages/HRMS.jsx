@@ -180,19 +180,19 @@ const HRMS = () => {
                         </div>
                     </div>
                     
-                    <div style={{overflowX: 'auto'}}>
-                        <table className="rd-table" style={{ width: '100%' }}>
+                    <div className="rd-table-scroll">
+                        <table className="rd-table rd-table-responsive" style={{ width: '100%' }}>
                             <thead>
                                 <tr>
-                                <th>Employee</th>
-                                <th>Position</th>
-                                <th>Email</th>
-                                <th>Phone</th>
-                                <th>Role / Dept</th>
-                                <th>Status</th>
-                                <th style={{width: 40}}></th>
-                            </tr>
-                        </thead>
+                                    <th>Employee</th>
+                                    <th>Position</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Role / Dept</th>
+                                    <th>Status</th>
+                                    <th style={{textAlign: 'center', width: 40}}>Action</th>
+                                </tr>
+                            </thead>
                         <tbody>
                             {filteredEmployees.length === 0 ? (
                                 <tr>
@@ -203,7 +203,7 @@ const HRMS = () => {
                             ) : (
                                 filteredEmployees.map(emp => (
                                     <tr key={emp.id || emp._id} onClick={() => navigate(`/employees/${emp.id || emp._id}`)} style={{cursor: 'pointer'}}>
-                                        <td>
+                                        <td data-label="Employee">
                                             <div style={{display: 'flex', alignItems: 'center', gap: 12}}>
                                                 <div className="rd-avatar" style={{width: 32, height: 32, fontSize: 12, background: 'var(--rd-purple-grad)'}}>
                                                     {getInitials(emp.firstName, emp.lastName)}
@@ -214,17 +214,18 @@ const HRMS = () => {
                                                 </div>
                                             </div>
                                         </td>
-                                        <td style={{fontWeight: 500}}>{emp.designation || '—'}</td>
-                                        <td style={{color: 'var(--rd-blue)'}}>{emp.contact || '—'}</td>
-                                        <td style={{color: '#64748b'}}>{emp.phone || '—'}</td>
-                                        <td>
+                                        <td style={{fontWeight: 500}} data-label="Position">{emp.designation || '—'}</td>
+                                        <td style={{color: 'var(--rd-blue)'}} data-label="Email">{emp.contact || '—'}</td>
+                                        <td style={{color: '#64748b'}} data-label="Phone">{emp.phone || '—'}</td>
+                                        <td data-label="Role / Dept">
                                             <span style={{background: '#f1f5f9', color: '#64748b', padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600}}>
                                                 {emp.department || 'Employee'}
                                             </span>
                                         </td>
-                                        <td>{getStatusBadge('Active')}</td>
-                                        <td onClick={(e) => e.stopPropagation()}>
+                                        <td data-label="Status">{getStatusBadge('Active')}</td>
+                                        <td onClick={(e) => e.stopPropagation()} style={{textAlign: 'center'}} data-label="Action">
                                             <button
+                                                className="rd-btn-compact"
                                                 onClick={() => handleDelete(emp.id || emp._id)}
                                                 style={{background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: 16}}
                                                 title="Delete"

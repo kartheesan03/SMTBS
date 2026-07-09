@@ -57,10 +57,10 @@ const Payroll = () => {
     
 
     const getStatusBadge = (status) => {
-        if (status === 'Paid') return <span className="rd-status-badge rd-status-green"><span className="rd-legend-dot" style={{background: '#10b981', display:'inline-block', marginRight: 6}}></span>Paid</span>;
-        if (status === 'Approved') return <span className="rd-status-badge rd-status-blue"><span className="rd-legend-dot" style={{background: '#3b82f6', display:'inline-block', marginRight: 6}}></span>Approved</span>;
-        if (status === 'Awaiting Approval') return <span className="rd-status-badge rd-status-orange"><span className="rd-legend-dot" style={{background: '#f59e0b', display:'inline-block', marginRight: 6}}></span>Pending</span>;
-        return <span className="rd-status-badge rd-status-blue">{status}</span>;
+        if (status === 'Paid') return <span className="ui-badge success"><div style={{width: 6, height: 6, borderRadius: '50%', background: '#059669'}}></div>Paid</span>;
+        if (status === 'Approved') return <span className="ui-badge info"><div style={{width: 6, height: 6, borderRadius: '50%', background: '#2563EB'}}></div>Approved</span>;
+        if (status === 'Awaiting Approval') return <span className="ui-badge warning"><div style={{width: 6, height: 6, borderRadius: '50%', background: '#D97706'}}></div>Pending</span>;
+        return <span className="ui-badge default">{status}</span>;
     };
 
     const getInitials = (firstName, lastName) => `${(firstName || '')[0] || ''}${(lastName || '')[0] || ''}`.toUpperCase() || '??';
@@ -172,20 +172,21 @@ const Payroll = () => {
                         </div>
                     </div>
                     
-                    <div style={{overflowX: 'auto'}}>
-                        <table className="rd-table" style={{ width: '100%' }}>
+                    <div className="rd-table-wrapper">
+                        <div className="rd-table-scroll">
+                            <table className="rd-table rd-table-responsive" style={{ width: '100%' }}>
                             <thead>
                                 <tr>
                                 <th>Month</th>
-                                <th>Employee</th>
+                                <th style={{padding: '10px 12px'}}>Employee</th>
                                 <th>Department</th>
-                                <th>Basic</th>
-                                <th>Allowances</th>
-                                <th>Gross</th>
-                                <th>Deductions</th>
-                                <th>Net Pay</th>
+                                <th style={{textAlign: 'right'}}>Basic</th>
+                                <th style={{textAlign: 'right'}}>Allowances</th>
+                                <th style={{textAlign: 'right'}}>Gross</th>
+                                <th style={{textAlign: 'right'}}>Deductions</th>
+                                <th style={{textAlign: 'right'}}>Net Pay</th>
                                 <th>Status</th>
-                                <th style={{textAlign: 'center', width: 100}}>Action</th>
+                                <th style={{textAlign: 'center', width: 80}}>Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -205,9 +206,9 @@ const Payroll = () => {
                                     return (
                                         <tr key={record._id || record.id || i}>
                                             <td style={{fontWeight: 600, color: 'var(--rd-text-main)'}}>{record.month}</td>
-                                            <td>
+                                            <td style={{padding: '11px 12px'}}>
                                                 <div style={{display: 'flex', alignItems: 'center', gap: 12}}>
-                                                    <div className="rd-avatar" style={{width: 32, height: 32, fontSize: 12, background: 'var(--rd-blue-grad)'}}>
+                                                    <div className="rd-avatar" style={{width: 32, height: 32, fontSize: 12, background: 'var(--rd-blue-grad)', flexShrink: 0}}>
                                                         {getInitials(emp.firstName, emp.lastName)}
                                                     </div>
                                                     <div>
@@ -221,25 +222,25 @@ const Payroll = () => {
                                                     {emp.department || '—'}
                                                 </span>
                                             </td>
-                                            <td style={{color: '#64748b'}}>{formatCurrency(record.basicSalary)}</td>
-                                            <td style={{color: '#64748b'}}>{formatCurrency(record.allowances)}</td>
-                                            <td style={{fontWeight: 600, color: 'var(--rd-text-main)'}}>{formatCurrency(gross)}</td>
-                                            <td style={{color: '#ef4444'}}>{formatCurrency(record.deductions)}</td>
-                                            <td style={{fontWeight: 700, color: '#10b981'}}>{formatCurrency(record.netSalary)}</td>
+                                            <td style={{color: '#64748b', textAlign: 'right'}}>{formatCurrency(record.basicSalary)}</td>
+                                            <td style={{color: '#64748b', textAlign: 'right'}}>{formatCurrency(record.allowances)}</td>
+                                            <td style={{fontWeight: 600, color: 'var(--rd-text-main)', textAlign: 'right'}}>{formatCurrency(gross)}</td>
+                                            <td style={{color: '#ef4444', textAlign: 'right'}}>{formatCurrency(record.deductions)}</td>
+                                            <td style={{fontWeight: 700, color: '#10b981', textAlign: 'right'}}>{formatCurrency(record.netSalary)}</td>
                                             <td>{getStatusBadge(record.status)}</td>
-                                            <td style={{textAlign: 'center'}}>
+                                            <td style={{textAlign: 'center'}} data-label="Action">
                                                 {record.status === 'Awaiting Approval' && (
-                                                    <button onClick={() => handleApprove(record._id || record.id)} style={{background: 'transparent', border: '1px solid #3b82f6', color: '#3b82f6', padding: '4px 12px', borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: 'pointer'}}>
+                                                    <button onClick={() => handleApprove(record._id || record.id)} className="rd-btn-compact outline" style={{borderColor: '#3b82f6', color: '#3b82f6'}}>
                                                         Approve
                                                     </button>
                                                 )}
                                                 {record.status === 'Approved' && (
-                                                    <button onClick={() => navigate(`/payroll/payment/${record._id || record.id}`)} style={{background: '#10b981', color: 'white', border: 'none', padding: '5px 12px', borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: 'pointer'}}>
+                                                    <button onClick={() => navigate(`/payroll/payment/${record._id || record.id}`)} className="rd-btn-compact primary" style={{background: '#10b981'}}>
                                                         Pay Now
                                                     </button>
                                                 )}
                                                 {record.status === 'Paid' && (
-                                                    <CheckCircle size={20} color="#10b981" />
+                                                    <CheckCircle size={16} color="#10b981" />
                                                 )}
                                             </td>
                                         </tr>
@@ -248,6 +249,7 @@ const Payroll = () => {
                             )}
                         </tbody>
                         </table>
+                        </div>
                     </div>
                 </motion.div>
             </div>

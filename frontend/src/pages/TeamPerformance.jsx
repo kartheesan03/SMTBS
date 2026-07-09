@@ -219,21 +219,21 @@ const TeamPerformance = () => {
                         </div>
                     </div>
                     
-                    <div style={{overflowX: 'auto'}}>
-                        <table className="rd-table" style={{ width: '100%' }}>
+                    <div className="rd-table-scroll">
+                        <table className="rd-table rd-table-responsive" style={{ width: '100%' }}>
                             <thead>
                                 <tr>
-                                <th>Employee</th>
-                                <th>Department</th>
-                                <th style={{width: 140}}>Task Score</th>
-                                <th style={{width: 140}}>Attendance (Est)</th>
-                                <th style={{width: 140}}>Target Score</th>
-                                <th>Overall</th>
-                                <th>Rating</th>
-                                <th>Est. Appraisal</th>
-                                <th style={{width: 40}}></th>
-                            </tr>
-                        </thead>
+                                    <th>Employee</th>
+                                    <th>Department</th>
+                                    <th style={{width: 140}}>Task Score</th>
+                                    <th style={{width: 140}}>Attendance (Est)</th>
+                                    <th style={{width: 140}}>Target Score</th>
+                                    <th>Overall</th>
+                                    <th>Rating</th>
+                                    <th>Est. Appraisal</th>
+                                    <th style={{width: 40}}></th>
+                                </tr>
+                            </thead>
                         <tbody>
                             {loading ? (
                                 <tr>
@@ -246,7 +246,7 @@ const TeamPerformance = () => {
                             ) : (
                                 filteredData.map((emp, i) => (
                                     <tr key={emp.id || i}>
-                                        <td>
+                                        <td data-label="Employee">
                                             <div style={{display: 'flex', alignItems: 'center', gap: 12}}>
                                                 <div className="rd-avatar" style={{width: 32, height: 32, fontSize: 12, background: emp.overall >= 85 ? '#10b981' : '#3b82f6'}}>
                                                     {getInitials(emp.name)}
@@ -257,23 +257,22 @@ const TeamPerformance = () => {
                                                 </div>
                                             </div>
                                         </td>
-                                        <td>
+                                        <td data-label="Department">
                                             <span style={{background: emp.dept === 'Finance' || emp.dept === 'Sales' ? '#fff7ed' : '#ecfdf5', color: emp.dept === 'Finance' || emp.dept === 'Sales' ? '#f59e0b' : '#10b981', padding: '4px 10px', borderRadius: 6, fontSize: 12, fontWeight: 600}}>
                                                 {emp.dept}
                                             </span>
                                         </td>
-                                        <td>{renderMiniBar(emp.kpi, '#3b82f6')}</td>
-                                        <td>{renderMiniBar(emp.attendance, '#10b981')}</td>
-                                        <td>{renderMiniBar(emp.targets, '#8b5cf6')}</td>
-                                        <td>{renderCircularProgress(emp.overall, emp.overall >= 85 ? '#10b981' : emp.overall >= 60 ? '#f59e0b' : '#ef4444')}</td>
-                                        <td>
-                                            <span className={`rd-status-badge ${emp.rating === 'Excellent' ? 'rd-status-green' : emp.rating === 'Good' ? 'rd-status-blue' : 'rd-status-orange'}`}>
-                                                <span className="rd-legend-dot" style={{background: emp.rating === 'Excellent' ? '#10b981' : emp.rating === 'Good' ? '#3b82f6' : '#f59e0b', display:'inline-block', marginRight: 6}}></span>
+                                        <td data-label="Task Score">{renderMiniBar(emp.kpi, '#3b82f6')}</td>
+                                        <td data-label="Attendance">{renderMiniBar(emp.attendance, '#10b981')}</td>
+                                        <td data-label="Target Score">{renderMiniBar(emp.targets, '#8b5cf6')}</td>
+                                        <td data-label="Overall">{renderCircularProgress(emp.overall, emp.overall >= 85 ? '#10b981' : emp.overall >= 60 ? '#f59e0b' : '#ef4444')}</td>
+                                        <td data-label="Rating">
+                                            <span className={`ui-badge ${emp.rating === 'Excellent' ? 'success' : emp.rating === 'Good' ? 'primary' : 'warning'}`}>
                                                 {emp.rating}
                                             </span>
                                         </td>
-                                        <td style={{fontWeight: 700, color: '#10b981'}}>{emp.appraisal}</td>
-                                        <td>
+                                        <td style={{fontWeight: 700, color: '#10b981'}} data-label="Est. Appraisal">{emp.appraisal}</td>
+                                        <td data-label="Actions">
                                             <button onClick={() => navigate(`/employees/${emp.id}`)} style={{background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8'}}>•••</button>
                                         </td>
                                     </tr>

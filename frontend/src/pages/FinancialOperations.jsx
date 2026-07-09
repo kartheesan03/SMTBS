@@ -262,20 +262,20 @@ const FinancialOperations = () => {
                         </div>
                     </div>
 
-                    <div style={{overflowX: 'auto'}}>
-                        <table className="rd-table" style={{ width: '100%' }}>
+                    <div className="rd-table-scroll">
+                        <table className="rd-table rd-table-responsive" style={{ width: '100%' }}>
                             <thead>
                                 <tr>
-                                <th>INVOICE ID</th>
-                                <th>TYPE</th>
-                                <th>PARTY</th>
-                                <th>PO/SO</th>
-                                <th>AMOUNT</th>
-                                <th>DUE DATE</th>
-                                <th>STATUS</th>
-                                <th>ACTION</th>
-                            </tr>
-                        </thead>
+                                    <th>INVOICE ID</th>
+                                    <th>TYPE</th>
+                                    <th>PARTY</th>
+                                    <th>PO/SO</th>
+                                    <th style={{textAlign: 'right'}}>AMOUNT</th>
+                                    <th>DUE DATE</th>
+                                    <th>STATUS</th>
+                                    <th style={{textAlign: 'center'}}>ACTION</th>
+                                </tr>
+                            </thead>
                         <tbody>
                             {filteredInvoices.length === 0 ? (
                                 <tr><td colSpan={8} style={{textAlign: 'center', padding: 40, color: '#94a3b8'}}>No invoices found</td></tr>
@@ -290,24 +290,24 @@ const FinancialOperations = () => {
 
                                 return (
                                     <tr key={inv._id || i}>
-                                        <td style={{fontWeight: 700, color: '#3b82f6'}}>{inv.id}</td>
-                                        <td>
+                                        <td style={{fontWeight: 700, color: '#3b82f6'}} data-label="Invoice ID">{inv.id}</td>
+                                        <td data-label="Type">
                                             <span style={{padding: '4px 10px', borderRadius: 6, fontSize: 12, fontWeight: 600, background: typeBg, color: typeColor}}>
                                                 {inv.type}
                                             </span>
                                         </td>
-                                        <td style={{fontWeight: 700, color: 'var(--rd-text-main)'}}>{inv.party}</td>
-                                        <td style={{color: '#64748b'}}>{inv.poSo || '-'}</td>
-                                        <td style={{fontWeight: 700, color: 'var(--rd-text-main)'}}>₹{inv.amount.toLocaleString()}</td>
-                                        <td style={{color: inv.status === 'Overdue' ? '#ef4444' : '#64748b', fontWeight: inv.status === 'Overdue' ? 700 : 400}}>
+                                        <td style={{fontWeight: 700, color: 'var(--rd-text-main)'}} data-label="Party">{inv.party}</td>
+                                        <td style={{color: '#64748b'}} data-label="PO/SO">{inv.poSo || '-'}</td>
+                                        <td style={{fontWeight: 700, color: 'var(--rd-text-main)', textAlign: 'right'}} data-label="Amount">₹{inv.amount.toLocaleString()}</td>
+                                        <td style={{color: inv.status === 'Overdue' ? '#ef4444' : '#64748b', fontWeight: inv.status === 'Overdue' ? 700 : 400}} data-label="Due Date">
                                             {inv.dueDate ? new Date(inv.dueDate).toLocaleDateString('en-IN', {day: 'numeric', month: 'short', year: 'numeric'}) : '-'}
                                         </td>
-                                        <td><span className={`rd-status-badge ${statusColors[inv.status] || 'rd-status-blue'}`}>{inv.status}</span></td>
-                                        <td>
+                                        <td data-label="Status"><span className={`ui-badge ${statusColors[inv.status] === 'rd-status-red' ? 'danger' : statusColors[inv.status] === 'rd-status-green' ? 'success' : statusColors[inv.status] === 'rd-status-orange' ? 'warning' : statusColors[inv.status] === 'rd-status-blue' ? 'primary' : 'gray'}`}>{inv.status}</span></td>
+                                        <td style={{textAlign: 'center'}} data-label="Action">
                                             {inv.status === 'Paid' ? (
                                                 <span style={{color: '#10b981', fontWeight: 600, fontSize: 13}}>✓ Done</span>
                                             ) : (
-                                                <button className="rd-btn-outline" style={{padding: '5px 12px', fontSize: 12, color: '#3b82f6', borderColor: '#bfdbfe'}}>Mark Paid</button>
+                                                <button className="rd-btn-compact outline" style={{padding: '5px 12px', fontSize: 12, color: '#3b82f6', borderColor: '#bfdbfe'}}>Mark Paid</button>
                                             )}
                                         </td>
                                     </tr>
