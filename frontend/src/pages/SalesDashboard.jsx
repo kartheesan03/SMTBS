@@ -476,15 +476,6 @@ const SalesDashboard = () => {
 
                 </div>
 
-                {/* ── 6. Footer ── */}
-                <div className="dashboard-footer">
-                    <div><Calendar size={12} style={{display:'inline',marginRight:4}}/> Current FY: 2026 - 2027</div>
-                    <div><Layers size={12} style={{display:'inline',marginRight:4}}/> Sales Module v2.5.1</div>
-                    <div><Clock size={12} style={{display:'inline',marginRight:4}}/> Last Backup: 03 Jul 2026, 02:30 AM</div>
-                    <div className="footer-item" style={{color: '#10b981'}}>
-                        <div className="footer-dot"></div> All Systems Operational
-                    </div>
-                </div>
 
             </div>
             <CommandCenter isOpen={isCommandCenterOpen} onClose={() => setIsCommandCenterOpen(false)} />

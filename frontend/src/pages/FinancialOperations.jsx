@@ -80,15 +80,17 @@ const FinancialOperations = () => {
             catSpendMap[cat] = (catSpendMap[cat] || 0) + (Number(o.totalAmount) || Number(o.grandTotal) || 0);
         }
     });
-    const totalSpend = Object.values(catSpendMap).reduce((s, v) => s + v, 0) || 1;
+    const actualTotalSpend = Object.values(catSpendMap).reduce((s, v) => s + v, 0);
+    const totalSpendForCalc = actualTotalSpend || 1;
     const spendData = Object.entries(catSpendMap)
         .sort((a, b) => b[1] - a[1])
         .map(([name, value], idx) => ({
             name,
             value,
             color: categoryColors[idx % categoryColors.length],
-            pct: `${Math.round((value / totalSpend) * 100)}%`
+            pct: `${Math.round((value / totalSpendForCalc) * 100)}%`
         }));
+    const displaySpendData = spendData.length > 0 ? spendData : [{ name: 'No Data', value: 1, color: '#f1f5f9', pct: '0%' }];
 
     // Invoice data from orders
     const invoiceData = orders.map((o, i) => {
@@ -195,15 +197,15 @@ const FinancialOperations = () => {
                         <div style={{height: 180, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative'}}>
                             <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>
-                                    <Pie data={spendData} innerRadius={55} outerRadius={80} paddingAngle={2} dataKey="value" stroke="none">
-                                        {spendData.map((entry, index) => (
+                                    <Pie data={displaySpendData} innerRadius={55} outerRadius={80} paddingAngle={2} dataKey="value" stroke="none">
+                                        {displaySpendData.map((entry, index) => (
                                             <Cell key={`cell-${index}`} fill={entry.color} />
                                         ))}
                                     </Pie>
                                 </PieChart>
                             </ResponsiveContainer>
                             <div style={{position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center'}}>
-                                <div style={{fontSize: 18, fontWeight: 800, color: 'var(--rd-text-main)'}}>{formatCurrency(totalSpend)}</div>
+                                <div style={{fontSize: 18, fontWeight: 800, color: 'var(--rd-text-main)'}}>{formatCurrency(actualTotalSpend)}</div>
                                 <div style={{fontSize: 10, fontWeight: 700, color: '#94a3b8'}}>TOTAL</div>
                             </div>
                         </div>

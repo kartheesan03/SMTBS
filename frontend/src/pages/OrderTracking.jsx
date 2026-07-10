@@ -9,6 +9,7 @@ import {
 import { motion } from 'framer-motion';
 import jsPDF from 'jspdf';
 import PageHeader from '../components/PageHeader';
+import LocationTag from '../components/LocationTag';
 
 const formatDateTime = (dateValue) => {
     if (!dateValue) return "-";
@@ -64,16 +65,19 @@ const OrderTracking = () => {
     const [submitting, setSubmitting] = useState(false);
 
     const statuses = [
-        'Order Created',
-        'Order Confirmed',
-        'Packed',
-        'Shipped',
-        'In Transit',
+        'New',
+        'Assigned to Employee',
+        'Material Confirmed',
+        'Ready for Delivery',
         'Out for Delivery',
-        'Delivered'
+        'Shipped',
+        'Delivered',
+        'On Hold',
+        'Completed',
+        'Cancelled'
     ];
 
-    const canUpdateTracking = ['Admin', 'Manager', 'Sales'].includes(user?.role);
+    const canUpdateTracking = ['Admin', 'Manager', 'Sales', 'Employee', 'Vendor'].includes(user?.role);
 
     useEffect(() => {
         fetchOrderDetails();
@@ -97,12 +101,15 @@ const OrderTracking = () => {
         }
     };
 
+    const [employeeId, setEmployeeId] = useState('');
+
     const handleAddUpdate = async (e) => {
         e.preventDefault();
         try {
             setSubmitting(true);
-            await API.put(`/orders/${orderId}/tracking`, {
+            await API.put(`/orders/${orderId}/status`, {
                 status,
+                employeeId: status === 'Assigned to Employee' ? employeeId : undefined,
                 location,
                 remarks,
                 date: new Date().toISOString()
@@ -282,8 +289,8 @@ const OrderTracking = () => {
                                                 </span>
                                             </div>
                                             {update.location && (
-                                                <div className="timeline-location">
-                                                    <MapPin size={12} /> {update.location}
+                                                <div className="timeline-location" style={{ marginTop: 8 }}>
+                                                    <LocationTag label={update.location} showIcon={true} />
                                                 </div>
                                             )}
                                             {update.remarks && (
@@ -309,6 +316,18 @@ const OrderTracking = () => {
                                         ))}
                                     </select>
                                 </div>
+                                {status === 'Assigned to Employee' && (
+                                    <div className="form-group">
+                                        <label>Employee ID (Object ID)</label>
+                                        <input 
+                                            type="text" 
+                                            placeholder="Enter employee ObjectId" 
+                                            value={employeeId}
+                                            onChange={(e) => setEmployeeId(e.target.value)}
+                                            required
+                                        />
+                                    </div>
+                                )}
                                 <div className="form-group">
                                     <label>Location / Hub</label>
                                     <input 

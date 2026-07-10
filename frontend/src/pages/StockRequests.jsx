@@ -424,7 +424,7 @@ const StockRequests = () => {
                                     <th>ID</th>
                                     <th>STATUS</th>
                                     <th style={{textAlign: 'right'}}>CURRENT QTY</th>
-                                    <th style={{textAlign: 'right'}}>REORDER LEVEL</th>
+
                                     <th style={{textAlign: 'right'}}>DEFICIT</th>
                                     <th>SINCE</th>
                                     <th style={{textAlign: 'center', width: 100}}>ACTION</th>
@@ -450,12 +450,12 @@ const StockRequests = () => {
                                             </span>
                                         </td>
                                         <td style={{fontWeight: 700, color: item.status === 'Low Stock' ? '#f59e0b' : '#ef4444', textAlign: 'right'}} data-label="Current Qty">{item.current} pcs</td>
-                                        <td style={{color: '#64748b', textAlign: 'right'}} data-label="Reorder Level">{item.reorder} pcs</td>
+
                                         <td style={{fontWeight: 700, color: '#e11d48', textAlign: 'right'}} data-label="Deficit">{item.deficit}</td>
                                         <td style={{color: '#94a3b8'}} data-label="Since">{item.since}</td>
                                         <td style={{textAlign: 'center'}} data-label="Action">
                                             <div style={{display: 'inline-flex', gap: 6}}>
-                                                <button className="rd-btn-compact primary" onClick={() => navigate('/orders/new')}>Raise PO</button>
+                                                <button className="rd-btn-compact primary" onClick={() => navigate('/erp/vendors/select')}>Raise PO</button>
                                                 <button className="rd-btn-compact outline" onClick={() => navigate(`/materials/${item.matId}`)}>
                                                     Inv.
                                                 </button>

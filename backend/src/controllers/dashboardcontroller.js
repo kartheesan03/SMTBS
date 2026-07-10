@@ -387,14 +387,26 @@ const getDashboardStats = async (req, res) => {
                     } else if (leaveMap[empId]) {
                         finalStatus = 'On Leave';
                     } else {
-                        // Default to present if not explicitly marked absent or on leave
-                        finalStatus = 'Present';
+                        // Default to absent if not explicitly marked present or on leave
+                        finalStatus = 'Absent';
                     }
                     if (finalStatus === 'Present' || finalStatus === 'Late') presentToday++;
                     if (finalStatus === 'Absent') absentToday++;
                 });
                 const onLeave = await Leave.countDocuments({ status: 'Approved', startDate: { $lte: todayEnd }, endDate: { $gte: todayStart } });
                 const pendingLeaves = await Leave.countDocuments({ status: 'Pending' });
+
+                // Calculate salary distribution dynamically
+                let salaryBrackets = { '< ₹30k': 0, '₹30k - 50k': 0, '₹50k - 80k': 0, '₹80k - 120k': 0, '> ₹120k': 0 };
+                allEmployees.forEach(emp => {
+                    const s = emp.salary || 0;
+                    if (s < 30000) salaryBrackets['< ₹30k']++;
+                    else if (s <= 50000) salaryBrackets['₹30k - 50k']++;
+                    else if (s <= 80000) salaryBrackets['₹50k - 80k']++;
+                    else if (s <= 120000) salaryBrackets['₹80k - 120k']++;
+                    else salaryBrackets['> ₹120k']++;
+                });
+                const salaryDistribution = Object.keys(salaryBrackets).map(key => ({ range: key, count: salaryBrackets[key] }));
 
                 data.hrStats = {
                     totalEmployees: activeEmployeesCount,
@@ -404,6 +416,7 @@ const getDashboardStats = async (req, res) => {
                     absentToday: absentToday,
                     newJoiners: newJoinersCount,
                     employeeDistribution,
+                    salaryDistribution,
                     recentEmployees: recentEmployeesFormatted,
                     attendanceHistory
                 };
@@ -462,8 +475,8 @@ const getDashboardStats = async (req, res) => {
         // Analytics Payload Generation
         try {
             // 1. KPI Calculations
-            const completedSalesOrders = await Order.find({ orderType: 'sales', status: { $in: ['Delivered', 'Completed'] } });
-            const completedPurchaseOrders = await Order.find({ orderType: 'purchase', status: { $in: ['Delivered', 'Completed'] } });
+            const completedSalesOrders = await Order.find({ orderType: 'sales', status: { $ne: 'Cancelled' } });
+            const completedPurchaseOrders = await Order.find({ orderType: 'purchase', status: { $ne: 'Cancelled' } });
             
             const totalAnalyticsRevenue = completedSalesOrders.reduce((sum, o) => sum + (Number(o.totalAmount) || Number(o.grandTotal) || 0), 0);
             const totalAnalyticsExpenses = completedPurchaseOrders.reduce((sum, o) => sum + (Number(o.totalAmount) || Number(o.grandTotal) || 0), 0);
@@ -584,7 +597,10 @@ const getDashboardStats = async (req, res) => {
                     customerRetention
                 }
             };
-        } catch (e) { console.error('Analytics Data Error:', e); }
+        } catch (e) { 
+            console.error('Analytics Data Error:', e);
+            require('fs').writeFileSync('C:\\Users\\Admin\\Documents\\project\\analytics_error.log', e.toString() + '\\n' + e.stack);
+        }
 
         data.systemInfo = {
             currentFY: "2026 - 2027",

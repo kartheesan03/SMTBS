@@ -1,0 +1,10 @@
+SequelizeDatabaseError: SQLITE_ERROR: no such column: liveLocation\nError
+    at Database.<anonymous> (C:\Users\Admin\Documents\project\backend\node_modules\sequelize\lib\dialects\sqlite\query.js:185:27)
+    at C:\Users\Admin\Documents\project\backend\node_modules\sequelize\lib\dialects\sqlite\query.js:183:50
+    at new Promise (<anonymous>)
+    at Query.run (C:\Users\Admin\Documents\project\backend\node_modules\sequelize\lib\dialects\sqlite\query.js:183:12)
+    at C:\Users\Admin\Documents\project\backend\node_modules\sequelize\lib\sequelize.js:315:28
+    at async SQLiteQueryInterface.select (C:\Users\Admin\Documents\project\backend\node_modules\sequelize\lib\dialects\abstract\query-interface.js:407:12)
+    at async Order.findAll (C:\Users\Admin\Documents\project\backend\node_modules\sequelize\lib\model.js:1140:21)
+    at async MongooseQuery.exec (C:\Users\Admin\Documents\project\backend\src\config\mongoose-bridge.js:393:22)
+    at async getDashboardStats (C:\Users\Admin\Documents\project\backend\src\controllers\dashboardcontroller.js:478:42)

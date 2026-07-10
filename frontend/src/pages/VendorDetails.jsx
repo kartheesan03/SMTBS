@@ -44,7 +44,8 @@ const VendorDetails = () => {
     ];
 
     const actions = [
-        { label: 'Edit Profile', icon: Edit, primary: true, onClick: () => navigate(`/vendors/${vendor._id || vendor.id}/edit`) }
+        { label: 'Raise PO', icon: ShoppingCart, primary: true, onClick: () => navigate(`/orders/create/purchase?vendorId=${vendor._id || vendor.id}`) },
+        { label: 'Edit Profile', icon: Edit, primary: false, onClick: () => navigate(`/vendors/${vendor._id || vendor.id}/edit`) }
     ];
 
     const overviewContent = (

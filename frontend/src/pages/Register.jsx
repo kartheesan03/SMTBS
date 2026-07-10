@@ -109,22 +109,19 @@ const Register = () => {
             {/* LEFT PANEL - Brand & Floating Dashboard Cards (Identical to Login) */}
             <div className="auth-brand-panel">
                 <div className="brand-header">
-                    <div className="logo-icon-wrap">
-                        <SmtbmsLogo size={24} showText={false} />
-                    </div>
-                    <span className="brand-text">SMTBMS</span>
+                    <SmtbmsLogo size={48} showText={true} showTagline={true} title="Smart Material Tracking & Business Management System" />
                 </div>
 
                 <div className="brand-content">
                     <h1 className="brand-headline">Every material,<br/>tracked in real time.</h1>
                     <p className="brand-subheadline">
-                        Command your operations with precision. Live GPS, automated inventory, and unified workforce management.
+                        Command your operations with precision. Automated inventory, dynamic tracking, and unified workforce management.
                     </p>
 
                     <div className="features-compact-grid">
                         <div className="feature-item">
                             <Map size={16} className="feature-icon" />
-                            <span>Live GPS Tracking</span>
+                            <span>Material Tracking</span>
                         </div>
                         <div className="feature-item">
                             <Box size={16} className="feature-icon" />
@@ -181,7 +178,7 @@ const Register = () => {
                     
                     <div className="form-header">
                         <h2>Create your account</h2>
-                        <p>Get started with SMTBMS</p>
+                        <p>Get started with Smart Material Tracking</p>
                     </div>
 
                     {error && (

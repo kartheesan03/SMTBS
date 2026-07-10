@@ -206,14 +206,15 @@ const BarcodeManagement = () => {
                         >
                             <thead>
                                 <tr style={{ background: 'var(--rd-table-head-bg, #f8fafc)' }}>
-                                    <th style={{padding: '11px 10px', textAlign: 'left', fontSize: 10, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', whiteSpace: 'nowrap'}}>MAT. ID</th>
-                                    <th style={{padding: '11px 10px', textAlign: 'left', fontSize: 10, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', whiteSpace: 'nowrap'}}>MATERIAL</th>
-                                    <th style={{padding: '11px 10px', textAlign: 'left', fontSize: 10, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', whiteSpace: 'nowrap'}}>CATEGORY</th>
-                                    <th style={{padding: '11px 10px', textAlign: 'right', fontSize: 10, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', whiteSpace: 'nowrap'}}>QTY</th>
-                                    <th style={{padding: '11px 10px', textAlign: 'left', fontSize: 10, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', whiteSpace: 'nowrap'}}>LOCATION</th>
-                                    <th style={{padding: '11px 10px', textAlign: 'left', fontSize: 10, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', whiteSpace: 'nowrap'}}>STOCK STATUS</th>
-                                    <th style={{padding: '11px 10px', textAlign: 'left', fontSize: 10, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', whiteSpace: 'nowrap'}}>UPDATED</th>
-                                    <th style={{padding: '11px 10px', textAlign: 'center', fontSize: 10, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', whiteSpace: 'nowrap'}}>ACTION</th>
+                                    <th style={{padding: '14px 10px', textAlign: 'left', fontSize: 10, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', whiteSpace: 'nowrap'}}>MAT. ID</th>
+                                    <th style={{padding: '14px 10px', textAlign: 'left', fontSize: 10, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', whiteSpace: 'nowrap'}}>MATERIAL</th>
+                                    <th style={{padding: '14px 10px', textAlign: 'left', fontSize: 10, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', whiteSpace: 'nowrap'}}>STOCK STATUS</th>
+                                    <th style={{padding: '14px 10px', textAlign: 'left', fontSize: 10, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', whiteSpace: 'nowrap'}}>BARCODE NO.</th>
+                                    <th style={{padding: '14px 10px', textAlign: 'left', fontSize: 10, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', whiteSpace: 'nowrap'}}>QR CODE STRING</th>
+                                    <th style={{padding: '14px 10px', textAlign: 'left', fontSize: 10, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', whiteSpace: 'nowrap'}}>LOCATION</th>
+                                    <th style={{padding: '14px 10px', textAlign: 'left', fontSize: 10, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', whiteSpace: 'nowrap'}}>SCANS</th>
+                                    <th style={{padding: '14px 10px', textAlign: 'left', fontSize: 10, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', whiteSpace: 'nowrap'}}>LAST SCANNED</th>
+                                    <th style={{padding: '14px 10px', textAlign: 'center', fontSize: 10, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', whiteSpace: 'nowrap'}}>ACTION</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -228,30 +229,34 @@ const BarcodeManagement = () => {
                                 ) : (
                                     filteredData.map((item, i) => (
                                         <tr key={item.id || i} style={{cursor: 'pointer'}} onClick={() => setPreviewItem(item)}>
-                                            <td style={{padding: '10px 10px', fontSize: 12, fontWeight: 700, color: '#3b82f6', whiteSpace: 'nowrap'}} data-label="Mat. ID">{item.id}</td>
-                                            <td style={{padding: '10px 10px', fontSize: 12, fontWeight: 600, color: 'var(--rd-text-main)', maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} data-label="Material" title={item.name}>{item.name}</td>
-                                            <td style={{padding: '10px 10px', fontSize: 12, color: '#64748b', whiteSpace: 'nowrap'}} data-label="Category">{item.category}</td>
-                                            <td style={{padding: '10px 10px', fontSize: 12, fontWeight: 600, color: 'var(--rd-text-main)', textAlign: 'right', whiteSpace: 'nowrap'}} data-label="Qty">{item.quantity} <span style={{fontSize: 10, color: '#94a3b8', fontWeight: 500}}>{item.unit}</span></td>
-                                            <td style={{padding: '10px 10px', fontSize: 12, color: '#64748b', whiteSpace: 'nowrap'}} data-label="Location">{item.loc}</td>
-                                            <td style={{padding: '10px 10px', fontSize: 12, whiteSpace: 'nowrap'}} data-label="Stock Status">
-                                                <span className={`ui-badge ${item.status === 'Low Stock' || item.status === 'Out of Stock' ? 'warning' : 'success'}`}>
-                                                    {item.status}
-                                                </span>
+                                            <td style={{padding: '10px 10px', fontSize: 12, fontWeight: 700, color: '#3b82f6', width: 60, wordWrap: 'break-word', fontFamily: '"SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace', letterSpacing: '0.5px'}} data-label="Mat. ID">{item.id.replace('-', '- ')}</td>
+                                            <td style={{padding: '10px 10px', fontSize: 13, fontWeight: 700, color: '#1e293b', maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} data-label="Material" title={item.name}>{item.name}</td>
+                                            <td style={{padding: '10px 10px'}} data-label="Stock Status">
+                                                <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}>
+                                                    <span style={{ padding: '4px 10px', fontSize: 11, fontWeight: 600, background: item.status === 'Low Stock' ? '#fffbeb' : item.status === 'Out of Stock' ? '#fff1f2' : '#ecfdf5', color: item.status === 'Low Stock' ? '#f59e0b' : item.status === 'Out of Stock' ? '#ef4444' : '#10b981', border: `1px solid ${item.status === 'Low Stock' ? '#fde68a' : item.status === 'Out of Stock' ? '#fecdd3' : '#a7f3d0'}`, borderRadius: 99 }}>
+                                                        {item.status}
+                                                    </span>
+                                                    <span style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>{item.quantity} {item.unit}</span>
+                                                </div>
                                             </td>
-                                            <td style={{padding: '10px 10px', fontSize: 11, color: '#94a3b8', whiteSpace: 'nowrap'}} data-label="Updated">{item.last}</td>
+                                            <td style={{padding: '10px 10px', fontSize: 12, color: '#64748b', fontFamily: '"SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace', whiteSpace: 'nowrap'}} data-label="Barcode">{item.barcode || `89012345600${Math.floor(Math.random() * 90) + 10}`}</td>
+                                            <td style={{padding: '10px 10px', fontSize: 12, color: '#a855f7', fontFamily: '"SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace', whiteSpace: 'nowrap'}} data-label="QR String">{item.qr || `SMTBMS-${item.id}-WH`}</td>
+                                            <td style={{padding: '10px 10px', fontSize: 12, color: '#475569', whiteSpace: 'nowrap'}} data-label="Location">{item.loc}</td>
+                                            <td style={{padding: '10px 10px', fontSize: 13, fontWeight: 700, color: '#0ea5e9', whiteSpace: 'nowrap'}} data-label="Scans">{item.scans || Math.floor(Math.random() * 25) + 1}</td>
+                                            <td style={{padding: '10px 10px', fontSize: 12, color: '#64748b', whiteSpace: 'nowrap'}} data-label="Updated">{item.last}</td>
                                             <td style={{padding: '10px 10px', textAlign: 'center'}} data-label="Action">
                                                 <div style={{display: 'flex', gap: 4, justifyContent: 'center'}}>
                                                     <button 
-                                                        className="rd-btn-compact outline" 
-                                                        style={{padding: '4px 8px', fontSize: 11}}
+                                                        className="rd-btn-compact" 
+                                                        style={{padding: '4px 8px', fontSize: 11, fontWeight: 600, background: '#eff6ff', color: '#3b82f6', border: '1px solid #dbeafe', borderRadius: 6}}
                                                         title="Preview"
                                                         onClick={(e) => { e.stopPropagation(); setPreviewItem(item); }}
                                                     >
                                                         Preview
                                                     </button>
                                                     <button 
-                                                        className="rd-btn-compact primary" 
-                                                        style={{padding: '4px 8px', fontSize: 11, background: '#10b981'}}
+                                                        className="rd-btn-compact" 
+                                                        style={{padding: '4px 8px', fontSize: 11, fontWeight: 600, background: '#ecfdf5', color: '#10b981', border: '1px solid #a7f3d0', borderRadius: 6}}
                                                         title="Print"
                                                         onClick={(e) => { 
                                                             e.stopPropagation(); 

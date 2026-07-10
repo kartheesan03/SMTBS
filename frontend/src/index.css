@@ -120,8 +120,8 @@ body {
   font-family: 'Inter', system-ui, -apple-system, Arial, Helvetica;
   background-color: var(--bg-app);
   color: var(--text-main);
-  min-height: 100vh;
-  overflow-x: hidden;
+  height: 100vh;
+  overflow: hidden;
   font-size: 14px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
@@ -680,7 +680,8 @@ input[type="password"]::-ms-clear {
 /* App Layout Overrides for Dual Sidebar */
 .app-layout {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   background-color: #f8fafc;
 }
 
@@ -861,4 +862,24 @@ body:has(.dual-sidebar-container.expanded) .app-main {
 }
 .ent-kpi-card:hover .ent-kpi-sparkline {
     opacity: 0.6;
+}
+
+/* ─── Location Tag Shared Styles ─── */
+.location-tag-pill {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 99px;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #1e293b;
+    box-shadow: 0 2px 6px rgba(15,23,42,0.08);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    gap: 6px;
+}
+.location-tag-pill svg {
+    color: #94a3b8;
 }

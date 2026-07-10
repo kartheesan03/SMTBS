@@ -266,29 +266,30 @@ const updateOrderStatus = async (req, res) => {
 
         const prevStatus = order.status;
         
-        // --- Sales Order Approval Workflow Logic ---
+        // --- Sales Order Role-Based Pipeline Logic ---
         if (order.orderType === 'sales') {
             const customerName = order.customer ? (order.customer.name || 'Walk-in') : 'Walk-in';
-            const payload = getOrderPayload(order, req.user);
-            const isSalesUser = req.user?.role?.toLowerCase() === 'sales';
+            const userRole = req.user?.role?.toLowerCase();
+            const isAdmin = userRole === 'admin';
 
-            if (status === 'Manager Approved') {
-                if (isSalesUser) return res.status(403).json({ message: 'Sales cannot approve orders.' });
-                order.approvalStatus = 'Manager Approved';
-                order.approvedById = req.user._id;
-                order.approvedDate = new Date();
+            if (status === 'Assigned to Employee') {
+                if (!isAdmin && userRole !== 'manager') return res.status(403).json({ message: 'Only Manager or Admin can assign orders.' });
+                if (!req.body.employeeId) return res.status(400).json({ message: 'Employee ID is required.' });
+                
+                order.employeeId = req.body.employeeId;
                 
                 await broadcast({
                     module: 'Orders',
                     referenceId: order._id || order.id,
-                    title: `Sales Order Approved by Manager`,
-                    message: `Order ${order.orderNumber} for ${customerName} has been approved by ${req.user.name || 'Manager'}. Stock check required.`,
+                    title: `Order Assigned`,
+                    message: `Order ${order.orderNumber} assigned to employee.`,
                     type: 'info',
-                    targetRoles: ['Employee']
+                    targetRoles: ['Employee', 'Manager']
                 });
-            } 
-            else if (status === 'Employee Approved') {
-                if (isSalesUser) return res.status(403).json({ message: 'Sales cannot approve orders.' });
+            }
+            else if (status === 'Material Confirmed') {
+                if (!isAdmin && userRole !== 'employee') return res.status(403).json({ message: 'Only Employee or Admin can confirm materials.' });
+                
                 // Stock Validation
                 for (const item of order.items) {
                     const material = await Material.findById(item.material);
@@ -306,57 +307,59 @@ const updateOrderStatus = async (req, res) => {
                     await material.save();
                 }
 
-                order.approvalStatus = 'Employee Approved';
-                order.employeeId = req.user._id;
-                order.invoiceGenerated = true; // Auto-generated invoice flag
-
-                await broadcast({
-                    module: 'Orders',
-                    referenceId: order._id || order.id,
-                    title: `Sales Order Stock Verified`,
-                    message: `Stock for Order ${order.orderNumber} (${customerName}) verified by ${req.user.name || 'Employee'}. Ready for processing.`,
-                    type: 'success',
-                    targetRoles: ['Sales', 'Admin', 'Manager']
-                });
-            }
-            else if (status === 'Rejected') {
-                if (isSalesUser) return res.status(403).json({ message: 'Sales cannot reject orders.' });
-                order.approvalStatus = 'Rejected';
-            } 
-            else if (status === 'Processing') {
-                order.deliveryStatus = 'Processing';
-            } 
-            else if (status === 'Shipped') {
-                order.deliveryStatus = 'Shipped';
-            } 
-            else if (status === 'Delivered' && prevStatus !== 'Delivered') {
-                // Deduct physical inventory & remove reservation
-                for (const item of order.items) {
-                    const material = await Material.findById(item.material);
-                    if (material) {
-                        material.quantity -= item.quantity;
-                        material.reservedQuantity -= item.quantity;
-                        if (material.quantity < 0) material.quantity = 0;
-                        if (material.reservedQuantity < 0) material.reservedQuantity = 0;
-                        await material.save();
-                    }
-                }
-                order.deliveryStatus = 'Delivered';
-                order.deliveryDate = new Date();
-                order.deliveredAt = new Date();
-
-                // Final comprehensive notification
-                const targetUserIds = [];
-                if (order.employeeId) targetUserIds.push(order.employeeId);
+                if (req.body.sourcedLocation) order.sourcedLocation = req.body.sourcedLocation;
                 
                 await broadcast({
                     module: 'Orders',
                     referenceId: order._id || order.id,
-                    title: `Sales Order Delivered`,
-                    message: `Order ${order.orderNumber} for ${customerName} has been delivered by ${req.user.name || 'Sales'}. Workflow completed.`,
+                    title: `Material Confirmed`,
+                    message: `Materials for Order ${order.orderNumber} confirmed. Ready for delivery.`,
                     type: 'success',
-                    targetRoles: ['Admin', 'Manager', 'HR', 'Sales'],
-                    targetUserIds: targetUserIds
+                    targetRoles: ['Sales', 'Manager']
+                });
+            }
+            else if (status === 'On Hold') {
+                if (!isAdmin && userRole !== 'employee') return res.status(403).json({ message: 'Only Employee or Admin can put orders on hold.' });
+                if (!req.body.reason) return res.status(400).json({ message: 'Reason is required when placing an order on hold.' });
+                
+                order.holdReason = req.body.reason;
+            }
+            else if (status === 'Ready for Delivery') {
+                if (!isAdmin && userRole !== 'employee') return res.status(403).json({ message: 'Only Employee or Admin can mark ready for delivery.' });
+            }
+            else if (status === 'Out for Delivery') {
+                if (!isAdmin && userRole !== 'sales') return res.status(403).json({ message: 'Only Sales or Admin can mark out for delivery.' });
+                if (!isAdmin && prevStatus !== 'Material Confirmed' && prevStatus !== 'Ready for Delivery') {
+                    return res.status(400).json({ message: 'Order must be Material Confirmed or Ready for Delivery first.' });
+                }
+            }
+            else if (status === 'Delivered') {
+                if (!isAdmin && userRole !== 'sales') return res.status(403).json({ message: 'Only Sales or Admin can mark delivered.' });
+                
+                if (prevStatus !== 'Delivered') {
+                    // Deduct physical inventory & remove reservation
+                    for (const item of order.items) {
+                        const material = await Material.findById(item.material);
+                        if (material) {
+                            material.quantity -= item.quantity;
+                            material.reservedQuantity -= item.quantity;
+                            if (material.quantity < 0) material.quantity = 0;
+                            if (material.reservedQuantity < 0) material.reservedQuantity = 0;
+                            await material.save();
+                        }
+                    }
+                }
+                
+                order.deliveredAt = new Date();
+                if (req.body.deliveryNotes) order.deliveryNotes = req.body.deliveryNotes;
+                
+                await broadcast({
+                    module: 'Orders',
+                    referenceId: order._id || order.id,
+                    title: `Order Delivered`,
+                    message: `Order ${order.orderNumber} delivered.`,
+                    type: 'success',
+                    targetRoles: ['Admin', 'Manager', 'Employee']
                 });
             }
         }
@@ -378,7 +381,7 @@ const updateOrderStatus = async (req, res) => {
                     status: status,
                     location: 'System Update',
                     date: new Date().toISOString(),
-                    remarks: `Status updated from ${prevStatus} to ${status}`,
+                    remarks: `${status === 'Approved' ? 'Approved by' : status === 'Material Confirmed' ? 'Confirmed by' : 'Updated by'} ${req.user.role || 'User'}`,
                     updatedBy: req.user.name,
                     updatedById: req.user.id
                 }
@@ -795,6 +798,48 @@ const cancelCustomerOrder = async (req, res) => {
     }
 };
 
+// @desc    Get live GPS location for an order
+// @route   GET /api/orders/:id/location
+// @access  Private
+const getLiveLocation = async (req, res) => {
+    try {
+        const order = await Order.findById(req.params.id).select('liveLocation routePath trackingStatus distanceRemaining deliveryETA status');
+        if (!order) return res.status(404).json({ message: 'Order not found' });
+        res.json(order);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Manually flag an order delivery as delayed
+// @route   PUT /api/orders/:id/delay
+// @access  Private (Sales/Employee)
+const flagAsDelayed = async (req, res) => {
+    try {
+        const { reason } = req.body;
+        const order = await Order.findById(req.params.id);
+        
+        if (!order) return res.status(404).json({ message: 'Order not found' });
+        
+        order.trackingStatus = 'Delayed';
+        order.holdReason = reason || 'Traffic or customer unavailable';
+        await order.save();
+        
+        // Notify Manager
+        const Notification = require('../models/Notification');
+        await Notification.create({
+            title: `Delivery Delayed: ${order.orderNumber}`,
+            message: `Delivery has been flagged as delayed. Reason: ${order.holdReason}`,
+            type: 'alert',
+            role: 'Manager'
+        });
+
+        res.json(order);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 module.exports = {
     getOrders,
     createOrder,
@@ -805,5 +850,7 @@ module.exports = {
     createCustomerOrder,
     deleteOrder,
     employeeApprovePurchaseOrder,
-    cancelCustomerOrder
+    cancelCustomerOrder,
+    getLiveLocation,
+    flagAsDelayed
 };

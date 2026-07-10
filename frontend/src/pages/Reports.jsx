@@ -43,7 +43,7 @@ const ReportKPICard = ({ title, val, isUp, trend, subtitle, icon: Icon, color })
 };
 
 const Reports = () => {
-    const [activeTab, setActiveTab] = useState('Overview');
+
     const [loading, setLoading] = useState(true);
     const [dashData, setDashData] = useState(null);
 
@@ -62,7 +62,7 @@ const Reports = () => {
         fetchAll();
     }, []);
 
-    const tabs = ['Overview', 'Material', 'HRMS', 'ERP', 'CRM', 'Financial'];
+
 
     const formatCurrency = (val) => {
         if (!val) return '₹0';
@@ -140,7 +140,7 @@ const Reports = () => {
         
         // Add KPIs
         const kpiData = kpis.map(k => [k.title || '', String(k.value || ''), k.subtitle || '']);
-        doc.autoTable({
+        autoTable(doc, {
             startY: 40,
             head: [['Metric', 'Value', 'Description']],
             body: kpiData,
@@ -150,7 +150,7 @@ const Reports = () => {
         
         // Add Trend Data
         const trendTableData = trendData.map(t => [t.name || '', `Rs. ${t.currentYearProfit}`, `Rs. ${t.lastYearProfit}`]);
-        doc.autoTable({
+        autoTable(doc, {
             startY: (doc.lastAutoTable ? doc.lastAutoTable.finalY : 100) + 15,
             head: [['Month', 'Current Year Profit', 'Last Year Profit']],
             body: trendTableData,
@@ -190,17 +190,6 @@ const Reports = () => {
             <div className="analytics-header">
                 <div className="header-left">
                     <PageHeader title="Reports & Analytics" badge="ANALYTICS" subtitle="Business intelligence & performance reporting" />
-                    <div className="filter-tabs">
-                        {tabs.map(tab => (
-                            <button 
-                                key={tab} 
-                                className={`filter-tab ${activeTab === tab ? 'active' : ''}`}
-                                onClick={() => setActiveTab(tab)}
-                            >
-                                {tab}
-                            </button>
-                        ))}
-                    </div>
                 </div>
                 <div className="header-right">
                     <button className="btn-export" onClick={exportPDF}>

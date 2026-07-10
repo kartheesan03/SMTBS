@@ -38,8 +38,8 @@ const OrderSequelize = sequelize.define('Order', {
         allowNull: true
     },
     status: {
-        type: DataTypes.ENUM('Created', 'Pending Approval', 'Awaiting Approval', 'Approved', 'Pending', 'Confirmed', 'Processing', 'Shipped', 'Delivered', 'Rejected', 'Cancelled', 'Awaiting Stock Check', 'Ready for Delivery', 'Low Stock Alert'),
-        defaultValue: 'Pending Approval'
+        type: DataTypes.ENUM('New', 'Assigned to Employee', 'Material Confirmed', 'Ready for Delivery', 'Out for Delivery', 'Delivered', 'On Hold', 'Created', 'Pending Approval', 'Awaiting Approval', 'Approved', 'Pending', 'Confirmed', 'Processing', 'Shipped', 'Rejected', 'Cancelled', 'Awaiting Stock Check', 'Low Stock Alert'),
+        defaultValue: 'New'
     },
     approvalStatus: {
         type: DataTypes.ENUM('Pending', 'Pending Manager Approval', 'Manager Approved', 'Employee Approved', 'Approved', 'Rejected'),
@@ -59,6 +59,38 @@ const OrderSequelize = sequelize.define('Order', {
     },
     employeeId: {
         type: DataTypes.INTEGER,
+        allowNull: true
+    },
+    liveLocation: {
+        type: DataTypes.JSON, // { lat, lng, timestamp }
+        allowNull: true
+    },
+    routePath: {
+        type: DataTypes.JSON, // array of { lat, lng, timestamp }
+        allowNull: true
+    },
+    deliveryETA: {
+        type: DataTypes.DATE,
+        allowNull: true
+    },
+    distanceRemaining: {
+        type: DataTypes.DOUBLE,
+        allowNull: true
+    },
+    trackingStatus: {
+        type: DataTypes.ENUM('Not Started', 'En Route', 'Delayed', 'Arrived', 'Delivered'),
+        defaultValue: 'Not Started'
+    },
+    sourcedLocation: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    deliveryNotes: {
+        type: DataTypes.TEXT,
+        allowNull: true
+    },
+    holdReason: {
+        type: DataTypes.TEXT,
         allowNull: true
     },
     approvedById: {

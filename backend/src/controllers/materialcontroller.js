@@ -5,6 +5,20 @@ const { notifyManager, notifyCritical } = require('../services/notificationServi
 const { logAudit, buildChanges } = require('../services/auditService');
 const Notification = require('../models/Notification');
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+/**
+ * Derive a canonical location string from warehouse + shelf.
+ * e.g. ("Warehouse A", "Shelf 4") → "Warehouse A / Shelf 4"
+ *       ("Warehouse A", "")        → "Warehouse A"
+ */
+const deriveLocation = (warehouse, shelf) => {
+    const w = (warehouse || '').trim();
+    const s = (shelf || '').trim();
+    if (w && s) return `${w} / ${s}`;
+    return w || s || null;
+};
+
 const handleStockStatusNotifications = async (material, previousStatus, newStatus) => {
     if (previousStatus === newStatus) return;
 
@@ -99,7 +113,7 @@ const getMaterials = async (req, res) => {
 // @route   POST /api/materials
 // @access  Private/Admin
 const createMaterial = async (req, res) => {
-    const { name, sku, category, quantity, lowStockThreshold, unit, price, vendorId } = req.body;
+    const { name, sku, category, quantity, lowStockThreshold, unit, price, vendorId, warehouse, shelf, gpsStatus } = req.body;
     try {
         let status = 'In Stock';
         if (Number(quantity) === 0) {
@@ -107,7 +121,18 @@ const createMaterial = async (req, res) => {
         } else if (Number(quantity) < Number(lowStockThreshold)) {
             status = 'Low Stock';
         }
-        const createdMaterial = await Material.create({ name, sku, category, quantity, lowStockThreshold, unit, price, status, vendorId });
+
+        // Derive unified location string
+        const location = deriveLocation(warehouse, shelf);
+
+        const createdMaterial = await Material.create({
+            name, sku, category, quantity, lowStockThreshold, unit, price, status, vendorId,
+            warehouse: (warehouse || '').trim() || null,
+            shelf: (shelf || '').trim() || null,
+            location,
+            gpsStatus: gpsStatus || 'At Warehouse',
+            locationUpdatedAt: location ? new Date() : null
+        });
 
         // Log material movement
         if (Number(quantity) > 0) {
@@ -128,7 +153,7 @@ const createMaterial = async (req, res) => {
             action: 'CREATE',
             module: 'Material',
             targetId: createdMaterial._id,
-            description: `Material created: ${name} (SKU: ${sku}) with ${quantity} ${unit}`,
+            description: `Material created: ${name} (SKU: ${sku}) with ${quantity} ${unit}${location ? ` at ${location}` : ''}`,
             ipAddress: req.ip
         });
 
@@ -152,7 +177,7 @@ const createMaterial = async (req, res) => {
 // @route   PUT /api/materials/:id
 // @access  Private/Admin/Manager
 const updateMaterial = async (req, res) => {
-    const { name, sku, category, quantity, lowStockThreshold, unit, price, vendorId } = req.body;
+    const { name, sku, category, quantity, lowStockThreshold, unit, price, vendorId, warehouse, shelf, gpsStatus } = req.body;
     try {
         const material = await Material.findById(req.params.id);
         if (material) {
@@ -166,7 +191,33 @@ const updateMaterial = async (req, res) => {
             material.unit = unit || material.unit;
             material.price = price !== undefined ? price : material.price;
             if (vendorId !== undefined) material.vendorId = vendorId;
-            
+
+            // Update location fields if provided
+            if (warehouse !== undefined || shelf !== undefined) {
+                const newWarehouse = warehouse !== undefined ? (warehouse || '').trim() : (material.warehouse || '');
+                const newShelf = shelf !== undefined ? (shelf || '').trim() : (material.shelf || '');
+                material.warehouse = newWarehouse || null;
+                material.shelf = newShelf || null;
+                material.location = deriveLocation(newWarehouse, newShelf);
+                material.locationUpdatedAt = new Date();
+            }
+            if (gpsStatus !== undefined && gpsStatus !== material.gpsStatus) {
+                material.gpsStatus = gpsStatus;
+                material.locationUpdatedAt = new Date();
+                
+                if (gpsStatus === 'In Transit') {
+                    material.deliveryDispatchedAt = new Date();
+                    material.deliveryEta = new Date(Date.now() + 2 * 60 * 60 * 1000);
+                } else if (gpsStatus === 'Delivered') {
+                    material.deliveryCompletedAt = new Date();
+                } else if (gpsStatus === 'At Warehouse') {
+                    material.deliveryDispatchedAt = null;
+                    material.deliveryCompletedAt = null;
+                    material.deliveryEta = null;
+                    material.deliveryDestination = null;
+                }
+            }
+
             const previousStatus = material.status;
             if (material.quantity === 0) {
                 material.status = 'Out of Stock';
@@ -174,7 +225,7 @@ const updateMaterial = async (req, res) => {
                 material.status = 'Low Stock';
             } else {
                 material.status = 'In Stock';
-            }    
+            }
 
             const newStatus = material.status;
 
@@ -225,6 +276,95 @@ const updateMaterial = async (req, res) => {
         } else {
             res.status(404).json({ message: 'Material not found' });
         }
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+};
+
+// @desc    Update material location / GPS status only
+// @route   PUT /api/materials/:id/location
+// @access  Private/Admin/Manager
+// Called by the GPS Tracking module when an operator marks a status change.
+const updateMaterialLocation = async (req, res) => {
+    const { warehouse, shelf, gpsStatus, deliveryDestination } = req.body;
+    try {
+        const material = await Material.findById(req.params.id);
+        if (!material) return res.status(404).json({ message: 'Material not found' });
+
+        const previousLocation = material.location;
+        const previousGpsStatus = material.gpsStatus;
+
+        const newWarehouse = warehouse !== undefined ? (warehouse || '').trim() : (material.warehouse || '');
+        const newShelf = shelf !== undefined ? (shelf || '').trim() : (material.shelf || '');
+        const newLocation = deriveLocation(newWarehouse, newShelf);
+        const newGpsStatus = gpsStatus || material.gpsStatus;
+        const newDestination = deliveryDestination !== undefined ? deliveryDestination : material.deliveryDestination;
+
+        const locationChanged = newLocation !== previousLocation;
+        const statusChanged = newGpsStatus !== previousGpsStatus;
+        const destChanged = newDestination !== material.deliveryDestination;
+
+        if (!locationChanged && !statusChanged && !destChanged) {
+            return res.json({ message: 'No changes detected', material });
+        }
+
+        material.warehouse = newWarehouse || null;
+        material.shelf = newShelf || null;
+        material.location = newLocation;
+        material.gpsStatus = newGpsStatus;
+        material.deliveryDestination = newDestination;
+        
+        if (statusChanged) {
+            if (newGpsStatus === 'In Transit') {
+                material.deliveryDispatchedAt = new Date();
+                material.deliveryCompletedAt = null;
+                // Mock an ETA of 2 hours from now
+                material.deliveryEta = new Date(Date.now() + 2 * 60 * 60 * 1000);
+                if (!material.deliveryDestination) {
+                     material.deliveryDestination = 'Mock Customer Site X';
+                }
+            } else if (newGpsStatus === 'Delivered') {
+                material.deliveryCompletedAt = new Date();
+            } else if (newGpsStatus === 'At Warehouse') {
+                material.deliveryDispatchedAt = null;
+                material.deliveryCompletedAt = null;
+                material.deliveryEta = null;
+                material.deliveryDestination = null;
+            }
+        }
+        
+        material.locationUpdatedAt = new Date();
+
+        const updatedMaterial = await material.save();
+
+        // Create a movement record so Movement Tracking captures this event
+        const reasonParts = [];
+        if (statusChanged) reasonParts.push(`GPS status: ${previousGpsStatus} → ${newGpsStatus}`);
+        if (destChanged) reasonParts.push(`Destination: ${newDestination}`);
+        if (locationChanged) reasonParts.push(`Location: ${previousLocation || 'N/A'} → ${newLocation || 'N/A'}`);
+        const reason = reasonParts.join('; ');
+
+        await MaterialMovement.create({
+            materialId: updatedMaterial._id || updatedMaterial.id,
+            type: 'Adjustment',
+            quantity: 0,
+            previousQuantity: updatedMaterial.quantity,
+            newQuantity: updatedMaterial.quantity,
+            reason,
+            performedById: req.user?._id || null
+        });
+
+        // Audit log
+        await logAudit({
+            user: req.user,
+            action: 'UPDATE',
+            module: 'Material',
+            targetId: updatedMaterial._id,
+            description: `Location/GPS updated for ${updatedMaterial.name}: ${reason}`,
+            ipAddress: req.ip
+        });
+
+        res.json(updatedMaterial);
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
@@ -367,29 +507,35 @@ const getMaterialMovements = async (req, res) => {
     }
 };
 
-// @desc    Get all material movements
+// @desc    Get all material movements (enriched with location data)
 // @route   GET /api/materials/movements/all
 // @access  Private
 const getAllMovements = async (req, res) => {
     try {
-        // Find all movements and populate material and performedBy details
+        // Find all movements sorted newest-first, limited to 100
         const movements = await MaterialMovement.find({})
             .sort({ createdAt: -1 })
             .limit(100);
-            
-        // We'll fetch all materials manually to do the join properly since no mongoose populate on mongoose-bridge for Material
+
+        // Fetch all materials to do the join (mongoose-bridge doesn't support populate for Material)
         const materials = await Material.find({});
         const matMap = {};
-        materials.forEach(m => matMap[m.id || m._id] = m);
+        materials.forEach(m => {
+            const key = String(m.id || m._id);
+            matMap[key] = m;
+        });
 
-        // Map data to include material name and SKU
+        // Enrich movements with material name, SKU, location, and gpsStatus
         const enrichedMovements = movements.map(m => {
             const mObj = m.toJSON ? m.toJSON() : m;
-            const mat = matMap[mObj.materialId];
+            const mat = matMap[String(mObj.materialId)];
             return {
                 ...mObj,
-                materialName: mat ? mat.name : 'Unknown',
-                materialSku: mat ? mat.sku : 'N/A'
+                materialName:      mat ? mat.name        : 'Unknown',
+                materialSku:       mat ? mat.sku         : 'N/A',
+                materialLocation:  mat ? (mat.location || mat.warehouse || null) : null,
+                materialGpsStatus: mat ? (mat.gpsStatus || 'Stationary') : null,
+                materialId:        mObj.materialId
             };
         });
 
@@ -564,6 +710,8 @@ const getMaterialById = async (req, res) => {
 };
 
 module.exports = {
-    getTimeline, getMaterials, createMaterial, updateMaterial, 
-    deleteMaterial, getLowStockMaterials, recalculateStockStatus, getLowStockCount, getMaterialMovements, getAllMovements, 
-    getMaterialAnalytics, archiveMaterial, getMaterialList, getMaterialById };
+    getTimeline, getMaterials, createMaterial, updateMaterial, updateMaterialLocation,
+    deleteMaterial, getLowStockMaterials, recalculateStockStatus, getLowStockCount,
+    getMaterialMovements, getAllMovements, getMaterialAnalytics, archiveMaterial,
+    getMaterialList, getMaterialById
+};

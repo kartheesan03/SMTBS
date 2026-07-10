@@ -1,5 +1,5 @@
 import React from 'react';
-
+import './PageHeader.css';
 /**
  * PageHeader — standardized page title + module badge + optional subtitle.
  * Matches the Attendance Tracker reference style across the entire app.

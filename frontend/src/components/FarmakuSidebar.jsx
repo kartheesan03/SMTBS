@@ -42,7 +42,7 @@ const FarmakuSidebar = () => {
     useEffect(() => {
         const fetchNavigation = async () => {
             try {
-                const response = await API.get('/system/navigation');
+                const response = await API.get(`/system/navigation?t=${Date.now()}`);
                 setNavigation(response.data);
             } catch (error) {
                 console.error("Failed to load navigation:", error);
@@ -132,8 +132,7 @@ const FarmakuSidebar = () => {
                         </svg>
                     </div>
                     <div className="farmaku-logo-text-wrapper">
-                        <span className="farmaku-logo-text">SMTBMS</span>
-                        <span className="farmaku-logo-subtext">Smart Material Tracking &<br/>Business Management System</span>
+                        <span className="farmaku-logo-text" style={{ fontSize: '15px' }}>SMTBMS</span>
                     </div>
                 </div>
             </div>

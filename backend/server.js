@@ -28,6 +28,9 @@ const backupRoutes = require('./src/routes/backupRoutes');
 const systemRoutes = require('./src/routes/systemRoutes');
 const roleRoutes = require('./src/routes/roleRoutes');
 const projectRoutes = require('./src/routes/projectRoutes');
+const quotationRoutes = require('./src/routes/quotationRoutes');
+const salesGoalRoutes = require('./src/routes/salesGoalRoutes');
+const locationRoutes = require('./src/routes/locationRoutes');
 
 const app = express();
 
@@ -46,6 +49,7 @@ app.use('/api/employees', employeeRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/attendance', attendanceRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/quotations', quotationRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/vendors', vendorRoutes);
 app.use('/api/notifications', notificationRoutes);
@@ -55,12 +59,14 @@ app.use('/api/tasks', taskRoutes);
 app.use('/api/tickets', ticketRoutes);
 app.use('/api/erp', erpRoutes);
 app.use('/api/communications', communicationRoutes);
+app.use('/api/locations', locationRoutes);
 app.use('/api/audit-logs', auditRoutes);
 app.use('/api/stock-requests', stockRequestRoutes);
 app.use('/api/backup', backupRoutes);
 app.use('/api/system', systemRoutes);
 app.use('/api/roles', roleRoutes);
 app.use('/api/projects', projectRoutes);
+app.use('/api/sales-goals', salesGoalRoutes);
 
 // 404 Handler
 app.use((req, res, next) => {
@@ -87,9 +93,13 @@ const { autoMarkAbsent } = require('./src/controllers/attendanceController');
 const startServer = async () => {
     try {
         await connectDB();
+        const gpsSimulator = require('./src/services/gpsSimulator');
         app.listen(PORT, () => {
             console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
             
+            // Start GPS Simulation engine
+            gpsSimulator.start();
+
             // Start the background job for marking absentees at 6:00 PM IST
             const cron = require('node-cron');
             cron.schedule('0 18 * * *', () => {

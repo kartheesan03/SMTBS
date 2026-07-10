@@ -62,6 +62,7 @@ const SelectCustomer = React.lazy(() => import('./pages/SelectCustomer'));
 const SelectVendor = React.lazy(() => import('./pages/SelectVendor'));
 const BarcodeManagement = React.lazy(() => import('./pages/BarcodeManagement'));
 const GPSTracking = React.lazy(() => import('./pages/GPSTracking'));
+const OrderKanban = React.lazy(() => import('./pages/OrderKanban'));
 const AccessDenied = React.lazy(() => import('./pages/AccessDenied'));
 const CustomerDetails = React.lazy(() => import('./pages/CustomerDetails'));
 const CustomerProfileSettings = React.lazy(() => import('./pages/CustomerProfileSettings'));
@@ -85,6 +86,12 @@ const VendorDashboard = React.lazy(() => import('./pages/VendorDashboard'));
 const RevenueDashboard = React.lazy(() => import('./pages/RevenueDashboard'));
 const CustomerNewOrder = React.lazy(() => import('./pages/CustomerNewOrder'));
 const UserManagement = React.lazy(() => import('./pages/UserManagement'));
+const Quotations = React.lazy(() => import('./pages/Quotations'));
+const CreateQuotation = React.lazy(() => import('./pages/CreateQuotation'));
+const QuotationDetails = React.lazy(() => import('./pages/QuotationDetails'));
+const EmployeeScanner = React.lazy(() => import('./pages/EmployeeScanner'));
+const SalesGoals = React.lazy(() => import('./pages/SalesGoals'));
+
 const AppContent = () => {
     const { user, loading, logout } = useContext(AuthContext);
     
@@ -193,11 +200,12 @@ const AppContent = () => {
                     <Route path="/employees/:id" element={<ProtectedRoute requiredPermission="view_hrms"><EmployeeDetails /></ProtectedRoute>} />
                     <Route path="/employees/new" element={<ProtectedRoute requiredPermission="view_hrms"><AddEmployee /></ProtectedRoute>} />
                     
-                    {/* Role Specific Protected Routes */}
                     <Route path="/materials/new" element={<ProtectedRoute requiredPermission="view_hrms"><AddMaterial /></ProtectedRoute>} />
                     <Route path="/materials/barcode" element={<ProtectedRoute><BarcodeManagement /></ProtectedRoute>} />
-                    <Route path="/materials/gps" element={<ProtectedRoute><GPSTracking /></ProtectedRoute>} />
+                    <Route path="/gps-tracking" element={<ProtectedRoute><GPSTracking /></ProtectedRoute>} />
+                    <Route path="/materials/gps" element={<Navigate to="/gps-tracking" replace />} />
                     <Route path="/my-materials/gps" element={<ProtectedRoute requiredPermission="view_materials_self"><ComingSoonPage title="GPS Tracking" subtitle="GPS location tracking is available for admin users." /></ProtectedRoute>} />
+
                     <Route path="/materials/:id/edit" element={<ProtectedRoute requiredPermission="manage_materials"><AddMaterial isEditMode={true} /></ProtectedRoute>} />
                     <Route path="/materials/:id" element={<ProtectedRoute requiredPermission="view_materials"><MaterialDetails /></ProtectedRoute>} />
                     <Route path="/materials" element={<ProtectedRoute requiredPermission="view_materials"><Materials /></ProtectedRoute>} />
@@ -205,7 +213,7 @@ const AppContent = () => {
                     <Route path="/my-materials/inventory" element={<ProtectedRoute requiredPermission="view_materials_self"><MyMaterials /></ProtectedRoute>} />
                     <Route path="/my-materials/requests" element={<ProtectedRoute requiredPermission="view_materials_self"><MyMaterials /></ProtectedRoute>} />
                     <Route path="/my-materials/stock" element={<ProtectedRoute requiredPermission="view_materials_self"><MyMaterials /></ProtectedRoute>} />
-                    <Route path="/my-materials/barcode" element={<ProtectedRoute requiredPermission="view_materials_self"><ComingSoonPage title="Employee Barcode Scanner" subtitle="Self-service barcode scanning is coming soon." /></ProtectedRoute>} />
+                    <Route path="/my-materials/barcode" element={<ProtectedRoute requiredPermission="view_materials_self"><EmployeeScanner /></ProtectedRoute>} />
                     <Route path="/payroll" element={<ProtectedRoute requiredPermission="view_hrms"><Payroll /></ProtectedRoute>} />
                     <Route path="/payroll/generate" element={<ProtectedRoute requiredPermission="view_hrms"><GeneratePayroll /></ProtectedRoute>} />
                     <Route path="/payroll/payment/:id" element={<ProtectedRoute requiredPermission="view_hrms"><PayrollPayment /></ProtectedRoute>} />
@@ -216,11 +224,13 @@ const AppContent = () => {
                     <Route path="/team-performance" element={<ProtectedRoute requiredPermission="view_hrms"><TeamPerformance /></ProtectedRoute>} />
                     <Route path="/erp" element={<ProtectedRoute requiredPermission="view_erp"><ERP /></ProtectedRoute>} />
                     <Route path="/orders" element={<ProtectedRoute requiredPermission="view_erp"><OrderManagement /></ProtectedRoute>} />
+                    <Route path="/orders/purchase" element={<ProtectedRoute requiredPermission="view_erp"><OrderManagement /></ProtectedRoute>} />
                     <Route path="/orders/select-type" element={<OrderCreationRoute><SelectOrderType /></OrderCreationRoute>} />
                     <Route path="/erp/customers/select" element={<OrderCreationRoute><SelectCustomer /></OrderCreationRoute>} />
                     <Route path="/erp/vendors/select" element={<OrderCreationRoute><SelectVendor /></OrderCreationRoute>} />
                     <Route path="/orders/create/:orderType" element={<OrderCreationRoute><CreateOrder /></OrderCreationRoute>} />
                     <Route path="/orders/:orderId/tracking" element={<ProtectedRoute requiredPermission="view_erp"><OrderTracking /></ProtectedRoute>} />
+                    <Route path="/order-kanban" element={<ProtectedRoute><OrderKanban /></ProtectedRoute>} />
                     <Route path="/tracking-overview" element={<ProtectedRoute><TrackingDashboard /></ProtectedRoute>} />
                     <Route path="/crm" element={<ProtectedRoute requiredPermission="view_crm"><Customers /></ProtectedRoute>} />
                     <Route path="/crm/add-customer" element={<ProtectedRoute requiredPermission="view_crm"><AddCustomer /></ProtectedRoute>} />
@@ -231,8 +241,10 @@ const AppContent = () => {
                     <Route path="/crm/customers" element={<ProtectedRoute requiredPermission="view_crm"><Customers directoryOnly={true} /></ProtectedRoute>} />
                     <Route path="/customers" element={<Navigate to="/crm/customers" replace />} />
                     <Route path="/sales/revenue" element={<ProtectedRoute requiredPermission="view_crm"><RevenueDashboard /></ProtectedRoute>} />
-                    <Route path="/sales/goals" element={<ProtectedRoute requiredPermission="view_crm"><ComingSoonPage title="Sales Goals" subtitle="Sales targeting and team goals will be available shortly." /></ProtectedRoute>} />
-                    <Route path="/quotations" element={<ProtectedRoute requiredPermission="view_crm"><ComingSoonPage title="Quotations" subtitle="Quotation and proposal generation will be enabled soon." /></ProtectedRoute>} />
+                    <Route path="/sales/goals" element={<ProtectedRoute requiredPermission="view_crm"><SalesGoals /></ProtectedRoute>} />
+                    <Route path="/quotations" element={<ProtectedRoute requiredPermission="view_crm"><Quotations /></ProtectedRoute>} />
+                    <Route path="/quotations/create" element={<ProtectedRoute requiredPermission="view_crm"><CreateQuotation /></ProtectedRoute>} />
+                    <Route path="/quotations/:id" element={<ProtectedRoute requiredPermission="view_crm"><QuotationDetails /></ProtectedRoute>} />
                     
                     <Route path="/vendors" element={<ProtectedRoute requiredPermission="view_erp"><Vendors /></ProtectedRoute>} />
                     <Route path="/vendors/add-vendor" element={<ProtectedRoute requiredPermission="view_erp"><AddVendor /></ProtectedRoute>} />

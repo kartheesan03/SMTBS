@@ -20,7 +20,7 @@ const navigationConfig = [
             { title: 'Movement Tracking', path: '/tracking-overview' },
             { title: 'Stock Monitoring', path: '/stock-requests' },
             { title: 'Barcode / QR', path: '/materials/barcode' },
-            { title: 'GPS Tracking', path: '/materials/gps' }
+            { title: 'GPS Tracking', path: '/gps-tracking' }
         ]
     },
     {
@@ -56,7 +56,7 @@ const navigationConfig = [
         children: [
             { title: 'Procurement', path: '/erp' },
             { title: 'Vendor Management', path: '/vendors' },
-            { title: 'Financial Tracking', path: '/erp/finance' },
+            { title: 'Financial Operations', path: '/erp/finance' },
             { title: 'Order Management', path: '/orders' }
         ]
     },
@@ -79,7 +79,6 @@ const navigationConfig = [
         permission: 'view_tasks',
         children: [
             { title: 'All Tasks', path: '/tasks' },
-            { title: 'Assigned Tasks', path: '/tasks/assigned' },
             { title: 'Projects', path: '/projects' }
         ]
     },

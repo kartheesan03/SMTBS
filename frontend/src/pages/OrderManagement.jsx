@@ -23,8 +23,12 @@ const OrderManagement = () => {
             else if (data && Array.isArray(data.orders)) extractedOrders = data.orders;
             else if (data && Array.isArray(data.data)) extractedOrders = data.data;
 
-            // Only sales orders for Order Management
-            setOrders(extractedOrders.filter(o => (o.orderType || '').toLowerCase().includes('sales')));
+            const isPurchase = window.location.pathname.includes('purchase');
+            
+            // Filter by orderType
+            setOrders(extractedOrders.filter(o => 
+                (o.orderType || '').toLowerCase() === (isPurchase ? 'purchase' : 'sales')
+            ));
         } catch (err) {
             console.error(err);
             toast.error("Failed to load orders.");
@@ -69,12 +73,14 @@ const OrderManagement = () => {
     });
 
     const statusDistData = [
-        { name: 'Confirmed', value: orders.filter(o => o.status === 'Confirmed').length || 0, fill: '#3b82f6' },
-        { name: 'Processing', value: orders.filter(o => o.status === 'Processing').length || 0, fill: '#8b5cf6' },
-        { name: 'Dispatched', value: orders.filter(o => o.status === 'Dispatched').length || 0, fill: '#0ea5e9' },
-        { name: 'Delivered', value: orders.filter(o => ['Delivered', 'Completed'].includes(o.status)).length || 0, fill: '#10b981' },
-        { name: 'Cancelled', value: orders.filter(o => o.status === 'Cancelled').length || 0, fill: '#ef4444' }
-    ].filter(item => item.value > 0);
+        { name: 'New', value: orders.filter(o => o.status === 'New').length || 0, fill: '#3b82f6' },
+        { name: 'Assigned', value: orders.filter(o => o.status === 'Assigned to Employee').length || 0, fill: '#8b5cf6' },
+        { name: 'Confirmed', value: orders.filter(o => o.status === 'Material Confirmed').length || 0, fill: '#0ea5e9' },
+        { name: 'Ready', value: orders.filter(o => ['Ready for Delivery'].includes(o.status)).length || 0, fill: '#f59e0b' },
+        { name: 'Delivered', value: orders.filter(o => ['Out for Delivery', 'Delivered'].includes(o.status)).length || 0, fill: '#10b981' },
+        { name: 'On Hold', value: orders.filter(o => o.status === 'On Hold').length || 0, fill: '#ef4444' }
+    ];
+
     if(statusDistData.length === 0) {
         statusDistData.push({ name: 'No Data', value: 1, fill: '#e2e8f0' });
     }
@@ -115,8 +121,8 @@ const OrderManagement = () => {
                 <div className="rd-module-header">
                     <div className="rd-module-info">
                         <div className="rd-module-title-row">
-                            <span className="rd-module-title">Order Management</span>
-                            <span className="rd-module-badge">ORDERS</span>
+                            <span className="rd-module-title">{window.location.pathname.includes('purchase') ? 'Purchase Orders' : 'Sales Orders'}</span>
+                            <span className="rd-module-badge">{window.location.pathname.includes('purchase') ? 'PROCUREMENT' : 'SALES'}</span>
                         </div>
                         </div>
                 </div>
@@ -204,8 +210,8 @@ const OrderManagement = () => {
                 >
                     <div className="rd-table-header" style={{borderBottom: '1px solid var(--rd-border)', flexWrap: 'wrap', gap: 16}}>
                         <div>
-                            <div className="rd-table-title">Sales Order Register</div>
-                            <div className="rd-table-subtitle">All customer orders and delivery tracking</div>
+                            <div className="rd-table-title">{window.location.pathname.includes('purchase') ? 'Purchase Order Register' : 'Sales Order Register'}</div>
+                            <div className="rd-table-subtitle">All {window.location.pathname.includes('purchase') ? 'vendor orders and supply tracking' : 'customer orders and delivery tracking'}</div>
                         </div>
                         <div className="rd-table-actions" style={{flexWrap: 'wrap'}}>
                             <div className="rd-search-bar" style={{minWidth: 220, flexShrink: 0, background: '#f8fafc'}}>
@@ -223,7 +229,7 @@ const OrderManagement = () => {
                                         }}>{f}</button>
                                 ))}
                             </div>
-                            <button className="rd-btn-solid" onClick={() => navigate('/orders/create/sales')}>+ New Order</button>
+                            <button className="rd-btn-solid" onClick={() => navigate(`/orders/create/${window.location.pathname.includes('purchase') ? 'purchase' : 'sales'}`)}>+ New Order</button>
                         </div>
                     </div>
 
@@ -250,12 +256,13 @@ const OrderManagement = () => {
                                 const orderId = o.orderNumber || '—';
                                 const status = o.status || '—';
                                 const statusColors = {
-                                    'Confirmed': 'rd-status-blue',
-                                    'Processing': 'rd-status-purple',
-                                    'Dispatched': 'rd-status-blue',
+                                    'New': 'rd-status-blue',
+                                    'Assigned to Employee': 'rd-status-purple',
+                                    'Material Confirmed': 'rd-status-orange',
+                                    'Ready for Delivery': 'rd-status-blue',
+                                    'Out for Delivery': 'rd-status-blue',
                                     'Delivered': 'rd-status-green',
-                                    'Completed': 'rd-status-green',
-                                    'Cancelled': 'rd-status-red'
+                                    'On Hold': 'rd-status-red'
                                 };
                                 const priorityColors = {
                                     'High': {color: '#ef4444', bg: '#fef2f2'},

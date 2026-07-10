@@ -97,24 +97,21 @@ const Login = () => {
             <div className="auth-brand-panel">
                 {/* Logo */}
                 <div className="brand-header">
-                    <div className="logo-icon-wrap">
-                        <SmtbmsLogo size={24} showText={false} />
-                    </div>
-                    <span className="brand-text">SMTBMS</span>
+                    <SmtbmsLogo size={48} showText={true} showTagline={true} title="Smart Material Tracking & Business Management System" />
                 </div>
 
                 {/* Content */}
                 <div className="brand-content">
                     <h1 className="brand-headline">Every material,<br/>tracked in real time.</h1>
                     <p className="brand-subheadline">
-                        Command your operations with precision. Live GPS, automated inventory, and unified workforce management.
+                        Command your operations with precision. Automated inventory, dynamic tracking, and unified workforce management.
                     </p>
 
                     {/* Features Grid */}
                     <div className="features-compact-grid">
                         <div className="feature-item">
                             <Map size={16} className="feature-icon" />
-                            <span>Live GPS Tracking</span>
+                            <span>Material Tracking</span>
                         </div>
                         <div className="feature-item">
                             <Box size={16} className="feature-icon" />

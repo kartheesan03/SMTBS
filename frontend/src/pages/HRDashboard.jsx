@@ -230,57 +230,24 @@ const HRDashboard = () => {
                 <div className="rd-chart-row-wide">
                     <div className="dashboard-panel">
                         <div className="panel-header">
-                            <div className="panel-title">Workforce Trend</div>
-                            <select 
-                                className="panel-dropdown" 
-                                style={{ paddingRight: '24px', width: 'auto' }}
-                                value={revenueTrendYear} 
-                                onChange={(e) => setRevenueTrendYear(e.target.value)}
-                            >
-                                <option value="current">This Year</option>
-                                <option value="last">Last Year</option>
-                            </select>
+                            <div className="panel-title">Salary Distribution</div>
                         </div>
                         <div style={{ height: 220, width: '100%' }}>
-                            {(!dashboardData?.analytics?.hrTrend || dashboardData.analytics.hrTrend.length === 0) ? (
-                                <EmptyState title="No Trend Data" message="No workforce trend data available yet." height={220} />
+                            {(!dashboardData?.hrStats?.salaryDistribution || dashboardData.hrStats.salaryDistribution.length === 0) ? (
+                                <EmptyState title="No Salary Data" message="No salary distribution data available." height={220} />
                             ) : (
                                 <ResponsiveContainer width="100%" height="100%">
-                                    <LineChart data={dashboardData.analytics.hrTrend} margin={{top:4, right:10, left:0, bottom:0}}>
-                                        <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false}/>
-                                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 11, fill: '#94a3b8'}} dy={8}/>
-                                        <YAxis axisLine={false} tickLine={false} tick={{fontSize: 11, fill: '#94a3b8'}} width={48} tickFormatter={(val) => val >= 1000 ? `${(val/1000).toFixed(0)}k` : val}/>
-                                        <Tooltip contentStyle={{fontSize: 12, borderRadius: 8, border: '1px solid #e2e8f0'}} />
-                                        <Legend iconType="circle" wrapperStyle={{fontSize: '12px'}} verticalAlign="top" height={36} />
-                                        <Line 
-                                            type="monotone" 
-                                            dataKey={revenueTrendYear === 'current' ? "newHires" : "lastNewHires"} 
-                                            name="New Hires" 
-                                            stroke="#3b82f6" 
-                                            strokeWidth={2} 
-                                            dot={false} 
-                                            activeDot={{ r: 6 }} 
-                                        />
-                                        <Line 
-                                            type="monotone" 
-                                            dataKey={revenueTrendYear === 'current' ? "attrition" : "lastAttrition"} 
-                                            name="Attrition" 
-                                            stroke="#f59e0b" 
-                                            strokeWidth={2} 
-                                            dot={false} 
-                                            activeDot={{ r: 6 }} 
-                                        />
-                                        <Line 
-                                            type="monotone" 
-                                            dataKey={revenueTrendYear === 'current' ? "trainingHours" : "lastTrainingHours"} 
-                                            name="Training Hours" 
-                                            stroke="#10b981" 
-                                            strokeWidth={2} 
-                                            dot={false} 
-                                            activeDot={{ r: 6 }} 
-                                        />
-                                    </LineChart>
-                                </ResponsiveContainer>
+                                    <BarChart 
+                                        data={dashboardData.hrStats.salaryDistribution}
+                                        margin={{top:10, right:10, left:0, bottom:0}}
+                                    >
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false}/>
+                                    <XAxis dataKey="range" axisLine={false} tickLine={false} tick={{fontSize: 11, fill: '#94a3b8'}} dy={8}/>
+                                    <YAxis axisLine={false} tickLine={false} tick={{fontSize: 11, fill: '#94a3b8'}} width={35} />
+                                    <Tooltip cursor={{fill: '#f8fafc'}} contentStyle={{fontSize: 12, borderRadius: 8, border: '1px solid #e2e8f0'}} />
+                                    <Bar dataKey="count" name="Employees" fill="#6366f1" radius={[4, 4, 0, 0]} barSize={40} />
+                                </BarChart>
+                            </ResponsiveContainer>
                             )}
                         </div>
                     </div>
@@ -520,15 +487,6 @@ const HRDashboard = () => {
 
                 </div>
 
-                {/* ── 6. Footer ── */}
-                <div className="dashboard-footer">
-                    <div><Calendar size={12} style={{display:'inline',marginRight:4}}/> Current FY: 2026 - 2027</div>
-                    <div><Layers size={12} style={{display:'inline',marginRight:4}}/> HR Module v2.5.1</div>
-                    <div><Clock size={12} style={{display:'inline',marginRight:4}}/> Last Backup: 03 Jul 2026, 02:30 AM</div>
-                    <div className="footer-item" style={{color: '#10b981'}}>
-                        <div className="footer-dot"></div> All Systems Operational
-                    </div>
-                </div>
 
             </div>
             <CommandCenter isOpen={isCommandCenterOpen} onClose={() => setIsCommandCenterOpen(false)} />

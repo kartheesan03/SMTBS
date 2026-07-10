@@ -10,7 +10,8 @@ const AddMaterial = ({ isEditMode = false }) => {
     const navigate = useNavigate();
     const { id } = useParams();
     const [formData, setFormData] = useState({
-        name: '', sku: '', category: '', quantity: 0, lowStockThreshold: 10, unit: 'pcs', price: 0, vendorId: ''
+        name: '', sku: '', category: '', quantity: 0, lowStockThreshold: 10, unit: 'pcs', price: 0, vendorId: '',
+        warehouse: '', shelf: ''
     });
     const [vendors, setVendors] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -44,7 +45,9 @@ const AddMaterial = ({ isEditMode = false }) => {
                 lowStockThreshold: data.lowStockThreshold || 10, 
                 unit: data.unit || 'pcs', 
                 price: data.price || 0, 
-                vendorId: data.vendorId || (data.vendor && data.vendor._id) || ''
+                vendorId: data.vendorId || (data.vendor && data.vendor._id) || '',
+                warehouse: data.warehouse || '',
+                shelf: data.shelf || ''
             });
         } catch (err) {
             toast.error('Failed to fetch material data');
@@ -188,6 +191,26 @@ const AddMaterial = ({ isEditMode = false }) => {
                                 step="0.01" 
                                 value={formData.price} 
                                 onChange={e => setFormData({...formData, price: Number(e.target.value)})} 
+                            />
+                        </FormGroup>
+                    </div>
+                </FormSection>
+                <FormSection title="Location Details">
+                    <div className="ui-grid-2">
+                        <FormGroup label="Warehouse / Storage Area">
+                            <Input 
+                                type="text" 
+                                value={formData.warehouse} 
+                                onChange={e => setFormData({...formData, warehouse: e.target.value})} 
+                                placeholder="e.g. Warehouse A"
+                            />
+                        </FormGroup>
+                        <FormGroup label="Shelf / Bin (Optional)">
+                            <Input 
+                                type="text" 
+                                value={formData.shelf} 
+                                onChange={e => setFormData({...formData, shelf: e.target.value})} 
+                                placeholder="e.g. Shelf 4" 
                             />
                         </FormGroup>
                     </div>

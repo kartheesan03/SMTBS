@@ -9,14 +9,14 @@ import {
     Bell, UserPlus, FileText, CheckCircle2,
     CheckCircle, Calendar, DollarSign, Box, Truck, Tag,
     Layers, Cpu, PhoneCall, ListTodo, UserCheck, LayoutGrid, Clock, Target, Server, Activity, AlertCircle, AlertTriangle,
-    ArrowUpRight, Package, BarChart as BarChartIcon, Zap
+    ArrowUpRight, Package, BarChart as BarChartIcon, Zap, MapPin, Building2
 } from 'lucide-react';
 import { AreaChart, Area, PieChart, Pie, Cell, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, LineChart, Line, BarChart, Bar, Legend } from 'recharts';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 import PageHeader from '../components/PageHeader';
 import CommandCenter from '../components/CommandCenter';
 import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
-import { LoadingState, ErrorState } from '../components/DataStates';
+import { LoadingState, ErrorState, EmptyState } from '../components/DataStates';
 
 // ─── Unified KPI Card ────────────────────────────────────────────────────────
 // Accent colors are functional: green=good/performance, purple=business metric,
@@ -293,7 +293,7 @@ const AdminDashboard = () => {
                 </PastelKPIGrid>
 
                 {/* ── 3. Middle Row: Quick Actions + Inventory Summary ── */}
-                <div className="rd-middle-row" style={{ alignItems: 'stretch' }}>
+                <div className="rd-middle-row">
 
                     {/* Quick Actions */}
                     <div className="dashboard-panel">
@@ -305,7 +305,8 @@ const AdminDashboard = () => {
                             <IconQuickAction icon={Calendar}    label="Leave Mgmt"      colorClass="bg-light-green"  onClick={() => navigate('/leave-management')} />
                             <IconQuickAction icon={DollarSign}  label="Payroll"          colorClass="bg-light-purple" onClick={() => navigate('/payroll')} />
                             <IconQuickAction icon={Box}         label="Materials"        colorClass="bg-light-orange" onClick={() => navigate('/materials')} />
-                            <IconQuickAction icon={Truck}       label="Vendors"          colorClass="bg-light-blue"   onClick={() => navigate('/vendors')} />
+                            <IconQuickAction icon={Building2}   label="Vendors"          colorClass="bg-light-cyan"   onClick={() => navigate('/vendors')} />
+                            <IconQuickAction icon={Truck}       label="GPS Tracking"     colorClass="bg-light-blue"   onClick={() => navigate('/gps-tracking')} />
                             <IconQuickAction icon={ShoppingCart} label="Purchase Orders" colorClass="bg-light-green"  onClick={() => navigate('/orders/purchase')} />
                             <IconQuickAction icon={Tag}         label="Sales Orders"     colorClass="bg-light-red"    onClick={() => navigate('/orders')} />
                             <IconQuickAction icon={FileText}    label="Reports"          colorClass="bg-light-purple" onClick={() => navigate('/reports')} />
@@ -607,16 +608,6 @@ const AdminDashboard = () => {
                     </div>
                 </div>
 
-                {/* ── Footer ── */}
-                <div className="dashboard-footer">
-                    <div><Calendar size={12} style={{ display: 'inline', marginRight: 4 }} />Current FY: {dashboardData?.systemInfo?.currentFY || '2026 - 2027'}</div>
-                    <div><Layers size={12} style={{ display: 'inline', marginRight: 4 }} />ERP Version: {dashboardData?.systemInfo?.erpVersion || 'v2.5.1'}</div>
-                    <div><Server size={12} style={{ display: 'inline', marginRight: 4 }} />Database Size: {dashboardData?.systemInfo?.dbSize || '1.28 GB'}</div>
-                    <div><Clock size={12} style={{ display: 'inline', marginRight: 4 }} />Last Backup: {dashboardData?.systemInfo?.lastBackup || '03 Jul 2026, 02:30 AM'}</div>
-                    <div className="footer-item" style={{ color: '#059669' }}>
-                        <div className="footer-dot"></div> All Systems Operational
-                    </div>
-                </div>
 
             </div>
             <CommandCenter isOpen={isCommandCenterOpen} onClose={() => setIsCommandCenterOpen(false)} />

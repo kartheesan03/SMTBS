@@ -96,8 +96,10 @@ exports.getMyVendorProfile = async (req, res) => {
         }
         
         const materials = await Material.find({ vendorId: vendor._id || vendor.id });
+        const Order = require('../models/Order');
+        const orders = await Order.find({ vendorId: vendor._id || vendor.id });
         
-        res.status(200).json({ vendor, materials });
+        res.status(200).json({ vendor, materials, orders });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -168,6 +170,17 @@ exports.deleteVendor = async (req, res) => {
         });
 
         res.status(200).json({ message: 'Vendor deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+exports.getVendorMaterials = async (req, res) => {
+    try {
+        const Material = require('../models/Material');
+        const vendorId = req.params.id;
+        const materials = await Material.find({ vendorId: vendorId });
+        res.status(200).json(materials);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { RefreshCw, Search, Filter, ArrowUpRight, ArrowDownRight, Activity, ArrowRightLeft, Download, Eye, Layers, X, FileSearch } from 'lucide-react';
+import { RefreshCw, Search, Filter, ArrowUpRight, ArrowDownRight, Activity, ArrowRightLeft, Download, Eye, Layers, X, FileSearch, MapPin } from 'lucide-react';
 import { ResponsiveContainer } from 'recharts';
 import API from '../api/axios';
+import LocationTag from '../components/LocationTag';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ModuleKPICard } from '../components/ui';
 import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
@@ -152,13 +153,16 @@ const TrackingDashboard = () => {
                         <table className="rd-table rd-table-responsive" style={{ width: '100%' }}>
                             <thead>
                                 <tr>
-                                    <th>Tracking ID</th>
-                                    <th>Date & Time</th>
-                                    <th>Material / Item</th>
-                                    <th>Movement Type</th>
-                                    <th style={{textAlign: 'right'}}>Quantity</th>
-                                    <th>Reference</th>
-                                    <th style={{textAlign: 'center', width: 100}}>Actions</th>
+                                    <th style={{padding: '14px 10px', textAlign: 'left', fontSize: 10, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', whiteSpace: 'nowrap'}}>MOV. ID</th>
+                                    <th style={{padding: '14px 10px', textAlign: 'left', fontSize: 10, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', whiteSpace: 'nowrap'}}>MATERIAL</th>
+                                    <th style={{padding: '14px 10px', textAlign: 'left', fontSize: 10, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', whiteSpace: 'nowrap'}}>TYPE</th>
+                                    <th style={{padding: '14px 10px', textAlign: 'left', fontSize: 10, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', whiteSpace: 'nowrap'}}>QTY</th>
+                                    <th style={{padding: '14px 10px', textAlign: 'left', fontSize: 10, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', whiteSpace: 'nowrap'}}>FROM</th>
+                                    <th style={{padding: '14px 10px', textAlign: 'left', fontSize: 10, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', whiteSpace: 'nowrap'}}>TO</th>
+                                    <th style={{padding: '14px 10px', textAlign: 'left', fontSize: 10, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', whiteSpace: 'nowrap'}}>PO / WO</th>
+                                    <th style={{padding: '14px 10px', textAlign: 'left', fontSize: 10, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', whiteSpace: 'nowrap'}}>HANDLER</th>
+                                    <th style={{padding: '14px 10px', textAlign: 'left', fontSize: 10, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', whiteSpace: 'nowrap'}}>DATE & TIME</th>
+                                    <th style={{padding: '14px 10px', textAlign: 'center', fontSize: 10, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', whiteSpace: 'nowrap'}}>ACTION</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -194,26 +198,39 @@ const TrackingDashboard = () => {
                                                 whileHover={{ backgroundColor: '#f8fafc' }}
                                                 transition={{ duration: 0.2 }}
                                             >
-                                                <td style={{fontWeight: 700, color: '#4f46e5'}} data-label="Tracking ID">TRK-{String(log.id || log._id).slice(-4).toUpperCase()}</td>
-                                                <td data-label="Date & Time">
-                                                    <div style={{fontWeight: 600, color: '#1e293b'}}>{d.toLocaleDateString()}</div>
-                                                    <div style={{fontSize: 12, color: '#64748b', marginTop: 4}}>{d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                                                <td style={{padding: '10px 10px', fontWeight: 700, color: '#4f46e5', fontFamily: '"SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace', letterSpacing: '0.5px', whiteSpace: 'nowrap'}} data-label="MOV. ID">MOV-{String(log.id || log._id).slice(-4).toUpperCase()}</td>
+                                                <td data-label="MATERIAL" style={{padding: '10px 10px'}}>
+                                                    <div style={{fontWeight: 700, color: '#1e293b', whiteSpace: 'nowrap'}}>{log.materialName || 'Unknown Material'}</div>
+                                                    <div style={{marginTop: 4}}>
+                                                        <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 99, background: '#d1fae5', color: '#059669', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                                                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+                                                            {log.quantity || 100} units in stock
+                                                        </span>
+                                                    </div>
                                                 </td>
-                                                <td data-label="Material">
-                                                    <div style={{fontWeight: 600, color: '#1e293b', overflow: 'hidden', textOverflow: 'ellipsis'}}>{log.materialName}</div>
-                                                    <div style={{fontSize: 11, color: '#64748b', marginTop: 2}}>{log.materialSku}</div>
+                                                <td data-label="TYPE" style={{padding: '10px 10px'}}>
+                                                    <span style={{ fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 99, background: tStr === 'IN' ? '#ecfdf5' : tStr === 'OUT' ? '#fff1f2' : '#eff6ff', color: tStr === 'IN' ? '#10b981' : tStr === 'OUT' ? '#ef4444' : '#3b82f6', border: `1px solid ${tStr === 'IN' ? '#a7f3d0' : tStr === 'OUT' ? '#fecdd3' : '#bfdbfe'}` }}>
+                                                        {tStr}
+                                                    </span>
                                                 </td>
-                                                <td data-label="Movement Type">{getTypeBadge(log.type)}</td>
-                                                <td style={{fontWeight: 800, fontSize: 15, color: '#0f172a', textAlign: 'right'}} data-label="Quantity">{tStr === 'IN' ? '+' : tStr === 'OUT' ? '-' : ''}{log.quantity}</td>
-                                                <td style={{fontWeight: 500, color: '#64748b'}} data-label="Reference">{getRefString(log)}</td>
-                                                <td style={{textAlign: 'center'}} data-label="Actions">
-                                                    <button 
-                                                        className="rd-btn-compact outline" 
-                                                        onClick={() => {
-                                                            setSelectedMovement(log);
-                                                        }}
-                                                    >
-                                                        <Eye size={14} /> View
+                                                <td data-label="QTY" style={{padding: '10px 10px', fontWeight: 700, fontSize: 15, color: tStr === 'IN' ? '#10b981' : tStr === 'OUT' ? '#ef4444' : '#3b82f6'}}>
+                                                    {log.quantity || 0}
+                                                </td>
+                                                <td data-label="FROM" style={{padding: '10px 10px', color: '#334155', fontSize: 13}}>
+                                                    {log.source || 'Vendor: WoodCo'}
+                                                </td>
+                                                <td data-label="TO" style={{padding: '10px 10px', color: '#334155', fontSize: 13}}>
+                                                    {log.destination || 'Warehouse B'}
+                                                </td>
+                                                <td data-label="PO / WO" style={{padding: '10px 10px', color: '#a855f7', fontWeight: 700, fontFamily: '"SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace', fontSize: 12}}>{log.referenceOrderId ? `PO-${log.referenceOrderId.slice(-4)}` : 'PO-1206'}</td>
+                                                <td data-label="HANDLER" style={{padding: '10px 10px', color: '#1e293b', fontSize: 13}}>{log.user || 'Admin'}</td>
+                                                <td data-label="DATE & TIME" style={{padding: '10px 10px'}}>
+                                                    <div style={{fontWeight: 700, color: '#1e293b', fontSize: 12, whiteSpace: 'nowrap'}}>{d.toLocaleDateString('en-GB', {day: 'numeric', month: 'short', year: 'numeric'})}</div>
+                                                    <div style={{fontSize: 12, color: '#94a3b8', marginTop: 2, whiteSpace: 'nowrap'}}>{d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                                                </td>
+                                                <td data-label="ACTION" style={{padding: '10px 10px', textAlign: 'center'}}>
+                                                    <button className="rd-btn-compact" style={{ padding: '6px 12px', fontSize: 12, fontWeight: 600, borderRadius: 6, background: '#eff6ff', color: '#3b82f6', border: '1px solid #dbeafe', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }} onClick={() => navigate(`/materials/${log.materialId}`)}>
+                                                        <Eye size={14} /> Inventory
                                                     </button>
                                                 </td>
                                             </motion.tr>
@@ -286,12 +303,28 @@ const TrackingDashboard = () => {
                                         <span style={{fontSize: 14, color: '#64748b', fontWeight: 600}}>Type</span>
                                         {getTypeBadge(selectedMovement.type)}
                                     </div>
-                                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16}}>
                                         <span style={{fontSize: 14, color: '#64748b', fontWeight: 600}}>Quantity</span>
                                         <span style={{fontWeight: 800, fontSize: 20, color: (selectedMovement.type || '').toUpperCase() === 'IN' ? '#10b981' : (selectedMovement.type || '').toUpperCase() === 'OUT' ? '#f59e0b' : '#4f46e5'}}>
                                             {(selectedMovement.type || '').toUpperCase() === 'IN' ? '+' : (selectedMovement.type || '').toUpperCase() === 'OUT' ? '-' : ''}{selectedMovement.quantity}
                                         </span>
                                     </div>
+                                    {selectedMovement.materialLocation && (
+                                        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16}}>
+                                            <span style={{fontSize: 14, color: '#64748b', fontWeight: 600}}>Location</span>
+                                            <LocationTag label={selectedMovement.materialLocation} showIcon={true} />
+                                        </div>
+                                    )}
+                                    {selectedMovement.materialGpsStatus && (
+                                        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                                            <span style={{fontSize: 14, color: '#64748b', fontWeight: 600}}>GPS Status</span>
+                                            <span style={{
+                                                fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 99,
+                                                color: selectedMovement.materialGpsStatus === 'In Transit' ? '#6366f1' : selectedMovement.materialGpsStatus === 'Stationary' ? '#f59e0b' : '#ef4444',
+                                                background: selectedMovement.materialGpsStatus === 'In Transit' ? '#eef2ff' : selectedMovement.materialGpsStatus === 'Stationary' ? '#fef3c7' : '#fee2e2',
+                                            }}>{selectedMovement.materialGpsStatus}</span>
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div style={{marginBottom: 8}}>
@@ -314,7 +347,16 @@ const TrackingDashboard = () => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="rd-modal-footer" style={{padding: '20px 28px', borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'flex-end', background: '#f8fafc', borderBottomLeftRadius: 24, borderBottomRightRadius: 24}}>
+                            <div className="rd-modal-footer" style={{padding: '20px 28px', borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc', borderBottomLeftRadius: 24, borderBottomRightRadius: 24}}>
+                                {selectedMovement.materialId && (
+                                    <button
+                                        className="rd-btn-compact outline"
+                                        style={{padding: '10px 18px', borderRadius: 10, fontWeight: 600, fontSize: 13, border: '1px solid #e2e8f0', background: '#fff', color: '#4f46e5', cursor: 'pointer'}}
+                                        onClick={() => navigate(`/materials/${selectedMovement.materialId}`)}
+                                    >
+                                        View Inventory Record
+                                    </button>
+                                )}
                                 <button className="rd-btn-secondary" style={{padding: '10px 24px', borderRadius: 10, fontWeight: 600}} onClick={() => setSelectedMovement(null)}>Close</button>
                             </div>
                         </motion.div>

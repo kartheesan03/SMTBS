@@ -6,26 +6,41 @@ import toast from 'react-hot-toast';
 import { ShoppingCart, FileText, Truck, Calendar, DollarSign, User, Building2 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import DataTable from '../components/Dashboard/DataTable';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+
+// Setup custom truck icon
+const truckIcon = new L.Icon({
+    iconUrl: 'https://cdn-icons-png.flaticon.com/512/2769/2769339.png',
+    iconSize: [32, 32],
+    iconAnchor: [16, 16],
+    popupAnchor: [0, -16]
+});
 
 const OrderDetails = () => {
     const navigate = useNavigate();
     const { id } = useParams();
     const [order, setOrder] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [liveData, setLiveData] = useState(null);
 
     useEffect(() => {
         const fetchOrderData = async () => {
             try {
                 const { data } = await API.get(`/orders`);
-                // Backend GET /orders returns a list, find the matching order
                 let fetchedOrders = [];
                 if (Array.isArray(data)) fetchedOrders = data;
                 else if (data && Array.isArray(data.orders)) fetchedOrders = data.orders;
                 else if (data && Array.isArray(data.data)) fetchedOrders = data.data;
 
                 const match = fetchedOrders.find(o => String(o._id) === id || String(o.id) === id);
-                if (match) setOrder(match);
-                else {
+                if (match) {
+                    setOrder(match);
+                    if (match.status === 'Out for Delivery') {
+                        pollLocation();
+                    }
+                } else {
                     toast.error('Order not found');
                     navigate('/erp');
                 }
@@ -37,7 +52,32 @@ const OrderDetails = () => {
             }
         };
         fetchOrderData();
-    }, [id, navigate]);
+        
+        let interval;
+        if (order?.status === 'Out for Delivery') {
+            interval = setInterval(pollLocation, 5000);
+        }
+        return () => clearInterval(interval);
+    }, [id, navigate, order?.status]);
+
+    const pollLocation = async () => {
+        try {
+            const loc = await API.get(`/orders/${id}/location`);
+            setLiveData(loc.data);
+        } catch (e) {
+            console.error('Error polling location', e);
+        }
+    };
+
+    const handleFlagDelayed = async () => {
+        try {
+            await API.put(`/orders/${id}/delay`, { reason: 'Flagged by Sales' });
+            toast.success('Order flagged as delayed');
+            pollLocation();
+        } catch (err) {
+            toast.error('Failed to flag order');
+        }
+    };
 
     if (loading) return <div className="flex-center" style={{height:'100vh'}}><div className="loader"></div></div>;
     if (!order) return null;
@@ -233,6 +273,37 @@ const OrderDetails = () => {
                     <p style={{ margin: 0, color: '#334155', lineHeight: '1.6', background: '#fffbeb', padding: '16px', borderRadius: '8px', border: '1px solid #fef3c7' }}>
                         {order.notes}
                     </p>
+                </div>
+            )}
+
+            {(order.status === 'Out for Delivery' || (liveData && liveData.liveLocation)) && (
+                <div className="standard-section">
+                    <div className="standard-section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span>Live Delivery Tracking</span>
+                        {liveData?.trackingStatus !== 'Delayed' && liveData?.trackingStatus !== 'Delivered' && (
+                            <button onClick={handleFlagDelayed} style={{ padding: '6px 12px', background: '#fef2f2', color: '#ef4444', border: '1px solid #fca5a5', borderRadius: '6px', fontSize: '13px', cursor: 'pointer', fontWeight: 600 }}>
+                                Flag as Delayed
+                            </button>
+                        )}
+                    </div>
+                    <div style={{ height: '300px', width: '100%', borderRadius: '12px', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
+                        {liveData?.liveLocation ? (
+                            <MapContainer center={[liveData.liveLocation.lat, liveData.liveLocation.lng]} zoom={14} style={{ height: '100%', width: '100%' }}>
+                                <TileLayer
+                                    url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+                                />
+                                <Marker position={[liveData.liveLocation.lat, liveData.liveLocation.lng]} icon={truckIcon}>
+                                    <Popup>
+                                        <strong>{liveData.trackingStatus}</strong><br/>
+                                        ETA: {liveData.deliveryETA ? new Date(liveData.deliveryETA).toLocaleTimeString() : 'N/A'}<br/>
+                                        Remaining: {liveData.distanceRemaining?.toFixed(1)} km
+                                    </Popup>
+                                </Marker>
+                            </MapContainer>
+                        ) : (
+                            <div style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>Waiting for GPS signal...</div>
+                        )}
+                    </div>
                 </div>
             )}
         </StandardPageLayout>

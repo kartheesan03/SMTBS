@@ -4,9 +4,9 @@ import { AuthContext } from '../context/AuthContext';
 import { 
     LayoutDashboard, ShoppingCart, Users, Briefcase, Settings as SettingsIcon,
     ChevronLeft, ChevronRight, LogOut, Home, BarChart2, CheckSquare, Bell,
-    UserPlus, FileText, DollarSign, Box, Truck, Clock, Calendar, Wallet,
+    UserPlus, FileText, DollarSign, Box, Truck, Clock, Calendar, Wallet, Package,
     HelpCircle, User, Activity, List, Key, Shield, PieChart, Info, Map, 
-    BookOpen, Layers, Archive, PackageCheck, Target, MapPin, ScanLine, TrendingUp
+    BookOpen, Layers, Archive, PackageCheck, Target, Navigation, ScanLine, TrendingUp, Camera
 } from 'lucide-react';
 import SmtbmsLogo from './SmtbmsLogo';
 import UserAvatar from './UserAvatar';
@@ -29,9 +29,9 @@ const DualSidebar = () => {
             setActivePrimaryTab('attendance');
         } else if (path.startsWith('/hrms') || path.startsWith('/payroll') || path.startsWith('/leave') || path.startsWith('/my-salary') || path.startsWith('/employee')) {
             setActivePrimaryTab('hrms');
-        } else if (path.startsWith('/material') || path.startsWith('/stock') || path.startsWith('/vendor')) {
+        } else if (path.startsWith('/material') || path.startsWith('/my-materials') || path.startsWith('/stock') || path.startsWith('/vendor') || path.startsWith('/tracking-overview') || path.startsWith('/gps-tracking')) {
             setActivePrimaryTab('materials');
-        } else if (path.startsWith('/crm') || path.startsWith('/customer') || path.startsWith('/lead') || path.startsWith('/opportunities') || path.startsWith('/follow-ups')) {
+        } else if (path.startsWith('/crm') || path.startsWith('/customer') || path.startsWith('/lead') || path.startsWith('/opportunities') || path.startsWith('/follow-ups') || path.startsWith('/quotation') || path.startsWith('/sales')) {
             setActivePrimaryTab('crm');
         } else if (path.startsWith('/erp') || path.startsWith('/order') || path.startsWith('/inventory') || path.startsWith('/finance') || path.startsWith('/assets')) {
             setActivePrimaryTab('erp');
@@ -103,10 +103,11 @@ const DualSidebar = () => {
                     links: [
                         { name: 'Materials', path: '/materials', icon: <Box /> },
                         { name: 'Material Tracking', path: '/tracking-overview', icon: <Map /> },
-                        { name: 'Stock Request', path: '/stock-requests', icon: <Truck /> },
+                        { name: 'Stock Request', path: '/stock-requests', icon: <Package /> },
                         { name: 'Vendors', path: '/vendors', icon: <Users /> },
                         { name: 'Barcode / QR', path: '/materials/barcode', icon: <ScanLine /> },
-                        { name: 'GPS Tracking', path: '/materials/gps', icon: <MapPin /> },
+                        { name: 'Scanner (Employee)', path: '/my-materials/barcode', icon: <Camera /> },
+                        { name: 'GPS Tracking', path: '/gps-tracking', icon: <Truck /> },
                     ]
                 }
             ]
@@ -117,7 +118,9 @@ const DualSidebar = () => {
                 {
                     title: 'CUSTOMER RELATIONS',
                     links: [
-                        { name: 'CRM Dashboard', path: '/crm', icon: <Users /> }
+                        { name: 'CRM Dashboard', path: '/crm', icon: <Users /> },
+                        { name: 'Quotations', path: '/quotations', icon: <FileText /> },
+                        { name: 'Sales Goals', path: '/sales/goals', icon: <Target /> }
                     ]
                 }
             ]
@@ -128,7 +131,8 @@ const DualSidebar = () => {
                 {
                     title: 'ENTERPRISE RESOURCE',
                     links: [
-                        { name: 'ERP Dashboard', path: '/erp', icon: <ShoppingCart /> }
+                        { name: 'ERP Dashboard', path: '/erp', icon: <ShoppingCart /> },
+                        { name: 'Order Pipeline', path: '/order-kanban', icon: <Map /> }
                     ]
                 }
             ]
