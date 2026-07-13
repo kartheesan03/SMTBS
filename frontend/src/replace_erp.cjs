@@ -2,7 +2,7 @@ const fs = require('fs');
 const file = 'c:/Users/Admin/Documents/project/frontend/src/pages/ERP.jsx';
 let content = fs.readFileSync(file, 'utf8');
 
-const returnIndex = content.search(/return \([\s\S]{0,100}<div className="page-container">/);
+const returnIndex = content.indexOf('    return (\r\n        <motion.div \r\n            initial={{ opacity: 0, y: 15 }}');
 if(returnIndex !== -1) {
    const beforeReturn = content.slice(0, returnIndex);
    const newReturn = `return (

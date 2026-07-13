@@ -160,6 +160,7 @@ const syncAndRepairDatabase = async () => {
         const updatedUsers = await UserModel.findAll();
         for (const user of updatedUsers) {
             if (user.role === 'Customer' || user.role === 'Vendor') continue;
+            if (protectedEmails.has(user.email)) continue; // Skip auto-creating for system accounts
             
             // Check by userIdField first, then by contact email to avoid duplicates
             let emp = await EmployeeModel.findOne({ where: { userIdField: user.id } });

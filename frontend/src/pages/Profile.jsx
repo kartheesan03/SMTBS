@@ -106,8 +106,8 @@ const Profile = () => {
                     setFormData({
                         firstName: fName || '',
                         lastName: lName || '',
-                        email: data.userId?.email || user?.email || '',
-                        phone: data.phone || '',
+                        email: data.contact || user?.email || '',
+                        phone: data.phone || user?.phone || '',
                         address: data.address || '',
                         picture: user?.picture || ''
                     });
@@ -138,8 +138,12 @@ const Profile = () => {
                 address: formData.address
             };
             
-            const { data } = await API.put(`/employees/me`, payload);
-            setEmployeeData(data);
+            try {
+                const { data } = await API.put(`/employees/me`, payload);
+                setEmployeeData(data);
+            } catch (empErr) {
+                console.warn('Could not update employee record, proceeding to auth profile update:', empErr.response?.data?.message);
+            }
             
             // Update auth profile if needed
             const authPayload = {

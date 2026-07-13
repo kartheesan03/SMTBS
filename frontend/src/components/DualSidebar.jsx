@@ -29,11 +29,11 @@ const DualSidebar = () => {
             setActivePrimaryTab('attendance');
         } else if (path.startsWith('/hrms') || path.startsWith('/payroll') || path.startsWith('/leave') || path.startsWith('/my-salary') || path.startsWith('/employee')) {
             setActivePrimaryTab('hrms');
-        } else if (path.startsWith('/material') || path.startsWith('/my-materials') || path.startsWith('/stock') || path.startsWith('/vendor') || path.startsWith('/tracking-overview') || path.startsWith('/gps-tracking')) {
+        } else if (path.startsWith('/materials') || path.startsWith('/my-materials') || path.startsWith('/tracking') || path.startsWith('/gps-tracking')) {
             setActivePrimaryTab('materials');
-        } else if (path.startsWith('/crm') || path.startsWith('/customer') || path.startsWith('/lead') || path.startsWith('/opportunities') || path.startsWith('/follow-ups') || path.startsWith('/quotation') || path.startsWith('/sales')) {
+        } else if (path.startsWith('/crm') || path.startsWith('/customers') || path.startsWith('/quotations') || path.startsWith('/sales')) {
             setActivePrimaryTab('crm');
-        } else if (path.startsWith('/erp') || path.startsWith('/order') || path.startsWith('/inventory') || path.startsWith('/finance') || path.startsWith('/assets')) {
+        } else if (path.startsWith('/erp') || path.startsWith('/orders') || path.startsWith('/vendors') || path.startsWith('/invoices') || path.startsWith('/order-kanban')) {
             setActivePrimaryTab('erp');
         } else if (path.startsWith('/task') || path.startsWith('/my-tasks')) {
             setActivePrimaryTab('tasks');
@@ -107,7 +107,6 @@ const DualSidebar = () => {
                         { name: 'Vendors', path: '/vendors', icon: <Users /> },
                         { name: 'Barcode / QR', path: '/materials/barcode', icon: <ScanLine /> },
                         { name: 'Scanner (Employee)', path: '/my-materials/barcode', icon: <Camera /> },
-                        { name: 'GPS Tracking', path: '/gps-tracking', icon: <Truck /> },
                     ]
                 }
             ]

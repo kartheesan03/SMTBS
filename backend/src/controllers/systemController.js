@@ -19,8 +19,7 @@ const navigationConfig = [
             { title: 'Inventory', path: '/materials' },
             { title: 'Movement Tracking', path: '/tracking-overview' },
             { title: 'Stock Monitoring', path: '/stock-requests' },
-            { title: 'Barcode / QR', path: '/materials/barcode' },
-            { title: 'GPS Tracking', path: '/gps-tracking' }
+            { title: 'Barcode / QR', path: '/materials/barcode' }
         ]
     },
     {
@@ -31,8 +30,7 @@ const navigationConfig = [
             { title: 'Inventory', path: '/my-materials/inventory' },
             { title: 'Movement Tracking', path: '/my-materials/requests' },
             { title: 'Stock Monitoring', path: '/my-materials/stock' },
-            { title: 'Barcode / QR', path: '/my-materials/barcode' },
-            { title: 'GPS Tracking', path: '/my-materials/gps' }
+            { title: 'Barcode / QR', path: '/my-materials/barcode' }
         ]
     },
     {

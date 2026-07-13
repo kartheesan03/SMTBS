@@ -112,7 +112,7 @@ const Customers = ({ directoryOnly }) => {
         { label: 'Delete', icon: Trash2, onClick: handleDelete, color: 'danger', hidden: !isAdmin }
     ];
 
-    const barData = [{v:5},{v:7},{v:4},{v:8},{v:6},{v:9},{v:7}];
+    
 
     return (
         <motion.div 

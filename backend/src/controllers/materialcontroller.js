@@ -525,16 +525,28 @@ const getAllMovements = async (req, res) => {
             matMap[key] = m;
         });
 
+        const Vendor = require('../models/Vendor');
+        const vendors = await Vendor.find({});
+        const vendorMap = {};
+        vendors.forEach(v => {
+            const key = String(v.id || v._id);
+            vendorMap[key] = v;
+        });
+
         // Enrich movements with material name, SKU, location, and gpsStatus
         const enrichedMovements = movements.map(m => {
             const mObj = m.toJSON ? m.toJSON() : m;
             const mat = matMap[String(mObj.materialId)];
+            const vendorName = mat && mat.vendorId && vendorMap[String(mat.vendorId)] ? vendorMap[String(mat.vendorId)].name : 'Supplier';
+            
             return {
                 ...mObj,
                 materialName:      mat ? mat.name        : 'Unknown',
                 materialSku:       mat ? mat.sku         : 'N/A',
                 materialLocation:  mat ? (mat.location || mat.warehouse || null) : null,
                 materialGpsStatus: mat ? (mat.gpsStatus || 'Stationary') : null,
+                materialQuantity:  mat ? mat.quantity    : 0,
+                materialVendorName: vendorName,
                 materialId:        mObj.materialId
             };
         });

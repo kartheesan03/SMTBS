@@ -230,6 +230,8 @@ const AppContent = () => {
                     <Route path="/erp/vendors/select" element={<OrderCreationRoute><SelectVendor /></OrderCreationRoute>} />
                     <Route path="/orders/create/:orderType" element={<OrderCreationRoute><CreateOrder /></OrderCreationRoute>} />
                     <Route path="/orders/:orderId/tracking" element={<ProtectedRoute requiredPermission="view_erp"><OrderTracking /></ProtectedRoute>} />
+                    <Route path="/customer/orders/:orderId/tracking" element={<ProtectedRoute><OrderTracking /></ProtectedRoute>} />
+                    <Route path="/vendor/orders/:orderId/tracking" element={<ProtectedRoute><OrderTracking /></ProtectedRoute>} />
                     <Route path="/order-kanban" element={<ProtectedRoute><OrderKanban /></ProtectedRoute>} />
                     <Route path="/tracking-overview" element={<ProtectedRoute><TrackingDashboard /></ProtectedRoute>} />
                     <Route path="/crm" element={<ProtectedRoute requiredPermission="view_crm"><Customers /></ProtectedRoute>} />

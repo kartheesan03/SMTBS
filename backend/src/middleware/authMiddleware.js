@@ -11,6 +11,7 @@ const protect = async (req, res, next) => {
             
             const user = await User.findById(decoded.id).select('-password');
             if (!user) {
+                console.error('[AUTH ERROR] User not found for id:', decoded.id);
                 return res.status(401).json({ message: 'Not authorized, user not found' });
             }
             req.user = user;
@@ -26,6 +27,7 @@ const protect = async (req, res, next) => {
             return res.status(401).json({ message: 'Not authorized, no token' });
         }
     } catch (error) {
+        console.error('[AUTH ERROR] Catch block:', error);
         return res.status(401).json({ message: 'Not authorized, token failed' });
     }
 };

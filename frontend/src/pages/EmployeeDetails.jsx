@@ -62,14 +62,14 @@ const EmployeeDetails = () => {
                     <Mail size={16} color="#64748b" style={{ marginTop: '2px' }} />
                     <div>
                         <div style={{ fontSize: '13px', color: '#64748b', marginBottom: '2px' }}>Email Address</div>
-                        <a href={`mailto:${employee.contact}`} style={{ color: '#3b82f6', textDecoration: 'none', fontWeight: 500 }}>{employee.contact}</a>
+                        <a href={`mailto:${employee.userId?.email || employee.email || employee.contact}`} style={{ color: '#3b82f6', textDecoration: 'none', fontWeight: 500 }}>{employee.userId?.email || employee.email || employee.contact || 'N/A'}</a>
                     </div>
                 </div>
                 <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
                     <Phone size={16} color="#64748b" style={{ marginTop: '2px' }} />
                     <div>
                         <div style={{ fontSize: '13px', color: '#64748b', marginBottom: '2px' }}>Phone Number</div>
-                        <a href={`tel:${employee.phone}`} style={{ color: '#0f172a', textDecoration: 'none', fontWeight: 500 }}>{employee.phone || 'N/A'}</a>
+                        <a href={`tel:${employee.phone || (employee.contact && employee.contact.match(/^[0-9+\-\\s]+$/) ? employee.contact : '')}`} style={{ color: '#0f172a', textDecoration: 'none', fontWeight: 500 }}>{employee.phone || (employee.contact && employee.contact.match(/^[0-9+\-\\s]+$/) ? employee.contact : 'N/A')}</a>
                     </div>
                 </div>
                 <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>

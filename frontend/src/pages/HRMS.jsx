@@ -144,8 +144,8 @@ const HRMS = () => {
                     className="rd-table-card"
                 >
                     <div className="rd-table-header" style={{borderBottom: 'none', flexWrap: 'wrap', gap: 16}}>
-                        <div style={{display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap'}}>
-                            <div className="rd-search-bar" style={{minWidth: 250, flexShrink: 0, background: '#fff'}}>
+                        <div style={{display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap', flex: 1}}>
+                            <div className="rd-search-bar" style={{minWidth: 250, flexShrink: 0, background: '#fff', maxWidth: '300px'}}>
                                 <Search size={16} color="#94a3b8" />
                                 <input
                                     type="text"
@@ -158,14 +158,14 @@ const HRMS = () => {
                             <select
                                 value={deptFilter}
                                 onChange={(e) => setDeptFilter(e.target.value)}
-                                style={{padding: '8px 16px', border: '1px solid #e2e8f0', borderRadius: 8, outline: 'none', background: '#fff', color: '#64748b', fontSize: 14}}
+                                style={{padding: '8px 16px', border: '1px solid #e2e8f0', borderRadius: 8, outline: 'none', background: '#fff', color: '#64748b', fontSize: 14, minWidth: '150px', width: 'auto'}}
                             >
-                                {departments.map(d => <option key={d} value={d}>{d === 'All' ? 'All Depts' : d}</option>)}
+                                {departments.map(d => <option key={d} value={d}>{d === 'All' ? 'All Roles' : d}</option>)}
                             </select>
                             <select
                                 value={statusFilter}
                                 onChange={(e) => setStatusFilter(e.target.value)}
-                                style={{padding: '8px 16px', border: '1px solid #e2e8f0', borderRadius: 8, outline: 'none', background: '#fff', color: '#64748b', fontSize: 14}}
+                                style={{padding: '8px 16px', border: '1px solid #e2e8f0', borderRadius: 8, outline: 'none', background: '#fff', color: '#64748b', fontSize: 14, minWidth: '150px', width: 'auto'}}
                             >
                                 <option value="All">All Status</option>
                                 <option value="Active">Active</option>
@@ -215,8 +215,8 @@ const HRMS = () => {
                                             </div>
                                         </td>
                                         <td style={{fontWeight: 500}} data-label="Position">{emp.designation || '—'}</td>
-                                        <td style={{color: 'var(--rd-blue)'}} data-label="Email">{emp.contact || '—'}</td>
-                                        <td style={{color: '#64748b'}} data-label="Phone">{emp.phone || '—'}</td>
+                                        <td style={{color: 'var(--rd-blue)'}} data-label="Email">{emp.userId?.email || emp.email || emp.contact || '—'}</td>
+                                        <td style={{color: '#64748b'}} data-label="Phone">{emp.phone || (emp.contact && emp.contact.match(/^[0-9+\-\\s]+$/) ? emp.contact : '—')}</td>
                                         <td data-label="Role / Dept">
                                             <span style={{background: '#f1f5f9', color: '#64748b', padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600}}>
                                                 {emp.department || 'Employee'}

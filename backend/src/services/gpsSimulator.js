@@ -1,4 +1,4 @@
-const { OrderSequelize: Order } = require('../models/Order');
+const Order = require('../models/Order');
 
 // A simple simulated route (e.g. from Warehouse to Downtown)
 // We will interpolate between these points to simulate movement.
@@ -47,7 +47,7 @@ class GPSSimulator {
     async updateLocations() {
         try {
             // Find orders that are currently Out for Delivery and NOT yet Delivered
-            const activeOrders = await Order.findAll({
+            const activeOrders = await Order.sequelizeModel.findAll({
                 where: {
                     status: 'Out for Delivery'
                 }

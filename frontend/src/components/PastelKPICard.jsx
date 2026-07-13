@@ -63,7 +63,7 @@ export const PastelKPICard = ({ title, value, icon: Icon, colorTheme = 'blue', t
             
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: '8px' }}>
                 {trendValue ? (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: 600, color: trendPositive ? '#16a34a' : '#dc2626' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: 600, color: trendPositive ? '#16a34a' : '#dc2626', whiteSpace: 'nowrap' }}>
                         {trendPositive ? <TrendingUp size={12} strokeWidth={3} /> : <TrendingDown size={12} strokeWidth={3} />}
                         {trendValue}
                     </div>
@@ -77,7 +77,8 @@ export const PastelKPICard = ({ title, value, icon: Icon, colorTheme = 'blue', t
                         fontSize: '11px', fontWeight: 500, color: '#64748b', 
                         cursor: onClick ? 'pointer' : 'default',
                         display: 'flex', alignItems: 'center', gap: '2px',
-                        transition: 'color 150ms ease'
+                        transition: 'color 150ms ease',
+                        whiteSpace: 'nowrap'
                     }}
                     onMouseEnter={(e) => onClick && (e.currentTarget.style.color = '#334155')}
                     onMouseLeave={(e) => onClick && (e.currentTarget.style.color = '#64748b')}

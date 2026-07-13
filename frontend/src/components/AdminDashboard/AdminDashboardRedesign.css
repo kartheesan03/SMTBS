@@ -25,6 +25,9 @@
   --cta-primary-hover: #E2E8F0;
   --cta-primary-text: #0F172A;
   --transition: all 0.2s ease;
+  --rd-purple-grad: linear-gradient(135deg, #a855f7, #7e22ce);
+  --rd-orange-grad: linear-gradient(135deg, #f97316, #c2410c);
+  --rd-blue-grad: linear-gradient(135deg, #3b82f6, #1d4ed8);
 }
 
 /* ── Base Container ── */
@@ -582,10 +585,11 @@
 
 .panel-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   margin-bottom: 16px;
-  gap: 12px;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .panel-title {
@@ -593,24 +597,30 @@
   font-weight: 700;
   color: var(--text-heading);
   letter-spacing: -0.2px;
+  flex: 1 1 50%;
+  line-height: 1.3;
 }
 
 .panel-dropdown {
   font-size: 12px;
   font-weight: 500;
   color: var(--text-muted);
-  background: #F3F4F6;
+  background-color: #F3F4F6;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236B7280%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 6px center;
   border: 1px solid #E5E7EB;
   border-radius: 8px;
-  padding: 5px 10px;
+  padding: 5px 22px 5px 8px;
   cursor: pointer;
   outline: none;
   transition: all 0.2s;
   appearance: none;
   -webkit-appearance: none;
-  padding-right: 20px;
+  flex-shrink: 0;
+  max-width: 100%;
 }
-.panel-dropdown:hover { background: #E9EBF0; }
+.panel-dropdown:hover { background-color: #E9EBF0; }
 
 /* ════════════════════════════
    7. QUICK ACTIONS GRID
@@ -635,6 +645,7 @@
   border: 1px solid transparent;
   text-align: center;
   user-select: none;
+  min-width: 0;
 }
 .qa-item:hover {
   background: #FAFAFA;
@@ -915,7 +926,10 @@
     border: none;
     border-bottom: 1px solid #F3F4F6;
     position: relative;
-    padding-left: 40%;
+    padding-left: 40% !important;
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+    padding-right: 10px !important;
     display: flex;
     align-items: center;
     justify-content: flex-end;

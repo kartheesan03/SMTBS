@@ -105,7 +105,7 @@ const Materials = () => {
             render: (val, row) => (
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
                     <span style={{ fontWeight: 700, color: '#1e293b' }}>{val}</span>
-                    <span style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>{row.movementsCount || Math.floor(Math.random() * 5) + 1} movements recorded</span>
+                    <span style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>{row.movementsCount || 0} movements recorded</span>
                 </div>
             )
         },
@@ -190,7 +190,7 @@ const Materials = () => {
                         className="rd-btn-compact"
                         style={{ padding: '4px 8px', fontSize: 12, borderRadius: 6, background: '#ecfeff', color: '#06b6d4', border: '1px solid #cffafe', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                         title="Track"
-                        onClick={(e) => { e.stopPropagation(); navigate(`/tracking?material=${row._id || row.id}`); }}
+                        onClick={(e) => { e.stopPropagation(); navigate(`/tracking-overview?search=${encodeURIComponent(row.sku || row.name)}`); }}
                     >
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
                     </button>

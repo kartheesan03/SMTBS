@@ -395,17 +395,7 @@ const getUserProfile = async (req, res) => {
         if (user) {
             let role = user.role;
             let actualName = user.name;
-            
-            try {
-                const Employee = require('../models/Employee');
-                const emp = await Employee.findOne({ contact: user.email });
-                if (emp && emp.firstName) {
-                    actualName = `${emp.firstName} ${emp.lastName || ''}`.trim();
-                }
-            } catch (e) {
-                console.error("Error fetching employee for auth profile:", e);
-            }
-
+            // We use user.name directly to stay consistent with the HRMS list which prefers User.name
             const permissions = await getRolePermissions(role);
             if (user.email === 'admin@smtbms.com' && !permissions.includes('all')) {
                 permissions.push('all');

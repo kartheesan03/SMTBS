@@ -28,16 +28,10 @@ const OrderDetails = () => {
     useEffect(() => {
         const fetchOrderData = async () => {
             try {
-                const { data } = await API.get(`/orders`);
-                let fetchedOrders = [];
-                if (Array.isArray(data)) fetchedOrders = data;
-                else if (data && Array.isArray(data.orders)) fetchedOrders = data.orders;
-                else if (data && Array.isArray(data.data)) fetchedOrders = data.data;
-
-                const match = fetchedOrders.find(o => String(o._id) === id || String(o.id) === id);
-                if (match) {
-                    setOrder(match);
-                    if (match.status === 'Out for Delivery') {
+                const { data } = await API.get(`/orders/${id}`);
+                if (data) {
+                    setOrder(data);
+                    if (data.status === 'Out for Delivery') {
                         pollLocation();
                     }
                 } else {
@@ -45,6 +39,7 @@ const OrderDetails = () => {
                     navigate('/erp');
                 }
             } catch (err) {
+                console.error(err);
                 toast.error('Failed to load order details');
                 navigate('/erp');
             } finally {

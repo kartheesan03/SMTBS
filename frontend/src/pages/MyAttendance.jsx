@@ -205,18 +205,39 @@ const MyAttendance = () => {
 
     if (loading) return <div className="attendance-page-container">Loading...</div>;
 
-    // Derived mock break data for UI
-    const breakUsed = isShiftActive ? "18 min" : isShiftCompleted ? "45 min" : "0 min";
-    
-    // Calendar days generation (mocking last 7 days + next 7)
+    // Calendar days generation (real data)
     const calDays = Array.from({length: 14}).map((_, i) => {
         const d = new Date();
         d.setDate(d.getDate() - 7 + i);
         let s = 'empty';
-        if (i < 7) s = ['present', 'present', 'leave', 'present', 'weekend', 'weekend', 'present'][i];
-        if (i === 7) s = 'today present';
+        if (i > 7) {
+            s = d.getDay() === 0 || d.getDay() === 6 ? 'weekend' : 'empty';
+        } else {
+            const historyRec = history.find(h => {
+                if(!h.date) return false;
+                const hd = new Date(h.date);
+                return hd.getDate() === d.getDate() && hd.getMonth() === d.getMonth();
+            });
+            if (historyRec) {
+                s = historyRec.status ? historyRec.status.toLowerCase() : 'empty';
+            } else {
+                s = d.getDay() === 0 || d.getDay() === 6 ? 'weekend' : 'empty';
+            }
+            if (i === 7) {
+                s = `today ${s}`;
+            }
+        }
         return { date: d.getDate(), status: s };
     });
+    
+    const getExpectedCheckout = () => {
+        if (!status?.checkIn) return '--:-- --';
+        const start = parseDateTime(status.checkIn, status.date);
+        if (!start) return '--:-- --';
+        start.setHours(start.getHours() + 8);
+        start.setMinutes(start.getMinutes() + 30);
+        return start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    };
 
     const CustomTooltip = ({ active, payload, label }) => {
         if (active && payload && payload.length) {
@@ -269,11 +290,7 @@ const MyAttendance = () => {
                                 </div>
                                 <div className="att-hero-metric">
                                     <span>Expected Checkout</span>
-                                    <span>05:30 PM</span>
-                                </div>
-                                <div className="att-hero-metric">
-                                    <span>Break Used</span>
-                                    <span>{breakUsed}</span>
+                                    <span>{getExpectedCheckout()}</span>
                                 </div>
                             </div>
 

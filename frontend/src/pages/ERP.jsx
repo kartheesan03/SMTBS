@@ -79,7 +79,7 @@ const ERP = () => {
     };
 
     // Mini bar chart data for KPI cards
-    const barData = [{v:4},{v:6},{v:3},{v:7},{v:5},{v:8},{v:6}];
+    
 
     if (loading) return <div className="flex-center" style={{height:'100vh'}}><div className="loader"></div></div>;
 

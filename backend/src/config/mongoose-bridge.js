@@ -96,6 +96,31 @@ function translateQuery(query, model) {
 }
 
 // Wrap Sequelize instances to resemble Mongoose documents
+
+function recursivelyAddId(obj, seen = new Set()) {
+    if (!obj || typeof obj !== 'object') return obj;
+    if (seen.has(obj)) return obj;
+    seen.add(obj);
+
+    if (Array.isArray(obj)) {
+        for (let i = 0; i < obj.length; i++) {
+            obj[i] = recursivelyAddId(obj[i], seen);
+        }
+        return obj;
+    }
+
+    if (obj.id !== undefined && obj._id === undefined) {
+        obj._id = obj.id;
+    }
+    
+    for (const key of Object.keys(obj)) {
+        if (obj[key] && typeof obj[key] === 'object') {
+            obj[key] = recursivelyAddId(obj[key], seen);
+        }
+    }
+    return obj;
+}
+
 function wrapInstance(instance, modelName) {
     if (!instance) return null;
     
@@ -114,7 +139,8 @@ function wrapInstance(instance, modelName) {
             if (prop === 'toObject' || prop === 'toJSON') {
                 return function() {
                     const plain = target.toJSON ? target.toJSON() : target;
-                    plain._id = target.id;
+                    // Recursively add _id to all nested objects
+                    recursivelyAddId(plain);
                     // Mongoose virtuals compatibility
                     if (modelName === 'Leave') {
                         const ms = new Date(plain.endDate) - new Date(plain.startDate);
@@ -207,6 +233,7 @@ class MongooseQuery {
             order: [],
             attributes: { exclude: [] }
         };
+        this.nestedPopulates = [];
     }
 
     sort(sortOption) {
@@ -285,9 +312,9 @@ class MongooseQuery {
             let populateSelect = typeof p === 'object' ? p.select : select;
             let nestedPopulate = typeof p === 'object' ? p.populate : null;
 
-            // Handle completions.user nested populates
+            // Handle nested populates like items.material
             if (pathName.includes('.')) {
-                // E.g., completions.user -> completions is stored as JSON, so we fetch standard completions and mock in-memory population, or handle it
+                this.nestedPopulates.push({ pathName, select: populateSelect });
                 return;
             }
 
@@ -383,6 +410,40 @@ class MongooseQuery {
         return this;
     }
 
+    select(selectOption) {
+        if (!selectOption) return this;
+        let attrs = [];
+        if (typeof selectOption === 'string') {
+            attrs = selectOption.split(' ');
+        } else if (Array.isArray(selectOption)) {
+            attrs = selectOption;
+        } else if (typeof selectOption === 'object') {
+            Object.entries(selectOption).forEach(([k, v]) => {
+                if (v === 1 || v === true) attrs.push(k);
+                else if (v === 0 || v === false || v === -1) attrs.push('-' + k);
+            });
+        }
+        
+        const includes = [];
+        const excludes = [];
+        attrs.forEach(attr => {
+            if (attr.startsWith('-')) excludes.push(attr.substring(1));
+            else includes.push(attr);
+        });
+
+        if (includes.length > 0) {
+            this.queryOptions.attributes = includes;
+        }
+        if (excludes.length > 0) {
+            if (Array.isArray(this.queryOptions.attributes)) {
+                this.queryOptions.attributes = this.queryOptions.attributes.filter(a => !excludes.includes(a));
+            } else {
+                this.queryOptions.attributes.exclude = this.queryOptions.attributes.exclude.concat(excludes);
+            }
+        }
+        return this;
+    }
+
     lean() {
         return this;
     }
@@ -391,15 +452,68 @@ class MongooseQuery {
         let result;
         if (this.type === 'find') {
             result = await this.sequelizeModel.findAll(this.queryOptions);
-            return result.map(inst => wrapInstance(inst, this.modelName));
         } else if (this.type === 'findOne') {
             result = await this.sequelizeModel.findOne(this.queryOptions);
-            return wrapInstance(result, this.modelName);
         } else if (this.type === 'findById') {
             result = await this.sequelizeModel.findByPk(this.queryOptions.where.id, this.queryOptions);
-            return wrapInstance(result, this.modelName);
         } else if (this.type === 'count') {
             return await this.sequelizeModel.count(this.queryOptions);
+        }
+
+        // Handle in-memory populates for JSON array fields
+        if (result && this.nestedPopulates && this.nestedPopulates.length > 0) {
+            const populateInstances = Array.isArray(result) ? result : [result];
+            for (const p of this.nestedPopulates) {
+                const [arrayField, refField] = p.pathName.split('.');
+                
+                let matchModelName = refField.charAt(0).toUpperCase() + refField.slice(1);
+                if (matchModelName.toLowerCase() === 'userid') matchModelName = 'User';
+                
+                const referencedModel = modelRegistry[matchModelName];
+                if (referencedModel) {
+                    const idsToFetch = new Set();
+                    populateInstances.forEach(inst => {
+                        const arr = inst[arrayField];
+                        if (Array.isArray(arr)) {
+                            arr.forEach(item => {
+                                if (item[refField]) idsToFetch.add(item[refField]);
+                            });
+                        }
+                    });
+
+                    if (idsToFetch.size > 0) {
+                        const refRecords = await referencedModel.sequelizeModel.findAll({
+                            where: { id: Array.from(idsToFetch) }
+                        });
+                        const refMap = {};
+                        refRecords.forEach(r => refMap[r.id] = wrapInstance(r, matchModelName));
+
+                        populateInstances.forEach(inst => {
+                            const arr = inst[arrayField];
+                            if (Array.isArray(arr)) {
+                                inst[arrayField] = arr.map(item => {
+                                    if (item[refField] && refMap[item[refField]]) {
+                                        return { ...item, [refField]: refMap[item[refField]] };
+                                    }
+                                    return item;
+                                });
+                                // Using setDataValue if it's a Sequelize model to trigger change
+                                if (inst.setDataValue) {
+                                    inst.setDataValue(arrayField, inst[arrayField]);
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+        }
+
+        if (this.type === 'find') {
+            return result.map(inst => wrapInstance(inst, this.modelName));
+        } else if (this.type === 'findOne' || this.type === 'findById') {
+            return wrapInstance(result, this.modelName);
+        } else {
+            return result;
         }
     }
 

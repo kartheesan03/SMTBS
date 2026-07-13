@@ -96,7 +96,7 @@ const FinancialOperations = () => {
     const invoiceData = orders.map((o, i) => {
         const isPurchase = (o.orderType || '').toLowerCase().includes('purchase');
         return {
-            id: o.invoiceNumber || `INV-${3009 - i}`,
+            id: o.invoiceNumber || o._id?.substring(0, 8).toUpperCase() || 'Pending',
             type: isPurchase ? 'Payable' : 'Receivable',
             party: isPurchase ? (o.vendor?.companyName || o.vendor?.name || 'Vendor') : (o.customer?.company || o.customer?.name || 'Customer'),
             poSo: o.orderNumber || '',
@@ -116,7 +116,7 @@ const FinancialOperations = () => {
         return matchType && matchStatus;
     });
 
-    const barData = [{v:5},{v:7},{v:4},{v:8},{v:6},{v:9},{v:7}];
+    
 
     if (loading) return <div className="flex-center" style={{height:'100vh'}}><div className="loader"></div></div>;
 

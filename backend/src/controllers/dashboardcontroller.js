@@ -145,12 +145,26 @@ const getDashboardStats = async (req, res) => {
                 const found = monthlyStatsRaw?.find(m => m.name === monthName);
                 return found || { name: monthName, sales: 0, revenue: 0 };
             });
+            if (monthlyStats.every(m => m.revenue === 0 && m.sales === 0)) {
+                monthlyStats = [];
+            }
         } catch (e) { console.error('Monthly Stats Aggregation Error:', e); }
 
         let topSellingMaterials = [];
+        let salesCategoryData = [];
         try {
             const salesOrders = await Order.find({ orderType: 'sales', status: { $ne: 'Cancelled' } });
+            
+            const matNameMap = {};
+            const matCatMap = {};
+            allMaterialsRaw.forEach(m => {
+                matNameMap[m._id.toString()] = m.name;
+                matCatMap[m._id.toString()] = m.category || 'General';
+            });
+            
             let materialSalesMap = {};
+            let salesCatMap = {};
+            
             salesOrders.forEach(order => {
                 if (order.items && Array.isArray(order.items)) {
                     order.items.forEach(item => {
@@ -160,17 +174,14 @@ const getDashboardStats = async (req, res) => {
                                 materialSalesMap[matId] = { quantity: 0, revenue: 0 };
                             }
                             materialSalesMap[matId].quantity += (item.quantity || 0);
-                            materialSalesMap[matId].revenue += ((item.quantity || 0) * (item.price || item.unitPrice || 0));
+                            const rev = ((item.quantity || 0) * (item.price || item.unitPrice || 0));
+                            materialSalesMap[matId].revenue += rev;
+                            
+                            const cat = matCatMap[matId] || 'General';
+                            salesCatMap[cat] = (salesCatMap[cat] || 0) + rev;
                         }
                     });
                 }
-            });
-            
-            const matNameMap = {};
-            const matCatMap = {};
-            allMaterialsRaw.forEach(m => {
-                matNameMap[m._id.toString()] = m.name;
-                matCatMap[m._id.toString()] = m.category || 'General';
             });
             
             topSellingMaterials = Object.keys(materialSalesMap).map(matId => ({
@@ -180,6 +191,11 @@ const getDashboardStats = async (req, res) => {
                 sales: materialSalesMap[matId].quantity,
                 revenue: materialSalesMap[matId].revenue
             })).sort((a, b) => b.sales - a.sales).slice(0, 5);
+            
+            salesCategoryData = Object.keys(salesCatMap).map(cat => ({
+                name: cat,
+                value: salesCatMap[cat]
+            }));
         } catch (e) { console.error('Top Selling Calculation Error:', e); }
 
         let recentOrders = [];
@@ -243,6 +259,7 @@ const getDashboardStats = async (req, res) => {
             charts: { 
                 monthlyStats, 
                 categoryData: categoryData || [],
+                salesCategoryData: salesCategoryData || [],
                 hrmsDonut: [
                     { name: 'Active', value: stats.totalEmployees || 0, color: '#3b82f6' },
                     { name: 'Pending', value: 0, color: '#f59e0b' }
@@ -553,43 +570,7 @@ const getDashboardStats = async (req, res) => {
                     currentYearTotalProfit,
                     lastYearTotalProfit
                 },
-                trendData: trendData,
-                employeeTrend: trendData.map(r => ({
-                    name: r.name,
-                    tasksCompleted: Math.round(r.revenue / 60000) || 0,
-                    hoursLogged: Math.round(r.expenses / 10000) + 40 || 0,
-                    efficiency: Math.min(100, Math.round(r.currentYearProfit / 25000) + 50) || 0,
-                    lastTasksCompleted: Math.round(r.lastYearRevenue / 60000) || 0,
-                    lastHoursLogged: Math.round(r.lastYearExpenses / 10000) + 40 || 0,
-                    lastEfficiency: Math.min(100, Math.round(r.lastYearProfit / 25000) + 50) || 0,
-                })),
-                managerTrend: trendData.map(r => ({
-                    name: r.name,
-                    completedProjects: Math.round(r.revenue / 300000) || 0,
-                    pendingProjects: Math.round(r.expenses / 300000) || 0,
-                    overdueProjects: Math.round(r.currentYearProfit / 750000) || 0,
-                    lastCompletedProjects: Math.round(r.lastYearRevenue / 300000) || 0,
-                    lastPendingProjects: Math.round(r.lastYearExpenses / 300000) || 0,
-                    lastOverdueProjects: Math.round(r.lastYearProfit / 750000) || 0,
-                })),
-                hrTrend: trendData.map(r => ({
-                    name: r.name,
-                    newHires: Math.round(r.revenue / 600000) || 0,
-                    attrition: Math.round(r.expenses / 750000) || 0,
-                    trainingHours: Math.round(r.currentYearProfit / 30000) || 0,
-                    lastNewHires: Math.round(r.lastYearRevenue / 600000) || 0,
-                    lastAttrition: Math.round(r.lastYearExpenses / 750000) || 0,
-                    lastTrainingHours: Math.round(r.lastYearProfit / 30000) || 0,
-                })),
-                salesTrend: trendData.map(r => ({
-                    name: r.name,
-                    newLeads: Math.round(r.revenue / 30000) || 0,
-                    meetings: Math.round(r.expenses / 37500) || 0,
-                    dealsClosed: Math.round(r.currentYearProfit / 100000) || 0,
-                    lastNewLeads: Math.round(r.lastYearRevenue / 30000) || 0,
-                    lastMeetings: Math.round(r.lastYearExpenses / 37500) || 0,
-                    lastDealsClosed: Math.round(r.lastYearProfit / 100000) || 0,
-                })),
+                trendData: trendData.every(t => t.revenue === 0 && t.lastYearRevenue === 0) ? [] : trendData,
                 healthMetrics: {
                     materialHealth,
                     hrAttendanceRate,
@@ -598,8 +579,8 @@ const getDashboardStats = async (req, res) => {
                 }
             };
         } catch (e) { 
-            console.error('Analytics Data Error:', e);
-            require('fs').writeFileSync('C:\\Users\\Admin\\Documents\\project\\analytics_error.log', e.toString() + '\\n' + e.stack);
+            console.error('Analytics Data Error:', e.message);
+            data.analytics = { trendData: [], kpis: { totalRevenue: revenue, totalExpenses: purchaseCost, netProfit: revenue - purchaseCost, revenueGrowth: 0 }, healthMetrics: { materialHealth: 0, hrAttendanceRate: 0, orderFulfillment: 0, customerRetention: 0 } };
         }
 
         data.systemInfo = {

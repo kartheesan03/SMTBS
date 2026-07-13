@@ -538,8 +538,8 @@ const editAttendance = async (req, res) => {
         if(!attendance) return res.status(404).json({ message: 'Not found' });
         
         if(status) attendance.status = status;
-        if(checkInTime) attendance.checkInTime = checkInTime;
-        if(checkOutTime) attendance.checkOutTime = checkOutTime;
+        if(checkInTime !== undefined) attendance.checkInTime = checkInTime;
+        if(checkOutTime !== undefined) attendance.checkOutTime = checkOutTime;
         if(totalHours !== undefined) attendance.totalHours = totalHours;
         await attendance.save();
         res.json(attendance);

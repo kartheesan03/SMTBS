@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -212,9 +213,9 @@ const GPSTracking = () => {
                                                         </div>
                                                     )}
                                                     <div style={{ marginTop: '12px' }}>
-                                                        <a href={`/orders/${order._id || order.id}`} style={{ color: '#3b82f6', textDecoration: 'none', fontSize: '12px', fontWeight: 'bold' }}>
+                                                        <Link to={`/orders/${order._id || order.id}`} style={{ color: '#3b82f6', textDecoration: 'none', fontSize: '12px', fontWeight: 'bold' }}>
                                                             View Order details →
-                                                        </a>
+                                                        </Link>
                                                     </div>
                                                 </div>
                                             </Popup>

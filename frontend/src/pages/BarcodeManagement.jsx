@@ -149,7 +149,7 @@ const BarcodeManagement = () => {
                         trendPositive={true}
                     />
                     <PastelKPICard
-                        title="Camera Scans" value={Math.floor(totalScans * 0.4)}
+                        title="Camera Scans" value={0}
                         colorTheme="purple" icon={Camera}
                         trendValue="Via camera scanner"
                         trendPositive={true}
@@ -239,10 +239,10 @@ const BarcodeManagement = () => {
                                                     <span style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>{item.quantity} {item.unit}</span>
                                                 </div>
                                             </td>
-                                            <td style={{padding: '10px 10px', fontSize: 12, color: '#64748b', fontFamily: '"SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace', whiteSpace: 'nowrap'}} data-label="Barcode">{item.barcode || `89012345600${Math.floor(Math.random() * 90) + 10}`}</td>
+                                            <td style={{padding: '10px 10px', fontSize: 12, color: '#64748b', fontFamily: '"SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace', whiteSpace: 'nowrap'}} data-label="Barcode">{item.barcode || item.sku || 'NO-BARCODE'}</td>
                                             <td style={{padding: '10px 10px', fontSize: 12, color: '#a855f7', fontFamily: '"SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace', whiteSpace: 'nowrap'}} data-label="QR String">{item.qr || `SMTBMS-${item.id}-WH`}</td>
-                                            <td style={{padding: '10px 10px', fontSize: 12, color: '#475569', whiteSpace: 'nowrap'}} data-label="Location">{item.loc}</td>
-                                            <td style={{padding: '10px 10px', fontSize: 13, fontWeight: 700, color: '#0ea5e9', whiteSpace: 'nowrap'}} data-label="Scans">{item.scans || Math.floor(Math.random() * 25) + 1}</td>
+                                            <td style={{padding: '10px 10px', fontSize: 12, color: '#475569', whiteSpace: 'nowrap'}} data-label="Location">{item.loc || 'Warehouse'}</td>
+                                            <td style={{padding: '10px 10px', fontSize: 13, fontWeight: 700, color: '#0ea5e9', whiteSpace: 'nowrap'}} data-label="Scans">{item.scans || 0}</td>
                                             <td style={{padding: '10px 10px', fontSize: 12, color: '#64748b', whiteSpace: 'nowrap'}} data-label="Updated">{item.last}</td>
                                             <td style={{padding: '10px 10px', textAlign: 'center'}} data-label="Action">
                                                 <div style={{display: 'flex', gap: 4, justifyContent: 'center'}}>

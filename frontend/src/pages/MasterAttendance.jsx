@@ -81,7 +81,8 @@ const EditModal = ({ record, onClose, onSave }) => {
             onSave();
             onClose();
         } catch (err) {
-            alert(err.response?.data?.message || 'Failed to save');
+            console.error(err);
+            alert(err.response?.data?.message || err.message || 'Failed to save');
         } finally {
             setSaving(false);
         }
@@ -123,9 +124,9 @@ const EditModal = ({ record, onClose, onSave }) => {
                         style={{ width: '100%', padding: '9px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 14, outline: 'none', background: '#f8fafc' }}>
                         <option value="Present">Present</option>
                         <option value="Late">Late</option>
+                        <option value="Half-day">Half-day</option>
                         <option value="Absent">Absent</option>
-                        <option value="On Leave">On Leave</option>
-                        <option value="-">Not Checked In</option>
+                        <option value="Leave">On Leave</option>
                     </select>
                 </div>
 

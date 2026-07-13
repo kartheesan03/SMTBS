@@ -130,7 +130,6 @@ const OrderManagement = () => {
                 {/* KPI Cards */}
                 <PastelKPIGrid>
                     <PastelKPICard title="Total Orders" value={orders.length} colorTheme="purple" icon={Package} trendValue="+18% vs last month" trendPositive={true} />
-                    <PastelKPICard title="Active Orders" value={activeOrders.length} colorTheme="blue" icon={Truck} trendValue="In pipeline" trendPositive={true} />
                     <PastelKPICard title="Delivered" value={deliveredOrders.length} colorTheme="mint" icon={CheckCircle} trendValue="+12% vs last month" trendPositive={true} />
                     <PastelKPICard title="Order Revenue" value={formatCurrency(orderRevenue)} colorTheme="yellow" icon={DollarSign} trendValue="+22% vs last month" trendPositive={true} />
                 </PastelKPIGrid>

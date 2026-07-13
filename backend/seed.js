@@ -6,7 +6,6 @@ const User = require('./src/models/User');
 const Material = require('./src/models/Material');
 const Employee = require('./src/models/Employee');
 const Customer = require('./src/models/Customer');
-const Lead = require('./src/models/Lead');
 const Vendor = require('./src/models/Vendor');
 const Order = require('./src/models/Order');
 const Attendance = require('./src/models/Attendance');
@@ -14,7 +13,6 @@ const Leave = require('./src/models/Leave');
 const Salary = require('./src/models/Salary');
 const Task = require('./src/models/Task');
 const Notification = require('./src/models/Notification');
-const FollowUp = require('./src/models/FollowUp');
 const Ticket = require('./src/models/Ticket');
 const CommunicationLog = require('./src/models/CommunicationLog');
 const MaterialMovement = require('./src/models/MaterialMovement');
@@ -92,16 +90,11 @@ const seedData = async () => {
         // 3. EMPLOYEES — Tamil Nadu cities and departments
         // ===================================================================
         const employeeDocs = [
-            { userId: managerUser._id, employeeId: 'EMP001', firstName: 'Murugan', lastName: 'Selvam', department: 'Production', designation: 'Production Manager', salary: 55000, contact: '9876543210', address: '12, Anna Nagar, Coimbatore, Tamil Nadu 641001', joinDate: getPastDate(6, 1) },
-            { userId: managerUser2._id, employeeId: 'EMP002', firstName: 'Anitha', lastName: 'Bala', department: 'Operations', designation: 'Operations Manager', salary: 52000, contact: '9876543211', address: '45, Gandhipuram, Coimbatore, Tamil Nadu 641012', joinDate: getPastDate(6, 1) },
-            { userId: salesUser._id, employeeId: 'EMP003', firstName: 'Senthil', lastName: 'Kumar', department: 'Sales', designation: 'Senior Sales Executive', salary: 42000, contact: '9876543212', address: '78, T. Nagar, Chennai, Tamil Nadu 600017', joinDate: getPastDate(4, 15) },
-            { userId: salesUser2._id, employeeId: 'EMP004', firstName: 'Kavitha', lastName: 'Ramesh', department: 'Sales', designation: 'Sales Representative', salary: 32000, contact: '9876543213', address: '23, KK Nagar, Madurai, Tamil Nadu 625020', joinDate: getPastDate(3, 10) },
-            { userId: hrUser._id, employeeId: 'EMP005', firstName: 'Priya', lastName: 'Devi', department: 'HR', designation: 'HR Lead', salary: 48000, contact: '9876543214', address: '56, RS Puram, Coimbatore, Tamil Nadu 641002', joinDate: getPastDate(5, 1) },
-            { userId: hrUser2._id, employeeId: 'EMP006', firstName: 'Lakshmi', lastName: 'Narayanan', department: 'HR', designation: 'HR Executive', salary: 35000, contact: '9876543215', address: '89, Adyar, Chennai, Tamil Nadu 600020', joinDate: getPastDate(2, 20) },
-            { userId: empUser1._id, employeeId: 'EMP007', firstName: 'Rajesh', lastName: 'Kannan', department: 'Warehouse', designation: 'Stock Controller', salary: 28000, contact: '9876543216', address: '34, Singanallur, Coimbatore, Tamil Nadu 641005', joinDate: getPastDate(2, 5) },
-            { userId: empUser2._id, employeeId: 'EMP008', firstName: 'Divya', lastName: 'Prakash', department: 'Production', designation: 'Quality Inspector', salary: 30000, contact: '9876543217', address: '67, Saravanampatti, Coimbatore, Tamil Nadu 641035', joinDate: getPastDate(1, 15) },
-            { userId: empUser3._id, employeeId: 'EMP009', firstName: 'Venkatesh', lastName: 'Iyer', department: 'Logistics', designation: 'Dispatch Coordinator', salary: 26000, contact: '9876543218', address: '12, Peelamedu, Coimbatore, Tamil Nadu 641004', joinDate: getPastDate(1, 25) },
-            { userId: empUser4._id, employeeId: 'EMP010', firstName: 'Saranya', lastName: 'Mohan', department: 'Accounts', designation: 'Accounts Assistant', salary: 25000, contact: '9876543219', address: '90, Kuniyamuthur, Coimbatore, Tamil Nadu 641008', joinDate: getPastDate(1, 5) }
+            { userId: adminUser._id, employeeId: 'EMP001', firstName: 'System', lastName: 'Admin', department: 'Admin', designation: 'Administrator', salary: 75000, contact: '9876543200', address: '1, Admin Block, Coimbatore, Tamil Nadu 641001', joinDate: getPastDate(12, 1) },
+            { userId: hrUser._id, employeeId: 'EMP002', firstName: 'Priya', lastName: 'Devi', department: 'HR', designation: 'HR Manager', salary: 48000, contact: '9876543214', address: '56, RS Puram, Coimbatore, Tamil Nadu 641002', joinDate: getPastDate(5, 1) },
+            { userId: managerUser._id, employeeId: 'EMP003', firstName: 'Murugan', lastName: 'Selvam', department: 'Manager', designation: 'Operations Manager', salary: 55000, contact: '9876543210', address: '12, Anna Nagar, Coimbatore, Tamil Nadu 641001', joinDate: getPastDate(6, 1) },
+            { userId: empUser1._id, employeeId: 'EMP004', firstName: 'Rajesh', lastName: 'Kannan', department: 'Employee', designation: 'Staff', salary: 28000, contact: '9876543216', address: '34, Singanallur, Coimbatore, Tamil Nadu 641005', joinDate: getPastDate(2, 5) },
+            { userId: salesUser._id, employeeId: 'EMP005', firstName: 'Senthil', lastName: 'Kumar', department: 'Sales', designation: 'Senior Sales Executive', salary: 42000, contact: '9876543212', address: '78, T. Nagar, Chennai, Tamil Nadu 600017', joinDate: getPastDate(4, 15) }
         ];
 
         const createdEmployees = await Employee.insertMany(employeeDocs);
@@ -159,25 +152,7 @@ const seedData = async () => {
 
         const createdCustomers = await Customer.insertMany(customerDocs);
         console.log(`Seeded ${createdCustomers.length} Customers.`);
-
-        // ===================================================================
-        // 7. LEADS — Tamil Nadu market leads
-        // ===================================================================
-        const leadDocs = [
-            { name: 'Pollachi Agro Industries', source: 'Web', phone: '9841000001', email: 'info@pollachiagro.in', status: 'New Lead', assignedTo: salesUser._id, estimatedValue: 150000, notes: 'Needs GI Pipes and fittings for greenhouse project.' },
-            { name: 'Ooty Resort Developers', source: 'Referral', phone: '9841000002', email: 'dev@ootyresort.in', status: 'Initial Contact', assignedTo: salesUser._id, estimatedValue: 280000, notes: 'Referral from Kovai Builders. Needs steel and cement for hill resort.' },
-            { name: 'Karur Textile Park', source: 'LinkedIn', phone: '9841000003', email: 'admin@karurtextile.in', status: 'Qualified Lead', assignedTo: salesUser2._id, estimatedValue: 520000, notes: 'Factory expansion project. Requires structural steel and electrical supplies.' },
-            { name: 'Hosur Auto Components', source: 'Trade Fair', phone: '9841000004', email: 'purchase@hosurauto.in', status: 'Negotiation', assignedTo: salesUser._id, estimatedValue: 750000, notes: 'Auto parts factory. Finalizing pricing for SS Sheets and copper wires.' },
-            { name: 'Dindigul Lock Industries', source: 'Cold Call', phone: '9841000005', email: 'orders@dindigullock.in', status: 'Proposal Sent', assignedTo: salesUser2._id, estimatedValue: 180000, notes: 'Contract draft sent for brass fittings supply. Awaiting signature.' },
-            { name: 'Kanchipuram Silk Looms', source: 'Web', phone: '9841000006', email: 'silk@kanchilooms.in', status: 'New Lead', assignedTo: salesUser._id, estimatedValue: 95000, notes: 'Electrical rewiring project for loom shed expansion.' },
-            { name: 'Chettinad Cement Works', source: 'LinkedIn', phone: '9841000007', email: 'supply@chettinadworks.in', status: 'Converted To Customer', assignedTo: salesUser2._id, estimatedValue: 1200000, notes: 'Became a customer for cement supply.' },
-            { name: 'Thoothukudi Port Infra', source: 'Government Tender', phone: '9841000008', email: 'tender@tutiport.gov.in', status: 'Lost', assignedTo: salesUser._id, estimatedValue: 2500000, notes: 'Government tender lost to larger bidder. Follow up for next cycle.' },
-            { name: 'Namakkal Poultry Farms', source: 'Referral', phone: '9841000009', email: 'infra@namakkalpoultry.in', status: 'Initial Contact', assignedTo: salesUser2._id, estimatedValue: 320000, notes: 'Shed construction needs. GI Pipes, cement, and MS angles.' },
-            { name: 'Ramanathapuram Fisheries', source: 'Web', phone: '9841000010', email: 'infra@ramfisheries.in', status: 'Qualified Lead', assignedTo: salesUser._id, estimatedValue: 410000, notes: 'Cold storage infrastructure project needing SS sheets and electrical supplies.' }
-        ];
-
-        const createdLeads = await Lead.insertMany(leadDocs);
-        console.log(`Seeded ${createdLeads.length} CRM Leads.`);
+        // Removed Lead seeding
 
         // ===================================================================
         // 8. ORDERS — Sales & Purchase Orders with INR amounts
@@ -192,7 +167,7 @@ const seedData = async () => {
                 ],
                 totalAmount: (200 * 62) + (100 * 380),
                 status: 'Confirmed',
-                type: 'Sales',
+                orderType: 'sales',
                 createdBy: salesUser._id,
                 createdAt: getPastDate(3, 10)
             },
@@ -205,7 +180,7 @@ const seedData = async () => {
                 ],
                 totalAmount: (10 * 3500) + (500 * 18),
                 status: 'Shipped',
-                type: 'Sales',
+                orderType: 'sales',
                 createdBy: salesUser._id,
                 createdAt: getPastDate(2, 5)
             },
@@ -217,7 +192,7 @@ const seedData = async () => {
                 ],
                 totalAmount: (30 * 850),
                 status: 'Pending',
-                type: 'Sales',
+                orderType: 'sales',
                 createdBy: salesUser2._id,
                 createdAt: getPastDate(2, 20)
             },
@@ -230,7 +205,7 @@ const seedData = async () => {
                 ],
                 totalAmount: (100 * 62) + (200 * 5),
                 status: 'Confirmed',
-                type: 'Sales',
+                orderType: 'sales',
                 createdBy: salesUser2._id,
                 createdAt: getPastDate(1, 8)
             },
@@ -243,7 +218,7 @@ const seedData = async () => {
                 ],
                 totalAmount: (50 * 420) + (100 * 45),
                 status: 'Delivered',
-                type: 'Sales',
+                orderType: 'sales',
                 createdBy: salesUser._id,
                 createdAt: getPastDate(1, 18)
             },
@@ -256,7 +231,7 @@ const seedData = async () => {
                 ],
                 totalAmount: (500 * 55) + (50 * 720),
                 status: 'Delivered',
-                type: 'Purchase',
+                orderType: 'purchase',
                 createdBy: managerUser._id,
                 createdAt: getPastDate(0, 5)
             },
@@ -269,7 +244,7 @@ const seedData = async () => {
                 ],
                 totalAmount: (1000 * 15) + (50 * 200),
                 status: 'Confirmed',
-                type: 'Purchase',
+                orderType: 'purchase',
                 createdBy: managerUser._id,
                 createdAt: getPastDate(0, 12)
             },
@@ -281,7 +256,7 @@ const seedData = async () => {
                 ],
                 totalAmount: (200 * 340),
                 status: 'Awaiting Approval',
-                type: 'Purchase',
+                orderType: 'purchase',
                 createdBy: managerUser2._id,
                 createdAt: getPastDate(0, 18)
             },
@@ -293,7 +268,7 @@ const seedData = async () => {
                 ],
                 totalAmount: (500 * 3.5),
                 status: 'Approved',
-                type: 'Purchase',
+                orderType: 'purchase',
                 createdBy: managerUser._id,
                 createdAt: getPastDate(0, 22)
             }
@@ -317,24 +292,25 @@ const seedData = async () => {
             for (const emp of createdEmployees) {
                 // Simulate some realistic variations
                 if (emp.firstName === 'Murugan' && i === 3) {
-                    attendanceDocs.push({ employee: emp._id, date, status: 'Leave' });
+                    attendanceDocs.push({ userId: emp.userId || emp.userIdField, employee: emp._id, date, status: 'Leave' });
                     continue;
                 }
                 if (emp.firstName === 'Senthil' && i === 5) {
-                    attendanceDocs.push({ employee: emp._id, date, status: 'Absent' });
+                    attendanceDocs.push({ userId: emp.userId || emp.userIdField, employee: emp._id, date, status: 'Absent' });
                     continue;
                 }
                 if (emp.firstName === 'Rajesh' && i === 7) {
-                    attendanceDocs.push({ employee: emp._id, date, status: 'Leave' });
+                    attendanceDocs.push({ userId: emp.userId || emp.userIdField, employee: emp._id, date, status: 'Leave' });
                     continue;
                 }
                 if (emp.firstName === 'Saranya' && i === 2) {
-                    attendanceDocs.push({ employee: emp._id, date, status: 'Absent' });
+                    attendanceDocs.push({ userId: emp.userId || emp.userIdField, employee: emp._id, date, status: 'Absent' });
                     continue;
                 }
 
                 const isLate = Math.random() > 0.85;
                 attendanceDocs.push({
+                    userId: emp.userId || emp.userIdField,
                     employee: emp._id,
                     date,
                     status: isLate ? 'Late' : 'Present',
@@ -352,7 +328,7 @@ const seedData = async () => {
         // ===================================================================
         const leaveDocs = [
             {
-                employee: createdEmployees[0]._id, // Murugan
+                employee: createdEmployees[0]._id, // Admin
                 type: 'Sick',
                 startDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() - 4),
                 endDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() - 3),
@@ -362,7 +338,7 @@ const seedData = async () => {
                 reviewNote: 'Approved. Medical certificate received.'
             },
             {
-                employee: createdEmployees[6]._id, // Rajesh
+                employee: createdEmployees[1]._id, // HR
                 type: 'Casual',
                 startDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() - 8),
                 endDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7),
@@ -372,7 +348,7 @@ const seedData = async () => {
                 reviewNote: 'Permitted.'
             },
             {
-                employee: createdEmployees[7]._id, // Divya
+                employee: createdEmployees[2]._id, // Manager
                 type: 'Annual',
                 startDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 5),
                 endDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 12),
@@ -380,7 +356,7 @@ const seedData = async () => {
                 status: 'Pending'
             },
             {
-                employee: createdEmployees[9]._id, // Saranya
+                employee: createdEmployees[3]._id, // Employee
                 type: 'Sick',
                 startDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() - 2),
                 endDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() - 2),
@@ -390,7 +366,7 @@ const seedData = async () => {
                 reviewNote: 'Half-day approved.'
             },
             {
-                employee: createdEmployees[2]._id, // Senthil
+                employee: createdEmployees[4]._id, // Sales
                 type: 'Casual',
                 startDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 2),
                 endDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 2),
@@ -398,7 +374,7 @@ const seedData = async () => {
                 status: 'Pending'
             },
             {
-                employee: createdEmployees[8]._id, // Venkatesh
+                employee: createdEmployees[0]._id, // Admin
                 type: 'Unpaid',
                 startDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 15),
                 endDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 20),
@@ -559,7 +535,7 @@ const seedData = async () => {
                 title: 'Low Stock Alert - MS Angle',
                 message: 'MS Angle (50x50x6) stock is at 12 pcs, below the threshold of 20. Place a purchase order immediately.',
                 type: 'warning',
-                category: 'stock',
+                module: 'stock',
                 isRead: false,
                 link: '/materials'
             },
@@ -568,7 +544,7 @@ const seedData = async () => {
                 title: 'Out of Stock - Welding Rod',
                 message: 'Welding Rod (E6013) is completely out of stock. Production line may be affected.',
                 type: 'error',
-                category: 'stock',
+                module: 'stock',
                 isRead: false,
                 link: '/materials'
             },
@@ -577,7 +553,7 @@ const seedData = async () => {
                 title: 'Low Stock Alert - Aluminum Sheet',
                 message: 'Aluminum Sheet (1mm) stock is at 5 pcs, below the threshold of 10.',
                 type: 'warning',
-                category: 'stock',
+                module: 'stock',
                 isRead: false,
                 link: '/materials'
             },
@@ -586,7 +562,7 @@ const seedData = async () => {
                 title: 'Leave Request Pending',
                 message: 'Divya Prakash has requested 7 days of annual leave starting next week. Review required.',
                 type: 'info',
-                category: 'hr',
+                module: 'hr',
                 isRead: false,
                 link: '/leave-management'
             },
@@ -595,7 +571,7 @@ const seedData = async () => {
                 title: `${thisMonthName} Payroll Ready for Approval`,
                 message: `10 salary slips for ${thisMonthName} have been generated and are pending admin approval.`,
                 type: 'info',
-                category: 'hr',
+                module: 'hr',
                 isRead: false,
                 link: '/payroll'
             },
@@ -604,7 +580,7 @@ const seedData = async () => {
                 title: 'Purchase Order Delivered',
                 message: `PO-${today.getFullYear()}-001 from Sri Lakshmi Steel Traders has been delivered and verified. 500 kg TMT Steel added to inventory.`,
                 type: 'success',
-                category: 'order',
+                module: 'order',
                 isRead: false,
                 link: '/erp'
             },
@@ -613,7 +589,7 @@ const seedData = async () => {
                 title: 'New Lead Assigned',
                 message: 'New lead "Ramanathapuram Fisheries" has been assigned to you. Estimated deal value: Rs.4,10,000.',
                 type: 'info',
-                category: 'general',
+                module: 'general',
                 isRead: false,
                 link: '/crm'
             },
@@ -622,7 +598,7 @@ const seedData = async () => {
                 title: 'System Maintenance Notice',
                 message: 'SMTBMS will undergo scheduled maintenance on Sunday 12:00 AM - 4:00 AM IST. Plan your work accordingly.',
                 type: 'info',
-                category: 'system',
+                module: 'system',
                 isRead: false
             }
         ];
@@ -630,17 +606,7 @@ const seedData = async () => {
         const seededNotifications = await Notification.insertMany(notificationDocs);
         console.log(`Seeded ${seededNotifications.length} System Notifications.`);
 
-        // ===================================================================
-        // 14. CRM FOLLOW-UPS
-        // ===================================================================
-        const followupDocs = [
-            { name: 'Sarah Connor', type: 'Call', time: '10:00 AM', phone: '+1 555-9012', status: 'Pending', notes: 'Call Sarah to follow up on the TMT Steel bar quotation.', createdBy: salesUser._id },
-            { name: 'John Wick', type: 'Email', time: '02:30 PM', email: 'j.wick@continental.com', status: 'Pending', notes: 'Email John regarding brass fittings contract validation.', createdBy: salesUser._id },
-            { name: 'Gordon Freeman', type: 'Call', time: '04:00 PM', phone: '+1 555-8821', status: 'Pending', notes: 'Confirm delivery schedule for GI Pipes at Black Mesa division.', createdBy: salesUser2._id },
-            { name: 'Bruce Wayne', type: 'Meeting', time: '11:00 AM', phone: '+1 555-1939', status: 'Completed', notes: 'Discuss copper wire bulk orders for Wayne Enterprises.', createdBy: salesUser._id }
-        ];
-        const seededFollowups = await FollowUp.insertMany(followupDocs);
-        console.log(`Seeded ${seededFollowups.length} CRM Follow-Ups.`);
+        // Removed FollowUp
 
         // ===================================================================
         // 15. CUSTOMER SUPPORT TICKETS

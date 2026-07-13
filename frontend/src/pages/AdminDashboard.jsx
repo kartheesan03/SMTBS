@@ -306,7 +306,6 @@ const AdminDashboard = () => {
                             <IconQuickAction icon={DollarSign}  label="Payroll"          colorClass="bg-light-purple" onClick={() => navigate('/payroll')} />
                             <IconQuickAction icon={Box}         label="Materials"        colorClass="bg-light-orange" onClick={() => navigate('/materials')} />
                             <IconQuickAction icon={Building2}   label="Vendors"          colorClass="bg-light-cyan"   onClick={() => navigate('/vendors')} />
-                            <IconQuickAction icon={Truck}       label="GPS Tracking"     colorClass="bg-light-blue"   onClick={() => navigate('/gps-tracking')} />
                             <IconQuickAction icon={ShoppingCart} label="Purchase Orders" colorClass="bg-light-green"  onClick={() => navigate('/orders/purchase')} />
                             <IconQuickAction icon={Tag}         label="Sales Orders"     colorClass="bg-light-red"    onClick={() => navigate('/orders')} />
                             <IconQuickAction icon={FileText}    label="Reports"          colorClass="bg-light-purple" onClick={() => navigate('/reports')} />
@@ -390,22 +389,48 @@ const AdminDashboard = () => {
                             </select>
                         </div>
                         <div style={{ height: 220, width: '100%' }}>
-                            {(!dashboardData?.analytics?.trendData || dashboardData.analytics.trendData.length === 0) ? (
-                                <EmptyState title="No Revenue Data" message="No historical revenue data available." height={220} />
-                            ) : (
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <LineChart data={dashboardData.analytics.trendData} margin={{ top: 4, right: 10, left: 0, bottom: 0 }}>
-                                        <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
-                                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94a3b8' }} dy={8} />
-                                        <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94a3b8' }} width={48} tickFormatter={(val) => val >= 1000 ? `${(val / 1000).toFixed(0)}k` : val} />
-                                        <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #e2e8f0' }} formatter={(val, name) => [`₹${val.toLocaleString()}`, name]} />
-                                        <Legend iconType="circle" wrapperStyle={{ fontSize: '12px' }} verticalAlign="top" height={36} />
-                                        <Line type="monotone" dataKey={revenueTrendYear === 'current' ? 'revenue' : 'lastYearRevenue'} name="Revenue" stroke="#7C3AED" strokeWidth={2} dot={false} activeDot={{ r: 6 }} />
-                                        <Line type="monotone" dataKey={revenueTrendYear === 'current' ? 'expenses' : 'lastYearExpenses'} name="Expenses" stroke="#D97706" strokeWidth={2} dot={false} activeDot={{ r: 6 }} />
-                                        <Line type="monotone" dataKey={revenueTrendYear === 'current' ? 'currentYearProfit' : 'lastYearProfit'} name="Net Profit" stroke="#059669" strokeWidth={2} dot={false} activeDot={{ r: 6 }} />
-                                    </LineChart>
-                                </ResponsiveContainer>
-                            )}
+                            {(() => {
+                                // Primary: use analytics.trendData
+                                // Fallback: use charts.monthlyStats (revenue field)
+                                const trendData = dashboardData?.analytics?.trendData;
+                                const monthlyStats = dashboardData?.charts?.monthlyStats;
+                                
+                                // Build chart data: prefer trendData, fallback to monthlyStats
+                                let chartData = null;
+                                if (trendData && trendData.length > 0) {
+                                    chartData = trendData;
+                                } else if (monthlyStats && monthlyStats.length > 0) {
+                                    // monthlyStats has {name, revenue, sales} — map to trendData shape
+                                    chartData = monthlyStats.map(m => ({
+                                        name: m.name,
+                                        revenue: m.revenue || 0,
+                                        expenses: 0,
+                                        currentYearProfit: m.revenue || 0,
+                                        lastYearRevenue: 0,
+                                        lastYearExpenses: 0,
+                                        lastYearProfit: 0,
+                                    }));
+                                }
+
+                                if (!chartData || chartData.length === 0) {
+                                    return <EmptyState title="No Revenue Data" message="No historical revenue data available." height={220} />;
+                                }
+
+                                return (
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <LineChart data={chartData} margin={{ top: 4, right: 10, left: 0, bottom: 0 }}>
+                                            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                                            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94a3b8' }} dy={8} />
+                                            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94a3b8' }} width={48} tickFormatter={(val) => val >= 1000 ? `${(val / 1000).toFixed(0)}k` : val} />
+                                            <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #e2e8f0' }} formatter={(val, name) => [`₹${val.toLocaleString()}`, name]} />
+                                            <Legend iconType="circle" wrapperStyle={{ fontSize: '12px' }} verticalAlign="top" height={36} />
+                                            <Line type="monotone" dataKey={revenueTrendYear === 'current' ? 'revenue' : 'lastYearRevenue'} name="Revenue" stroke="#7C3AED" strokeWidth={2} dot={false} activeDot={{ r: 6 }} />
+                                            <Line type="monotone" dataKey={revenueTrendYear === 'current' ? 'expenses' : 'lastYearExpenses'} name="Expenses" stroke="#D97706" strokeWidth={2} dot={false} activeDot={{ r: 6 }} />
+                                            <Line type="monotone" dataKey={revenueTrendYear === 'current' ? 'currentYearProfit' : 'lastYearProfit'} name="Net Profit" stroke="#059669" strokeWidth={2} dot={false} activeDot={{ r: 6 }} />
+                                        </LineChart>
+                                    </ResponsiveContainer>
+                                );
+                            })()}
                         </div>
                     </div>
 
@@ -499,12 +524,27 @@ const AdminDashboard = () => {
                         <div className="panel-header">
                             <div className="panel-title"><Cpu size={15} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 5 }} color="#7C3AED" /> AI Insights</div>
                         </div>
-                        <div className="ai-insights-list">
-                            <div className="ai-insight-item"><div className="ai-dot"></div><div>Revenue is <strong>{dashboardData?.analytics?.kpis?.revenueGrowth || 0}%</strong> vs last month.</div></div>
-                            <div className="ai-insight-item"><div className="ai-dot"></div><div><strong>{dashboardData?.stats?.pendingOrders || 0}</strong> orders require approval.</div></div>
-                            <div className="ai-insight-item"><div className="ai-dot"></div><div><strong>{dashboardData?.tables?.lowStock?.length || 0} items</strong> below stock threshold.</div></div>
-                            <div className="ai-insight-item"><div className="ai-dot"></div><div><strong>{dashboardData?.stats?.pendingSalaries || 0}</strong> payrolls pending.</div></div>
-                        </div>
+                        {((dashboardData?.analytics?.trendData || []).length > 0 || (dashboardData?.stats?.pendingOrders || 0) > 0 || (dashboardData?.tables?.lowStock?.length || 0) > 0 || (dashboardData?.stats?.pendingSalaries || 0) > 0) ? (
+                            <div className="ai-insights-list">
+                                {(dashboardData?.analytics?.trendData || []).length > 0 && (
+                                    <div className="ai-insight-item">
+                                        <div className="ai-dot"></div>
+                                        <div>Revenue {(dashboardData?.analytics?.kpis?.revenueGrowth || 0) >= 0 ? 'increased' : 'decreased'} by <strong>{Math.abs(dashboardData?.analytics?.kpis?.revenueGrowth || 0)}%</strong> vs last month.</div>
+                                    </div>
+                                )}
+                                {(dashboardData?.stats?.pendingOrders || 0) > 0 && (
+                                    <div className="ai-insight-item"><div className="ai-dot"></div><div><strong>{dashboardData?.stats?.pendingOrders}</strong> orders require approval.</div></div>
+                                )}
+                                {(dashboardData?.tables?.lowStock?.length || 0) > 0 && (
+                                    <div className="ai-insight-item"><div className="ai-dot"></div><div><strong>{dashboardData?.tables?.lowStock?.length} items</strong> below stock threshold.</div></div>
+                                )}
+                                {(dashboardData?.stats?.pendingSalaries || 0) > 0 && (
+                                    <div className="ai-insight-item"><div className="ai-dot"></div><div><strong>{dashboardData?.stats?.pendingSalaries}</strong> payrolls pending.</div></div>
+                                )}
+                            </div>
+                        ) : (
+                            <EmptyState title="No Insights" message="Insufficient data to generate insights." height={150} icon={Cpu} />
+                        )}
                     </div>
 
                     {/* Top Selling Materials */}
@@ -514,14 +554,18 @@ const AdminDashboard = () => {
                             <select className="panel-dropdown"><option>This Month ▾</option></select>
                         </div>
                         <div style={{ height: 180 }}>
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart layout="vertical" data={dashboardData?.tables?.topSellingMaterials || []} margin={{ top: 0, right: 20, left: 0, bottom: 0 }}>
-                                    <XAxis type="number" hide />
-                                    <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#475569' }} width={80} />
-                                    <Tooltip contentStyle={{ fontSize: 11 }} cursor={{ fill: '#f8fafc' }} />
-                                    <Bar dataKey="sales" fill="#7C3AED" radius={[0, 4, 4, 0]} barSize={10} />
-                                </BarChart>
-                            </ResponsiveContainer>
+                            {(!dashboardData?.tables?.topSellingMaterials || dashboardData.tables.topSellingMaterials.length === 0) ? (
+                                <EmptyState title="No Data" message="Insufficient sales data." height={180} />
+                            ) : (
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <BarChart layout="vertical" data={dashboardData?.tables?.topSellingMaterials || []} margin={{ top: 0, right: 20, left: 0, bottom: 0 }}>
+                                        <XAxis type="number" hide />
+                                        <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#475569' }} width={90} />
+                                        <Tooltip contentStyle={{ fontSize: 11 }} cursor={{ fill: '#f8fafc' }} />
+                                        <Bar dataKey="sales" fill="#7C3AED" radius={[0, 4, 4, 0]} barSize={10} />
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            )}
                         </div>
                     </div>
 
@@ -531,33 +575,39 @@ const AdminDashboard = () => {
                             <div className="panel-title">Sales Analytics</div>
                             <select className="panel-dropdown"><option>This Month ▾</option></select>
                         </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-                            <div style={{ width: '100%', height: 130 }}>
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <PieChart>
-                                        <Pie data={dashboardData?.charts?.categoryData || []} innerRadius={38} outerRadius={56} dataKey="value" cx="50%" cy="50%">
-                                            {(dashboardData?.charts?.categoryData || []).map((entry, index) => {
-                                                const colors = ['#7C3AED', '#D97706', '#059669', '#2563EB'];
-                                                return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
-                                            })}
-                                        </Pie>
-                                        <Tooltip contentStyle={{ fontSize: 11 }} />
-                                    </PieChart>
-                                </ResponsiveContainer>
-                            </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 5, width: '100%' }}>
-                                {(dashboardData?.charts?.categoryData || []).map((entry, idx) => {
-                                    const colors = ['#7C3AED', '#D97706', '#059669', '#2563EB'];
-                                    return (
-                                        <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 11 }}>
-                                            <span style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#475569' }}>
-                                                <div style={{ width: 8, height: 8, borderRadius: '50%', background: colors[idx % colors.length] }}></div>{entry.name}
-                                            </span>
-                                            <strong style={{ color: '#0f172a' }}>{entry.value}</strong>
-                                        </div>
-                                    );
-                                })}
-                            </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, height: 180 }}>
+                            {(!dashboardData?.charts?.salesCategoryData || dashboardData.charts.salesCategoryData.length === 0) ? (
+                                <EmptyState title="No Sales" message="No sales data available." height={180} />
+                            ) : (
+                                <>
+                                    <div style={{ width: '100%', height: 110 }}>
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <PieChart>
+                                                <Pie data={dashboardData.charts.salesCategoryData} innerRadius={34} outerRadius={50} dataKey="value" cx="50%" cy="50%">
+                                                    {dashboardData.charts.salesCategoryData.map((entry, index) => {
+                                                        const colors = ['#7C3AED', '#D97706', '#059669', '#2563EB'];
+                                                        return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
+                                                    })}
+                                                </Pie>
+                                                <Tooltip contentStyle={{ fontSize: 11 }} formatter={(val) => `₹${val.toLocaleString()}`} />
+                                            </PieChart>
+                                        </ResponsiveContainer>
+                                    </div>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4, width: '100%', overflowY: 'auto' }}>
+                                        {dashboardData.charts.salesCategoryData.slice(0, 3).map((entry, idx) => {
+                                            const colors = ['#7C3AED', '#D97706', '#059669', '#2563EB'];
+                                            return (
+                                                <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 11 }}>
+                                                    <span style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#475569' }}>
+                                                        <div style={{ width: 8, height: 8, borderRadius: '50%', background: colors[idx % colors.length] }}></div>{entry.name}
+                                                    </span>
+                                                    <strong style={{ color: '#0f172a' }}>₹{entry.value.toLocaleString()}</strong>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </div>
 
@@ -567,18 +617,26 @@ const AdminDashboard = () => {
                             <div className="panel-title">Monthly Profit</div>
                             <select className="panel-dropdown" style={{ paddingRight: '24px', width: 'auto' }}><option>This Month</option></select>
                         </div>
-                        <div style={{ marginBottom: 10 }}>
-                            <div style={{ fontSize: 22, fontWeight: 800, color: '#0f172a', letterSpacing: '-0.5px' }}>{formatINR(dashboardData?.analytics?.kpis?.netProfit || totalRevenue)}</div>
-                            <div style={{ fontSize: 12, color: '#059669', fontWeight: 600, marginTop: 3 }}>↑ {dashboardData?.analytics?.kpis?.revenueGrowth || 0}% vs last month</div>
-                        </div>
-                        <div style={{ height: 110 }}>
-                            <ResponsiveContainer width="100%" height="100%">
-                                <LineChart data={dashboardData?.charts?.monthlyStats || []} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
-                                    <Line type="monotone" dataKey="revenue" stroke="#059669" strokeWidth={2} dot={{ r: 3, fill: '#059669' }} />
-                                    <Tooltip contentStyle={{ fontSize: 11 }} formatter={(val) => [`₹${val.toLocaleString()}`, 'Revenue']} />
-                                </LineChart>
-                            </ResponsiveContainer>
-                        </div>
+                        {(!dashboardData?.charts?.monthlyStats || dashboardData.charts.monthlyStats.length === 0) ? (
+                            <EmptyState title="No Profit Data" message="No historical profit data." height={150} />
+                        ) : (
+                            <>
+                                <div style={{ marginBottom: 10 }}>
+                                    <div style={{ fontSize: 22, fontWeight: 800, color: '#0f172a', letterSpacing: '-0.5px' }}>{formatINR(dashboardData?.analytics?.kpis?.netProfit || totalRevenue)}</div>
+                                    <div style={{ fontSize: 12, color: (dashboardData?.analytics?.kpis?.revenueGrowth || 0) >= 0 ? '#059669' : '#ef4444', fontWeight: 600, marginTop: 3 }}>
+                                        {(dashboardData?.analytics?.kpis?.revenueGrowth || 0) >= 0 ? '↑' : '↓'} {Math.abs(dashboardData?.analytics?.kpis?.revenueGrowth || 0)}% vs last month
+                                    </div>
+                                </div>
+                                <div style={{ height: 110 }}>
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <LineChart data={dashboardData?.charts?.monthlyStats || []} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
+                                            <Line type="monotone" dataKey="revenue" stroke="#059669" strokeWidth={2} dot={{ r: 3, fill: '#059669' }} />
+                                            <Tooltip contentStyle={{ fontSize: 11 }} formatter={(val) => [`₹${val.toLocaleString()}`, 'Revenue']} />
+                                        </LineChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            </>
+                        )}
                     </div>
 
                     {/* Upcoming Events */}
@@ -600,9 +658,7 @@ const AdminDashboard = () => {
                                     </div>
                                 </div>
                             )) : (
-                                <div style={{ textAlign: 'center', color: '#64748b', fontSize: 14, padding: '20px 0' }}>
-                                    No upcoming events
-                                </div>
+                                <EmptyState title="No Events" message="No upcoming events." height={150} icon={Calendar} />
                             )}
                         </div>
                     </div>

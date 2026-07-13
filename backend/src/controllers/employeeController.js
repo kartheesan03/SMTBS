@@ -4,7 +4,7 @@ const { logAudit } = require('../services/auditService');
 
 const getEmployees = async (req, res) => {
     try {
-        const employees = await Employee.find({}).populate('userId', 'name email role');
+        const employees = await Employee.find({}).sort({ employeeId: 1 }).populate('userId', 'name email role');
         res.json(employees);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -91,6 +91,10 @@ const updateEmployee = async (req, res) => {
         if (!employee) return res.status(404).json({ message: 'Employee not found' });
 
         const { firstName, lastName, contact, phone, department, designation, employeeId, salary, joinDate, address, password } = req.body;
+        console.log('--- UPDATE EMPLOYEE REQUEST ---');
+        console.log('req.body:', req.body);
+        console.log('employee.contact:', employee.contact);
+        console.log('employee.userId:', employee.userId);
 
         const allowedRoles = ['Admin', 'HR', 'Manager', 'Employee', 'Sales'];
         if (department && !allowedRoles.includes(department)) {
@@ -127,6 +131,12 @@ const updateEmployee = async (req, res) => {
                 const empEmailExists = await Employee.findOne({ contact });
                 if ((emailExists && String(emailExists.id || emailExists._id) !== String(user.id || user._id)) ||
                     (empEmailExists && String(empEmailExists.id || empEmailExists._id) !== String(employee.id || employee._id))) {
+                    console.log('--- ERROR TRIGGERED ---');
+                    console.log('user.id:', user.id, 'user._id:', user._id);
+                    console.log('employee.id:', employee.id, 'employee._id:', employee._id);
+                    console.log('emailExists.id:', emailExists ? emailExists.id : null);
+                    console.log('empEmailExists.id:', empEmailExists ? empEmailExists.id : null);
+                    console.log('Returning 400 for user email check');
                     return res.status(400).json({ message: 'Email is already in use by another user' });
                 }
                 user.email = contact;

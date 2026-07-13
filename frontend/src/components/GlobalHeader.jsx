@@ -107,7 +107,7 @@ const GlobalHeader = ({ onRefresh, onOpenModuleLauncher, onOpenCommandCenter }) 
                 
                 <div className="rd-profile-menu-container" ref={profileRef} style={{ position: 'relative' }}>
                     <div className="rd-profile-menu" onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)} style={{ cursor: 'pointer' }}>
-                        <div className="rd-avatar">{initials}</div>
+                        <div className="rd-avatar" style={{ background: 'var(--rd-purple-grad)' }}>{initials}</div>
                         <div className="rd-profile-info">
                             <span className="rd-profile-name">{user?.name || 'Admin User'}</span>
                             <span className="rd-profile-role">{role} <span className="rd-dot"></span></span>
@@ -130,7 +130,7 @@ const GlobalHeader = ({ onRefresh, onOpenModuleLauncher, onOpenCommandCenter }) 
                             overflow: 'hidden'
                         }}>
                             <div style={{ padding: '16px', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                <div className="rd-avatar" style={{ width: '40px', height: '40px', fontSize: '16px' }}>{initials}</div>
+                                <div className="rd-avatar" style={{ width: '40px', height: '40px', fontSize: '16px', background: 'var(--rd-purple-grad)' }}>{initials}</div>
                                 <div>
                                     <div style={{ fontWeight: '600', color: '#1e293b', fontSize: '14px' }}>{user?.name || 'Admin User'}</div>
                                     <div style={{ color: '#64748b', fontSize: '12px' }}>{user?.email || 'admin@smtbms.com'}</div>
