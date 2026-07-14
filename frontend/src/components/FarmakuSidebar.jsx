@@ -39,6 +39,47 @@ const FarmakuSidebar = () => {
     const [navigation, setNavigation] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    const getActiveMenu = () => {
+        for (const item of navigation) {
+            if (item.children) {
+                for (const child of item.children) {
+                    if (location.pathname === child.path) {
+                        return item.title;
+                    }
+                }
+            }
+        }
+        for (const item of navigation) {
+            if (!item.children && item.path) {
+                if (location.pathname === item.path) return item.title;
+            }
+        }
+        return null;
+    };
+
+    const getActiveChildPath = () => {
+        for (const item of navigation) {
+            if (item.children) {
+                for (const child of item.children) {
+                    if (location.pathname === child.path) {
+                        return child.path;
+                    }
+                }
+            }
+        }
+        return null;
+    };
+
+    const activeMenuTitle = getActiveMenu();
+    const activeChildPath = getActiveChildPath();
+
+    // Auto-expand the active menu on load
+    useEffect(() => {
+        if (activeMenuTitle && !expandedMenu) {
+            setExpandedMenu(activeMenuTitle);
+        }
+    }, [activeMenuTitle, expandedMenu]);
+
     useEffect(() => {
         const fetchNavigation = async () => {
             try {
@@ -61,63 +102,65 @@ const FarmakuSidebar = () => {
         }
     };
 
-    const isPathActive = (navItem) => {
-        if (navItem.path && location.pathname === navItem.path) return true;
-        if (navItem.children) {
-            return navItem.children.some(child => location.pathname === child.path || location.pathname.startsWith(child.path + '/'));
-        }
-        return false;
-    };
-
     const renderIcon = (iconName, title) => {
         const IconComponent = Icons[iconName] || Icons.Circle;
         const colorClass = MODULE_COLORS[title] || 'nav-icon-white';
         return <IconComponent size={18} className={colorClass} />;
     };
 
-    const renderNavItem = (item, index) => (
-        <li key={index || item.title}>
-            {item.children ? (
-                <>
-                    <div
-                        className={`farmaku-nav-item ${isPathActive(item) ? 'active' : ''}`}
-                        onClick={() => toggleMenu(item.title)}
+    const renderNavItem = (item, index) => {
+        // Only apply active styling to top-level items without children
+        const isItemActive = !item.children && activeMenuTitle === item.title;
+        
+        return (
+            <li key={index || item.title} className="farmaku-nav-list-item">
+                {item.children ? (
+                    <>
+                        <div
+                            className={`farmaku-nav-item ${isItemActive ? 'active' : ''} ${expandedMenu === item.title ? 'expanded' : ''}`}
+                            onClick={() => toggleMenu(item.title)}
+                        >
+                            {renderIcon(item.icon, item.title)}
+                            <span>{item.title}</span>
+                            {expandedMenu === item.title
+                                ? <Icons.ChevronDown size={14} style={{ marginLeft: 'auto', opacity: 0.5 }} />
+                                : <Icons.ChevronRight size={14} style={{ marginLeft: 'auto', opacity: 0.4 }} />
+                            }
+                        </div>
+                        <div className={`farmaku-submenu-wrapper ${expandedMenu === item.title ? 'expanded' : ''}`}>
+                            <div className="farmaku-submenu">
+                                {item.children.map((child, cIndex) => {
+                                    // Use the globally resolved active child path to prevent multiple highlights
+                                    const isChildActive = child.path === activeChildPath || location.pathname === child.path;
+                                    
+                                    return (
+                                        <NavLink
+                                            key={cIndex}
+                                            to={child.path}
+                                            end
+                                            className={`farmaku-subnav-item ${isChildActive ? 'active' : ''}`}
+                                        >
+                                            {child.title}
+                                        </NavLink>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </>
+                ) : (
+                    <NavLink
+                        to={item.path}
+                        end
+                        className={`farmaku-nav-item ${isItemActive ? 'active' : ''}`}
                     >
                         {renderIcon(item.icon, item.title)}
                         <span>{item.title}</span>
-                        {expandedMenu === item.title
-                            ? <Icons.ChevronDown size={14} style={{ marginLeft: 'auto', opacity: 0.5 }} />
-                            : <Icons.ChevronRight size={14} style={{ marginLeft: 'auto', opacity: 0.4 }} />
-                        }
-                    </div>
-                    {expandedMenu === item.title && (
-                        <div className="farmaku-submenu">
-                            {item.children.map((child, cIndex) => (
-                                <NavLink
-                                    key={cIndex}
-                                    to={child.path}
-                                    end
-                                    className={({ isActive }) => isActive ? "farmaku-subnav-item active" : "farmaku-subnav-item"}
-                                >
-                                    {child.title}
-                                </NavLink>
-                            ))}
-                        </div>
-                    )}
-                </>
-            ) : (
-                <NavLink
-                    to={item.path}
-                    end={item.path === '/'}
-                    className={({ isActive }) => isActive ? "farmaku-nav-item active" : "farmaku-nav-item"}
-                >
-                    {renderIcon(item.icon, item.title)}
-                    <span>{item.title}</span>
-                    <Icons.ChevronRight size={14} style={{ marginLeft: 'auto', opacity: 0.4 }} />
-                </NavLink>
-            )}
-        </li>
-    );
+                        <Icons.ChevronRight size={14} style={{ marginLeft: 'auto', opacity: 0.4 }} />
+                    </NavLink>
+                )}
+            </li>
+        );
+    };
 
     return (
         <aside className="farmaku-sidebar">

@@ -8,6 +8,8 @@ import {
 import API from '../api/axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
+import PageHeader from '../components/PageHeader';
+import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
 
 const TrackingDashboard = () => {
     const navigate = useNavigate();
@@ -46,9 +48,9 @@ const TrackingDashboard = () => {
     }, []);
 
     const totalMovements = movements.length;
-    const unitsIn = movements.filter(m => (m.type || '').toUpperCase() === 'IN').reduce((acc, curr) => acc + (curr.quantity || 0), 0);
-    const unitsOut = movements.filter(m => (m.type || '').toUpperCase() === 'OUT').reduce((acc, curr) => acc + (curr.quantity || 0), 0);
-    const transferred = movements.filter(m => (m.type || '').toUpperCase() === 'ADJUSTMENT' || (m.type || '').toUpperCase() === 'TRANSFER').reduce((acc, curr) => acc + (curr.quantity || 0), 0);
+    const countIn = movements.filter(m => (m.type || '').toUpperCase() === 'IN').length;
+    const countOut = movements.filter(m => (m.type || '').toUpperCase() === 'OUT').length;
+    const countTransferred = movements.filter(m => (m.type || '').toUpperCase() === 'ADJUSTMENT' || (m.type || '').toUpperCase() === 'TRANSFER').length;
     const pending = movements.filter(m => (m.status || '').toUpperCase() === 'PENDING').length;
 
     const validMovements = movements.filter(log => !(log.type === 'Adjustment' && (!log.quantity || log.quantity === 0)));
@@ -98,26 +100,54 @@ const TrackingDashboard = () => {
         <div style={{ padding: '24px', background: '#f8fafc', minHeight: '100vh', fontFamily: '"Inter", sans-serif' }}>
             {/* Header & KPI Summary */}
             <div style={{ marginBottom: 24 }}>
-                <h1 style={{ fontSize: 24, fontWeight: 800, color: '#0f172a', margin: '0 0 16px 0', letterSpacing: '-0.5px' }}>Tracking Dashboard</h1>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
-                    {[
-                        { title: 'Total Movements', value: totalMovements, icon: Layers, color: '#6366f1', bg: '#eef2ff' },
-                        { title: 'IN Movements', value: unitsIn, icon: ArrowDownRight, color: '#10b981', bg: '#ecfdf5' },
-                        { title: 'OUT Movements', value: unitsOut, icon: ArrowUpRight, color: '#ef4444', bg: '#fef2f2' },
-                        { title: 'Transfers', value: transferred, icon: ArrowRightLeft, color: '#f59e0b', bg: '#fffbeb' },
-                        { title: 'Pending', value: pending, icon: Clock, color: '#8b5cf6', bg: '#f5f3ff' },
-                    ].map((kpi, i) => (
-                        <motion.div key={i} whileHover={{ y: -4, boxShadow: '0 12px 24px rgba(0,0,0,0.06)' }} style={{ background: '#fff', borderRadius: 16, padding: 20, display: 'flex', alignItems: 'center', gap: 16, boxShadow: '0 4px 6px rgba(0,0,0,0.02)', border: '1px solid #f1f5f9' }}>
-                            <div style={{ width: 48, height: 48, borderRadius: 12, background: kpi.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                <kpi.icon size={24} color={kpi.color} />
-                            </div>
-                            <div>
-                                <div style={{ fontSize: 13, color: '#64748b', fontWeight: 600 }}>{kpi.title}</div>
-                                <div style={{ fontSize: 24, fontWeight: 800, color: '#0f172a' }}>{kpi.value.toLocaleString()}</div>
-                            </div>
-                        </motion.div>
-                    ))}
-                </div>
+                <PageHeader 
+                    title="Tracking Dashboard" 
+                    badge="LOGISTICS" 
+                    subtitle="Monitor real-time material movements and transfers." 
+                />
+                
+                <PastelKPIGrid columns={5}>
+                    <PastelKPICard 
+                        title="Total Movements" 
+                        value={totalMovements} 
+                        icon={Layers} 
+                        colorTheme="blue" 
+                        trendValue="Active tracking"
+                        trendPositive={true}
+                    />
+                    <PastelKPICard 
+                        title="IN Movements" 
+                        value={countIn} 
+                        icon={ArrowDownRight} 
+                        colorTheme="mint" 
+                        trendValue="Receiving"
+                        trendPositive={true}
+                    />
+                    <PastelKPICard 
+                        title="OUT Movements" 
+                        value={countOut} 
+                        icon={ArrowUpRight} 
+                        colorTheme="peach" 
+                        trendValue="Dispatching"
+                        trendPositive={false}
+                    />
+                    <PastelKPICard 
+                        title="Transfers" 
+                        value={countTransferred} 
+                        icon={ArrowRightLeft} 
+                        colorTheme="yellow" 
+                        trendValue="Internal moves"
+                        trendPositive={true}
+                    />
+                    <PastelKPICard 
+                        title="Pending" 
+                        value={pending} 
+                        icon={Clock} 
+                        colorTheme="purple" 
+                        trendValue="Awaiting action"
+                        trendPositive={false}
+                    />
+                </PastelKPIGrid>
             </div>
 
             {/* Master Detail Layout */}

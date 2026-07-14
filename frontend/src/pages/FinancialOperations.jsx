@@ -96,7 +96,7 @@ const FinancialOperations = () => {
     const invoiceData = orders.map((o, i) => {
         const isPurchase = (o.orderType || '').toLowerCase().includes('purchase');
         return {
-            id: o.invoiceNumber || o._id?.substring(0, 8).toUpperCase() || 'Pending',
+            id: o.invoiceNumber || (o._id ? String(o._id).substring(0, 8).toUpperCase() : 'Pending'),
             type: isPurchase ? 'Payable' : 'Receivable',
             party: isPurchase ? (o.vendor?.companyName || o.vendor?.name || 'Vendor') : (o.customer?.company || o.customer?.name || 'Customer'),
             poSo: o.orderNumber || '',

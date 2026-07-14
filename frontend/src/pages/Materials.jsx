@@ -271,29 +271,35 @@ const Materials = () => {
                             data={materialsData}
                             searchPlaceholder="Search by item code or name..."
                             expandableRowRender={(row) => (
-                                <div style={{ padding: '16px 24px', display: 'flex', gap: '32px', fontSize: '13px', color: '#475569', flexWrap: 'wrap' }}>
+                                <div style={{ padding: '24px', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px', fontSize: '13px', color: '#475569' }}>
                                     <div>
-                                        <div style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', marginBottom: 4 }}>Supplier Info</div>
-                                        <div style={{ fontWeight: 500 }}>{row.vendor?.name || 'Local Vendor'}</div>
-                                        <div>{row.vendor?.contactPerson || 'Contact'} • {row.vendor?.phone || '+91 0000000000'}</div>
+                                        <div style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', marginBottom: 8, letterSpacing: '0.5px' }}>Supplier Info</div>
+                                        <div style={{ fontWeight: 600, color: '#1e293b', marginBottom: 4 }}>{row.vendor?.name || 'Local Vendor'}</div>
+                                        <div style={{ color: '#64748b' }}>{row.vendor?.contactPerson || 'Contact'} • {row.vendor?.phone || '+91 0000000000'}</div>
                                     </div>
                                     <div>
-                                        <div style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', marginBottom: 4 }}>Barcode Data</div>
-                                        <div style={{ fontFamily: 'monospace', background: '#f1f5f9', padding: '4px 8px', borderRadius: 4 }}>
+                                        <div style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', marginBottom: 8, letterSpacing: '0.5px' }}>Barcode Data</div>
+                                        <div style={{ fontFamily: '"SFMono-Regular", Consolas, monospace', background: '#f1f5f9', padding: '6px 12px', borderRadius: 6, display: 'inline-block', border: '1px solid #e2e8f0', color: '#334155', fontWeight: 500 }}>
                                             {row.sku}-{row._id ? String(row._id).substring(0, 6) : (row.id ? String(row.id).substring(0, 6) : '100A')}
                                         </div>
                                     </div>
                                     <div>
-                                        <div style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', marginBottom: 4 }}>Location Details</div>
-                                        <div style={{ fontWeight: 500 }}>{row.warehouse || '—'}{row.shelf ? ` / ${row.shelf}` : ''}</div>
-                                        <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>
+                                        <div style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', marginBottom: 8, letterSpacing: '0.5px' }}>Location Details</div>
+                                        <div style={{ fontWeight: 600, color: '#1e293b', marginBottom: 6 }}>{row.warehouse || 'Not Assigned'}{row.shelf ? ` / ${row.shelf}` : ''}</div>
+                                        <div style={{ fontSize: 12, color: '#64748b', display: 'flex', alignItems: 'center', gap: 6 }}>
                                             GPS: <GpsStatusBadge status={row.gpsStatus} />
                                         </div>
                                     </div>
                                     <div>
-                                        <div style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', marginBottom: 4 }}>Stock History</div>
-                                        <div>Location updated: {relativeTime(row.locationUpdatedAt)}</div>
-                                        <div>Record updated: {relativeTime(row.updatedAt)}</div>
+                                        <div style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', marginBottom: 8, letterSpacing: '0.5px' }}>Stock History</div>
+                                        <div style={{ marginBottom: 4, display: 'flex', gap: 8 }}>
+                                            <span style={{ color: '#64748b' }}>Location updated:</span> 
+                                            <span style={{ fontWeight: 600, color: '#334155' }}>{relativeTime(row.locationUpdatedAt)}</span>
+                                        </div>
+                                        <div style={{ display: 'flex', gap: 8 }}>
+                                            <span style={{ color: '#64748b' }}>Record updated:</span> 
+                                            <span style={{ fontWeight: 600, color: '#334155' }}>{relativeTime(row.updatedAt)}</span>
+                                        </div>
                                     </div>
                                 </div>
                             )}
