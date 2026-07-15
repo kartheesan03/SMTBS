@@ -121,7 +121,7 @@ const CreateOrder = () => {
         }
     };
 
-    if (loading) return <div className="flex-center" style={{height:'100vh'}}><div className="loader"></div></div>;
+    if (loading) return <div className="flex-center" style={{minHeight:'100vh'}}><div className="loader"></div></div>;
     if (!selectedEntity) return null;
 
     return (

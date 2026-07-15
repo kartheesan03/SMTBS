@@ -4,6 +4,7 @@
   "description": "",
   "main": "vite.config.js",
   "scripts": {
+    "predev": "npx kill-port 3000",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"
@@ -31,5 +32,8 @@
     "recharts": "^3.8.1",
     "vite": "^8.0.9",
     "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "kill-port": "^2.0.1"
   }
 }

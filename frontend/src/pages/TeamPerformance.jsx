@@ -94,15 +94,16 @@ const TeamPerformance = () => {
         else if (rating === 'Average') appraisal = '4%';
 
         return {
+            dbId: emp.id || emp._id,
             id: emp.employeeId,
             name: `${emp.firstName || ''} ${emp.lastName || ''}`.trim(),
             dept: emp.department || 'General',
             kpi: taskScore,
             attendance: attendanceScore,
             targets: targetScore,
-            overall,
-            rating,
-            appraisal
+            overall: overall,
+            rating: rating,
+            appraisal: appraisal
         };
     });
 
@@ -273,7 +274,7 @@ const TeamPerformance = () => {
                                         </td>
                                         <td style={{fontWeight: 700, color: '#10b981'}} data-label="Est. Appraisal">{emp.appraisal}</td>
                                         <td data-label="Actions">
-                                            <button onClick={() => navigate(`/employees/${emp.id}`)} style={{background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8'}}>•••</button>
+                                            <button onClick={() => navigate(`/employees/${emp.dbId}`)} style={{background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8'}}>•••</button>
                                         </td>
                                     </tr>
                                 ))

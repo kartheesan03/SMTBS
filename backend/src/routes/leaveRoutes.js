@@ -14,7 +14,7 @@ router.post('/',           applyLeave);                                // POST /
 router.put('/:id/cancel',  cancelLeave);                              // PUT  /api/leaves/:id/cancel
 
 // Admin / HR only
-router.get('/',            authorize('manage_hrms'), getAllLeaves);    // GET  /api/leaves
-router.put('/:id/review',  authorize('manage_hrms'), reviewLeave);    // PUT  /api/leaves/:id/review
+router.get('/',            authorize('manage_hrms', 'hrms:leave:view'), getAllLeaves);    // GET  /api/leaves
+router.put('/:id/review',  authorize('manage_hrms', 'hrms:leave:manage'), reviewLeave);    // PUT  /api/leaves/:id/review
 
 module.exports = router;

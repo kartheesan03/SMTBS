@@ -130,7 +130,7 @@ const OrderTracking = () => {
     if (loading) {
 
     return (
-            <div className="flex-center" style={{ height: '80vh' }}>
+            <div className="flex-center" style={{ minHeight: '100vh' }}>
                 <div className="loader"></div>
             </div>
         );
@@ -138,7 +138,7 @@ const OrderTracking = () => {
 
     if (error || !order) {
         return (
-            <div className="flex-center" style={{ height: '80vh', flexDirection: 'column', gap: '16px' }}>
+            <div className="flex-center" style={{ minHeight: '100vh', flexDirection: 'column', gap: '16px' }}>
                 <h3 style={{ color: '#ef4444' }}>{error}</h3>
                 <button className="btn-secondary" onClick={() => navigate('/erp')}>Go Back</button>
             </div>

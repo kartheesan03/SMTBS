@@ -113,9 +113,9 @@
     display: flex;
     align-items: center;
     gap: 11px;
-    padding: 9px 12px;
-    border-radius: 10px;
-    color: rgba(255,255,255,0.55);
+    padding: 12px 16px;
+    border-radius: 12px;
+    color: rgba(255, 255, 255, 0.55);
     text-decoration: none;
     font-size: 13.5px;
     font-weight: 500;
@@ -130,8 +130,8 @@
 }
 
 .farmaku-nav-item.expanded {
-    background: rgba(255,255,255,0.04);
-    color: rgba(255,255,255,0.85);
+    background: rgba(0, 0, 0, 0.15); /* subtle dark background */
+    color: rgba(255, 255, 255, 0.85);
 }
 
 .farmaku-nav-item.active {
@@ -141,20 +141,47 @@
     box-shadow: 0 4px 14px rgba(59,130,246,0.4);
 }
 
-.farmaku-nav-item svg {
+/* Parent with an active child — subtle expanded look only */
+.farmaku-nav-item.has-active-child {
+    background: rgba(0, 0, 0, 0.15);
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* expanded + has-active-child: same as expanded */
+.farmaku-nav-item.expanded.has-active-child {
+    background: rgba(0, 0, 0, 0.15);
+    color: rgba(255, 255, 255, 0.95);
+}
+
+.farmaku-nav-item svg,
+.farmaku-subnav-item svg {
     flex-shrink: 0;
     opacity: 0.7;
     transition: opacity 0.18s;
 }
-.farmaku-nav-item:hover svg { opacity: 1; }
-.farmaku-nav-item.expanded svg { opacity: 0.9; }
-.farmaku-nav-item.active svg { opacity: 1; }
 
-.farmaku-nav-item > svg:last-child {
+.farmaku-nav-item:hover svg,
+.farmaku-subnav-item:hover svg { opacity: 1; }
+
+.farmaku-nav-item.expanded svg { opacity: 0.9; }
+
+.farmaku-nav-item.active svg,
+.farmaku-subnav-item.active svg { opacity: 1; }
+
+.farmaku-nav-item > svg:last-child,
+.farmaku-subnav-item > svg:last-child {
     margin-left: auto;
-    opacity: 0.3;
+    opacity: 0.4;
     width: 14px;
     height: 14px;
+    display: block;
+}
+
+.farmaku-nav-item:hover > svg:last-child,
+.farmaku-nav-item.active > svg:last-child,
+.farmaku-subnav-item:hover > svg:last-child,
+.farmaku-subnav-item.active > svg:last-child {
+    opacity: 1;
 }
 
 /* ── Submenu Wrapper & Animation ── */
@@ -176,9 +203,20 @@
     display: flex;
     flex-direction: column;
     gap: 4px;
-    margin: 0 0 0 21px; /* 12px padding + 9px center of 18px icon */
-    border-left: 1.5px solid rgba(255, 255, 255, 0.1);
-    padding: 0 0 0 9px;
+    margin: 0;
+    padding: 0;
+    position: relative;
+}
+
+/* Vertical connector line aligned with center of parent icon (16px padding + 9px half icon = 25px) */
+.farmaku-submenu::before {
+    content: '';
+    position: absolute;
+    top: 4px;
+    bottom: 4px;
+    left: 25px;
+    width: 1.5px;
+    background: rgba(255, 255, 255, 0.1);
 }
 
 .farmaku-subnav-item {
@@ -186,13 +224,16 @@
     align-items: center;
     width: 100%;
     box-sizing: border-box;
-    padding: 8px 10px;
+    /* padding-left: 45px so text aligns perfectly with parent text (16px + 18px + 11px) */
+    padding: 12px 16px 12px 45px;
     color: rgba(255, 255, 255, 0.55);
     text-decoration: none;
     font-size: 13.5px;
     font-weight: 500;
     transition: all 0.15s ease;
-    border-radius: 8px;
+    border-radius: 12px;
+    margin: 0 !important;
+    height: 42px; /* Force consistent height regardless of font weight */
 }
 
 .farmaku-subnav-item:hover {
@@ -201,9 +242,9 @@
 }
 
 .farmaku-subnav-item.active {
+    background: #3B82F6;
     color: #FFFFFF;
     font-weight: 600;
-    background: rgba(59, 130, 246, 0.15);
 }
 
 /* ── Notification Badge ── */
@@ -228,6 +269,40 @@
     background: rgba(255,255,255,0.07);
     margin: 10px 0;
 }
+
+/* ── Icon Color Utilities (used by MODULE_COLORS map) ── */
+.nav-icon-blue   { color: #60A5FA !important; }
+.nav-icon-green  { color: #4ADE80 !important; }
+.nav-icon-orange { color: #FB923C !important; }
+.nav-icon-purple { color: #A78BFA !important; }
+.nav-icon-cyan   { color: #22D3EE !important; }
+.nav-icon-rose   { color: #FB7185 !important; }
+.nav-icon-yellow { color: #FCD34D !important; }
+.nav-icon-teal   { color: #2DD4BF !important; }
+.nav-icon-indigo { color: #818CF8 !important; }
+.nav-icon-white  { color: rgba(255,255,255,0.6) !important; }
+
+/* Brighten on hover / active */
+.farmaku-nav-item:hover .nav-icon-blue,
+.farmaku-nav-item.active .nav-icon-blue   { color: #93C5FD !important; }
+.farmaku-nav-item:hover .nav-icon-green,
+.farmaku-nav-item.active .nav-icon-green  { color: #86EFAC !important; }
+.farmaku-nav-item:hover .nav-icon-orange,
+.farmaku-nav-item.active .nav-icon-orange { color: #FDBA74 !important; }
+.farmaku-nav-item:hover .nav-icon-purple,
+.farmaku-nav-item.active .nav-icon-purple { color: #C4B5FD !important; }
+.farmaku-nav-item:hover .nav-icon-cyan,
+.farmaku-nav-item.active .nav-icon-cyan   { color: #67E8F9 !important; }
+.farmaku-nav-item:hover .nav-icon-rose,
+.farmaku-nav-item.active .nav-icon-rose   { color: #FDA4AF !important; }
+.farmaku-nav-item:hover .nav-icon-yellow,
+.farmaku-nav-item.active .nav-icon-yellow { color: #FDE68A !important; }
+.farmaku-nav-item:hover .nav-icon-teal,
+.farmaku-nav-item.active .nav-icon-teal   { color: #5EEAD4 !important; }
+.farmaku-nav-item:hover .nav-icon-indigo,
+.farmaku-nav-item.active .nav-icon-indigo { color: #A5B4FC !important; }
+.farmaku-nav-item:hover .nav-icon-white,
+.farmaku-nav-item.active .nav-icon-white  { color: rgba(255,255,255,0.9) !important; }
 
 /* ── Logout Item ── */
 .farmaku-logout-item {

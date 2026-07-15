@@ -61,11 +61,11 @@ export const PastelKPICard = ({ title, value, icon: Icon, colorTheme = 'blue', t
                 {value}
             </div>
             
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: '8px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: '8px', gap: '8px' }}>
                 {trendValue ? (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: 600, color: trendPositive ? '#16a34a' : '#dc2626', whiteSpace: 'nowrap' }}>
-                        {trendPositive ? <TrendingUp size={12} strokeWidth={3} /> : <TrendingDown size={12} strokeWidth={3} />}
-                        {trendValue}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: 600, color: trendPositive ? '#16a34a' : '#dc2626', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {trendPositive ? <TrendingUp size={12} strokeWidth={3} style={{ flexShrink: 0 }} /> : <TrendingDown size={12} strokeWidth={3} style={{ flexShrink: 0 }} />}
+                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{trendValue}</span>
                     </div>
                 ) : (
                     <div />
@@ -92,7 +92,7 @@ export const PastelKPICard = ({ title, value, icon: Icon, colorTheme = 'blue', t
 
 export const PastelKPIGrid = ({ children, columns }) => {
     const cols = columns
-        ? `repeat(${columns}, 1fr)`
+        ? `repeat(${columns}, minmax(0, 1fr))`
         : 'repeat(auto-fit, minmax(200px, 1fr))';
     return (
         <div style={{ 

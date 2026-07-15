@@ -81,7 +81,7 @@ const GeneratePayroll = () => {
 
     if (loading) {
         return (
-            <div className="page-container flex-center" style={{ height: '80vh' }}>
+            <div className="page-container flex-center" style={{ minHeight: '100vh' }}>
                 <Loader size={30} className="spin-icon" color="#3b82f6" />
             </div>
         );

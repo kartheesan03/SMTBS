@@ -17,7 +17,8 @@ const EmployeeDetails = () => {
                 const { data } = await API.get(`/employees/${id}`);
                 setEmployee(data);
             } catch (err) {
-                toast.error('Failed to load employee details');
+                console.error('Failed to load employee details:', err);
+                toast.error(`Failed to load employee details: ${err.response?.data?.message || err.message}`);
                 navigate('/hrms');
             } finally {
                 setLoading(false);
@@ -26,7 +27,7 @@ const EmployeeDetails = () => {
         fetchEmployee();
     }, [id, navigate]);
 
-    if (loading) return <div className="flex-center" style={{height:'100vh'}}><div className="loader"></div></div>;
+    if (loading) return <div className="flex-center" style={{minHeight:'100vh'}}><div className="loader"></div></div>;
     if (!employee) return null;
 
     const infoCard = (

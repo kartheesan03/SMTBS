@@ -23,6 +23,8 @@ const TrackingDashboard = () => {
     const [movements, setMovements] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedMovement, setSelectedMovement] = useState(null);
+    const [materialDetails, setMaterialDetails] = useState(null);
+    const [materialTimeline, setMaterialTimeline] = useState([]);
 
     const fetchMovements = async () => {
         try {
@@ -46,6 +48,23 @@ const TrackingDashboard = () => {
     useEffect(() => {
         fetchMovements();
     }, []);
+
+    useEffect(() => {
+        if (selectedMovement && (selectedMovement.materialId || selectedMovement.material)) {
+            const mId = selectedMovement.materialId || selectedMovement.material;
+            // Fetch complete material data and history
+            Promise.all([
+                API.get(`/materials/${mId}`).catch(() => ({ data: null })),
+                API.get(`/materials/${mId}/timeline`).catch(() => ({ data: [] }))
+            ]).then(([matRes, timeRes]) => {
+                setMaterialDetails(matRes.data);
+                setMaterialTimeline(timeRes.data || []);
+            });
+        } else {
+            setMaterialDetails(null);
+            setMaterialTimeline([]);
+        }
+    }, [selectedMovement]);
 
     const totalMovements = movements.length;
     const countIn = movements.filter(m => (m.type || '').toUpperCase() === 'IN').length;
@@ -101,8 +120,8 @@ const TrackingDashboard = () => {
             {/* Header & KPI Summary */}
             <div style={{ marginBottom: 24 }}>
                 <PageHeader 
-                    title="Tracking Dashboard" 
-                    badge="LOGISTICS" 
+                    title="Movement Tracking" 
+                    badge="MATERIAL TRACKING" 
                     subtitle="Monitor real-time material movements and transfers." 
                 />
                 
@@ -272,7 +291,13 @@ const TrackingDashboard = () => {
                                         <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
                                             <span style={{ fontSize: 14, color: '#64748b', fontWeight: 600 }}>MOV-{String(selectedMovement.id || selectedMovement._id).slice(-4).toUpperCase()}</span>
                                             <span style={{ width: 4, height: 4, borderRadius: 2, background: '#cbd5e1' }}></span>
-                                            <span style={{ fontSize: 14, color: '#64748b', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}><Hash size={14}/> {selectedMovement.materialSku || 'N/A'}</span>
+                                            <span style={{ fontSize: 14, color: '#64748b', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}><Hash size={14}/> {selectedMovement.materialSku || (materialDetails?.sku) || 'N/A'}</span>
+                                            {materialDetails?.category && (
+                                                <>
+                                                    <span style={{ width: 4, height: 4, borderRadius: 2, background: '#cbd5e1' }}></span>
+                                                    <span style={{ fontSize: 13, color: '#64748b', fontWeight: 600 }}>{materialDetails.category}</span>
+                                                </>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
@@ -286,7 +311,7 @@ const TrackingDashboard = () => {
                                                 <Building2 size={24} color="#64748b" />
                                             </div>
                                             <div style={{ textAlign: 'center', fontSize: 13, fontWeight: 600, color: '#334155' }}>
-                                                {selectedMovement.source || ((selectedMovement.type || '').toUpperCase() === 'ADJUSTMENT' ? 'System' : ((selectedMovement.type || '').toUpperCase() === 'OUT' ? 'Main Warehouse' : (selectedMovement.materialVendorName || 'Supplier')))}
+                                                {selectedMovement.source || (selectedMovement.type === 'IN' ? selectedMovement.materialVendorName || materialDetails?.vendorName || 'External Source' : materialDetails?.warehouse || 'Internal Warehouse')}
                                             </div>
                                         </div>
                                         
@@ -295,7 +320,9 @@ const TrackingDashboard = () => {
                                             <div style={{ width: 40, height: 40, borderRadius: 20, background: '#e0e7ff', border: '4px solid #f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1 }}>
                                                 <Truck size={18} color="#4f46e5" />
                                             </div>
-                                            <div style={{ marginTop: 12, fontSize: 11, fontWeight: 700, color: '#4f46e5', background: '#e0e7ff', padding: '2px 8px', borderRadius: 99 }}>IN TRANSIT</div>
+                                            <div style={{ marginTop: 12, fontSize: 11, fontWeight: 700, color: '#4f46e5', background: '#e0e7ff', padding: '2px 8px', borderRadius: 99 }}>
+                                                {(selectedMovement.materialGpsStatus || selectedMovement.status || 'COMPLETED').toUpperCase()}
+                                            </div>
                                         </div>
 
                                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, flex: 1 }}>
@@ -303,7 +330,7 @@ const TrackingDashboard = () => {
                                                 <MapPin size={24} color="#64748b" />
                                             </div>
                                             <div style={{ textAlign: 'center', fontSize: 13, fontWeight: 600, color: '#334155' }}>
-                                                {selectedMovement.destination || ((selectedMovement.type || '').toUpperCase() === 'ADJUSTMENT' ? 'System' : ((selectedMovement.type || '').toUpperCase() === 'IN' ? 'Main Warehouse' : 'Customer'))}
+                                                {selectedMovement.destination || (selectedMovement.type === 'OUT' ? 'External Destination' : materialDetails?.warehouse || 'Internal Warehouse')}
                                             </div>
                                         </div>
                                     </div>
@@ -312,10 +339,10 @@ const TrackingDashboard = () => {
                                 {/* Information Grid */}
                                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 40 }}>
                                     {[
-                                        { label: 'Quantity', value: selectedMovement.quantity, icon: Layers, valColor: '#0f172a' },
-                                        { label: 'Current Stock', value: selectedMovement.materialQuantity !== undefined ? selectedMovement.materialQuantity : (selectedMovement.quantity || 0), icon: Package, valColor: '#059669' },
-                                        { label: 'PO / WO', value: getPO(selectedMovement), icon: FileText, valColor: '#7c3aed' },
-                                        { label: 'Handler', value: selectedMovement.user || 'Admin', icon: User, valColor: '#0f172a' },
+                                        { label: 'Movement Qty', value: `${selectedMovement.quantity} ${materialDetails?.unit || ''}`, icon: Layers, valColor: '#0f172a' },
+                                        { label: 'Current Stock', value: `${materialDetails?.quantity !== undefined ? materialDetails.quantity : (selectedMovement.materialQuantity || 0)} ${materialDetails?.unit || ''}`, icon: Package, valColor: '#059669' },
+                                        { label: 'Warehouse / Shelf', value: materialDetails?.location || materialDetails?.warehouse ? `${materialDetails.warehouse || ''} ${materialDetails.shelf ? '/ ' + materialDetails.shelf : ''}` : 'N/A', icon: Building2, valColor: '#0f172a' },
+                                        { label: 'Handler / Ref', value: selectedMovement.user || getRefString(selectedMovement) || 'System', icon: User, valColor: '#7c3aed' },
                                     ].map((item, i) => (
                                         <div key={i} style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 16, padding: 16 }}>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
@@ -329,31 +356,27 @@ const TrackingDashboard = () => {
 
                                 {/* Timeline */}
                                 <div>
-                                    <div style={{ fontSize: 16, fontWeight: 800, color: '#0f172a', marginBottom: 20 }}>Tracking Timeline</div>
+                                    <div style={{ fontSize: 16, fontWeight: 800, color: '#0f172a', marginBottom: 20 }}>Material History</div>
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: 0, paddingLeft: 8 }}>
-                                        {[
-                                            { title: 'Movement Created', desc: 'System registered the material transfer', time: new Date(selectedMovement.createdAt || Date.now()).toLocaleString(), active: true },
-                                            { title: 'Manager Approved', desc: 'Automatically approved based on rule', time: new Date(new Date(selectedMovement.createdAt || Date.now()).getTime() + 1000*60*5).toLocaleString(), active: true },
-                                            { title: 'Picked & Packed', desc: 'Warehouse handler picked the item', time: new Date(new Date(selectedMovement.createdAt || Date.now()).getTime() + 1000*60*35).toLocaleString(), active: true },
-                                            { title: 'In Transit', desc: 'Currently moving to destination', time: '--', active: false },
-                                            { title: 'Received', desc: 'Awaiting arrival at destination', time: '--', active: false },
-                                        ].map((step, i, arr) => (
-                                            <div key={i} style={{ display: 'flex', gap: 20, position: 'relative', paddingBottom: i === arr.length - 1 ? 0 : 24 }}>
+                                        {materialTimeline.length > 0 ? materialTimeline.map((step, i, arr) => (
+                                            <div key={step.id || i} style={{ display: 'flex', gap: 20, position: 'relative', paddingBottom: i === arr.length - 1 ? 0 : 24 }}>
                                                 {i !== arr.length - 1 && (
-                                                    <div style={{ position: 'absolute', left: 11, top: 24, bottom: 0, width: 2, background: step.active ? '#4f46e5' : '#e2e8f0' }}></div>
+                                                    <div style={{ position: 'absolute', left: 11, top: 24, bottom: 0, width: 2, background: '#e2e8f0' }}></div>
                                                 )}
-                                                <div style={{ position: 'relative', zIndex: 1, width: 24, height: 24, borderRadius: 12, background: step.active ? '#4f46e5' : '#f1f5f9', border: `4px solid ${step.active ? '#e0e7ff' : '#fff'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: -2 }}>
-                                                    {step.active && <CheckCircle2 size={12} color="#fff" />}
+                                                <div style={{ position: 'relative', zIndex: 1, width: 24, height: 24, borderRadius: 12, background: '#f8fafc', border: `4px solid #fff`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: -2, boxShadow: '0 0 0 1px #e2e8f0' }}>
+                                                    <div style={{ width: 6, height: 6, borderRadius: 3, background: '#94a3b8' }}></div>
                                                 </div>
                                                 <div style={{ flex: 1, marginTop: -4 }}>
                                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
-                                                        <div style={{ fontSize: 14, fontWeight: 700, color: step.active ? '#0f172a' : '#94a3b8' }}>{step.title}</div>
-                                                        <div style={{ fontSize: 12, fontWeight: 600, color: '#94a3b8' }}>{step.time}</div>
+                                                        <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a' }}>{step.action || 'UPDATE'}</div>
+                                                        <div style={{ fontSize: 12, fontWeight: 600, color: '#94a3b8' }}>{new Date(step.date).toLocaleDateString()} {step.time}</div>
                                                     </div>
-                                                    <div style={{ fontSize: 13, color: '#64748b' }}>{step.desc}</div>
+                                                    <div style={{ fontSize: 13, color: '#64748b' }}>{step.description || 'Action performed'} <span style={{ fontSize: 11, color: '#cbd5e1', marginLeft: 8 }}>by {step.user || 'System'}</span></div>
                                                 </div>
                                             </div>
-                                        ))}
+                                        )) : (
+                                            <div style={{ padding: '20px 0', color: '#94a3b8', fontSize: 14 }}>No history available for this material.</div>
+                                        )}
                                     </div>
                                 </div>
                             </motion.div>

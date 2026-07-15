@@ -568,7 +568,9 @@ const getDashboardStats = async (req, res) => {
                     netProfit: netProfit,
                     revenueGrowth: Number(revenueGrowth),
                     currentYearTotalProfit,
-                    lastYearTotalProfit
+                    lastYearTotalProfit,
+                    thisMonthRevenue: thisMonthRev,
+                    lastMonthRevenue: lastMonthRev
                 },
                 trendData: trendData.every(t => t.revenue === 0 && t.lastYearRevenue === 0) ? [] : trendData,
                 healthMetrics: {

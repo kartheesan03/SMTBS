@@ -1,15 +1,15 @@
-import React, { useState, useContext, useEffect } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import React, { useState, useContext, useEffect, useCallback } from 'react';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { NotificationContext } from '../context/NotificationContext';
 import * as Icons from 'lucide-react';
 import API from '../api/axios';
-import { Crown } from 'lucide-react';
-import './FarmakuSidebar.css';
+import { hrmsMenuItems, hasHrmsPermission } from '../config/hrmsMenuConfig';
 import './FarmakuSidebar.css';
 
 // Map module titles → icon color class for visual distinction
 const MODULE_COLORS = {
+    // ── Generic / Admin modules ──────────────────────────────────────────
     'Dashboard':           'nav-icon-blue',
     'Attendance':          'nav-icon-green',
     'Material Tracking':   'nav-icon-orange',
@@ -22,6 +22,15 @@ const MODULE_COLORS = {
     'Notifications':       'nav-icon-rose',
     'Help & Support':      'nav-icon-white',
     'Settings':            'nav-icon-white',
+    // ── HR-specific modules ───────────────────────────────────────────────
+    'Employee Management': 'nav-icon-purple',
+    'Leave Management':    'nav-icon-yellow',
+    'Payroll':             'nav-icon-teal',
+    'Performance':         'nav-icon-green',
+    'Recruitment':         'nav-icon-blue',
+    'Training':            'nav-icon-cyan',
+    'Reports':             'nav-icon-indigo',
+    'Holiday Calendar':    'nav-icon-rose',
 };
 
 // Get user initials for avatar
@@ -35,58 +44,77 @@ const FarmakuSidebar = () => {
     const { user, logout } = useContext(AuthContext);
     const { unreadCount } = useContext(NotificationContext);
     const location = useLocation();
+    const navigate = useNavigate();
     const [expandedMenu, setExpandedMenu] = useState('');
     const [navigation, setNavigation] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    const getActiveMenu = () => {
-        for (const item of navigation) {
-            if (item.children) {
-                for (const child of item.children) {
-                    if (location.pathname === child.path) {
-                        return item.title;
-                    }
-                }
-            }
-        }
-        for (const item of navigation) {
-            if (!item.children && item.path) {
-                if (location.pathname === item.path) return item.title;
-            }
-        }
-        return null;
-    };
+    // ── Single source of truth: exact path match ──────────────────────────
+    const currentPath = location.pathname;
 
-    const getActiveChildPath = () => {
-        for (const item of navigation) {
-            if (item.children) {
-                for (const child of item.children) {
-                    if (location.pathname === child.path) {
-                        return child.path;
-                    }
-                }
-            }
-        }
-        return null;
-    };
+    // Returns true only if this leaf item's path exactly matches the current URL
+    const isLeafActive = useCallback(
+        (path) => path != null && currentPath === path,
+        [currentPath]
+    );
 
-    const activeMenuTitle = getActiveMenu();
-    const activeChildPath = getActiveChildPath();
+    // Returns true if any child of a collapsible parent is currently active
+    const isParentActive = useCallback(
+        (children = []) => children.some((c) => currentPath === c.path),
+        [currentPath]
+    );
 
-    // Auto-expand the active menu on load
+    // Auto-expand the parent whose child is currently active (runs on nav load & route change)
     useEffect(() => {
-        if (activeMenuTitle && !expandedMenu) {
-            setExpandedMenu(activeMenuTitle);
+        for (const item of navigation) {
+            if (item.children && isParentActive(item.children)) {
+                setExpandedMenu(item.title);
+                return;
+            }
         }
-    }, [activeMenuTitle, expandedMenu]);
+        // Do NOT collapse manually-expanded menus on route change — only auto-open
+    }, [navigation, currentPath, isParentActive]);
 
     useEffect(() => {
         const fetchNavigation = async () => {
             try {
                 const response = await API.get(`/system/navigation?t=${Date.now()}`);
-                setNavigation(response.data);
+                let navData = response.data;
+                
+                // Dynamically inject the HRMS block if the user has permissions for it
+                const allowedHrmsChildren = hrmsMenuItems
+                    .filter(item => hasHrmsPermission(user, item.permission))
+                    .map(item => ({
+                        title: item.label,
+                        path: item.path,
+                        // Not mapping 'icon' since sub-items in FarmakuSidebar don't render individual icons
+                    }));
+
+                if (allowedHrmsChildren.length > 0) {
+                    const hrmsNode = {
+                        title: 'HRMS',
+                        icon: 'Users',
+                        permission: 'view_hrms', // or any placeholder, it's just used for rendering
+                        children: allowedHrmsChildren
+                    };
+                    
+                    // Try to insert HRMS after Dashboard or Attendance. If not found, just push it.
+                    let inserted = false;
+                    for (let i = 0; i < navData.length; i++) {
+                        if (navData[i].title === 'Dashboard' || navData[i].title === 'Attendance') {
+                            navData.splice(i + 1, 0, hrmsNode);
+                            inserted = true;
+                            break;
+                        }
+                    }
+                    if (!inserted) {
+                        navData.push(hrmsNode);
+                    }
+                }
+                
+                setNavigation(navData);
             } catch (error) {
-                console.error("Failed to load navigation:", error);
+                console.error('Failed to load navigation:', error);
             } finally {
                 setLoading(false);
             }
@@ -94,12 +122,8 @@ const FarmakuSidebar = () => {
         fetchNavigation();
     }, []);
 
-    const toggleMenu = (menu) => {
-        if (expandedMenu === menu) {
-            setExpandedMenu('');
-        } else {
-            setExpandedMenu(menu);
-        }
+    const toggleMenu = (menuTitle) => {
+        setExpandedMenu((prev) => (prev === menuTitle ? '' : menuTitle));
     };
 
     const renderIcon = (iconName, title) => {
@@ -109,58 +133,89 @@ const FarmakuSidebar = () => {
     };
 
     const renderNavItem = (item, index) => {
-        // Only apply active styling to top-level items without children
-        const isItemActive = !item.children && activeMenuTitle === item.title;
-        
-        return (
-            <li key={index || item.title} className="farmaku-nav-list-item">
-                {item.children ? (
-                    <>
-                        <div
-                            className={`farmaku-nav-item ${isItemActive ? 'active' : ''} ${expandedMenu === item.title ? 'expanded' : ''}`}
-                            onClick={() => toggleMenu(item.title)}
-                        >
-                            {renderIcon(item.icon, item.title)}
-                            <span>{item.title}</span>
-                            {expandedMenu === item.title
-                                ? <Icons.ChevronDown size={14} style={{ marginLeft: 'auto', opacity: 0.5 }} />
-                                : <Icons.ChevronRight size={14} style={{ marginLeft: 'auto', opacity: 0.4 }} />
-                            }
-                        </div>
-                        <div className={`farmaku-submenu-wrapper ${expandedMenu === item.title ? 'expanded' : ''}`}>
-                            <div className="farmaku-submenu">
-                                {item.children.map((child, cIndex) => {
-                                    // Use the globally resolved active child path to prevent multiple highlights
-                                    const isChildActive = child.path === activeChildPath || location.pathname === child.path;
-                                    
-                                    return (
-                                        <NavLink
-                                            key={cIndex}
-                                            to={child.path}
-                                            end
-                                            className={`farmaku-subnav-item ${isChildActive ? 'active' : ''}`}
-                                        >
-                                            {child.title}
-                                        </NavLink>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    </>
-                ) : (
-                    <NavLink
-                        to={item.path}
-                        end
-                        className={`farmaku-nav-item ${isItemActive ? 'active' : ''}`}
+        if (item.children && item.children.length > 0) {
+            // ── Collapsible parent ──────────────────────────────────────
+            const isExpanded = expandedMenu === item.title;
+            const hasActiveChild = isParentActive(item.children);
+
+            return (
+                <li key={index ?? item.title} className="farmaku-nav-list-item">
+                    {/* Parent row — NEVER gets .active, only .expanded and optionally .has-active-child */}
+                    <div
+                        className={[
+                            'farmaku-nav-item',
+                            isExpanded ? 'expanded' : '',
+                            hasActiveChild ? 'has-active-child' : '',
+                        ]
+                            .filter(Boolean)
+                            .join(' ')}
+                        onClick={() => toggleMenu(item.title)}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => e.key === 'Enter' && toggleMenu(item.title)}
                     >
                         {renderIcon(item.icon, item.title)}
                         <span>{item.title}</span>
-                        <Icons.ChevronRight size={14} style={{ marginLeft: 'auto', opacity: 0.4 }} />
-                    </NavLink>
-                )}
+                        {isExpanded ? (
+                            <Icons.ChevronDown size={14} />
+                        ) : (
+                            <Icons.ChevronRight size={14} />
+                        )}
+                    </div>
+
+                    {/* Submenu */}
+                    <div className={`farmaku-submenu-wrapper ${isExpanded ? 'expanded' : ''}`}>
+                        <div className="farmaku-submenu">
+                            {item.children.map((child, cIndex) => {
+                                const childActive = isLeafActive(child.path);
+                                return (
+                                    <NavLink
+                                        key={cIndex}
+                                        to={child.path}
+                                        end
+                                        className={({ isActive }) => `farmaku-subnav-item${childActive ? ' active' : ''}`}
+                                    >
+                                        <span>{child.title}</span>
+                                        {childActive && <Icons.ChevronRight size={14} />}
+                                    </NavLink>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </li>
+            );
+        }
+
+        // ── Leaf item ───────────────────────────────────────────────────
+        const leafActive = isLeafActive(item.path);
+        const isNotifications = item.path === '/notifications';
+        return (
+            <li key={index ?? item.title} className="farmaku-nav-list-item">
+                <NavLink
+                    to={item.path}
+                    end
+                    className={({ isActive }) => `farmaku-nav-item${leafActive ? ' active' : ''}`}
+                >
+                    {renderIcon(item.icon, item.title)}
+                    <span>{item.title}</span>
+                    {isNotifications && unreadCount > 0 ? (
+                        <span className="farmaku-badge">
+                            {unreadCount > 99 ? '99+' : unreadCount}
+                        </span>
+                    ) : (
+                        <Icons.ChevronRight size={14} />
+                    )}
+                </NavLink>
             </li>
         );
     };
+
+    // Paths already covered by the dynamic navigation list
+    const dynamicPaths = new Set(
+        navigation.flatMap((item) =>
+            item.children ? item.children.map((c) => c.path) : [item.path]
+        )
+    );
 
     return (
         <aside className="farmaku-sidebar">
@@ -189,39 +244,58 @@ const FarmakuSidebar = () => {
                         </div>
                     ) : (
                         navigation
-                            .filter(item => item.title !== 'Settings')
+                            .filter((item) => item.title !== 'Settings')
                             .map((item, index) => renderNavItem(item, index))
                     )}
 
                     {/* Divider */}
                     <div className="farmaku-divider" style={{ margin: '8px 0' }} />
 
-                    {/* Notifications */}
-                    <li>
-                        <NavLink to="/notifications" className={({ isActive }) => isActive ? "farmaku-nav-item active" : "farmaku-nav-item"}>
-                            <Icons.Bell size={18} className="nav-icon-rose" />
-                            <span>Notifications</span>
-                            {unreadCount > 0 ? (
-                                <span className="farmaku-badge">{unreadCount > 99 ? '99+' : unreadCount}</span>
-                            ) : (
-                                <Icons.ChevronRight size={14} style={{ marginLeft: 'auto', opacity: 0.4 }} />
-                            )}
-                        </NavLink>
-                    </li>
-
-                    {/* Help & Support */}
-                    <li>
-                        <NavLink to="/support" className={({ isActive }) => isActive ? "farmaku-nav-item active" : "farmaku-nav-item"}>
-                            <Icons.HelpCircle size={18} className="nav-icon-white" />
-                            <span>Help &amp; Support</span>
-                            <Icons.ChevronRight size={14} style={{ marginLeft: 'auto', opacity: 0.4 }} />
-                        </NavLink>
-                    </li>
-
-                    {/* Settings (if available) */}
-                    {!loading && navigation.find(item => item.title === 'Settings') && (
-                        renderNavItem(navigation.find(item => item.title === 'Settings'), 'settings')
+                    {/* Notifications — only if not already in dynamic nav */}
+                    {!dynamicPaths.has('/notifications') && (
+                        <li>
+                            <NavLink
+                                to="/notifications"
+                                end
+                                className={({ isActive }) => `farmaku-nav-item${isLeafActive('/notifications') ? ' active' : ''}`}
+                            >
+                                <Icons.Bell size={18} className="nav-icon-rose" />
+                                <span>Notifications</span>
+                                {unreadCount > 0 ? (
+                                    <span className="farmaku-badge">
+                                        {unreadCount > 99 ? '99+' : unreadCount}
+                                    </span>
+                                ) : (
+                                    <Icons.ChevronRight size={14} />
+                                )}
+                            </NavLink>
+                        </li>
                     )}
+
+                    {/* Notifications badge overlay when it IS in dynamic nav (unread count) */}
+                    {dynamicPaths.has('/notifications') && unreadCount > 0 && (() => {
+                        // Find the rendered notifications item and inject badge — handled in renderNavItem via unreadCount
+                        return null;
+                    })()}
+
+                    {/* Help & Support — only if not already in dynamic nav */}
+                    {!dynamicPaths.has('/support') && (
+                        <li>
+                            <NavLink
+                                to="/support"
+                                end
+                                className={({ isActive }) => `farmaku-nav-item${isLeafActive('/support') ? ' active' : ''}`}
+                            >
+                                <Icons.HelpCircle size={18} className="nav-icon-white" />
+                                <span>Help &amp; Support</span>
+                                <Icons.ChevronRight size={14} />
+                            </NavLink>
+                        </li>
+                    )}
+
+                    {/* Settings (if available in nav) */}
+                    {!loading && navigation.find((item) => item.title === 'Settings') &&
+                        renderNavItem(navigation.find((item) => item.title === 'Settings'), 'settings')}
 
                     <div className="farmaku-divider" style={{ margin: '8px 0' }} />
 
@@ -234,7 +308,6 @@ const FarmakuSidebar = () => {
                     </li>
                 </ul>
             </div>
-
         </aside>
     );
 };

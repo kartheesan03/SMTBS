@@ -220,7 +220,7 @@ const MySalaryPage = () => {
                 .animate-slide-up { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
                 @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
                 .mt-30 { margin-top: 30px; }
-                .flex-center { display: flex; align-items: center; justify-content: center; }
+
                 .gap-10 { gap: 10px; }
 
                 .btn-download-payslip {

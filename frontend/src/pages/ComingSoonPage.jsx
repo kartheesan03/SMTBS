@@ -6,7 +6,7 @@ const ComingSoonPage = ({ title, subtitle }) => {
     const navigate = useNavigate();
 
     return (
-        <div className="main-content flex-center" style={{ minHeight: '80vh', flexDirection: 'column', gap: '20px' }}>
+        <div className="main-content flex-center" style={{ flexDirection: 'column', gap: '20px', minHeight: '100vh' }}>
             <div className="premium-card" style={{ padding: '40px', textAlign: 'center', maxWidth: '500px', width: '100%' }}>
                 <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px', color: '#3b82f6' }}>
                     <Clock size={48} />

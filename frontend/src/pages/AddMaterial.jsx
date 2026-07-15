@@ -84,7 +84,7 @@ const AddMaterial = ({ isEditMode = false }) => {
         }
     };
 
-    if (isFetching) return <div className="flex-center" style={{height:'100vh'}}><div className="loader"></div></div>;
+    if (isFetching) return <div className="flex-center" style={{minHeight:'100vh'}}><div className="loader"></div></div>;
 
     const vendorOptions = vendors.map(v => ({ value: v._id || v.id, label: v.name }));
 

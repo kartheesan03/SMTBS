@@ -11,7 +11,7 @@ import {
     Layers, Cpu, PhoneCall, ListTodo, UserCheck, LayoutGrid, Clock, Target, Server, Activity, AlertCircle, AlertTriangle,
     ArrowUpRight, Package, BarChart as BarChartIcon, Zap, MapPin, Building2
 } from 'lucide-react';
-import { AreaChart, Area, PieChart, Pie, Cell, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, LineChart, Line, BarChart, Bar, Legend } from 'recharts';
+import { AreaChart, Area, PieChart, Pie, Cell, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, LineChart, Line, BarChart, Bar, Legend, LabelList, Label } from 'recharts';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 import PageHeader from '../components/PageHeader';
 import CommandCenter from '../components/CommandCenter';
@@ -142,30 +142,34 @@ const AdminDashboard = () => {
     
     const [upcomingEvents, setUpcomingEvents] = useState([]);
     const [revenueTrendYear, setRevenueTrendYear] = useState('current');
+    const [topMaterialsSortBy, setTopMaterialsSortBy] = useState('revenue');
 
     useEffect(() => {
         const fetchTasks = async () => {
             try {
                 const tasksRes = await API.get('/tasks');
                 const now = new Date();
-                const futureTasks = (tasksRes.data || [])
-                    .filter(t => t.dueDate && new Date(t.dueDate) >= now)
-                    .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
-                    .slice(0, 3)
+                const pendingTasks = (tasksRes.data || [])
+                    .filter(t => t.status !== 'Completed')
+                    .sort((a, b) => new Date(a.dueDate || 0) - new Date(b.dueDate || 0))
+                    .slice(0, 4)
                     .map(t => {
                         const d = new Date(t.dueDate);
+                        let isOverdue = d < now;
                         let col = '#4f46e5'; let bg = '#e0e7ff';
-                        if (t.priority === 'High') { col = '#ef4444'; bg = '#fee2e2'; }
-                        if (t.priority === 'Low') { col = '#10b981'; bg = '#d1fae5'; }
+                        if (isOverdue || t.priority === 'High') { col = '#ef4444'; bg = '#fee2e2'; }
+                        else if (t.priority === 'Low') { col = '#10b981'; bg = '#d1fae5'; }
                         return {
                             day: String(d.getDate()).padStart(2, '0'),
                             month: d.toLocaleString('default', { month: 'short' }).toUpperCase(),
                             bg, col,
                             title: t.title,
+                            category: t.category || t.department || 'General',
+                            isOverdue,
                             desc: `${d.getDate()} ${d.toLocaleString('default', { month: 'long' })} · ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
                         };
                     });
-                setUpcomingEvents(futureTasks);
+                setUpcomingEvents(pendingTasks);
             } catch (err) {
                 console.error('Failed to load upcoming tasks', err);
             }
@@ -195,10 +199,13 @@ const AdminDashboard = () => {
     };
 
     const formatINR = (val) => {
-        if (!val) return '₹0';
-        if (val >= 100000) return `₹${(val / 100000).toFixed(2)}L`;
-        if (val >= 1000) return `₹${(val / 1000).toFixed(1)}k`;
-        return `₹${val}`;
+        if (!val && val !== 0) return '₹0';
+        const isNegative = val < 0;
+        const absVal = Math.abs(val);
+        const sign = isNegative ? '-' : '';
+        if (absVal >= 100000) return `${sign}₹${(absVal / 100000).toFixed(2)}L`;
+        if (absVal >= 1000) return `${sign}₹${(absVal / 1000).toFixed(1)}k`;
+        return `${sign}₹${absVal}`;
     };
 
     // KPI data
@@ -221,10 +228,7 @@ const AdminDashboard = () => {
         <div className="rd-container theme-admin">
             <div className="rd-content">
 
-                {/* ── Page Header ── */}
-                <PageHeader title="Admin Dashboard" badge="ADMIN" subtitle="Business overview & operations" />
-
-                {/* ── 1. Hero Banner ── */}
+                {/* 🌟 1. Hero Banner 🌟 */}
                 <div className="rd-hero">
                     <div className="rd-hero-left">
                         <div className="rd-hero-avatar-wrapper">
@@ -309,7 +313,7 @@ const AdminDashboard = () => {
                             <IconQuickAction icon={ShoppingCart} label="Purchase Orders" colorClass="bg-light-green"  onClick={() => navigate('/orders/purchase')} />
                             <IconQuickAction icon={Tag}         label="Sales Orders"     colorClass="bg-light-red"    onClick={() => navigate('/orders')} />
                             <IconQuickAction icon={FileText}    label="Reports"          colorClass="bg-light-purple" onClick={() => navigate('/reports')} />
-                            <IconQuickAction icon={Users}       label="HRMS"             colorClass="bg-light-blue"   onClick={() => navigate('/employees')} />
+                            <IconQuickAction icon={Users}       label="HRMS"             colorClass="bg-light-blue"   onClick={() => navigate('/hrms')} />
                             <IconQuickAction icon={Layers}      label="ERP"              colorClass="bg-light-cyan"   onClick={() => navigate('/')} />
                             <IconQuickAction icon={Target}      label="CRM"              colorClass="bg-light-pink"   onClick={() => navigate('/crm')} />
                             <IconQuickAction icon={ListTodo}    label="Tasks"            colorClass="bg-light-orange" onClick={() => navigate('/tasks')} />
@@ -527,19 +531,19 @@ const AdminDashboard = () => {
                         {((dashboardData?.analytics?.trendData || []).length > 0 || (dashboardData?.stats?.pendingOrders || 0) > 0 || (dashboardData?.tables?.lowStock?.length || 0) > 0 || (dashboardData?.stats?.pendingSalaries || 0) > 0) ? (
                             <div className="ai-insights-list">
                                 {(dashboardData?.analytics?.trendData || []).length > 0 && (
-                                    <div className="ai-insight-item">
+                                    <div className="ai-insight-item" onClick={() => navigate('/reports')}>
                                         <div className="ai-dot"></div>
                                         <div>Revenue {(dashboardData?.analytics?.kpis?.revenueGrowth || 0) >= 0 ? 'increased' : 'decreased'} by <strong>{Math.abs(dashboardData?.analytics?.kpis?.revenueGrowth || 0)}%</strong> vs last month.</div>
                                     </div>
                                 )}
                                 {(dashboardData?.stats?.pendingOrders || 0) > 0 && (
-                                    <div className="ai-insight-item"><div className="ai-dot"></div><div><strong>{dashboardData?.stats?.pendingOrders}</strong> orders require approval.</div></div>
+                                    <div className="ai-insight-item" onClick={() => navigate('/orders/purchase')}><div className="ai-dot"></div><div><strong>{dashboardData?.stats?.pendingOrders}</strong> orders require approval.</div></div>
                                 )}
                                 {(dashboardData?.tables?.lowStock?.length || 0) > 0 && (
-                                    <div className="ai-insight-item"><div className="ai-dot"></div><div><strong>{dashboardData?.tables?.lowStock?.length} items</strong> below stock threshold.</div></div>
+                                    <div className="ai-insight-item" onClick={() => navigate('/materials')}><div className="ai-dot"></div><div><strong>{dashboardData?.tables?.lowStock?.length} items</strong> below stock threshold.</div></div>
                                 )}
                                 {(dashboardData?.stats?.pendingSalaries || 0) > 0 && (
-                                    <div className="ai-insight-item"><div className="ai-dot"></div><div><strong>{dashboardData?.stats?.pendingSalaries}</strong> payrolls pending.</div></div>
+                                    <div className="ai-insight-item" onClick={() => navigate('/payroll')}><div className="ai-dot"></div><div><strong>{dashboardData?.stats?.pendingSalaries}</strong> payrolls pending.</div></div>
                                 )}
                             </div>
                         ) : (
@@ -551,18 +555,34 @@ const AdminDashboard = () => {
                     <div className="dashboard-panel">
                         <div className="panel-header">
                             <div className="panel-title">Top Selling Materials</div>
-                            <select className="panel-dropdown"><option>This Month ▾</option></select>
+                            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                                <select 
+                                    className="panel-dropdown" 
+                                    value={topMaterialsSortBy} 
+                                    onChange={e => setTopMaterialsSortBy(e.target.value)}
+                                    style={{ paddingRight: '24px', width: 'auto' }}
+                                >
+                                    <option value="revenue">By Revenue</option>
+                                    <option value="sales">By Quantity</option>
+                                </select>
+                            </div>
                         </div>
-                        <div style={{ height: 180 }}>
+                        <div style={{ minHeight: 180, display: 'flex', flexDirection: 'column', flex: 1 }}>
                             {(!dashboardData?.tables?.topSellingMaterials || dashboardData.tables.topSellingMaterials.length === 0) ? (
                                 <EmptyState title="No Data" message="Insufficient sales data." height={180} />
                             ) : (
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <BarChart layout="vertical" data={dashboardData?.tables?.topSellingMaterials || []} margin={{ top: 0, right: 20, left: 0, bottom: 0 }}>
+                                <ResponsiveContainer width="100%" height={180}>
+                                    <BarChart 
+                                        layout="vertical" 
+                                        data={[...(dashboardData?.tables?.topSellingMaterials || [])].sort((a, b) => b[topMaterialsSortBy] - a[topMaterialsSortBy])} 
+                                        margin={{ top: 0, right: 40, left: -10, bottom: 0 }}
+                                    >
                                         <XAxis type="number" hide />
-                                        <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#475569' }} width={90} />
-                                        <Tooltip contentStyle={{ fontSize: 11 }} cursor={{ fill: '#f8fafc' }} />
-                                        <Bar dataKey="sales" fill="#7C3AED" radius={[0, 4, 4, 0]} barSize={10} />
+                                        <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#475569' }} width={100} />
+                                        <Tooltip contentStyle={{ fontSize: 11 }} cursor={{ fill: '#f8fafc' }} formatter={(val) => topMaterialsSortBy === 'revenue' ? formatINR(val) : val} />
+                                        <Bar dataKey={topMaterialsSortBy} fill="#7C3AED" radius={[0, 4, 4, 0]} barSize={12}>
+                                            <LabelList dataKey={topMaterialsSortBy} position="right" formatter={(val) => topMaterialsSortBy === 'revenue' ? formatINR(val) : val} style={{ fontSize: 10, fill: '#475569', fontWeight: 600 }} />
+                                        </Bar>
                                     </BarChart>
                                 </ResponsiveContainer>
                             )}
@@ -575,33 +595,40 @@ const AdminDashboard = () => {
                             <div className="panel-title">Sales Analytics</div>
                             <select className="panel-dropdown"><option>This Month ▾</option></select>
                         </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, height: 180 }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, minHeight: 180, flex: 1 }}>
                             {(!dashboardData?.charts?.salesCategoryData || dashboardData.charts.salesCategoryData.length === 0) ? (
                                 <EmptyState title="No Sales" message="No sales data available." height={180} />
                             ) : (
                                 <>
-                                    <div style={{ width: '100%', height: 110 }}>
-                                        <ResponsiveContainer width="100%" height="100%">
-                                            <PieChart>
-                                                <Pie data={dashboardData.charts.salesCategoryData} innerRadius={34} outerRadius={50} dataKey="value" cx="50%" cy="50%">
-                                                    {dashboardData.charts.salesCategoryData.map((entry, index) => {
-                                                        const colors = ['#7C3AED', '#D97706', '#059669', '#2563EB'];
-                                                        return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
-                                                    })}
-                                                </Pie>
-                                                <Tooltip contentStyle={{ fontSize: 11 }} formatter={(val) => `₹${val.toLocaleString()}`} />
-                                            </PieChart>
-                                        </ResponsiveContainer>
+                                    <div style={{ width: '100%', height: 120 }}>
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <PieChart>
+                                        <Pie data={dashboardData.charts.salesCategoryData} innerRadius={45} outerRadius={65} dataKey="value" cx="50%" cy="50%">
+                                            {dashboardData.charts.salesCategoryData.map((entry, index) => {
+                                                const colors = ['#7C3AED', '#D97706', '#059669', '#2563EB'];
+                                                return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
+                                            })}
+                                            <Label
+                                                value={formatINR(dashboardData.charts.salesCategoryData.reduce((acc, curr) => acc + curr.value, 0))}
+                                                position="center"
+                                                fill="#0f172a"
+                                                style={{ fontSize: '13px', fontWeight: 'bold' }}
+                                            />
+                                        </Pie>
+                                        <Tooltip contentStyle={{ fontSize: 11 }} formatter={(val) => `₹${val.toLocaleString()}`} />
+                                    </PieChart>
+                                </ResponsiveContainer>
                                     </div>
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4, width: '100%', overflowY: 'auto' }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, width: '100%' }}>
                                         {dashboardData.charts.salesCategoryData.slice(0, 3).map((entry, idx) => {
                                             const colors = ['#7C3AED', '#D97706', '#059669', '#2563EB'];
                                             return (
                                                 <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 11 }}>
-                                                    <span style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#475569' }}>
-                                                        <div style={{ width: 8, height: 8, borderRadius: '50%', background: colors[idx % colors.length] }}></div>{entry.name}
+                                                    <span style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#475569', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', paddingRight: 4 }}>
+                                                        <div style={{ width: 8, height: 8, borderRadius: '50%', background: colors[idx % colors.length], flexShrink: 0 }}></div>
+                                                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{entry.name}</span>
                                                     </span>
-                                                    <strong style={{ color: '#0f172a' }}>₹{entry.value.toLocaleString()}</strong>
+                                                    <strong style={{ color: '#0f172a', flexShrink: 0 }}>₹{entry.value.toLocaleString()}</strong>
                                                 </div>
                                             );
                                         })}
@@ -617,26 +644,39 @@ const AdminDashboard = () => {
                             <div className="panel-title">Monthly Profit</div>
                             <select className="panel-dropdown" style={{ paddingRight: '24px', width: 'auto' }}><option>This Month</option></select>
                         </div>
-                        {(!dashboardData?.charts?.monthlyStats || dashboardData.charts.monthlyStats.length === 0) ? (
-                            <EmptyState title="No Profit Data" message="No historical profit data." height={150} />
-                        ) : (
-                            <>
-                                <div style={{ marginBottom: 10 }}>
-                                    <div style={{ fontSize: 22, fontWeight: 800, color: '#0f172a', letterSpacing: '-0.5px' }}>{formatINR(dashboardData?.analytics?.kpis?.netProfit || totalRevenue)}</div>
-                                    <div style={{ fontSize: 12, color: (dashboardData?.analytics?.kpis?.revenueGrowth || 0) >= 0 ? '#059669' : '#ef4444', fontWeight: 600, marginTop: 3 }}>
-                                        {(dashboardData?.analytics?.kpis?.revenueGrowth || 0) >= 0 ? '↑' : '↓'} {Math.abs(dashboardData?.analytics?.kpis?.revenueGrowth || 0)}% vs last month
+                        <div style={{ minHeight: 180, display: 'flex', flexDirection: 'column', flex: 1 }}>
+                            {(!dashboardData?.charts?.monthlyStats || dashboardData.charts.monthlyStats.length === 0) ? (
+                                <EmptyState title="No Profit Data" message="No historical profit data." height={150} />
+                            ) : (
+                                <>
+                                    <div style={{ marginBottom: 16 }}>
+                                        <div style={{ fontSize: 22, fontWeight: 800, color: '#0f172a', letterSpacing: '-0.5px' }}>{formatINR(dashboardData?.analytics?.kpis?.netProfit || totalRevenue)}</div>
+                                        <div style={{ fontSize: 12, color: (dashboardData?.analytics?.kpis?.revenueGrowth || 0) >= 0 ? '#059669' : '#ef4444', fontWeight: 600, marginTop: 4 }}>
+                                            {(() => {
+                                                const growth = dashboardData?.analytics?.kpis?.revenueGrowth || 0;
+                                                const lastMonth = dashboardData?.analytics?.kpis?.lastMonthRevenue || 0;
+                                                const thisMonth = dashboardData?.analytics?.kpis?.thisMonthRevenue || 0;
+                                                
+                                                if (lastMonth === 0) {
+                                                    const diff = thisMonth - lastMonth;
+                                                    return `${diff >= 0 ? '+' : ''}${formatINR(diff)} vs last month (${formatINR(lastMonth)})`;
+                                                }
+                                                return `${growth >= 0 ? '↑' : '↓'} ${Math.abs(growth)}% vs last month (${formatINR(lastMonth)})`;
+                                            })()}
+                                        </div>
                                     </div>
-                                </div>
-                                <div style={{ height: 110 }}>
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <LineChart data={dashboardData?.charts?.monthlyStats || []} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
-                                            <Line type="monotone" dataKey="revenue" stroke="#059669" strokeWidth={2} dot={{ r: 3, fill: '#059669' }} />
-                                            <Tooltip contentStyle={{ fontSize: 11 }} formatter={(val) => [`₹${val.toLocaleString()}`, 'Revenue']} />
-                                        </LineChart>
-                                    </ResponsiveContainer>
-                                </div>
-                            </>
-                        )}
+                                    <div style={{ height: 110, width: '100%', overflow: 'hidden', paddingBottom: 10 }}>
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <LineChart data={dashboardData?.charts?.monthlyStats || []} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+                                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8' }} dy={10} />
+                                                <Line type="monotone" dataKey="revenue" stroke="#059669" strokeWidth={2} dot={{ r: 3, fill: '#059669' }} isAnimationActive={false} />
+                                                <Tooltip contentStyle={{ fontSize: 11 }} formatter={(val) => [`₹${val.toLocaleString()}`, 'Revenue']} />
+                                            </LineChart>
+                                        </ResponsiveContainer>
+                                    </div>
+                                </>
+                            )}
+                        </div>
                     </div>
 
                     {/* Upcoming Events */}
@@ -647,14 +687,20 @@ const AdminDashboard = () => {
                         </div>
                         <div className="feed-list" style={{ gap: 14 }}>
                             {upcomingEvents.length > 0 ? upcomingEvents.map((ev, i) => (
-                                <div className="event-item" key={i}>
+                                <div className="event-item" key={i} style={{ borderLeft: ev.isOverdue ? '3px solid #ef4444' : 'none', paddingLeft: ev.isOverdue ? 6 : 0 }}>
                                     <div style={{ background: ev.bg, borderRadius: 8, padding: '4px 8px', textAlign: 'center', flexShrink: 0, minWidth: 36 }}>
                                         <div style={{ color: ev.col, fontSize: 9, fontWeight: 700, textTransform: 'uppercase' }}>{ev.month}</div>
                                         <div style={{ color: '#0f172a', fontSize: 16, fontWeight: 800, lineHeight: 1.1 }}>{ev.day}</div>
                                     </div>
-                                    <div className="feed-content">
-                                        <div className="feed-title">{ev.title}</div>
-                                        <div className="feed-desc">{ev.desc}</div>
+                                    <div className="feed-content" style={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1 }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                            <div className="feed-title" style={{ color: ev.isOverdue ? '#ef4444' : 'inherit', flex: 1, paddingRight: 6 }}>{ev.title}</div>
+                                            <span style={{ fontSize: 9, background: '#f1f5f9', padding: '2px 6px', borderRadius: 4, color: '#475569', fontWeight: 600, flexShrink: 0 }}>{ev.category}</span>
+                                        </div>
+                                        <div className="feed-desc" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                            {ev.isOverdue && <AlertCircle size={10} color="#ef4444" />}
+                                            {ev.desc}
+                                        </div>
                                     </div>
                                 </div>
                             )) : (

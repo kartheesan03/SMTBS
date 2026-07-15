@@ -48,14 +48,14 @@ const Payslips = () => {
     };
 
     if (loading) return (
-        <div className="loading-state flex-center">
+        <div className="loading-state flex-center" style={{ minHeight: '100vh' }}>
             <Loader2 size={32} className="spin text-primary" />
             <p>Loading payslip records...</p>
             <style jsx="true">{`
                 .loading-state { flex-direction: column; min-height: 400px; gap: 15px; color: var(--text-muted); font-weight: 500; }
                 .spin { animation: spin 1s linear infinite; }
                 .text-primary { color: var(--primary); }
-                .flex-center { display: flex; align-items: center; justify-content: center; }
+
                 @keyframes spin { to { transform: rotate(360deg); } }
             `}</style>
         </div>
@@ -323,7 +323,7 @@ const Payslips = () => {
                 .animate-pop { animation: pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
                 @keyframes pop { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
                 
-                .flex-center { display: flex; align-items: center; justify-content: center; }
+
                 .gap-10 { gap: 10px; }
                 .mt-24 { margin-top: 24px; }
                 .mt-12 { margin-top: 12px; }

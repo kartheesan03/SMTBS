@@ -179,7 +179,7 @@ const ApplyLeave = () => {
                 
                 .spin-icon { animation: spin 1s linear infinite; }
                 @keyframes spin { to { transform: rotate(360deg); } }
-                .flex-center { display: flex; align-items: center; justify-content: center; }
+
                 .gap-10 { gap: 10px; }
 
                 @media (max-width: 768px) {

@@ -900,7 +900,7 @@ const HRReports = () => {
                 }
 
                 .mt-30 { margin-top: 30px; }
-                .flex-center { display: flex; align-items: center; justify-content: center; }
+
                 .gap-10 { gap: 10px; }
 
                 /* Micro Animations */

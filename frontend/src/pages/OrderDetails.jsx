@@ -74,7 +74,7 @@ const OrderDetails = () => {
         }
     };
 
-    if (loading) return <div className="flex-center" style={{height:'100vh'}}><div className="loader"></div></div>;
+    if (loading) return <div className="flex-center" style={{minHeight:'100vh'}}><div className="loader"></div></div>;
     if (!order) return null;
 
     const isSales = order.orderType === 'sales';

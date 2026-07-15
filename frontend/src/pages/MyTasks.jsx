@@ -242,7 +242,7 @@ const MyTasks = () => {
                 className="module-content"
             >
                 {loading ? (
-                    <div className="flex-center p-50"><Loader size={30} className="spin-icon"/></div>
+                    <div className="flex-center p-50" style={{ minHeight: '100vh' }}><Loader size={30} className="spin-icon"/></div>
                 ) : filteredTasks.length === 0 ? (
                     <div className="premium-card empty-state">
                         <AlertCircle size={48} />

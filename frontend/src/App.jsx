@@ -187,18 +187,18 @@ const AppContent = () => {
                     
                     {/* HRMS Routes */}
                     <Route path="/hrms" element={
-                        <ProtectedRoute requiredPermission="view_hrms">
+                        <ProtectedRoute requiredPermission="hrms:employeeData:view">
                             <HRMS />
                         </ProtectedRoute>
                     } />
                     <Route path="/hrms/add-employee" element={
-                        <ProtectedRoute requiredPermission="view_hrms">
+                        <ProtectedRoute requiredPermission="hrms:employeeData:view">
                             <AddEmployee />
                         </ProtectedRoute>
                     } />
-                    <Route path="/employees/:id/edit" element={<ProtectedRoute requiredPermission="view_hrms"><AddEmployee isEditMode={true} /></ProtectedRoute>} />
-                    <Route path="/employees/:id" element={<ProtectedRoute requiredPermission="view_hrms"><EmployeeDetails /></ProtectedRoute>} />
-                    <Route path="/employees/new" element={<ProtectedRoute requiredPermission="view_hrms"><AddEmployee /></ProtectedRoute>} />
+                    <Route path="/employees/:id/edit" element={<ProtectedRoute requiredPermission="hrms:employeeData:view"><AddEmployee isEditMode={true} /></ProtectedRoute>} />
+                    <Route path="/employees/:id" element={<ProtectedRoute requiredPermission="hrms:employeeData:view"><EmployeeDetails /></ProtectedRoute>} />
+                    <Route path="/employees/new" element={<ProtectedRoute requiredPermission="hrms:employeeData:view"><AddEmployee /></ProtectedRoute>} />
                     
                     <Route path="/materials/new" element={<ProtectedRoute requiredPermission="view_hrms"><AddMaterial /></ProtectedRoute>} />
                     <Route path="/materials/barcode" element={<ProtectedRoute><BarcodeManagement /></ProtectedRoute>} />
@@ -214,14 +214,14 @@ const AppContent = () => {
                     <Route path="/my-materials/requests" element={<ProtectedRoute requiredPermission="view_materials_self"><MyMaterials /></ProtectedRoute>} />
                     <Route path="/my-materials/stock" element={<ProtectedRoute requiredPermission="view_materials_self"><MyMaterials /></ProtectedRoute>} />
                     <Route path="/my-materials/barcode" element={<ProtectedRoute requiredPermission="view_materials_self"><EmployeeScanner /></ProtectedRoute>} />
-                    <Route path="/payroll" element={<ProtectedRoute requiredPermission="view_hrms"><Payroll /></ProtectedRoute>} />
-                    <Route path="/payroll/generate" element={<ProtectedRoute requiredPermission="view_hrms"><GeneratePayroll /></ProtectedRoute>} />
-                    <Route path="/payroll/payment/:id" element={<ProtectedRoute requiredPermission="view_hrms"><PayrollPayment /></ProtectedRoute>} />
-                    <Route path="/payslips" element={<ProtectedRoute requiredPermission="view_hrms"><Payslips /></ProtectedRoute>} />
+                    <Route path="/payroll" element={<ProtectedRoute requiredPermission="hrms:payroll:view"><Payroll /></ProtectedRoute>} />
+                    <Route path="/payroll/generate" element={<ProtectedRoute requiredPermission="hrms:payroll:generate"><GeneratePayroll /></ProtectedRoute>} />
+                    <Route path="/payroll/payment/:id" element={<ProtectedRoute requiredPermission="hrms:payroll:view"><PayrollPayment /></ProtectedRoute>} />
+                    <Route path="/payslips" element={<ProtectedRoute requiredPermission="hrms:payroll:view"><Payslips /></ProtectedRoute>} />
                     <Route path="/attendance" element={<ProtectedRoute><Attendance /></ProtectedRoute>} />
-                    <Route path="/attendance/master" element={<ProtectedRoute requiredPermission="view_hrms"><MasterAttendance /></ProtectedRoute>} />
+                    <Route path="/attendance/master" element={<ProtectedRoute requiredPermission="hrms:attendance:view"><MasterAttendance /></ProtectedRoute>} />
                     <Route path="/hr-reports" element={<ProtectedRoute requiredPermission="view_hrms"><HRReports /></ProtectedRoute>} />
-                    <Route path="/team-performance" element={<ProtectedRoute requiredPermission="view_hrms"><TeamPerformance /></ProtectedRoute>} />
+                    <Route path="/team-performance" element={<ProtectedRoute requiredPermission="hrms:performance:view"><TeamPerformance /></ProtectedRoute>} />
                     <Route path="/erp" element={<ProtectedRoute requiredPermission="view_erp"><ERP /></ProtectedRoute>} />
                     <Route path="/orders" element={<ProtectedRoute requiredPermission="view_erp"><OrderManagement /></ProtectedRoute>} />
                     <Route path="/orders/purchase" element={<ProtectedRoute requiredPermission="view_erp"><OrderManagement /></ProtectedRoute>} />
@@ -271,10 +271,15 @@ const AppContent = () => {
                     <Route path="/my-tasks" element={<ProtectedRoute><MyTasks /></ProtectedRoute>} />
                     <Route path="/tasks" element={<Navigate to="/my-tasks" replace />} />
                     <Route path="/my-attendance" element={<Navigate to="/attendance" replace />} />
-                    <Route path="/my-salary" element={<ProtectedRoute><MySalaryPage /></ProtectedRoute>} />
-                    <Route path="/leave-management" element={<ProtectedRoute><LeaveManagement /></ProtectedRoute>} />
-                    <Route path="/leave-management/apply" element={<ProtectedRoute><ApplyLeave /></ProtectedRoute>} />
+                    <Route path="/leave-management" element={<ProtectedRoute requiredPermission="hrms:leave:view"><LeaveManagement /></ProtectedRoute>} />
+                    <Route path="/leave-management/apply" element={<ProtectedRoute requiredPermission="hrms:leave:view"><ApplyLeave /></ProtectedRoute>} />
+                    <Route path="/my-salary" element={<ProtectedRoute requiredPermission="hrms:mySalary:view"><MySalaryPage /></ProtectedRoute>} />
                     <Route path="/stock-requests" element={<ProtectedRoute><StockRequests /></ProtectedRoute>} />
+
+                    {/* HR Module — Coming Soon Pages */}
+                    <Route path="/coming-soon/recruitment" element={<ProtectedRoute><ComingSoonPage title="Recruitment" subtitle="Manage job postings, applications, and candidate pipelines" /></ProtectedRoute>} />
+                    <Route path="/coming-soon/training" element={<ProtectedRoute><ComingSoonPage title="Training & Development" subtitle="Plan and track employee learning programs" /></ProtectedRoute>} />
+                    <Route path="/coming-soon/holiday-calendar" element={<ProtectedRoute><ComingSoonPage title="Holiday Calendar" subtitle="View and manage company holidays and observances" /></ProtectedRoute>} />
 
                     <Route path="/complete-customer-profile" element={<ProtectedRoute requiredPermission="view_crm"><CompleteCustomerProfile /></ProtectedRoute>} />
                     <Route path="/complete-vendor-profile" element={<ProtectedRoute requiredPermission="view_erp"><CompleteVendorProfile /></ProtectedRoute>} />

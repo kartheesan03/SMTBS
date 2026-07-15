@@ -69,7 +69,7 @@ const AddEmployee = ({ isEditMode = false }) => {
         }
     };
 
-    if (isFetching) return <div className="flex-center" style={{height:'100vh'}}><div className="loader"></div></div>;
+    if (isFetching) return <div className="flex-center" style={{minHeight:'100vh'}}><div className="loader"></div></div>;
 
     return (
         <StandardPageLayout

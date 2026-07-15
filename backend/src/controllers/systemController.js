@@ -1,3 +1,4 @@
+// ─── Navigation for non-HR roles (Admin, Manager, Employee, Sales, etc.) ──────
 const navigationConfig = [
     {
         title: 'Dashboard',
@@ -34,20 +35,6 @@ const navigationConfig = [
         ]
     },
     {
-        title: 'HRMS',
-        icon: 'Users',
-        permission: 'view_hrms',
-        children: [
-            { title: 'Employee Data', path: '/hrms' },
-            { title: 'Master Attendance', path: '/attendance/master' },
-            { title: 'Leave Management', path: '/leave-management' },
-            { title: 'Payroll', path: '/payroll' },
-            { title: 'Generate Payroll', path: '/payroll/generate', permission: 'manage_hrms' },
-            { title: 'Performance', path: '/team-performance' },
-            { title: 'My Salary', path: '/my-salary' }
-        ]
-    },
-    {
         title: 'ERP',
         icon: 'Database',
         permission: 'view_erp',
@@ -70,7 +57,6 @@ const navigationConfig = [
             { title: 'Support Management', path: '/support' }
         ]
     },
-
     {
         title: 'Tasks & Projects',
         icon: 'CheckSquare',
@@ -107,6 +93,106 @@ const navigationConfig = [
     }
 ];
 
+// ─── Dedicated HR Navigation (role: 'hr' only) ────────────────────────────────
+// Mirrors the FarmakuSidebar design with full HR-specific module hierarchy.
+const hrNavigationConfig = [
+    {
+        title: 'Dashboard',
+        icon: 'LayoutDashboard',
+        path: '/',
+        permission: ''
+    },
+    {
+        title: 'Employee Management',
+        icon: 'Users',
+        path: '/hrms',
+        permission: 'view_hrms'
+    },
+    {
+        title: 'Attendance',
+        icon: 'CalendarCheck',
+        permission: 'view_hrms',
+        children: [
+            { title: 'Employee Attendance', path: '/attendance' },
+            { title: 'Master Attendance',   path: '/attendance/master' },
+            { title: 'Attendance Reports',  path: '/hr-reports' }
+        ]
+    },
+    {
+        title: 'Leave Management',
+        icon: 'CalendarDays',
+        permission: 'view_hrms',
+        children: [
+            { title: 'Apply Leave',    path: '/leave-management/apply' },
+            { title: 'Leave Requests', path: '/leave-management' },
+            { title: 'Leave Balance',  path: '/leave-management/balance' }
+        ]
+    },
+    {
+        title: 'Payroll',
+        icon: 'DollarSign',
+        permission: 'view_hrms',
+        children: [
+            { title: 'Generate Payroll', path: '/payroll/generate', permission: 'manage_hrms' },
+            { title: 'Salary Details',   path: '/payroll' },
+            { title: 'Payslips',         path: '/payslips' }
+        ]
+    },
+    {
+        title: 'Performance',
+        icon: 'TrendingUp',
+        path: '/team-performance',
+        permission: 'view_hrms'
+    },
+    {
+        title: 'Recruitment',
+        icon: 'UserPlus',
+        path: '/coming-soon/recruitment',
+        permission: 'view_hrms'
+    },
+    {
+        title: 'Training',
+        icon: 'BookOpen',
+        path: '/coming-soon/training',
+        permission: 'view_hrms'
+    },
+    {
+        title: 'Reports',
+        icon: 'BarChart2',
+        path: '/hr-reports',
+        permission: 'view_hrms'
+    },
+    {
+        title: 'Notifications',
+        icon: 'Bell',
+        path: '/notifications',
+        permission: ''
+    },
+    {
+        title: 'Holiday Calendar',
+        icon: 'CalendarRange',
+        path: '/coming-soon/holiday-calendar',
+        permission: ''
+    },
+    {
+        title: 'Help & Support',
+        icon: 'HelpCircle',
+        path: '/support',
+        permission: ''
+    },
+    {
+        title: 'Settings',
+        icon: 'Settings',
+        permission: '',
+        children: [
+            { title: 'General Settings',  path: '/settings',              permission: '' },
+            { title: 'Attendance Policy', path: '/settings/attendance',   permission: '' },
+            { title: 'Leave Policies',    path: '/settings/leave',        permission: '' },
+            { title: 'Payroll Settings',  path: '/settings/payroll',      permission: '' }
+        ]
+    }
+];
+
 const Role = require('../models/Role');
 
 exports.getNavigation = async (req, res) => {
@@ -122,12 +208,34 @@ exports.getNavigation = async (req, res) => {
         }
         
         const roleName = req.user.role ? req.user.role.toLowerCase() : '';
-        // If it's the super admin or admin, they get everything
+
+        // Super Admin / Admin get everything
         if (req.user.email === 'admin@smtbms.com' || roleName === 'admin' || roleName === 'super admin') {
             userPermissions.push('all');
         }
-        
-        // Filter navigation based on user permissions
+
+        // ── HR role: use the dedicated HR navigation config ───────────────────
+        if (roleName === 'hr') {
+            const filteredHRNav = hrNavigationConfig.map(item => {
+                // Hide parent if permission is required and user doesn't have it
+                if (item.permission && !userPermissions.includes(item.permission) && !userPermissions.includes('all')) {
+                    return null;
+                }
+                // Filter children by their individual permissions
+                if (item.children) {
+                    const filteredChildren = item.children.filter(child => {
+                        if (!child.permission) return true;
+                        return userPermissions.includes(child.permission) || userPermissions.includes('all');
+                    });
+                    return { ...item, children: filteredChildren };
+                }
+                return item;
+            }).filter(Boolean);
+
+            return res.json(filteredHRNav);
+        }
+
+        // ── All other roles: use the standard navigation config ───────────────
         let filteredNav = navigationConfig.map(item => {
             // First check if user can see parent
             if (item.permission && !userPermissions.includes(item.permission) && !userPermissions.includes('all')) {
