@@ -98,13 +98,22 @@ const FarmakuSidebar = () => {
                         children: allowedHrmsChildren
                     };
                     
-                    // Try to insert HRMS after Dashboard or Attendance. If not found, just push it.
+                    // Try to insert HRMS after Attendance. If not found, try Dashboard, then just push it.
                     let inserted = false;
                     for (let i = 0; i < navData.length; i++) {
-                        if (navData[i].title === 'Dashboard' || navData[i].title === 'Attendance') {
+                        if (navData[i].title === 'Attendance') {
                             navData.splice(i + 1, 0, hrmsNode);
                             inserted = true;
                             break;
+                        }
+                    }
+                    if (!inserted) {
+                        for (let i = 0; i < navData.length; i++) {
+                            if (navData[i].title === 'Dashboard') {
+                                navData.splice(i + 1, 0, hrmsNode);
+                                inserted = true;
+                                break;
+                            }
                         }
                     }
                     if (!inserted) {
@@ -144,8 +153,8 @@ const FarmakuSidebar = () => {
                     <div
                         className={[
                             'farmaku-nav-item',
-                            isExpanded ? 'expanded' : '',
-                            hasActiveChild ? 'has-active-child' : '',
+                            isExpanded ? 'expanded active' : '',
+                            hasActiveChild ? 'has-active-child active' : '',
                         ]
                             .filter(Boolean)
                             .join(' ')}

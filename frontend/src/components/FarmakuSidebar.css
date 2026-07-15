@@ -141,17 +141,7 @@
     box-shadow: 0 4px 14px rgba(59,130,246,0.4);
 }
 
-/* Parent with an active child — subtle expanded look only */
-.farmaku-nav-item.has-active-child {
-    background: rgba(0, 0, 0, 0.15);
-    color: rgba(255, 255, 255, 0.9);
-}
-
-/* expanded + has-active-child: same as expanded */
-.farmaku-nav-item.expanded.has-active-child {
-    background: rgba(0, 0, 0, 0.15);
-    color: rgba(255, 255, 255, 0.95);
-}
+/* Parent with an active child is now handled via .active class directly */
 
 .farmaku-nav-item svg,
 .farmaku-subnav-item svg {
@@ -225,7 +215,7 @@
     width: 100%;
     box-sizing: border-box;
     /* padding-left: 45px so text aligns perfectly with parent text (16px + 18px + 11px) */
-    padding: 12px 16px 12px 45px;
+    padding: 8px 16px 8px 45px;
     color: rgba(255, 255, 255, 0.55);
     text-decoration: none;
     font-size: 13.5px;
@@ -233,7 +223,7 @@
     transition: all 0.15s ease;
     border-radius: 12px;
     margin: 0 !important;
-    height: 42px; /* Force consistent height regardless of font weight */
+    height: 34px; /* Force consistent height regardless of font weight */
 }
 
 .farmaku-subnav-item:hover {
@@ -242,8 +232,7 @@
 }
 
 .farmaku-subnav-item.active {
-    background: #3B82F6;
-    color: #FFFFFF;
+    color: rgba(255, 255, 255, 0.9);
     font-weight: 600;
 }
 

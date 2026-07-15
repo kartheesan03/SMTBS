@@ -61,16 +61,9 @@ const PageHeader = ({ title, badge, subtitle, showBack = false, hasInsights = fa
                         {title}
                     </span>
                     {badge && (
-                        <span
-                            className="rd-module-badge"
-                            style={{
-                                margin: 0,
-                                flexShrink: 0,
-                            }}
-                        >
-                            {badge}
-                        </span>
+                        <span className="rd-module-badge">{badge}</span>
                     )}
+
                     {hasInsights && (
                         <div style={{
                             width: 8,

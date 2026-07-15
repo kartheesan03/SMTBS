@@ -212,17 +212,29 @@ const getDashboardStats = async (req, res) => {
         } catch (e) { console.error('Pending Salaries Find Error:', e); }
 
         let recentActivity = [];
+        let notifications = [];
         try {
             const Notification = require('../models/Notification');
+            const AuditLog = require('../models/AuditLog');
+            
             const notifs = await Notification.find().sort({ createdAt: -1 }).limit(5);
-            recentActivity = notifs.map(n => ({
+            notifications = notifs.map(n => ({
                 id: n._id,
                 text: n.message || n.title,
                 category: n.category || 'general',
                 type: n.type || 'info',
                 time: n.createdAt
             }));
-        } catch (e) { console.error('Recent Activity Error:', e); }
+
+            const audits = await AuditLog.find().sort({ createdAt: -1 }).limit(5);
+            recentActivity = audits.map(a => ({
+                id: a._id,
+                text: a.description || `${a.action} performed on ${a.module}`,
+                category: 'system',
+                type: a.action === 'CREATE' ? 'success' : (a.action === 'DELETE' ? 'warning' : 'info'),
+                time: a.createdAt || a.updatedAt
+            }));
+        } catch (e) { console.error('Activity/Notification Error:', e); }
 
         let data = {
                 hrStats: {
@@ -285,6 +297,7 @@ const getDashboardStats = async (req, res) => {
                 recentOrders: recentOrders || [],
                 pendingSalaries: pendingSalaries || [],
                 recentActivity: recentActivity || [],
+                notifications: notifications || [],
                 topSellingMaterials: topSellingMaterials || []
             }
         };

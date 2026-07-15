@@ -502,8 +502,8 @@ const AdminDashboard = () => {
                             <a href="/notifications" className="panel-action">View All</a>
                         </div>
                         <div className="feed-list">
-                            {(dashboardData?.tables?.recentActivity || []).length > 0 ? (
-                                (dashboardData?.tables?.recentActivity || []).slice(0, 5).map((notif, idx) => (
+                            {(dashboardData?.tables?.notifications || []).length > 0 ? (
+                                (dashboardData?.tables?.notifications || []).slice(0, 5).map((notif, idx) => (
                                     <div className="feed-item" key={idx}>
                                         <div className="feed-icon-wrapper" style={{ background: '#f5f3ff', color: '#7c3aed', flexShrink: 0 }}>
                                             <Bell size={14} />
@@ -575,10 +575,14 @@ const AdminDashboard = () => {
                                     <BarChart 
                                         layout="vertical" 
                                         data={[...(dashboardData?.tables?.topSellingMaterials || [])].sort((a, b) => b[topMaterialsSortBy] - a[topMaterialsSortBy])} 
-                                        margin={{ top: 0, right: 40, left: -10, bottom: 0 }}
+                                        margin={{ top: 0, right: 40, left: -20, bottom: 0 }}
                                     >
                                         <XAxis type="number" hide />
-                                        <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#475569' }} width={100} />
+                                        <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={({y, payload}) => (
+                                            <text x={0} y={y} dy={4} textAnchor="start" fill="#475569" fontSize={10}>
+                                                {payload.value.length > 14 ? payload.value.substring(0, 14) + '...' : payload.value}
+                                            </text>
+                                        )} width={100} />
                                         <Tooltip contentStyle={{ fontSize: 11 }} cursor={{ fill: '#f8fafc' }} formatter={(val) => topMaterialsSortBy === 'revenue' ? formatINR(val) : val} />
                                         <Bar dataKey={topMaterialsSortBy} fill="#7C3AED" radius={[0, 4, 4, 0]} barSize={12}>
                                             <LabelList dataKey={topMaterialsSortBy} position="right" formatter={(val) => topMaterialsSortBy === 'revenue' ? formatINR(val) : val} style={{ fontSize: 10, fill: '#475569', fontWeight: 600 }} />
@@ -600,7 +604,7 @@ const AdminDashboard = () => {
                                 <EmptyState title="No Sales" message="No sales data available." height={180} />
                             ) : (
                                 <>
-                                    <div style={{ width: '100%', height: 120 }}>
+                                    <div style={{ width: '100%', height: 140 }}>
                                 <ResponsiveContainer width="100%" height="100%">
                                     <PieChart>
                                         <Pie data={dashboardData.charts.salesCategoryData} innerRadius={45} outerRadius={65} dataKey="value" cx="50%" cy="50%">
@@ -623,12 +627,12 @@ const AdminDashboard = () => {
                                         {dashboardData.charts.salesCategoryData.slice(0, 3).map((entry, idx) => {
                                             const colors = ['#7C3AED', '#D97706', '#059669', '#2563EB'];
                                             return (
-                                                <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 11 }}>
-                                                    <span style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#475569', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', paddingRight: 4 }}>
+                                                <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 15, fontSize: 11, width: '100%' }}>
+                                                    <span style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#475569' }}>
                                                         <div style={{ width: 8, height: 8, borderRadius: '50%', background: colors[idx % colors.length], flexShrink: 0 }}></div>
-                                                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{entry.name}</span>
+                                                        <span>{entry.name}</span>
                                                     </span>
-                                                    <strong style={{ color: '#0f172a', flexShrink: 0 }}>₹{entry.value.toLocaleString()}</strong>
+                                                    <strong style={{ color: '#0f172a' }}>₹{entry.value.toLocaleString()}</strong>
                                                 </div>
                                             );
                                         })}
@@ -665,7 +669,7 @@ const AdminDashboard = () => {
                                             })()}
                                         </div>
                                     </div>
-                                    <div style={{ height: 110, width: '100%', overflow: 'hidden', paddingBottom: 10 }}>
+                                    <div style={{ flex: 1, minHeight: 110, width: '100%', overflow: 'hidden', paddingBottom: 10 }}>
                                         <ResponsiveContainer width="100%" height="100%">
                                             <LineChart data={dashboardData?.charts?.monthlyStats || []} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
                                                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8' }} dy={10} />
@@ -692,9 +696,9 @@ const AdminDashboard = () => {
                                         <div style={{ color: ev.col, fontSize: 9, fontWeight: 700, textTransform: 'uppercase' }}>{ev.month}</div>
                                         <div style={{ color: '#0f172a', fontSize: 16, fontWeight: 800, lineHeight: 1.1 }}>{ev.day}</div>
                                     </div>
-                                    <div className="feed-content" style={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1 }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                            <div className="feed-title" style={{ color: ev.isOverdue ? '#ef4444' : 'inherit', flex: 1, paddingRight: 6 }}>{ev.title}</div>
+                                    <div className="feed-content" style={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1, minWidth: 0 }}>
+                                        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                                            <div className="feed-title" style={{ color: ev.isOverdue ? '#ef4444' : 'inherit', flex: 1, paddingRight: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.title}</div>
                                             <span style={{ fontSize: 9, background: '#f1f5f9', padding: '2px 6px', borderRadius: 4, color: '#475569', fontWeight: 600, flexShrink: 0 }}>{ev.category}</span>
                                         </div>
                                         <div className="feed-desc" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>

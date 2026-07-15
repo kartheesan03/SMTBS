@@ -269,7 +269,7 @@ const AppContent = () => {
                     <Route path="/support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
                     <Route path="/users" element={<ProtectedRoute requiredPermission="view_settings"><UserManagement /></ProtectedRoute>} />
                     <Route path="/my-tasks" element={<ProtectedRoute><MyTasks /></ProtectedRoute>} />
-                    <Route path="/tasks" element={<Navigate to="/my-tasks" replace />} />
+                    <Route path="/tasks" element={<ProtectedRoute><MyTasks /></ProtectedRoute>} />
                     <Route path="/my-attendance" element={<Navigate to="/attendance" replace />} />
                     <Route path="/leave-management" element={<ProtectedRoute requiredPermission="hrms:leave:view"><LeaveManagement /></ProtectedRoute>} />
                     <Route path="/leave-management/apply" element={<ProtectedRoute requiredPermission="hrms:leave:view"><ApplyLeave /></ProtectedRoute>} />

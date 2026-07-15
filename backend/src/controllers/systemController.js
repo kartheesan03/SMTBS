@@ -62,7 +62,7 @@ const navigationConfig = [
         icon: 'CheckSquare',
         permission: 'view_tasks',
         children: [
-            { title: 'All Tasks', path: '/tasks' },
+            { title: 'All Tasks', path: '/my-tasks' },
             { title: 'Projects', path: '/projects' }
         ]
     },
@@ -103,12 +103,6 @@ const hrNavigationConfig = [
         permission: ''
     },
     {
-        title: 'Employee Management',
-        icon: 'Users',
-        path: '/hrms',
-        permission: 'view_hrms'
-    },
-    {
         title: 'Attendance',
         icon: 'CalendarCheck',
         permission: 'view_hrms',
@@ -117,6 +111,12 @@ const hrNavigationConfig = [
             { title: 'Master Attendance',   path: '/attendance/master' },
             { title: 'Attendance Reports',  path: '/hr-reports' }
         ]
+    },
+    {
+        title: 'Employee Management',
+        icon: 'Users',
+        path: '/hrms',
+        permission: 'view_hrms'
     },
     {
         title: 'Leave Management',

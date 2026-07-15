@@ -113,8 +113,7 @@ const HRDashboard = () => {
         <div className="rd-container theme-hr">
             <div className="rd-content">
                 
-                {/* ── Page Header ── */}
-                <PageHeader title="HR Dashboard" badge="HRMS" subtitle="Human resources management & workforce overview" />
+
 
                 {/* ── 1. Hero Banner ── */}
                 <div className="rd-hero">

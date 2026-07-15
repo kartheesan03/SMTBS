@@ -16,31 +16,7 @@ import './ReportsRedesign.css';
 
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 import PageHeader from '../components/PageHeader';
-
-const ReportKPICard = ({ title, val, isUp, trend, subtitle, icon: Icon, color }) => {
-    const themeClass = color ? `ent-theme-${color === 'green' ? 'success' : color === 'red' ? 'danger' : color === 'orange' ? 'warning' : 'primary'}` : 'ent-theme-primary';
-
-    return (
-        <div className={`ent-module-card ${themeClass}`}>
-            <div className="ent-card-icon-wrapper">
-                {Icon && <Icon size={20} strokeWidth={2.5} />}
-            </div>
-            <div className="ent-card-title" title={title}>{title}</div>
-            <div className="ent-card-value-area">
-                <div className="ent-card-value">{val}</div>
-                <div className="ent-card-status-badge" style={{ backgroundColor: 'transparent', padding: 0, color: 'var(--ent-text-secondary)', fontWeight: 500 }}>
-                    {subtitle || trend || 'Active Tracking'}
-                </div>
-            </div>
-            <div className="ent-card-footer">
-                <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'currentColor' }}></div>
-                    Updated Today
-                </div>
-            </div>
-        </div>
-    );
-};
+import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
 
 const Reports = () => {
 
@@ -83,11 +59,11 @@ const Reports = () => {
     const totalCustomers = dashData?.stats?.totalCustomers || 0;
 
     const kpis = [
-        { title: 'Total Revenue', value: formatCurrency(analytics.kpis.totalRevenue), trend: Math.abs(analytics.kpis.revenueGrowth), isUp: analytics.kpis.revenueGrowth >= 0, subtitle: 'Completed sales orders', icon: <DollarSign size={20} />, color: 'blue' },
-        { title: 'Net Profit', value: formatCurrency(analytics.kpis.netProfit), trend: analytics.kpis.totalRevenue > 0 ? Math.round((analytics.kpis.netProfit / analytics.kpis.totalRevenue) * 100) : 0, isUp: analytics.kpis.netProfit >= 0, subtitle: 'Profit margin %', icon: <TrendingUp size={20} />, color: 'green' },
-        { title: 'Total Materials', value: totalMaterials.toLocaleString(), trend: 0, isUp: true, subtitle: 'Active inventory items', icon: <Package size={20} />, color: 'purple' },
-        { title: 'Total Employees', value: totalEmployees.toLocaleString(), trend: 0, isUp: true, subtitle: 'Active staff members', icon: <Users size={20} />, color: 'orange' },
-        { title: 'Total Customers', value: totalCustomers.toLocaleString(), trend: 0, isUp: true, subtitle: 'Registered clients', icon: <ShoppingCart size={20} />, color: 'teal' },
+        { title: 'Total Revenue', value: formatCurrency(analytics.kpis.totalRevenue), trend: Math.abs(analytics.kpis.revenueGrowth), isUp: analytics.kpis.revenueGrowth >= 0, subtitle: 'Sales active', icon: DollarSign, colorTheme: 'mint' },
+        { title: 'Net Profit', value: formatCurrency(analytics.kpis.netProfit), trend: analytics.kpis.totalRevenue > 0 ? Math.round((analytics.kpis.netProfit / analytics.kpis.totalRevenue) * 100) : 0, isUp: analytics.kpis.netProfit >= 0, subtitle: 'Margin %', icon: TrendingUp, colorTheme: 'blue' },
+        { title: 'Total Materials', value: totalMaterials.toLocaleString(), trend: 0, isUp: true, subtitle: 'Stock stable', icon: Package, colorTheme: 'pink' },
+        { title: 'Total Employees', value: totalEmployees.toLocaleString(), trend: 0, isUp: true, subtitle: 'Active staff', icon: Users, colorTheme: 'peach' },
+        { title: 'Total Customers', value: totalCustomers.toLocaleString(), trend: 0, isUp: true, subtitle: 'Clients', icon: ShoppingCart, colorTheme: 'purple' },
     ];
 
     const trendData = analytics.trendData || [];
@@ -185,24 +161,28 @@ const Reports = () => {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
-            className="analytics-page"
+            className="rd-container"
         >
-            <div className="analytics-header">
-                <div className="header-left">
-                    <PageHeader title="Reports & Analytics" badge="ANALYTICS" subtitle="Business intelligence & performance reporting" />
+            <div className="rd-content">
+                <div className="rd-module-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                    <div className="rd-module-info">
+                        <div className="rd-module-title-row">
+                            <span className="rd-module-title">Reports & Analytics</span>
+                            <span className="rd-module-badge">ANALYTICS</span>
+                        </div>
+                    </div>
+                    <div className="header-actions" style={{ display: 'flex', gap: '8px' }}>
+                        <button className="btn-export" onClick={exportPDF}>
+                            <FileText size={16} /> Export PDF
+                        </button>
+                        <button className="btn-export" onClick={exportCSV}>
+                            <FileText size={16} /> Export CSV
+                        </button>
+                        <button className="btn-refresh" onClick={() => window.location.reload()}>
+                            <RefreshCw size={16} />
+                        </button>
+                    </div>
                 </div>
-                <div className="header-right">
-                    <button className="btn-export" onClick={exportPDF}>
-                        <FileText size={16} /> Export PDF
-                    </button>
-                    <button className="btn-export" onClick={exportCSV}>
-                        <FileText size={16} /> Export CSV
-                    </button>
-                    <button className="btn-refresh" onClick={() => window.location.reload()}>
-                        <RefreshCw size={16} />
-                    </button>
-                </div>
-            </div>
 
             {loading ? (
                 <div className="loading-state">
@@ -211,25 +191,19 @@ const Reports = () => {
             ) : (
                 <>
                     {/* KPI Cards */}
-                    <motion.div 
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.1, duration: 0.4 }}
-                        className="kpi-cards-grid"
-                    >
+                    <PastelKPIGrid columns={5}>
                         {kpis.map((kpi, idx) => (
-                            <ReportKPICard 
+                            <PastelKPICard 
                                 key={idx}
                                 title={kpi.title}
-                                val={kpi.value}
-                                subtitle={kpi.subtitle}
-                                icon={kpi.icon.type}
-                                color={kpi.color}
-                                trend={kpi.trend}
-                                isUp={kpi.isUp}
+                                value={kpi.value}
+                                colorTheme={kpi.colorTheme}
+                                icon={kpi.icon}
+                                trendValue={kpi.trend > 0 ? `${kpi.isUp ? '+' : '-'}${kpi.trend}% vs last period` : kpi.subtitle}
+                                trendPositive={kpi.isUp}
                             />
                         ))}
-                    </motion.div>
+                    </PastelKPIGrid>
 
                     {/* Chart Section */}
                     <motion.div 
@@ -265,7 +239,7 @@ const Reports = () => {
                         
                         <div className="rd-chart-body" style={{ height: '350px' }}>
                             <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={trendData} margin={{ top: 20, right: 20, left: 0, bottom: 0 }}>
+                                <AreaChart data={trendData} margin={{ top: 20, right: 20, left: 15, bottom: 0 }}>
                                     <defs>
                                         <linearGradient id="colorCy" x1="0" y1="0" x2="0" y2="1">
                                             <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
@@ -290,10 +264,14 @@ const Reports = () => {
                                         axisLine={false} 
                                         tickLine={false} 
                                         tick={{fill: '#64748b', fontSize: 12}}
+                                        width={65}
                                         tickFormatter={(value) => {
-                                            if (value >= 100000) return '₹' + (value / 100000).toFixed(1).replace('.0', '') + 'L';
-                                            if (value >= 1000) return '₹' + (value / 1000).toFixed(0) + 'K';
-                                            return '₹' + value;
+                                            const isNegative = value < 0;
+                                            const absVal = Math.abs(value);
+                                            const prefix = isNegative ? '₹-' : '₹';
+                                            if (absVal >= 100000) return prefix + (absVal / 100000).toFixed(1).replace('.0', '') + 'L';
+                                            if (absVal >= 1000) return prefix + (absVal / 1000).toFixed(0) + 'K';
+                                            return prefix + absVal;
                                         }}
                                         padding={{ top: 50, bottom: 0 }}
                                     />
@@ -360,6 +338,7 @@ const Reports = () => {
                     </motion.div>
                 </>
             )}
+            </div>
         </motion.div>
     );
 };
