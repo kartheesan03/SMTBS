@@ -225,37 +225,39 @@ const DailyTab = ({ canEdit }) => {
 
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
-            <PastelKPIGrid>
-                <PastelKPICard title="Present Today" value={stats.presentToday} colorTheme="mint" icon={CheckCircle} trendValue={stats.totalEmployees > 0 ? `${Math.round((stats.presentToday/stats.totalEmployees)*100)}% workforce` : '—'} trendPositive={true} />
-                <PastelKPICard title="Not Checked In" value={stats.notCheckedInToday} colorTheme="peach" icon={Clock} trendValue="Expected today" trendPositive={false} />
-                <PastelKPICard title="Absent" value={stats.absentToday} colorTheme="pink" icon={XCircle} trendValue="No record" trendPositive={false} />
-                <PastelKPICard title="On Leave" value={stats.onLeaveToday} colorTheme="purple" icon={Users} trendValue="Approved leave" trendPositive={true} />
-            </PastelKPIGrid>
+            <div style={{ marginBottom: 24 }}>
+                <PastelKPIGrid>
+                    <PastelKPICard title="Present Today" value={stats.presentToday} colorTheme="mint" icon={CheckCircle} trendValue={stats.totalEmployees > 0 ? `${Math.round((stats.presentToday/stats.totalEmployees)*100)}% workforce` : '—'} trendPositive={true} />
+                    <PastelKPICard title="Not Checked In" value={stats.notCheckedInToday} colorTheme="peach" icon={Clock} trendValue="Expected today" trendPositive={false} />
+                    <PastelKPICard title="Absent" value={stats.absentToday} colorTheme="pink" icon={XCircle} trendValue="No record" trendPositive={false} />
+                    <PastelKPICard title="On Leave" value={stats.onLeaveToday} colorTheme="purple" icon={Users} trendValue="Approved leave" trendPositive={true} />
+                </PastelKPIGrid>
+            </div>
 
             <div className="rd-table-card">
                 {/* Toolbar */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, padding: '16px 20px', borderBottom: '1px solid #f1f5f9' }}>
-                    <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16, padding: '16px 20px', borderBottom: '1px solid #f1f5f9' }}>
+                    <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap', flex: 1 }}>
                         {/* Date Picker */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, border: '1px solid #e2e8f0', borderRadius: 8, padding: '7px 12px', background: '#f8fafc' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, border: '1px solid #e2e8f0', borderRadius: 8, padding: '0 12px', height: 38, background: '#f8fafc', whiteSpace: 'nowrap', boxSizing: 'border-box' }}>
                             <Calendar size={15} color="#64748b" />
                             <input type="date" value={selectedDate} onChange={e => setSelectedDate(e.target.value)}
-                                style={{ border: 'none', background: 'transparent', outline: 'none', fontSize: 13, color: '#1e293b', fontWeight: 500 }} />
+                                style={{ border: 'none', background: 'transparent', outline: 'none', fontSize: 13, color: '#1e293b', fontWeight: 500, height: '100%' }} />
                         </div>
 
-                        <div className="rd-search-bar" style={{ minWidth: 220, background: '#f8fafc' }}>
+                        <div className="rd-search-bar" style={{ flex: '1 1 200px', maxWidth: 300, background: '#f8fafc', height: 38, boxSizing: 'border-box' }}>
                             <Search size={15} color="#94a3b8" />
                             <input className="rd-search-input" placeholder="Search..."
-                                value={search} onChange={e => setSearch(e.target.value)} />
+                                value={search} onChange={e => setSearch(e.target.value)} style={{ width: '100%', height: '100%' }} />
                         </div>
 
                         <select value={deptFilter} onChange={e => setDeptFilter(e.target.value)}
-                            style={{ padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: 8, background: '#f8fafc', color: '#64748b', fontSize: 13, outline: 'none' }}>
+                            style={{ height: 38, padding: '0 12px', border: '1px solid #e2e8f0', borderRadius: 8, background: '#f8fafc', color: '#64748b', fontSize: 13, outline: 'none', minWidth: 140, boxSizing: 'border-box' }}>
                             {departments.map(d => <option key={d} value={d}>{d === 'All' ? 'All Depts' : d}</option>)}
                         </select>
 
                         <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
-                            style={{ padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: 8, background: '#f8fafc', color: '#64748b', fontSize: 13, outline: 'none' }}>
+                            style={{ height: 38, padding: '0 12px', border: '1px solid #e2e8f0', borderRadius: 8, background: '#f8fafc', color: '#64748b', fontSize: 13, outline: 'none', minWidth: 140, boxSizing: 'border-box' }}>
                             <option value="All">All Status</option>
                             <option value="Present">Present / Late</option>
                             <option value="-">Not Checked In</option>
@@ -264,13 +266,13 @@ const DailyTab = ({ canEdit }) => {
                         </select>
                     </div>
 
-                    <div style={{ display: 'flex', gap: 8 }}>
+                    <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
                         <button onClick={fetchData}
-                            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', border: '1px solid #e2e8f0', borderRadius: 8, background: '#f8fafc', color: '#64748b', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+                            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 14px', height: 38, border: '1px solid #e2e8f0', borderRadius: 8, background: '#f8fafc', color: '#64748b', fontSize: 13, fontWeight: 600, cursor: 'pointer', boxSizing: 'border-box' }}>
                             <RefreshCw size={14} /> Refresh
                         </button>
                         <button onClick={exportCSV}
-                            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', border: 'none', borderRadius: 8, background: '#3b82f6', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+                            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 14px', height: 38, border: 'none', borderRadius: 8, background: '#3b82f6', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer', boxSizing: 'border-box' }}>
                             <Download size={14} /> Export CSV
                         </button>
                     </div>
@@ -394,50 +396,45 @@ const MonthlyTab = () => {
     return (
         <>
             {/* Summary KPIs */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24 }}>
-                {[
-                    { label: 'Total Employees', val: filtered.length, color: '#3b82f6', bg: '#eff6ff' },
-                    { label: 'Avg Attendance', val: `${Math.round(avgRate * 100)}%`, color: '#10b981', bg: '#f0fdf4' },
-                    { label: 'Perfect Attendance', val: filtered.filter(r => r.absent === 0).length, color: '#8b5cf6', bg: '#f5f3ff' },
-                    { label: 'Needs Attention', val: filtered.filter(r => (r.rate || 0) < 0.75).length, color: '#ef4444', bg: '#fef2f2' },
-                ].map(k => (
-                    <div key={k.label} style={{ background: '#fff', border: '1px solid #f1f5f9', borderRadius: 12, padding: '16px 20px', boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
-                        <p style={{ margin: '0 0 6px', fontSize: 12, fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.5 }}>{k.label}</p>
-                        <p style={{ margin: 0, fontSize: 26, fontWeight: 800, color: k.color }}>{k.val}</p>
-                    </div>
-                ))}
+            <div style={{ marginBottom: 24 }}>
+                <PastelKPIGrid>
+                    <PastelKPICard title="Total Employees" value={filtered.length} colorTheme="blue" icon={Users} trendValue="Active workforce" trendPositive={true} />
+                    <PastelKPICard title="Avg Attendance" value={`${Math.round(avgRate * 100)}%`} colorTheme="mint" icon={TrendingUp} trendValue="This month" trendPositive={true} />
+                    <PastelKPICard title="Perfect Attendance" value={filtered.filter(r => r.absent === 0).length} colorTheme="purple" icon={CheckCircle} trendValue="No absences" trendPositive={true} />
+                    <PastelKPICard title="Needs Attention" value={filtered.filter(r => (r.rate || 0) < 0.75).length} colorTheme="pink" icon={AlertCircle} trendValue="Below 75% rate" trendPositive={false} />
+                </PastelKPIGrid>
             </div>
 
             <div className="rd-table-card">
                 {/* Toolbar */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, padding: '16px 20px', borderBottom: '1px solid #f1f5f9' }}>
-                    <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16, padding: '16px 20px', borderBottom: '1px solid #f1f5f9' }}>
+                    <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap', flex: 1 }}>
                         {/* Month Navigator */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 4, border: '1px solid #e2e8f0', borderRadius: 8, overflow: 'hidden' }}>
-                            <button onClick={prevMonth} style={{ padding: '7px 10px', background: '#f8fafc', border: 'none', cursor: 'pointer', color: '#64748b', display: 'flex', alignItems: 'center' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 4, border: '1px solid #e2e8f0', borderRadius: 8, height: 38, background: '#f8fafc', boxSizing: 'border-box' }}>
+                            <button onClick={prevMonth} style={{ padding: '0 10px', height: '100%', background: 'transparent', border: 'none', cursor: 'pointer', color: '#64748b', display: 'flex', alignItems: 'center' }}>
                                 <ChevronLeft size={15} />
                             </button>
-                            <span style={{ padding: '0 12px', fontSize: 13, fontWeight: 700, color: '#1e293b', whiteSpace: 'nowrap' }}>
+                            <span style={{ padding: '0 12px', fontSize: 13, fontWeight: 700, color: '#1e293b', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', height: '100%' }}>
                                 {MONTHS[month - 1]} {year}
                             </span>
-                            <button onClick={nextMonth} style={{ padding: '7px 10px', background: '#f8fafc', border: 'none', cursor: 'pointer', color: '#64748b', display: 'flex', alignItems: 'center' }}>
+                            <button onClick={nextMonth} style={{ padding: '0 10px', height: '100%', background: 'transparent', border: 'none', cursor: 'pointer', color: '#64748b', display: 'flex', alignItems: 'center' }}>
                                 <ChevronRight size={15} />
                             </button>
                         </div>
 
-                        <div className="rd-search-bar" style={{ minWidth: 220, background: '#f8fafc' }}>
+                        <div className="rd-search-bar" style={{ flex: '1 1 200px', maxWidth: 300, background: '#f8fafc', height: 38, boxSizing: 'border-box' }}>
                             <Search size={15} color="#94a3b8" />
-                            <input className="rd-search-input" placeholder="Search..." value={search} onChange={e => setSearch(e.target.value)} />
+                            <input className="rd-search-input" placeholder="Search..." value={search} onChange={e => setSearch(e.target.value)} style={{ width: '100%', height: '100%' }} />
                         </div>
                     </div>
 
-                    <div style={{ display: 'flex', gap: 8 }}>
+                    <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
                         <button onClick={fetchData}
-                            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', border: '1px solid #e2e8f0', borderRadius: 8, background: '#f8fafc', color: '#64748b', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+                            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 14px', height: 38, border: '1px solid #e2e8f0', borderRadius: 8, background: '#f8fafc', color: '#64748b', fontSize: 13, fontWeight: 600, cursor: 'pointer', boxSizing: 'border-box' }}>
                             <RefreshCw size={14} /> Refresh
                         </button>
                         <button onClick={exportCSV}
-                            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', border: 'none', borderRadius: 8, background: '#3b82f6', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+                            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 14px', height: 38, border: 'none', borderRadius: 8, background: '#3b82f6', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer', boxSizing: 'border-box' }}>
                             <Download size={14} /> Export CSV
                         </button>
                     </div>
@@ -564,27 +561,27 @@ const HistoryTab = () => {
         <>
             <div className="rd-table-card">
                 {/* Filters */}
-                <div style={{ padding: '16px 20px', borderBottom: '1px solid #f1f5f9', display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'flex-end', justifyContent: 'space-between' }}>
-                    <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+                <div style={{ padding: '16px 20px', borderBottom: '1px solid #f1f5f9', display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'flex-end', flex: 1 }}>
                         <div>
                             <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#64748b', marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 }}>From</label>
                             <input type="date" value={fromDate} onChange={e => setFromDate(e.target.value)}
-                                style={{ padding: '7px 10px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 13, outline: 'none', background: '#f8fafc', color: '#1e293b' }} />
+                                style={{ height: 38, padding: '0 10px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 13, outline: 'none', background: '#f8fafc', color: '#1e293b', boxSizing: 'border-box' }} />
                         </div>
                         <div>
                             <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#64748b', marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 }}>To</label>
                             <input type="date" value={toDate} onChange={e => setToDate(e.target.value)}
-                                style={{ padding: '7px 10px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 13, outline: 'none', background: '#f8fafc', color: '#1e293b' }} />
+                                style={{ height: 38, padding: '0 10px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 13, outline: 'none', background: '#f8fafc', color: '#1e293b', boxSizing: 'border-box' }} />
                         </div>
 
-                        <div className="rd-search-bar" style={{ minWidth: 200, background: '#f8fafc', alignSelf: 'flex-end' }}>
+                        <div className="rd-search-bar" style={{ flex: '1 1 200px', maxWidth: 300, background: '#f8fafc', height: 38, boxSizing: 'border-box' }}>
                             <Search size={15} color="#94a3b8" />
-                            <input className="rd-search-input" placeholder="Search..." value={search} onChange={e => setSearch(e.target.value)} />
+                            <input className="rd-search-input" placeholder="Search..." value={search} onChange={e => setSearch(e.target.value)} style={{ width: '100%', height: '100%' }} />
                         </div>
 
-                        <div style={{ alignSelf: 'flex-end' }}>
+                        <div>
                             <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
-                                style={{ padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: 8, background: '#f8fafc', color: '#64748b', fontSize: 13, outline: 'none' }}>
+                                style={{ height: 38, padding: '0 12px', border: '1px solid #e2e8f0', borderRadius: 8, background: '#f8fafc', color: '#64748b', fontSize: 13, outline: 'none', minWidth: 140, boxSizing: 'border-box' }}>
                                 <option value="All">All Status</option>
                                 <option value="Present">Present</option>
                                 <option value="Late">Late</option>
@@ -594,15 +591,17 @@ const HistoryTab = () => {
                         </div>
 
                         <button onClick={fetchData}
-                            style={{ alignSelf: 'flex-end', display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', border: 'none', borderRadius: 8, background: '#1e293b', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+                            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 16px', height: 38, border: 'none', borderRadius: 8, background: '#1e293b', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer', boxSizing: 'border-box' }}>
                             <Filter size={14} /> Apply
                         </button>
                     </div>
 
-                    <button onClick={exportCSV}
-                        style={{ alignSelf: 'flex-end', display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', border: 'none', borderRadius: 8, background: '#3b82f6', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
-                        <Download size={14} /> Export CSV
-                    </button>
+                    <div style={{ flexShrink: 0 }}>
+                        <button onClick={exportCSV}
+                            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 14px', height: 38, border: 'none', borderRadius: 8, background: '#3b82f6', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer', boxSizing: 'border-box' }}>
+                            <Download size={14} /> Export CSV
+                        </button>
+                    </div>
                 </div>
 
                 {/* Count */}

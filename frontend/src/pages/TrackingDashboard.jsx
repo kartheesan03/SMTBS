@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import PageHeader from '../components/PageHeader';
 import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
+import '../components/AdminDashboard/AdminDashboardRedesign.css';
 
 const TrackingDashboard = () => {
     const navigate = useNavigate();
@@ -116,9 +117,15 @@ const TrackingDashboard = () => {
     };
 
     return (
-        <div style={{ padding: '24px', background: '#f8fafc', minHeight: '100vh', fontFamily: '"Inter", sans-serif' }}>
+        <div className="rd-container">
+        <motion.div 
+            className="rd-content"
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+        >
             {/* Header & KPI Summary */}
-            <div style={{ marginBottom: 24 }}>
+            <div style={{ minWidth: 0 }}>
                 <PageHeader 
                     title="Movement Tracking" 
                     badge="MATERIAL TRACKING" 
@@ -170,7 +177,7 @@ const TrackingDashboard = () => {
             </div>
 
             {/* Master Detail Layout */}
-            <div style={{ display: 'flex', gap: 24, height: 'calc(100vh - 200px)', minHeight: 600 }}>
+            <div style={{ display: 'flex', gap: 24, flex: 1, minHeight: 0, minWidth: 0 }}>
                 
                 {/* Left Panel: Master List */}
                 <div style={{ width: '38%', display: 'flex', flexDirection: 'column', background: '#fff', borderRadius: 20, boxShadow: '0 8px 30px rgba(0,0,0,0.04)', border: '1px solid #f1f5f9', overflow: 'hidden' }}>
@@ -239,7 +246,7 @@ const TrackingDashboard = () => {
                                                 <div style={{ fontWeight: 700, color: '#0f172a', fontSize: 14, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                                     {log.materialName || 'Unknown Material'}
                                                 </div>
-                                                <div style={{ fontWeight: 700, fontSize: 12, color: colors.text }}>
+                                                <div style={{ fontWeight: 700, fontSize: 12, color: colors.text, whiteSpace: 'nowrap' }}>
                                                     {typeStr === 'IN' ? '+' : typeStr === 'OUT' ? '-' : ''}{log.quantity}
                                                 </div>
                                             </div>
@@ -247,7 +254,7 @@ const TrackingDashboard = () => {
                                                 <div style={{ fontSize: 12, color: '#64748b', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 6 }}>
                                                     MOV-{String(log.id || log._id).slice(-4).toUpperCase()}
                                                 </div>
-                                                <div style={{ fontSize: 11, color: '#94a3b8', fontWeight: 500 }}>
+                                                <div style={{ fontSize: 11, color: '#94a3b8', fontWeight: 500, whiteSpace: 'nowrap' }}>
                                                     {d.toLocaleDateString('en-GB', {day: 'numeric', month: 'short'})}
                                                 </div>
                                             </div>
@@ -260,7 +267,7 @@ const TrackingDashboard = () => {
                 </div>
 
                 {/* Right Panel: Detail Dashboard */}
-                <div style={{ flex: 1, background: '#fff', borderRadius: 20, boxShadow: '0 8px 30px rgba(0,0,0,0.04)', border: '1px solid #f1f5f9', overflowY: 'auto' }}>
+                <div style={{ flex: 1, minWidth: 0, background: '#fff', borderRadius: 20, boxShadow: '0 8px 30px rgba(0,0,0,0.04)', border: '1px solid #f1f5f9', overflowY: 'auto' }}>
                     {selectedMovement ? (
                         <AnimatePresence mode="wait">
                             <motion.div 
@@ -337,7 +344,7 @@ const TrackingDashboard = () => {
                                 </div>
 
                                 {/* Information Grid */}
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 40 }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: 16, marginBottom: 40 }}>
                                     {[
                                         { label: 'Movement Qty', value: `${selectedMovement.quantity} ${materialDetails?.unit || ''}`, icon: Layers, valColor: '#0f172a' },
                                         { label: 'Current Stock', value: `${materialDetails?.quantity !== undefined ? materialDetails.quantity : (selectedMovement.materialQuantity || 0)} ${materialDetails?.unit || ''}`, icon: Package, valColor: '#059669' },
@@ -390,6 +397,7 @@ const TrackingDashboard = () => {
                     )}
                 </div>
             </div>
+        </motion.div>
         </div>
     );
 };

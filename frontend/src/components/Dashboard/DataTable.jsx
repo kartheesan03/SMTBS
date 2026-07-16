@@ -15,7 +15,16 @@ const DataTable = ({ title, headers, data, renderRow, onViewAll, emptyText, sear
     const paginatedData = filteredData.slice(startIndex, startIndex + itemsPerPage);
 
     return (
-        <div className="dt-card ui-card" style={{ padding: 0, display: 'flex', flexDirection: 'column', height: '100%' }}>
+        <div className="dt-card" style={{ 
+            background: 'var(--bg-surface)', 
+            border: '1px solid var(--border-subtle)', 
+            borderRadius: 'var(--radius-lg)', 
+            boxShadow: 'var(--shadow-sm)',
+            display: 'flex', 
+            flexDirection: 'column', 
+            height: '100%',
+            overflow: 'hidden'
+        }}>
             <div className="dt-header" style={{ padding: '16px 20px', borderBottom: '1px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
                 <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 600, color: 'var(--text-heading)' }}>{title}</h3>
                 
@@ -51,7 +60,7 @@ const DataTable = ({ title, headers, data, renderRow, onViewAll, emptyText, sear
                         <p style={{ fontSize: '13px', margin: 0 }}>{emptyText || 'Try adjusting your search criteria.'}</p>
                     </div>
                 ) : (
-                    <div className="enterprise-table-container">
+                    <div style={{ width: '100%', overflowX: 'auto' }}>
                         <table className="enterprise-table">
                             <thead>
                                 <tr>

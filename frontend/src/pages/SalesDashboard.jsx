@@ -117,9 +117,6 @@ const SalesDashboard = () => {
     return (
         <div className="rd-container theme-sales">
             <div className="rd-content">
-                
-                {/* ── Page Header ── */}
-                <PageHeader title="Sales Dashboard" badge="CRM" subtitle="Pipeline overview & customer management" />
 
                 {/* ── 1. Hero Banner ── */}
                 <div className="rd-hero">

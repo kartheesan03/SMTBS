@@ -469,13 +469,13 @@ const HRDashboard = () => {
                         <div className="feed-list" style={{gap: 12, marginTop: 8}}>
                             {upcomingEvents.length > 0 ? upcomingEvents.map((ev, i) => (
                                 <div className="event-item" key={i}>
-                                    <div className="event-date" style={{ background: ev.bg, color: ev.col, padding: '4px 6px' }}>
-                                        <span className="event-month" style={{fontSize: 10}}>{ev.month}</span>
-                                        <span className="event-day" style={{color: ev.col, fontSize: 13}}>{ev.day}</span>
+                                    <div className="event-date-badge" style={{ background: ev.bg, color: ev.col }}>
+                                        <div className="event-month">{ev.month}</div>
+                                        <div className="event-day">{ev.day}</div>
                                     </div>
                                     <div className="feed-content">
-                                        <div className="feed-title" style={{fontSize: 13}}>{ev.title}</div>
-                                        <div className="feed-desc" style={{fontSize: 11}}>{ev.desc}</div>
+                                        <div className="event-title">{ev.title}</div>
+                                        <div className="event-desc">{ev.desc}</div>
                                     </div>
                                 </div>
                             )) : (

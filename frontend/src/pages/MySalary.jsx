@@ -81,7 +81,6 @@ const MySalaryPage = () => {
                         <p>Your payroll has not been generated yet. Please contact HR or your administrator.</p>
                     </div>
                 ) : (
-                <div className="premium-card" style={{ overflow: 'hidden' }}>
                 <DataTable 
                     title="Payment Ledger"
                     headers={['Month', 'Net Amount', 'Status', 'Date Paid', 'Actions']}
@@ -112,7 +111,6 @@ const MySalaryPage = () => {
                         </tr>
                     )}
                 />
-                </div>
                 )}
             </div>
 

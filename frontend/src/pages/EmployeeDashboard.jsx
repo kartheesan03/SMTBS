@@ -107,9 +107,6 @@ const EmployeeDashboard = () => {
     return (
         <div className="rd-container theme-employee">
             <div className="rd-content">
-                
-                {/* ── Page Header ── */}
-                <PageHeader title="My Dashboard" badge="EMPLOYEE" subtitle="Your daily performance & attendance overview" />
 
                 {/* ── 1. Hero Banner ── */}
                 <div className="rd-hero">

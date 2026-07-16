@@ -1,24 +1,33 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 import API from '../api/axios';
-import { Package, Truck, CheckCircle, Store } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import {
+    Package, Truck, CheckCircle, Store, Clock, ShoppingBag,
+    Phone, Mail, MapPin, User, FileText, Tag, TrendingUp, ExternalLink
+} from 'lucide-react';
 import { motion } from 'framer-motion';
-import PageHeader from '../components/PageHeader';
+import '../components/AdminDashboard/AdminDashboardRedesign.css';
+import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
+import { LoadingState, EmptyState } from '../components/DataStates';
 
 const VendorDashboard = () => {
+    const navigate = useNavigate();
+    const { user } = useContext(AuthContext);
     const [profile, setProfile] = useState(null);
     const [materials, setMaterials] = useState([]);
     const [orders, setOrders] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const res = await API.get('/vendors/my-profile');
                 setProfile(res.data.vendor);
-                setMaterials(res.data.materials);
+                setMaterials(res.data.materials || []);
                 setOrders(res.data.orders || []);
             } catch (error) {
-                console.error("Error fetching vendor data:", error);
+                console.error('Error fetching vendor data:', error);
             } finally {
                 setLoading(false);
             }
@@ -26,166 +35,222 @@ const VendorDashboard = () => {
         fetchData();
     }, []);
 
-    if (loading) return <div className="app-loading">Loading...</div>;
+    if (loading) return <LoadingState message="Loading Vendor Dashboard..." height="100vh" />;
+
+    const getGreeting = () => {
+        const hour = new Date().getHours();
+        if (hour < 12) return 'Good Morning';
+        if (hour < 18) return 'Good Afternoon';
+        return 'Good Evening';
+    };
+
+    const activePOs = orders.filter(o => !['Completed', 'Delivered', 'Cancelled'].includes(o.status)).length;
+    const completedPOs = orders.filter(o => o.status === 'Completed' || o.status === 'Delivered').length;
+    const totalValue = orders.reduce((s, o) => s + (Number(o.grandTotal) || Number(o.totalAmount) || 0), 0);
+    const formatCurrency = (v) => v >= 100000 ? `₹${(v / 100000).toFixed(1)}L` : v >= 1000 ? `₹${Math.round(v / 1000)}K` : `₹${v}`;
+
+    const statusColor = (s) => {
+        if (!s) return '#94a3b8';
+        const m = { 'Delivered': '#10b981', 'Completed': '#10b981', 'Processing': '#3b82f6', 'Pending': '#f59e0b', 'Cancelled': '#ef4444', 'Shipped': '#8b5cf6' };
+        return m[s] || '#64748b';
+    };
+    const statusBg = (s) => {
+        if (!s) return '#f1f5f9';
+        const m = { 'Delivered': '#d1fae5', 'Completed': '#d1fae5', 'Processing': '#dbeafe', 'Pending': '#fef3c7', 'Cancelled': '#fee2e2', 'Shipped': '#ede9fe' };
+        return m[s] || '#f1f5f9';
+    };
 
     return (
-        <motion.div 
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="page-container"
-        >
-            <div className="page-header" style={{ marginBottom: 0 }}>
-                <PageHeader 
-                    title="Vendor Dashboard" 
-                    badge="VENDOR" 
-                    subtitle={`Welcome back, ${profile?.name || 'Vendor'}`}
-                />
-            </div>
+        <div className="rd-container theme-vendor" style={{ '--theme-accent': '#0ea5e9' }}>
+            <div className="rd-content">
 
-            <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-                style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', marginBottom: '24px' }}
-            >
-                <div className="premium-card" style={{ padding: '20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(56, 189, 248, 0.1)', color: '#38bdf8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <Package size={24} />
-                    </div>
-                    <div>
-                        <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: 600 }}>Materials Supplied</div>
-                        <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-heading)' }}>{materials.length}</div>
-                    </div>
-                </div>
-                <div className="premium-card" style={{ padding: '20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <CheckCircle size={24} />
-                    </div>
-                    <div>
-                        <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: 600 }}>Status</div>
-                        <div style={{ fontSize: '16px', fontWeight: 800, color: 'var(--text-heading)' }}>{profile?.status}</div>
-                    </div>
-                </div>
-                <div className="premium-card" style={{ padding: '20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <Store size={24} />
-                    </div>
-                    <div>
-                        <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: 600 }}>Active POs</div>
-                        <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-heading)' }}>{orders.filter(o => o.status !== 'Completed' && o.status !== 'Delivered').length}</div>
-                    </div>
-                </div>
-                <div className="premium-card" style={{ padding: '20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(139, 92, 246, 0.1)', color: '#8b5cf6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <Truck size={24} />
-                    </div>
-                    <div>
-                        <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: 600 }}>Completed POs</div>
-                        <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-heading)' }}>{orders.filter(o => o.status === 'Completed' || o.status === 'Delivered').length}</div>
-                    </div>
-                </div>
-            </motion.div>
-
-            <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2, duration: 0.4 }}
-                style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}
-            >
-                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
-                    <div className="premium-card" style={{ padding: '24px' }}>
-                        <h3 style={{ margin: '0 0 20px 0', fontSize: '16px', fontWeight: 700, color: 'var(--text-heading)' }}>My Materials Catalog</h3>
-                        <div className="table-responsive">
-                            <table className="enterprise-table">
-                                <thead>
-                                    <tr>
-                                        <th>Material Name</th>
-                                        <th>Category</th>
-                                        <th>Current Stock</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {materials.map(material => (
-                                        <tr key={material._id || material.id}>
-                                            <td style={{ fontWeight: 600 }}>{material.name}</td>
-                                            <td><span className="status-badge-inline in-progress">{material.category}</span></td>
-                                            <td style={{ fontWeight: 600 }}>{material.quantity} {material.unit}</td>
-                                        </tr>
-                                    ))}
-                                    {materials.length === 0 && (
-                                        <tr>
-                                            <td colSpan="3" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-muted)' }}>No materials listed.</td>
-                                        </tr>
-                                    )}
-                                </tbody>
-                            </table>
+                {/* ── Hero Banner ── */}
+                <div className="rd-hero">
+                    <div className="rd-hero-left">
+                        <div className="rd-hero-avatar-wrapper">
+                            <img
+                                src={`https://ui-avatars.com/api/?name=${encodeURIComponent(profile?.name || user?.name || 'Vendor')}&background=0EA5E9&color=fff`}
+                                alt="Profile"
+                                className="rd-hero-avatar"
+                            />
+                            <div className="rd-hero-status-dot"></div>
                         </div>
-                    </div>
-
-                    <div className="premium-card" style={{ padding: '24px' }}>
-                        <h3 style={{ margin: '0 0 20px 0', fontSize: '16px', fontWeight: 700, color: 'var(--text-heading)' }}>Business Details</h3>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                            <div>
-                                <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 600 }}>Contact Person</div>
-                                <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-heading)', marginTop: '4px' }}>{profile?.contactPerson || 'N/A'}</div>
+                        <div>
+                            <div className="rd-hero-greeting">
+                                {getGreeting()}, {(profile?.name || user?.name || 'Vendor').split(' ')[0]}
                             </div>
-                            <div>
-                                <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 600 }}>Email</div>
-                                <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-heading)', marginTop: '4px' }}>{profile?.email || 'N/A'}</div>
+                            <div className="rd-hero-subtitle">
+                                {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} &nbsp;·&nbsp; Vendor Portal
                             </div>
-                            <div>
-                                <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 600 }}>Phone</div>
-                                <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-heading)', marginTop: '4px' }}>{profile?.phone || 'N/A'}</div>
-                            </div>
-                            <div>
-                                <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 600 }}>Address</div>
-                                <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-heading)', marginTop: '4px' }}>{profile?.address || 'N/A'}</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="premium-card" style={{ padding: '24px' }}>
-                    <h3 style={{ margin: '0 0 20px 0', fontSize: '16px', fontWeight: 700, color: 'var(--text-heading)' }}>My Purchase Orders</h3>
-                    <div className="table-responsive">
-                        <table className="enterprise-table">
-                            <thead>
-                                <tr>
-                                    <th>Order Number</th>
-                                    <th>Date</th>
-                                    <th>Amount</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {orders.map(order => (
-                                    <tr key={order.id || order._id}>
-                                        <td style={{ fontWeight: 600, color: 'var(--primary-color)' }}>{order.orderNumber}</td>
-                                        <td>{new Date(order.orderDate).toLocaleDateString()}</td>
-                                        <td style={{ fontWeight: 600 }}>${order.grandTotal?.toFixed(2) || '0.00'}</td>
-                                        <td>
-                                            <span className={`status-badge-inline ${order.status === 'Delivered' ? 'completed' : 'in-progress'}`}>
-                                                {order.status}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <Link to={`/erp/orders/${order.id || order._id}`} className="btn-secondary" style={{ padding: '6px 12px', fontSize: 12 }}>View</Link>
-                                        </td>
-                                    </tr>
-                                ))}
-                                {orders.length === 0 && (
-                                    <tr>
-                                        <td colSpan="5" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-muted)' }}>No active orders.</td>
-                                    </tr>
+                            <div className="rd-hero-badges">
+                                <span className="rd-hero-badge badge-neutral">
+                                    <Package size={14} /> {materials.length} Materials
+                                </span>
+                                <span className="rd-hero-badge badge-status">
+                                    <div className="status-dot-inline"></div> {activePOs} Active POs
+                                </span>
+                                {profile?.status && (
+                                    <span className="rd-hero-badge badge-neutral">
+                                        <CheckCircle size={14} /> {profile.status}
+                                    </span>
                                 )}
-                            </tbody>
-                        </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="rd-hero-right">
+                        <div className="rd-hero-visual">
+                            <div className="rd-visual-card">
+                                <div className="rd-vc-label">Completed</div>
+                                <div className="rd-vc-value">{completedPOs}</div>
+                                <div className="rd-vc-chart"></div>
+                            </div>
+                            <div className="rd-visual-card">
+                                <div className="rd-vc-label">Revenue</div>
+                                <div className="rd-vc-bars">
+                                    <div className="rd-vc-bar" style={{ height: '60%' }}></div>
+                                    <div className="rd-vc-bar" style={{ height: '80%' }}></div>
+                                    <div className="rd-vc-bar" style={{ height: '70%' }}></div>
+                                    <div className="rd-vc-bar" style={{ height: '100%' }}></div>
+                                    <div className="rd-vc-bar" style={{ height: '75%' }}></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="rd-hero-actions-col">
+                            <button className="hero-action-btn primary" onClick={() => navigate('/erp/orders')}>
+                                <Truck size={15} /> View Orders
+                            </button>
+                            <button className="hero-action-btn secondary" onClick={() => navigate('/materials')}>
+                                <Package size={15} /> Materials
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </motion.div>
-        </motion.div>
+
+                {/* ── KPI Row ── */}
+                <PastelKPIGrid columns={4}>
+                    <PastelKPICard title="Materials Supplied" value={materials.length} colorTheme="blue" icon={Package} trendValue="Listed materials" trendPositive={true} />
+                    <PastelKPICard title="Active POs" value={activePOs} colorTheme="peach" icon={Store} trendValue="Pending fulfillment" trendPositive={activePOs === 0} />
+                    <PastelKPICard title="Completed POs" value={completedPOs} colorTheme="mint" icon={CheckCircle} trendValue="Successfully delivered" trendPositive={true} />
+                    <PastelKPICard title="Total Value" value={formatCurrency(totalValue)} colorTheme="yellow" icon={TrendingUp} trendValue="Lifetime orders" trendPositive={true} />
+                </PastelKPIGrid>
+
+                {/* ── Main Content Grid ── */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2, duration: 0.4 }}
+                    style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 24, marginTop: 24 }}
+                >
+                    {/* Purchase Orders Table */}
+                    <div className="dashboard-panel">
+                        <div className="panel-header">
+                            <div className="panel-title">My Purchase Orders</div>
+                            <button
+                                className="panel-action-btn"
+                                onClick={() => navigate('/erp/orders')}
+                                style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, fontWeight: 600, color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}
+                            >
+                                View All <ExternalLink size={12} />
+                            </button>
+                        </div>
+                        <div style={{ overflowX: 'auto' }}>
+                            {orders.length === 0 ? (
+                                <EmptyState icon={ShoppingBag} title="No purchase orders yet" message="Orders placed with you will appear here." />
+                            ) : (
+                                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                    <thead>
+                                        <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                                            {['ORDER', 'DATE', 'AMOUNT', 'STATUS'].map(h => (
+                                                <th key={h} style={{ padding: '8px 12px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: '#94a3b8', letterSpacing: '0.5px' }}>{h}</th>
+                                            ))}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {orders.slice(0, 8).map((order, i) => (
+                                            <tr key={order._id || i} style={{ borderBottom: '1px solid #f8fafc' }}>
+                                                <td style={{ padding: '10px 12px', fontWeight: 700, color: '#3b82f6', fontSize: 13 }}>{order.orderNumber || `PO-${i + 1}`}</td>
+                                                <td style={{ padding: '10px 12px', fontSize: 13, color: '#64748b' }}>
+                                                    {order.orderDate ? new Date(order.orderDate).toLocaleDateString('en-GB') : 'N/A'}
+                                                </td>
+                                                <td style={{ padding: '10px 12px', fontWeight: 700, fontSize: 13, color: '#0f172a' }}>
+                                                    ₹{(Number(order.grandTotal) || Number(order.totalAmount) || 0).toLocaleString()}
+                                                </td>
+                                                <td style={{ padding: '10px 12px' }}>
+                                                    <span style={{
+                                                        fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 20,
+                                                        background: statusBg(order.status), color: statusColor(order.status)
+                                                    }}>
+                                                        {order.status || 'Pending'}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Business Details */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                        <div className="dashboard-panel" style={{ flex: 1 }}>
+                            <div className="panel-header">
+                                <div className="panel-title">Business Details</div>
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                                {[
+                                    { icon: User, label: 'Contact Person', value: profile?.contactPerson },
+                                    { icon: Mail, label: 'Email', value: profile?.email },
+                                    { icon: Phone, label: 'Phone', value: profile?.phone },
+                                    { icon: MapPin, label: 'Address', value: profile?.address },
+                                ].map(({ icon: Icon, label, value }) => (
+                                    <div key={label} style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                                        <div style={{ width: 32, height: 32, borderRadius: 8, background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                            <Icon size={14} color="#64748b" />
+                                        </div>
+                                        <div>
+                                            <div style={{ fontSize: 11, color: '#94a3b8', fontWeight: 600, marginBottom: 2 }}>{label}</div>
+                                            <div style={{ fontSize: 13, fontWeight: 600, color: '#1e293b' }}>{value || 'N/A'}</div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Materials Quick List */}
+                        <div className="dashboard-panel" style={{ flex: 1 }}>
+                            <div className="panel-header">
+                                <div className="panel-title">My Materials</div>
+                            </div>
+                            {materials.length === 0 ? (
+                                <div style={{ textAlign: 'center', padding: '20px', color: '#94a3b8', fontSize: 13 }}>No materials listed.</div>
+                            ) : (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                    {materials.slice(0, 5).map((m, i) => (
+                                        <div key={m._id || i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 0', borderBottom: i < materials.length - 1 ? '1px solid #f1f5f9' : 'none' }}>
+                                            <div>
+                                                <div style={{ fontSize: 13, fontWeight: 600, color: '#1e293b' }}>{m.name}</div>
+                                                <div style={{ fontSize: 11, color: '#94a3b8' }}>{m.category || 'General'}</div>
+                                            </div>
+                                            <span style={{ fontSize: 11, fontWeight: 700, color: '#3b82f6', background: '#eff6ff', padding: '2px 8px', borderRadius: 10 }}>
+                                                {m.quantity} {m.unit}
+                                            </span>
+                                        </div>
+                                    ))}
+                                    {materials.length > 5 && (
+                                        <div style={{ textAlign: 'center', fontSize: 12, color: '#3b82f6', fontWeight: 600, paddingTop: 8, cursor: 'pointer' }}
+                                            onClick={() => navigate('/materials')}>
+                                            +{materials.length - 5} more
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </motion.div>
+
+            </div>
+        </div>
     );
 };
 

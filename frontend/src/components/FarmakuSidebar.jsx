@@ -153,7 +153,7 @@ const FarmakuSidebar = () => {
                     <div
                         className={[
                             'farmaku-nav-item',
-                            isExpanded ? 'expanded active' : '',
+                            isExpanded ? 'expanded' : '',
                             hasActiveChild ? 'has-active-child active' : '',
                         ]
                             .filter(Boolean)
@@ -185,7 +185,6 @@ const FarmakuSidebar = () => {
                                         className={({ isActive }) => `farmaku-subnav-item${childActive ? ' active' : ''}`}
                                     >
                                         <span>{child.title}</span>
-                                        {childActive && <Icons.ChevronRight size={14} />}
                                     </NavLink>
                                 );
                             })}
@@ -207,12 +206,10 @@ const FarmakuSidebar = () => {
                 >
                     {renderIcon(item.icon, item.title)}
                     <span>{item.title}</span>
-                    {isNotifications && unreadCount > 0 ? (
+                    {isNotifications && unreadCount > 0 && (
                         <span className="farmaku-badge">
                             {unreadCount > 99 ? '99+' : unreadCount}
                         </span>
-                    ) : (
-                        <Icons.ChevronRight size={14} />
                     )}
                 </NavLink>
             </li>

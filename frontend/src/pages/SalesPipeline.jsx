@@ -263,14 +263,14 @@ const SalesPipeline = () => {
                             </div>
                         </div>
 
-                        <div style={{height: 200, flex: 1}}>
+                        <div style={{height: 240, flex: 1}}>
                             <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={revenueData} barGap={4} barSize={12}>
+                                <BarChart data={revenueData} barGap={4} barSize={12} margin={{top: 8, right: 8, left: 0, bottom: 8}}>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} dy={10} />
+                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} dy={6} />
                                     <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 11}} tickFormatter={v => formatShortCurrency(v)} />
                                     <Tooltip formatter={(val) => `₹${val.toLocaleString()}`} cursor={{fill: '#f1f5f9'}} contentStyle={{borderRadius: 8, border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', padding: 12, fontWeight: 600}} />
-                                    <Legend verticalAlign="top" height={36} iconType="circle" wrapperStyle={{fontSize: 12, fontWeight: 600, color: '#475569', left: 0}} />
+                                    <Legend verticalAlign="bottom" height={32} iconType="circle" wrapperStyle={{fontSize: 12, fontWeight: 600, color: '#475569', paddingTop: 12}} />
                                     <Bar dataKey="revenue" name="Revenue (₹)" fill="#3b82f6" radius={[4,4,0,0]} />
                                     <Bar dataKey="delivered" name="Delivered (₹)" fill="#10b981" radius={[4,4,0,0]} />
                                 </BarChart>

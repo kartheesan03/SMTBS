@@ -43,7 +43,7 @@ export const PastelKPICard = ({ title, value, icon: Icon, colorTheme = 'blue', t
             gap: '16px'
         }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div style={{ fontSize: '14px', fontWeight: 600, color: '#334155' }}>
+                <div style={{ fontSize: '14px', fontWeight: 600, color: '#334155', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {title}
                 </div>
                 <div style={{ 
@@ -61,11 +61,11 @@ export const PastelKPICard = ({ title, value, icon: Icon, colorTheme = 'blue', t
                 {value}
             </div>
             
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: '8px', gap: '8px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: '8px', gap: '8px', minWidth: 0 }}>
                 {trendValue ? (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: 600, color: trendPositive ? '#16a34a' : '#dc2626', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: 600, color: trendPositive ? '#16a34a' : '#dc2626', minWidth: 0 }}>
                         {trendPositive ? <TrendingUp size={12} strokeWidth={3} style={{ flexShrink: 0 }} /> : <TrendingDown size={12} strokeWidth={3} style={{ flexShrink: 0 }} />}
-                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{trendValue}</span>
+                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 }}>{trendValue}</span>
                     </div>
                 ) : (
                     <div />

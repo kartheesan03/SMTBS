@@ -969,12 +969,14 @@ input[type="password"]::-ms-clear {
   transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
 }
 
 .app-content {
   padding: 24px;
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .app-content:has(.rd-container) {

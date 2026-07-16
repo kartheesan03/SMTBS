@@ -16,9 +16,15 @@ const protect = async (req, res, next) => {
             }
             req.user = user;
 
-            // Fetch role permissions from the database
-            const role = await Role.findOne({ name: user.role });
-            req.user.permissions = role && role.permissions ? role.permissions : [];
+            // Fetch role permissions - use raw Sequelize to guarantee WHERE clause works
+            const RoleSeq = Role.sequelizeModel || Role;
+            const titleRole = user.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1).toLowerCase() : '';
+            const roleRecord = titleRole
+                ? (await RoleSeq.findOne({ where: { name: titleRole } }) || await RoleSeq.findOne({ where: { name: user.role } }))
+                : null;
+            req.user.permissions = roleRecord
+                ? (roleRecord.permissions || roleRecord.dataValues?.permissions || [])
+                : [];
 
             return next();
         }

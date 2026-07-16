@@ -141,7 +141,11 @@
     box-shadow: 0 4px 14px rgba(59,130,246,0.4);
 }
 
-/* Parent with an active child is now handled via .active class directly */
+/* Parent with an active child should look highlighted but WITHOUT the solid blue active background */
+.farmaku-nav-item.has-active-child {
+    color: #FFFFFF;
+    font-weight: 600;
+}
 
 .farmaku-nav-item svg,
 .farmaku-subnav-item svg {
@@ -156,6 +160,7 @@
 .farmaku-nav-item.expanded svg { opacity: 0.9; }
 
 .farmaku-nav-item.active svg,
+.farmaku-nav-item.has-active-child svg,
 .farmaku-subnav-item.active svg { opacity: 1; }
 
 .farmaku-nav-item > svg:last-child,
@@ -224,6 +229,7 @@
     border-radius: 12px;
     margin: 0 !important;
     height: 34px; /* Force consistent height regardless of font weight */
+    position: relative;
 }
 
 .farmaku-subnav-item:hover {
@@ -232,8 +238,21 @@
 }
 
 .farmaku-subnav-item.active {
-    color: rgba(255, 255, 255, 0.9);
+    color: #60A5FA;
     font-weight: 600;
+    background: transparent;
+}
+
+.farmaku-subnav-item.active::before {
+    content: '';
+    position: absolute;
+    left: 24px;
+    top: 6px;
+    bottom: 6px;
+    width: 3px;
+    background: #60A5FA;
+    border-radius: 2px;
+    z-index: 2;
 }
 
 /* ── Notification Badge ── */
@@ -273,25 +292,35 @@
 
 /* Brighten on hover / active */
 .farmaku-nav-item:hover .nav-icon-blue,
-.farmaku-nav-item.active .nav-icon-blue   { color: #93C5FD !important; }
+.farmaku-nav-item.active .nav-icon-blue,
+.farmaku-nav-item.has-active-child .nav-icon-blue   { color: #93C5FD !important; }
 .farmaku-nav-item:hover .nav-icon-green,
-.farmaku-nav-item.active .nav-icon-green  { color: #86EFAC !important; }
+.farmaku-nav-item.active .nav-icon-green,
+.farmaku-nav-item.has-active-child .nav-icon-green  { color: #86EFAC !important; }
 .farmaku-nav-item:hover .nav-icon-orange,
-.farmaku-nav-item.active .nav-icon-orange { color: #FDBA74 !important; }
+.farmaku-nav-item.active .nav-icon-orange,
+.farmaku-nav-item.has-active-child .nav-icon-orange { color: #FDBA74 !important; }
 .farmaku-nav-item:hover .nav-icon-purple,
-.farmaku-nav-item.active .nav-icon-purple { color: #C4B5FD !important; }
+.farmaku-nav-item.active .nav-icon-purple,
+.farmaku-nav-item.has-active-child .nav-icon-purple { color: #C4B5FD !important; }
 .farmaku-nav-item:hover .nav-icon-cyan,
-.farmaku-nav-item.active .nav-icon-cyan   { color: #67E8F9 !important; }
+.farmaku-nav-item.active .nav-icon-cyan,
+.farmaku-nav-item.has-active-child .nav-icon-cyan   { color: #67E8F9 !important; }
 .farmaku-nav-item:hover .nav-icon-rose,
-.farmaku-nav-item.active .nav-icon-rose   { color: #FDA4AF !important; }
+.farmaku-nav-item.active .nav-icon-rose,
+.farmaku-nav-item.has-active-child .nav-icon-rose   { color: #FDA4AF !important; }
 .farmaku-nav-item:hover .nav-icon-yellow,
-.farmaku-nav-item.active .nav-icon-yellow { color: #FDE68A !important; }
+.farmaku-nav-item.active .nav-icon-yellow,
+.farmaku-nav-item.has-active-child .nav-icon-yellow { color: #FDE68A !important; }
 .farmaku-nav-item:hover .nav-icon-teal,
-.farmaku-nav-item.active .nav-icon-teal   { color: #5EEAD4 !important; }
+.farmaku-nav-item.active .nav-icon-teal,
+.farmaku-nav-item.has-active-child .nav-icon-teal   { color: #5EEAD4 !important; }
 .farmaku-nav-item:hover .nav-icon-indigo,
-.farmaku-nav-item.active .nav-icon-indigo { color: #A5B4FC !important; }
+.farmaku-nav-item.active .nav-icon-indigo,
+.farmaku-nav-item.has-active-child .nav-icon-indigo { color: #A5B4FC !important; }
 .farmaku-nav-item:hover .nav-icon-white,
-.farmaku-nav-item.active .nav-icon-white  { color: rgba(255,255,255,0.9) !important; }
+.farmaku-nav-item.active .nav-icon-white,
+.farmaku-nav-item.has-active-child .nav-icon-white  { color: rgba(255,255,255,0.9) !important; }
 
 /* ── Logout Item ── */
 .farmaku-logout-item {

@@ -106,20 +106,20 @@ const Leads = () => {
                     transition={{ delay: 0.2, duration: 0.4 }}
                     className="rd-table-card"
                 >
-                    <div className="rd-table-header" style={{borderBottom: '1px solid var(--rd-border)', flexWrap: 'wrap', gap: 16}}>
+                    <div className="rd-table-header" style={{borderBottom: '1px solid var(--rd-border)', flexWrap: 'wrap', gap: 16, alignItems: 'center'}}>
                         <div>
                             <div className="rd-table-title">Lead Register</div>
                             <div className="rd-table-subtitle">Track and qualify incoming leads</div>
                         </div>
-                        <div className="rd-table-actions" style={{flexWrap: 'wrap'}}>
-                            <div className="rd-search-bar" style={{minWidth: 250, flexShrink: 0, background: '#f8fafc'}}>
+                        <div className="rd-table-actions" style={{display: 'flex', flexDirection: 'row', alignItems: 'center', flexWrap: 'nowrap', gap: '16px', flexShrink: 0}}>
+                            <div className="rd-search-bar" style={{minWidth: 220, background: '#f8fafc'}}>
                                 <Search size={16} color="#94a3b8" />
                                 <input type="text" className="rd-search-input" placeholder="Search..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
                             </div>
                             <select 
                                 value={activeFilter} 
                                 onChange={e => setActiveFilter(e.target.value)}
-                                style={{padding: '8px 16px', borderRadius: 20, border: '1px solid #e2e8f0', background: '#fff', color: '#1e293b', fontWeight: 600, outline: 'none'}}
+                                style={{padding: '8px 14px', borderRadius: 20, border: '1px solid #e2e8f0', background: '#fff', color: '#1e293b', fontWeight: 600, outline: 'none', width: 'auto', flexShrink: 0}}
                             >
                                 <option value="All">All</option>
                                 <option value="New">New</option>
@@ -128,7 +128,7 @@ const Leads = () => {
                                 <option value="Proposal Sent">Proposal Sent</option>
                                 <option value="Negotiation">Negotiation</option>
                             </select>
-                            <button className="rd-btn-solid" style={{background: '#0ea5e9'}}>+ New Lead</button>
+                            <button className="rd-btn-solid" onClick={() => navigate('/crm/add-customer')} style={{background: '#0ea5e9', whiteSpace: 'nowrap', flexShrink: 0}}>+ New Lead</button>
                         </div>
                     </div>
 

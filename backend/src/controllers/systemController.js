@@ -79,6 +79,18 @@ const navigationConfig = [
         permission: 'view_reports'
     },
     {
+        title: 'Notifications',
+        icon: 'Bell',
+        path: '/notifications',
+        permission: ''
+    },
+    {
+        title: 'Help & Support',
+        icon: 'HelpCircle',
+        path: '/support',
+        permission: ''
+    },
+    {
         title: 'Settings',
         icon: 'Settings',
         permission: '',
@@ -197,15 +209,8 @@ const Role = require('../models/Role');
 
 exports.getNavigation = async (req, res) => {
     try {
-        let userPermissions = [];
-        
-        // Find role to get permissions
-        if (req.user && req.user.role) {
-            const role = await Role.findOne({ name: req.user.role });
-            if (role) {
-                userPermissions = typeof role.permissions === 'string' ? JSON.parse(role.permissions) : (role.permissions || []);
-            }
-        }
+        // auth middleware already fetched & attached permissions via Role lookup
+        let userPermissions = Array.isArray(req.user.permissions) ? req.user.permissions : [];
         
         const roleName = req.user.role ? req.user.role.toLowerCase() : '';
 

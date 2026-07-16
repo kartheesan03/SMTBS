@@ -575,14 +575,10 @@ const AdminDashboard = () => {
                                     <BarChart 
                                         layout="vertical" 
                                         data={[...(dashboardData?.tables?.topSellingMaterials || [])].sort((a, b) => b[topMaterialsSortBy] - a[topMaterialsSortBy])} 
-                                        margin={{ top: 0, right: 40, left: -20, bottom: 0 }}
+                                        margin={{ top: 0, right: 45, left: 0, bottom: 0 }}
                                     >
                                         <XAxis type="number" hide />
-                                        <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={({y, payload}) => (
-                                            <text x={0} y={y} dy={4} textAnchor="start" fill="#475569" fontSize={10}>
-                                                {payload.value.length > 14 ? payload.value.substring(0, 14) + '...' : payload.value}
-                                            </text>
-                                        )} width={100} />
+                                        <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tickFormatter={(val) => val.length > 14 ? val.substring(0, 14) + '...' : val} tick={{ fill: '#475569', fontSize: 10 }} width={95} />
                                         <Tooltip contentStyle={{ fontSize: 11 }} cursor={{ fill: '#f8fafc' }} formatter={(val) => topMaterialsSortBy === 'revenue' ? formatINR(val) : val} />
                                         <Bar dataKey={topMaterialsSortBy} fill="#7C3AED" radius={[0, 4, 4, 0]} barSize={12}>
                                             <LabelList dataKey={topMaterialsSortBy} position="right" formatter={(val) => topMaterialsSortBy === 'revenue' ? formatINR(val) : val} style={{ fontSize: 10, fill: '#475569', fontWeight: 600 }} />
