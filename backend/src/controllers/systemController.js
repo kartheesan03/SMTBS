@@ -13,6 +13,12 @@ const navigationConfig = [
         permission: ''
     },
     {
+        title: 'Apply Leave',
+        icon: 'CalendarPlus',
+        path: '/leave-management/apply',
+        permission: ''
+    },
+    {
         title: 'Material Tracking',
         icon: 'Box',
         permission: 'view_materials',
@@ -120,9 +126,14 @@ const hrNavigationConfig = [
         permission: 'view_hrms',
         children: [
             { title: 'Employee Attendance', path: '/attendance' },
-            { title: 'Master Attendance',   path: '/attendance/master' },
-            { title: 'Attendance Reports',  path: '/hr-reports' }
+            { title: 'Master Attendance',   path: '/attendance/master' }
         ]
+    },
+    {
+        title: 'Apply Leave',
+        icon: 'CalendarPlus',
+        path: '/leave-management/apply',
+        permission: ''
     },
     {
         title: 'Employee Management',

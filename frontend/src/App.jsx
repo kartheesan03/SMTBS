@@ -36,6 +36,7 @@ const Payroll = React.lazy(() => import('./pages/Payroll'));
 const Attendance = React.lazy(() => import('./pages/Attendance'));
 const MasterAttendance = React.lazy(() => import('./pages/MasterAttendance'));
 const HRReports = React.lazy(() => import('./pages/HRReports'));
+const TrainingDevelopment = React.lazy(() => import('./pages/TrainingDevelopment'));
 const Settings = React.lazy(() => import('./pages/Settings'));
 const BackupRestore = React.lazy(() => import('./pages/BackupRestore'));
 const Profile = React.lazy(() => import('./pages/Profile'));
@@ -91,6 +92,9 @@ const CreateQuotation = React.lazy(() => import('./pages/CreateQuotation'));
 const QuotationDetails = React.lazy(() => import('./pages/QuotationDetails'));
 const EmployeeScanner = React.lazy(() => import('./pages/EmployeeScanner'));
 const SalesGoals = React.lazy(() => import('./pages/SalesGoals'));
+const HolidayCalendar = React.lazy(() => import('./pages/HolidayCalendar'));
+const Recruitment = React.lazy(() => import('./pages/Recruitment'));
+const LeaveBalance = React.lazy(() => import('./pages/LeaveBalance'));
 
 const AppContent = () => {
     const { user, loading, logout } = useContext(AuthContext);
@@ -272,14 +276,14 @@ const AppContent = () => {
                     <Route path="/tasks" element={<ProtectedRoute><MyTasks /></ProtectedRoute>} />
                     <Route path="/my-attendance" element={<Navigate to="/attendance" replace />} />
                     <Route path="/leave-management" element={<ProtectedRoute requiredPermission="hrms:leave:view"><LeaveManagement /></ProtectedRoute>} />
-                    <Route path="/leave-management/apply" element={<ProtectedRoute requiredPermission="hrms:leave:view"><ApplyLeave /></ProtectedRoute>} />
+                    <Route path="/leave-management/apply" element={<ProtectedRoute><ApplyLeave /></ProtectedRoute>} />
                     <Route path="/my-salary" element={<ProtectedRoute requiredPermission="hrms:mySalary:view"><MySalaryPage /></ProtectedRoute>} />
                     <Route path="/stock-requests" element={<ProtectedRoute><StockRequests /></ProtectedRoute>} />
 
                     {/* HR Module — Coming Soon Pages */}
-                    <Route path="/coming-soon/recruitment" element={<ProtectedRoute><ComingSoonPage title="Recruitment" subtitle="Manage job postings, applications, and candidate pipelines" /></ProtectedRoute>} />
-                    <Route path="/coming-soon/training" element={<ProtectedRoute><ComingSoonPage title="Training & Development" subtitle="Plan and track employee learning programs" /></ProtectedRoute>} />
-                    <Route path="/coming-soon/holiday-calendar" element={<ProtectedRoute><ComingSoonPage title="Holiday Calendar" subtitle="View and manage company holidays and observances" /></ProtectedRoute>} />
+                    <Route path="/coming-soon/recruitment" element={<ProtectedRoute><Recruitment /></ProtectedRoute>} />
+                    <Route path="/coming-soon/training" element={<ProtectedRoute><TrainingDevelopment /></ProtectedRoute>} />
+                    <Route path="/coming-soon/holiday-calendar" element={<ProtectedRoute><HolidayCalendar /></ProtectedRoute>} />
 
                     <Route path="/complete-customer-profile" element={<ProtectedRoute requiredPermission="view_crm"><CompleteCustomerProfile /></ProtectedRoute>} />
                     <Route path="/complete-vendor-profile" element={<ProtectedRoute requiredPermission="view_erp"><CompleteVendorProfile /></ProtectedRoute>} />
@@ -298,7 +302,7 @@ const AppContent = () => {
                     <Route path="/leave-management/pending" element={<ProtectedRoute><LeaveManagement filter="Pending" /></ProtectedRoute>} />
                     <Route path="/leave-management/approve" element={<ProtectedRoute><LeaveManagement /></ProtectedRoute>} />
                     <Route path="/leave-management/history" element={<ProtectedRoute><ComingSoonPage title="Leave History" subtitle="Past leave records" /></ProtectedRoute>} />
-                    <Route path="/leave-management/balance" element={<ProtectedRoute><ComingSoonPage title="Leave Balance" subtitle="Employee accruals and balances" /></ProtectedRoute>} />
+                    <Route path="/leave-management/balance" element={<ProtectedRoute><LeaveBalance /></ProtectedRoute>} />
                     
                     <Route path="/reports/attendance" element={<ProtectedRoute><HRReports /></ProtectedRoute>} />
                     <Route path="/reports/payroll" element={<ProtectedRoute><Reports /></ProtectedRoute>} />

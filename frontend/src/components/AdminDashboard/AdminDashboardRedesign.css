@@ -1331,6 +1331,11 @@
   padding: 24px 24px 16px;
 }
 
+.rd-table-header select {
+  width: auto !important;
+  min-width: 140px;
+}
+
 .rd-table-actions {
   display: flex;
   align-items: center;

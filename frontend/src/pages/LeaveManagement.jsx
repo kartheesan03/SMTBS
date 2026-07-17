@@ -147,12 +147,6 @@ const LeaveManagement = () => {
                                 <option value="Cancelled">Cancelled</option>
                             </select>
                         </div>
-                        <div className="rd-table-actions">
-                            <button className="rd-btn-solid" onClick={() => navigate('/leave-management/apply')}>
-                                <Plus size={16} style={{marginRight: 8, verticalAlign: 'middle'}}/>
-                                Apply Leave
-                            </button>
-                        </div>
                     </div>
                     
                     <div className="rd-table-scroll">

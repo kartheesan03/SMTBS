@@ -214,7 +214,7 @@ const ManagerDashboard = () => {
                             </div>
                         </div>
                         <div className="rd-hero-actions-col">
-                            <button className="hero-action-btn primary" onClick={() => navigate('/leave-management')}>
+                            <button className="hero-action-btn primary" onClick={() => navigate('/leave-management/apply')}>
                                 <CheckCircle size={15} /> Apply Leave
                             </button>
                             <button className="hero-action-btn secondary" onClick={() => navigate('/attendance')}>
@@ -247,7 +247,7 @@ const ManagerDashboard = () => {
                             <IconQuickAction icon={CheckSquare} label="Assign Task" colorClass="bg-light-blue" onClick={() => navigate('/tasks')} />
                             <IconQuickAction icon={Briefcase} label="New Project" colorClass="bg-light-purple" onClick={() => navigate('/crm')} />
                             <IconQuickAction icon={BarChart2} label="Team Perf." colorClass="bg-light-green" onClick={() => navigate('/reports')} />
-                            <IconQuickAction icon={Calendar} label="Apply Leave" colorClass="bg-light-orange" onClick={() => navigate('/leave-management')} />
+                            <IconQuickAction icon={Calendar} label="Apply Leave" colorClass="bg-light-orange" onClick={() => navigate('/leave-management/apply')} />
                             
                             <IconQuickAction icon={CheckCircle} label="Approvals" colorClass="bg-light-pink" onClick={() => navigate('/')} />
                             <IconQuickAction icon={Users} label="My Team" colorClass="bg-light-blue" onClick={() => navigate('/employees')} />

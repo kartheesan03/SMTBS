@@ -43,7 +43,19 @@ const GlobalHeader = ({ onRefresh, onOpenModuleLauncher, onOpenCommandCenter }) 
     }, []);
 
     const initials = user?.name ? user.name.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase() : 'AU';
-    const role = user?.role?.toUpperCase() || 'ADMIN';
+    const role = user?.role || 'Admin';
+
+    // Deterministic gradient based on name so avatar always has a rich color
+    const AVATAR_GRADIENTS = [
+        'linear-gradient(135deg, #6366f1, #8b5cf6)',
+        'linear-gradient(135deg, #3b82f6, #06b6d4)',
+        'linear-gradient(135deg, #10b981, #059669)',
+        'linear-gradient(135deg, #f59e0b, #ef4444)',
+        'linear-gradient(135deg, #ec4899, #8b5cf6)',
+        'linear-gradient(135deg, #14b8a6, #3b82f6)',
+        'linear-gradient(135deg, #f97316, #ef4444)',
+    ];
+    const avatarGradient = AVATAR_GRADIENTS[(initials.charCodeAt(0) || 0) % AVATAR_GRADIENTS.length];
 
     const handleRefresh = () => {
         if (onRefresh) {
@@ -107,10 +119,12 @@ const GlobalHeader = ({ onRefresh, onOpenModuleLauncher, onOpenCommandCenter }) 
                 
                 <div className="rd-profile-menu-container" ref={profileRef} style={{ position: 'relative' }}>
                     <div className="rd-profile-menu" onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)} style={{ cursor: 'pointer' }}>
-                        <div className="rd-avatar" style={{ background: 'var(--rd-purple-grad)' }}>{initials}</div>
+                        <div className="rd-avatar" style={{ background: avatarGradient }}>{initials}</div>
                         <div className="rd-profile-info">
                             <span className="rd-profile-name">{user?.name || 'Admin User'}</span>
-                            <span className="rd-profile-role">{role} <span className="rd-dot"></span></span>
+                            <span className="rd-profile-role" style={{ textTransform: 'none', fontWeight: 600, color: '#64748b' }}>
+                                {role} <span className="rd-dot"></span>
+                            </span>
                         </div>
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight: 4}}><polyline points="6 9 12 15 18 9"></polyline></svg>
                     </div>
@@ -130,7 +144,7 @@ const GlobalHeader = ({ onRefresh, onOpenModuleLauncher, onOpenCommandCenter }) 
                             overflow: 'hidden'
                         }}>
                             <div style={{ padding: '16px', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                <div className="rd-avatar" style={{ width: '40px', height: '40px', fontSize: '16px', background: 'var(--rd-purple-grad)' }}>{initials}</div>
+                                <div className="rd-avatar" style={{ width: '40px', height: '40px', fontSize: '16px', background: avatarGradient }}>{initials}</div>
                                 <div>
                                     <div style={{ fontWeight: '600', color: '#1e293b', fontSize: '14px' }}>{user?.name || 'Admin User'}</div>
                                     <div style={{ color: '#64748b', fontSize: '12px' }}>{user?.email || 'admin@smtbms.com'}</div>

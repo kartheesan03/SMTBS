@@ -81,43 +81,52 @@ const FarmakuSidebar = () => {
                 const response = await API.get(`/system/navigation?t=${Date.now()}`);
                 let navData = response.data;
                 
-                // Dynamically inject the HRMS block if the user has permissions for it
-                const allowedHrmsChildren = hrmsMenuItems
-                    .filter(item => hasHrmsPermission(user, item.permission))
-                    .map(item => ({
-                        title: item.label,
-                        path: item.path,
-                        // Not mapping 'icon' since sub-items in FarmakuSidebar don't render individual icons
-                    }));
+                // Check if the backend already returned HR-specific navigation
+                // (hrNavigationConfig includes 'Employee Management' / 'Leave Management' as top-level items)
+                const hasHrNav = navData.some(item =>
+                    item.title === 'Employee Management' ||
+                    item.title === 'Leave Management' ||
+                    item.title === 'Payroll'
+                );
 
-                if (allowedHrmsChildren.length > 0) {
-                    const hrmsNode = {
-                        title: 'HRMS',
-                        icon: 'Users',
-                        permission: 'view_hrms', // or any placeholder, it's just used for rendering
-                        children: allowedHrmsChildren
-                    };
-                    
-                    // Try to insert HRMS after Attendance. If not found, try Dashboard, then just push it.
-                    let inserted = false;
-                    for (let i = 0; i < navData.length; i++) {
-                        if (navData[i].title === 'Attendance') {
-                            navData.splice(i + 1, 0, hrmsNode);
-                            inserted = true;
-                            break;
-                        }
-                    }
-                    if (!inserted) {
+                // Only inject the client-side HRMS block if the backend hasn't already
+                // provided HR navigation — prevents duplicate menus for HR role
+                if (!hasHrNav) {
+                    const allowedHrmsChildren = hrmsMenuItems
+                        .filter(item => hasHrmsPermission(user, item.permission))
+                        .map(item => ({
+                            title: item.label,
+                            path: item.path,
+                        }));
+
+                    if (allowedHrmsChildren.length > 0) {
+                        const hrmsNode = {
+                            title: 'HRMS',
+                            icon: 'Users',
+                            permission: 'view_hrms',
+                            children: allowedHrmsChildren
+                        };
+                        
+                        let inserted = false;
                         for (let i = 0; i < navData.length; i++) {
-                            if (navData[i].title === 'Dashboard') {
+                            if (navData[i].title === 'Attendance') {
                                 navData.splice(i + 1, 0, hrmsNode);
                                 inserted = true;
                                 break;
                             }
                         }
-                    }
-                    if (!inserted) {
-                        navData.push(hrmsNode);
+                        if (!inserted) {
+                            for (let i = 0; i < navData.length; i++) {
+                                if (navData[i].title === 'Dashboard') {
+                                    navData.splice(i + 1, 0, hrmsNode);
+                                    inserted = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (!inserted) {
+                            navData.push(hrmsNode);
+                        }
                     }
                 }
                 

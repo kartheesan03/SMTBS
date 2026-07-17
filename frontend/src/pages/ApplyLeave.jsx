@@ -4,6 +4,7 @@ import API from '../api/axios';
 import { Loader, Check, AlertTriangle, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 import PageHeader from '../components/PageHeader';
+import '../components/AdminDashboard/AdminDashboardRedesign.css';
 
 const ApplyLeave = () => {
     const navigate = useNavigate();
@@ -61,17 +62,31 @@ const ApplyLeave = () => {
                 </div>
             )}
 
-            <div style={{ width: '100%', maxWidth: '600px', marginBottom: '20px' }}>
-                <button 
-                    className="rd-back-btn"
-                    onClick={() => navigate('/leave-management')}
-                >
-                    <ArrowLeft size={16} /> Back to Leave Management
-                </button>
-            </div>
-
-            <div style={{ marginBottom: '24px' }}>
-                <PageHeader title="New Leave Application" badge="HRMS" subtitle="Submit a new request for time off" />
+            <div style={{ width: '100%', maxWidth: '600px', margin: '0 auto' }}>
+                <div style={{ marginBottom: '16px', marginLeft: '-4px' }}>
+                    <button 
+                        onClick={() => navigate('/leave-management')}
+                        style={{ 
+                            background: 'transparent', 
+                            border: 'none', 
+                            color: '#64748b', 
+                            display: 'inline-flex', 
+                            alignItems: 'center', 
+                            gap: '6px',
+                            cursor: 'pointer',
+                            fontSize: '13px',
+                            fontWeight: 600,
+                            padding: '4px 8px',
+                            borderRadius: '6px'
+                        }}
+                    >
+                        <ArrowLeft size={15} /> Back to Leave Management
+                    </button>
+                </div>
+                
+                <div style={{ marginBottom: '24px' }}>
+                    <PageHeader title="New Leave Application" badge="HRMS" subtitle="Submit a new request for time off" />
+                </div>
             </div>
 
             <div className="premium-card lv-form-card" style={{ padding: '32px', width: '100%', maxWidth: '600px', margin: '0 auto' }}>

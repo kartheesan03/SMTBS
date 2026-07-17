@@ -1,5 +1,8 @@
 .rd-module-header {
-  margin-bottom: 0px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
 }
 
 .rd-module-title-row {

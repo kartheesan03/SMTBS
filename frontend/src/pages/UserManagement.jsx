@@ -8,8 +8,10 @@ import {
 import PageHeader from '../components/PageHeader';
 import './UserManagement.css';
 import toast from 'react-hot-toast';
+import { AuthContext } from '../context/AuthContext';
 
 const UserManagement = () => {
+    const { user: currentUser } = React.useContext(AuthContext);
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -110,7 +112,7 @@ const UserManagement = () => {
                                 <th>PHONE</th>
                                 <th>STATUS</th>
                                 <th>JOINED</th>
-                                <th>ACTIONS</th>
+                                {currentUser?.role === 'admin' && <th>ACTIONS</th>}
                             </tr>
                         </thead>
                         <tbody>
@@ -139,13 +141,15 @@ const UserManagement = () => {
                                         </span>
                                     </td>
                                     <td className="um-last-active">{new Date(user.createdAt).toLocaleDateString()}</td>
-                                    <td>
-                                        <div className="um-row-actions">
-                                            <button className="um-action-icon" title="View Profile"><UserIcon size={16} /></button>
-                                            <button className="um-action-icon" title="Edit User"><Edit2 size={16} /></button>
-                                            <button className="um-action-icon danger" title="Delete"><Trash2 size={16} /></button>
-                                        </div>
-                                    </td>
+                                    {currentUser?.role === 'admin' && (
+                                        <td>
+                                            <div className="um-row-actions">
+                                                <button className="um-action-icon" title="View Profile"><UserIcon size={16} /></button>
+                                                <button className="um-action-icon" title="Edit User"><Edit2 size={16} /></button>
+                                                <button className="um-action-icon danger" title="Delete"><Trash2 size={16} /></button>
+                                            </div>
+                                        </td>
+                                    )}
                                 </tr>
                             ))}
                         </tbody>

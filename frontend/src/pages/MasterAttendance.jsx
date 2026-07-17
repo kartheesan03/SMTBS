@@ -290,11 +290,11 @@ const DailyTab = ({ canEdit }) => {
                                 <th>Employee</th>
                                 <th>Emp ID</th>
                                 <th>Department</th>
-                                <th>Check In</th>
-                                <th>Check Out</th>
-                                <th>Hours</th>
-                                <th>Status</th>
-                                <th style={{ width: 80, textAlign: 'center' }}>Action</th>
+                                <th style={{ textAlign: 'center' }}>Check In</th>
+                                <th style={{ textAlign: 'center' }}>Check Out</th>
+                                <th style={{ textAlign: 'center' }}>Hours</th>
+                                <th style={{ textAlign: 'center' }}>Status</th>
+                                <th style={{ width: 80, textAlign: 'center' }}>{canEdit ? 'Action' : ''}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -318,12 +318,12 @@ const DailyTab = ({ canEdit }) => {
                                         </td>
                                         <td style={{ color: '#94a3b8', fontSize: 13 }} data-label="Emp ID">{emp.employeeId || '—'}</td>
                                         <td style={{ color: '#64748b' }} data-label="Department">{emp.department || '—'}</td>
-                                        <td style={{ fontWeight: 500, color: '#1e293b' }} data-label="Check In">{formatTime(r.checkIn)}</td>
-                                        <td style={{ fontWeight: 500, color: '#1e293b' }} data-label="Check Out">{formatTime(r.checkOut)}</td>
-                                        <td data-label="Hours">
+                                        <td style={{ fontWeight: 500, color: '#1e293b', textAlign: 'center' }} data-label="Check In">{formatTime(r.checkIn)}</td>
+                                        <td style={{ fontWeight: 500, color: '#1e293b', textAlign: 'center' }} data-label="Check Out">{formatTime(r.checkOut)}</td>
+                                        <td style={{ textAlign: 'center' }} data-label="Hours">
                                             <span style={{ fontWeight: 700, color: '#3b82f6' }}>{calcHours(r.checkIn, r.checkOut)}</span>
                                         </td>
-                                        <td data-label="Status"><StatusBadge status={r.status} /></td>
+                                        <td style={{ textAlign: 'center' }} data-label="Status"><StatusBadge status={r.status} /></td>
                                         <td style={{ textAlign: 'center' }} data-label="Action">
                                             {canEdit && (
                                                 <button onClick={() => setEditRecord(r)}
