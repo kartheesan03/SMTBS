@@ -19,6 +19,18 @@ const navigationConfig = [
         permission: ''
     },
     {
+        title: 'Leave History',
+        icon: 'FileText',
+        path: '/leave-management/history',
+        permission: ''
+    },
+    {
+        title: 'My Salary',
+        icon: 'Wallet',
+        path: '/my-salary',
+        permission: ''
+    },
+    {
         title: 'Material Tracking',
         icon: 'Box',
         permission: 'view_materials',
@@ -148,6 +160,7 @@ const hrNavigationConfig = [
         children: [
             { title: 'Apply Leave',    path: '/leave-management/apply' },
             { title: 'Leave Requests', path: '/leave-management' },
+            { title: 'Leave History',  path: '/leave-management/history' },
             { title: 'Leave Balance',  path: '/leave-management/balance' }
         ]
     },
@@ -254,8 +267,14 @@ exports.getNavigation = async (req, res) => {
         // ── All other roles: use the standard navigation config ───────────────
         let filteredNav = navigationConfig.map(item => {
             // First check if user can see parent
-            if (item.permission && !userPermissions.includes(item.permission) && !userPermissions.includes('all')) {
-                return null;
+            if (item.permission) {
+                // If the item requires 'view_tasks', also allow 'view_tasks_self'
+                if (item.permission === 'view_tasks' && userPermissions.includes('view_tasks_self')) {
+                    // allow
+                }
+                else if (!userPermissions.includes(item.permission) && !userPermissions.includes('all')) {
+                    return null;
+                }
             }
             
             // Then filter children if they exist

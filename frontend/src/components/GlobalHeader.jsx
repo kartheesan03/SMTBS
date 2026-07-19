@@ -43,7 +43,8 @@ const GlobalHeader = ({ onRefresh, onOpenModuleLauncher, onOpenCommandCenter }) 
     }, []);
 
     const initials = user?.name ? user.name.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase() : 'AU';
-    const role = user?.role || 'Admin';
+    const isSales = user?.role?.toLowerCase() === 'sales';
+    const role = user?.role ? (user.role.charAt(0).toUpperCase() + user.role.slice(1)) : 'Admin';
 
     // Deterministic gradient based on name so avatar always has a rich color
     const AVATAR_GRADIENTS = [

@@ -4,8 +4,7 @@ export const hrmsMenuItems = [
   { label: 'Leave Management', icon: 'CalendarDays', path: '/leave-management', permission: 'hrms:leave:view' },
   { label: 'Payroll', icon: 'DollarSign', path: '/payroll', permission: 'hrms:payroll:view' },
   { label: 'Generate Payroll', icon: 'FileText', path: '/payroll/generate', permission: 'hrms:payroll:generate' },
-  { label: 'Performance', icon: 'TrendingUp', path: '/team-performance', permission: 'hrms:performance:view' },
-  { label: 'My Salary', icon: 'Wallet', path: '/my-salary', permission: 'hrms:mySalary:view' },
+  { label: 'Performance', icon: 'TrendingUp', path: '/team-performance', permission: 'hrms:performance:view' }
 ];
 
 export const rolePermissions = {
@@ -27,6 +26,9 @@ export const rolePermissions = {
     'hrms:performance:view',
     'hrms:mySalary:view'
   ],
+  employee: [
+    'hrms:mySalary:view'
+  ]
 };
 
 export const hasHrmsPermission = (user, permission) => {

@@ -50,6 +50,7 @@ const GeneratePayroll = React.lazy(() => import('./pages/GeneratePayroll'));
 const PayrollPayment = React.lazy(() => import('./pages/PayrollPayment'));
 const Payslips = React.lazy(() => import('./pages/Payslips'));
 const LeaveManagement = React.lazy(() => import('./pages/LeaveManagement'));
+const MyLeaveHistory = React.lazy(() => import('./pages/MyLeaveHistory'));
 const ApplyLeave = React.lazy(() => import('./pages/ApplyLeave'));
 const MySalaryPage = React.lazy(() => import('./pages/MySalary'));
 const Customers = React.lazy(() => import('./pages/Customers'));
@@ -301,7 +302,7 @@ const AppContent = () => {
                     
                     <Route path="/leave-management/pending" element={<ProtectedRoute><LeaveManagement filter="Pending" /></ProtectedRoute>} />
                     <Route path="/leave-management/approve" element={<ProtectedRoute><LeaveManagement /></ProtectedRoute>} />
-                    <Route path="/leave-management/history" element={<ProtectedRoute><ComingSoonPage title="Leave History" subtitle="Past leave records" /></ProtectedRoute>} />
+                    <Route path="/leave-management/history" element={<ProtectedRoute><MyLeaveHistory /></ProtectedRoute>} />
                     <Route path="/leave-management/balance" element={<ProtectedRoute><LeaveBalance /></ProtectedRoute>} />
                     
                     <Route path="/reports/attendance" element={<ProtectedRoute><HRReports /></ProtectedRoute>} />

@@ -72,7 +72,8 @@ const initRoles = async () => {
                     'view_dashboard',
                     'view_attendance_self',
                     'view_tasks_self',
-                    'view_profile'
+                    'view_profile',
+                    'view_erp'
                 ]
             }
         ];

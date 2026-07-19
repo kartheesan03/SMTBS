@@ -39,7 +39,7 @@ const ApplyLeave = () => {
             await API.post('/leaves', form);
             showToast(`Leave application submitted successfully.`);
             setTimeout(() => {
-                navigate('/leave-management');
+                navigate('/');
             }, 1000);
         } catch (err) {
             showToast(err.response?.data?.message || 'Submission failed.', false);
@@ -65,7 +65,7 @@ const ApplyLeave = () => {
             <div style={{ width: '100%', maxWidth: '600px', margin: '0 auto' }}>
                 <div style={{ marginBottom: '16px', marginLeft: '-4px' }}>
                     <button 
-                        onClick={() => navigate('/leave-management')}
+                        onClick={() => navigate('/')}
                         style={{ 
                             background: 'transparent', 
                             border: 'none', 
@@ -80,7 +80,7 @@ const ApplyLeave = () => {
                             borderRadius: '6px'
                         }}
                     >
-                        <ArrowLeft size={15} /> Back to Leave Management
+                        <ArrowLeft size={15} /> Back to Dashboard
                     </button>
                 </div>
                 
@@ -144,7 +144,7 @@ const ApplyLeave = () => {
                         />
                     </div>
                     <div className="lv-form-actions">
-                        <button type="button" className="btn-secondary" onClick={() => navigate('/leave-management')}>
+                        <button type="button" className="btn-secondary" onClick={() => navigate('/')}>
                             Cancel
                         </button>
                         <button type="submit" className="btn-primary flex-center gap-10" disabled={submitting}>

@@ -342,7 +342,28 @@ const EmployeeDashboard = () => {
                             <a href="/tasks" className="panel-action">View All</a>
                         </div>
                         <div className="feed-list">
-                            <div style={{padding: '20px', fontSize: '13px', color: '#94a3b8', textAlign: 'center'}}>No pending tasks.</div>
+                            {myTasks && myTasks.length > 0 ? (
+                                myTasks.slice(0, 5).map((task, idx) => {
+                                    let col = '#4f46e5'; let bg = '#e0e7ff';
+                                    if (task.priority === 'High') { col = '#ef4444'; bg = '#fee2e2'; }
+                                    if (task.priority === 'Low') { col = '#10b981'; bg = '#d1fae5'; }
+                                    return (
+                                        <div className="feed-item" key={idx}>
+                                            <div className="feed-icon-wrapper" style={{background: bg, color: col}}><CheckSquare size={12}/></div>
+                                            <div className="feed-content">
+                                                <div className="feed-title">{task.title}</div>
+                                                <div className="feed-desc" style={{display: 'flex', gap: '8px', alignItems: 'center'}}>
+                                                    <span style={{color: col, fontWeight: 500}}>{task.status}</span>
+                                                    <span>•</span>
+                                                    <span>Due: {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'N/A'}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )
+                                })
+                            ) : (
+                                <div style={{padding: '20px', fontSize: '13px', color: '#94a3b8', textAlign: 'center'}}>No pending tasks.</div>
+                            )}
                         </div>
                     </div>
                 </div>

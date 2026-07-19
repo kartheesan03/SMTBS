@@ -256,6 +256,9 @@ const OrderManagement = () => {
                                 const status = o.status || '—';
                                 const statusColors = {
                                     'New': 'rd-status-blue',
+                                    'Created': 'rd-status-blue',
+                                    'Awaiting Stock Check': 'rd-status-purple',
+                                    'Low Stock Alert': 'rd-status-red',
                                     'Assigned to Employee': 'rd-status-purple',
                                     'Material Confirmed': 'rd-status-orange',
                                     'Ready for Delivery': 'rd-status-blue',
@@ -292,7 +295,7 @@ const OrderManagement = () => {
                                         </td>
                                         <td style={{color: '#475569'}} data-label="Manager">{o.manager || o.salesRep || '—'}</td>
                                         <td style={{textAlign: 'center'}} data-label="Action">
-                                            <button className="rd-btn-compact outline" style={{padding: '6px', display: 'inline-flex', alignItems: 'center'}} title="View Order">
+                                            <button className="rd-btn-compact outline" style={{padding: '6px', display: 'inline-flex', alignItems: 'center'}} title="View Order" onClick={(e) => { e.stopPropagation(); navigate(`/orders/${o._id || o.id}`); }}>
                                                 <Eye size={14} />
                                             </button>
                                         </td>

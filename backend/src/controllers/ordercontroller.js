@@ -112,9 +112,10 @@ const createOrder = async (req, res) => {
 
         // Determine initial status based on role and type
         const isSales = orderType === 'sales' || !!customer;
-        let initialStatus = isSales ? 'Created' : 'Pending';
-        let initialApprovalStatus = isSales ? 'Pending Manager Approval' : 'Pending';
-        let initialDeliveryStatus = isSales ? 'Not Started' : 'Pending';
+        
+        let initialStatus = 'Created';
+        let initialApprovalStatus = 'Pending Manager Approval';
+        let initialDeliveryStatus = 'Not Started';
 
         // Verify customer exists if it's a Sales order
         if (isSales) {
@@ -257,8 +258,9 @@ const updateOrderStatus = async (req, res) => {
     try {
         const { status } = req.body;
         const order = await Order.findById(req.params.id)
-            .populate('customer', 'name email')
-            .populate('vendor', 'name email');
+            .populate('customer')
+            .populate('vendor')
+            .populate('items.material');
 
         if (!order) {
             return res.status(404).json({ message: 'Order not found' });
@@ -267,8 +269,7 @@ const updateOrderStatus = async (req, res) => {
         const prevStatus = order.status;
         
         // --- Sales Order Role-Based Pipeline Logic ---
-        if (order.orderType === 'sales') {
-            const customerName = order.customer ? (order.customer.name || 'Walk-in') : 'Walk-in';
+        if (order.orderType === 'sales' || order.orderType === 'purchase') {
             const userRole = req.user?.role?.toLowerCase();
             const isAdmin = userRole === 'admin';
 
@@ -840,6 +841,75 @@ const flagAsDelayed = async (req, res) => {
     }
 };
 
+// @desc    Manager approves the order and sets it to Awaiting Stock Check
+// @route   PUT /api/orders/:id/manager-approve
+// @access  Private (Manager/Admin)
+const managerApproveOrder = async (req, res) => {
+    try {
+        const order = await Order.findById(req.params.id);
+        if (!order) return res.status(404).json({ message: 'Order not found' });
+        
+        order.status = 'Awaiting Stock Check';
+        order.approvalStatus = 'Approved';
+        await order.save();
+        
+        await broadcast({
+            module: 'Orders',
+            referenceId: order._id || order.id,
+            title: `New Order Pending Check: ${order.orderNumber}`,
+            message: `Manager has approved the order. Please check stock levels.`,
+            type: 'alert',
+            targetRoles: ['Employee']
+        });
+
+        res.json(order);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Employee checks order stock and forwards to Sales, or flags Low Stock
+// @route   PUT /api/orders/:id/employee-check
+// @access  Private (Employee)
+const employeeCheckOrder = async (req, res) => {
+    try {
+        const { action } = req.body;
+        const order = await Order.findById(req.params.id);
+        if (!order) return res.status(404).json({ message: 'Order not found' });
+        
+        if (action === 'low_stock') {
+            order.status = 'Low Stock Hold';
+            order.holdReason = 'Insufficient stock detected by Employee';
+            await order.save();
+            
+            await broadcast({
+                module: 'Orders',
+                referenceId: order._id || order.id,
+                title: `Low Stock Alert: ${order.orderNumber}`,
+                message: `Employee reported low stock for this order.`,
+                type: 'warning',
+                targetRoles: ['Manager', 'Admin']
+            });
+        } else {
+            order.status = 'Ready for Delivery';
+            await order.save();
+            
+            await broadcast({
+                module: 'Orders',
+                referenceId: order._id || order.id,
+                title: `Order Ready for Delivery: ${order.orderNumber}`,
+                message: `Stock is available. Please proceed with delivery to customer.`,
+                type: 'info',
+                targetRoles: ['Sales', 'Manager']
+            });
+        }
+
+        res.json(order);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 module.exports = {
     getOrders,
     createOrder,
@@ -852,5 +922,7 @@ module.exports = {
     employeeApprovePurchaseOrder,
     cancelCustomerOrder,
     getLiveLocation,
-    flagAsDelayed
+    flagAsDelayed,
+    managerApproveOrder,
+    employeeCheckOrder
 };

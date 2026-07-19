@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 import API from '../api/axios';
 import StandardPageLayout from '../components/StandardPageLayout/StandardPageLayout';
 import toast from 'react-hot-toast';
@@ -21,9 +22,11 @@ const truckIcon = new L.Icon({
 const OrderDetails = () => {
     const navigate = useNavigate();
     const { id } = useParams();
+    const { user } = useContext(AuthContext);
     const [order, setOrder] = useState(null);
     const [loading, setLoading] = useState(true);
     const [liveData, setLiveData] = useState(null);
+    const userRole = user?.role?.toLowerCase();
 
     useEffect(() => {
         const fetchOrderData = async () => {
@@ -71,6 +74,37 @@ const OrderDetails = () => {
             pollLocation();
         } catch (err) {
             toast.error('Failed to flag order');
+        }
+    };
+
+    const handleManagerApprove = async () => {
+        try {
+            const { data } = await API.put(`/orders/${id}/manager-approve`);
+            setOrder(data);
+            toast.success('Order approved and sent to Employee for stock check');
+        } catch (err) {
+            toast.error(err.response?.data?.message || 'Failed to approve order');
+        }
+    };
+
+    const handleEmployeeCheck = async (action) => {
+        try {
+            const { data } = await API.put(`/orders/${id}/employee-check`, { action });
+            setOrder(data);
+            if (action === 'low_stock') toast.success('Manager notified about low stock');
+            else toast.success('Order approved and sent to Sales');
+        } catch (err) {
+            toast.error(err.response?.data?.message || 'Failed to process order check');
+        }
+    };
+
+    const handleSalesAction = async (status) => {
+        try {
+            const { data } = await API.put(`/orders/${id}/status`, { status });
+            setOrder(data);
+            toast.success(`Order marked as ${status}`);
+        } catch (err) {
+            toast.error(err.response?.data?.message || `Failed to update status to ${status}`);
         }
     };
 
@@ -163,6 +197,37 @@ const OrderDetails = () => {
                 <span style={{ padding: '6px 12px', background: '#f1f5f9', color: '#475569', borderRadius: '20px', fontSize: '14px', fontWeight: 500 }}>
                     {order.status || 'Pending'}
                 </span>
+                
+                {/* Workflow Action Buttons */}
+                {(userRole === 'manager' || userRole === 'admin') && order.approvalStatus === 'Pending Manager Approval' && (
+                    <button onClick={handleManagerApprove} style={{ padding: '8px 16px', background: '#10b981', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}>
+                        Approve Order
+                    </button>
+                )}
+
+                {userRole === 'employee' && order.status === 'Awaiting Stock Check' && (
+                    <>
+                        <button onClick={() => handleEmployeeCheck('low_stock')} style={{ padding: '8px 16px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}>
+                            Low Stock Alert
+                        </button>
+                        <button onClick={() => handleEmployeeCheck('approve')} style={{ padding: '8px 16px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}>
+                            Approve & Forward to Sales
+                        </button>
+                    </>
+                )}
+
+                {userRole === 'sales' && order.status === 'Ready for Delivery' && (
+                    <button onClick={() => handleSalesAction('Out for Delivery')} style={{ padding: '8px 16px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <Truck size={14} /> Start {isSales ? 'Delivery' : 'Pickup'}
+                    </button>
+                )}
+
+                {userRole === 'sales' && order.status === 'Out for Delivery' && (
+                    <button onClick={() => handleSalesAction(isSales ? 'Delivered' : 'Completed')} style={{ padding: '8px 16px', background: '#10b981', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <Truck size={14} /> Mark {isSales ? 'Delivered' : 'Picked Up'}
+                    </button>
+                )}
+
                 <button onClick={() => navigate(`/orders/${order._id || order.id}/tracking`)} style={{ padding: '8px 16px', background: '#f8fafc', color: '#3b82f6', border: '1px solid #bfdbfe', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <Truck size={14} /> Track Order
                 </button>
@@ -211,7 +276,26 @@ const OrderDetails = () => {
     const items = order.items || [];
     const itemColumns = [
         { key: 'material', label: 'Material / Item', render: (val, row) => val?.name || row.materialName || 'Unknown Material' },
-        { key: 'quantity', label: 'Quantity' },
+        { key: 'quantity', label: 'Ordered Qty' },
+        { 
+            key: 'currentStock', 
+            label: 'Current Stock', 
+            render: (_, row) => {
+                const stock = row.material?.quantity || 0;
+                const isLow = stock < row.quantity;
+                return (
+                    <span style={{ 
+                        color: isLow ? '#ef4444' : '#10b981', 
+                        fontWeight: 600,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                    }}>
+                        {stock} {isLow && <span style={{ fontSize: '11px', background: '#fef2f2', padding: '2px 6px', borderRadius: '4px' }}>Low Stock</span>}
+                    </span>
+                );
+            }
+        },
         { key: 'price', label: 'Unit Price', render: (val, row) => `₹${(val || row.material?.price || 0).toLocaleString()}` },
         { key: 'total', label: 'Total', render: (_, row) => `₹${((row.price || row.material?.price || 0) * row.quantity).toLocaleString()}` }
     ];

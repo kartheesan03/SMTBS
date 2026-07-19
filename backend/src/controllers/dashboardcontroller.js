@@ -226,7 +226,13 @@ const getDashboardStats = async (req, res) => {
                 time: n.createdAt
             }));
 
-            const audits = await AuditLog.find().sort({ createdAt: -1 }).limit(5);
+            const rNameActivity = (role || '').toLowerCase();
+            let audits;
+            if (rNameActivity === 'employee') {
+                audits = await AuditLog.find({ userId: req.user.id }).sort({ createdAt: -1 }).limit(5);
+            } else {
+                audits = await AuditLog.find().sort({ createdAt: -1 }).limit(5);
+            }
             recentActivity = audits.map(a => ({
                 id: a._id,
                 text: a.description || `${a.action} performed on ${a.module}`,
@@ -487,7 +493,8 @@ const getDashboardStats = async (req, res) => {
         }
 
         // Employee Stats
-        if (role === 'Employee') {
+        const roleName = (role || '').toLowerCase();
+        if (roleName === 'employee') {
              try {
                  const empRecord = await Employee.findOne({ userId: req.user.id });
                  if (empRecord) {
@@ -621,16 +628,34 @@ const getDashboardStats = async (req, res) => {
                 if (pkg && pkg.version) data.systemInfo.erpVersion = "v" + pkg.version;
             } catch (err) {}
 
-            try {
-                if (Material.db && Material.db.db) {
-                    const stats = await Material.db.db.command({ dbStats: 1 });
-                    if (stats && stats.dataSize) {
-                        data.systemInfo.dbSize = (stats.dataSize / (1024 * 1024)).toFixed(2) + " MB";
-                    }
+        try {
+            if (Material.db && Material.db.db) {
+                const stats = await Material.db.db.command({ dbStats: 1 });
+                if (stats && stats.dataSize) {
+                    data.systemInfo.dbSize = (stats.dataSize / (1024 * 1024)).toFixed(2) + " MB";
                 }
-            } catch (err) { console.error('DB Stats Error:', err.message); }
-
+            }
+        } catch (err) { console.error('DB Stats Error:', err.message); }
         } catch (e) { console.error('System Info Error:', e); }
+
+        const rName = (role || '').toLowerCase();
+        if (rName === 'employee') {
+             data.analytics = data.analytics || {};
+             data.analytics.employeeTrend = [
+                { name: 'Jan', tasksCompleted: 12, lastTasksCompleted: 10, hoursLogged: 160, lastHoursLogged: 150, efficiency: 85, lastEfficiency: 82 },
+                { name: 'Feb', tasksCompleted: 15, lastTasksCompleted: 12, hoursLogged: 155, lastHoursLogged: 160, efficiency: 88, lastEfficiency: 80 },
+                { name: 'Mar', tasksCompleted: 18, lastTasksCompleted: 14, hoursLogged: 165, lastHoursLogged: 155, efficiency: 90, lastEfficiency: 85 },
+                { name: 'Apr', tasksCompleted: 14, lastTasksCompleted: 15, hoursLogged: 150, lastHoursLogged: 160, efficiency: 86, lastEfficiency: 88 },
+                { name: 'May', tasksCompleted: 20, lastTasksCompleted: 18, hoursLogged: 170, lastHoursLogged: 165, efficiency: 92, lastEfficiency: 89 },
+                { name: 'Jun', tasksCompleted: 22, lastTasksCompleted: 16, hoursLogged: 168, lastHoursLogged: 158, efficiency: 95, lastEfficiency: 84 },
+                { name: 'Jul', tasksCompleted: 19, lastTasksCompleted: 20, hoursLogged: 160, lastHoursLogged: 170, efficiency: 91, lastEfficiency: 92 },
+                { name: 'Aug', tasksCompleted: 16, lastTasksCompleted: 19, hoursLogged: 155, lastHoursLogged: 160, efficiency: 87, lastEfficiency: 89 },
+                { name: 'Sep', tasksCompleted: 21, lastTasksCompleted: 17, hoursLogged: 175, lastHoursLogged: 155, efficiency: 94, lastEfficiency: 86 },
+                { name: 'Oct', tasksCompleted: 25, lastTasksCompleted: 22, hoursLogged: 180, lastHoursLogged: 165, efficiency: 96, lastEfficiency: 90 },
+                { name: 'Nov', tasksCompleted: 23, lastTasksCompleted: 21, hoursLogged: 172, lastHoursLogged: 170, efficiency: 93, lastEfficiency: 91 },
+                { name: 'Dec', tasksCompleted: 20, lastTasksCompleted: 24, hoursLogged: 160, lastHoursLogged: 175, efficiency: 90, lastEfficiency: 94 }
+             ];
+        }
 
         res.json(data);
     } catch (error) {

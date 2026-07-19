@@ -486,17 +486,17 @@ const MyAttendance = () => {
                         <div>
                             <h3 className="att-section-title"><Fingerprint size={18} /> Quick Actions</h3>
                             <div className="att-quick-actions-row">
-                                <div className="att-action-pill">
+                                <div className="att-action-pill" onClick={() => window.location.href = '/leave-management/apply'} style={{cursor: 'pointer'}}>
                                     <FileText size={24} />
                                     <span>Leave Request</span>
+                                </div>
+                                <div className="att-action-pill" onClick={() => window.location.href = '/leave-management/history'} style={{cursor: 'pointer'}}>
+                                    <Calendar size={24} />
+                                    <span>Leave History</span>
                                 </div>
                                 <div className="att-action-pill">
                                     <Download size={24} />
                                     <span>Download Report</span>
-                                </div>
-                                <div className="att-action-pill">
-                                    <Calendar size={24} />
-                                    <span>Attendance History</span>
                                 </div>
                                 <div className="att-action-pill">
                                     <Timer size={24} />

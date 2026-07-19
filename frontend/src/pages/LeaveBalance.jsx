@@ -37,7 +37,7 @@ const LeaveBalance = () => {
 
     // ── Calculate Balances ──
     const employeeBalances = employees.map(emp => {
-        const empLeaves = leaves.filter(l => l.employee?._id === emp._id && l.status === 'Approved');
+        const empLeaves = leaves.filter(l => l.employee?._id === emp._id && (l.status === 'Approved' || l.status === 'Pending'));
         
         const used = { Annual: 0, Sick: 0, Casual: 0, Unpaid: 0 };
         

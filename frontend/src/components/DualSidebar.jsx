@@ -312,7 +312,7 @@ const DualSidebar = () => {
                         />
                         <div className="ss-profile-text">
                             <span className="ss-profile-name">{user?.name || 'System Admin'}</span>
-                            <span className="ss-profile-role">{user?.role || 'Admin'}</span>
+                            <span className="ss-profile-role">{user?.role ? (user.role.charAt(0).toUpperCase() + user.role.slice(1)) : 'Admin'}</span>
                         </div>
                     </div>
 

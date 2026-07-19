@@ -62,26 +62,26 @@ const RightPanel = ({ isOpen, onClose }) => {
 
     // Role-specific quick actions
     const getQuickActions = () => {
-        const role = user?.role;
-        if (role === 'Admin') return [
+        const role = user?.role?.toLowerCase();
+        if (role === 'admin') return [
             { label: 'Add Material', icon: <Package size={16} />, path: '/materials', color: '#3b82f6' },
             { label: 'New Order', icon: <ShoppingCart size={16} />, path: '/erp', color: '#8b5cf6' },
             { label: 'Add Employee', icon: <Users size={16} />, path: '/hrms', color: '#10b981' },
             { label: 'Analytics', icon: <BarChart3 size={16} />, path: '/analytics', color: '#f59e0b' },
         ];
-        if (role === 'HR') return [
+        if (role === 'hr') return [
             { label: 'Employees', icon: <Users size={16} />, path: '/hrms', color: '#3b82f6' },
             { label: 'Attendance', icon: <Clock size={16} />, path: '/attendance', color: '#10b981' },
             { label: 'Payroll', icon: <DollarSign size={16} />, path: '/payroll', color: '#8b5cf6' },
             { label: 'HR Reports', icon: <BarChart3 size={16} />, path: '/hr-reports', color: '#f59e0b' },
         ];
-        if (role === 'Manager') return [
+        if (role === 'manager') return [
             { label: 'My Tasks', icon: <FileText size={16} />, path: '/my-tasks', color: '#3b82f6' },
             { label: 'Team', icon: <Users size={16} />, path: '/team-performance', color: '#10b981' },
             { label: 'Materials', icon: <Package size={16} />, path: '/materials', color: '#8b5cf6' },
             { label: 'Reports', icon: <BarChart3 size={16} />, path: '/analytics', color: '#f59e0b' },
         ];
-        if (role === 'Sales') return [
+        if (role === 'sales') return [
             { label: 'Leads', icon: <Briefcase size={16} />, path: '/crm', color: '#3b82f6' },
             { label: 'Customers', icon: <Users size={16} />, path: '/customers', color: '#10b981' },
             { label: 'Pipeline', icon: <BarChart3 size={16} />, path: '/sales-pipeline', color: '#8b5cf6' },
@@ -116,7 +116,7 @@ const RightPanel = ({ isOpen, onClose }) => {
                     </div>
                     <div className="rp-user-info">
                         <h4 className="rp-user-name">{user?.name || 'User'}</h4>
-                        <span className="rp-user-role">{user?.role === 'Admin' ? 'Super Admin' : user?.role || 'Employee'}</span>
+                        <span className="rp-user-role">{user?.role?.toLowerCase() === 'admin' ? 'Super Admin' : (user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'Employee')}</span>
                     </div>
                     <ArrowRight size={16} className="rp-profile-arrow" />
                 </div>

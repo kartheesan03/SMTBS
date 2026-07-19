@@ -11,18 +11,25 @@ const Topbar = ({ onOpenModuleLauncher, onOpenCommandCenter }) => {
     const [currentTime, setCurrentTime] = useState(new Date());
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
     const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+    const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+    const [notifications, setNotifications] = useState([]);
+    const [unreadCount, setUnreadCount] = useState(0);
     const profileRef = useRef(null);
+    const notificationRef = useRef(null);
 
     useEffect(() => {
         const timer = setInterval(() => setCurrentTime(new Date()), 1000);
         return () => clearInterval(timer);
     }, []);
 
-    // Close profile menu if clicked outside
+    // Close dropdowns if clicked outside
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (profileRef.current && !profileRef.current.contains(event.target)) {
                 setIsProfileMenuOpen(false);
+            }
+            if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+                setIsNotificationOpen(false);
             }
         };
         document.addEventListener('mousedown', handleClickOutside);
@@ -35,6 +42,54 @@ const Topbar = ({ onOpenModuleLauncher, onOpenCommandCenter }) => {
     const handleConfirmLogout = () => {
         logout();
         navigate('/login');
+    };
+
+    const fetchUnreadCount = async () => {
+        try {
+            const { data } = await API.get('/notifications/unread-count');
+            setUnreadCount(data.count || 0);
+        } catch (err) {
+            console.error('Error fetching unread count', err);
+        }
+    };
+
+    const fetchNotifications = async () => {
+        try {
+            const { data } = await API.get('/notifications?limit=5');
+            setNotifications(data.notifications || data);
+        } catch (err) {
+            console.error('Error fetching notifications', err);
+        }
+    };
+
+    useEffect(() => {
+        fetchUnreadCount();
+        const interval = setInterval(fetchUnreadCount, 30000); // poll every 30s
+        return () => clearInterval(interval);
+    }, []);
+
+    const toggleNotificationMenu = () => {
+        setIsNotificationOpen(!isNotificationOpen);
+        if (!isNotificationOpen) {
+            fetchNotifications();
+        }
+    };
+
+    const handleNotificationClick = async (notif) => {
+        try {
+            if (!notif.read) {
+                await API.patch(`/notifications/${notif._id || notif.id}/read`);
+                setUnreadCount(prev => Math.max(0, prev - 1));
+            }
+            setIsNotificationOpen(false);
+            if (notif.referenceId && notif.module === 'Orders') {
+                navigate(`/orders/${notif.referenceId}`);
+            } else {
+                navigate('/notifications');
+            }
+        } catch (err) {
+            console.error(err);
+        }
     };
 
     return (
@@ -75,10 +130,44 @@ const Topbar = ({ onOpenModuleLauncher, onOpenCommandCenter }) => {
                     <RefreshCw size={18} />
                 </button>
 
-                <button className="icon-btn notification-btn" onClick={() => navigate('/notifications')}>
-                    <Bell size={18} />
-                    <span className="badge">11</span>
-                </button>
+                <div className="notification-container" ref={notificationRef} style={{ position: 'relative' }}>
+                    <button className="icon-btn notification-btn" onClick={toggleNotificationMenu}>
+                        <Bell size={18} />
+                        {unreadCount > 0 && <span className="badge">{unreadCount > 99 ? '99+' : unreadCount}</span>}
+                    </button>
+                    
+                    {isNotificationOpen && (
+                        <div className="notification-dropdown" style={{
+                            position: 'absolute', top: '100%', right: '0', width: '320px', background: '#fff',
+                            borderRadius: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0',
+                            zIndex: 1000, marginTop: '12px', overflow: 'hidden', display: 'flex', flexDirection: 'column'
+                        }}>
+                            <div style={{ padding: '16px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc' }}>
+                                <h4 style={{ margin: 0, fontSize: '15px', color: '#0f172a' }}>Notifications</h4>
+                                <span style={{ fontSize: '12px', color: '#3b82f6', cursor: 'pointer', fontWeight: 600 }} onClick={() => navigate('/notifications')}>View All</span>
+                            </div>
+                            <div style={{ maxHeight: '350px', overflowY: 'auto' }}>
+                                {notifications.length > 0 ? notifications.map((notif, idx) => (
+                                    <div key={notif._id || notif.id || idx} onClick={() => handleNotificationClick(notif)} style={{
+                                        padding: '16px', borderBottom: '1px solid #f1f5f9', cursor: 'pointer',
+                                        background: notif.read ? '#fff' : '#eff6ff', display: 'flex', gap: '12px', transition: 'background 0.2s'
+                                    }}>
+                                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: notif.read ? 'transparent' : '#3b82f6', marginTop: '6px', flexShrink: 0 }} />
+                                        <div>
+                                            <div style={{ fontSize: '14px', fontWeight: 600, color: '#0f172a', marginBottom: '4px' }}>{notif.title}</div>
+                                            <div style={{ fontSize: '13px', color: '#64748b', lineHeight: '1.4', marginBottom: '6px' }}>{notif.message}</div>
+                                            <div style={{ fontSize: '11px', color: '#94a3b8' }}>{new Date(notif.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                                        </div>
+                                    </div>
+                                )) : (
+                                    <div style={{ padding: '32px 16px', textAlign: 'center', color: '#94a3b8', fontSize: '14px' }}>
+                                        No recent notifications
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </div>
 
                 <button className="icon-btn notification-btn">
                     <MessageSquare size={18} />
@@ -151,7 +240,7 @@ const Topbar = ({ onOpenModuleLauncher, onOpenCommandCenter }) => {
                             <img src={user?.picture || 'https://via.placeholder.com/40'} alt="User" />
                             <div className="luc-info">
                                 <h4>{user?.name || 'Admin'}</h4>
-                                <p>{user?.role || 'Full Access'} · smtbms.com</p>
+                                <p>{user?.role ? (user.role.charAt(0).toUpperCase() + user.role.slice(1)) : 'Full Access'} · smtbms.com</p>
                             </div>
                             <div className="luc-status-dot"></div>
                         </div>
