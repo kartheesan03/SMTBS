@@ -1,9 +1,10 @@
 export const hrmsMenuItems = [
   { label: 'Employee Data', icon: 'Users', path: '/hrms', permission: 'hrms:employeeData:view' },
   { label: 'Master Attendance', icon: 'CalendarCheck', path: '/attendance/master', permission: 'hrms:attendance:view' },
-  { label: 'Leave Management', icon: 'CalendarDays', path: '/leave-management', permission: 'hrms:leave:view' },
+
+  { label: 'Leave Management', icon: 'FileText', path: '/leave-management/history', permission: 'hrms:leaveHistory:view' },
+  { label: 'All Leave Requests', icon: 'CalendarDays', path: '/leave-management', permission: 'hrms:leave:view' },
   { label: 'Payroll', icon: 'DollarSign', path: '/payroll', permission: 'hrms:payroll:view' },
-  { label: 'Generate Payroll', icon: 'FileText', path: '/payroll/generate', permission: 'hrms:payroll:generate' },
   { label: 'Performance', icon: 'TrendingUp', path: '/team-performance', permission: 'hrms:performance:view' }
 ];
 
@@ -13,6 +14,8 @@ export const rolePermissions = {
   hr: [
     'hrms:employeeData:view',
     'hrms:attendance:view',
+    'hrms:applyLeave:view',
+    'hrms:leaveHistory:view',
     'hrms:leave:view',
     'hrms:payroll:view',
     'hrms:payroll:generate',
@@ -22,11 +25,15 @@ export const rolePermissions = {
   manager: [
     'hrms:employeeData:view',
     'hrms:attendance:view',
+    'hrms:applyLeave:view',
+    'hrms:leaveHistory:view',
     'hrms:leave:view',
     'hrms:performance:view',
     'hrms:mySalary:view'
   ],
   employee: [
+    'hrms:applyLeave:view',
+    'hrms:leaveHistory:view',
     'hrms:mySalary:view'
   ]
 };

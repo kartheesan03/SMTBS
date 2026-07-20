@@ -103,7 +103,7 @@ const LeaveManagement = () => {
                 <div className="rd-module-header">
                     <div className="rd-module-info">
                         <div className="rd-module-title-row">
-                            <span className="rd-module-title">Leave Management</span>
+                            <span className="rd-module-title">All Leave Requests</span>
                             <span className="rd-module-badge">HRMS</span>
                         </div>
                         </div>

@@ -276,7 +276,7 @@ const AdminDashboard = () => {
                             </div>
                         </div>
                         <div className="rd-hero-actions-col">
-                            <button className="hero-action-btn primary" onClick={() => navigate('/leave-management')}>
+                            <button className="hero-action-btn primary" onClick={() => navigate('/leave-management/history')}>
                                 <CheckCircle size={15} /> Apply Leave
                             </button>
                             <button className="hero-action-btn secondary" onClick={() => navigate('/attendance')}>
@@ -578,7 +578,7 @@ const AdminDashboard = () => {
                                         margin={{ top: 0, right: 45, left: 0, bottom: 0 }}
                                     >
                                         <XAxis type="number" hide />
-                                        <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tickFormatter={(val) => val.length > 14 ? val.substring(0, 14) + '...' : val} tick={{ fill: '#475569', fontSize: 10 }} width={95} />
+                                        <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tickFormatter={(val) => val.length > 18 ? val.substring(0, 18) + '...' : val} tick={{ fill: '#475569', fontSize: 11 }} width={120} />
                                         <Tooltip contentStyle={{ fontSize: 11 }} cursor={{ fill: '#f8fafc' }} formatter={(val) => topMaterialsSortBy === 'revenue' ? formatINR(val) : val} />
                                         <Bar dataKey={topMaterialsSortBy} fill="#7C3AED" radius={[0, 4, 4, 0]} barSize={12}>
                                             <LabelList dataKey={topMaterialsSortBy} position="right" formatter={(val) => topMaterialsSortBy === 'revenue' ? formatINR(val) : val} style={{ fontSize: 10, fill: '#475569', fontWeight: 600 }} />

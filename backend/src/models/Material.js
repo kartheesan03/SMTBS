@@ -67,11 +67,17 @@ const MaterialSequelize = sequelize.define('Material', {
         allowNull: true,
         defaultValue: null
     },
+    rack: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        defaultValue: null
+    },
     shelf: {
         type: DataTypes.STRING,
         allowNull: true,
         defaultValue: null
     },
+
     location: {
         // Derived display string: warehouse + ' / ' + shelf, or just warehouse.
         // Stored so all modules read the same value without re-deriving.

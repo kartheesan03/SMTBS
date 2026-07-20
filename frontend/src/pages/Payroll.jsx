@@ -134,8 +134,8 @@ const Payroll = () => {
                     className="rd-table-card"
                 >
                     <div className="rd-table-header" style={{borderBottom: 'none', flexWrap: 'wrap', gap: 16}}>
-                        <div style={{display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap'}}>
-                            <div className="rd-search-bar" style={{minWidth: 250, flexShrink: 0, background: '#fff'}}>
+                        <div style={{display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap', flex: 1}}>
+                            <div className="rd-search-bar" style={{minWidth: 150, flexShrink: 1, background: '#fff', flex: 1}}>
                                 <Search size={16} color="#94a3b8" />
                                 <input
                                     type="text"
@@ -160,7 +160,7 @@ const Payroll = () => {
                                 {departments.map(d => <option key={d} value={d}>{d === 'All' ? 'All Depts' : d}</option>)}
                             </select>
                         </div>
-                        <div className="rd-table-actions">
+                        <div className="rd-table-actions" style={{ marginLeft: 'auto', flexShrink: 0, display: 'flex', gap: 12 }}>
                             <button className="rd-btn-solid" style={{background: '#6366f1'}} onClick={() => navigate('/payroll/generate')}>
                                 <DollarSign size={16} style={{marginRight: 8, verticalAlign: 'middle'}} />
                                 Generate Payroll

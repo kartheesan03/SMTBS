@@ -10,6 +10,7 @@ import { Toaster } from 'react-hot-toast';
 
 import ModuleLauncher from './components/ModuleLauncher';
 import CommandCenter from './components/CommandCenter';
+import AuditLogs from './pages/AuditLogs';
 
 import GlobalHeader from './components/GlobalHeader';
 
@@ -168,6 +169,7 @@ const AppContent = () => {
                 <div className="app-content">
 
                 <Routes>
+                    <Route path="/settings/audit-logs" element={<ProtectedRoute roles={['admin']}><AuditLogs /></ProtectedRoute>} />
                     {/* Public Route */}
                     <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
                     <Route path="/register" element={!user ? <Register /> : <Navigate to="/" />} />

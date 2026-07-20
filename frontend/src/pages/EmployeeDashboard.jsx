@@ -151,7 +151,7 @@ const EmployeeDashboard = () => {
                             </div>
                         </div>
                         <div className="rd-hero-actions-col">
-                            <button className="hero-action-btn primary" onClick={() => navigate('/leave-management/apply')}>
+                            <button className="hero-action-btn primary" onClick={() => navigate('/leave-management/history')}>
                                 <CheckCircle size={15} /> Apply Leave
                             </button>
                             <button className="hero-action-btn secondary" onClick={() => navigate('/attendance')}>
@@ -182,7 +182,7 @@ const EmployeeDashboard = () => {
                         </div>
                         <div className="qa-grid">
                             <IconQuickAction icon={CheckCircle2} label="Check In" colorClass="bg-light-green" onClick={() => navigate('/attendance')} />
-                            <IconQuickAction icon={Calendar} label="Apply Leave" colorClass="bg-light-orange" onClick={() => navigate('/leave-management/apply')} />
+                            <IconQuickAction icon={Calendar} label="Apply Leave" colorClass="bg-light-orange" onClick={() => navigate('/leave-management/history')} />
                             <IconQuickAction icon={FileText} label="Pay Slips" colorClass="bg-light-purple" onClick={() => navigate('/')} />
                             <IconQuickAction icon={CheckSquare} label="My Tasks" colorClass="bg-light-blue" onClick={() => navigate('/tasks')} />
                             

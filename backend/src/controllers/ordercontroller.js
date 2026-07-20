@@ -4,11 +4,10 @@ const MaterialMovement = require('../models/MaterialMovement');
 const User = require('../models/User');
 const Notification = require('../models/Notification');
 const Customer = require('../models/Customer');
+const AuditLog = require('../models/AuditLog');
 const { broadcast, notifyCritical, notifySales, notifyManager } = require('../services/notificationService');
 const { logAudit } = require('../services/auditService');
 
-// @desc    Get all orders
-// @route   GET /api/orders
 // @access  Private
 
 const getOrderPayload = (order, reqUser) => {
@@ -387,6 +386,16 @@ const updateOrderStatus = async (req, res) => {
                     updatedById: req.user.id
                 }
             ];
+
+            await AuditLog.create({
+                userId: req.user.id,
+                userName: req.user.name,
+                action: 'UPDATE',
+                module: 'Order',
+                targetId: order.id,
+                description: `Order status changed from ${prevStatus} to ${status}`,
+                changes: { oldStatus: prevStatus, newStatus: status, role: req.user.role || 'user', remarks: `Updated via ${status} action` }
+            }).catch(e => console.error('Failed to write AuditLog', e));
         }
 
         const updatedOrder = await order.save();
@@ -852,6 +861,16 @@ const managerApproveOrder = async (req, res) => {
         order.status = 'Awaiting Stock Check';
         order.approvalStatus = 'Approved';
         await order.save();
+
+        await AuditLog.create({
+            userId: req.user.id,
+            userName: req.user.name,
+            action: 'APPROVE',
+            module: 'Order',
+            targetId: order.id,
+            description: `Manager approved Order ${order.orderNumber}`,
+            changes: { oldStatus: 'Created', newStatus: 'Awaiting Stock Check', role: req.user.role, remarks: 'Manager approved the order' }
+        }).catch(e => console.error('Failed to write AuditLog', e));
         
         await broadcast({
             module: 'Orders',
@@ -882,6 +901,16 @@ const employeeCheckOrder = async (req, res) => {
             order.holdReason = 'Insufficient stock detected by Employee';
             await order.save();
             
+            await AuditLog.create({
+                userId: req.user.id,
+                userName: req.user.name,
+                action: 'UPDATE',
+                module: 'Order',
+                targetId: order.id,
+                description: `Employee flagged Low Stock for Order ${order.orderNumber}`,
+                changes: { oldStatus: 'Awaiting Stock Check', newStatus: 'Low Stock Hold', role: req.user.role, remarks: 'Employee reported insufficient stock' }
+            }).catch(e => console.error('Failed to write AuditLog', e));
+
             await broadcast({
                 module: 'Orders',
                 referenceId: order._id || order.id,
@@ -894,6 +923,16 @@ const employeeCheckOrder = async (req, res) => {
             order.status = 'Ready for Delivery';
             await order.save();
             
+            await AuditLog.create({
+                userId: req.user.id,
+                userName: req.user.name,
+                action: 'UPDATE',
+                module: 'Order',
+                targetId: order.id,
+                description: `Employee verified stock for Order ${order.orderNumber}`,
+                changes: { oldStatus: 'Awaiting Stock Check', newStatus: 'Ready for Delivery', role: req.user.role, remarks: 'Employee verified stock and forwarded to Sales' }
+            }).catch(e => console.error('Failed to write AuditLog', e));
+
             await broadcast({
                 module: 'Orders',
                 referenceId: order._id || order.id,

@@ -222,7 +222,7 @@ const SalesDashboard = () => {
                             </div>
                         </div>
                         <div className="rd-hero-actions-col">
-                            <button className="hero-action-btn primary" onClick={() => navigate('/leave-management/apply')}>
+                            <button className="hero-action-btn primary" onClick={() => navigate('/leave-management/history')}>
                                 <CheckCircle size={15} /> Apply Leave
                             </button>
                             <button className="hero-action-btn secondary" onClick={() => navigate('/attendance')}>

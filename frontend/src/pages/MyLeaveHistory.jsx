@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 import PageHeader from '../components/PageHeader';
 import { motion } from 'framer-motion';
-import { Calendar, Clock, FileText, CheckCircle, XCircle, Search } from 'lucide-react';
+import { Calendar, Clock, FileText, CheckCircle, XCircle, Search, AlertCircle, Users } from 'lucide-react';
+import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 
 const MyLeaveHistory = () => {
@@ -50,26 +51,7 @@ const MyLeaveHistory = () => {
 
     const balances = calculateBalances();
 
-    const renderProgressBar = (type, data) => {
-        const percentage = Math.min(100, Math.round((data.used / data.total) * 100));
-        return (
-            <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: 16, flex: 1, minWidth: 200 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                    <span style={{ fontSize: 14, fontWeight: 700, color: '#1e293b' }}>{type} Leave</span>
-                    <span style={{ background: `${data.color}15`, color: data.color, padding: '2px 8px', borderRadius: 6, fontSize: 12, fontWeight: 700 }}>
-                        {data.left} left
-                    </span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, fontWeight: 600, color: '#64748b', marginBottom: 6 }}>
-                    <span>{data.used} used</span>
-                    <span>{data.total} total</span>
-                </div>
-                <div style={{ height: 8, background: '#f1f5f9', borderRadius: 10, overflow: 'hidden' }}>
-                    <div style={{ height: '100%', width: `${percentage}%`, background: data.color, borderRadius: 10 }}></div>
-                </div>
-            </div>
-        );
-    };
+
 
     const getStatusBadge = (status) => {
         if (status === 'Approved') return <span className="rd-status-badge rd-status-green"><span className="rd-legend-dot" style={{background: '#10b981', display:'inline-block', marginRight: 6}}></span>Approved</span>;
@@ -96,15 +78,59 @@ const MyLeaveHistory = () => {
     return (
         <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="rd-container">
             <div className="rd-content">
-                <div style={{ marginBottom: 24 }}>
-                    <PageHeader title="My Leave History" badge="HRMS" subtitle="Track your past and pending leave requests" />
+                <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <PageHeader title="Leave Management" badge="HRMS" subtitle="Track your past and pending leave requests" />
+                    <button 
+                        onClick={() => navigate('/leave-management/apply')}
+                        style={{ 
+                            background: '#3b82f6', 
+                            color: '#fff', 
+                            border: 'none', 
+                            padding: '10px 18px', 
+                            borderRadius: 8, 
+                            fontWeight: 600, 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            gap: 8, 
+                            cursor: 'pointer', 
+                            boxShadow: '0 4px 12px rgba(59,130,246,0.3)',
+                            transition: 'all 0.2s'
+                        }}
+                        onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-1px)'}
+                        onMouseOut={(e) => e.currentTarget.style.transform = 'none'}
+                    >
+                        <Calendar size={18} /> Apply Leave
+                    </button>
                 </div>
 
                 {!loading && (
-                    <div style={{ display: 'flex', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
-                        {renderProgressBar('Annual', balances.Annual)}
-                        {renderProgressBar('Sick', balances.Sick)}
-                        {renderProgressBar('Casual', balances.Casual)}
+                    <div style={{ marginBottom: 24 }}>
+                        <PastelKPIGrid>
+                            <PastelKPICard 
+                                title="Annual Leave" 
+                                value={`${balances.Annual.left} left`} 
+                                colorTheme="mint" 
+                                icon={CheckCircle} 
+                                trendValue={`${balances.Annual.used} used | ${balances.Annual.total} total`} 
+                                trendPositive={true} 
+                            />
+                            <PastelKPICard 
+                                title="Sick Leave" 
+                                value={`${balances.Sick.left} left`} 
+                                colorTheme="peach" 
+                                icon={AlertCircle} 
+                                trendValue={`${balances.Sick.used} used | ${balances.Sick.total} total`} 
+                                trendPositive={true} 
+                            />
+                            <PastelKPICard 
+                                title="Casual Leave" 
+                                value={`${balances.Casual.left} left`} 
+                                colorTheme="blue" 
+                                icon={Users} 
+                                trendValue={`${balances.Casual.used} used | ${balances.Casual.total} total`} 
+                                trendPositive={true} 
+                            />
+                        </PastelKPIGrid>
                     </div>
                 )}
 

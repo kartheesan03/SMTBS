@@ -97,12 +97,48 @@ const MySalaryPage = () => {
                             </td>
                             <td>{s.paymentDate ? new Date(s.paymentDate).toLocaleDateString() : '—'}</td>
                             <td>
-                                <div className="action-row">
-                                    <button className="icon-btn" title="View Details" onClick={() => handleViewPayslip(s)}>
+                                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                    <button 
+                                        title="View Details" 
+                                        onClick={() => handleViewPayslip(s)}
+                                        style={{
+                                            background: '#f8fafc',
+                                            border: '1px solid #e2e8f0',
+                                            color: '#64748b',
+                                            padding: '8px',
+                                            borderRadius: '8px',
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            transition: 'all 0.2s ease',
+                                            boxShadow: '0 1px 2px rgba(0,0,0,0.02)'
+                                        }}
+                                        onMouseEnter={(e) => { e.currentTarget.style.background = '#e2e8f0'; e.currentTarget.style.color = '#334155'; }}
+                                        onMouseLeave={(e) => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.color = '#64748b'; }}
+                                    >
                                         <Eye size={16}/>
                                     </button>
                                     {s.status === 'Paid' && (
-                                        <button className="icon-btn" title="Download" onClick={() => handleDownload(s)}>
+                                        <button 
+                                            title="Download" 
+                                            onClick={() => handleDownload(s)}
+                                            style={{
+                                                background: '#f8fafc',
+                                                border: '1px solid #e2e8f0',
+                                                color: '#6366f1',
+                                                padding: '8px',
+                                                borderRadius: '8px',
+                                                cursor: 'pointer',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                transition: 'all 0.2s ease',
+                                                boxShadow: '0 1px 2px rgba(0,0,0,0.02)'
+                                            }}
+                                            onMouseEnter={(e) => { e.currentTarget.style.background = '#e0e7ff'; e.currentTarget.style.color = '#4f46e5'; e.currentTarget.style.borderColor = '#c7d2fe'; }}
+                                            onMouseLeave={(e) => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.color = '#6366f1'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
+                                        >
                                             <Download size={16}/>
                                         </button>
                                     )}

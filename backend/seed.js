@@ -104,18 +104,18 @@ const seedData = async () => {
         // 4. MATERIALS — Industrial materials with INR pricing
         // ===================================================================
         const materialDocs = [
-            { name: 'TMT Steel Bars (12mm)', sku: 'TMT-001', category: 'Construction Steel', quantity: 500, lowStockThreshold: 100, unit: 'kg', price: 62, status: 'In Stock' },
-            { name: 'MS Angle (50x50x6)', sku: 'MSA-002', category: 'Structural Steel', quantity: 12, lowStockThreshold: 20, unit: 'pcs', price: 850, status: 'Low Stock' },
-            { name: 'Copper Wire (2.5 sqmm)', sku: 'CW-003', category: 'Electrical', quantity: 2000, lowStockThreshold: 500, unit: 'm', price: 18, status: 'In Stock' },
-            { name: 'GI Pipes (1 inch)', sku: 'GIP-004', category: 'Plumbing', quantity: 150, lowStockThreshold: 30, unit: 'pcs', price: 420, status: 'In Stock' },
-            { name: 'Aluminum Sheet (1mm)', sku: 'ALS-005', category: 'Sheet Metal', quantity: 5, lowStockThreshold: 10, unit: 'pcs', price: 1800, status: 'Low Stock' },
-            { name: 'PVC Conduit Pipe (25mm)', sku: 'PVC-006', category: 'Electrical', quantity: 300, lowStockThreshold: 50, unit: 'pcs', price: 45, status: 'In Stock' },
-            { name: 'Welding Rod (E6013)', sku: 'WR-007', category: 'Consumables', quantity: 0, lowStockThreshold: 50, unit: 'pcs', price: 5, status: 'Out of Stock' },
-            { name: 'Cement (OPC 53 Grade)', sku: 'CEM-008', category: 'Construction', quantity: 200, lowStockThreshold: 50, unit: 'bags', price: 380, status: 'In Stock' },
-            { name: 'Sand (River Sand)', sku: 'SND-009', category: 'Construction', quantity: 40, lowStockThreshold: 20, unit: 'cubic ft', price: 65, status: 'In Stock' },
-            { name: 'Brass Fittings (0.5 inch)', sku: 'BRF-010', category: 'Plumbing', quantity: 7, lowStockThreshold: 15, unit: 'pcs', price: 120, status: 'Low Stock' },
-            { name: 'SS Sheet (304 Grade)', sku: 'SS-011', category: 'Sheet Metal', quantity: 25, lowStockThreshold: 5, unit: 'pcs', price: 3500, status: 'In Stock' },
-            { name: 'MCB Switch (32A)', sku: 'MCB-012', category: 'Electrical', quantity: 80, lowStockThreshold: 20, unit: 'pcs', price: 250, status: 'In Stock' }
+            { name: 'TMT Steel Bars (12mm)', sku: 'TMT-001', category: 'Construction Steel', quantity: 500, lowStockThreshold: 100, unit: 'kg', price: 62, status: 'In Stock', warehouse: 'Warehouse A', shelf: 'Shelf 1', location: 'Warehouse A / Shelf 1' },
+            { name: 'MS Angle (50x50x6)', sku: 'MSA-002', category: 'Structural Steel', quantity: 12, lowStockThreshold: 20, unit: 'pcs', price: 850, status: 'Low Stock', warehouse: 'Warehouse A', shelf: 'Shelf 2', location: 'Warehouse A / Shelf 2' },
+            { name: 'Copper Wire (2.5 sqmm)', sku: 'CW-003', category: 'Electrical', quantity: 2000, lowStockThreshold: 500, unit: 'm', price: 18, status: 'In Stock', warehouse: 'Warehouse A', shelf: 'Shelf 3', location: 'Warehouse A / Shelf 3' },
+            { name: 'GI Pipes (1 inch)', sku: 'GIP-004', category: 'Plumbing', quantity: 150, lowStockThreshold: 30, unit: 'pcs', price: 420, status: 'In Stock', warehouse: 'Warehouse A', shelf: 'Shelf 4', location: 'Warehouse A / Shelf 4' },
+            { name: 'Aluminum Sheet (1mm)', sku: 'ALS-005', category: 'Sheet Metal', quantity: 5, lowStockThreshold: 10, unit: 'pcs', price: 1800, status: 'Low Stock', warehouse: 'Warehouse A', shelf: 'Shelf 5', location: 'Warehouse A / Shelf 5' },
+            { name: 'PVC Conduit Pipe (25mm)', sku: 'PVC-006', category: 'Electrical', quantity: 300, lowStockThreshold: 50, unit: 'pcs', price: 45, status: 'In Stock', warehouse: 'Warehouse B', shelf: 'Shelf 1', location: 'Warehouse B / Shelf 1' },
+            { name: 'Welding Rod (E6013)', sku: 'WR-007', category: 'Consumables', quantity: 0, lowStockThreshold: 50, unit: 'pcs', price: 5, status: 'Out of Stock', warehouse: 'Warehouse B', shelf: 'Shelf 2', location: 'Warehouse B / Shelf 2' },
+            { name: 'Cement (OPC 53 Grade)', sku: 'CEM-008', category: 'Construction', quantity: 200, lowStockThreshold: 50, unit: 'bags', price: 380, status: 'In Stock', warehouse: 'Warehouse B', shelf: 'Shelf 3', location: 'Warehouse B / Shelf 3' },
+            { name: 'Sand (River Sand)', sku: 'SND-009', category: 'Construction', quantity: 40, lowStockThreshold: 20, unit: 'cubic ft', price: 65, status: 'In Stock', warehouse: 'Warehouse B', shelf: 'Shelf 4', location: 'Warehouse B / Shelf 4' },
+            { name: 'Brass Fittings (0.5 inch)', sku: 'BRF-010', category: 'Plumbing', quantity: 7, lowStockThreshold: 15, unit: 'pcs', price: 120, status: 'Low Stock', warehouse: 'Warehouse B', shelf: 'Shelf 5', location: 'Warehouse B / Shelf 5' },
+            { name: 'SS Sheet (304 Grade)', sku: 'SS-011', category: 'Sheet Metal', quantity: 25, lowStockThreshold: 5, unit: 'pcs', price: 3500, status: 'In Stock', warehouse: 'Warehouse A', shelf: 'Shelf 1', location: 'Warehouse A / Shelf 1' },
+            { name: 'MCB Switch (32A)', sku: 'MCB-012', category: 'Electrical', quantity: 80, lowStockThreshold: 20, unit: 'pcs', price: 250, status: 'In Stock', warehouse: 'Warehouse A', shelf: 'Shelf 2', location: 'Warehouse A / Shelf 2' }
         ];
 
         const createdMaterials = await Material.insertMany(materialDocs);

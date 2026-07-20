@@ -12,18 +12,7 @@ const navigationConfig = [
         path: '/attendance',
         permission: ''
     },
-    {
-        title: 'Apply Leave',
-        icon: 'CalendarPlus',
-        path: '/leave-management/apply',
-        permission: ''
-    },
-    {
-        title: 'Leave History',
-        icon: 'FileText',
-        path: '/leave-management/history',
-        permission: ''
-    },
+
     {
         title: 'My Salary',
         icon: 'Wallet',
@@ -141,12 +130,7 @@ const hrNavigationConfig = [
             { title: 'Master Attendance',   path: '/attendance/master' }
         ]
     },
-    {
-        title: 'Apply Leave',
-        icon: 'CalendarPlus',
-        path: '/leave-management/apply',
-        permission: ''
-    },
+
     {
         title: 'Employee Management',
         icon: 'Users',
@@ -154,11 +138,10 @@ const hrNavigationConfig = [
         permission: 'view_hrms'
     },
     {
-        title: 'Leave Management',
+        title: 'All Leave Requests',
         icon: 'CalendarDays',
         permission: 'view_hrms',
         children: [
-            { title: 'Apply Leave',    path: '/leave-management/apply' },
             { title: 'Leave Requests', path: '/leave-management' },
             { title: 'Leave History',  path: '/leave-management/history' },
             { title: 'Leave Balance',  path: '/leave-management/balance' }

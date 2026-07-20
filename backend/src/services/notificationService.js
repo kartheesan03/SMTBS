@@ -1,5 +1,6 @@
 const Notification = require('../models/Notification');
 const User = require('../models/User');
+const emailService = require('./emailService');
 
 /**
  * Broadcast a notification to relevant users or roles based on the action module.
@@ -57,6 +58,22 @@ const broadcast = async ({ module = 'System', referenceId = null, title, message
                         status: 'unread'
                     });
                     notifiedUserIds.add(uId);
+                    
+                    // Dispatch email if user has an email address
+                    if (user.email) {
+                        emailService.sendEmail({
+                            to: user.email,
+                            subject: `[SMTBMS ${module}] ${title}`,
+                            html: `
+                                <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+                                    <h2 style="color: #2563eb;">${title}</h2>
+                                    <p>${message}</p>
+                                    <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;" />
+                                    <p style="font-size: 12px; color: #6b7280;">This is an automated notification from the SMTBMS system. Please log in to your dashboard to view more details.</p>
+                                </div>
+                            `
+                        });
+                    }
                 }
             }
         }
@@ -76,6 +93,24 @@ const broadcast = async ({ module = 'System', referenceId = null, title, message
                     status: 'unread'
                 });
                 notifiedUserIds.add(tId);
+
+                // Fetch user to get email address
+                User.findById(targetUserId).then(u => {
+                    if (u && u.email) {
+                        emailService.sendEmail({
+                            to: u.email,
+                            subject: `[SMTBMS ${module}] ${title}`,
+                            html: `
+                                <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+                                    <h2 style="color: #2563eb;">${title}</h2>
+                                    <p>${message}</p>
+                                    <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;" />
+                                    <p style="font-size: 12px; color: #6b7280;">This is an automated notification from the SMTBMS system. Please log in to your dashboard to view more details.</p>
+                                </div>
+                            `
+                        });
+                    }
+                }).catch(console.error);
             }
         }
 

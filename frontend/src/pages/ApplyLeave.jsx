@@ -39,7 +39,7 @@ const ApplyLeave = () => {
             await API.post('/leaves', form);
             showToast(`Leave application submitted successfully.`);
             setTimeout(() => {
-                navigate('/');
+                navigate(-1);
             }, 1000);
         } catch (err) {
             showToast(err.response?.data?.message || 'Submission failed.', false);
@@ -52,9 +52,9 @@ const ApplyLeave = () => {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
-            className="page-container" 
-            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+            className="rd-container" 
         >
+            <div className="rd-content">
             {toast && (
                 <div className={`lv-toast ${toast.ok ? 'ok' : 'err'}`}>
                     {toast.ok ? <Check size={15} /> : <AlertTriangle size={15} />}
@@ -62,14 +62,14 @@ const ApplyLeave = () => {
                 </div>
             )}
 
-            <div style={{ width: '100%', maxWidth: '600px', margin: '0 auto' }}>
+            <div style={{ width: '100%', maxWidth: '800px' }}>
                 <div style={{ marginBottom: '16px', marginLeft: '-4px' }}>
                     <button 
-                        onClick={() => navigate('/')}
+                        onClick={() => navigate(-1)}
                         style={{ 
                             background: 'transparent', 
                             border: 'none', 
-                            color: '#64748b', 
+                            color: '#64748b',
                             display: 'inline-flex', 
                             alignItems: 'center', 
                             gap: '6px',
@@ -80,7 +80,7 @@ const ApplyLeave = () => {
                             borderRadius: '6px'
                         }}
                     >
-                        <ArrowLeft size={15} /> Back to Dashboard
+                        <ArrowLeft size={15} /> Back
                     </button>
                 </div>
                 
@@ -89,7 +89,7 @@ const ApplyLeave = () => {
                 </div>
             </div>
 
-            <div className="premium-card lv-form-card" style={{ padding: '32px', width: '100%', maxWidth: '600px', margin: '0 auto' }}>
+            <div className="premium-card lv-form-card" style={{ padding: '32px', width: '100%', maxWidth: '800px' }}>
                 <div className="lv-form-head">
                     <h3 style={{ display: 'none' }}>New Leave Application</h3>
                 </div>
@@ -144,7 +144,7 @@ const ApplyLeave = () => {
                         />
                     </div>
                     <div className="lv-form-actions">
-                        <button type="button" className="btn-secondary" onClick={() => navigate('/')}>
+                        <button type="button" className="btn-secondary" onClick={() => navigate(-1)}>
                             Cancel
                         </button>
                         <button type="submit" className="btn-primary flex-center gap-10" disabled={submitting}>
@@ -204,6 +204,7 @@ const ApplyLeave = () => {
                     .lv-form-actions button { width: 100%; }
                 }
             `}</style>
+            </div>
         </motion.div>
     );
 };

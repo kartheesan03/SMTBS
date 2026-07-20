@@ -558,6 +558,32 @@ const getAllMovements = async (req, res) => {
     }
 };
 
+// @desc    Update a material movement log (edit tracking record)
+// @route   PUT /api/materials/movements/:id
+// @access  Private
+const updateMovement = async (req, res) => {
+    try {
+        const movementId = req.params.id;
+        const updates = req.body;
+        
+        const movement = await MaterialMovement.findById(movementId);
+        if (!movement) {
+            return res.status(404).json({ message: 'Movement not found' });
+        }
+
+        // Update fields (status, reason/notes, location, etc)
+        if (updates.status) movement.status = updates.status;
+        if (updates.reason) movement.reason = updates.reason;
+        
+        await movement.save();
+        
+        res.json(movement);
+    } catch (error) {
+        console.error('Error updating movement:', error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
 // @desc    Get material analytics
 // @route   GET /api/materials/analytics
 // @access  Private
@@ -724,6 +750,10 @@ const getMaterialById = async (req, res) => {
 module.exports = {
     getTimeline, getMaterials, createMaterial, updateMaterial, updateMaterialLocation,
     deleteMaterial, getLowStockMaterials, recalculateStockStatus, getLowStockCount,
-    getMaterialMovements, getAllMovements, getMaterialAnalytics, archiveMaterial,
-    getMaterialList, getMaterialById
+    getMaterialMovements, getAllMovements, getMaterialAnalytics,    archiveMaterial,
+    getMaterialList,
+    getMaterialById,
+    getTimeline,
+    getLowStockCount,
+    updateMovement
 };

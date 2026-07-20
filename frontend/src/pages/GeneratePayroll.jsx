@@ -102,23 +102,41 @@ const GeneratePayroll = () => {
                 </div>
             )}
 
-            <div className="page-container" style={{ maxWidth: '800px', margin: '0 auto' }}>
-                <button 
-                    onClick={() => navigate('/payroll')} 
-                    className="rd-back-btn" 
-                    style={{ marginBottom: '24px' }}
-                >
-                    <ArrowLeft size={16} /> Back to Payroll
-                </button>
-
-                <div className="premium-card" style={{ padding: '32px' }}>
-                    <div style={{ marginBottom: '24px' }}>
-                        <PageHeader title="Generate New Payroll Entry" badge="HRMS" subtitle="Create employee salary record for selected month" />
+            <div className="page-container" style={{ width: '100%', paddingBottom: '60px' }}>
+                
+                <div style={{ marginBottom: '24px', maxWidth: '800px' }}>
+                    <div style={{ marginBottom: '16px' }}>
+                        <button 
+                            onClick={() => navigate('/payroll')} 
+                            style={{ 
+                                background: 'transparent',
+                                border: 'none',
+                                color: '#64748b',
+                                fontSize: '13px',
+                                fontWeight: 600,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                cursor: 'pointer',
+                                padding: '6px 10px 6px 0',
+                                borderRadius: '6px',
+                                transition: 'all 0.2s ease'
+                            }}
+                            onMouseEnter={(e) => { e.currentTarget.style.background = '#f1f5f9'; e.currentTarget.style.color = '#334155'; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#64748b'; }}
+                        >
+                            <ArrowLeft size={14} /> Back to Payroll
+                        </button>
                     </div>
 
+                    <PageHeader title="Generate New Payroll Entry" badge="HRMS" subtitle="Create employee salary record for selected month" />
+                </div>
+
+                <div className="premium-card" style={{ maxWidth: '800px', padding: '32px', background: '#fff', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.04)', border: '1px solid #e2e8f0' }}>
+
                     <form onSubmit={handleGenerate}>
-                        <div className="form-group mb-20">
-                            <label>Select Employee</label>
+                        <div className="form-group mb-20" style={{ marginBottom: '24px' }}>
+                            <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#475569', marginBottom: '8px' }}>Select Employee</label>
                             <select 
                                 required 
                                 value={formData.employeeId} 
@@ -131,6 +149,7 @@ const GeneratePayroll = () => {
                                     });
                                     setCalcStats(null);
                                 }}
+                                style={{ width: '100%', padding: '12px 16px', borderRadius: '10px', border: '1px solid #cbd5e1', fontSize: '14px', outline: 'none', appearance: 'none', background: '#f8fafc' }}
                             >
                                 <option value="">Choose...</option>
                                 {employees.length === 0 ? (
@@ -145,50 +164,64 @@ const GeneratePayroll = () => {
                             </select>
                         </div>
 
-                        <div className="form-grid mb-20" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                        <div className="form-grid mb-20" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '24px' }}>
                             <div className="form-group">
-                                <label>Month / Period</label>
+                                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#475569', marginBottom: '8px' }}>Month / Period</label>
                                 <input 
                                     type="text" 
                                     required 
                                     value={formData.month} 
                                     onChange={e => setFormData({...formData, month: e.target.value})} 
+                                    style={{ width: '100%', padding: '12px 16px', borderRadius: '10px', border: '1px solid #cbd5e1', fontSize: '14px', outline: 'none' }}
                                 />
                             </div>
                             <div className="form-group">
-                                <label>Basic Salary (₹)</label>
+                                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#475569', marginBottom: '8px' }}>Basic Salary (₹)</label>
                                 <input 
                                     type="number" 
                                     required 
                                     value={formData.basicSalary} 
                                     onChange={e => setFormData({...formData, basicSalary: Number(e.target.value)})} 
                                     placeholder="Enter amount" 
+                                    style={{ width: '100%', padding: '12px 16px', borderRadius: '10px', border: '1px solid #cbd5e1', fontSize: '14px', outline: 'none' }}
                                 />
                             </div>
                         </div>
 
-                        <div className="form-grid mb-20" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                        <div className="form-grid mb-20" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '32px' }}>
                             <div className="form-group">
-                                <label>Allowances (₹)</label>
+                                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#475569', marginBottom: '8px' }}>Allowances (₹)</label>
                                 <input 
                                     type="number" 
                                     value={formData.allowances} 
                                     onChange={e => setFormData({...formData, allowances: Number(e.target.value)})} 
+                                    style={{ width: '100%', padding: '12px 16px', borderRadius: '10px', border: '1px solid #cbd5e1', fontSize: '14px', outline: 'none' }}
                                 />
                             </div>
                             <div className="form-group">
-                                <label>Deductions (₹)</label>
-                                <div style={{ display: 'flex', gap: '10px' }}>
+                                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#475569', marginBottom: '8px' }}>Deductions (₹)</label>
+                                <div style={{ display: 'flex', gap: '10px', alignItems: 'stretch' }}>
                                     <input 
                                         type="number" 
-                                        style={{ flex: 1 }} 
+                                        style={{ flex: 1, padding: '12px 16px', borderRadius: '10px', border: '1px solid #cbd5e1', fontSize: '14px', outline: 'none' }} 
                                         value={formData.deductions} 
                                         onChange={e => setFormData({...formData, deductions: Number(e.target.value)})} 
                                     />
                                     <button 
                                         type="button" 
-                                        className="btn-secondary" 
-                                        style={{ padding: '0 15px', whiteSpace: 'nowrap' }} 
+                                        style={{ 
+                                            padding: '0 20px', 
+                                            whiteSpace: 'nowrap',
+                                            background: '#f1f5f9',
+                                            color: '#334155',
+                                            fontWeight: 600,
+                                            border: '1px solid #e2e8f0',
+                                            borderRadius: '10px',
+                                            cursor: 'pointer',
+                                            transition: 'all 0.2s'
+                                        }} 
+                                        onMouseEnter={(e) => { e.currentTarget.style.background = '#e2e8f0'; }}
+                                        onMouseLeave={(e) => { e.currentTarget.style.background = '#f1f5f9'; }}
                                         onClick={handleCalculateDeductions} 
                                         disabled={calculating}
                                     >
@@ -241,11 +274,23 @@ const GeneratePayroll = () => {
                             </button>
                             <button 
                                 type="submit" 
-                                className="btn-primary" 
-                                disabled={submitting || !formData.employeeId}
-                                style={{ padding: '10px 24px', fontSize: '14px', fontWeight: 600 }}
+                                disabled={submitting}
+                                style={{
+                                    padding: '10px 32px',
+                                    background: '#6366f1',
+                                    border: 'none',
+                                    color: '#fff',
+                                    borderRadius: '8px',
+                                    fontWeight: 600,
+                                    cursor: submitting ? 'not-allowed' : 'pointer',
+                                    opacity: submitting ? 0.7 : 1,
+                                    transition: 'all 0.2s',
+                                    boxShadow: '0 4px 12px rgba(99,102,241,0.2)'
+                                }}
+                                onMouseEnter={(e) => { if(!submitting) { e.currentTarget.style.background = '#4f46e5'; e.currentTarget.style.transform = 'translateY(-1px)'; }}}
+                                onMouseLeave={(e) => { if(!submitting) { e.currentTarget.style.background = '#6366f1'; e.currentTarget.style.transform = 'translateY(0)'; }}}
                             >
-                                {submitting ? 'Processing...' : 'Submit'}
+                                {submitting ? 'Generating...' : 'Submit Entry'}
                             </button>
                         </div>
                     </form>
