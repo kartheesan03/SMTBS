@@ -107,7 +107,7 @@ const SystemSettings = () => {
                             <div className="ss-form-group">
                                 <label>THEME</label>
                                 <div className="ss-select-wrapper">
-                                    <span className="ss-select-icon">🌞</span>
+                                    <span className="ss-select-icon">{theme === 'Dark' ? '🌙' : theme === 'System' ? '💻' : '🌞'}</span>
                                     <select value={theme} onChange={e => setTheme(e.target.value)}>
                                         <option>Light</option>
                                         <option>Dark</option>

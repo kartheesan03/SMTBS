@@ -43,7 +43,7 @@ export const PastelKPICard = ({ title, value, icon: Icon, colorTheme = 'blue', t
             gap: '16px'
         }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div style={{ fontSize: '14px', fontWeight: 600, color: '#334155', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <div style={{ fontSize: '14px', fontWeight: 600, color: '#334155', minWidth: 0 }}>
                     {title}
                 </div>
                 <div style={{ 

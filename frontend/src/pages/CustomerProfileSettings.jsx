@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import API from '../api/axios';
+import PasswordInput from '../components/ui/PasswordInput';
 import { User, Building2, Key, MapPin, Globe, Phone, Mail, FileText, Activity, AlertTriangle, X, Calendar, Edit2, Save, ShieldCheck, Camera } from 'lucide-react';
 import CustomerForm from '../components/CustomerForm';
 
@@ -233,11 +234,11 @@ const CustomerProfileSettings = () => {
                         <form className="ui-form" onSubmit={handlePasswordUpdate}>
                             <div className="form-group">
                                 <label>Current Password</label>
-                                <input type="password" name="currentPass" placeholder="Enter current password" />
+                                <PasswordInput name="currentPass" placeholder="Enter current password" />
                             </div>
                             <div className="form-group">
                                 <label>New Password</label>
-                                <input type="password" name="newPass" placeholder="Enter new password" />
+                                <PasswordInput name="newPass" placeholder="Enter new password" />
                             </div>
                             <button type="submit" className="btn-outline-purple">Update Password</button>
                         </form>
@@ -278,9 +279,9 @@ const CustomerProfileSettings = () => {
                                 <label>Please type <strong>DELETE</strong> to confirm:</label>
                                 <input type="text" value={deleteConfirmText} onChange={e => setDeleteConfirmText(e.target.value)} placeholder="Type DELETE" required />
                             </div>
-                            <div className="form-group" style={{marginBottom: '24px'}}>
-                                <label>Enter your password to verify:</label>
-                                <input type="password" value={deletePassword} onChange={e => setDeletePassword(e.target.value)} placeholder="Your password" required />
+                            <div className="form-group">
+                                <label>Confirm Password</label>
+                                <PasswordInput value={deletePassword} onChange={e => setDeletePassword(e.target.value)} placeholder="Your password" required />
                             </div>
                             <div className="modal-actions" style={{display: 'flex', gap: '12px', justifyContent: 'flex-end'}}>
                                 <button type="button" className="btn-cancel" onClick={() => {setShowDeleteModal(false); setDeleteConfirmText(''); setDeletePassword('');}} disabled={isDeleting}>Cancel</button>

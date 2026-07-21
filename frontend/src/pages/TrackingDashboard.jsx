@@ -12,6 +12,8 @@ import PageHeader from '../components/PageHeader';
 import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 import { AuthContext } from '../context/AuthContext';
+import MaterialDetails from './MaterialDetails';
+import { CONSTANTS } from '../utils/constants';
 
 const TrackingDashboard = () => {
     const navigate = useNavigate();
@@ -35,9 +37,11 @@ const TrackingDashboard = () => {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isAdjustModalOpen, setIsAdjustModalOpen] = useState(false);
     const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
+    const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
     const [editForm, setEditForm] = useState({ status: '', reason: '' });
     const [adjustForm, setAdjustForm] = useState({ quantity: 0, reason: '' });
     const [transferForm, setTransferForm] = useState({ quantity: 0, destination: '' });
+    const [assignForm, setAssignForm] = useState({ rack: '', shelf: '' });
 
     const fetchMovements = async () => {
         try {
@@ -55,7 +59,8 @@ const TrackingDashboard = () => {
                         const idStr = `MOV-${String(m.id || m._id).slice(-4)}`.toLowerCase();
                         const refStr = (m.referenceOrderId ? String(m.referenceOrderId).slice(-4) : m.reason ? m.reason : '').toLowerCase();
                         const nameStr = (m.materialName || '').toLowerCase();
-                        return idStr.includes(searchLower) || refStr.includes(searchLower) || nameStr.includes(searchLower);
+                        const skuStr = (m.materialSku || '').toLowerCase();
+                        return idStr.includes(searchLower) || refStr.includes(searchLower) || nameStr.includes(searchLower) || skuStr.includes(searchLower);
                     });
                     if (matched) {
                         initialSelection = matched;
@@ -68,19 +73,23 @@ const TrackingDashboard = () => {
             const matsRes = await API.get('/materials/list');
             setMaterialsList(matsRes.data || []);
             
-            // If the search term looks like a material SKU and it wasn't found in movements, switch to material view
-            if (initialSearch && valid.length > 0 && !valid.some(m => `MOV-${String(m.id || m._id).slice(-4)}`.toLowerCase().includes(initialSearch.toLowerCase()) || (m.referenceOrderId && String(m.referenceOrderId).slice(-4).toLowerCase().includes(initialSearch.toLowerCase())))) {
-                // If it matches a material but not a movement ID, switch mode
-                if (matsRes.data && matsRes.data.some(m => (m.sku || '').toLowerCase().includes(initialSearch.toLowerCase()) || (m.name || '').toLowerCase().includes(initialSearch.toLowerCase()))) {
+            // Check if initialSearch matches a material directly
+            if (initialSearch && matsRes.data) {
+                const searchLower = initialSearch.toLowerCase().trim();
+                const matchedMat = matsRes.data.find(m => 
+                    (m.sku && m.sku.toLowerCase().trim() === searchLower) || 
+                    (m.name && m.name.toLowerCase().trim() === searchLower) ||
+                    (m.sku && m.sku.toLowerCase().includes(searchLower)) ||
+                    (m.name && m.name.toLowerCase().includes(searchLower))
+                );
+                
+                if (matchedMat) {
                     setViewMode('material');
-                    const matchedMat = matsRes.data.find(m => (m.sku || '').toLowerCase().includes(initialSearch.toLowerCase()) || (m.name || '').toLowerCase().includes(initialSearch.toLowerCase()));
-                    if (matchedMat) {
-                        setSelectedMovement({ 
-                            id: `MAT-${matchedMat._id}`, _id: `MAT-${matchedMat._id}`, 
-                            materialId: matchedMat._id, materialName: matchedMat.name, 
-                            materialSku: matchedMat.sku, type: 'VIEW', isMaterialView: true 
-                        });
-                    }
+                    setSelectedMovement({ 
+                        id: `MAT-${matchedMat._id || matchedMat.id}`, _id: `MAT-${matchedMat._id || matchedMat.id}`, 
+                        materialId: matchedMat._id || matchedMat.id, materialName: matchedMat.name, 
+                        materialSku: matchedMat.sku, type: 'VIEW', isMaterialView: true 
+                    });
                 }
             }
             
@@ -105,7 +114,7 @@ const TrackingDashboard = () => {
                     console.error("Polling failed", err);
                 }
             }
-        }, 30000);
+        }, CONSTANTS.TRACKING_POLL_INTERVAL_MS);
         
         return () => clearInterval(intervalId);
     }, [viewMode]);
@@ -151,6 +160,24 @@ const TrackingDashboard = () => {
         } catch (error) {
             console.error(error);
             toast.error('Failed to update tracking record');
+        }
+    };
+
+    const handleAssignLocation = async () => {
+        if (!assignForm.rack || !assignForm.shelf) {
+            toast.error('Please select both a rack and a shelf.');
+            return;
+        }
+        try {
+            const mId = selectedMovement.materialId || selectedMovement.material;
+            await API.put(`/materials/${mId}`, { rack: assignForm.rack, shelf: assignForm.shelf });
+            toast.success('Location assigned successfully!');
+            setIsAssignModalOpen(false);
+            setAssignForm({ rack: '', shelf: '' });
+            fetchMovements(); // Re-fetch to update lists and maps
+        } catch (error) {
+            console.error(error);
+            toast.error('Failed to assign location');
         }
     };
 
@@ -201,7 +228,7 @@ const TrackingDashboard = () => {
 
     const filteredMaterials = materialsList.filter(m => {
         const w = m.warehouse || 'Unknown Warehouse';
-        const matchesFilter = filter === 'All warehouses' || filter === w ||
+        const matchesFilter = filter === 'All' || filter === 'All warehouses' || filter === w ||
             (filter === 'IN' && (m.quantity > 0)) || 
             (filter === 'OUT' && (m.quantity === 0)); // Rough proxy for filter in material view
         const matchesSearch = !searchTerm || 
@@ -213,7 +240,7 @@ const TrackingDashboard = () => {
     const isMaterialLive = (mat) => {
         if (!mat || !mat.locationUpdatedAt) return false;
         const diffMs = Date.now() - new Date(mat.locationUpdatedAt).getTime();
-        return diffMs <= 30 * 60 * 1000; // 30 mins
+        return diffMs <= CONSTANTS.LIVE_TRACKING_THRESHOLD_MS;
     };
 
     const getTypeColor = (type) => {
@@ -237,6 +264,7 @@ const TrackingDashboard = () => {
                     <div className="rd-module-info">
                         <div className="rd-module-title-row">
                             <span className="rd-module-title">Movement Tracking</span>
+                            <span className="rd-module-badge">TRACKING</span>
                         </div>
                     </div>
                 </div>
@@ -294,30 +322,11 @@ const TrackingDashboard = () => {
             )}
 
             {/* Master Detail Layout */}
-            <div style={{ display: 'flex', gap: 24, flex: 1, minHeight: 0, minWidth: 0 }}>
+            <div style={{ display: 'flex', gap: 24, flex: 1, minHeight: 0, minWidth: 0, flexDirection: 'row-reverse' }}>
                 
                 {/* Left Panel: Master List */}
                 <div style={{ width: '38%', display: 'flex', flexDirection: 'column', background: '#fff', borderRadius: 20, boxShadow: '0 8px 30px rgba(0,0,0,0.04)', border: '1px solid #f1f5f9', overflow: 'hidden' }}>
-                    <div style={{ padding: '20px 24px', borderBottom: '1px solid #f1f5f9', background: '#fff', zIndex: 10 }}>
-                        {/* Search and Filters */}
-                        <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 4 }}>
-                            {uniqueWarehouses.map(w => (
-                                <button 
-                                    key={w}
-                                    onClick={() => setFilter(w)}
-                                    style={{ 
-                                        padding: '8px 16px', borderRadius: 8, fontSize: 14, fontWeight: filter === w ? 700 : 500, cursor: 'pointer', whiteSpace: 'nowrap',
-                                        background: '#fff', 
-                                        color: '#0f172a',
-                                        border: filter === w ? '1px solid #94a3b8' : '1px solid #e2e8f0',
-                                        transition: 'all 0.2s'
-                                    }}
-                                >
-                                    {w}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
+
 
                     <div style={{ flex: 1, overflowY: 'auto', padding: 12 }}>
                         {loading ? (
@@ -412,7 +421,7 @@ const TrackingDashboard = () => {
                                                         {mat.name || 'Unknown Material'}
                                                     </div>
                                                     <div style={{ fontSize: 13, color: '#94a3b8' }}>
-                                                        Rack {mat.rack || 'N/A'} &middot; Shelf {mat.shelf || 'N/A'} &middot; {mat.warehouse || 'Unknown'}
+                                                        {(!mat.rack || !mat.shelf) ? 'Not yet shelved' : `Rack ${mat.rack} \u00B7 Shelf ${mat.shelf}`} &middot; {mat.warehouse || 'Unknown'}
                                                     </div>
                                                 </div>
                                             </div>
@@ -434,145 +443,11 @@ const TrackingDashboard = () => {
                             <motion.div 
                                 key={selectedMovement.id || selectedMovement._id}
                                 initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }}
-                                style={{ padding: 32 }}
+                                style={{ padding: selectedMovement.isMaterialView ? 0 : 32, height: '100%' }}
                             >
-                                {selectedMovement.isMaterialView ? (() => {
-                                    const mat = materialDetails || {};
-                                    const isLive = isMaterialLive(mat);
-                                    const isLowStock = mat.quantity <= (mat.lowStockThreshold || 0);
-                                    let diffText = 'Unknown';
-                                    if (mat.locationUpdatedAt) {
-                                        const mins = Math.floor((Date.now() - new Date(mat.locationUpdatedAt).getTime()) / 60000);
-                                        if (mins < 60) diffText = `${mins} min ago`;
-                                        else if (mins < 1440) diffText = `${Math.floor(mins / 60)} hr ago`;
-                                        else diffText = `${Math.floor(mins / 1440)} day ago`;
-                                    }
-
-                                    return (
-                                        <div style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: 24 }}>
-                                            {/* Top: Material Detail Card */}
-                                            <div style={{ background: '#fff', padding: 24, borderRadius: 20, boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
-                                                {/* Top Status */}
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                                        {isLive ? (
-                                                            <motion.div 
-                                                                animate={{ scale: [1, 1.3, 1], opacity: [1, 0.5, 1] }}
-                                                                transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-                                                                style={{ width: 8, height: 8, borderRadius: 4, background: '#16a34a', flexShrink: 0 }} 
-                                                            />
-                                                        ) : (
-                                                            <div style={{ width: 8, height: 8, borderRadius: 4, background: '#9ca3af', flexShrink: 0 }}></div>
-                                                        )}
-                                                        <span style={{ fontSize: 14, fontWeight: 600, color: isLive ? '#16a34a' : '#64748b' }}>
-                                                            {isLive ? 'Tracking live' : 'Not scanned recently'}
-                                                        </span>
-                                                    </div>
-                                                    <div style={{ fontSize: 13, color: '#94a3b8' }}>
-                                                        Last scan: {diffText}
-                                                    </div>
-                                                </div>
-
-                                                {/* Header */}
-                                                <div style={{ marginBottom: 24 }}>
-                                                    <h2 style={{ fontSize: 24, fontWeight: 700, color: '#0f172a', margin: '0 0 6px 0' }}>{mat.name || 'Unknown Material'}</h2>
-                                                    <div style={{ fontSize: 15, color: '#94a3b8' }}>
-                                                        {mat.sku || 'N/A'} &middot; {mat.category || 'Uncategorized'} &middot; {mat.warehouse || 'Unknown Warehouse'}
-                                                    </div>
-                                                </div>
-
-                                                {/* Stat Blocks */}
-                                                <div style={{ display: 'flex', gap: 16, marginBottom: 24 }}>
-                                                    <div style={{ flex: 1, background: '#f8fafc', borderRadius: 16, padding: 16 }}>
-                                                        <div style={{ fontSize: 13, color: '#64748b', marginBottom: 4, fontWeight: 500 }}>On hand</div>
-                                                        <div style={{ fontSize: 24, fontWeight: 700, color: isLowStock ? '#dc2626' : '#0f172a' }}>{mat.quantity} <span style={{ fontSize: 14, fontWeight: 500 }}>{mat.unit || 'pcs'}</span></div>
-                                                    </div>
-                                                    <div style={{ flex: 1, background: '#f8fafc', borderRadius: 16, padding: 16 }}>
-                                                        <div style={{ fontSize: 13, color: '#64748b', marginBottom: 4, fontWeight: 500 }}>Min stock</div>
-                                                        <div style={{ fontSize: 24, fontWeight: 700, color: '#0f172a' }}>{mat.lowStockThreshold || 0} <span style={{ fontSize: 14, fontWeight: 500 }}>{mat.unit || 'pcs'}</span></div>
-                                                    </div>
-                                                    {currentUserRole === 'Admin' && (
-                                                        <div style={{ flex: 1, background: '#f8fafc', borderRadius: 16, padding: 16 }}>
-                                                            <div style={{ fontSize: 13, color: '#64748b', marginBottom: 4, fontWeight: 500 }}>Unit cost</div>
-                                                            <div style={{ fontSize: 24, fontWeight: 700, color: '#0f172a' }}>₹{(mat.price || 0).toFixed(2)}</div>
-                                                        </div>
-                                                    )}
-                                                </div>
-
-                                                {/* Action Buttons */}
-                                                <div style={{ display: 'flex', gap: 12 }}>
-                                                    {(currentUserRole === 'Admin' || currentUserRole === 'Manager') && (
-                                                        <>
-                                                            {currentUserRole === 'Admin' && (
-                                                                <button onClick={() => navigate(`/materials/${mat._id || mat.id}/edit`)} style={{ padding: '8px 16px', fontSize: 13, fontWeight: 600, background: '#fff', border: '1px solid #cbd5e1', borderRadius: 8, color: '#0f172a', cursor: 'pointer' }}>Edit material</button>
-                                                            )}
-                                                            <button onClick={() => { setAdjustForm({ quantity: mat.quantity || 0, reason: '' }); setIsAdjustModalOpen(true); }} style={{ padding: '8px 16px', fontSize: 13, fontWeight: 600, background: '#fff', border: '1px solid #cbd5e1', borderRadius: 8, color: '#0f172a', cursor: 'pointer' }}>Adjust stock</button>
-                                                            <button onClick={() => { setTransferForm({ quantity: 1, destination: '' }); setIsTransferModalOpen(true); }} style={{ padding: '8px 16px', fontSize: 13, fontWeight: 600, background: '#fff', border: '1px solid #cbd5e1', borderRadius: 8, color: '#0f172a', cursor: 'pointer' }}>{currentUserRole === 'Manager' ? 'Request transfer' : 'Transfer'}</button>
-                                                        </>
-                                                    )}
-                                                    {currentUserRole === 'Employee' && (
-                                                        <button onClick={() => alert("Issue reported!")} style={{ padding: '8px 16px', fontSize: 13, fontWeight: 600, background: '#fff', border: '1px solid #cbd5e1', borderRadius: 8, color: '#dc2626', cursor: 'pointer' }}>Report Issue</button>
-                                                    )}
-                                                </div>
-                                            </div>
-
-                                            {/* Bottom: Warehouse Floor Map */}
-                                            <div style={{ flex: 1, background: '#fff', padding: 24, borderRadius: 20, boxShadow: '0 4px 20px rgba(0,0,0,0.03)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-                                                <div style={{ fontSize: 16, fontWeight: 700, color: '#0f172a', marginBottom: 16 }}>Warehouse Floor Map</div>
-                                                <div style={{ display: 'flex', gap: 16, overflowX: 'auto', paddingBottom: 16, flex: 1, alignItems: 'flex-start' }}>
-                                                    {(() => {
-                                                        const warehouseMaterials = materialsList.filter(m => m.warehouse === mat.warehouse);
-                                                        const racksMap = {};
-                                                        warehouseMaterials.forEach(m => {
-                                                            const r = m.rack || 'Unassigned';
-                                                            if (!racksMap[r]) racksMap[r] = {};
-                                                            const s = m.shelf || 'N/A';
-                                                            if (!racksMap[r][s]) racksMap[r][s] = [];
-                                                            racksMap[r][s].push(m);
-                                                        });
-                                                        const sortedRacks = Object.keys(racksMap).sort((a, b) => a.localeCompare(b, undefined, {numeric: true}));
-                                                        if (sortedRacks.length === 0) {
-                                                            return <div style={{ fontSize: 14, color: '#94a3b8' }}>No floor map data available for {mat.warehouse || 'this warehouse'}.</div>;
-                                                        }
-                                                        return sortedRacks.map(rackName => (
-                                                            <div key={rackName} style={{ minWidth: 120, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                                                <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 8, textTransform: 'uppercase' }}>Rack {rackName}</div>
-                                                                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, background: '#f8fafc', padding: 12, borderRadius: 12, width: '100%', border: '1px solid #e2e8f0' }}>
-                                                                    {Object.keys(racksMap[rackName]).sort().map(shelfName => {
-                                                                        const isSelectedShelf = (rackName === (mat.rack || 'Unassigned')) && (shelfName === (mat.shelf || 'N/A'));
-                                                                        return (
-                                                                            <div key={shelfName} style={{ position: 'relative' }}>
-                                                                                {isSelectedShelf && isLive && (
-                                                                                    <motion.div 
-                                                                                        animate={{ scale: [1, 1.15, 1], opacity: [0.6, 0.1, 0.6] }}
-                                                                                        transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-                                                                                        style={{ position: 'absolute', top: -4, left: -4, right: -4, bottom: -4, borderRadius: 10, background: '#3b82f6', zIndex: 0 }}
-                                                                                    />
-                                                                                )}
-                                                                                <div style={{ 
-                                                                                    position: 'relative', zIndex: 1,
-                                                                                    height: 48, borderRadius: 8, 
-                                                                                    background: isSelectedShelf ? '#3b82f6' : '#fff',
-                                                                                    border: `1px solid ${isSelectedShelf ? '#2563eb' : '#cbd5e1'}`,
-                                                                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                                                                    color: isSelectedShelf ? '#fff' : '#475569', fontSize: 12, fontWeight: 600,
-                                                                                    boxShadow: isSelectedShelf ? '0 4px 12px rgba(59, 130, 246, 0.3)' : 'none'
-                                                                                }}>
-                                                                                    Shelf {shelfName}
-                                                                                    <div style={{ position: 'absolute', top: 6, right: 6, width: 6, height: 6, borderRadius: 3, background: isSelectedShelf ? '#fff' : '#cbd5e1' }} />
-                                                                                </div>
-                                                                            </div>
-                                                                        );
-                                                                    })}
-                                                                </div>
-                                                            </div>
-                                                        ));
-                                                    })()}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    );
-                                })() : (
+                                {selectedMovement.isMaterialView ? (
+                                    <MaterialDetails embeddedId={selectedMovement.materialId || (selectedMovement._id || selectedMovement.id)?.replace('MAT-', '')} />
+                                ) : (
                                     <>
                                         {/* Action Header */}
                                         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginBottom: 32 }}>
@@ -782,16 +657,82 @@ const TrackingDashboard = () => {
                             style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #e2e8f0', outline: 'none' }}
                         >
                             <option value="">Select Destination...</option>
-                            <option value="Warehouse A">Warehouse A</option>
-                            <option value="Warehouse B">Warehouse B</option>
-                            <option value="Warehouse C">Warehouse C</option>
-                            <option value="Site 1">Site 1</option>
+                            {uniqueWarehouses.filter(w => w !== 'All warehouses').map(w => (
+                                <option key={w} value={w}>{w}</option>
+                            ))}
                         </select>
                     </div>
 
                     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
                         <button onClick={() => setIsTransferModalOpen(false)} style={{ padding: '10px 20px', borderRadius: 8, border: 'none', background: '#f1f5f9', color: '#475569', fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
                         <button onClick={() => { toast.success('Transfer initiated successfully!'); setIsTransferModalOpen(false); }} style={{ padding: '10px 20px', borderRadius: 8, border: 'none', background: '#3b82f6', color: '#fff', fontWeight: 600, cursor: 'pointer' }}>Confirm Transfer</button>
+                    </div>
+                </div>
+            </div>
+        )}
+
+        {/* Assign Location Modal */}
+        {isAssignModalOpen && selectedMovement && (
+            <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ background: '#fff', padding: 32, borderRadius: 20, width: 400, maxWidth: '90%' }}>
+                    <h3 style={{ margin: '0 0 24px 0', fontSize: 20, fontWeight: 700 }}>Assign Location</h3>
+                    <p style={{ fontSize: 13, color: '#64748b', marginBottom: 24, lineHeight: 1.5 }}>
+                        Select a rack and shelf in <strong>{materialDetails?.warehouse || 'the warehouse'}</strong> to assign this item to.
+                    </p>
+                    
+                    {(() => {
+                        const warehouseMaterials = materialsList.filter(m => m.warehouse === materialDetails?.warehouse && m.rack && m.shelf);
+                        const uniqueRacks = [...new Set(warehouseMaterials.map(m => m.rack))].sort();
+                        // For the dropdown we can just use a list of common shelves, or derive from existing data
+                        const uniqueShelves = [...new Set(warehouseMaterials.map(m => m.shelf))].sort((a, b) => a.localeCompare(b, undefined, {numeric: true}));
+                        
+                        return (
+                            <>
+                                <div style={{ marginBottom: 16 }}>
+                                    <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 8 }}>Rack</label>
+                                    <select 
+                                        value={assignForm.rack} 
+                                        onChange={e => setAssignForm({...assignForm, rack: e.target.value})}
+                                        style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #e2e8f0', outline: 'none' }}
+                                    >
+                                        <option value="">Select Rack...</option>
+                                        {uniqueRacks.length > 0 ? uniqueRacks.map(r => <option key={r} value={r}>Rack {r}</option>) : (
+                                            <>
+                                                <option value="A">Rack A</option>
+                                                <option value="B">Rack B</option>
+                                                <option value="C">Rack C</option>
+                                                <option value="D">Rack D</option>
+                                            </>
+                                        )}
+                                    </select>
+                                </div>
+
+                                <div style={{ marginBottom: 24 }}>
+                                    <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 8 }}>Shelf</label>
+                                    <select 
+                                        value={assignForm.shelf} 
+                                        onChange={e => setAssignForm({...assignForm, shelf: e.target.value})}
+                                        style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #e2e8f0', outline: 'none' }}
+                                    >
+                                        <option value="">Select Shelf...</option>
+                                        {uniqueShelves.length > 0 ? uniqueShelves.map(s => <option key={s} value={s}>Shelf {s}</option>) : (
+                                            <>
+                                                <option value="1">Shelf 1</option>
+                                                <option value="2">Shelf 2</option>
+                                                <option value="3">Shelf 3</option>
+                                                <option value="4">Shelf 4</option>
+                                                <option value="5">Shelf 5</option>
+                                            </>
+                                        )}
+                                    </select>
+                                </div>
+                            </>
+                        );
+                    })()}
+
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
+                        <button onClick={() => setIsAssignModalOpen(false)} style={{ padding: '10px 20px', borderRadius: 8, border: 'none', background: '#f1f5f9', color: '#475569', fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
+                        <button onClick={handleAssignLocation} style={{ padding: '10px 20px', borderRadius: 8, border: 'none', background: '#f59e0b', color: '#fff', fontWeight: 600, cursor: 'pointer' }}>Save Location</button>
                     </div>
                 </div>
             </div>

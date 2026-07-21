@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import PageHeader from '../components/PageHeader';
+import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
 
 // Map category → icon component & colors
 // Map module → icon component & colors
@@ -187,24 +188,13 @@ const NotificationsPage = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.1, duration: 0.4 }}
-                style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '16px' }}
             >
-                {[
-                    { label: 'Total', value: notifications.length, icon: Bell, iconBg: '#f1f5f9', iconColor: '#475569' },
-                    { label: 'Unread', value: unreadCount, icon: Clock, iconBg: '#eff6ff', iconColor: '#3b82f6' },
-                    { label: 'Read', value: readCount, icon: CheckCircle, iconBg: '#ecfdf5', iconColor: '#10b981' },
-                    { label: 'Critical', value: criticalCount, icon: AlertCircle, iconBg: '#fef2f2', iconColor: '#dc2626' },
-                ].map((kpi, idx) => (
-                    <div key={idx} className="premium-card" style={{ borderRadius: '14px', padding: '16px 18px', display: 'flex', alignItems: 'center', gap: '14px' }}>
-                        <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: kpi.iconBg, color: kpi.iconColor, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                            <kpi.icon size={18} />
-                        </div>
-                        <div>
-                            <div style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>{kpi.label}</div>
-                            <div style={{ fontSize: '22px', fontWeight: 800, color: '#0f172a', lineHeight: 1 }}>{kpi.value}</div>
-                        </div>
-                    </div>
-                ))}
+                <PastelKPIGrid>
+                    <PastelKPICard title="Total Notifications" value={notifications.length} colorTheme="blue" icon={Bell} trendValue="All alerts" trendPositive={true} />
+                    <PastelKPICard title="Unread" value={unreadCount} colorTheme="peach" icon={Clock} trendValue="Needs attention" trendPositive={unreadCount === 0} />
+                    <PastelKPICard title="Read" value={readCount} colorTheme="mint" icon={CheckCircle} trendValue="Viewed alerts" trendPositive={true} />
+                    <PastelKPICard title="Critical" value={criticalCount} colorTheme="pink" icon={AlertCircle} trendValue="Urgent issues" trendPositive={criticalCount === 0} />
+                </PastelKPIGrid>
             </motion.div>
 
             {/* ===== SEARCH + FILTER BAR ===== */}

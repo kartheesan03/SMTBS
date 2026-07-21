@@ -124,8 +124,8 @@ const AddCustomer = ({ isEditMode = false }) => {
             <form id="customer-form" onSubmit={e => { e.preventDefault(); handleSubmit(); }}>
                 {error && <div className="error-alert" style={{color: '#ef4444', background: '#fef2f2', padding: '12px', borderRadius: '8px', marginBottom: '16px'}}>{error}</div>}
                 
-                <FormSection title="Account Details">
-                    <div className="ui-grid-2">
+                <div className="ui-grid-2">
+                    <FormSection title="Account Details">
                         <FormGroup label="Customer Type" required>
                             <Select 
                                 value={formData.customerType} 
@@ -154,7 +154,7 @@ const AddCustomer = ({ isEditMode = false }) => {
                                 type="text" 
                                 value={formData.name} 
                                 onChange={e => setFormData({...formData, name: e.target.value})} 
-                                placeholder="e.g. John Doe"
+                                placeholder={isEditMode ? "" : "e.g. Rajan"}
                             />
                         </FormGroup>
                         <FormGroup label="Company Name">
@@ -162,20 +162,18 @@ const AddCustomer = ({ isEditMode = false }) => {
                                 type="text" 
                                 value={formData.company} 
                                 onChange={e => setFormData({...formData, company: e.target.value})} 
-                                placeholder="e.g. Acme Corp" 
+                                placeholder={isEditMode ? "" : "e.g. Kovai Builders Pvt Ltd"} 
                             />
                         </FormGroup>
-                    </div>
-                </FormSection>
+                    </FormSection>
 
-                <FormSection title="Contact Information">
-                    <div className="ui-grid-2">
+                    <FormSection title="Contact Information">
                         <FormGroup label="Email Address" required>
                             <Input 
                                 type="email" 
                                 value={formData.email} 
                                 onChange={e => setFormData({...formData, email: e.target.value})} 
-                                placeholder="e.g. john@example.com" 
+                                placeholder={isEditMode ? "" : "e.g. info@kovaibuilders.in"} 
                             />
                         </FormGroup>
                         <FormGroup label="Phone Number" required>
@@ -183,7 +181,7 @@ const AddCustomer = ({ isEditMode = false }) => {
                                 type="text" 
                                 value={formData.phone} 
                                 onChange={e => setFormData({...formData, phone: e.target.value})} 
-                                placeholder="e.g. +91 9876543210" 
+                                placeholder={isEditMode ? "" : "e.g. 9843210001"} 
                             />
                         </FormGroup>
                         <FormGroup label="Industry" required>
@@ -191,7 +189,7 @@ const AddCustomer = ({ isEditMode = false }) => {
                                 type="text" 
                                 value={formData.industry} 
                                 onChange={e => setFormData({...formData, industry: e.target.value})} 
-                                placeholder="e.g. Technology, Manufacturing" 
+                                placeholder={isEditMode ? "" : "e.g. Real Estate"} 
                             />
                         </FormGroup>
                         <FormGroup label="Website">
@@ -199,16 +197,18 @@ const AddCustomer = ({ isEditMode = false }) => {
                                 type="url" 
                                 value={formData.website} 
                                 onChange={e => setFormData({...formData, website: e.target.value})} 
-                                placeholder="e.g. https://www.example.com" 
+                                placeholder={isEditMode ? "" : "e.g. kovaibuilders.in"} 
                             />
                         </FormGroup>
-                    </div>
+                    </FormSection>
+                </div>
+                <FormSection title="Location">
                     <FormGroup label="Address" required>
                         <Input 
                             type="text" 
                             value={formData.address} 
                             onChange={e => setFormData({...formData, address: e.target.value})} 
-                            placeholder="Full street address, City, State, Zip" 
+                            placeholder={isEditMode ? "" : "e.g. Race Course Road, Coimbatore, Tamil Nadu 641018"} 
                         />
                     </FormGroup>
                 </FormSection>

@@ -976,7 +976,7 @@ input[type="password"]::-ms-clear {
   padding: 24px;
   flex: 1;
   overflow-y: auto;
-  overflow-x: hidden;
+  overflow-x: auto;
 }
 
 .app-content:has(.rd-container) {

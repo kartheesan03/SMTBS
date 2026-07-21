@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Activity, Search, Filter, RefreshCw } from 'lucide-react';
-
+import API from '../api/axios';
+import { Activity, Search, Filter, RefreshCw, Database, Clock } from 'lucide-react';
+import { PastelKPICard } from '../components/PastelKPICard';
+import PageHeader from '../components/PageHeader';
 const AuditLogs = () => {
     const [logs, setLogs] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -11,15 +12,9 @@ const AuditLogs = () => {
     const fetchLogs = async () => {
         setLoading(true);
         try {
-            const token = localStorage.getItem('token');
             const [logsRes, statsRes] = await Promise.all([
-                axios.get('http://localhost:5000/api/audit-logs', {
-                    headers: { Authorization: `Bearer ${token}` },
-                    params: filter
-                }),
-                axios.get('http://localhost:5000/api/audit-logs/stats', {
-                    headers: { Authorization: `Bearer ${token}` }
-                })
+                API.get('/audit-logs', { params: filter }),
+                API.get('/audit-logs/stats')
             ]);
             setLogs(logsRes.data);
             setStats(statsRes.data);
@@ -47,16 +42,15 @@ const AuditLogs = () => {
 
     return (
         <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                <div>
-                    <h2 style={{ margin: 0, fontSize: '24px', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <Activity size={24} color="#3b82f6" />
-                        System Audit Logs
-                    </h2>
-                    <p style={{ margin: '4px 0 0 0', color: '#64748b' }}>Monitor all system activity and security events</p>
-                </div>
+            <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                <PageHeader 
+                    title="System Audit Logs" 
+                    badge="SECURITY" 
+                    subtitle="Monitor all system activity and security events" 
+                />
                 <button 
                     onClick={fetchLogs}
+                    className="btn-secondary"
                     style={{ padding: '8px 16px', background: '#fff', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 500 }}
                 >
                     <RefreshCw size={16} /> Refresh
@@ -64,13 +58,11 @@ const AuditLogs = () => {
             </div>
 
             <div style={{ display: 'flex', gap: '24px', marginBottom: '24px' }}>
-                <div style={{ flex: 1, background: '#fff', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-                    <div style={{ fontSize: '14px', color: '#64748b', fontWeight: 500 }}>Total Events Logged</div>
-                    <div style={{ fontSize: '28px', fontWeight: 700, color: '#0f172a', marginTop: '8px' }}>{stats.totalLogs}</div>
+                <div style={{ flex: 1 }}>
+                    <PastelKPICard title="Total Events Logged" value={stats.totalLogs} colorTheme="blue" icon={Database} trendValue="All time" trendPositive={true} />
                 </div>
-                <div style={{ flex: 1, background: '#fff', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-                    <div style={{ fontSize: '14px', color: '#64748b', fontWeight: 500 }}>Events Today</div>
-                    <div style={{ fontSize: '28px', fontWeight: 700, color: '#3b82f6', marginTop: '8px' }}>{stats.todayLogs}</div>
+                <div style={{ flex: 1 }}>
+                    <PastelKPICard title="Events Today" value={stats.todayLogs} colorTheme="mint" icon={Clock} trendValue="Today's activity" trendPositive={true} />
                 </div>
                 <div style={{ flex: 2, background: '#fff', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0', display: 'flex', gap: '16px', alignItems: 'center' }}>
                     <Filter size={20} color="#64748b" />

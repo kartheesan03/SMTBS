@@ -238,10 +238,8 @@ const OrderManagement = () => {
                                 <tr>
                                     <th>ORDER ID</th>
                                     <th>CUSTOMER</th>
-                                    <th style={{textAlign: 'right'}}>ITEMS</th>
                                     <th style={{textAlign: 'right'}}>AMOUNT</th>
                                     <th>ORDERED</th>
-                                    <th>DELIVERY</th>
                                     <th>PRIORITY</th>
                                     <th>STATUS</th>
                                     <th>MANAGER</th>
@@ -279,10 +277,8 @@ const OrderManagement = () => {
                                     <tr key={o._id || o.id || i} style={{cursor: 'pointer'}} onClick={() => navigate(`/orders/${o._id || o.id}/tracking`)}>
                                         <td style={{fontWeight: 700, color: '#3b82f6', maxWidth: 110, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={orderId} data-label="Order ID">{orderId}</td>
                                         <td style={{fontWeight: 700, color: 'var(--rd-text-main)', maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={o.customer?.company || o.customer?.name || '—'} data-label="Customer">{o.customer?.company || o.customer?.name || '—'}</td>
-                                        <td style={{color: '#475569', textAlign: 'right'}} data-label="Items">{o.items?.length || '—'}</td>
                                         <td style={{fontWeight: 700, color: 'var(--rd-text-main)', textAlign: 'right'}} data-label="Amount">₹{(Number(o.totalAmount) || Number(o.grandTotal) || 0).toLocaleString()}</td>
                                         <td style={{color: '#64748b'}} data-label="Ordered">{o.createdAt ? new Date(o.createdAt).toLocaleDateString('en-GB', {day:'2-digit', month:'2-digit', year:'2-digit'}) : '—'}</td>
-                                        <td style={{color: '#64748b'}} data-label="Delivery">{o.deliveryDate || o.expectedDelivery ? new Date(o.deliveryDate || o.expectedDelivery).toLocaleDateString('en-GB', {day:'2-digit', month:'2-digit', year:'2-digit'}) : '—'}</td>
                                         <td data-label="Priority">
                                             <span style={{padding: '4px 10px', borderRadius: 6, fontSize: 12, fontWeight: 700, background: priStyle.bg, color: priStyle.color}}>
                                                 {pri}

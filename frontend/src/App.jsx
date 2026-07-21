@@ -338,8 +338,9 @@ const AppContent = () => {
                     <Route path="/tasks/calendar" element={<ProtectedRoute><TaskCalendar /></ProtectedRoute>} />
                     <Route path="/projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
                     
-                    <Route path="/support/history" element={<ProtectedRoute><ComingSoonPage title="Ticket History" /></ProtectedRoute>} />
-                    <Route path="/support/kb" element={<ProtectedRoute><ComingSoonPage title="Knowledge Base" /></ProtectedRoute>} />
+                    <Route path="/support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
+                    <Route path="/support/history" element={<ProtectedRoute><Support /></ProtectedRoute>} />
+                    <Route path="/support/kb" element={<ProtectedRoute><Support /></ProtectedRoute>} />
                     
                     <Route path="/notifications/system" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
                     <Route path="/notifications/approvals" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { LifeBuoy, MessageSquare, BookOpen, PlayCircle, FileText, Shield, Search, ChevronDown, ChevronUp, Send, PhoneCall, Globe, ExternalLink } from 'lucide-react';
 import { motion } from 'framer-motion';
+import toast from 'react-hot-toast';
 import PageHeader from '../components/PageHeader';
 import './Support.css';
 
@@ -35,6 +36,18 @@ const Support = () => {
         }
     ];
 
+    const handleGuideClick = (e) => {
+        e.preventDefault();
+        toast('Guide currently under development.', { 
+            icon: '🚧',
+            style: {
+                borderRadius: '10px',
+                background: '#333',
+                color: '#fff',
+            }
+        });
+    };
+
     return (
         <motion.div 
             initial={{ opacity: 0, y: 15 }}
@@ -64,28 +77,28 @@ const Support = () => {
                     <div className="ql-icon-box"><BookOpen size={20} /></div>
                     <h3>Admin Setup Guide</h3>
                     <p>Step-by-step walkthrough for configuring roles, modules, and backups.</p>
-                    <a href="#" className="ql-link">Open guide <ExternalLink size={14} /></a>
+                    <a href="#" onClick={handleGuideClick} className="ql-link">Open guide <ExternalLink size={14} /></a>
                 </div>
                 
                 <div className="quick-link-card link-pink">
                     <div className="ql-icon-box"><PlayCircle size={20} /></div>
                     <h3>Video Tutorials</h3>
                     <p>Short screen-recorded walkthroughs of common admin tasks.</p>
-                    <a href="#" className="ql-link">Open guide <ExternalLink size={14} /></a>
+                    <a href="#" onClick={handleGuideClick} className="ql-link">Open guide <ExternalLink size={14} /></a>
                 </div>
 
                 <div className="quick-link-card link-teal">
                     <div className="ql-icon-box"><FileText size={20} /></div>
                     <h3>Release Notes</h3>
                     <p>What's new and what's changed in the latest SMTBMS update.</p>
-                    <a href="#" className="ql-link">Open guide <ExternalLink size={14} /></a>
+                    <a href="#" onClick={handleGuideClick} className="ql-link">Open guide <ExternalLink size={14} /></a>
                 </div>
 
                 <div className="quick-link-card link-purple">
                     <div className="ql-icon-box"><Shield size={20} /></div>
                     <h3>Security Best Practices</h3>
                     <p>Recommended settings for access control and data protection.</p>
-                    <a href="#" className="ql-link">Open guide <ExternalLink size={14} /></a>
+                    <a href="#" onClick={handleGuideClick} className="ql-link">Open guide <ExternalLink size={14} /></a>
                 </div>
             </motion.div>
 

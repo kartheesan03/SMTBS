@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import API from '../api/axios';
 import { Package } from 'lucide-react';
 import StandardPageLayout from '../components/StandardPageLayout/StandardPageLayout';
@@ -9,8 +9,12 @@ import { FormSection, FormGroup, Input, Select, SearchableSelect } from '../comp
 const AddMaterial = ({ isEditMode = false }) => {
     const navigate = useNavigate();
     const { id } = useParams();
+    const location = useLocation();
+    const queryParams = new URLSearchParams(location.search);
+    const initialVendorId = queryParams.get('vendorId') || '';
+    
     const [formData, setFormData] = useState({
-        name: '', sku: '', category: '', quantity: 0, lowStockThreshold: 10, unit: 'pcs', price: 0, vendorId: '',
+        name: '', sku: '', category: '', quantity: 0, lowStockThreshold: 10, unit: 'pcs', price: 0, vendorId: initialVendorId,
         warehouse: '', shelf: ''
     });
     const [vendors, setVendors] = useState([]);

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import API from '../api/axios';
+import PasswordInput from '../components/ui/PasswordInput';
 import { UserPlus } from 'lucide-react';
 import StandardPageLayout from '../components/StandardPageLayout/StandardPageLayout';
 import toast from 'react-hot-toast';
@@ -151,8 +152,7 @@ const AddEmployee = ({ isEditMode = false }) => {
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', gridColumn: '1 / -1' }}>
                         <label style={{ fontSize: '14px', fontWeight: 500, color: '#475569' }}>Password {isEditMode ? '(Leave blank to keep current)' : '*'}</label>
-                        <input 
-                            type="password" 
+                        <PasswordInput 
                             required={!isEditMode}
                             value={formData.password} 
                             onChange={e => setFormData({...formData, password: e.target.value})} 

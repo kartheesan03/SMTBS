@@ -17,6 +17,7 @@ import './ReportsRedesign.css';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 import PageHeader from '../components/PageHeader';
 import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
+import { formatCurrency } from '../utils/currency';
 
 const Reports = () => {
 
@@ -40,13 +41,7 @@ const Reports = () => {
 
 
 
-    const formatCurrency = (val) => {
-        if (!val) return '₹0';
-        if (val >= 10000000) return `₹${(val / 10000000).toFixed(1)}Cr`;
-        if (val >= 100000) return `₹${(val / 100000).toFixed(1)}L`;
-        if (val >= 1000) return `₹${(val / 1000).toFixed(0)}K`;
-        return `₹${val.toLocaleString()}`;
-    };
+
 
     const analytics = dashData?.analytics || {
         kpis: { totalRevenue: 0, totalExpenses: 0, netProfit: 0, revenueGrowth: 0 },
@@ -59,8 +54,8 @@ const Reports = () => {
     const totalCustomers = dashData?.stats?.totalCustomers || 0;
 
     const kpis = [
-        { title: 'Total Revenue', value: formatCurrency(analytics.kpis.totalRevenue), trend: Math.abs(analytics.kpis.revenueGrowth), isUp: analytics.kpis.revenueGrowth >= 0, subtitle: 'Sales active', icon: DollarSign, colorTheme: 'mint' },
-        { title: 'Net Profit', value: formatCurrency(analytics.kpis.netProfit), trend: analytics.kpis.totalRevenue > 0 ? Math.round((analytics.kpis.netProfit / analytics.kpis.totalRevenue) * 100) : 0, isUp: analytics.kpis.netProfit >= 0, subtitle: 'Margin %', icon: TrendingUp, colorTheme: 'blue' },
+        { title: 'Total Revenue', value: formatCurrency(analytics.kpis.totalRevenue, true), trend: Math.abs(analytics.kpis.revenueGrowth), isUp: analytics.kpis.revenueGrowth >= 0, subtitle: 'Sales active', icon: DollarSign, colorTheme: 'mint' },
+        { title: 'Net Profit', value: formatCurrency(analytics.kpis.netProfit, true), trend: analytics.kpis.totalRevenue > 0 ? Math.round((analytics.kpis.netProfit / analytics.kpis.totalRevenue) * 100) : 0, isUp: analytics.kpis.netProfit >= 0, subtitle: 'Margin %', icon: TrendingUp, colorTheme: 'blue' },
         { title: 'Total Materials', value: totalMaterials.toLocaleString(), trend: 0, isUp: true, subtitle: 'Stock stable', icon: Package, colorTheme: 'pink' },
         { title: 'Total Employees', value: totalEmployees.toLocaleString(), trend: 0, isUp: true, subtitle: 'Active staff', icon: Users, colorTheme: 'peach' },
         { title: 'Total Customers', value: totalCustomers.toLocaleString(), trend: 0, isUp: true, subtitle: 'Clients', icon: ShoppingCart, colorTheme: 'purple' },
@@ -218,7 +213,7 @@ const Reports = () => {
                                     Net profit <span className="legend-dot" style={{ background: '#3b82f6', marginLeft: '12px' }}></span> <span style={{color: '#3b82f6'}}>Current year</span>
                                 </div>
                                 <div className="chart-header-value">
-                                    {formatCurrency(analytics.kpis.currentYearTotalProfit || 0)}
+                                    {formatCurrency(analytics.kpis.currentYearTotalProfit || 0, true)}
                                     {analytics.kpis.lastYearTotalProfit > 0 && (
                                         <span className={`trend-badge ${((analytics.kpis.currentYearTotalProfit - analytics.kpis.lastYearTotalProfit) / analytics.kpis.lastYearTotalProfit) >= 0 ? 'up' : 'down'}`}>
                                             {((analytics.kpis.currentYearTotalProfit - analytics.kpis.lastYearTotalProfit) / analytics.kpis.lastYearTotalProfit) >= 0 ? '+' : ''}
@@ -232,7 +227,7 @@ const Reports = () => {
                                     Net profit <span className="legend-dot" style={{ background: '#cbd5e1', marginLeft: '12px', width: '8px', height: '8px', border: '2px solid #cbd5e1', background: 'white' }}></span> <span style={{color: '#94a3b8'}}>Last year</span>
                                 </div>
                                 <div className="chart-header-value">
-                                    {formatCurrency(analytics.kpis.lastYearTotalProfit || 0)}
+                                    {formatCurrency(analytics.kpis.lastYearTotalProfit || 0, true)}
                                 </div>
                             </div>
                         </div>

@@ -67,31 +67,32 @@ const TeamPerformance = () => {
             }
         });
 
-        // Compute simulated metrics based on tasks
-        // Fallback to average score (75) if no tasks
-        let taskScore = 75; 
+        // Compute metrics based on actual tasks instead of hardcoded fallbacks
+        let taskScore = 0; 
         if (totalTasks > 0) {
             taskScore = Math.round((completedTasks / totalTasks) * 100);
         }
         
-        // Target score: 80% weight on tasks, 20% random variance
-        const targetScore = Math.max(0, Math.min(100, Math.round(taskScore * 0.8)));
+        // Target score based strictly on actual task score
+        const targetScore = totalTasks > 0 ? Math.max(0, Math.min(100, Math.round(taskScore * 0.8))) : 0;
         
-        // Use 100 for attendance if not tracked, or 0
-        const attendanceScore = 100;
+        // No attendance data available yet, don't hardcode to 100
+        const attendanceScore = 0; 
         
-        // Overall is average
-        const overall = Math.round((taskScore + attendanceScore + targetScore) / 3);
+        // Overall is average, but if everything is 0, overall is 0
+        const overall = totalTasks > 0 ? Math.round((taskScore + attendanceScore + targetScore) / 3) : 0;
         
-        let rating = 'Below Average';
+        let rating = 'N/A';
         if (overall >= 90) rating = 'Excellent';
         else if (overall >= 75) rating = 'Good';
         else if (overall >= 60) rating = 'Average';
+        else if (totalTasks > 0) rating = 'Below Average';
 
-        let appraisal = '0%';
+        let appraisal = 'N/A';
         if (rating === 'Excellent') appraisal = '12%';
         else if (rating === 'Good') appraisal = '8%';
         else if (rating === 'Average') appraisal = '4%';
+        else if (rating === 'Below Average') appraisal = '0%';
 
         return {
             dbId: emp.id || emp._id,

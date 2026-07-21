@@ -25,16 +25,17 @@ const AddVendor = ({ isEditMode = false }) => {
     const fetchVendor = async () => {
         try {
             const { data } = await API.get(`/vendors/${id}`);
+            const vendor = data.vendor || data; // Fallback in case the API changes
             setFormData({
-                name: data.name || '', 
-                category: data.category || '', 
-                contactPerson: data.contactPerson || '', 
-                email: data.email || '', 
-                phone: data.phone || '', 
-                address: data.address || '', 
-                gstNumber: data.gstNumber || '', 
-                website: data.website || '',
-                status: data.status || 'Active'
+                name: vendor.name || '', 
+                category: vendor.category || '', 
+                contactPerson: vendor.contactPerson || '', 
+                email: vendor.email || '', 
+                phone: vendor.phone || '', 
+                address: vendor.address || '', 
+                gstNumber: vendor.gstNumber || '', 
+                website: vendor.website || '',
+                status: vendor.status || 'Active'
             });
         } catch (err) {
             toast.error('Failed to fetch vendor data');
@@ -101,14 +102,14 @@ const AddVendor = ({ isEditMode = false }) => {
             <form id="vendor-form" onSubmit={e => { e.preventDefault(); handleSubmit(); }}>
                 {error && <div className="error-alert" style={{color: '#ef4444', background: '#fef2f2', padding: '12px', borderRadius: '8px', marginBottom: '16px'}}>{error}</div>}
                 
-                <FormSection title="Company Information">
-                    <div className="ui-grid-2">
+                <div className="ui-grid-2">
+                    <FormSection title="Company Information">
                         <FormGroup label="Company Name" required>
                             <Input 
                                 type="text" 
                                 value={formData.name} 
                                 onChange={e => setFormData({...formData, name: e.target.value})} 
-                                placeholder="e.g. Steel Supply Co"
+                                placeholder={isEditMode ? "" : "e.g. Sri Lakshmi Steel Traders"}
                             />
                         </FormGroup>
                         <FormGroup label="Category" required>
@@ -116,7 +117,7 @@ const AddVendor = ({ isEditMode = false }) => {
                                 type="text" 
                                 value={formData.category} 
                                 onChange={e => setFormData({...formData, category: e.target.value})} 
-                                placeholder="e.g. Metals, Plastics, Services" 
+                                placeholder={isEditMode ? "" : "e.g. Steel & Metals"} 
                             />
                         </FormGroup>
                         <FormGroup label="GST Number">
@@ -124,7 +125,7 @@ const AddVendor = ({ isEditMode = false }) => {
                                 type="text" 
                                 value={formData.gstNumber} 
                                 onChange={e => setFormData({...formData, gstNumber: e.target.value})} 
-                                placeholder="e.g. 27AAAAA0000A1Z5" 
+                                placeholder={isEditMode ? "" : "e.g. 33AAAAA0000A1Z5"} 
                             />
                         </FormGroup>
                         <FormGroup label="Status">
@@ -138,17 +139,15 @@ const AddVendor = ({ isEditMode = false }) => {
                                 ]}
                             />
                         </FormGroup>
-                    </div>
-                </FormSection>
+                    </FormSection>
 
-                <FormSection title="Contact Information">
-                    <div className="ui-grid-2">
+                    <FormSection title="Contact Information">
                         <FormGroup label="Primary Contact Person">
                             <Input 
                                 type="text" 
                                 value={formData.contactPerson} 
                                 onChange={e => setFormData({...formData, contactPerson: e.target.value})} 
-                                placeholder="e.g. Jane Doe"
+                                placeholder={isEditMode ? "" : "e.g. Ravi Shankar"} 
                             />
                         </FormGroup>
                         <FormGroup label="Email Address" required>
@@ -156,7 +155,7 @@ const AddVendor = ({ isEditMode = false }) => {
                                 type="email" 
                                 value={formData.email} 
                                 onChange={e => setFormData({...formData, email: e.target.value})} 
-                                placeholder="e.g. sales@steelsupply.com" 
+                                placeholder={isEditMode ? "" : "e.g. ravi@srilakshmisteel.in"} 
                             />
                         </FormGroup>
                         <FormGroup label="Phone Number">
@@ -164,7 +163,7 @@ const AddVendor = ({ isEditMode = false }) => {
                                 type="text" 
                                 value={formData.phone} 
                                 onChange={e => setFormData({...formData, phone: e.target.value})} 
-                                placeholder="e.g. +91 9876543210" 
+                                placeholder={isEditMode ? "" : "e.g. 9865432100"} 
                             />
                         </FormGroup>
                         <FormGroup label="Website">
@@ -172,16 +171,18 @@ const AddVendor = ({ isEditMode = false }) => {
                                 type="url" 
                                 value={formData.website} 
                                 onChange={e => setFormData({...formData, website: e.target.value})} 
-                                placeholder="e.g. https://www.steelsupply.com" 
+                                placeholder={isEditMode ? "" : "e.g. https://www.srilakshmisteel.in"} 
                             />
                         </FormGroup>
-                    </div>
+                    </FormSection>
+                </div>
+                <FormSection title="Location">
                     <FormGroup label="Address">
                         <Input 
                             type="text" 
                             value={formData.address} 
                             onChange={e => setFormData({...formData, address: e.target.value})} 
-                            placeholder="Full address" 
+                            placeholder={isEditMode ? "" : "e.g. SIDCO Industrial Estate, Coimbatore, Tamil Nadu 641021"} 
                         />
                     </FormGroup>
                 </FormSection>

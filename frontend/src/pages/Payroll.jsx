@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import API from '../api/axios';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
+import { formatCurrency } from '../utils/currency';
 
 const Payroll = () => {
     const navigate = useNavigate();
@@ -30,22 +31,6 @@ const Payroll = () => {
     useEffect(() => {
         fetchSalaries();
     }, [fetchSalaries]);
-
-    const formatCurrency = (amount, format) => {
-        if (amount === undefined || amount === null) return '₹0';
-        // Check if amount is >= 1,00,000 for 'L' format in KPIs, else format normally
-        if (amount >= 100000 && format === 'short') {
-            return `₹${(amount / 100000).toFixed(1)}L`;
-        }
-        if (amount >= 1000 && format === 'short') {
-            return `₹${(amount / 1000).toFixed(1)}K`;
-        }
-        return new Intl.NumberFormat('en-IN', {
-            style: 'currency',
-            currency: 'INR',
-            maximumFractionDigits: 0
-        }).format(amount);
-    };
 
     // Calculate dynamic KPIs
     const totalGross = salaries.reduce((sum, s) => sum + (s.basicSalary || 0) + (s.allowances || 0), 0);

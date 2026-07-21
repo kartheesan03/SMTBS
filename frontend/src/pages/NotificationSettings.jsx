@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { Bell, Settings, Send, Mail, MessageCircle, Smartphone, ShoppingCart, ArrowLeftRight, Users, Wallet, Briefcase, Calendar, Headphones, Zap } from 'lucide-react';
+import { Bell, Settings, Send, Mail, MessageCircle, Smartphone, ShoppingCart, ArrowLeftRight, Users, Wallet, Briefcase, Calendar, Headphones, Zap, ExternalLink } from 'lucide-react';
 import { motion } from 'framer-motion';
 import './NotificationSettings.css';
+import { useNavigate } from 'react-router-dom';
 
 const NotificationSettings = () => {
+    const navigate = useNavigate();
     const [prefs, setPrefs] = useState({
         email: true,
         sms: false,
@@ -91,7 +93,7 @@ const NotificationSettings = () => {
                                     <p>Urgent alerts via mobile message</p>
                                 </div>
                             </div>
-                            <label className="ns-switch ns-gray">
+                            <label className="ns-switch ns-green">
                                 <input type="checkbox" checked={prefs.sms} onChange={() => handleToggle('sms')} />
                                 <span className="ns-slider"></span>
                             </label>
@@ -179,7 +181,7 @@ const NotificationSettings = () => {
                                     <p>Leave, attendance, payroll events</p>
                                 </div>
                             </div>
-                            <label className="ns-switch ns-gray">
+                            <label className="ns-switch ns-purple">
                                 <input type="checkbox" checked={prefs.hrEvents} onChange={() => handleToggle('hrEvents')} />
                                 <span className="ns-slider"></span>
                             </label>
@@ -211,7 +213,7 @@ const NotificationSettings = () => {
                                     <p>New leads, deal stage changes, tasks due</p>
                                 </div>
                             </div>
-                            <label className="ns-switch ns-gray">
+                            <label className="ns-switch ns-orange">
                                 <input type="checkbox" checked={prefs.crm} onChange={() => handleToggle('crm')} />
                                 <span className="ns-slider"></span>
                             </label>
@@ -253,8 +255,8 @@ const NotificationSettings = () => {
                         <p>Learn how to configure notifications and stay updated efficiently.</p>
                     </div>
                 </div>
-                <button className="ns-btn-outline">
-                    View Documentation <span>↗</span>
+                <button className="ns-btn-outline" onClick={() => navigate('/support/kb')}>
+                    View Documentation <ExternalLink size={16} />
                 </button>
             </motion.div>
         </motion.div>

@@ -10,11 +10,21 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    width: 100%;
     box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.04);
     transition: box-shadow 0.2s ease;
 }
 .ui-datatable-container:hover {
     box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+}
+
+.ui-datatable-flat {
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+}
+.ui-datatable-flat:hover {
+    box-shadow: none;
 }
 
 /* ── Header ── */
@@ -141,7 +151,7 @@
     cursor: pointer;
     outline: none;
     transition: all 0.2s ease;
-    min-width: 120px;
+    
     appearance: none;
     -webkit-appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
@@ -152,11 +162,8 @@
 .ui-select-filter:focus { border-color: #4F46E5; box-shadow: 0 0 0 3px rgba(79,70,229,0.12); }
 
 /* ── Table Scroll Wrapper ── */
-.ui-datatable-scroll {
-    overflow-x: auto;
-    overflow-y: auto;
-    flex: 1;
-    max-height: 580px;
+.ui-datatable-wrapper {
+    width: 100%;
 }
 
 /* ── Table ── */
@@ -171,16 +178,16 @@
 .ui-datatable thead th {
     position: sticky;
     top: 0;
-    z-index: 5;
-    padding: 8px 8px;
-    font-size: 10px;
-    font-weight: 700;
-    color: #6B7280;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
     background: #F9FAFB;
-    border-bottom: 1px solid #E5E7EB;
-    white-space: nowrap;
+    color: #6B7280;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 10px 4px;
+    border-bottom: 2px solid #E5E7EB;
+    z-index: 10;
+    white-space: normal;
     cursor: pointer;
     user-select: none;
     transition: background 0.15s;
@@ -198,12 +205,14 @@
 .ui-datatable tbody tr:last-child { border-bottom: none; }
 
 .ui-datatable tbody td {
-    padding: 8px 8px;
-    font-size: 12px;
-    color: #374151;
+    padding: 8px 4px;
+    border-bottom: 1px solid #F3F4F6;
+    color: #4B5563;
+    font-size: 14px;
     vertical-align: middle;
     white-space: normal;
-    word-break: break-word;
+    overflow: hidden;
+    word-wrap: break-word;
 }
 
 /* ── Badges / Chips in tables ── */
@@ -327,4 +336,24 @@
     .ui-datatable-toolbar { width: 100%; }
     .ui-search-box input { width: 140px; }
     .ui-datatable-footer { flex-direction: column; align-items: flex-start; }
+}
+
+/* Action Button */
+.ui-action-btn {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+.ui-action-btn:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    transform: translateY(-1px);
 }

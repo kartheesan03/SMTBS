@@ -48,7 +48,6 @@ const navigationConfig = [
         children: [
             { title: 'Procurement', path: '/erp' },
             { title: 'Vendor Management', path: '/vendors' },
-            { title: 'Financial Operations', path: '/erp/finance' },
             { title: 'Order Management', path: '/orders' }
         ]
     },
@@ -60,9 +59,14 @@ const navigationConfig = [
             { title: 'Customer Data', path: '/crm' },
             { title: 'Sales Pipeline', path: '/crm/pipeline' },
             { title: 'Leads', path: '/crm/leads' },
-            { title: 'Sales', path: '/erp/sales' },
-            { title: 'Support Management', path: '/support' }
+            { title: 'Sales', path: '/erp/sales' }
         ]
+    },
+    {
+        title: 'Support Management',
+        icon: 'LifeBuoy',
+        path: '/support',
+        permission: 'view_crm'
     },
     {
         title: 'Tasks & Projects',
@@ -89,12 +93,6 @@ const navigationConfig = [
         title: 'Notifications',
         icon: 'Bell',
         path: '/notifications',
-        permission: ''
-    },
-    {
-        title: 'Help & Support',
-        icon: 'HelpCircle',
-        path: '/support',
         permission: ''
     },
     {

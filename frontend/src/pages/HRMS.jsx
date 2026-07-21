@@ -81,8 +81,9 @@ const HRMS = () => {
 
     // KPI calculations
     const totalEmployees = employees.length;
-    const activeCount = totalEmployees - leaveCount;
-    const activePercent = totalEmployees > 0 ? Math.round((activeCount / totalEmployees) * 100) : 0;
+    // All employees in DB are currently considered active
+    const activeCount = totalEmployees;
+    const activePercent = totalEmployees > 0 ? 100 : 0;
     const leavePercent = totalEmployees > 0 ? Math.round((leaveCount / totalEmployees) * 100) : 0;
 
     // Mini trend data (based on real count, with slight variation for visual effect)

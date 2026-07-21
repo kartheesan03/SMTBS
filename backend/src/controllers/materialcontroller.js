@@ -177,7 +177,7 @@ const createMaterial = async (req, res) => {
 // @route   PUT /api/materials/:id
 // @access  Private/Admin/Manager
 const updateMaterial = async (req, res) => {
-    const { name, sku, category, quantity, lowStockThreshold, unit, price, vendorId, warehouse, shelf, gpsStatus } = req.body;
+    const { name, sku, category, quantity, lowStockThreshold, unit, price, vendorId, warehouse, rack, shelf, gpsStatus } = req.body;
     try {
         const material = await Material.findById(req.params.id);
         if (material) {
@@ -190,15 +190,18 @@ const updateMaterial = async (req, res) => {
             material.lowStockThreshold = lowStockThreshold || material.lowStockThreshold;
             material.unit = unit || material.unit;
             material.price = price !== undefined ? price : material.price;
-            if (vendorId !== undefined) material.vendorId = vendorId;
-
+            if (vendorId !== undefined) {
+                material.vendorId = vendorId === '' ? null : vendorId;
+            }
             // Update location fields if provided
-            if (warehouse !== undefined || shelf !== undefined) {
+            if (warehouse !== undefined || rack !== undefined || shelf !== undefined) {
                 const newWarehouse = warehouse !== undefined ? (warehouse || '').trim() : (material.warehouse || '');
+                const newRack = rack !== undefined ? (rack || '').trim() : (material.rack || '');
                 const newShelf = shelf !== undefined ? (shelf || '').trim() : (material.shelf || '');
                 material.warehouse = newWarehouse || null;
+                material.rack = newRack || null;
                 material.shelf = newShelf || null;
-                material.location = deriveLocation(newWarehouse, newShelf);
+                material.location = deriveLocation(newWarehouse, newShelf); // deriveLocation may need to handle rack, but let's keep as is or we can leave it
                 material.locationUpdatedAt = new Date();
             }
             if (gpsStatus !== undefined && gpsStatus !== material.gpsStatus) {
@@ -235,13 +238,13 @@ const updateMaterial = async (req, res) => {
             if (quantity !== undefined && Number(quantity) !== previousQuantity) {
                 const diff = Number(quantity) - previousQuantity;
                 await MaterialMovement.create({
-                    materialId: updatedMaterial._id,
+                    materialId: updatedMaterial._id || updatedMaterial.id,
                     type: diff > 0 ? 'In' : 'Out',
                     quantity: Math.abs(diff),
                     previousQuantity: previousQuantity,
                     newQuantity: Number(quantity),
                     reason: 'Manual stock adjustment',
-                    performedById: req.user?._id || null
+                    performedById: req.user?._id || req.user?.id || null
                 });
             }
 
@@ -719,12 +722,13 @@ const getMaterialById = async (req, res) => {
     try {
         const id = req.params.id;
         
+        let material;
         // Basic ID validation for SQLite/Sequelize (integers)
-        if (!/^\d+$/.test(id)) {
-            return res.status(400).json({ message: 'Invalid material ID format' });
+        if (/^\d+$/.test(id)) {
+            material = await Material.findById(id);
+        } else {
+            material = await Material.findOne({ sku: id });
         }
-
-        const material = await Material.findById(id);
         
         if (!material || material.isActive === false) {
             return res.status(404).json({ message: 'Material not found' });

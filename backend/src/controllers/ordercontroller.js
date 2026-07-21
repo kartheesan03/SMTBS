@@ -949,6 +949,21 @@ const employeeCheckOrder = async (req, res) => {
     }
 };
 
+// @desc    Get orders for a specific customer by Admin
+// @route   GET /api/orders/customer/:id
+// @access  Private
+const getCustomerOrdersById = async (req, res) => {
+    try {
+        const orders = await Order.find({ customerId: req.params.id, orderType: 'sales' })
+            .populate('customer', 'name email phone company address')
+            .populate('items.material', 'name price quantity')
+            .sort({ createdAt: -1 });
+        res.json(orders);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 module.exports = {
     getOrders,
     createOrder,
@@ -963,5 +978,6 @@ module.exports = {
     getLiveLocation,
     flagAsDelayed,
     managerApproveOrder,
-    employeeCheckOrder
+    employeeCheckOrder,
+    getCustomerOrdersById
 };

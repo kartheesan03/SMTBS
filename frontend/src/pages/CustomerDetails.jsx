@@ -87,6 +87,7 @@ const CustomerDetails = () => {
             columns={orderColumns}
             data={orders}
             searchPlaceholder="Search orders..."
+            variant="flat"
         />
     );
 

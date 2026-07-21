@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import PasswordInput from '../components/ui/PasswordInput';
 import API from '../api/axios';
 import { User, Briefcase, Key, Bell, Activity, CreditCard, Plus, Edit, Trash2, Smartphone, ShieldCheck, Mail, MapPin, Camera } from 'lucide-react';
 import { toast } from 'react-hot-toast';
@@ -398,11 +399,11 @@ const Settings = () => {
                     <form className="ui-form" onSubmit={handlePasswordUpdate}>
                         <div className="form-group">
                             <label>Current Password</label>
-                            <input type="password" name="currentPass" placeholder="Enter current password" />
+                            <PasswordInput name="currentPass" placeholder="Enter current password" />
                         </div>
                         <div className="form-group">
                             <label>New Password</label>
-                            <input type="password" name="newPass" placeholder="Enter new password" />
+                            <PasswordInput name="newPass" placeholder="Enter new password" />
                         </div>
                         <button type="submit" className="btn-outline-purple">Update Password</button>
                     </form>

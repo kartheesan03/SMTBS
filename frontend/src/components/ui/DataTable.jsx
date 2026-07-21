@@ -20,7 +20,8 @@ const DataTable = ({
     primaryAction = null, // { label, icon: Icon, onClick }
     pageSize = 10,
     loading = false,
-    expandableRowRender = null // (row) => ReactNode
+    expandableRowRender = null, // (row) => ReactNode
+    variant = 'default' // 'default' | 'flat'
 }) => {
     const [search, setSearch] = useState('');
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
@@ -201,7 +202,7 @@ const DataTable = ({
     };
 
     return (
-        <div className="ui-datatable-container" ref={dropdownRef}>
+        <div className={`ui-datatable-container ${variant === 'flat' ? 'ui-datatable-flat' : ''}`} ref={dropdownRef}>
             <div className="ui-datatable-header">
                 <div className="ui-datatable-title">
                     <h3>{title}</h3>
@@ -293,7 +294,7 @@ const DataTable = ({
                     <thead>
                         <tr>
                             {columns.filter(c => visibleColumns[c.key]).map((col) => (
-                                <th key={col.key} onClick={() => handleSort(col.key)} style={{ cursor: 'pointer', textAlign: col.align || 'left' }}>
+                                <th key={col.key} onClick={() => handleSort(col.key)} style={{ cursor: 'pointer', textAlign: col.align || 'left', width: col.width || 'auto' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '4px', justifyContent: col.align === 'right' ? 'flex-end' : col.align === 'center' ? 'center' : 'flex-start' }}>
                                         {col.label}
                                         {sortConfig.key === col.key && (
@@ -382,6 +383,16 @@ const DataTable = ({
                                         </div>
                                         <h4 style={{ margin: 0, fontSize: 16, color: '#0f172a', fontWeight: 600 }}>No records found</h4>
                                         <p style={{ margin: 0, fontSize: 14, color: '#64748b', maxWidth: 300 }}>We couldn't find any data matching your current search criteria.</p>
+                                        {primaryAction && (
+                                            <button 
+                                                className="ui-btn-primary" 
+                                                style={{ marginTop: '12px' }}
+                                                onClick={primaryAction.onClick}
+                                            >
+                                                {primaryAction.icon && <primaryAction.icon size={16} />}
+                                                {primaryAction.label}
+                                            </button>
+                                        )}
                                     </div>
                                 </td>
                             </motion.tr>

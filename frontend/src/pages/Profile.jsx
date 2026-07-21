@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import API from '../api/axios';
+import PasswordInput from '../components/ui/PasswordInput';
 import { User, Briefcase, Key, Bell, Activity, Settings as SettingsIcon, Shield, ShieldCheck, Camera } from 'lucide-react';
 import CustomerProfileSettings from './CustomerProfileSettings';
 import PageHeader from '../components/PageHeader';
@@ -354,11 +355,11 @@ const Profile = () => {
                         <form className="ui-form" onSubmit={handlePasswordUpdate}>
                             <div className="form-group">
                                 <label>Current Password</label>
-                                <input type="password" name="currentPass" placeholder="Enter current password" />
+                                <PasswordInput name="currentPass" placeholder="Enter current password" />
                             </div>
                             <div className="form-group">
                                 <label>New Password</label>
-                                <input type="password" name="newPass" placeholder="Enter new password" />
+                                <PasswordInput name="newPass" placeholder="Enter new password" />
                             </div>
                             <button type="submit" className="btn-outline-purple">Update Password</button>
                         </form>

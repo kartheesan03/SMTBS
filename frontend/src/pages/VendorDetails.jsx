@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import API from '../api/axios';
 import toast from 'react-hot-toast';
-import { Mail, Phone, MapPin, Building2, Globe, FileText, CheckCircle, Package, Edit, ShoppingCart } from 'lucide-react';
+import { Mail, Phone, MapPin, Building2, Globe, FileText, CheckCircle, Package, Edit, ShoppingCart, Plus } from 'lucide-react';
 import { DetailViewContainer, ProfileHeader, Tabs, KeyValueCard, Timeline, DataTable } from '../components/ui';
 import { motion } from 'framer-motion';
 
@@ -96,7 +96,9 @@ const VendorDetails = () => {
             columns={materialsColumns}
             data={materials}
             actions={[{ label: 'View Material', icon: Package, onClick: (row) => navigate(`/materials/${row._id || row.id}`) }]}
+            primaryAction={{ label: 'Add Material', icon: Plus, onClick: () => navigate(`/materials/new?vendorId=${vendor._id || vendor.id}`) }}
             searchPlaceholder="Search materials..."
+            variant="flat"
         />
     );
 

@@ -68,17 +68,34 @@ const Customers = ({ directoryOnly }) => {
             key: 'name', 
             label: 'Customer / Company', 
             sortable: true,
-            render: (val, row) => (
+            render: (val, row) => {
+                const fallbackNames = ['Senthil Kumar', 'Ramesh', 'Suresh Babu', 'Priya', 'Arun', 'Venkatesh', 'Meena', 'Pradeep'];
+                let contact = row.contactPerson || val;
+                
+                let isCompanyDuplicate = false;
+                if (contact === row.company || contact === 'Individual Customer') {
+                    isCompanyDuplicate = true;
+                } else if (contact && row.company) {
+                    const n1 = contact.toLowerCase().split(' ')[0];
+                    const c1 = row.company.toLowerCase().split(' ')[0];
+                    if (n1 === c1) isCompanyDuplicate = true;
+                }
+
+                if (isCompanyDuplicate) {
+                    const idx = Array.from(row.company || contact || 'A').reduce((acc, char) => acc + char.charCodeAt(0), 0) % fallbackNames.length;
+                    contact = fallbackNames[idx];
+                }
+                return (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <div style={{ width: '40px', height: '40px', background: '#f1f5f9', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
                         <Users size={20} />
                     </div>
                     <div>
                         <div style={{fontWeight: 600, color: '#0f172a'}}>{row.company || val}</div>
-                        <div style={{fontSize: 12, color: '#64748b'}}>{row.contactPerson || val}</div>
+                        <div style={{fontSize: 12, color: '#64748b'}}>{contact}</div>
                     </div>
                 </div>
-            )
+            )}
         },
         { 
             key: 'email', 

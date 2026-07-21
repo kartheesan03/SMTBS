@@ -365,7 +365,7 @@ const BarcodeManagement = () => {
                             </div>
                         </div>
                         <div className="rd-modal-footer">
-                            <button className="rd-btn-outline" onClick={() => setPreviewItem(null)}>Close</button>
+                            <button className="btn-secondary" onClick={() => setPreviewItem(null)}>Close</button>
                             <button className="rd-btn-solid" style={{background: '#10b981'}} onClick={() => {
                                 const printContent = document.getElementById('print-area').innerHTML;
                                 const originalContent = document.body.innerHTML;

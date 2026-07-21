@@ -287,9 +287,7 @@ const SalesPipeline = () => {
                                     <div style={{fontSize: 12, opacity: 0.9, marginTop: 2}}>{dealCount} active deals worth {formatShortCurrency(pipelineValue)} in pipeline. {closedWon} deals closed.</div>
                                 </div>
                             </div>
-                            <button style={{background: 'transparent', border: '1px solid rgba(255,255,255,0.3)', color: 'white', padding: '6px 14px', borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4}}>
-                                View Details <ArrowRight size={14} />
-                            </button>
+
                         </div>
                     </div>
 
@@ -363,9 +361,6 @@ const SalesPipeline = () => {
                                     <div style={{fontSize: 12, opacity: 0.9, marginTop: 2}}>{sourceData[0]?.value || 0} customers in the {sourceData[0]?.name || 'top'} segment.</div>
                                 </div>
                             </div>
-                            <button style={{background: 'transparent', border: '1px solid rgba(255,255,255,0.3)', color: 'white', padding: '6px 14px', borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4}}>
-                                View Report <ArrowRight size={14} />
-                            </button>
                         </div>
                     </div>
                 </motion.div>

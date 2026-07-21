@@ -61,6 +61,36 @@ const MaterialSequelize = sequelize.define('Material', {
         type: DataTypes.BOOLEAN,
         defaultValue: true
     },
+    // ── Additional Details ────────────────────────────────────────────────────
+    condition: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        defaultValue: 'New'
+    },
+    source: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    certifications: {
+        type: DataTypes.JSON,
+        allowNull: true,
+        defaultValue: []
+    },
+    used_in: {
+        type: DataTypes.JSON,
+        allowNull: true,
+        defaultValue: []
+    },
+    specs: {
+        type: DataTypes.JSON,
+        allowNull: true,
+        defaultValue: {}
+    },
+    images: {
+        type: DataTypes.JSON,
+        allowNull: true,
+        defaultValue: []
+    },
     // ── Unified location fields (single source of truth) ──────────────────────
     warehouse: {
         type: DataTypes.STRING,

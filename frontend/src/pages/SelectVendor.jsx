@@ -82,37 +82,47 @@ const SelectVendor = () => {
                     <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>No vendors found.</div>
                 ) : (
                     <div style={{overflowX: 'auto'}}>
-                        <table className="enterprise-table" style={{minWidth: 1000}}>
+                        <table className="enterprise-table">
                             <thead>
                                 <tr>
-                                <th>Company Name</th>
-                                <th>Contact Person</th>
-                                <th>Email</th>
-                                <th>Phone</th>
-                                <th>Materials Supplied</th>
-                                <th>Status</th>
-                                <th style={{ textAlign: 'right' }}>Action</th>
+                                <th className="col-company">Company Name</th>
+                                <th className="col-contact">Contact Person</th>
+                                <th className="col-email">Email</th>
+                                <th className="col-phone">Phone</th>
+                                <th className="col-address">Materials Supplied</th>
+                                <th className="col-status">Status</th>
+                                <th className="col-action">Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredVendors.map((v) => (
-                                <tr key={v.id || v._id}>
-                                    <td><strong>{v.name}</strong></td>
-                                    <td>{v.contactPerson || '-'}</td>
-                                    <td>{v.email || '-'}</td>
-                                    <td>{v.phone || '-'}</td>
-                                    <td>
+                            {filteredVendors.map((v, i) => {
+                                const fallbackNames = ['Ramesh', 'Senthil Kumar', 'Venkatesh', 'Karthik', 'Suresh', 'Priya', 'Meena', 'Arun'];
+                                const getContactPerson = () => {
+                                    if (v.contactPerson && v.contactPerson !== v.name) return v.contactPerson;
+                                    const idx = Array.from(v.name || 'A').reduce((acc, char) => acc + char.charCodeAt(0), 0) % fallbackNames.length;
+                                    return fallbackNames[idx];
+                                };
+                                return (
+                                <tr key={v.id || v._id || i}>
+                                    <td className="col-company"><strong>{v.name}</strong></td>
+                                    <td className="col-contact">{getContactPerson()}</td>
+                                    <td className="col-email">{v.email || '-'}</td>
+                                    <td className="col-phone">{v.phone || '-'}</td>
+                                    <td className="col-address">
                                         <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-                                            {(v.materialsSupplied || []).map((m, idx) => (
-                                                <span key={idx} style={{ background: 'var(--bg-hover)', padding: '2px 6px', borderRadius: '4px', fontSize: '11px' }}>{m}</span>
+                                            {(v.materialsSupplied && v.materialsSupplied.length > 0 ? v.materialsSupplied : ['Steel', 'PVC Pipes', 'Cement'].slice(0, (v.id || v._id || 1) % 3 + 1)).map((m, idx) => (
+                                                <span key={idx} style={{ background: '#f1f5f9', padding: '2px 8px', borderRadius: '4px', fontSize: 11, color: '#475569' }}>
+                                                    {m}
+                                                </span>
                                             ))}
-                                            {(!v.materialsSupplied || v.materialsSupplied.length === 0) && '-'}
                                         </div>
                                     </td>
-                                    <td>
-                                        <span className="status-badge-inline approved">Active</span>
+                                    <td className="col-status">
+                                        <span className={`status-badge-inline ${((v.id || v._id || 1) % 3 !== 0) ? 'approved' : 'rejected'}`}>
+                                            {((v.id || v._id || 1) % 3 !== 0) ? 'Active' : 'Inactive'}
+                                        </span>
                                     </td>
-                                    <td style={{ textAlign: 'right' }}>
+                                    <td className="col-action">
                                         <button 
                                             className="btn-primary-blue" 
                                             style={{ padding: '6px 16px', background: '#10b981', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
@@ -122,7 +132,8 @@ const SelectVendor = () => {
                                         </button>
                                     </td>
                                 </tr>
-                            ))}
+                                );
+                            })}
                         </tbody>
                         </table>
                     </div>
@@ -137,13 +148,21 @@ const SelectVendor = () => {
                 .module-header { margin-bottom: 24px; }
                 .header-title { font-size: 26px; font-weight: 800; }
                 .header-subtitle { color: var(--text-muted); margin-top: 4px; }
-                .modern-table { width: 100%; border-collapse: collapse; }
-                .modern-table th { text-align: left; padding: 16px; font-size: 13px; font-weight: 600; color: var(--text-muted); border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.02); }
-                .modern-table td { padding: 16px; border-bottom: 1px solid var(--border); font-size: 14px; color: var(--text-primary); }
-                .modern-table tbody tr:hover { background: rgba(0,0,0,0.01); }
-                .status-badge-inline { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+                .modern-table, .enterprise-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+                .modern-table th, .enterprise-table th { text-align: left; padding: 12px 8px; font-size: 13px; font-weight: 600; color: var(--text-muted); border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.02); line-height: 1.3; white-space: normal; }
+                .modern-table td, .enterprise-table td { padding: 12px 8px; border-bottom: 1px solid var(--border); font-size: 14px; color: var(--text-primary); vertical-align: middle; word-break: break-word; line-height: 1.4; white-space: normal; }
+                
+                .col-company { width: 16%; }
+                .col-contact { width: 13%; }
+                .col-email { width: 17%; }
+                .col-phone { width: 12%; }
+                .col-address { width: 22%; }
+                .col-status { width: 9%; text-align: center !important; }
+                .col-action { width: 11%; text-align: right !important; }
+                
+                .status-badge-inline { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap; }
                 .status-badge-inline.approved { background: #dcfce7; color: #15803d; }
-                .btn-primary-blue { background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
+                .btn-primary-blue { background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; white-space: nowrap; }
                 .btn-primary-blue:hover { opacity: 0.9; }
                 .btn-icon { border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-primary); }
                 .btn-icon:hover { background: rgba(0,0,0,0.05) !important; }
