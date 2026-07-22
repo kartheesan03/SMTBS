@@ -38,8 +38,8 @@ const OrderSequelize = sequelize.define('Order', {
         allowNull: true
     },
     status: {
-        type: DataTypes.ENUM('New', 'Assigned to Employee', 'Material Confirmed', 'Ready for Delivery', 'Out for Delivery', 'Delivered', 'On Hold', 'Created', 'Pending Approval', 'Awaiting Approval', 'Approved', 'Pending', 'Confirmed', 'Processing', 'Shipped', 'Rejected', 'Cancelled', 'Awaiting Stock Check', 'Low Stock Alert'),
-        defaultValue: 'New'
+        type: DataTypes.ENUM('New', 'Order Created', 'Admin / Manager Review', 'Employee Verification', 'Inventory Verification', 'Purchase Required', 'Vendor Supply', 'Employee Final Approval', 'Sales Processing', 'Packing Completed', 'Ready For Dispatch', 'Out For Delivery', 'Delivered', 'Invoice Generated', 'Workflow Completed', 'Low Stock', 'Out Of Stock', 'Waiting for Manager', 'Vendor Accepted', 'Vendor Rejected', 'Material Received', 'Draft', 'Rejected', 'Cancelled', 'Created', 'Assigned to Employee', 'Material Confirmed', 'Ready for Delivery', 'On Hold', 'Pending Approval', 'Awaiting Approval', 'Approved', 'Pending', 'Confirmed', 'Processing', 'Shipped', 'Awaiting Stock Check', 'Low Stock Alert', 'Low Stock Hold', 'Manager/Admin Review', 'Inventory Verified', 'Purchase Completed', 'Inventory Updated', 'Packing'),
+        defaultValue: 'Order Created'
     },
     approvalStatus: {
         type: DataTypes.ENUM('Pending', 'Pending Manager Approval', 'Manager Approved', 'Employee Approved', 'Approved', 'Rejected'),
@@ -158,6 +158,10 @@ const OrderSequelize = sequelize.define('Order', {
         defaultValue: 0
     },
     trackingTimeline: {
+        type: DataTypes.JSON,
+        allowNull: true
+    },
+    workflow: {
         type: DataTypes.JSON,
         allowNull: true
     }

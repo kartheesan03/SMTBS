@@ -26,7 +26,8 @@ const VendorDetails = () => {
                 const vMaterials = materialsData.filter(m => String(m.vendorId) === vId || String(m.vendor?.id || m.vendor?._id || m.vendor) === vId);
                 setMaterials(vMaterials);
             } catch (err) {
-                toast.error('Failed to load vendor details');
+                console.error("VendorDetails load error:", err);
+                toast.error('Failed to load vendor details: ' + (err.response?.data?.message || err.message));
                 navigate('/vendors');
             } finally {
                 setLoading(false);

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getOrders, createOrder, updateOrderStatus, updatePaymentStatus, updateTrackingStatus, getMyCustomerOrders, getCustomerOrdersById, createCustomerOrder, deleteOrder, employeeApprovePurchaseOrder, cancelCustomerOrder, getLiveLocation, flagAsDelayed, managerApproveOrder, employeeCheckOrder } = require('../controllers/ordercontroller');
+const { getOrders, createOrder, updateOrderStatus, updatePaymentStatus, updateTrackingStatus, getMyCustomerOrders, getCustomerOrdersById, createCustomerOrder, deleteOrder, employeeApprovePurchaseOrder, cancelCustomerOrder, getLiveLocation, flagAsDelayed, managerApproveOrder, employeeCheckOrder, advanceWorkflow } = require('../controllers/ordercontroller');
 const { protect, authorize } = require('../middleware/authMiddleware');
 
 router.route('/')
@@ -19,6 +19,9 @@ router.route('/:id/cancel')
 
 router.route('/:id/status')
     .put(protect, authorize('manage_crm', 'manage_inventory'), updateOrderStatus);
+
+router.route('/:id/advance')
+    .put(protect, advanceWorkflow);
 
 router.route('/:id/payment-status')
     .put(protect, authorize('manage_crm'), updatePaymentStatus);

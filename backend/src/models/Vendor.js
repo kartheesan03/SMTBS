@@ -58,6 +58,11 @@ const VendorSequelize = sequelize.define('Vendor', {
         set(val) {
             this.setDataValue('materialsSupplied', JSON.stringify(val || []));
         }
+    },
+    rating: {
+        type: DataTypes.FLOAT,
+        allowNull: true,
+        defaultValue: 0
     }
 });
 

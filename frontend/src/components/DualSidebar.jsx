@@ -75,7 +75,7 @@ const DualSidebar = () => {
                 {
                     title: 'TIME & ATTENDANCE',
                     links: [
-                        { name: 'My Attendance', path: '/attendance/my', icon: <Clock /> },
+                        { name: 'Attendance', path: '/attendance/my', icon: <Clock /> },
                         { name: 'Master Attendance', path: '/attendance', icon: <List /> }
                     ]
                 }
@@ -90,7 +90,7 @@ const DualSidebar = () => {
                         { name: 'Employee Management', path: '/hrms', icon: <Users /> },
                         { name: 'Leave Management', path: '/leave-management', icon: <Calendar /> },
                         { name: 'Payroll', path: '/payroll', icon: <DollarSign /> },
-                        { name: 'My Salary', path: '/my-salary', icon: <Wallet /> },
+                        { name: 'Salary', path: '/my-salary', icon: <Wallet /> },
                     ]
                 }
             ]
@@ -142,7 +142,7 @@ const DualSidebar = () => {
                 {
                     title: 'TASKS',
                     links: [
-                        { name: 'My Tasks', path: '/my-tasks', icon: <CheckSquare /> }
+                        { name: 'Tasks', path: '/my-tasks', icon: <CheckSquare /> }
                     ]
                 }
             ]

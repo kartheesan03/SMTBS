@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { 
     Search, Filter, ArrowUpRight, ArrowDownRight, Activity, 
     ArrowRightLeft, Download, Layers, FileSearch, MapPin, 
-    Package, Truck, Building2, Calendar, Clock, User, Hash, Edit, Printer, Share2, FileText, CheckCircle2, ChevronRight, MoreHorizontal
+    Package, Truck, Building2, Calendar, Clock, User, Hash, Edit, Printer, Share2, FileText, CheckCircle2, ChevronRight, MoreHorizontal, Box
 } from 'lucide-react';
 import API from '../api/axios';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -70,7 +70,7 @@ const TrackingDashboard = () => {
             }
             
             // Also fetch all materials for the Material view mode
-            const matsRes = await API.get('/materials/list');
+            const matsRes = await API.get('/materials');
             setMaterialsList(matsRes.data || []);
             
             // Check if initialSearch matches a material directly
@@ -108,7 +108,7 @@ const TrackingDashboard = () => {
         const intervalId = setInterval(async () => {
             if (viewMode === 'material') {
                 try {
-                    const matsRes = await API.get('/materials/list');
+                    const matsRes = await API.get('/materials');
                     setMaterialsList(matsRes.data || []);
                 } catch (err) {
                     console.error("Polling failed", err);
@@ -252,6 +252,11 @@ const TrackingDashboard = () => {
 
     return (
         <div className="rd-container">
+            <style>{`
+                .mat-list-item:hover:not(.active) {
+                    background: #f8fafc !important;
+                }
+            `}</style>
         <motion.div 
             className="rd-content"
             initial={{ opacity: 0, y: 15 }}
@@ -401,6 +406,7 @@ const TrackingDashboard = () => {
                                     return (
                                         <div 
                                             key={mat._id || mat.id}
+                                            className={isSelected ? "mat-list-item active" : "mat-list-item"}
                                             onClick={() => setSelectedMovement({ 
                                                 id: `MAT-${mat._id || mat.id}`, _id: `MAT-${mat._id || mat.id}`, 
                                                 materialId: mat._id || mat.id, materialName: mat.name, 
@@ -415,13 +421,22 @@ const TrackingDashboard = () => {
                                             }}
                                         >
                                             <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                                                <div style={{ marginTop: 6, width: 8, height: 8, borderRadius: 4, background: live ? '#16a34a' : '#9ca3af', flexShrink: 0 }} />
+                                                <div style={{ marginTop: 4, width: 32, height: 32, borderRadius: 8, background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: '1px solid #e2e8f0' }}>
+                                                    <Box size={16} color="#64748b" />
+                                                </div>
                                                 <div>
-                                                    <div style={{ fontWeight: 700, color: '#0f172a', fontSize: 15, marginBottom: 2 }}>
+                                                    <div style={{ fontWeight: 700, color: '#0f172a', fontSize: 15, marginBottom: 2, display: 'flex', alignItems: 'center', gap: 8 }}>
                                                         {mat.name || 'Unknown Material'}
+                                                        <span style={{ width: 8, height: 8, borderRadius: 4, background: live ? '#16a34a' : '#cbd5e1' }} title={live ? 'Live Tracking' : 'Offline'} />
                                                     </div>
-                                                    <div style={{ fontSize: 13, color: '#94a3b8' }}>
-                                                        {(!mat.rack || !mat.shelf) ? 'Not yet shelved' : `Rack ${mat.rack} \u00B7 Shelf ${mat.shelf}`} &middot; {mat.warehouse || 'Unknown'}
+                                                    <div style={{ fontSize: 13, color: '#64748b', display: 'flex', alignItems: 'center', gap: 6 }}>
+                                                        <span style={{ color: '#0ea5e9', fontWeight: 600 }}>{mat.category || 'Uncategorized'}</span>
+                                                        &middot;
+                                                        {(!mat.rack || !mat.shelf) ? (
+                                                            <span style={{ padding: '2px 8px', background: '#fef3c7', color: '#d97706', borderRadius: 99, fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 6, height: 6, borderRadius: 3, background: '#d97706' }}/> Unshelved</span>
+                                                        ) : (
+                                                            <span>R{mat.rack} &middot; S{mat.shelf}</span>
+                                                        )}
                                                     </div>
                                                 </div>
                                             </div>

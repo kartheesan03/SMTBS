@@ -104,10 +104,13 @@ const MaterialDetails = ({ embeddedId }) => {
 
             <style>{`
                 .tab-btn {
-                    padding: 12px 0px; margin-right: 24px; font-size: 14px; font-weight: 700; cursor: pointer; border-bottom: 2px solid transparent; color: #64748b; background: none; border: none; outline: none; transition: all 0.2s; display: flex; align-items: center; gap: 8px;
+                    padding: 8px 16px; font-size: 14px; font-weight: 600; cursor: pointer; color: #64748b; background: transparent; border: none; outline: none; transition: all 0.2s; display: flex; align-items: center; gap: 8px; border-radius: 6px;
+                }
+                .tab-btn:hover {
+                    color: #0f172a; background: #f1f5f9;
                 }
                 .tab-btn.active {
-                    color: #0f172a; border-bottom-color: #0f172a;
+                    color: #0f172a; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
                 }
                 .card {
                     background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 16px; box-shadow: 0 1px 2px rgba(0,0,0,0.02);
@@ -122,7 +125,7 @@ const MaterialDetails = ({ embeddedId }) => {
             `}</style>
 
             {/* Tabs */}
-            <div style={{ display: 'flex', borderBottom: '1px solid #e2e8f0', marginBottom: 24 }}>
+            <div style={{ display: 'flex', background: '#f1f5f9', padding: 4, borderRadius: 8, marginBottom: 24, width: 'fit-content' }}>
                 <button className={`tab-btn ${activeTab === 'details' ? 'active' : ''}`} onClick={() => setActiveTab('details')}><Info size={16}/> Details</button>
                 <button className={`tab-btn ${activeTab === 'tracking' ? 'active' : ''}`} onClick={() => setActiveTab('tracking')}><Target size={16}/> Tracking</button>
             </div>
@@ -133,27 +136,68 @@ const MaterialDetails = ({ embeddedId }) => {
                     {/* Main Column */}
                     <div style={{ flex: '1 1 350px', minWidth: 0 }}>
                         {/* Hero Card */}
-                        <div className="card" style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
-                            <div style={{ width: 140, height: 110, flexShrink: 0, borderRadius: 8, background: '#f8fafc', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: 12, position: 'relative' }}>
-                                <div style={{ fontSize: 11, color: '#64748b', fontWeight: 600 }}>50x50 mm</div>
-                                <div style={{ display: 'flex', justifyContent: 'center' }}><Box size={32} color="#94a3b8" /></div>
-                                <div style={{ fontSize: 11, color: '#64748b', fontWeight: 600, textAlign: 'right' }}>6000 mm</div>
+                        <div className="card" style={{ display: 'flex', gap: 24, alignItems: 'center', position: 'relative' }}>
+                            <div style={{ width: 160, height: 160, flexShrink: 0, borderRadius: 12, background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+                                {/* Category-specific icon */}
+                                {(() => {
+                                    const cat = (material.category || '').toLowerCase();
+                                    if (cat.includes('electrical')) return <Target size={64} color="#3b82f6" opacity={0.2} />;
+                                    if (cat.includes('metal') || cat.includes('steel')) return <Layers size={64} color="#64748b" opacity={0.2} />;
+                                    if (cat.includes('wood') || cat.includes('timber')) return <Box size={64} color="#d97706" opacity={0.2} />;
+                                    if (cat.includes('cement')) return <Box size={64} color="#94a3b8" opacity={0.2} />;
+                                    return <Package size={64} color="#94a3b8" opacity={0.2} />;
+                                })()}
+                                {/* Dimension Overlay */}
+                                <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: 12 }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                                        <div style={{ background: 'rgba(255,255,255,0.8)', padding: '2px 6px', borderRadius: 4, fontSize: 11, fontWeight: 700, color: '#334155', border: '1px solid #cbd5e1' }}>
+                                            {specs?.Thickness || '50'} mm
+                                        </div>
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
+                                        <div style={{ background: 'rgba(255,255,255,0.8)', padding: '2px 6px', borderRadius: 4, fontSize: 11, fontWeight: 700, color: '#334155', border: '1px solid #cbd5e1' }}>
+                                            {specs?.Length || '6000'} mm
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <div style={{ flex: 1, minWidth: 0 }}>
-                                <div style={{ marginBottom: 8 }}>
-                                    <span className="pill pill-green"><span style={{ width: 6, height: 6, borderRadius: 3, background: '#16a34a' }}></span> In stock</span>
+                                <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 12 }}>
+                                    <span className="pill" style={{ background: stockBg, color: stockColor }}><span style={{ width: 6, height: 6, borderRadius: 3, background: stockColor }}></span> {stockStatus}</span>
+                                    {material.tags && material.tags.map((t, idx) => (
+                                        <span key={idx} className="pill pill-blue">{t}</span>
+                                    ))}
                                 </div>
-                                <h1 style={{ fontSize: 20, fontWeight: 700, color: '#0f172a', margin: '0 0 4px 0' }}>{material.name}</h1>
-                                <div style={{ fontSize: 13, color: '#64748b', marginBottom: 16 }}>{material.category} · {material.sku || `MAT-${material.id}`}</div>
+                                <h1 style={{ fontSize: 24, fontWeight: 800, color: '#0f172a', margin: '0 0 4px 0' }}>{material.name}</h1>
+                                <div style={{ fontSize: 14, color: '#64748b', marginBottom: 20 }}>{material.category} &middot; SKU: {material.sku || `MAT-${material.id}`}</div>
                                 
-                                <div className="icon-value"><User size={14}/> {material.source || 'Bulk purchase'}</div>
-                                <div className="icon-value" style={{ margin: 0 }}><Check size={14}/> {material.condition || 'Good condition'}</div>
+                                <div style={{ display: 'flex', gap: 24 }}>
+                                    <div>
+                                        <div style={{ fontSize: 11, color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', marginBottom: 4 }}>Supplier / Source</div>
+                                        <div style={{ fontSize: 13, color: '#0f172a', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}><User size={14}/> {material.source || 'Bulk purchase'}</div>
+                                    </div>
+                                    <div>
+                                        <div style={{ fontSize: 11, color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', marginBottom: 4 }}>Condition</div>
+                                        <div style={{ fontSize: 13, color: '#0f172a', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}><CheckCircle2 size={14} color="#16a34a"/> {material.condition || 'Good condition'}</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
                         {/* Specs Card */}
                         <div className="card">
                             <h3 style={{ margin: '0 0 20px 0', fontSize: 14, color: '#0f172a', fontWeight: 700 }}>Technical specs</h3>
+                            
+                            <div style={{ marginBottom: 24 }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                                    <div style={{ fontSize: 13, fontWeight: 600, color: '#475569', display: 'flex', alignItems: 'center', gap: 6 }}><Layers size={14}/> Stock Level</div>
+                                    <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>{material.quantity} / {material.maxCapacity || 1000} {material.unit}</div>
+                                </div>
+                                <div style={{ width: '100%', height: 8, background: '#f1f5f9', borderRadius: 4, overflow: 'hidden' }}>
+                                    <div style={{ width: `${Math.min(100, (material.quantity / (material.maxCapacity || 1000)) * 100)}%`, height: '100%', background: stockColor, borderRadius: 4 }}></div>
+                                </div>
+                            </div>
+
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
                                 <div>
                                     <Layers size={16} color="#64748b" style={{ marginBottom: 12 }}/>
@@ -162,18 +206,29 @@ const MaterialDetails = ({ embeddedId }) => {
                                 </div>
                                 <div>
                                     <Pencil size={16} color="#64748b" style={{ marginBottom: 12 }}/>
-                                    <div style={{ fontSize: 16, color: '#0f172a', fontWeight: 700 }}>{specs.Thickness || 'N/A'}</div>
+                                    <div style={{ fontSize: 16, color: specs?.Thickness ? '#0f172a' : '#94a3b8', fontWeight: specs?.Thickness ? 700 : 500, fontStyle: specs?.Thickness ? 'normal' : 'italic' }}>{specs?.Thickness || 'N/A'}</div>
                                     <div style={{ fontSize: 12, color: '#64748b', fontWeight: 500 }}>Thickness</div>
                                 </div>
                                 <div>
                                     <FileText size={16} color="#64748b" style={{ marginBottom: 12 }}/>
-                                    <div style={{ fontSize: 16, color: '#0f172a', fontWeight: 700 }}>{specs.Grade || 'N/A'}</div>
+                                    <div style={{ fontSize: 16, color: specs?.Grade ? '#0f172a' : '#94a3b8', fontWeight: specs?.Grade ? 700 : 500, fontStyle: specs?.Grade ? 'normal' : 'italic' }}>{specs?.Grade || 'N/A'}</div>
                                     <div style={{ fontSize: 12, color: '#64748b', fontWeight: 500 }}>Grade</div>
                                 </div>
                                 <div>
                                     <ArrowLeftRight size={16} color="#64748b" style={{ marginBottom: 12 }}/>
-                                    <div style={{ fontSize: 16, color: '#0f172a', fontWeight: 700 }}>{specs.Length || 'N/A'}</div>
+                                    <div style={{ fontSize: 16, color: specs?.Length ? '#0f172a' : '#94a3b8', fontWeight: specs?.Length ? 700 : 500, fontStyle: specs?.Length ? 'normal' : 'italic' }}>{specs?.Length || 'N/A'}</div>
                                     <div style={{ fontSize: 12, color: '#64748b', fontWeight: 500 }}>Length</div>
+                                </div>
+                            </div>
+                            
+                            <div style={{ marginTop: 24, paddingTop: 16, borderTop: '1px solid #f1f5f9', display: 'flex', gap: 24 }}>
+                                <div>
+                                    <div style={{ fontSize: 11, color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', marginBottom: 4 }}>Last Updated</div>
+                                    <div style={{ fontSize: 13, color: '#334155', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}><Clock size={14}/> {timeline.length > 0 ? new Date(timeline[0].date).toLocaleDateString() : 'N/A'}</div>
+                                </div>
+                                <div>
+                                    <div style={{ fontSize: 11, color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', marginBottom: 4 }}>Last Movement</div>
+                                    <div style={{ fontSize: 13, color: '#334155', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}><Activity size={14}/> {timeline.length > 0 ? timeline[0].action : 'N/A'}</div>
                                 </div>
                             </div>
                         </div>

@@ -22,6 +22,7 @@ const MODULE_COLORS = {
     'Notifications':       'nav-icon-rose',
     'Help & Support':      'nav-icon-white',
     'Settings':            'nav-icon-white',
+    'Audit Logs':          'nav-icon-rose',
     // ── HR-specific modules ───────────────────────────────────────────────
     'Employee Management': 'nav-icon-purple',
     'Leave Management':    'nav-icon-yellow',
@@ -129,6 +130,61 @@ const FarmakuSidebar = () => {
                         }
                     }
                 }
+                // --- Apply Material Tracking RBAC ---
+                const materialTrackingIndex = navData.findIndex(item => item.title === 'Material Tracking');
+                if (materialTrackingIndex !== -1) {
+                    const role = (user?.role || '').toLowerCase();
+                    const allChildren = [
+                        { title: 'Inventory', path: '/materials' },
+                        { title: 'Assigned Inventory', path: '/my-materials/inventory' },
+                        { title: 'Movement Tracking', path: '/tracking-overview' },
+                        { title: 'Stock Monitoring', path: '/my-materials/stock' },
+                        { title: 'Barcode / QR', path: role === 'employee' ? '/my-materials/barcode' : '/materials/barcode' },
+                        { title: 'Material Requests', path: '/my-materials/requests' },
+                        { title: 'Warehouse Management', path: '/warehouses' },
+                        { title: 'Reports', path: '/reports/materials' }
+                    ];
+
+                    let allowedTitles = [];
+                    const isSuperAdmin = user?.email === 'admin@smtbms.com' || role === 'admin' || role === 'super admin';
+                    
+                    if (isSuperAdmin) {
+                        allowedTitles = ['Inventory', 'Movement Tracking', 'Stock Monitoring', 'Barcode / QR', 'Material Requests', 'Warehouse Management', 'Reports'];
+                    } else if (role === 'manager') {
+                        allowedTitles = ['Inventory', 'Movement Tracking', 'Stock Monitoring', 'Material Requests', 'Reports'];
+                    } else if (role === 'employee') {
+                        allowedTitles = ['Assigned Inventory', 'Movement Tracking', 'Barcode / QR', 'Material Requests'];
+                    } else if (role === 'sales') {
+                        allowedTitles = ['Inventory', 'Barcode / QR'];
+                    } else if (role === 'hr') {
+                        allowedTitles = ['Reports', 'Inventory'];
+                    }
+
+                    const filteredChildren = allChildren.filter(c => allowedTitles.includes(c.title));
+                    navData[materialTrackingIndex] = {
+                        ...navData[materialTrackingIndex],
+                        children: filteredChildren
+                    };
+                }
+
+                // Add Audit Logs to main menu for super admins
+                const roleForAudit = (user?.role || '').toLowerCase();
+                const isSuperAdminForAudit = user?.email === 'admin@smtbms.com' || roleForAudit === 'admin' || roleForAudit === 'super admin';
+                
+                if (isSuperAdminForAudit) {
+                    navData.push({
+                        title: 'Audit Logs',
+                        path: '/settings/audit-logs',
+                        icon: 'ClipboardList'
+                    });
+                }
+                
+                // Remove Audit Logs from Settings submenu to prevent duplicates
+                const settingsIndex = navData.findIndex(item => item.title === 'Settings');
+                if (settingsIndex !== -1 && navData[settingsIndex].children) {
+                    navData[settingsIndex].children = navData[settingsIndex].children.filter(c => c.title !== 'Audit Logs');
+                }
+                // ------------------------------------
                 
                 setNavigation(navData);
             } catch (error) {
@@ -169,8 +225,6 @@ const FarmakuSidebar = () => {
                             .join(' ')}
                         onClick={() => toggleMenu(item.title)}
                         role="button"
-                        tabIndex={0}
-                        onKeyDown={(e) => e.key === 'Enter' && toggleMenu(item.title)}
                     >
                         {renderIcon(item.icon, item.title)}
                         <span>{item.title}</span>

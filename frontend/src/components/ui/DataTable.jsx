@@ -21,7 +21,9 @@ const DataTable = ({
     pageSize = 10,
     loading = false,
     expandableRowRender = null, // (row) => ReactNode
-    variant = 'default' // 'default' | 'flat'
+    variant = 'default', // 'default' | 'flat'
+    dense = false,
+    compactControls = false
 }) => {
     const [search, setSearch] = useState('');
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
@@ -202,8 +204,8 @@ const DataTable = ({
     };
 
     return (
-        <div className={`ui-datatable-container ${variant === 'flat' ? 'ui-datatable-flat' : ''}`} ref={dropdownRef}>
-            <div className="ui-datatable-header">
+        <div className={`ui-datatable-container ${variant === 'flat' ? 'ui-datatable-flat' : ''} ${dense ? 'rd-table-dense' : ''}`} ref={dropdownRef}>
+            <div className={`ui-datatable-header ${compactControls ? 'rd-controls-compact' : ''}`}>
                 <div className="ui-datatable-title">
                     <h3>{title}</h3>
                     <p>{subtitle}</p>
@@ -225,7 +227,7 @@ const DataTable = ({
                     {/* Column Visibility */}
                     <div style={{ position: 'relative' }}>
                         <button className="ui-btn-outline" onClick={() => setShowColumnDropdown(!showColumnDropdown)}>
-                            <EyeOff size={16} /> Columns
+                            <EyeOff size={16} /> <span>Columns</span>
                         </button>
                         {showColumnDropdown && (
                             <div className="ui-action-dropdown show" style={{ width: '200px', top: '100%', right: 0 }}>
@@ -249,7 +251,7 @@ const DataTable = ({
                     {/* Export */}
                     <div style={{ position: 'relative' }}>
                         <button className="ui-btn-outline" onClick={() => setShowExportDropdown(!showExportDropdown)}>
-                            <Download size={16} /> Export
+                            <Download size={16} /> <span>Export</span>
                         </button>
                         {showExportDropdown && (
                             <div className="ui-action-dropdown show" style={{ top: '100%', right: 0 }}>
@@ -382,7 +384,11 @@ const DataTable = ({
                                             <Database size={32} color="#94a3b8" />
                                         </div>
                                         <h4 style={{ margin: 0, fontSize: 16, color: '#0f172a', fontWeight: 600 }}>No records found</h4>
-                                        <p style={{ margin: 0, fontSize: 14, color: '#64748b', maxWidth: 300 }}>We couldn't find any data matching your current search criteria.</p>
+                                        <p style={{ margin: 0, fontSize: 14, color: '#64748b', maxWidth: 300 }}>
+                                            {search 
+                                                ? "We couldn't find any data matching your current search criteria." 
+                                                : "No data available at the moment."}
+                                        </p>
                                         {primaryAction && (
                                             <button 
                                                 className="ui-btn-primary" 

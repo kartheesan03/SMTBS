@@ -51,7 +51,7 @@ const Vendors = () => {
         return s === 'active' || s === 'vendor created';
     });
     const onHoldVendors = vendors.filter(v => (v.status || '').toLowerCase() === 'on hold');
-    const totalOutstanding = vendors.reduce((sum, v) => sum + (Number(v.outstanding) || (((v.id || 1) * 17500) % 90000 + 15000)), 0);
+    const totalOutstanding = vendors.reduce((sum, v) => sum + (Number(v.outstanding) || 0), 0);
 
     const formatCurrency = (val) => {
         if (!val || val === 0) return '₹0';
@@ -103,7 +103,7 @@ const Vendors = () => {
             key: 'rating', 
             label: 'Rating', 
             sortable: true,
-            render: (val, row) => renderStars(val || ((row.id || 1) % 3) + 3)
+            render: (val) => renderStars(val || 0)
         },
         { 
             key: 'status', 
@@ -121,7 +121,7 @@ const Vendors = () => {
             key: 'outstanding', 
             label: 'Outstanding', 
             sortable: true,
-            render: (val, row) => <span style={{fontWeight: 600, color: '#ef4444'}}>₹{(val || (((row.id || 1) * 17500) % 90000 + 15000)).toLocaleString()}</span>
+            render: (val, row) => <span style={{fontWeight: 600, color: '#ef4444'}}>₹{(val || 0).toLocaleString()}</span>
         }
     ];
 
@@ -179,7 +179,7 @@ const Vendors = () => {
                             primaryAction={{
                                 label: 'Add Vendor',
                                 icon: Plus,
-                                onClick: () => navigate('/vendors/new')
+                                onClick: () => navigate('/vendors/add-vendor')
                             }}
                         />
                     )}

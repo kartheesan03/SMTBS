@@ -11,6 +11,8 @@ import { Toaster } from 'react-hot-toast';
 import ModuleLauncher from './components/ModuleLauncher';
 import CommandCenter from './components/CommandCenter';
 import AuditLogs from './pages/AuditLogs';
+import Warehouses from './pages/Warehouses';
+import MaterialReports from './pages/MaterialReports';
 
 import GlobalHeader from './components/GlobalHeader';
 
@@ -208,19 +210,26 @@ const AppContent = () => {
                     <Route path="/employees/new" element={<ProtectedRoute requiredPermission="hrms:employeeData:view"><AddEmployee /></ProtectedRoute>} />
                     
                     <Route path="/materials/new" element={<ProtectedRoute requiredPermission="view_hrms"><AddMaterial /></ProtectedRoute>} />
-                    <Route path="/materials/barcode" element={<ProtectedRoute><BarcodeManagement /></ProtectedRoute>} />
+                    <Route path="/materials/barcode" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'sales']}><BarcodeManagement /></ProtectedRoute>} />
                     <Route path="/gps-tracking" element={<ProtectedRoute><GPSTracking /></ProtectedRoute>} />
                     <Route path="/materials/gps" element={<Navigate to="/gps-tracking" replace />} />
                     <Route path="/my-materials/gps" element={<ProtectedRoute requiredPermission="view_materials_self"><ComingSoonPage title="GPS Tracking" subtitle="GPS location tracking is available for admin users." /></ProtectedRoute>} />
 
-                    <Route path="/materials/:id/edit" element={<ProtectedRoute requiredPermission="manage_materials"><AddMaterial isEditMode={true} /></ProtectedRoute>} />
-                    <Route path="/materials/:id" element={<ProtectedRoute requiredPermission="view_materials"><MaterialDetails /></ProtectedRoute>} />
-                    <Route path="/materials" element={<ProtectedRoute requiredPermission="view_materials"><Materials /></ProtectedRoute>} />
+                    <Route path="/materials/:id/edit" element={<ProtectedRoute allowedRoles={['admin', 'manager']}><AddMaterial isEditMode={true} /></ProtectedRoute>} />
+                    <Route path="/materials/:id" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'sales', 'hr']}><MaterialDetails /></ProtectedRoute>} />
+                    <Route path="/materials" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'sales', 'hr']}><Materials /></ProtectedRoute>} />
+                    
+                    <Route path="/tracking-overview" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'employee']}><TrackingDashboard /></ProtectedRoute>} />
+                    
                     <Route path="/my-materials" element={<Navigate to="/my-materials/inventory" replace />} />
-                    <Route path="/my-materials/inventory" element={<ProtectedRoute requiredPermission="view_materials_self"><MyMaterials /></ProtectedRoute>} />
-                    <Route path="/my-materials/requests" element={<ProtectedRoute requiredPermission="view_materials_self"><MyMaterials /></ProtectedRoute>} />
-                    <Route path="/my-materials/stock" element={<ProtectedRoute requiredPermission="view_materials_self"><MyMaterials /></ProtectedRoute>} />
-                    <Route path="/my-materials/barcode" element={<ProtectedRoute requiredPermission="view_materials_self"><EmployeeScanner /></ProtectedRoute>} />
+                    <Route path="/my-materials/inventory" element={<ProtectedRoute allowedRoles={['employee']}><MyMaterials /></ProtectedRoute>} />
+                    <Route path="/my-materials/requests" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'employee']}><MyMaterials /></ProtectedRoute>} />
+                    <Route path="/my-materials/stock" element={<ProtectedRoute allowedRoles={['admin', 'manager']}><MyMaterials /></ProtectedRoute>} />
+                    <Route path="/my-materials/barcode" element={<ProtectedRoute allowedRoles={['employee']}><EmployeeScanner /></ProtectedRoute>} />
+                    
+                    {/* Placeholder routes for new Material Tracking RBAC items */}
+                    <Route path="/warehouses" element={<ProtectedRoute allowedRoles={['admin']}><Warehouses /></ProtectedRoute>} />
+                    <Route path="/reports/materials" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']}><MaterialReports /></ProtectedRoute>} />
                     <Route path="/payroll" element={<ProtectedRoute requiredPermission="hrms:payroll:view"><Payroll /></ProtectedRoute>} />
                     <Route path="/payroll/generate" element={<ProtectedRoute requiredPermission="hrms:payroll:generate"><GeneratePayroll /></ProtectedRoute>} />
                     <Route path="/payroll/payment/:id" element={<ProtectedRoute requiredPermission="hrms:payroll:view"><PayrollPayment /></ProtectedRoute>} />

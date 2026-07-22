@@ -62,14 +62,6 @@ const FinancialOperations = () => {
             .filter(o => { const d = new Date(o.orderDate || o.createdAt); return !isNaN(d) && d.getMonth() === mIdx; })
             .reduce((s, o) => s + (Number(o.totalAmount) || Number(o.grandTotal) || 0), 0);
 
-        // Inject realistic historical seed if no data exists for that month
-        if (monthSalesRev === 0 && monthPurchaseExp === 0) {
-            const seedRev = [45000, 52000, 48000, 61000, 59000, 72000];
-            const seedExp = [31000, 36000, 32000, 41000, 39000, 45000];
-            monthSalesRev = seedRev[i] || 50000;
-            monthPurchaseExp = seedExp[i] || 35000;
-        }
-
         plData.push({ name: mName, revenue: monthSalesRev, profit: monthSalesRev - monthPurchaseExp });
     }
     const latestPL = plData[plData.length - 1] || { revenue: 0, profit: 0 };

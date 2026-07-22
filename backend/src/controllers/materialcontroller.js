@@ -384,22 +384,29 @@ const deleteMaterial = async (req, res) => {
             const materialIdStr = String(req.params.id);
             
             // Check for references
-            const movements = await MaterialMovement.find({ materialId: req.params.id });
-            const hasMovements = movements.length > 0;
-
             const orders = await Order.find({});
             const linkedOrders = orders.filter(o => o.items && o.items.some(i => String(i.material) === materialIdStr));
             const hasOrders = linkedOrders.length > 0;
 
-            if (hasMovements || hasOrders) {
-                console.log(`[Material Delete Restriction] Material '${materialName}' is linked to dependencies.`);
+            if (hasOrders) {
+                console.log(`[Material Delete Restriction] Material '${materialName}' is linked to Orders.`);
                 return res.status(409).json({ 
-                    message: "This material is currently linked to existing orders or inventory records and cannot be deleted.",
+                    message: "This material is currently linked to existing orders and cannot be deleted.",
                     dependencies: {
-                        movementsCount: movements.length,
                         orderNumbers: linkedOrders.map(o => o.orderNumber || o.id)
                     }
                 });
+            }
+
+            // Cascade delete movements and stock requests to prevent FK constraint failures
+            const MaterialMovement = require('../models/MaterialMovement');
+            const StockRequest = require('../models/StockRequest');
+            
+            if (MaterialMovement.sequelizeModel) {
+                await MaterialMovement.sequelizeModel.destroy({ where: { materialId: req.params.id } });
+            }
+            if (StockRequest.sequelizeModel) {
+                await StockRequest.sequelizeModel.destroy({ where: { materialId: req.params.id } });
             }
 
             try {

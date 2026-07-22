@@ -220,7 +220,7 @@
     width: 100%;
     box-sizing: border-box;
     /* padding-left: 45px so text aligns perfectly with parent text (16px + 18px + 11px) */
-    padding: 8px 16px 8px 45px;
+    padding: 8px 12px 8px 45px; /* Reduced right padding slightly to fit text better */
     color: rgba(255, 255, 255, 0.55);
     text-decoration: none;
     font-size: 13.5px;
@@ -230,6 +230,12 @@
     margin: 0 !important;
     height: 34px; /* Force consistent height regardless of font weight */
     position: relative;
+}
+
+.farmaku-subnav-item span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .farmaku-subnav-item:hover {

@@ -1,0 +1,388 @@
+.erp-tracking-page {
+    padding: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+    font-family: 'Inter', system-ui, sans-serif;
+    color: #1e293b;
+}
+
+.erp-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* Base Card Style */
+.erp-card {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.02);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 16px;
+}
+
+.header-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #0f172a;
+}
+
+.header-title h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+/* Badges */
+.status-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+}
+.status-badge.success { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+.status-badge.processing { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+.status-badge.danger { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+
+.role-badge {
+    background: #f1f5f9;
+    color: #475569;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid #e2e8f0;
+}
+
+.badge-outline {
+    background: #f8fafc;
+    color: #334155;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid #cbd5e1;
+}
+
+.badge-dark {
+    background: #1e293b;
+    color: #f8fafc;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* Summary Section */
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.grid-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.grid-item .label {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.grid-item .value {
+    font-size: 15px;
+    color: #0f172a;
+    font-weight: 600;
+}
+
+.workflow-stepper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px 30px;
+    position: relative;
+    gap: 0;
+}
+
+.workflow-step {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    position: relative;
+    min-height: 80px;
+    width: 100%;
+}
+
+.step-indicator-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-right: 20px;
+    z-index: 2;
+    position: relative;
+    height: 100%;
+}
+
+.step-indicator {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f1f5f9;
+    border: 2px solid #e2e8f0;
+    z-index: 2;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.step-indicator .dot {
+    width: 8px;
+    height: 8px;
+    background: #cbd5e1;
+    border-radius: 50%;
+}
+
+.step-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #0f172a;
+    margin-bottom: 4px;
+}
+
+.step-details-container {
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 30px;
+    padding-top: 5px;
+}
+
+.step-connector {
+    position: absolute;
+    top: 32px;
+    left: 15px;
+    width: 3px;
+    height: calc(100% - 32px);
+    background: #e2e8f0;
+    z-index: 1;
+}
+
+/* Step States */
+.workflow-step.completed .step-indicator {
+    background: #10b981;
+    border-color: #10b981;
+    color: white;
+}
+.workflow-step.completed .step-label { color: #10b981; font-weight: 600; }
+.workflow-step.completed .step-connector { background: #10b981; }
+
+.workflow-step.current .step-indicator {
+    background: #eff6ff;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+.workflow-step.current .step-indicator .dot { background: #3b82f6; width: 12px; height: 12px; }
+.workflow-step.current .step-label { color: #3b82f6; font-weight: 700; }
+
+.workflow-step.waiting .step-indicator {
+    background: #fffbeb;
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.1);
+}
+.workflow-step.waiting .step-indicator .dot { background: #f59e0b; width: 12px; height: 12px; }
+.workflow-step.waiting .step-label { color: #f59e0b; font-weight: 700; }
+
+.workflow-step.error .step-indicator { background: #fef2f2; border-color: #ef4444; }
+.workflow-step.error .step-indicator .dot { background: #ef4444; }
+.workflow-step.error .step-label { color: #ef4444; }
+
+/* 2-Column Grid */
+.erp-grid-2col {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 24px;
+}
+
+/* Action Form */
+.action-panel-body {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.action-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    border-left: 4px solid #0ea5e9;
+    padding: 20px;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(14, 165, 233, 0.1);
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+}
+
+.form-group input, .form-group select {
+    padding: 10px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 14px;
+    outline: none;
+    background: #fff;
+    transition: border-color 0.2s;
+}
+
+.form-group input:focus, .form-group select:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.button-group {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.erp-btn {
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.erp-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+.btn-primary { background: #3b82f6; color: white; }
+.btn-primary:hover:not(:disabled) { background: #2563eb; }
+.btn-success { background: #10b981; color: white; }
+.btn-success:hover:not(:disabled) { background: #059669; }
+.btn-danger { background: #ef4444; color: white; }
+.btn-danger:hover:not(:disabled) { background: #dc2626; }
+.btn-outline { background: white; border: 1px solid #cbd5e1; color: #475569; }
+.btn-outline:hover:not(:disabled) { background: #f1f5f9; }
+
+/* Notifications */
+.notification-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.notification-item {
+    display: flex;
+    gap: 12px;
+    padding: 12px;
+    background: #f8fafc;
+    border-radius: 8px;
+    border-left: 4px solid #3b82f6;
+}
+
+.notif-icon {
+    margin-top: 2px;
+    color: #3b82f6;
+}
+
+.notif-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.notif-content strong { font-size: 14px; color: #0f172a; }
+.notif-content span { font-size: 13px; color: #475569; }
+.notif-content small { font-size: 11px; color: #94a3b8; }
+
+/* Tables */
+.table-responsive {
+    overflow-x: auto;
+}
+
+.erp-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.erp-table th {
+    background: #f8fafc;
+    color: #475569;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.erp-table td {
+    padding: 16px;
+    font-size: 14px;
+    color: #1e293b;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.erp-table tr:last-child td { border-bottom: none; }
+
+.json-code {
+    background: #f1f5f9;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 12px;
+    color: #e21d48;
+}
+
+.empty-text {
+    color: #64748b;
+    font-style: italic;
+    font-size: 14px;
+}
+
+.hint-text {
+    color: #64748b;
+    font-size: 13px;
+    font-style: italic;
+    margin: 0;
+}
+
+@media (max-width: 900px) {
+    .erp-grid-2col {
+        grid-template-columns: 1fr;
+    }
+}

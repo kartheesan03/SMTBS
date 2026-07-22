@@ -76,7 +76,7 @@ const RightPanel = ({ isOpen, onClose }) => {
             { label: 'HR Reports', icon: <BarChart3 size={16} />, path: '/hr-reports', color: '#f59e0b' },
         ];
         if (role === 'manager') return [
-            { label: 'My Tasks', icon: <FileText size={16} />, path: '/my-tasks', color: '#3b82f6' },
+            { label: 'Tasks', icon: <FileText size={16} />, path: '/my-tasks', color: '#3b82f6' },
             { label: 'Team', icon: <Users size={16} />, path: '/team-performance', color: '#10b981' },
             { label: 'Materials', icon: <Package size={16} />, path: '/materials', color: '#8b5cf6' },
             { label: 'Reports', icon: <BarChart3 size={16} />, path: '/analytics', color: '#f59e0b' },
@@ -89,10 +89,10 @@ const RightPanel = ({ isOpen, onClose }) => {
         ];
         // Employee
         return [
-            { label: 'My Tasks', icon: <FileText size={16} />, path: '/my-tasks', color: '#3b82f6' },
+            { label: 'Tasks', icon: <FileText size={16} />, path: '/my-tasks', color: '#3b82f6' },
             { label: 'Attendance', icon: <Clock size={16} />, path: '/my-attendance', color: '#10b981' },
             { label: 'Leave', icon: <Calendar size={16} />, path: '/leave-management', color: '#8b5cf6' },
-            { label: 'My Salary', icon: <DollarSign size={16} />, path: '/my-salary', color: '#f59e0b' },
+            { label: 'Salary', icon: <DollarSign size={16} />, path: '/my-salary', color: '#f59e0b' },
         ];
     };
 

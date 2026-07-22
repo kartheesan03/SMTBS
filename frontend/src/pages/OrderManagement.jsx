@@ -59,10 +59,10 @@ const OrderManagement = () => {
     };
 
     // Filters and Chart Data
-    const filters = ['All', 'Confirmed', 'Processing', 'Dispatched', 'Delivered', 'Cancelled'];
+    const filters = ['All', 'Created', 'Manager/Admin Review', 'Employee Verification', 'Low Stock', 'Sales Processing', 'Out for Delivery', 'Delivered'];
 
     const filteredOrders = orders.filter(o => {
-        const status = o.status || 'Confirmed';
+        const status = o.status || 'Created';
         const matchesFilter = activeFilter === 'All' || status === activeFilter;
         const custName = o.customer?.company || o.customer?.name || '';
         const orderNum = o.orderNumber || '';
@@ -73,12 +73,13 @@ const OrderManagement = () => {
     });
 
     const statusDistData = [
-        { name: 'New', value: orders.filter(o => o.status === 'New').length || 0, fill: '#3b82f6' },
-        { name: 'Assigned', value: orders.filter(o => o.status === 'Assigned to Employee').length || 0, fill: '#8b5cf6' },
-        { name: 'Confirmed', value: orders.filter(o => o.status === 'Material Confirmed').length || 0, fill: '#0ea5e9' },
-        { name: 'Ready', value: orders.filter(o => ['Ready for Delivery'].includes(o.status)).length || 0, fill: '#f59e0b' },
-        { name: 'Delivered', value: orders.filter(o => ['Out for Delivery', 'Delivered'].includes(o.status)).length || 0, fill: '#10b981' },
-        { name: 'On Hold', value: orders.filter(o => o.status === 'On Hold').length || 0, fill: '#ef4444' }
+        { name: 'Created', value: orders.filter(o => ['New', 'Created'].includes(o.status)).length || 0, fill: '#3b82f6' },
+        { name: 'Manager/Admin', value: orders.filter(o => ['Pending Approval', 'Manager/Admin Review'].includes(o.status)).length || 0, fill: '#f59e0b' },
+        { name: 'Verification', value: orders.filter(o => ['Employee Verification', 'Awaiting Stock Check'].includes(o.status)).length || 0, fill: '#8b5cf6' },
+        { name: 'Stock Issue', value: orders.filter(o => ['Low Stock', 'Low Stock Hold', 'Out of Stock', 'Waiting for Manager'].includes(o.status)).length || 0, fill: '#ef4444' },
+        { name: 'Sales Processing', value: orders.filter(o => ['Sales Processing', 'Inventory Verified', 'Ready for Delivery'].includes(o.status)).length || 0, fill: '#f59e0b' },
+        { name: 'Out for Delivery', value: orders.filter(o => o.status === 'Out for Delivery').length || 0, fill: '#0ea5e9' },
+        { name: 'Delivered', value: orders.filter(o => ['Delivered', 'Invoice Generated'].includes(o.status)).length || 0, fill: '#10b981' }
     ];
 
     if(statusDistData.length === 0) {
@@ -255,14 +256,22 @@ const OrderManagement = () => {
                                 const statusColors = {
                                     'New': 'rd-status-blue',
                                     'Created': 'rd-status-blue',
-                                    'Awaiting Stock Check': 'rd-status-purple',
-                                    'Low Stock Alert': 'rd-status-red',
-                                    'Assigned to Employee': 'rd-status-purple',
-                                    'Material Confirmed': 'rd-status-orange',
-                                    'Ready for Delivery': 'rd-status-blue',
+                                    'Manager/Admin Review': 'rd-status-orange',
+                                    'Employee Verification': 'rd-status-purple',
+                                    'Low Stock': 'rd-status-red',
+                                    'Out of Stock': 'rd-status-red',
+                                    'Waiting for Manager': 'rd-status-orange',
+                                    'Purchase Completed': 'rd-status-blue',
+                                    'Inventory Updated': 'rd-status-blue',
+                                    'Inventory Verified': 'rd-status-green',
+                                    'Sales Processing': 'rd-status-orange',
                                     'Out for Delivery': 'rd-status-blue',
                                     'Delivered': 'rd-status-green',
-                                    'On Hold': 'rd-status-red'
+                                    'Invoice Generated': 'rd-status-green',
+                                    'Cancelled': 'rd-status-red',
+                                    // Legacy mappings
+                                    'Awaiting Stock Check': 'rd-status-purple',
+                                    'Ready for Delivery': 'rd-status-orange'
                                 };
                                 const priorityColors = {
                                     'High': {color: '#ef4444', bg: '#fef2f2'},

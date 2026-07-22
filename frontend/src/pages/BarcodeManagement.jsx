@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Package, Search, Camera, QrCode, AlertTriangle, ScanLine } from 'lucide-react';
+import { Package, Search, Camera, QrCode, AlertTriangle, ScanLine, Eye, Printer } from 'lucide-react';
 import API from '../api/axios';
 import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
@@ -229,7 +229,7 @@ const BarcodeManagement = () => {
                                 ) : (
                                     filteredData.map((item, i) => (
                                         <tr key={item.id || i} style={{cursor: 'pointer'}} onClick={() => setPreviewItem(item)}>
-                                            <td style={{padding: '10px 10px', fontSize: 12, fontWeight: 700, color: '#3b82f6', width: 60, wordWrap: 'break-word', fontFamily: '"SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace', letterSpacing: '0.5px'}} data-label="Mat. ID">{item.id.replace('-', '- ')}</td>
+                                            <td style={{padding: '10px 10px', fontSize: 12, fontWeight: 700, color: '#3b82f6', width: 60, wordWrap: 'break-word', fontFamily: '"SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace', letterSpacing: '0.5px'}} data-label="Mat. ID">{item.id}</td>
                                             <td style={{padding: '10px 10px', fontSize: 13, fontWeight: 700, color: '#1e293b', maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} data-label="Material" title={item.name}>{item.name}</td>
                                             <td style={{padding: '10px 10px'}} data-label="Stock Status">
                                                 <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}>
@@ -248,15 +248,15 @@ const BarcodeManagement = () => {
                                                 <div style={{display: 'flex', gap: 4, justifyContent: 'center'}}>
                                                     <button 
                                                         className="rd-btn-compact" 
-                                                        style={{padding: '4px 8px', fontSize: 11, fontWeight: 600, background: '#eff6ff', color: '#3b82f6', border: '1px solid #dbeafe', borderRadius: 6}}
+                                                        style={{padding: '4px', background: '#eff6ff', color: '#3b82f6', border: '1px solid #dbeafe', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center'}}
                                                         title="Preview"
                                                         onClick={(e) => { e.stopPropagation(); setPreviewItem(item); }}
                                                     >
-                                                        Preview
+                                                        <Eye size={14} />
                                                     </button>
                                                     <button 
                                                         className="rd-btn-compact" 
-                                                        style={{padding: '4px 8px', fontSize: 11, fontWeight: 600, background: '#ecfdf5', color: '#10b981', border: '1px solid #a7f3d0', borderRadius: 6}}
+                                                        style={{padding: '4px', background: '#ecfdf5', color: '#10b981', border: '1px solid #a7f3d0', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center'}}
                                                         title="Print"
                                                         onClick={(e) => { 
                                                             e.stopPropagation(); 
@@ -273,7 +273,7 @@ const BarcodeManagement = () => {
                                                             }, 500);
                                                         }}
                                                     >
-                                                        Print
+                                                        <Printer size={14} />
                                                     </button>
                                                 </div>
                                             </td>

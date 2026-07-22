@@ -158,7 +158,7 @@ const TaskCalendar = () => {
                     <style>{`
                         .calendar-grid {
                             display: grid;
-                            grid-template-columns: repeat(7, 1fr);
+                            grid-template-columns: repeat(7, minmax(0, 1fr));
                             border-top: 1px solid #e2e8f0;
                             border-left: 1px solid #e2e8f0;
                             border-radius: 8px;
@@ -175,6 +175,7 @@ const TaskCalendar = () => {
                             background: #f8fafc;
                         }
                         .calendar-day {
+                            min-width: 0;
                             min-height: 120px;
                             padding: 8px;
                             border-right: 1px solid #e2e8f0;

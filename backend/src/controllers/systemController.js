@@ -224,6 +224,11 @@ exports.getNavigation = async (req, res) => {
             userPermissions.push('all');
         }
 
+        // Grant employee access to the self-service materials menu
+        if (roleName === 'employee') {
+            userPermissions.push('view_materials_self');
+        }
+
         // ── HR role: use the dedicated HR navigation config ───────────────────
         if (roleName === 'hr') {
             const filteredHRNav = hrNavigationConfig.map(item => {

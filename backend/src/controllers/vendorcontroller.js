@@ -56,6 +56,26 @@ exports.createVendor = async (req, res) => {
         const vendor = new Vendor(vendorData);
         await vendor.save();
 
+        const Material = require('../models/Material');
+        if (vendorData.materialsSupplied && Array.isArray(vendorData.materialsSupplied)) {
+            for (let item of vendorData.materialsSupplied) {
+                if (typeof item === 'string') {
+                    await Material.create({
+                        name: item,
+                        vendorId: vendor._id || vendor.id,
+                        quantity: 0,
+                        category: vendor.category || 'Uncategorized'
+                    });
+                } else if (item.name) {
+                    await Material.create({
+                        ...item,
+                        vendorId: vendor._id || vendor.id,
+                        category: item.category || vendor.category || 'Uncategorized'
+                    });
+                }
+            }
+        }
+
         await notifyManager({
             module: 'Vendors',
             referenceId: vendor._id || vendor.id,
@@ -82,6 +102,45 @@ exports.updateVendor = async (req, res) => {
         Object.assign(vendor, req.body);
         await vendor.save();
         
+        const Material = require('../models/Material');
+        if (req.body.materialsSupplied && Array.isArray(req.body.materialsSupplied)) {
+            const currentMaterials = await Material.find({ vendorId: vendor._id || vendor.id });
+            const incomingIds = req.body.materialsSupplied.filter(m => m._id || m.id).map(m => String(m._id || m.id));
+            
+            // Delete materials that are removed
+            for (let current of currentMaterials) {
+                if (!incomingIds.includes(String(current._id || current.id))) {
+                    await Material.findByIdAndDelete(current._id || current.id);
+                }
+            }
+            
+            // Update or create
+            for (let item of req.body.materialsSupplied) {
+                if (item._id || item.id) {
+                    const mat = await Material.findById(item._id || item.id);
+                    if (mat) {
+                        Object.assign(mat, item);
+                        await mat.save();
+                    }
+                } else {
+                    if (typeof item === 'string') {
+                        await Material.create({
+                            name: item,
+                            vendorId: vendor._id || vendor.id,
+                            quantity: 0,
+                            category: vendor.category || 'Uncategorized'
+                        });
+                    } else if (item.name) {
+                        await Material.create({
+                            ...item,
+                            vendorId: vendor._id || vendor.id,
+                            category: item.category || vendor.category || 'Uncategorized'
+                        });
+                    }
+                }
+            }
+        }
+
         res.status(200).json(vendor);
     } catch (error) {
         res.status(400).json({ message: error.message });

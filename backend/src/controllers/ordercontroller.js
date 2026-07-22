@@ -105,6 +105,17 @@ const createOrder = async (req, res) => {
 
         const { customer, customerModel, vendor, items, totalAmount, status, orderNumber, orderType, orderDate, expectedDeliveryDate, notes } = req.body;
         
+        const defaultWorkflow = [
+            { stage: 'Order Created', status: 'Completed', role: 'Customer/Vendor/Admin' },
+            { stage: 'Admin/Manager Review', status: 'In Progress', role: 'Admin/Manager' },
+            { stage: 'Employee Verification', status: 'Upcoming', role: 'Employee' },
+            { stage: 'Inventory Verified', status: 'Upcoming', role: 'Employee' },
+            { stage: 'Sales Processing', status: 'Upcoming', role: 'Sales' },
+            { stage: 'Out for Delivery', status: 'Upcoming', role: 'Sales' },
+            { stage: 'Delivered', status: 'Upcoming', role: 'Sales/Admin' },
+            { stage: 'Invoice Generated', status: 'Upcoming', role: 'System' }
+        ];
+
         if ((!customer && !vendor) || !items || items.length === 0) {
             return res.status(400).json({ message: 'Please provide customer/vendor and items' });
         }
@@ -112,8 +123,8 @@ const createOrder = async (req, res) => {
         // Determine initial status based on role and type
         const isSales = orderType === 'sales' || !!customer;
         
-        let initialStatus = 'Created';
-        let initialApprovalStatus = 'Pending Manager Approval';
+        let initialStatus = 'Order Created';
+        let initialApprovalStatus = 'Pending';
         let initialDeliveryStatus = 'Not Started';
 
         // Verify customer exists if it's a Sales order
@@ -147,12 +158,6 @@ const createOrder = async (req, res) => {
             }
         }
 
-        // Generate Invoice Fields
-        const invDate = new Date();
-        const generatedInvoiceNumber = `INV-${Date.now().toString().slice(-6)}`;
-        let invDueDate = new Date(invDate);
-        invDueDate.setDate(invDate.getDate() + 30); // Default to 30 days if expectedDeliveryDate is not provided
-
         const createdOrder = await Order.create({
             orderNumber: orderNumber || `ORD-${Date.now().toString().slice(-6)}`,
             customer: customer || null,
@@ -167,11 +172,21 @@ const createOrder = async (req, res) => {
             createdById: req.user._id || null,
             orderDate: orderDate ? new Date(orderDate) : new Date(),
             expectedDeliveryDate: expectedDeliveryDate ? new Date(expectedDeliveryDate) : null,
-            invoiceNumber: generatedInvoiceNumber,
-            invoiceDate: invDate,
-            invoiceDueDate: expectedDeliveryDate ? new Date(expectedDeliveryDate) : invDueDate,
+            invoiceNumber: null,
+            invoiceDate: null,
+            invoiceDueDate: null,
             paymentStatus: 'Pending',
-            notes: notes || null
+            notes: notes || null,
+            trackingTimeline: [{
+                id: Date.now().toString(),
+                status: initialStatus,
+                location: 'System Initialization',
+                date: new Date().toISOString(),
+                remarks: 'Order successfully created',
+                updatedBy: req.user.name,
+                updatedById: req.user.id
+            }],
+            workflow: defaultWorkflow
         });
 
         // If it's already approved, update stock
@@ -267,71 +282,115 @@ const updateOrderStatus = async (req, res) => {
 
         const prevStatus = order.status;
         
-        // --- Sales Order Role-Based Pipeline Logic ---
+        // --- Recommended Order Workflow Logic ---
         if (order.orderType === 'sales' || order.orderType === 'purchase') {
             const userRole = req.user?.role?.toLowerCase();
-            const isAdmin = userRole === 'admin';
+            const isAdmin = userRole === 'admin' || userRole === 'super admin';
 
-            if (status === 'Assigned to Employee') {
-                if (!isAdmin && userRole !== 'manager') return res.status(403).json({ message: 'Only Manager or Admin can assign orders.' });
-                if (!req.body.employeeId) return res.status(400).json({ message: 'Employee ID is required.' });
-                
-                order.employeeId = req.body.employeeId;
-                
+            if (status === 'Admin / Manager Review') {
                 await broadcast({
-                    module: 'Orders',
-                    referenceId: order._id || order.id,
-                    title: `Order Assigned`,
-                    message: `Order ${order.orderNumber} assigned to employee.`,
-                    type: 'info',
-                    targetRoles: ['Employee', 'Manager']
+                    module: 'Orders', referenceId: order._id || order.id,
+                    title: `Order Pending Review`,
+                    message: `Order ${order.orderNumber} is pending your review.`,
+                    type: 'info', targetRoles: ['Admin', 'Manager']
                 });
             }
-            else if (status === 'Material Confirmed') {
-                if (!isAdmin && userRole !== 'employee') return res.status(403).json({ message: 'Only Employee or Admin can confirm materials.' });
+            else if (status === 'Approved') {
+                if (!isAdmin && userRole !== 'manager') return res.status(403).json({ message: 'Only Manager or Admin can approve orders.' });
                 
-                // Stock Validation
-                for (const item of order.items) {
-                    const material = await Material.findById(item.material);
-                    if (!material) return res.status(400).json({ message: 'Material not found.' });
-                    const availableStock = material.quantity - (material.reservedQuantity || 0);
-                    if (availableStock < item.quantity) {
-                        return res.status(400).json({ message: `Insufficient Stock for ${material.name}` });
+                await broadcast({
+                    module: 'Orders', referenceId: order._id || order.id,
+                    title: `Order Approved`,
+                    message: `Order ${order.orderNumber} is approved and moving to Employee Verification.`,
+                    type: 'success', targetRoles: ['Employee']
+                });
+            }
+            else if (status === 'Employee Verification' || status === 'Inventory Verification') {
+                if (!isAdmin && userRole !== 'manager' && userRole !== 'employee') return res.status(403).json({ message: 'Only Manager, Admin or Employee can verify orders.' });
+            }
+            else if (status === 'Low Stock' || status === 'Out Of Stock') {
+                if (!isAdmin && userRole !== 'employee') return res.status(403).json({ message: 'Only Employee or Admin can report stock issues.' });
+                
+                order.holdReason = req.body.reason || `Reported ${status} by employee`;
+                
+                await broadcast({
+                    module: 'Orders', referenceId: order._id || order.id,
+                    title: `${status} Alert`,
+                    message: `Order ${order.orderNumber} reported as ${status}. Purchase decision required.`,
+                    type: 'warning', targetRoles: ['Manager', 'Admin']
+                });
+            }
+            else if (status === 'Purchase Request') {
+                await broadcast({
+                    module: 'Orders', referenceId: order._id || order.id,
+                    title: `Purchase Request Created`,
+                    message: `Purchase requested for Order ${order.orderNumber}.`,
+                    type: 'warning', targetRoles: ['Vendor']
+                });
+            }
+            else if (status === 'Inventory Updated' || status === 'Vendor Supply') {
+                if (!isAdmin && userRole !== 'manager' && userRole !== 'vendor') return res.status(403).json({ message: 'Only Manager, Admin, or Vendor can supply materials.' });
+                
+                await broadcast({
+                    module: 'Orders', referenceId: order._id || order.id,
+                    title: `Materials Received`,
+                    message: `Stock issue for Order ${order.orderNumber} resolved. Please verify again.`,
+                    type: 'info', targetRoles: ['Employee']
+                });
+            }
+            else if (status === 'Vendor Accepted' || status === 'Vendor Rejected') {
+                await broadcast({
+                    module: 'Orders', referenceId: order._id || order.id,
+                    title: `Vendor Purchase Order ${status.includes('Accepted') ? 'Accepted' : 'Rejected'}`,
+                    message: `Vendor has ${status.includes('Accepted') ? 'accepted' : 'rejected'} the purchase request for Order ${order.orderNumber}.`,
+                    type: status.includes('Accepted') ? 'success' : 'error', targetRoles: ['Manager', 'Admin', 'Employee']
+                });
+            }
+            else if (status === 'Employee Final Verification' || status === 'Employee Final Approval') {
+                if (!isAdmin && userRole !== 'employee') return res.status(403).json({ message: 'Only Employee can verify inventory.' });
+                
+                if (status === 'Employee Final Approval') {
+                    // Reserve Stock
+                    for (const item of order.items) {
+                        const material = await Material.findById(item.material);
+                        if (material) {
+                            material.reservedQuantity = (material.reservedQuantity || 0) + item.quantity;
+                            await material.save();
+                        }
                     }
+                    await broadcast({
+                        module: 'Orders', referenceId: order._id || order.id,
+                        title: `Order Verified by Employee`,
+                        message: `Order ${order.orderNumber} verified. Moving to Sales processing.`,
+                        type: 'success', targetRoles: ['Sales']
+                    });
                 }
-                
-                // Reserve Stock
-                for (const item of order.items) {
-                    const material = await Material.findById(item.material);
-                    material.reservedQuantity = (material.reservedQuantity || 0) + item.quantity;
-                    await material.save();
-                }
-
-                if (req.body.sourcedLocation) order.sourcedLocation = req.body.sourcedLocation;
+            }
+            else if (status === 'Sales Processing') {
+                if (!isAdmin && userRole !== 'sales') return res.status(403).json({ message: 'Only Sales or Admin can process orders.' });
+            }
+            else if (status === 'Packing Completed') {
+                if (!isAdmin && userRole !== 'sales') return res.status(403).json({ message: 'Only Sales or Admin can pack orders.' });
                 
                 await broadcast({
-                    module: 'Orders',
-                    referenceId: order._id || order.id,
-                    title: `Material Confirmed`,
-                    message: `Materials for Order ${order.orderNumber} confirmed. Ready for delivery.`,
-                    type: 'success',
-                    targetRoles: ['Sales', 'Manager']
+                    module: 'Orders', referenceId: order._id || order.id,
+                    title: `Order Packing Completed`,
+                    message: `Order ${order.orderNumber} is packed.`,
+                    type: 'info', targetRoles: ['Sales', 'Manager'] 
                 });
             }
-            else if (status === 'On Hold') {
-                if (!isAdmin && userRole !== 'employee') return res.status(403).json({ message: 'Only Employee or Admin can put orders on hold.' });
-                if (!req.body.reason) return res.status(400).json({ message: 'Reason is required when placing an order on hold.' });
+            else if (status === 'Ready For Dispatch') {
+                if (!isAdmin && userRole !== 'sales') return res.status(403).json({ message: 'Only Sales or Admin can set to dispatch.' });
+            }
+            else if (status === 'Out For Delivery') {
+                if (!isAdmin && userRole !== 'sales') return res.status(403).json({ message: 'Only Sales or Admin can dispatch orders.' });
                 
-                order.holdReason = req.body.reason;
-            }
-            else if (status === 'Ready for Delivery') {
-                if (!isAdmin && userRole !== 'employee') return res.status(403).json({ message: 'Only Employee or Admin can mark ready for delivery.' });
-            }
-            else if (status === 'Out for Delivery') {
-                if (!isAdmin && userRole !== 'sales') return res.status(403).json({ message: 'Only Sales or Admin can mark out for delivery.' });
-                if (!isAdmin && prevStatus !== 'Material Confirmed' && prevStatus !== 'Ready for Delivery') {
-                    return res.status(400).json({ message: 'Order must be Material Confirmed or Ready for Delivery first.' });
-                }
+                await broadcast({
+                    module: 'Orders', referenceId: order._id || order.id,
+                    title: `Order Shipped`,
+                    message: `Order ${order.orderNumber} is Out for Delivery.`,
+                    type: 'info', targetRoles: ['Customer', 'Manager', 'Admin'] // Assuming customer gets web notification if they use portal
+                });
             }
             else if (status === 'Delivered') {
                 if (!isAdmin && userRole !== 'sales') return res.status(403).json({ message: 'Only Sales or Admin can mark delivered.' });
@@ -351,15 +410,38 @@ const updateOrderStatus = async (req, res) => {
                 }
                 
                 order.deliveredAt = new Date();
-                if (req.body.deliveryNotes) order.deliveryNotes = req.body.deliveryNotes;
                 
                 await broadcast({
-                    module: 'Orders',
-                    referenceId: order._id || order.id,
+                    module: 'Orders', referenceId: order._id || order.id,
                     title: `Order Delivered`,
-                    message: `Order ${order.orderNumber} delivered.`,
-                    type: 'success',
-                    targetRoles: ['Admin', 'Manager', 'Employee']
+                    message: `Order ${order.orderNumber} delivered successfully.`,
+                    type: 'success', targetRoles: ['Admin', 'Manager', 'Employee', 'Sales', 'Customer']
+                });
+            }
+            else if (status === 'Invoice Generated') {
+                if (prevStatus !== 'Delivered') {
+                    return res.status(400).json({ message: 'Invoice can only be generated after successful delivery.' });
+                }
+                
+                order.invoiceNumber = `INV-${Date.now().toString().slice(-6)}`;
+                order.invoiceDate = new Date();
+                let invDueDate = new Date();
+                invDueDate.setDate(invDueDate.getDate() + 30);
+                order.invoiceDueDate = invDueDate;
+
+                await broadcast({
+                    module: 'Orders', referenceId: order._id || order.id,
+                    title: `Invoice Ready`,
+                    message: `Invoice generated for Order ${order.orderNumber}.`,
+                    type: 'info', targetRoles: ['Admin', 'Manager', 'Employee', 'Sales', 'Customer']
+                });
+            }
+            else if (status === 'Workflow Completed') {
+                await broadcast({
+                    module: 'Orders', referenceId: order._id || order.id,
+                    title: `Workflow Completed`,
+                    message: `Order ${order.orderNumber} lifecycle is completed.`,
+                    type: 'success', targetRoles: ['Admin', 'Manager']
                 });
             }
         }
@@ -521,6 +603,105 @@ const updateOrderStatus = async (req, res) => {
         });
 
         res.json(updatedOrder);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+};
+
+const advanceWorkflow = async (req, res) => {
+    try {
+        const { action, nextStatus, remarks, stockStatus } = req.body;
+        const order = await Order.findById(req.params.id);
+
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        const workflow = order.workflow || [];
+        const activeStageIndex = workflow.findIndex(w => w.status === 'In Progress');
+
+        if (activeStageIndex === -1) {
+            return res.status(400).json({ message: 'No active stage found in workflow.' });
+        }
+
+        const currentStage = workflow[activeStageIndex];
+        const updatedBy = req.user.name;
+
+        // Process action
+        if (action === 'REJECT') {
+            currentStage.status = 'Rejected';
+            currentStage.remarks = remarks || 'Order rejected';
+            currentStage.updatedBy = updatedBy;
+            currentStage.completedAt = new Date();
+            order.status = 'Rejected';
+            
+            // Cancel remaining stages
+            for (let i = activeStageIndex + 1; i < workflow.length; i++) {
+                workflow[i].status = 'Rejected';
+            }
+        } 
+        else if (action === 'REPORT_STOCK') {
+            currentStage.status = 'Issue';
+            currentStage.remarks = remarks || `Stock issue reported: ${stockStatus}`;
+            currentStage.updatedBy = updatedBy;
+            order.status = stockStatus;
+            order.holdReason = currentStage.remarks;
+
+            if (activeStageIndex + 1 < workflow.length && workflow[activeStageIndex + 1].stage !== 'Purchase Required') {
+                workflow.splice(activeStageIndex + 1, 0, {
+                    stage: 'Purchase Required',
+                    status: 'In Progress',
+                    role: 'Vendor'
+                });
+            } else {
+                workflow[activeStageIndex + 1].status = 'In Progress';
+            }
+        }
+        else if (action === 'RESOLVE_ISSUE' || action === 'DISPATCH' || action === 'ACCEPT') {
+            currentStage.status = 'Completed';
+            currentStage.remarks = remarks || 'Action completed';
+            currentStage.updatedBy = updatedBy;
+            currentStage.completedAt = new Date();
+            
+            if (action === 'DISPATCH') order.status = 'Material Received';
+            if (action === 'ACCEPT') order.status = 'Vendor Accepted';
+
+            if (activeStageIndex + 1 < workflow.length) {
+                workflow[activeStageIndex + 1].status = 'In Progress';
+            }
+        }
+        else {
+            currentStage.status = 'Completed';
+            currentStage.remarks = remarks || 'Action completed';
+            currentStage.updatedBy = updatedBy;
+            currentStage.completedAt = new Date();
+            
+            if (nextStatus) {
+                order.status = nextStatus;
+            }
+
+            if (activeStageIndex + 1 < workflow.length) {
+                workflow[activeStageIndex + 1].status = 'In Progress';
+            }
+        }
+
+        order.workflow = workflow;
+        
+        // Audit log
+        order.trackingTimeline = order.trackingTimeline || [];
+        order.trackingTimeline.push({
+            id: Date.now().toString(),
+            status: order.status || currentStage.stage,
+            location: currentStage.stage,
+            date: new Date().toISOString(),
+            remarks: currentStage.remarks,
+            updatedBy: updatedBy,
+            updatedById: req.user.id
+        });
+
+        await order.save();
+        
+        res.status(200).json(order);
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
@@ -971,6 +1152,7 @@ module.exports = {
     updatePaymentStatus,
     updateTrackingStatus,
     getMyCustomerOrders,
+    getCustomerOrdersById,
     createCustomerOrder,
     deleteOrder,
     employeeApprovePurchaseOrder,
@@ -979,5 +1161,5 @@ module.exports = {
     flagAsDelayed,
     managerApproveOrder,
     employeeCheckOrder,
-    getCustomerOrdersById
+    advanceWorkflow
 };

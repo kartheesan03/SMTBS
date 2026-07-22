@@ -8,7 +8,11 @@ const Role = require('../models/Role');
 const getRolePermissions = async (roleName) => {
     try {
         const role = await Role.findOne({ name: roleName });
-        return role && role.permissions ? (typeof role.permissions === 'string' ? JSON.parse(role.permissions) : role.permissions) : [];
+        let perms = role && role.permissions ? (typeof role.permissions === 'string' ? JSON.parse(role.permissions) : role.permissions) : [];
+        if (roleName && roleName.toLowerCase() === 'employee' && !perms.includes('view_materials_self')) {
+            perms.push('view_materials_self');
+        }
+        return perms;
     } catch (e) {
         console.error("Error fetching permissions:", e);
         return [];

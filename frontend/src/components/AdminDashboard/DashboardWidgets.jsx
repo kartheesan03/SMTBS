@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, useSpring, useTransform } from 'framer-motion';
-import { TrendingUp, TrendingDown, Minus, Smile, Zap, DollarSign, ShoppingCart, AlertCircle, Users, Search, Bell, Moon, Briefcase, Activity, Package, FileText, CheckSquare, UserPlus, FilePlus, CheckCircle, RefreshCw, BarChart2 } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, Smile, Zap, DollarSign, ShoppingCart, AlertCircle, Users, Search, Bell, Moon, Briefcase, Activity, Package, FileText, CheckSquare, UserPlus, FilePlus, CheckCircle, RefreshCw, BarChart2, Calendar, Tag, Layers, Target, ListTodo } from 'lucide-react';
 import './AdminDashboardPremium.css';
 import './AdminDashboardRedesign.css';
 
@@ -284,38 +284,34 @@ export const TopSellingMaterialsTable = ({ materials = [] }) => {
 export const QuickActionsGrid = () => {
     const navigate = useNavigate();
     const actions = [
-        { label: 'Add Employee', icon: UserPlus, path: '/hrms/add-employee' },
-        { label: 'Add Material', icon: Package, path: '/materials' },
-        { label: 'Create Purchase', icon: ShoppingCart, path: '/orders/create/purchase' },
-        { label: 'Create Sales', icon: FilePlus, path: '/orders/create/sales' },
-        { label: 'Generate Invoice', icon: FileText, path: '/erp' },
-        { label: 'Approve Leave', icon: CheckCircle, path: '/leave-management/approve' },
-        { label: 'Update Stock', icon: RefreshCw, path: '/materials' },
-        { label: 'View Reports', icon: BarChart2, path: '/analytics' }
+        { label: 'Attendance', icon: CheckCircle, path: '/attendance', colorClass: 'bg-light-red' },
+        { label: 'Leave Mgmt', icon: Calendar, path: '/leave-management', colorClass: 'bg-light-green' },
+        { label: 'Payroll', icon: DollarSign, path: '/payroll', colorClass: 'bg-light-purple' },
+        { label: 'Materials', icon: Package, path: '/materials', colorClass: 'bg-light-orange' },
+        { label: 'Vendors', icon: Briefcase, path: '/vendors', colorClass: 'bg-light-cyan' },
+        { label: 'Purchase Orders', icon: ShoppingCart, path: '/orders/purchase', colorClass: 'bg-light-green' },
+        { label: 'Sales Orders', icon: Tag, path: '/orders', colorClass: 'bg-light-red' },
+        { label: 'Reports', icon: FileText, path: '/reports', colorClass: 'bg-light-purple' },
+        { label: 'HRMS', icon: Users, path: '/hrms', colorClass: 'bg-light-blue' },
+        { label: 'ERP', icon: Layers, path: '/', colorClass: 'bg-light-cyan' },
+        { label: 'CRM', icon: Target, path: '/crm', colorClass: 'bg-light-pink' },
+        { label: 'Tasks', icon: ListTodo, path: '/tasks', colorClass: 'bg-light-orange' }
     ];
     return (
-        <div className="erp-card">
-            <div className="erp-premium-widget-header">
-                <h3 className="erp-premium-widget-title">Quick Actions</h3>
+        <div className="dashboard-panel">
+            <div className="panel-header">
+                <div className="panel-title">Quick Actions</div>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginTop: '1rem' }}>
+            <div className="qa-grid" style={{ marginTop: '1rem' }}>
                 {actions.map((action, idx) => {
                     const IconComp = action.icon;
                     return (
-                        <button 
-                            key={idx} 
-                            style={{
-                                display: 'flex', alignItems: 'center', gap: '0.75rem',
-                                padding: '0.75rem', background: 'transparent',
-                                border: '1px solid var(--erp-border-light)',
-                                borderRadius: '8px', cursor: 'pointer',
-                                fontSize: '0.75rem', color: 'var(--erp-text-primary)', fontWeight: '500',
-                                textAlign: 'left'
-                            }}
-                            onClick={() => navigate(action.path)}
-                        >
-                            <IconComp size={16} color="#64748b" /> {action.label}
-                        </button>
+                        <div key={idx} className="qa-item" onClick={() => navigate(action.path)}>
+                            <div className={`qa-icon-wrapper ${action.colorClass}`}>
+                                <IconComp size={20} strokeWidth={2} />
+                            </div>
+                            <div className="qa-label">{action.label}</div>
+                        </div>
                     );
                 })}
             </div>

@@ -593,7 +593,7 @@ const AdminDashboard = () => {
                     <div className="dashboard-panel">
                         <div className="panel-header">
                             <div className="panel-title">Sales Analytics</div>
-                            <select className="panel-dropdown"><option>This Month ▾</option></select>
+                            <select className="panel-dropdown" style={{ paddingRight: '24px', width: 'auto' }}><option>This Month</option></select>
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, minHeight: 180, flex: 1 }}>
                             {(!dashboardData?.charts?.salesCategoryData || dashboardData.charts.salesCategoryData.length === 0) ? (
