@@ -102,6 +102,12 @@ const getMaterials = async (req, res) => {
     try {
         const materials = await Material.find({}).populate('vendor', 'name email contactPerson phone');
         const activeMaterials = materials.filter(m => m.isActive !== false);
+
+        if (req.user && req.user.role === 'Employee') {
+            console.log(`[API /materials] Fetched ${activeMaterials.length} materials for Employee ${req.user.id || req.user._id}.`);
+            return res.json(activeMaterials);
+        }
+
         console.log(`[API /materials] Fetched ${activeMaterials.length} active materials.`);
         res.json(activeMaterials);
     } catch (error) {

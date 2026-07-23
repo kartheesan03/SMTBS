@@ -41,6 +41,9 @@ const MasterAttendance = React.lazy(() => import('./pages/MasterAttendance'));
 const HRReports = React.lazy(() => import('./pages/HRReports'));
 const TrainingDevelopment = React.lazy(() => import('./pages/TrainingDevelopment'));
 const Settings = React.lazy(() => import('./pages/Settings'));
+const AttendanceSettings = React.lazy(() => import('./pages/AttendanceSettings'));
+const LeaveSettings = React.lazy(() => import('./pages/LeaveSettings'));
+const PayrollSettings = React.lazy(() => import('./pages/PayrollSettings'));
 const BackupRestore = React.lazy(() => import('./pages/BackupRestore'));
 const Profile = React.lazy(() => import('./pages/Profile'));
 const Reports = React.lazy(() => import('./pages/Reports'));
@@ -223,7 +226,6 @@ const AppContent = () => {
                     
                     <Route path="/my-materials" element={<Navigate to="/my-materials/inventory" replace />} />
                     <Route path="/my-materials/inventory" element={<ProtectedRoute allowedRoles={['employee']}><MyMaterials /></ProtectedRoute>} />
-                    <Route path="/my-materials/requests" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'employee']}><MyMaterials /></ProtectedRoute>} />
                     <Route path="/my-materials/stock" element={<ProtectedRoute allowedRoles={['admin', 'manager']}><MyMaterials /></ProtectedRoute>} />
                     <Route path="/my-materials/barcode" element={<ProtectedRoute allowedRoles={['employee']}><EmployeeScanner /></ProtectedRoute>} />
                     
@@ -364,9 +366,9 @@ const AppContent = () => {
                     <Route path="/settings/integrations" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
                     <Route path="/settings/notifications" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
                     <Route path="/settings/backup" element={<ProtectedRoute><BackupRestore /></ProtectedRoute>} />
-                    <Route path="/settings/attendance" element={<ProtectedRoute><ComingSoonPage title="Attendance Settings" /></ProtectedRoute>} />
-                    <Route path="/settings/leave" element={<ProtectedRoute><ComingSoonPage title="Leave Policies" /></ProtectedRoute>} />
-                    <Route path="/settings/payroll" element={<ProtectedRoute><ComingSoonPage title="Payroll Settings" /></ProtectedRoute>} />
+                    <Route path="/settings/attendance" element={<ProtectedRoute><AttendanceSettings /></ProtectedRoute>} />
+                    <Route path="/settings/leave" element={<ProtectedRoute><LeaveSettings /></ProtectedRoute>} />
+                    <Route path="/settings/payroll" element={<ProtectedRoute><PayrollSettings /></ProtectedRoute>} />
 
                     {/* Fallback */}
                     <Route path="*" element={<Navigate to="/" />} />

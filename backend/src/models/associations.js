@@ -88,6 +88,13 @@ function setupAssociations() {
     Backup.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'createdById', as: 'createdBy' });
     RestoreLog.sequelizeModel.belongsTo(Backup.sequelizeModel, { foreignKey: 'backupIdField', as: 'backup' });
     RestoreLog.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'restoredById', as: 'restoredBy' });
+
+    // 18. PurchaseRequest associations
+    const PurchaseRequest = require('./PurchaseRequest');
+    PurchaseRequest.sequelizeModel.belongsTo(Order.sequelizeModel, { foreignKey: 'orderId', as: 'order' });
+    Order.sequelizeModel.hasMany(PurchaseRequest.sequelizeModel, { foreignKey: 'orderId', as: 'purchaseRequests' });
+    PurchaseRequest.sequelizeModel.belongsTo(Vendor.sequelizeModel, { foreignKey: 'vendorId', as: 'vendor' });
+    PurchaseRequest.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'requestedById', as: 'requestedBy' });
 }
 
 module.exports = setupAssociations;

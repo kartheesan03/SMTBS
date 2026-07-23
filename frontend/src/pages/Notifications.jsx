@@ -131,7 +131,7 @@ const NotificationsPage = () => {
         return `${d}d ago`;
     };
 
-    const canAdmin = user?.role === 'Admin' || user?.role === 'Super Admin' || user?.role === 'HR';
+    const canAdmin = user?.role === 'Admin' || user?.role === 'Super Admin';
 
     const filterTabs = [
         { key: 'all', label: 'All', count: notifications.length },

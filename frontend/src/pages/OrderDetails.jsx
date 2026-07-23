@@ -266,7 +266,7 @@ const OrderDetails = () => {
                     <Truck size={16} color="#64748b" style={{ marginTop: '2px' }} />
                     <div>
                         <div style={{ fontSize: '13px', color: '#64748b', marginBottom: '2px' }}>Expected Delivery</div>
-                        <div style={{ color: '#0f172a', fontWeight: 500 }}>{order.expectedDeliveryDate ? new Date(order.expectedDeliveryDate).toLocaleDateString() : 'N/A'}</div>
+                        <div style={{ color: '#0f172a', fontWeight: 500 }}>{(order.deliveryDate || order.expectedDeliveryDate || order.expectedDelivery || order.dueDate || order.deliveryETA) ? new Date(order.deliveryDate || order.expectedDeliveryDate || order.expectedDelivery || order.dueDate || order.deliveryETA).toLocaleDateString() : 'N/A'}</div>
                     </div>
                 </div>
             </div>

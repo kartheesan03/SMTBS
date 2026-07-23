@@ -144,36 +144,15 @@ const SalesDashboard = () => {
             });
         }
 
-        // If all values are zero, use illustrative demo data derived from real totals
-        const hasRealData = months.some(m => m.newLeads > 0 || m.meetings > 0 || m.dealsClosed > 0);
-        if (!hasRealData) {
-            const base = Math.max(leads.length, 5);
-            const seed = [0.4, 0.6, 0.75, 0.55, 0.85, 1.0];
-            return months.map((m, i) => ({
-                name: m.name,
-                newLeads: Math.round(base * seed[i]),
-                meetings: Math.round(base * seed[i] * 0.6),
-                dealsClosed: Math.round(base * seed[i] * 0.25),
-            }));
-        }
         return months;
     };
     const salesTrendData = buildSalesTrendData();
 
 
-    // Top prospects: show all leads sorted by value; fall back to demo data if empty
-    const demoProspects = [
-        { name: 'Acme Corp', company: 'Enterprise', value: 250000, status: 'Qualified' },
-        { name: 'TechNova Ltd', company: 'SaaS', value: 180000, status: 'Proposal' },
-        { name: 'Bright Solutions', company: 'SMB', value: 120000, status: 'Negotiation' },
-        { name: 'GreenField Inc', company: 'Manufacturing', value: 95000, status: 'Contacted' },
-        { name: 'Skyline Ventures', company: 'Startup', value: 60000, status: 'New' },
-    ];
-    const rawProspects = [...leads]
+    const topProspects = [...leads]
         .filter(l => l.status !== 'Converted' && l.status !== 'Lost')
         .sort((a, b) => (b.value || b.dealValue || 0) - (a.value || a.dealValue || 0))
         .slice(0, 5);
-    const topProspects = rawProspects.length > 0 ? rawProspects : demoProspects;
 
     return (
         <div className="rd-container theme-sales">
@@ -542,8 +521,8 @@ const SalesDashboard = () => {
                             <select className="panel-dropdown"><option>Last 6 ▾</option></select>
                         </div>
                         <div style={{ padding: '5px 0' }}>
-                            <div style={{fontSize: 20, fontWeight: 800, color: '#0f172a'}}>156 Leads</div>
-                            <div style={{fontSize: 11, color: '#10b981', fontWeight: 600}}>↑ 24% vs previous</div>
+                            <div style={{fontSize: 20, fontWeight: 800, color: '#0f172a'}}>{leads.length} Leads</div>
+                            <div style={{fontSize: 11, color: '#10b981', fontWeight: 600}}>{newLeads > 0 ? `+${newLeads} in last 30 days` : 'No new leads recently'}</div>
                         </div>
                         <div style={{height: 100, width: '100%'}}>
                             <ResponsiveContainer width="100%" height="100%">

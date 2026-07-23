@@ -140,7 +140,6 @@ const FarmakuSidebar = () => {
                         { title: 'Movement Tracking', path: '/tracking-overview' },
                         { title: 'Stock Monitoring', path: '/my-materials/stock' },
                         { title: 'Barcode / QR', path: role === 'employee' ? '/my-materials/barcode' : '/materials/barcode' },
-                        { title: 'Material Requests', path: '/my-materials/requests' },
                         { title: 'Warehouse Management', path: '/warehouses' },
                         { title: 'Reports', path: '/reports/materials' }
                     ];

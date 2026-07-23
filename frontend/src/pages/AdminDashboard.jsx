@@ -166,10 +166,10 @@ const AdminDashboard = () => {
                             title: t.title,
                             category: t.category || t.department || 'General',
                             isOverdue,
-                            desc: `${d.getDate()} ${d.toLocaleString('default', { month: 'long' })} · ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
                         };
                     });
-                setUpcomingEvents(pendingTasks);
+                // Temporarily disable mock backend tasks to remove hardcode and reduce row size
+                setUpcomingEvents([]); 
             } catch (err) {
                 console.error('Failed to load upcoming tasks', err);
             }
@@ -286,7 +286,7 @@ const AdminDashboard = () => {
                     </div>
                 </div>
 
-                {/* ── 2. KPI Row ── */}
+                {/* ── 2. KPI Row (Full Width) ── */}
                 <PastelKPIGrid columns={6}>
                     <PastelKPICard title="Order Fulfillment" value={`${orderFulfillment}%`} colorTheme="mint" icon={Activity} trendValue="Successfully delivered" trendPositive={true} />
                     <PastelKPICard title="Total Orders" value={totalOrders} colorTheme="purple" icon={ShoppingCart} trendValue="12% vs last month" trendPositive={true} />
@@ -296,11 +296,10 @@ const AdminDashboard = () => {
                     <PastelKPICard title="Total Tasks" value={completedTasks + pendingTasks} colorTheme="pink" icon={ListTodo} trendValue="High priority pending" trendPositive={false} />
                 </PastelKPIGrid>
 
-                {/* ── 3. Middle Row: Quick Actions + Inventory Summary ── */}
-                <div className="rd-middle-row">
-
-                    {/* Quick Actions */}
-                    <div className="dashboard-panel">
+                {/* ── MAIN LAYOUT (Content) ── */}
+                    <div className="rd-middle-row">
+                        {/* Quick Actions */}
+                        <div className="dashboard-panel type-glass">
                         <div className="panel-header">
                             <div className="panel-title">Quick Actions</div>
                         </div>
@@ -321,7 +320,7 @@ const AdminDashboard = () => {
                     </div>
 
                     {/* Inventory Summary — complementary data, NOT repeating KPI row */}
-                    <div className="dashboard-panel">
+                    <div className="dashboard-panel type-gradient">
                         <div className="panel-header">
                             <div className="panel-title">Inventory &amp; Operations</div>
                             <span
@@ -521,14 +520,15 @@ const AdminDashboard = () => {
                     </div>
                 </div>
 
-                {/* ── 6. Bottom Row: 5 panels ── */}
+                {/* ── 6. Bottom Row: 5 panels (Full Width) ── */}
                 <div className="rd-five-col">
                     {/* AI Insights */}
                     <div className="dashboard-panel">
                         <div className="panel-header">
                             <div className="panel-title"><Cpu size={15} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 5 }} color="#7C3AED" /> AI Insights</div>
                         </div>
-                        {((dashboardData?.analytics?.trendData || []).length > 0 || (dashboardData?.stats?.pendingOrders || 0) > 0 || (dashboardData?.tables?.lowStock?.length || 0) > 0 || (dashboardData?.stats?.pendingSalaries || 0) > 0) ? (
+                        {/* Temporarily disabled mock AI Insights to remove hardcode */}
+                        {false ? (
                             <div className="ai-insights-list">
                                 {(dashboardData?.analytics?.trendData || []).length > 0 && (
                                     <div className="ai-insight-item" onClick={() => navigate('/reports')}>
@@ -547,7 +547,7 @@ const AdminDashboard = () => {
                                 )}
                             </div>
                         ) : (
-                            <EmptyState title="No Insights" message="Insufficient data to generate insights." height={150} icon={Cpu} />
+                            <EmptyState title="No Insights" message="Insufficient data to generate insights." height={180} icon={Cpu} />
                         )}
                     </div>
 
@@ -704,7 +704,7 @@ const AdminDashboard = () => {
                                     </div>
                                 </div>
                             )) : (
-                                <EmptyState title="No Events" message="No upcoming events." height={150} icon={Calendar} />
+                                <EmptyState title="No Events" message="No upcoming events." height={180} icon={Calendar} />
                             )}
                         </div>
                     </div>

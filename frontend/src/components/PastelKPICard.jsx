@@ -65,26 +65,12 @@ export const PastelKPICard = ({ title, value, icon: Icon, colorTheme = 'blue', t
                 {trendValue ? (
                     <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: 600, color: trendPositive ? '#16a34a' : '#dc2626', minWidth: 0 }}>
                         {trendPositive ? <TrendingUp size={12} strokeWidth={3} style={{ flexShrink: 0 }} /> : <TrendingDown size={12} strokeWidth={3} style={{ flexShrink: 0 }} />}
-                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 }}>{trendValue}</span>
+                        <span style={{ whiteSpace: 'nowrap' }}>{trendValue}</span>
                     </div>
                 ) : (
                     <div />
                 )}
                 
-                <div 
-                    onClick={onClick}
-                    style={{ 
-                        fontSize: '11px', fontWeight: 500, color: '#64748b', 
-                        cursor: onClick ? 'pointer' : 'default',
-                        display: 'flex', alignItems: 'center', gap: '2px',
-                        transition: 'color 150ms ease',
-                        whiteSpace: 'nowrap'
-                    }}
-                    onMouseEnter={(e) => onClick && (e.currentTarget.style.color = '#334155')}
-                    onMouseLeave={(e) => onClick && (e.currentTarget.style.color = '#64748b')}
-                >
-                    Details <ArrowRight size={10} />
-                </div>
             </div>
         </div>
     );

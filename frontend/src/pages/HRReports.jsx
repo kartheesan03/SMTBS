@@ -7,8 +7,10 @@ import {
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import { motion } from 'framer-motion';
 import * as XLSX from 'xlsx';
-import PageHeader from '../components/PageHeader';
 import ExcelJS from 'exceljs';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import PageHeader from '../components/PageHeader';
 import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 
@@ -215,11 +217,39 @@ const HRReports = () => {
             const rows = [
                 [customReport.type, customReport.format, customReport.from || 'All Time', customReport.to || 'All Time', new Date().toLocaleString(), 'HR SYSTEM CORE']
             ];
-            const content = generateCSV(headers, rows);
-            const filename = `HR_Custom_${customReport.type.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.csv`;
             
-            triggerDownload(content, filename);
-            showToast('✅ Custom report compiled and downloaded!');
+            const filenameBase = `HR_Custom_${customReport.type.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}`;
+            
+            if (customReport.format === 'CSV') {
+                const content = generateCSV(headers, rows);
+                triggerDownload(content, `${filenameBase}.csv`);
+            } else if (customReport.format === 'XLSX') {
+                const workbook = new ExcelJS.Workbook();
+                const worksheet = workbook.addWorksheet('Custom Report');
+                worksheet.addRow(headers);
+                worksheet.getRow(1).font = { bold: true };
+                rows.forEach(r => worksheet.addRow(r));
+                
+                const buffer = await workbook.xlsx.writeBuffer();
+                const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${filenameBase}.xlsx`;
+                a.click();
+                URL.revokeObjectURL(url);
+            } else if (customReport.format === 'PDF') {
+                const doc = new jsPDF();
+                doc.text(`HR Custom Report: ${customReport.type}`, 14, 15);
+                autoTable(doc, {
+                    startY: 20,
+                    head: [headers],
+                    body: rows,
+                });
+                doc.save(`${filenameBase}.pdf`);
+            }
+            
+            showToast(`✅ Custom ${customReport.format} report compiled and downloaded!`);
         } catch (err) {
             showToast('❌ Custom compilation interrupted.', 'error');
         } finally {
@@ -518,7 +548,7 @@ const HRReports = () => {
                             </div>
                             <div className="modal-actions-cyber">
                                 <button type="button" className="btn-cancel" onClick={() => setShowCustomModal(false)}>Cancel</button>
-                                <button type="submit" className="btn-primary-blue">Compile & Download</button>
+                                <button type="submit" className="rd-btn-primary">Compile & Download</button>
                             </div>
                         </form>
                     </div>

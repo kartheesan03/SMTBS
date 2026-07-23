@@ -179,7 +179,7 @@ const ERP = () => {
 
                                 const amount = Number(order.totalAmount) || Number(order.grandTotal) || Number(order.amount) || 0;
                                 const raised = order.orderDate || order.createdAt || order.date;
-                                const delivery = order.deliveryDate || order.expectedDelivery || order.dueDate;
+                                const delivery = order.deliveryDate || order.expectedDeliveryDate || order.expectedDelivery || order.dueDate;
                                 const priority = order.priority || 'Normal';
                                 const status = order.status || 'Pending';
 
@@ -188,7 +188,11 @@ const ERP = () => {
                                     'Approved': 'rd-status-green', 'Processing': 'rd-status-blue',
                                     'In Transit': 'rd-status-blue', 'Dispatched': 'rd-status-blue',
                                     'Delivered': 'rd-status-green', 'Received': 'rd-status-green',
-                                    'Cancelled': 'rd-status-red', 'Rejected': 'rd-status-red'
+                                    'Cancelled': 'rd-status-red', 'Rejected': 'rd-status-red',
+                                    'Employee Verification': 'rd-status-blue',
+                                    'Admin/Manager Review': 'rd-status-orange',
+                                    'Vendor Processing': 'rd-status-blue',
+                                    'Order Fulfillment': 'rd-status-blue'
                                 };
                                 const isHighPriority = priority === 'High' || priority === 'Urgent';
 
@@ -202,7 +206,7 @@ const ERP = () => {
                                         <td style={{ verticalAlign: 'middle', color: '#64748b', textAlign: 'center'}} data-label="Delivery">{delivery ? new Date(delivery).toLocaleDateString('en-GB', {day: '2-digit', month: '2-digit', year: '2-digit'}) : '—'}</td>
                                         <td style={{ verticalAlign: 'middle' }} data-label="Status">
                                             <div style={{display: 'flex', alignItems: 'center', gap: '6px'}}>
-                                                <span className={`ui-badge ${statusColors[status] === 'rd-status-red' ? 'danger' : statusColors[status] === 'rd-status-green' ? 'success' : statusColors[status] === 'rd-status-orange' ? 'warning' : 'primary'}`}>
+                                                <span className={`ui-badge ${statusColors[status] === 'rd-status-red' ? 'danger' : statusColors[status] === 'rd-status-green' ? 'success' : statusColors[status] === 'rd-status-orange' ? 'warning' : 'info'}`}>
                                                     {status}
                                                 </span>
                                                 {isHighPriority && <span title={`${priority} Priority`} style={{color: '#ef4444', fontSize: '14px'}}>🚩</span>}

@@ -121,6 +121,17 @@ const FinancialOperations = () => {
 
     if (loading) return <div className="flex-center" style={{minHeight:'100vh'}}><div className="loader"></div></div>;
 
+    const handleMarkPaid = async (orderId) => {
+        try {
+            await API.put(`/orders/${orderId}/payment-status`, { paymentStatus: 'Paid' });
+            toast.success('Marked as paid successfully');
+            fetchData();
+        } catch (error) {
+            console.error('Error updating payment status:', error);
+            toast.error(error.response?.data?.message || 'Failed to update payment status');
+        }
+    };
+
     return (
         <motion.div 
             initial={{ opacity: 0, y: 15 }}
@@ -310,7 +321,7 @@ const FinancialOperations = () => {
                                             {inv.status === 'Paid' ? (
                                                 <span style={{color: '#10b981', fontWeight: 600, fontSize: 13}}>✓ Done</span>
                                             ) : (
-                                                <button className="rd-btn-compact outline" style={{padding: '5px 12px', fontSize: 12, color: '#3b82f6', borderColor: '#bfdbfe'}}>Mark Paid</button>
+                                                <button onClick={() => handleMarkPaid(inv._id)} className="rd-btn-compact outline" style={{padding: '5px 12px', fontSize: 12, color: '#3b82f6', borderColor: '#bfdbfe'}}>Mark Paid</button>
                                             )}
                                         </td>
                                     </tr>

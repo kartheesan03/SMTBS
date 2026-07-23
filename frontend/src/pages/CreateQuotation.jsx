@@ -210,13 +210,8 @@ const CreateQuotation = () => {
                                                             style={{width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #D1D5DB'}}
                                                         />
                                                     </td>
-                                                    <td>
-                                                        <input 
-                                                            type="number" min="0" step="0.01"
-                                                            value={item.unitPrice}
-                                                            onChange={(e) => handleItemChange(index, 'unitPrice', e.target.value)}
-                                                            style={{width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #D1D5DB'}}
-                                                        />
+                                                    <td style={{fontWeight: '500', color: '#475569'}}>
+                                                        {Number(item.unitPrice || 0).toFixed(2)}
                                                     </td>
                                                     <td>
                                                         <input 

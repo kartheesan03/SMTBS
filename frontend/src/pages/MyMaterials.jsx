@@ -5,6 +5,7 @@ import { toast } from 'react-hot-toast';
 import { useLocation } from 'react-router-dom';
 import { DataTable } from '../components/ui';
 import { motion, AnimatePresence } from 'framer-motion';
+import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
 import { AuthContext } from '../context/AuthContext';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
@@ -13,6 +14,7 @@ const MyMaterials = () => {
     const { user } = useContext(AuthContext);
     const [requests, setRequests] = useState([]);
     const [materialsList, setMaterialsList] = useState([]);
+    const [allMaterialsList, setAllMaterialsList] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [formData, setFormData] = useState({ materialId: '', requiredQuantity: 1, priority: 'Normal', warehouse: 'Main Warehouse', reason: '' });
@@ -24,7 +26,7 @@ const MyMaterials = () => {
     let pageMode = "requests";
     
     if (location.pathname.includes('/inventory')) {
-        pageTitle = "Assigned Inventory";
+        pageTitle = "Inventory Management";
         pageBadge = "INVENTORY";
         pageMode = "inventory";
     } else if (location.pathname.includes('/stock')) {
@@ -36,12 +38,14 @@ const MyMaterials = () => {
     const fetchData = async () => {
         try {
             setLoading(true);
-            const [reqRes, matRes] = await Promise.all([
+            const [reqRes, matRes, allMatRes] = await Promise.all([
                 API.get('/stock-requests'),
-                API.get('/materials')
+                API.get('/materials'),
+                API.get('/materials/list')
             ]);
             setRequests(reqRes.data || []);
             setMaterialsList(matRes.data || []);
+            setAllMaterialsList(allMatRes.data || []);
         } catch (error) {
             console.error("Failed to fetch data:", error);
             toast.error("Failed to load your materials");
@@ -74,6 +78,12 @@ const MyMaterials = () => {
             setSubmitting(false);
         }
     };
+
+    const handleRequestMaterial = (materialId) => {
+        setFormData({ materialId, requiredQuantity: 1, priority: 'Normal', warehouse: 'Main Warehouse', reason: '' });
+        setShowModal(true);
+    };
+
 
     const handleReceive = async (id) => {
         try {
@@ -143,104 +153,208 @@ const MyMaterials = () => {
     };
 
     const requestColumns = [
-        { key: 'material.name', label: 'Material' },
-        { key: 'requiredQuantity', label: 'Quantity' },
+        { 
+            key: 'materialName', 
+            label: 'MATERIAL',
+            render: (_, row) => (
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <span style={{ fontWeight: 700, color: '#1e293b' }}>{row.material?.name || 'Unknown'}</span>
+                    <span style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>{row.material?.sku || 'MAT-000'}</span>
+                </div>
+            )
+        },
+        { 
+            key: 'materialCategory', 
+            label: 'CATEGORY',
+            render: (_, row) => <span style={{ padding: '4px 10px', fontSize: 12, fontWeight: 600, background: '#eff6ff', color: '#3b82f6', border: '1px solid #bfdbfe', borderRadius: 99, display: 'inline-block' }}>{row.material?.category || 'General'}</span>
+        },
+        { 
+            key: 'warehouse', 
+            label: 'LOCATION',
+            render: (_, row) => <span style={{ color: '#334155', fontSize: 13 }}>{row.warehouse || 'Main Warehouse'}</span>
+        },
+        { 
+            key: 'requiredQuantity', 
+            label: 'QTY REQUESTED',
+            render: (val, row) => <span><span style={{ fontWeight: 700, color: '#1e293b', fontSize: 14 }}>{val}</span> <span style={{ color: '#94a3b8', fontSize: 13, fontWeight: 500 }}>{row.material?.unit || 'units'}</span></span>
+        },
+        { 
+            key: 'materialQty', 
+            label: 'AVAILABLE QTY', 
+            align: 'right', 
+            render: (_, row) => <span><span style={{ fontWeight: 700, color: '#1e293b', fontSize: 14 }}>{row.material?.quantity || 0}</span> <span style={{ color: '#94a3b8', fontSize: 13, fontWeight: 500 }}>{row.material?.unit || 'units'}</span></span>
+        },
+        { 
+            key: 'materialReserved', 
+            label: 'RESERVED QTY', 
+            align: 'right', 
+            render: (_, row) => <span><span style={{ fontWeight: 700, color: '#1e293b', fontSize: 14 }}>{row.material?.reservedQuantity || 0}</span> <span style={{ color: '#94a3b8', fontSize: 13, fontWeight: 500 }}>{row.material?.unit || 'units'}</span></span>
+        },
         { 
             key: 'status', 
-            label: 'Status',
+            label: 'STATUS',
             render: (val) => (
                 <span style={{ 
-                    padding: '4px 12px', 
-                    borderRadius: '20px', 
-                    fontSize: '12px', 
+                    padding: '4px 10px', 
+                    borderRadius: '99px', 
+                    fontSize: '11px', 
                     fontWeight: '600',
-                    backgroundColor: `${getStatusColor(val)}20`,
-                    color: getStatusColor(val)
+                    backgroundColor: `${getStatusColor(val)}15`,
+                    color: getStatusColor(val),
+                    border: `1px solid ${getStatusColor(val)}40`
                 }}>
                     {val}
                 </span>
             )
         },
-        { key: 'createdAt', label: 'Date Requested', render: (val) => new Date(val).toLocaleDateString() },
-        { key: 'reason', label: 'Reason' },
+        { 
+            key: 'createdAt', 
+            label: 'DATE REQUESTED', 
+            render: (val) => <span style={{ fontSize: 13, color: '#64748b' }}>{new Date(val).toLocaleDateString()}</span> 
+        },
+        { 
+            key: 'reason', 
+            label: 'REASON',
+            render: (val) => <span style={{ fontSize: 13, color: '#64748b' }}>{val}</span>
+        },
         {
             key: 'actions',
-            label: 'Actions',
+            label: 'ACTIONS',
             render: (_, row) => (
-                <div style={{ display: 'flex', gap: '8px' }}>
-                    <button 
-                        onClick={() => handlePrint(row)}
-                        className="rd-btn secondary"
-                        style={{ padding: '6px 12px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px' }}
-                        title="Print Details"
-                    >
-                        <Printer size={14} /> Print
-                    </button>
+                <div style={{ display: 'flex', gap: '6px' }}>
                     {row.status === 'Delivered' && (
                         <button 
                             onClick={() => handleReceive(row.id || row._id)}
-                            className="rd-btn primary"
-                            style={{ padding: '6px 12px', fontSize: '13px' }}
+                            className="rd-btn-compact"
+                            style={{ padding: '4px 10px', fontSize: 12, fontWeight: 600, borderRadius: 6, background: '#ecfdf5', color: '#10b981', border: '1px solid #a7f3d0', cursor: 'pointer' }}
                         >
-                            Mark as Received
+                            Receive
                         </button>
                     )}
                     {row.status === 'Completed' && (
                         <button 
                             onClick={() => handleReturn(row.id || row._id)}
-                            className="rd-btn"
-                            style={{ padding: '6px 12px', fontSize: '13px', backgroundColor: '#f1f5f9', color: '#334155', border: '1px solid #cbd5e1', display: 'flex', alignItems: 'center', gap: '4px' }}
-                            title="Request Return"
+                            className="rd-btn-compact"
+                            style={{ padding: '4px 10px', fontSize: 12, fontWeight: 600, borderRadius: 6, background: '#fff1f2', color: '#ef4444', border: '1px solid #fecdd3', cursor: 'pointer' }}
                         >
-                            <CornerUpLeft size={14} /> Return
+                            Return
                         </button>
                     )}
+                    <button 
+                        onClick={() => handlePrint(row)}
+                        className="rd-btn-compact"
+                        style={{ padding: '4px 8px', fontSize: 12, borderRadius: 6, background: '#eff6ff', color: '#3b82f6', border: '1px solid #bfdbfe', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        title="Print"
+                    >
+                        <Printer size={14} />
+                    </button>
                 </div>
             )
         }
     ];
 
     const inventoryColumns = [
-        { key: 'material.name', label: 'Material' },
-        { key: 'material.category', label: 'Category', render: (val) => val || 'General' },
-        { key: 'warehouse', label: 'Warehouse', render: () => 'Main Warehouse' },
-        { key: 'requiredQuantity', label: 'Assigned Qty', render: (val) => <span style={{ fontWeight: 600 }}>{val}</span> },
-        { key: 'material.quantity', label: 'Available Qty', render: (val) => val || 0 },
-        { key: 'material.reservedQuantity', label: 'Reserved Qty', render: (val) => val || 0 },
-        { key: 'material.lowStockThreshold', label: 'Min Level', render: (val) => val || 0 },
         { 
-            key: 'material.status', 
-            label: 'Status',
+            key: 'materialName', 
+            label: 'MATERIAL NAME',
+            sortable: true,
+            render: (val, row) => (
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <span style={{ fontWeight: 700, color: '#1e293b' }}>{val || row.material?.name}</span>
+                    <span style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>{row.material?.sku || 'MAT-000'}</span>
+                </div>
+            )
+        },
+        { 
+            key: 'materialCategory', 
+            label: 'CATEGORY',
+            sortable: true,
+            render: (val, row) => <span style={{ padding: '4px 10px', fontSize: 12, fontWeight: 600, background: '#eff6ff', color: '#3b82f6', border: '1px solid #bfdbfe', borderRadius: 99, display: 'inline-block' }}>{val || row.material?.category || 'General'}</span>
+        },
+        {
+            key: 'location',
+            label: 'LOCATION',
+            render: (_, row) => {
+                const displayLoc = row.warehouse ? `${row.warehouse} / ${row.shelf || 'No Shelf'}` : (row.material?.location || null);
+                if (!displayLoc) return <span style={{ color: '#cbd5e1', fontSize: 13, fontStyle: 'italic' }}>Not set</span>;
+                return <span style={{ color: '#334155', fontSize: 13 }}>{displayLoc}</span>;
+            }
+        },
+        { 
+            key: 'materialQty', 
+            label: 'AVAILABLE QTY', 
+            align: 'center',
+            sortable: true,
+            render: (val, row) => <span><span style={{ fontWeight: 700, color: '#1e293b', fontSize: 14 }}>{val}</span> <span style={{ color: '#94a3b8', fontSize: 13, fontWeight: 500 }}>{row.material?.unit || 'units'}</span></span>
+        },
+        { 
+            key: 'requiredQuantity', 
+            label: 'ASSIGNED QTY', 
+            align: 'center',
+            sortable: true,
+            render: (val, row) => <span><span style={{ fontWeight: 700, color: '#1e293b', fontSize: 14 }}>{val}</span> <span style={{ color: '#94a3b8', fontSize: 13, fontWeight: 500 }}>{row.material?.unit || 'units'}</span></span>
+        },
+        { 
+            key: 'materialReserved', 
+            label: 'RESERVED QTY', 
+            align: 'center',
+            sortable: true,
+            render: (val, row) => <span><span style={{ fontWeight: 700, color: '#1e293b', fontSize: 14 }}>{val}</span> <span style={{ color: '#94a3b8', fontSize: 13, fontWeight: 500 }}>{row.material?.unit || 'units'}</span></span>
+        },
+        { 
+            key: 'materialStatus', 
+            label: 'STATUS',
             render: (val, row) => {
                 const stock = row.material?.quantity || 0;
                 const min = row.material?.lowStockThreshold || 10;
                 let statusText = 'In Stock';
-                let color = '#10b981';
-                let bg = '#ecfdf5';
-                if (stock === 0) { statusText = 'Out of Stock'; color = '#64748b'; bg = '#f1f5f9'; }
-                else if (stock <= min / 2) { statusText = 'Critical'; color = '#e11d48'; bg = '#fff1f2'; }
-                else if (stock <= min) { statusText = 'Low Stock'; color = '#f59e0b'; bg = '#fffbeb'; }
+                let bg = '#ecfdf5', color = '#10b981', border = '#a7f3d0';
+                if (stock === 0) { statusText = 'Out of Stock'; bg = '#fff1f2'; color = '#ef4444'; border = '#fecdd3'; }
+                else if (stock <= min) { statusText = 'Low Stock'; bg = '#fffbeb'; color = '#f59e0b'; border = '#fde68a'; }
                 
                 return (
-                    <span style={{ padding: '4px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: '600', backgroundColor: bg, color: color }}>
+                    <span style={{ padding: '4px 10px', fontSize: 11, fontWeight: 600, background: bg, color, border: `1px solid ${border}`, borderRadius: 99 }}>
                         {statusText}
                     </span>
                 );
             }
         },
-        { key: 'updatedAt', label: 'Last Updated', render: (val) => new Date(val).toLocaleDateString() },
+        { 
+            key: 'updatedAt', 
+            label: 'LAST UPDATED', 
+            render: (val, row) => {
+                const ts = val || row.material?.updatedAt || row.updatedAt;
+                const relativeTime = (dateStr) => {
+                    if (!dateStr) return 'Unknown';
+                    const diff = new Date() - new Date(dateStr);
+                    const mins = Math.floor(diff / 60000);
+                    if (mins < 60) return mins < 1 ? 'Just now' : `${mins}m ago`;
+                    const hrs = Math.floor(mins / 60);
+                    if (hrs < 24) return `${hrs}h ago`;
+                    return `${Math.floor(hrs / 24)}d ago`;
+                };
+                return (
+                    <span style={{ fontSize: 13, color: '#94a3b8', whiteSpace: 'nowrap' }}>
+                        {relativeTime(ts) === 'Just now' ? 'Just now' : relativeTime(ts)}
+                    </span>
+                );
+            }
+        },
         {
             key: 'actions',
-            label: 'Actions',
+            label: 'ACTIONS',
+            align: 'center',
             render: (_, row) => (
-                <div style={{ display: 'flex', gap: '8px' }}>
+                <div style={{ display: 'flex', gap: 6, justifyContent: 'center' }}>
                     <button 
-                        onClick={() => handleReturn(row.id || row._id)}
-                        className="rd-btn"
-                        style={{ padding: '6px 12px', fontSize: '12px', backgroundColor: '#f8fafc', color: '#334155', border: '1px solid #cbd5e1', display: 'flex', alignItems: 'center', gap: '4px' }}
-                        title="Request Return"
+                        className="rd-btn-compact"
+                        style={{ padding: '4px 10px', fontSize: 12, fontWeight: 600, borderRadius: 6, background: 'transparent', color: '#3b82f6', border: '1px solid #3b82f6', cursor: 'pointer' }}
+                        onClick={() => {
+                            setFormData({...formData, materialId: row.id || row.material?.id || row.material?._id});
+                            setShowModal(true);
+                        }}
                     >
-                        <CornerUpLeft size={14} /> Return
+                        Request
                     </button>
                 </div>
             )
@@ -332,7 +446,32 @@ const MyMaterials = () => {
     ];
 
     const getRenderData = () => {
-        if (pageMode === 'inventory') return requests.filter(r => r.status === 'Completed');
+        if (pageMode === 'inventory') {
+            return materialsList.map(m => {
+                const completedRequests = requests.filter(r => 
+                    (r.materialId === m.id || r.material?.id === m.id || r.material?._id === m.id) && 
+                    r.status === 'Completed'
+                );
+                const assignedQty = completedRequests.reduce((sum, r) => sum + (r.requiredQuantity || 0), 0);
+                const lastRequestId = completedRequests.length > 0 ? 
+                    (completedRequests[completedRequests.length - 1]._id || completedRequests[completedRequests.length - 1].id) 
+                    : null;
+                return {
+                    id: m.id || m._id,
+                    requestId: lastRequestId,
+                    material: m, // keep for backward compatibility
+                    materialName: m.name || m.materialName || 'Unknown',
+                    materialCategory: m.category || 'General',
+                    materialQty: m.quantity || 0,
+                    materialReserved: m.reservedQuantity || 0,
+                    materialThreshold: m.lowStockThreshold || 0,
+                    requiredQuantity: assignedQty,
+                    warehouse: m.warehouse,
+                    shelf: m.shelf,
+                    updatedAt: m.updatedAt
+                };
+            });
+        }
         if (pageMode === 'stock') return materialsList;
         return requests;
     };
@@ -344,95 +483,112 @@ const MyMaterials = () => {
     };
 
     const getTableTitle = () => {
-        if (pageMode === 'inventory') return "Your Assigned Materials";
+        if (pageMode === 'inventory') return "Assigned Inventory Register";
         if (pageMode === 'stock') return "Available Stock Levels";
         return "Your Material Requests";
     };
 
-    const renderInventoryWorkspace = () => {
-        const assignedData = getRenderData();
-        const totalAssigned = assignedData.length;
-        const availableQty = assignedData.reduce((acc, row) => acc + (row.material?.quantity || 0), 0);
-        const lowStockItems = assignedData.filter(row => (row.material?.quantity || 0) <= (row.material?.lowStockThreshold || 10)).length;
+    const renderWorkspace = () => {
+        const tableData = getRenderData();
+        
+        // Calculate KPIs reliably regardless of current pageMode
+        const inventoryData = materialsList.map(m => {
+            const completedRequests = requests.filter(r => 
+                (r.materialId === m.id || r.material?.id === m.id || r.material?._id === m.id) && 
+                r.status === 'Completed'
+            );
+            return {
+                materialQty: m.quantity || 0,
+                materialThreshold: m.lowStockThreshold || 0,
+                requiredQuantity: completedRequests.reduce((sum, r) => sum + (r.requiredQuantity || 0), 0)
+            };
+        });
+        
+        const totalAssigned = materialsList.length;
+        const availableQty = inventoryData.reduce((acc, row) => acc + (row.materialQty || 0), 0);
+        const lowStockItems = inventoryData.filter(row => (row.materialQty || 0) <= (row.materialThreshold || 10)).length;
         const pendingRequests = requests.filter(r => ['Pending', 'Manager Approved', 'Processing'].includes(r.status)).length;
-        const criticalItem = assignedData.find(row => (row.material?.quantity || 0) <= (row.material?.lowStockThreshold || 10));
+        const criticalItem = materialsList.find(m => (m.quantity || 0) <= (m.lowStockThreshold || 10));
 
         return (
-            <div className="erp-inventory-workspace">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                 {/* Header */}
-                <div className="erp-page-header" style={{ marginBottom: '32px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <h1 style={{ fontSize: '32px', fontWeight: 800, color: '#0f172a', margin: 0, letterSpacing: '-0.5px' }}>{pageTitle}</h1>
-                        <div style={{ display: 'flex', gap: '12px' }}>
-                            <button className="rd-btn" style={{ padding: '10px', background: '#fff', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={fetchData} title="Refresh">
-                                <RefreshCw size={18} color="#64748b" />
-                            </button>
-                            <button className="rd-btn" style={{ padding: '10px 16px', background: '#fff', border: '1px solid #e2e8f0', display: 'flex', gap: '8px', alignItems: 'center' }}>
-                                <Download size={18} color="#64748b" /> <span style={{ fontWeight: 600, color: '#334155' }}>Export</span>
-                            </button>
-                            <button className="rd-btn primary" onClick={() => setShowModal(true)} style={{ padding: '10px 20px', display: 'flex', gap: '8px', alignItems: 'center', background: '#4f46e5', color: '#ffffff', border: 'none', borderRadius: '10px' }}>
-                                <Plus size={18} /> <span style={{ fontWeight: 600 }}>New Material Request</span>
-                            </button>
+                <div className="rd-module-header" style={{ marginBottom: '24px' }}>
+                    <div className="rd-module-info" style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div className="rd-module-title-row">
+                            <span className="rd-module-title">{pageTitle}</span>
+                            <span className="rd-module-badge">{pageBadge}</span>
                         </div>
                     </div>
-                    <p style={{ color: '#64748b', fontSize: '15px', margin: '8px 0 0 0', maxWidth: '600px', lineHeight: '1.5' }}>
-                        Manage all materials assigned to you, submit stock updates, request additional inventory, and monitor stock availability.
-                    </p>
                 </div>
 
                 {/* KPI Cards */}
-                <div className="erp-kpi-grid">
-                    <div className="erp-kpi-card" style={{ borderTop: '4px solid #4f46e5' }}>
-                        <div className="erp-kpi-header">
-                            <div className="erp-kpi-icon-wrapper" style={{ background: '#eef2ff' }}>
-                                <Package size={24} color="#4f46e5" />
-                            </div>
-                            <div>
-                                <p className="erp-kpi-title">Assigned Materials</p>
-                                <h3 className="erp-kpi-value">{totalAssigned}</h3>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="erp-kpi-card" style={{ borderTop: '4px solid #10b981' }}>
-                        <div className="erp-kpi-header">
-                            <div className="erp-kpi-icon-wrapper" style={{ background: '#ecfdf5' }}>
-                                <Box size={24} color="#10b981" />
-                            </div>
-                            <div>
-                                <p className="erp-kpi-title">Available Quantity</p>
-                                <h3 className="erp-kpi-value">{availableQty}</h3>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="erp-kpi-card" style={{ borderTop: '4px solid #f59e0b' }}>
-                        <div className="erp-kpi-header">
-                            <div className="erp-kpi-icon-wrapper" style={{ background: '#fffbeb' }}>
-                                <AlertTriangle size={24} color="#f59e0b" />
-                            </div>
-                            <div>
-                                <p className="erp-kpi-title">Low Stock Items</p>
-                                <h3 className="erp-kpi-value">{lowStockItems}</h3>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="erp-kpi-card" style={{ borderTop: '4px solid #8b5cf6' }}>
-                        <div className="erp-kpi-header">
-                            <div className="erp-kpi-icon-wrapper" style={{ background: '#f5f3ff' }}>
-                                <Activity size={24} color="#8b5cf6" />
-                            </div>
-                            <div>
-                                <p className="erp-kpi-title">Pending Requests</p>
-                                <h3 className="erp-kpi-value">{pendingRequests}</h3>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <PastelKPIGrid>
+                    <PastelKPICard
+                        title="Total Items" value={totalAssigned}
+                        colorTheme="blue" icon={Package}
+                        trendValue="Inventory tracking active"
+                        trendPositive={true}
+                    />
+                    <PastelKPICard
+                        title="In Stock" value={availableQty}
+                        colorTheme="mint" icon={CheckCircle}
+                        trendValue={`${totalAssigned ? '100' : '0'}% of inventory`}
+                        trendPositive={true}
+                    />
+                    <PastelKPICard
+                        title="Low Stock" value={lowStockItems}
+                        colorTheme="yellow" icon={AlertTriangle}
+                        trendValue={`${totalAssigned ? Math.round((lowStockItems / totalAssigned) * 100) : 0}% need attention`}
+                        trendPositive={false}
+                    />
+                    <PastelKPICard
+                        title="Out of Stock" value={pendingRequests}
+                        colorTheme="peach" icon={AlertCircle}
+                        trendValue="0% critical"
+                        trendPositive={false}
+                    />
+                </PastelKPIGrid>
 
-                {/* Main 2-Column Layout */}
-                <div className="erp-inventory-layout">
+                {/* Assigned Materials Section (Only in Requests View) */}
+                {pageMode === 'requests' && (
+                    <div style={{ marginBottom: '24px' }}>
+                        <DataTable 
+                            title="Inventory Register"
+                            subtitle="Comprehensive list of all materials — location, GPS status, and quantity from a single source of truth"
+                            columns={inventoryColumns}
+                            data={materialsList.map(m => {
+                                const completedRequests = requests.filter(r => 
+                                    (r.materialId === m.id || r.material?.id === m.id || r.material?._id === m.id) && 
+                                    r.status === 'Completed'
+                                );
+                                const assignedQty = completedRequests.reduce((sum, r) => sum + (r.requiredQuantity || 0), 0);
+                                return {
+                                    id: m.id || m._id,
+                                    material: m,
+                                    materialName: m.name || m.materialName || 'Unknown',
+                                    materialCategory: m.category || 'General',
+                                    materialQty: m.quantity || 0,
+                                    materialReserved: m.reservedQuantity || 0,
+                                    materialThreshold: m.lowStockThreshold || 0,
+                                    requiredQuantity: assignedQty,
+                                    warehouse: 'Main Warehouse',
+                                    updatedAt: m.updatedAt
+                                };
+                            })}
+                            loading={loading}
+                            searchPlaceholder="Search materials, category..."
+                            searchKeys={['materialName', 'materialCategory']}
+                            primaryAction={{ label: '+ Add Material', icon: null, onClick: () => setShowModal(true) }}
+                        />
+                    </div>
+                )}
+
+                {/* Main 2-Column Layout (only applied for requests view) */}
+                <div className={pageMode === 'requests' ? "erp-inventory-layout" : ""}>
                     
                     {/* LEFT COLUMN: Data Table */}
-                    <div className="erp-main-column">
+                    <div className={pageMode === 'requests' ? "erp-main-column" : ""}>
                         {criticalItem && (
                             <div className="erp-low-stock-alert">
                                 <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
@@ -440,7 +596,7 @@ const MyMaterials = () => {
                                     <div>
                                         <h4 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: 700, color: '#9f1239' }}>⚠ Low Stock Alert</h4>
                                         <p style={{ margin: 0, fontSize: '14px', color: '#be123c' }}>
-                                            <strong>{criticalItem.material?.name}</strong> is critically low. Available: <strong>{criticalItem.material?.quantity || 0}</strong> (Minimum: {criticalItem.material?.lowStockThreshold || 10})
+                                            <strong>{criticalItem.name}</strong> is critically low. Available: <strong>{criticalItem.quantity || 0}</strong> (Minimum: {criticalItem.lowStockThreshold || 10})
                                         </p>
                                     </div>
                                 </div>
@@ -450,114 +606,90 @@ const MyMaterials = () => {
                             </div>
                         )}
 
-                        <div className="rd-panel" style={{ border: 'none', boxShadow: '0 4px 12px rgba(15,23,42,0.03)', background: '#ffffff', borderRadius: '16px' }}>
-                            <div style={{ padding: '24px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a', margin: 0 }}>Assigned Materials List</h2>
-                            </div>
-                            
-                            {totalAssigned === 0 && !loading ? (
-                                <div className="erp-empty-state">
-                                    <div style={{ background: '#f1f5f9', width: 80, height: 80, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px' }}>
-                                        <Box size={40} color="#94a3b8" />
-                                    </div>
-                                    <h3>No Assigned Materials</h3>
-                                    <p>No inventory is currently assigned to you. You can request new materials to get started.</p>
-                                    <button className="rd-btn primary" onClick={() => setShowModal(true)} style={{ display: 'flex', gap: '8px', alignItems: 'center', padding: '12px 24px', background: '#4f46e5', color: '#ffffff', border: 'none', borderRadius: '10px', fontWeight: 600 }}>
-                                        <Plus size={18} /> Request Material
-                                    </button>
-                                </div>
-                            ) : (
-                                <DataTable 
-                                    columns={getRenderColumns()} 
-                                    data={assignedData} 
-                                    loading={loading}
-                                    searchPlaceholder="Search materials, category..."
-                                    searchKeys={['material.name', 'material.category']}
-                                />
-                            )}
-                        </div>
+                        <DataTable 
+                            title={getTableTitle()}
+                            subtitle="Comprehensive list of all materials — location, GPS status, and quantity from a single source of truth"
+                            columns={getRenderColumns()} 
+                            data={tableData} 
+                            loading={loading}
+                            searchPlaceholder={pageMode === 'requests' ? 'Search requests...' : 'Search materials, category...'}
+                            searchKeys={pageMode === 'requests' ? ['material.name', 'status', 'reason'] : ['materialName', 'materialCategory']}
+                            primaryAction={{ label: 'New Material Request', icon: Plus, onClick: () => setShowModal(true) }}
+                        />
                     </div>
 
                     {/* RIGHT COLUMN: Sidebar Overview */}
-                    <div className="erp-side-column">
-                        <div className="erp-sidebar-card">
-                            <h3>Inventory Overview</h3>
-                            <div className="erp-overview-list">
-                                <div className="erp-overview-item">
-                                    <span className="erp-overview-label"><User size={16} /> Employee</span>
-                                    <span className="erp-overview-value">{user?.name || 'Employee'}</span>
-                                </div>
-                                <div className="erp-overview-item">
-                                    <span className="erp-overview-label"><Building size={16} /> Department</span>
-                                    <span className="erp-overview-value">{user?.role || 'Operations'}</span>
-                                </div>
-                                <div className="erp-overview-item" style={{ borderTop: '1px solid #f1f5f9', paddingTop: '16px', marginTop: '4px' }}>
-                                    <span className="erp-overview-label"><Box size={16} /> Assigned Warehouse</span>
-                                    <span className="erp-overview-value">Main Warehouse</span>
-                                </div>
-                                <div className="erp-overview-item">
-                                    <span className="erp-overview-label">Total Assigned</span>
-                                    <span className="erp-overview-value" style={{ color: '#4f46e5' }}>{totalAssigned} Items</span>
-                                </div>
-                                <div className="erp-overview-item">
-                                    <span className="erp-overview-label">Low Stock</span>
-                                    <span className="erp-overview-value" style={{ color: lowStockItems > 0 ? '#e11d48' : '#10b981' }}>{lowStockItems} Items</span>
+                    {pageMode === 'requests' && (
+                        <div className="erp-side-column">
+                            <div className="erp-sidebar-card">
+                                <h3>Request Overview</h3>
+                                <div className="erp-overview-list">
+                                    <div className="erp-overview-item">
+                                        <span className="erp-overview-label"><User size={16} /> Employee</span>
+                                        <span className="erp-overview-value">{user?.name || 'Employee'}</span>
+                                    </div>
+                                    <div className="erp-overview-item">
+                                        <span className="erp-overview-label"><Building size={16} /> Department</span>
+                                        <span className="erp-overview-value">{user?.role || 'Operations'}</span>
+                                    </div>
+                                    <div className="erp-overview-item" style={{ borderTop: '1px solid #f1f5f9', paddingTop: '16px', marginTop: '4px' }}>
+                                        <span className="erp-overview-label"><Box size={16} /> Assigned Warehouse</span>
+                                        <span className="erp-overview-value">Main Warehouse</span>
+                                    </div>
+                                    <div className="erp-overview-item">
+                                        <span className="erp-overview-label"><Package size={16} /> Total Requests</span>
+                                        <span className="erp-overview-value" style={{ color: '#4f46e5', fontWeight: 700 }}>{requests.length} Items</span>
+                                    </div>
+                                    <div className="erp-overview-item">
+                                        <span className="erp-overview-label"><AlertTriangle size={16} /> Pending Requests</span>
+                                        <span className="erp-overview-value" style={{ color: '#10b981', fontWeight: 700 }}>{pendingRequests} Items</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div className="erp-sidebar-card">
-                            <h3>Quick Actions</h3>
-                            <div className="erp-action-grid">
-                                <button className="erp-action-btn primary" onClick={() => setShowModal(true)}>
-                                    <Plus size={16} /> Request Material
-                                </button>
-                                <button className="erp-action-btn">
-                                    <AlertCircle size={16} /> Report Low Stock
-                                </button>
-                                <button className="erp-action-btn" onClick={fetchData}>
-                                    <RefreshCw size={16} /> Refresh Inventory
-                                </button>
-                                <button className="erp-action-btn">
-                                    <Clock size={16} /> View History
-                                </button>
+                            <div className="erp-sidebar-card">
+                                <h3>Quick Actions</h3>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '8px' }}>
+                                    <button className="erp-action-btn" onClick={() => setShowModal(true)}>
+                                        <Plus size={16} /> Submit New Request
+                                    </button>
+                                    <button className="erp-action-btn" onClick={fetchData}>
+                                        <RefreshCw size={16} /> Refresh Data
+                                    </button>
+                                    <button className="erp-action-btn">
+                                        <Clock size={16} /> View History
+                                    </button>
+                                </div>
                             </div>
-                        </div>
 
-                        <div className="erp-sidebar-card">
-                            <h3><Bell size={16} style={{ marginRight: '8px', verticalAlign: 'text-bottom' }} /> Recent Notifications</h3>
-                            <div className="erp-timeline">
-                                <div className="erp-timeline-item">
-                                    <div className="erp-timeline-icon"><CheckCircle size={12} /></div>
-                                    <div>
-                                        <div className="erp-timeline-content">Inventory updated successfully</div>
-                                        <div className="erp-timeline-time">2 hours ago</div>
+                            <div className="erp-sidebar-card">
+                                <h3><Bell size={16} style={{ marginRight: '8px', verticalAlign: 'text-bottom' }} /> Recent Notifications</h3>
+                                <div className="erp-timeline">
+                                    <div className="erp-timeline-item">
+                                        <div className="erp-timeline-icon"><CheckCircle size={12} /></div>
+                                        <div>
+                                            <div className="erp-timeline-content">Inventory updated successfully</div>
+                                            <div className="erp-timeline-time">2 hours ago</div>
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="erp-timeline-item">
-                                    <div className="erp-timeline-icon" style={{ borderColor: '#10b981', color: '#10b981' }}><ArrowUpRight size={12} /></div>
-                                    <div>
-                                        <div className="erp-timeline-content">Material request #1042 approved</div>
-                                        <div className="erp-timeline-time">Yesterday at 14:30</div>
+                                    <div className="erp-timeline-item">
+                                        <div className="erp-timeline-icon" style={{ borderColor: '#10b981', color: '#10b981' }}><ArrowUpRight size={12} /></div>
+                                        <div>
+                                            <div className="erp-timeline-content">Material request #1042 approved</div>
+                                            <div className="erp-timeline-time">Yesterday at 14:30</div>
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="erp-timeline-item">
-                                    <div className="erp-timeline-icon" style={{ borderColor: '#f59e0b', color: '#f59e0b' }}><AlertTriangle size={12} /></div>
-                                    <div>
-                                        <div className="erp-timeline-content">Low stock alert submitted</div>
-                                        <div className="erp-timeline-time">3 days ago</div>
-                                    </div>
-                                </div>
-                                <div className="erp-timeline-item">
-                                    <div className="erp-timeline-icon" style={{ borderColor: '#8b5cf6', color: '#8b5cf6' }}><Package size={12} /></div>
-                                    <div>
-                                        <div className="erp-timeline-content">New material assigned: Safety Gear</div>
-                                        <div className="erp-timeline-time">Last week</div>
+                                    <div className="erp-timeline-item">
+                                        <div className="erp-timeline-icon" style={{ borderColor: '#f59e0b', color: '#f59e0b' }}><AlertTriangle size={12} /></div>
+                                        <div>
+                                            <div className="erp-timeline-content">Low stock alert submitted</div>
+                                            <div className="erp-timeline-time">3 days ago</div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    )}
                 </div>
             </div>
         );
@@ -719,43 +851,15 @@ const MyMaterials = () => {
 
     return (
         <div className="rd-container">
-            {pageMode === 'inventory' ? (
+            {pageMode === 'inventory' || pageMode === 'requests' ? (
                 <div className="rd-content" style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
-                    {renderInventoryWorkspace()}
+                    {renderWorkspace()}
                 </div>
             ) : pageMode === 'stock' ? (
                 <div className="rd-content" style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
                     {renderStockWorkspace()}
                 </div>
-            ) : (
-                <div className="rd-content" style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
-                    <div className="rd-module-header">
-                        <div className="rd-module-info">
-                            <div className="rd-module-title-row">
-                                <span className="rd-module-title">{pageTitle}</span>
-                                <span className="rd-module-badge">{pageBadge}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="rd-section" style={{ marginTop: '24px' }}>
-                        <DataTable 
-                            title={getTableTitle()}
-                            subtitle={pageMode === 'stock' ? 'View and manage material stock' : 'Track the status of your material requests'}
-                            columns={getRenderColumns()} 
-                            data={getRenderData()} 
-                            loading={loading}
-                            searchPlaceholder="Search..."
-                            searchKeys={pageMode === 'stock' ? ['name', 'sku', 'category'] : ['material.name', 'status', 'reason']}
-                            primaryAction={pageMode !== 'stock' ? {
-                                label: 'New Request',
-                                icon: Plus,
-                                onClick: () => setShowModal(true)
-                            } : undefined}
-                        />
-                    </div>
-                </div>
-            )}
+            ) : null}
 
             <AnimatePresence>
                 {showModal && (
@@ -802,7 +906,7 @@ const MyMaterials = () => {
                                             style={{ height: '48px', borderRadius: '12px', border: '1px solid #e2e8f0', background: '#f8fafc', width: '100%', padding: '0 16px', fontSize: '14px' }}
                                         >
                                             <option value="">Select a material</option>
-                                            {materialsList.map(m => (
+                                            {allMaterialsList.map(m => (
                                                 <option key={m.id} value={m.id}>{m.name}</option>
                                             ))}
                                         </select>

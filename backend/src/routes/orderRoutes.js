@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getOrders, createOrder, updateOrderStatus, updatePaymentStatus, updateTrackingStatus, getMyCustomerOrders, getCustomerOrdersById, createCustomerOrder, deleteOrder, employeeApprovePurchaseOrder, cancelCustomerOrder, getLiveLocation, flagAsDelayed, managerApproveOrder, employeeCheckOrder, advanceWorkflow } = require('../controllers/ordercontroller');
+const { getOrders, createOrder, updateOrderStatus, updatePaymentStatus, updateTrackingStatus, getMyCustomerOrders, getCustomerOrdersById, createCustomerOrder, deleteOrder, employeeApprovePurchaseOrder, cancelCustomerOrder, getLiveLocation, flagAsDelayed, managerApproveOrder, employeeCheckOrder, advanceWorkflow, verifyInventory, managerResolveStock, employeeFinalApproval } = require('../controllers/ordercontroller');
 const { protect, authorize } = require('../middleware/authMiddleware');
 
 router.route('/')
@@ -34,6 +34,9 @@ router.route('/:id/employee-approve')
 
 router.put('/:id/manager-approve', protect, authorize('manage_crm', 'admin'), managerApproveOrder);
 router.put('/:id/employee-check', protect, employeeCheckOrder);
+router.post('/:id/inventory-verification', protect, verifyInventory);
+router.post('/:id/manager-resolution', protect, authorize('manage_crm', 'admin'), managerResolveStock);
+router.post('/:id/employee-final-approval', protect, employeeFinalApproval);
 
 router.get('/:id/location', protect, getLiveLocation);
 

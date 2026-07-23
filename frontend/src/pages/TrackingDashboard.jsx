@@ -3,16 +3,14 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { 
     Search, Filter, ArrowUpRight, ArrowDownRight, Activity, 
     ArrowRightLeft, Download, Layers, FileSearch, MapPin, 
-    Package, Truck, Building2, Calendar, Clock, User, Hash, Edit, Printer, Share2, FileText, CheckCircle2, ChevronRight, MoreHorizontal, Box
+    Package, Truck, Building2, Calendar, Clock, User, Hash, Edit, Printer, Share2, FileText, CheckCircle2, ChevronRight, MoreHorizontal, Box,
+    RefreshCw, QrCode, BarChart2, AlertCircle, TrendingUp, TrendingDown, Link as LinkIcon, ThumbsUp, Zap
 } from 'lucide-react';
 import API from '../api/axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
-import PageHeader from '../components/PageHeader';
-import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 import { AuthContext } from '../context/AuthContext';
-import MaterialDetails from './MaterialDetails';
 import { CONSTANTS } from '../utils/constants';
 
 const TrackingDashboard = () => {
@@ -25,76 +23,50 @@ const TrackingDashboard = () => {
     const { user } = useContext(AuthContext);
     const currentUserRole = user?.role || 'Employee';
 
-    const [filter, setFilter] = useState('All warehouses');
     const [searchTerm, setSearchTerm] = useState(initialSearch);
-    const [viewMode, setViewMode] = useState('material'); // default to material
     const [movements, setMovements] = useState([]);
     const [materialsList, setMaterialsList] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [selectedMovement, setSelectedMovement] = useState(null);
+    
+    const [selectedMaterialId, setSelectedMaterialId] = useState(null);
     const [materialDetails, setMaterialDetails] = useState(null);
     const [materialTimeline, setMaterialTimeline] = useState([]);
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [isAdjustModalOpen, setIsAdjustModalOpen] = useState(false);
-    const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
-    const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
-    const [editForm, setEditForm] = useState({ status: '', reason: '' });
-    const [adjustForm, setAdjustForm] = useState({ quantity: 0, reason: '' });
-    const [transferForm, setTransferForm] = useState({ quantity: 0, destination: '' });
-    const [assignForm, setAssignForm] = useState({ rack: '', shelf: '' });
 
-    const fetchMovements = async () => {
+    const fetchDashboardData = async () => {
         try {
             setLoading(true);
-            const { data } = await API.get('/materials/movements/all');
-            setMovements(data || []);
+            const [matsRes, movsRes] = await Promise.all([
+                API.get('/materials'),
+                API.get('/materials/movements/all')
+            ]);
             
-            // Auto-select first item if exists and no selection
-            const valid = (data || []).filter(log => !(log.type === 'Adjustment' && (!log.quantity || log.quantity === 0)));
-            if (valid.length > 0) {
-                let initialSelection = valid[0];
-                if (initialSearch) {
-                    const searchLower = initialSearch.toLowerCase();
-                    const matched = valid.find(m => {
-                        const idStr = `MOV-${String(m.id || m._id).slice(-4)}`.toLowerCase();
-                        const refStr = (m.referenceOrderId ? String(m.referenceOrderId).slice(-4) : m.reason ? m.reason : '').toLowerCase();
-                        const nameStr = (m.materialName || '').toLowerCase();
-                        const skuStr = (m.materialSku || '').toLowerCase();
-                        return idStr.includes(searchLower) || refStr.includes(searchLower) || nameStr.includes(searchLower) || skuStr.includes(searchLower);
-                    });
-                    if (matched) {
-                        initialSelection = matched;
-                    }
-                }
-                setSelectedMovement(initialSelection);
-            }
+            const mats = matsRes.data || [];
+            const movs = movsRes.data || [];
             
-            // Also fetch all materials for the Material view mode
-            const matsRes = await API.get('/materials');
-            setMaterialsList(matsRes.data || []);
+            setMaterialsList(mats);
+            setMovements(movs);
             
-            // Check if initialSearch matches a material directly
-            if (initialSearch && matsRes.data) {
+            // Auto-select material based on search or first available
+            let initialSelectionId = mats.length > 0 ? (mats[0]._id || mats[0].id) : null;
+            
+            if (initialSearch && mats.length > 0) {
                 const searchLower = initialSearch.toLowerCase().trim();
-                const matchedMat = matsRes.data.find(m => 
+                const matchedMat = mats.find(m => 
                     (m.sku && m.sku.toLowerCase().trim() === searchLower) || 
                     (m.name && m.name.toLowerCase().trim() === searchLower) ||
                     (m.sku && m.sku.toLowerCase().includes(searchLower)) ||
                     (m.name && m.name.toLowerCase().includes(searchLower))
                 );
-                
                 if (matchedMat) {
-                    setViewMode('material');
-                    setSelectedMovement({ 
-                        id: `MAT-${matchedMat._id || matchedMat.id}`, _id: `MAT-${matchedMat._id || matchedMat.id}`, 
-                        materialId: matchedMat._id || matchedMat.id, materialName: matchedMat.name, 
-                        materialSku: matchedMat.sku, type: 'VIEW', isMaterialView: true 
-                    });
+                    initialSelectionId = matchedMat._id || matchedMat.id;
                 }
             }
             
+            if (initialSelectionId) {
+                setSelectedMaterialId(initialSelectionId);
+            }
         } catch (error) {
-            console.error("Failed to fetch movements:", error);
+            console.error("Failed to fetch tracking data:", error);
             toast.error("Failed to load tracking data");
         } finally {
             setLoading(false);
@@ -102,30 +74,14 @@ const TrackingDashboard = () => {
     };
 
     useEffect(() => {
-        fetchMovements();
-        
-        // Poll for material updates every 30 seconds
-        const intervalId = setInterval(async () => {
-            if (viewMode === 'material') {
-                try {
-                    const matsRes = await API.get('/materials');
-                    setMaterialsList(matsRes.data || []);
-                } catch (err) {
-                    console.error("Polling failed", err);
-                }
-            }
-        }, CONSTANTS.TRACKING_POLL_INTERVAL_MS);
-        
-        return () => clearInterval(intervalId);
-    }, [viewMode]);
+        fetchDashboardData();
+    }, []);
 
     useEffect(() => {
-        if (selectedMovement && (selectedMovement.materialId || selectedMovement.material)) {
-            const mId = selectedMovement.materialId || selectedMovement.material;
-            // Fetch complete material data and history
+        if (selectedMaterialId) {
             Promise.all([
-                API.get(`/materials/${mId}`).catch(() => ({ data: null })),
-                API.get(`/materials/${mId}/timeline`).catch(() => ({ data: [] }))
+                API.get(`/materials/${selectedMaterialId}`).catch(() => ({ data: null })),
+                API.get(`/materials/${selectedMaterialId}/timeline`).catch(() => ({ data: [] }))
             ]).then(([matRes, timeRes]) => {
                 setMaterialDetails(matRes.data);
                 setMaterialTimeline(timeRes.data || []);
@@ -134,624 +90,513 @@ const TrackingDashboard = () => {
             setMaterialDetails(null);
             setMaterialTimeline([]);
         }
-    }, [selectedMovement]);
+    }, [selectedMaterialId]);
 
-    useEffect(() => {
-        // Auto-select the first item if the current selection is filtered out
-        if (viewMode === 'material' && filteredMaterials.length > 0) {
-            const isCurrentlySelectedInView = selectedMovement && selectedMovement.isMaterialView && filteredMaterials.some(m => (m._id || m.id) === selectedMovement.materialId);
-            if (!isCurrentlySelectedInView) {
-                const firstMat = filteredMaterials[0];
-                setSelectedMovement({ 
-                    id: `MAT-${firstMat._id || firstMat.id}`, _id: `MAT-${firstMat._id || firstMat.id}`, 
-                    materialId: firstMat._id || firstMat.id, materialName: firstMat.name, 
-                    materialSku: firstMat.sku, type: 'VIEW', isMaterialView: true 
-                });
-            }
-        }
-    }, [filter, searchTerm, viewMode, materialsList]);
+    // Derived Data for the Command Center
+    const currentMaterialMovements = movements.filter(m => m.materialId === selectedMaterialId || m.material === selectedMaterialId);
+    
+    const isLowStock = materialDetails && materialDetails.quantity <= (materialDetails.lowStockThreshold || 10);
+    const isOutOfStock = materialDetails && materialDetails.quantity === 0;
+    
+    let statusText = 'In Stock';
+    let statusColor = '#10b981'; // Green
+    let statusBg = '#d1fae5';
+    
+    if (isOutOfStock) {
+        statusText = 'Out of Stock';
+        statusColor = '#ef4444'; // Red
+        statusBg = '#fee2e2';
+    } else if (isLowStock) {
+        statusText = 'Low Stock';
+        statusColor = '#f59e0b'; // Orange
+        statusBg = '#fef3c7';
+    } else if (materialDetails?.status === 'Reserved') {
+        statusText = 'Reserved';
+        statusColor = '#3b82f6'; // Blue
+        statusBg = '#dbeafe';
+    }
 
-    const handleEditSave = async () => {
-        try {
-            await API.put(`/materials/movements/${selectedMovement.id || selectedMovement._id}`, editForm);
-            toast.success('Tracking record updated!');
-            setIsEditModalOpen(false);
-            fetchMovements(); // Refresh data
-        } catch (error) {
-            console.error(error);
-            toast.error('Failed to update tracking record');
-        }
+    const formatDate = (dateString) => {
+        if (!dateString) return 'N/A';
+        return new Date(dateString).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
     };
 
-    const handleAssignLocation = async () => {
-        if (!assignForm.rack || !assignForm.shelf) {
-            toast.error('Please select both a rack and a shelf.');
-            return;
-        }
-        try {
-            const mId = selectedMovement.materialId || selectedMovement.material;
-            await API.put(`/materials/${mId}`, { rack: assignForm.rack, shelf: assignForm.shelf });
-            toast.success('Location assigned successfully!');
-            setIsAssignModalOpen(false);
-            setAssignForm({ rack: '', shelf: '' });
-            fetchMovements(); // Re-fetch to update lists and maps
-        } catch (error) {
-            console.error(error);
-            toast.error('Failed to assign location');
-        }
+    const formatTime = (dateString) => {
+        if (!dateString) return '';
+        return new Date(dateString).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
     };
 
-    const totalMovements = movements.length;
-    const countIn = movements.filter(m => (m.type || '').toUpperCase() === 'IN').length;
-    const countOut = movements.filter(m => (m.type || '').toUpperCase() === 'OUT').length;
-    const countTransferred = movements.filter(m => (m.type || '').toUpperCase() === 'ADJUSTMENT' || (m.type || '').toUpperCase() === 'TRANSFER').length;
-    const pending = movements.filter(m => (m.status || '').toUpperCase() === 'PENDING').length;
-
-    const validMovements = movements.filter(log => !(log.type === 'Adjustment' && (!log.quantity || log.quantity === 0)));
-
-    const getRefString = (m) => {
-        if (m.referenceOrderId) {
-            const tStr = (m.type || '').toUpperCase();
-            return `${tStr === 'OUT' ? 'SO' : 'PO'}-${String(m.referenceOrderId).slice(-4).toUpperCase()}`;
-        }
-        if (m.reason) return m.reason.substring(0, 20);
-        return 'N/A';
-    };
-
-    const getPO = (m) => {
-        const tStr = (m.type || '').toUpperCase();
-        if (m.referenceOrderId) return `${tStr === 'OUT' ? 'SO' : 'PO'}-${String(m.referenceOrderId).slice(-4).toUpperCase()}`;
-        return '-';
-    };
-
-    const filteredLogs = validMovements.filter(m => {
-        const t = (m.type || '').toUpperCase();
-        const matchesFilter = filter === 'All' || 
-            (filter === 'IN' && t === 'IN') || 
-            (filter === 'OUT' && t === 'OUT') || 
-            (filter === 'TRANSFER' && (t === 'TRANSFER' || t === 'ADJUSTMENT'));
-            
-        const idStr = `MOV-${String(m.id || m._id).slice(-4)}`;
-        const refStr = getRefString(m);
-        const nameStr = m.materialName || '';
-        
-        const matchesSearch = !searchTerm || 
-            idStr.toLowerCase().includes(searchTerm.toLowerCase()) || 
-            refStr.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            nameStr.toLowerCase().includes(searchTerm.toLowerCase());
-            
-        return matchesFilter && matchesSearch;
-    });
-
-    // Dynamic Warehouses
-    const uniqueWarehouses = ['All warehouses', ...new Set(materialsList.map(m => m.warehouse || 'Unknown Warehouse'))];
-
-    const filteredMaterials = materialsList.filter(m => {
-        const w = m.warehouse || 'Unknown Warehouse';
-        const matchesFilter = filter === 'All' || filter === 'All warehouses' || filter === w ||
-            (filter === 'IN' && (m.quantity > 0)) || 
-            (filter === 'OUT' && (m.quantity === 0)); // Rough proxy for filter in material view
-        const matchesSearch = !searchTerm || 
-            (m.sku || '').toLowerCase().includes(searchTerm.toLowerCase()) || 
-            (m.name || '').toLowerCase().includes(searchTerm.toLowerCase());
-        return matchesFilter && matchesSearch;
-    });
-
-    const isMaterialLive = (mat) => {
-        if (!mat || !mat.locationUpdatedAt) return false;
-        const diffMs = Date.now() - new Date(mat.locationUpdatedAt).getTime();
-        return diffMs <= CONSTANTS.LIVE_TRACKING_THRESHOLD_MS;
-    };
-
-    const getTypeColor = (type) => {
-        const t = (type || '').toUpperCase();
-        if (t === 'IN') return { bg: '#d1fae5', text: '#059669', border: '#a7f3d0' };
-        if (t === 'OUT') return { bg: '#fee2e2', text: '#dc2626', border: '#fecaca' };
-        return { bg: '#e0e7ff', text: '#4f46e5', border: '#c7d2fe' };
-    };
-
-    return (
-        <div className="rd-container">
-            <style>{`
-                .mat-list-item:hover:not(.active) {
-                    background: #f8fafc !important;
-                }
-            `}</style>
-        <motion.div 
-            className="rd-content"
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-        >
-            {/* Header & KPI Summary */}
-            <div style={{ minWidth: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: viewMode === 'material' ? 24 : 0 }}>
-                <div className="rd-module-header" style={{ margin: 0, padding: 0 }}>
-                    <div className="rd-module-info">
-                        <div className="rd-module-title-row">
-                            <span className="rd-module-title">Movement Tracking</span>
-                            <span className="rd-module-badge">TRACKING</span>
+    // Sub-components for sections
+    
+    const renderMaterialSummary = () => (
+        <div className="mcc-section" style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
+            <div style={{ width: 120, height: 120, borderRadius: 12, background: '#f8fafc', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <Package size={48} color="#94a3b8" />
+            </div>
+            <div style={{ flex: 1 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <div>
+                        <h2 style={{ margin: '0 0 8px 0', fontSize: 24, fontWeight: 800, color: '#0f172a' }}>
+                            {materialDetails?.name || 'Select a material'}
+                        </h2>
+                        <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
+                            <span style={{ fontSize: 14, color: '#64748b', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+                                <Hash size={14}/> {materialDetails?.sku || 'N/A'}
+                            </span>
+                            <span style={{ fontSize: 14, color: '#64748b', display: 'flex', alignItems: 'center', gap: 4 }}>
+                                <Layers size={14}/> {materialDetails?.category || 'Uncategorized'}
+                            </span>
+                            <span style={{ fontSize: 14, color: '#64748b', display: 'flex', alignItems: 'center', gap: 4 }}>
+                                <Truck size={14}/> {materialDetails?.supplier || 'N/A'}
+                            </span>
+                        </div>
+                    </div>
+                    <span className="mcc-badge" style={{ background: statusBg, color: statusColor }}>
+                        <span style={{ width: 6, height: 6, borderRadius: 3, background: statusColor }}></span>
+                        {statusText}
+                    </span>
+                </div>
+                
+                <div style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid #f1f5f9', display: 'flex', gap: 32 }}>
+                    <div>
+                        <div style={{ fontSize: 12, color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', marginBottom: 4 }}>Location</div>
+                        <div style={{ fontSize: 14, color: '#0f172a', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+                            <MapPin size={14} color="#3b82f6"/> 
+                            {materialDetails?.warehouse || 'Unassigned'} 
+                            {materialDetails?.rack ? ` • ${String(materialDetails.rack).toLowerCase().includes('rack') ? '' : 'Rack '}${materialDetails.rack}` : ''}
+                            {materialDetails?.shelf ? ` • ${String(materialDetails.shelf).toLowerCase().includes('shelf') ? '' : 'Shelf '}${materialDetails.shelf}` : ''}
+                        </div>
+                    </div>
+                    <div>
+                        <div style={{ fontSize: 12, color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', marginBottom: 4 }}>Last Updated</div>
+                        <div style={{ fontSize: 14, color: '#0f172a', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+                            <Clock size={14} color="#64748b"/>
+                            {formatDate(materialDetails?.updatedAt)} {formatTime(materialDetails?.updatedAt)}
                         </div>
                     </div>
                 </div>
-                
-                {/* Header */}
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            </div>
+        </div>
+    );
+
+    const renderKPICards = () => {
+        const outMovs = currentMaterialMovements.filter(m => (m.type || '').toUpperCase() === 'OUT').length;
+        const inMovs = currentMaterialMovements.filter(m => (m.type || '').toUpperCase() === 'IN').length;
+        const transferred = currentMaterialMovements.filter(m => (m.type || '').toUpperCase() === 'ADJUSTMENT' || (m.type || '').toUpperCase() === 'TRANSFER').length;
+        const pending = currentMaterialMovements.filter(m => (m.status || '').toUpperCase() === 'PENDING').length;
+
+        return (
+            <div className="mcc-kpi-grid">
+                <div className="mcc-kpi-card">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#64748b' }}>
+                        <Box size={16} color="#3b82f6" /> <span style={{ fontSize: 13, fontWeight: 600 }}>Available Stock</span>
+                    </div>
+                    <div style={{ fontSize: 24, fontWeight: 800, color: '#0f172a' }}>{materialDetails?.quantity || 0} <span style={{fontSize: 14, color: '#94a3b8', fontWeight: 600}}>{materialDetails?.unit || 'pcs'}</span></div>
+                    <div style={{ fontSize: 12, color: materialDetails?.quantity > 0 ? '#10b981' : '#ef4444', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}><Activity size={12}/> {materialDetails?.quantity > 0 ? 'In stock' : 'Out of stock'}</div>
+                </div>
+                <div className="mcc-kpi-card">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#64748b' }}>
+                        <Layers size={16} color="#f59e0b" /> <span style={{ fontSize: 13, fontWeight: 600 }}>Total Movements</span>
+                    </div>
+                    <div style={{ fontSize: 24, fontWeight: 800, color: '#0f172a' }}>{currentMaterialMovements.length}</div>
+                    <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>Recorded history</div>
+                </div>
+                <div className="mcc-kpi-card">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#64748b' }}>
+                        <ArrowDownRight size={16} color="#10b981" /> <span style={{ fontSize: 13, fontWeight: 600 }}>IN Movements</span>
+                    </div>
+                    <div style={{ fontSize: 24, fontWeight: 800, color: '#0f172a' }}>{inMovs}</div>
+                    <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>Stock additions</div>
+                </div>
+                <div className="mcc-kpi-card">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#64748b' }}>
+                        <ArrowUpRight size={16} color="#dc2626" /> <span style={{ fontSize: 13, fontWeight: 600 }}>OUT Movements</span>
+                    </div>
+                    <div style={{ fontSize: 24, fontWeight: 800, color: '#0f172a' }}>{outMovs}</div>
+                    <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>Stock reductions</div>
+                </div>
+                <div className="mcc-kpi-card">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#64748b' }}>
+                        <ArrowRightLeft size={16} color="#8b5cf6" /> <span style={{ fontSize: 13, fontWeight: 600 }}>Transfers / Adj.</span>
+                    </div>
+                    <div style={{ fontSize: 24, fontWeight: 800, color: '#0f172a' }}>{transferred}</div>
+                    <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>Internal moves</div>
+                </div>
+                <div className="mcc-kpi-card">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#64748b' }}>
+                        <Clock size={16} color="#f59e0b" /> <span style={{ fontSize: 13, fontWeight: 600 }}>Pending</span>
+                    </div>
+                    <div style={{ fontSize: 24, fontWeight: 800, color: '#0f172a' }}>{pending}</div>
+                    <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>Awaiting action</div>
                 </div>
             </div>
-            
-            {viewMode === 'movement' && (
-                <div style={{ minWidth: 0 }}>
-                    <PastelKPIGrid columns={5}>
-                    <PastelKPICard 
-                        title="Total Movements" 
-                        value={totalMovements} 
-                        icon={Layers} 
-                        colorTheme="blue" 
-                        trendValue="Active tracking"
-                        trendPositive={true}
-                    />
-                    <PastelKPICard 
-                        title="IN Movements" 
-                        value={countIn} 
-                        icon={ArrowDownRight} 
-                        colorTheme="mint" 
-                        trendValue="Receiving"
-                        trendPositive={true}
-                    />
-                    <PastelKPICard 
-                        title="OUT Movements" 
-                        value={countOut} 
-                        icon={ArrowUpRight} 
-                        colorTheme="peach" 
-                        trendValue="Dispatching"
-                        trendPositive={false}
-                    />
-                    <PastelKPICard 
-                        title="Transfers" 
-                        value={countTransferred} 
-                        icon={ArrowRightLeft} 
-                        colorTheme="yellow" 
-                        trendValue="Internal moves"
-                        trendPositive={true}
-                    />
-                    <PastelKPICard 
-                        title="Pending" 
-                        value={pending} 
-                        icon={Clock} 
-                        colorTheme="purple" 
-                        trendValue="Awaiting action"
-                        trendPositive={false}
-                    />
-                </PastelKPIGrid>
+        );
+    };
+
+    const renderWarehouseInfo = () => {
+        const currentWarehouse = materialDetails?.warehouse;
+        let uniqueRacks = [...new Set(materialsList.filter(m => m.warehouse === currentWarehouse && m.rack).map(m => parseInt(m.rack)))].sort((a,b)=>a-b);
+        if (uniqueRacks.length === 0 && materialDetails?.rack) uniqueRacks.push(parseInt(materialDetails.rack));
+        
+        return (
+        <div className="mcc-section">
+            <h3 className="mcc-section-title"><Building2 size={18} color="#3b82f6" /> Warehouse Information</h3>
+            <div className="mcc-info-grid" style={{ marginBottom: 20 }}>
+                <div className="mcc-info-item">
+                    <span className="mcc-info-label">Warehouse Name</span>
+                    <span className="mcc-info-value">{materialDetails?.warehouse || 'Unassigned'}</span>
+                </div>
+                <div className="mcc-info-item">
+                    <span className="mcc-info-label">Zone</span>
+                    <span className="mcc-info-value">{materialDetails?.zone || 'Unassigned'}</span>
+                </div>
+                <div className="mcc-info-item">
+                    <span className="mcc-info-label">Rack & Shelf</span>
+                    <span className="mcc-info-value">
+                        {(!materialDetails?.rack && !materialDetails?.shelf) ? '-' : 
+                         [
+                             materialDetails?.rack ? (String(materialDetails.rack).toLowerCase().includes('rack') ? materialDetails.rack : `Rack ${materialDetails.rack}`) : null,
+                             materialDetails?.shelf ? (String(materialDetails.shelf).toLowerCase().includes('shelf') || String(materialDetails.shelf).toLowerCase().includes('rack') ? materialDetails.shelf : `Shelf ${materialDetails.shelf}`) : null
+                         ].filter(Boolean).join(' / ')}
+                    </span>
+                </div>
+                <div className="mcc-info-item">
+                    <span className="mcc-info-label">Bin</span>
+                    <span className="mcc-info-value">{materialDetails?.bin ? (String(materialDetails.bin).toLowerCase().includes('bin') ? materialDetails.bin : `Bin ${materialDetails.bin}`) : '-'}</span>
+                </div>
+                <div className="mcc-info-item">
+                    <span className="mcc-info-label">Current Temperature</span>
+                    <span className="mcc-info-value">{materialDetails?.temperature ? `${materialDetails.temperature}°C` : 'N/A'}</span>
+                </div>
+                <div className="mcc-info-item">
+                    <span className="mcc-info-label">Humidity</span>
+                    <span className="mcc-info-value">{materialDetails?.humidity ? `${materialDetails.humidity}%` : 'N/A'}</span>
+                </div>
             </div>
-            )}
-
-            {/* Master Detail Layout */}
-            <div style={{ display: 'flex', gap: 24, flex: 1, minHeight: 0, minWidth: 0, flexDirection: 'row-reverse' }}>
-                
-                {/* Left Panel: Master List */}
-                <div style={{ width: '38%', display: 'flex', flexDirection: 'column', background: '#fff', borderRadius: 20, boxShadow: '0 8px 30px rgba(0,0,0,0.04)', border: '1px solid #f1f5f9', overflow: 'hidden' }}>
-
-
-                    <div style={{ flex: 1, overflowY: 'auto', padding: 12 }}>
-                        {loading ? (
-                            <div style={{ padding: 24, textAlign: 'center', color: '#94a3b8' }}>Loading...</div>
-                        ) : viewMode === 'movement' ? (
-                            filteredLogs.length === 0 ? (
-                                <div style={{ padding: '40px 20px', textAlign: 'center' }}>
-                                    <FileSearch size={40} color="#cbd5e1" style={{ margin: '0 auto 16px auto' }} />
-                                    <div style={{ fontSize: 15, fontWeight: 600, color: '#475569' }}>No movements found</div>
-                                </div>
-                            ) : (
-                                filteredLogs.map(log => {
-                                    const isSelected = selectedMovement && (selectedMovement.id || selectedMovement._id) === (log.id || log._id);
-                                    const typeStr = (log.type || '').toUpperCase();
-                                    const colors = getTypeColor(typeStr);
-                                    const d = new Date(log.createdAt || Date.now());
-
-                                    return (
-                                        <div 
-                                            key={log.id || log._id}
-                                            onClick={() => setSelectedMovement(log)}
-                                            style={{
-                                                padding: '16px', marginBottom: 8, borderRadius: 14, cursor: 'pointer',
-                                                background: isSelected ? '#eff6ff' : '#fff',
-                                                border: `1px solid ${isSelected ? '#bfdbfe' : '#f1f5f9'}`,
-                                                borderLeft: isSelected ? '4px solid #3b82f6' : '4px solid transparent',
-                                                transition: 'all 0.2s',
-                                                display: 'flex', alignItems: 'center', gap: 16
-                                            }}
-                                        >
-                                            <div style={{ width: 44, height: 44, borderRadius: 10, background: '#f8fafc', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                                <Package size={20} color="#64748b" />
-                                            </div>
-                                            <div style={{ flex: 1, minWidth: 0 }}>
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                                                    <div style={{ fontWeight: 700, color: '#0f172a', fontSize: 14, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                                        {log.materialName || 'Unknown Material'}
-                                                    </div>
-                                                    <div style={{ fontWeight: 700, fontSize: 12, color: colors.text, whiteSpace: 'nowrap' }}>
-                                                        {typeStr === 'IN' ? '+' : typeStr === 'OUT' ? '-' : ''}{log.quantity}
-                                                    </div>
-                                                </div>
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                                        <span style={{ fontSize: 12, fontWeight: 600, color: '#64748b' }}>MOV-{String(log.id || log._id).slice(-4).toUpperCase()}</span>
-                                                        <span style={{ width: 4, height: 4, borderRadius: 2, background: '#cbd5e1' }}></span>
-                                                        <span style={{ padding: '2px 8px', background: colors.bg, color: colors.text, borderRadius: 99, fontSize: 10, fontWeight: 700, border: `1px solid ${colors.border}` }}>
-                                                            {typeStr}
-                                                        </span>
-                                                    </div>
-                                                    <div style={{ fontSize: 11, fontWeight: 600, color: '#94a3b8' }}>
-                                                        {d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    );
-                                })
-                            )
-                        ) : (
-                            filteredMaterials.length === 0 ? (
-                                <div style={{ padding: '40px 20px', textAlign: 'center' }}>
-                                    <FileSearch size={40} color="#cbd5e1" style={{ margin: '0 auto 16px auto' }} />
-                                    <div style={{ fontSize: 15, fontWeight: 600, color: '#475569' }}>No materials found</div>
-                                </div>
-                            ) : (
-                                filteredMaterials.map(mat => {
-                                    const isSelected = selectedMovement && selectedMovement.isMaterialView && selectedMovement.materialId === (mat._id || mat.id);
-                                    const live = isMaterialLive(mat);
-                                    const lowStock = mat.quantity === 0;
-
-                                    return (
-                                        <div 
-                                            key={mat._id || mat.id}
-                                            className={isSelected ? "mat-list-item active" : "mat-list-item"}
-                                            onClick={() => setSelectedMovement({ 
-                                                id: `MAT-${mat._id || mat.id}`, _id: `MAT-${mat._id || mat.id}`, 
-                                                materialId: mat._id || mat.id, materialName: mat.name, 
-                                                materialSku: mat.sku, type: 'VIEW', isMaterialView: true 
-                                            })}
-                                            style={{
-                                                padding: '12px 16px', marginBottom: 12, borderRadius: 12, cursor: 'pointer',
-                                                background: isSelected ? '#dbeafe' : '#fff',
-                                                border: `1px solid ${isSelected ? '#93c5fd' : '#e2e8f0'}`,
-                                                transition: 'all 0.2s',
-                                                display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between'
-                                            }}
-                                        >
-                                            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                                                <div style={{ marginTop: 4, width: 32, height: 32, borderRadius: 8, background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: '1px solid #e2e8f0' }}>
-                                                    <Box size={16} color="#64748b" />
-                                                </div>
-                                                <div>
-                                                    <div style={{ fontWeight: 700, color: '#0f172a', fontSize: 15, marginBottom: 2, display: 'flex', alignItems: 'center', gap: 8 }}>
-                                                        {mat.name || 'Unknown Material'}
-                                                        <span style={{ width: 8, height: 8, borderRadius: 4, background: live ? '#16a34a' : '#cbd5e1' }} title={live ? 'Live Tracking' : 'Offline'} />
-                                                    </div>
-                                                    <div style={{ fontSize: 13, color: '#64748b', display: 'flex', alignItems: 'center', gap: 6 }}>
-                                                        <span style={{ color: '#0ea5e9', fontWeight: 600 }}>{mat.category || 'Uncategorized'}</span>
-                                                        &middot;
-                                                        {(!mat.rack || !mat.shelf) ? (
-                                                            <span style={{ padding: '2px 8px', background: '#fef3c7', color: '#d97706', borderRadius: 99, fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 6, height: 6, borderRadius: 3, background: '#d97706' }}/> Unshelved</span>
-                                                        ) : (
-                                                            <span>R{mat.rack} &middot; S{mat.shelf}</span>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div style={{ fontWeight: 700, fontSize: 14, color: lowStock ? '#dc2626' : '#475569', marginTop: 4, whiteSpace: 'nowrap' }}>
-                                                {mat.quantity} {mat.unit || 'pcs'}
-                                            </div>
-                                        </div>
-                                    );
-                                })
-                            )
-                        )}
+            {uniqueRacks.length > 0 && (
+                <div style={{ marginTop: 24 }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a', marginBottom: 12 }}>Visual Map (Warehouse Racks)</div>
+                    <div style={{ width: '100%', background: '#f8fafc', borderRadius: 12, border: '1px solid #e2e8f0', padding: 16 }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(60px, 1fr))', gap: 8 }}>
+                            {uniqueRacks.map(r => {
+                                const isCurrentRack = r === parseInt(materialDetails?.rack);
+                                return (
+                                    <div key={r} style={{ 
+                                        height: 60, 
+                                        background: isCurrentRack ? '#eff6ff' : '#fff', 
+                                        border: `2px solid ${isCurrentRack ? '#3b82f6' : '#e2e8f0'}`,
+                                        borderRadius: 6,
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        position: 'relative'
+                                    }}>
+                                        <span style={{ fontSize: 11, fontWeight: 700, color: isCurrentRack ? '#2563eb' : '#64748b' }}>Rack {r}</span>
+                                        {isCurrentRack && (
+                                            <div style={{ position: 'absolute', top: -6, right: -6, width: 14, height: 14, background: '#ef4444', borderRadius: '50%', border: '2px solid #fff' }}></div>
+                                        )}
+                                    </div>
+                                )
+                            })}
+                        </div>
+                        <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 12, fontSize: 11, color: '#64748b', justifyContent: 'center', fontWeight: 600 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}><div style={{ width: 10, height: 10, borderRadius: '50%', background: '#ef4444' }}></div> Target Location</div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}><div style={{ width: 12, height: 12, borderRadius: 2, border: '2px solid #3b82f6', background: '#eff6ff' }}></div> Current Rack</div>
+                        </div>
                     </div>
                 </div>
+            )}
+        </div>
+    );
+    };
 
-                {/* Right Panel: Detail Dashboard */}
-                <div style={{ flex: 1, minWidth: 0, background: viewMode === 'material' ? '#fafafa' : '#fff', borderRadius: 20, boxShadow: viewMode === 'material' ? 'none' : '0 8px 30px rgba(0,0,0,0.04)', border: viewMode === 'material' ? 'none' : '1px solid #f1f5f9', overflowY: 'auto' }}>
-                    {selectedMovement ? (
-                        <AnimatePresence mode="wait">
-                            <motion.div 
-                                key={selectedMovement.id || selectedMovement._id}
-                                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }}
-                                style={{ padding: selectedMovement.isMaterialView ? 0 : 32, height: '100%' }}
-                            >
-                                {selectedMovement.isMaterialView ? (
-                                    <MaterialDetails embeddedId={selectedMovement.materialId || (selectedMovement._id || selectedMovement.id)?.replace('MAT-', '')} />
-                                ) : (
-                                    <>
-                                        {/* Action Header */}
-                                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginBottom: 32 }}>
-                                            <button onClick={() => {
-                                                setEditForm({ status: selectedMovement.status || '', reason: selectedMovement.reason || '' });
-                                                setIsEditModalOpen(true);
-                                            }} style={{ padding: '8px 16px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#475569', display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}><Edit size={14}/> Edit</button>
-                                            <button onClick={() => window.print()} style={{ padding: '8px 16px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#475569', display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}><Printer size={14}/> Print</button>
-                                            <button onClick={() => window.print()} style={{ padding: '8px 16px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#475569', display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}><FileText size={14}/> PDF</button>
-                                            <button onClick={async () => {
-                                                try {
-                                                    if (navigator.share) {
-                                                        await navigator.share({ title: 'Material Tracking', text: `Tracking details for ${selectedMovement.materialName}`, url: window.location.href });
-                                                    } else {
-                                                        await navigator.clipboard.writeText(window.location.href);
-                                                        alert('Link copied to clipboard!');
-                                                    }
-                                                } catch (err) { console.error('Share failed', err); }
-                                            }} style={{ padding: '8px 16px', background: '#3b82f6', border: '1px solid #2563eb', borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#fff', display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}><Share2 size={14}/> Share</button>
-                                        </div>
+    const renderSupplierInfo = () => (
+        <div className="mcc-section">
+            <h3 className="mcc-section-title"><Truck size={18} color="#f59e0b" /> Supplier Information</h3>
+            <div className="mcc-info-grid">
+                <div className="mcc-info-item">
+                    <span className="mcc-info-label">Supplier Name</span>
+                    <span className="mcc-info-value">{materialDetails?.supplier || 'N/A'}</span>
+                </div>
+                <div className="mcc-info-item">
+                    <span className="mcc-info-label">Contact</span>
+                    <span className="mcc-info-value">{materialDetails?.supplierContact || 'N/A'}</span>
+                </div>
+                <div className="mcc-info-item">
+                    <span className="mcc-info-label">Delivery Performance</span>
+                    <span className="mcc-info-value">{materialDetails?.supplierPerformance ? `${materialDetails.supplierPerformance}%` : 'N/A'}</span>
+                </div>
+                <div className="mcc-info-item">
+                    <span className="mcc-info-label">Last Purchase Date</span>
+                    <span className="mcc-info-value">{materialDetails?.lastPurchaseDate ? formatDate(materialDetails.lastPurchaseDate) : 'N/A'}</span>
+                </div>
+                <div className="mcc-info-item">
+                    <span className="mcc-info-label">Average Lead Time</span>
+                    <span className="mcc-info-value">{materialDetails?.leadTime ? `${materialDetails.leadTime} Days` : 'N/A'}</span>
+                </div>
+                <div className="mcc-info-item">
+                    <span className="mcc-info-label">Supplier Rating</span>
+                    <span className="mcc-info-value">{materialDetails?.supplierRating ? `${materialDetails.supplierRating} / 5.0` : 'N/A'}</span>
+                </div>
+            </div>
+        </div>
+    );
 
-                                        {/* Material Profile Card */}
-                                        <div style={{ display: 'flex', gap: 24, alignItems: 'center', marginBottom: 40 }}>
-                                            <div style={{ width: 80, height: 80, borderRadius: 20, background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #e2e8f0' }}>
-                                                <Package size={40} color="#475569" />
-                                            </div>
-                                            <div>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 6 }}>
-                                                    <h2 style={{ margin: 0, fontSize: 24, fontWeight: 800, color: '#0f172a' }}>{selectedMovement.materialName || 'Unknown Material'}</h2>
-                                                    <span style={{ padding: '4px 10px', background: getTypeColor((selectedMovement.type || '').toUpperCase()).bg, color: getTypeColor((selectedMovement.type || '').toUpperCase()).text, borderRadius: 99, fontSize: 11, fontWeight: 700, border: `1px solid ${getTypeColor((selectedMovement.type || '').toUpperCase()).border}` }}>
-                                                        {(selectedMovement.type || '').toUpperCase()}
-                                                    </span>
-                                                </div>
-                                                <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
-                                                    <span style={{ fontSize: 14, color: '#64748b', fontWeight: 600 }}>MOV-{String(selectedMovement.id || selectedMovement._id).slice(-4).toUpperCase()}</span>
-                                                    <span style={{ width: 4, height: 4, borderRadius: 2, background: '#cbd5e1' }}></span>
-                                                    <span style={{ fontSize: 14, color: '#64748b', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}><Hash size={14}/> {selectedMovement.materialSku || (materialDetails?.sku) || 'N/A'}</span>
-                                                    {materialDetails?.category && (
-                                                        <>
-                                                            <span style={{ width: 4, height: 4, borderRadius: 2, background: '#cbd5e1' }}></span>
-                                                            <span style={{ fontSize: 13, color: '#64748b', fontWeight: 600 }}>{materialDetails.category}</span>
-                                                        </>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </div>
+    const renderInventoryAnalytics = () => (
+        <div className="mcc-section">
+            <h3 className="mcc-section-title"><BarChart2 size={18} color="#0ea5e9" /> Inventory Analytics</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                {materialDetails?.maxStock && (
+                    <div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                            <span style={{ fontSize: 13, fontWeight: 600, color: '#475569' }}>Stock Level Progress</span>
+                            <span style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>{materialDetails?.quantity || 0} / {materialDetails?.maxStock}</span>
+                        </div>
+                        <div style={{ width: '100%', height: 8, background: '#f1f5f9', borderRadius: 4, overflow: 'hidden' }}>
+                            <div style={{ width: `${Math.min(((materialDetails?.quantity || 0)/materialDetails.maxStock)*100, 100)}%`, height: '100%', background: '#3b82f6', borderRadius: 4 }}></div>
+                        </div>
+                    </div>
+                )}
+                
+                <div className="mcc-info-grid">
+                    <div className="mcc-info-item">
+                        <span className="mcc-info-label">Reorder Level</span>
+                        <span className="mcc-info-value">{materialDetails?.lowStockThreshold || 'N/A'} Units</span>
+                    </div>
+                    <div className="mcc-info-item">
+                        <span className="mcc-info-label">Inventory Health</span>
+                        <span className="mcc-info-value" style={{color: materialDetails?.quantity > (materialDetails?.lowStockThreshold || 10) ? '#10b981' : '#f59e0b'}}>{materialDetails?.quantity > (materialDetails?.lowStockThreshold || 10) ? 'Healthy' : 'Needs Attention'}</span>
+                    </div>
+                    <div className="mcc-info-item">
+                        <span className="mcc-info-label">Incoming</span>
+                        <span className="mcc-info-value">{materialDetails?.incoming || 0} Units</span>
+                    </div>
+                    <div className="mcc-info-item">
+                        <span className="mcc-info-label">Outgoing (Reserved)</span>
+                        <span className="mcc-info-value">{materialDetails?.reserved || 0} Units</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
 
-                                        {/* Visual Flow */}
-                                        <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 16, padding: 24, marginBottom: 32 }}>
-                                            <div style={{ fontSize: 12, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 20 }}>Movement Flow</div>
-                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 20px' }}>
-                                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, flex: 1 }}>
-                                                    <div style={{ width: 56, height: 56, borderRadius: 16, background: '#fff', border: '2px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' }}>
-                                                        <Building2 size={24} color="#64748b" />
-                                                    </div>
-                                                    <div style={{ textAlign: 'center', fontSize: 13, fontWeight: 600, color: '#334155' }}>
-                                                        {selectedMovement.source || (selectedMovement.type === 'IN' ? selectedMovement.materialVendorName || materialDetails?.vendorName || 'External Source' : materialDetails?.warehouse || 'Internal Warehouse')}
-                                                    </div>
-                                                </div>
-                                                
-                                                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
-                                                    <div style={{ width: '100%', height: 2, background: '#e2e8f0', position: 'absolute', top: 28, zIndex: 0 }}></div>
-                                                    <div style={{ width: 40, height: 40, borderRadius: 20, background: '#e0e7ff', border: '4px solid #f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1 }}>
-                                                        <Truck size={18} color="#4f46e5" />
-                                                    </div>
-                                                    <div style={{ marginTop: 12, fontSize: 11, fontWeight: 700, color: '#4f46e5', background: '#e0e7ff', padding: '2px 8px', borderRadius: 99 }}>
-                                                        {(selectedMovement.materialGpsStatus || selectedMovement.status || 'COMPLETED').toUpperCase()}
-                                                    </div>
-                                                </div>
-
-                                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, flex: 1 }}>
-                                                    <div style={{ width: 56, height: 56, borderRadius: 16, background: '#fff', border: '2px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' }}>
-                                                        <MapPin size={24} color="#64748b" />
-                                                    </div>
-                                                    <div style={{ textAlign: 'center', fontSize: 13, fontWeight: 600, color: '#334155' }}>
-                                                        {selectedMovement.destination || (selectedMovement.type === 'OUT' ? 'External Destination' : materialDetails?.warehouse || 'Internal Warehouse')}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* Information Grid */}
-                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: 16, marginBottom: 40 }}>
-                                            {[
-                                                { label: 'Movement Qty', value: `${selectedMovement.quantity} ${materialDetails?.unit || ''}`, icon: Layers, valColor: '#0f172a' },
-                                                { label: 'Current Stock', value: `${materialDetails?.quantity !== undefined ? materialDetails.quantity : (selectedMovement.materialQuantity || 0)} ${materialDetails?.unit || ''}`, icon: Package, valColor: '#059669' },
-                                                { label: 'Warehouse / Shelf', value: materialDetails?.location || materialDetails?.warehouse ? `${materialDetails.warehouse || ''} ${materialDetails.shelf ? '/ ' + materialDetails.shelf : ''}` : 'N/A', icon: Building2, valColor: '#0f172a' },
-                                                { label: 'Handler / Ref', value: selectedMovement.user || getRefString(selectedMovement) || 'System', icon: User, valColor: '#7c3aed' },
-                                            ].map((item, i) => (
-                                                <div key={i} style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 16, padding: 16 }}>
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                                                        <item.icon size={16} color="#94a3b8" />
-                                                        <span style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>{item.label}</span>
-                                                    </div>
-                                                    <div style={{ fontSize: 18, fontWeight: 700, color: item.valColor, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.value}</div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </>
-                                )}
-                            </motion.div>
-                        </AnimatePresence>
+    const renderDocsAndQR = () => (
+        <div className="mcc-section">
+            <h3 className="mcc-section-title"><FileText size={18} color="#8b5cf6" /> Documents & QR</h3>
+            <div style={{ display: 'flex', gap: 20 }}>
+                <div style={{ width: 100, height: 100, background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8, flexShrink: 0 }}>
+                    <QrCode size={40} color="#0f172a" />
+                    <span style={{ fontSize: 10, fontWeight: 700, color: '#64748b' }}>SCAN ME</span>
+                </div>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    {materialDetails?.documents && materialDetails.documents.length > 0 ? (
+                        materialDetails.documents.map((doc, idx) => (
+                            <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 12px', background: '#f8fafc', borderRadius: 8, cursor: 'pointer' }}>
+                                <FileText size={16} color="#3b82f6" />
+                                <span style={{ fontSize: 13, fontWeight: 600, color: '#0f172a', flex: 1 }}>{doc.name || `Document ${idx+1}`}</span>
+                                <Download size={14} color="#64748b" />
+                            </div>
+                        ))
                     ) : (
-                        <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#94a3b8' }}>
-                            <Package size={64} color="#e2e8f0" style={{ marginBottom: 16 }} />
-                            <div style={{ fontSize: 18, fontWeight: 600, color: '#64748b' }}>Select a movement</div>
-                            <div style={{ fontSize: 14 }}>Click on any item in the master list to view details</div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', background: '#f8fafc', borderRadius: 8, border: '1px solid #f1f5f9' }}>
+                            <FileText size={16} color="#cbd5e1" />
+                            <span style={{ fontSize: 13, fontWeight: 600, color: '#94a3b8' }}>No documents attached</span>
                         </div>
                     )}
                 </div>
             </div>
-        </motion.div>
+        </div>
+    );
+
+    const renderAIInsights = () => {
+        if (!materialDetails) return null;
+        const lowStock = materialDetails.lowStockThreshold || 10;
+        const qty = materialDetails.quantity || 0;
+        const isCritical = qty <= lowStock;
         
-        {/* Edit Modal */}
-        {isEditModalOpen && (
-            <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <div style={{ background: '#fff', padding: 32, borderRadius: 20, width: 400, maxWidth: '90%' }}>
-                    <h3 style={{ margin: '0 0 24px 0', fontSize: 20, fontWeight: 700 }}>Edit Tracking Record</h3>
-                    
-                    <div style={{ marginBottom: 16 }}>
-                        <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 8 }}>Status</label>
-                        <select 
-                            value={editForm.status} 
-                            onChange={e => setEditForm({...editForm, status: e.target.value})}
-                            style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #e2e8f0', outline: 'none' }}
-                        >
-                            <option value="">Select Status...</option>
-                            <option value="Pending">Pending</option>
-                            <option value="In-Transit">In-Transit</option>
-                            <option value="Completed">Completed</option>
-                            <option value="Cancelled">Cancelled</option>
-                        </select>
-                    </div>
-
-                    <div style={{ marginBottom: 24 }}>
-                        <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 8 }}>Notes / Reason</label>
-                        <textarea 
-                            value={editForm.reason} 
-                            onChange={e => setEditForm({...editForm, reason: e.target.value})}
-                            style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #e2e8f0', outline: 'none', minHeight: 100, fontFamily: 'inherit' }}
-                            placeholder="Add tracking notes..."
-                        />
-                    </div>
-
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
-                        <button onClick={() => setIsEditModalOpen(false)} style={{ padding: '10px 20px', borderRadius: 8, border: 'none', background: '#f1f5f9', color: '#475569', fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
-                        <button onClick={handleEditSave} style={{ padding: '10px 20px', borderRadius: 8, border: 'none', background: '#3b82f6', color: '#fff', fontWeight: 600, cursor: 'pointer' }}>Save Changes</button>
+        return (
+            <div className="mcc-section" style={{ background: 'linear-gradient(145deg, #f0f9ff 0%, #e0f2fe 100%)', borderColor: '#bae6fd' }}>
+                <h3 className="mcc-section-title" style={{ borderBottomColor: '#bae6fd' }}><Zap size={18} color="#0284c7" fill="#0284c7" /> Automated Insights</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '12px', background: 'rgba(255,255,255,0.6)', borderRadius: 8 }}>
+                        {isCritical ? <AlertCircle size={16} color="#ef4444" style={{ marginTop: 2 }} /> : <ThumbsUp size={16} color="#10b981" style={{ marginTop: 2 }} />}
+                        <span style={{ fontSize: 13, color: '#0f172a', fontWeight: 500, lineHeight: 1.5 }}>
+                            {isCritical 
+                                ? `Stock is at or below the reorder level (${lowStock}). Consider reordering immediately.`
+                                : `Inventory levels are currently healthy and above the reorder threshold (${lowStock}).`}
+                        </span>
                     </div>
                 </div>
             </div>
-        )}
-        {/* Adjust Stock Modal */}
-        {isAdjustModalOpen && selectedMovement && (
-            <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <div style={{ background: '#fff', padding: 32, borderRadius: 20, width: 400, maxWidth: '90%' }}>
-                    <h3 style={{ margin: '0 0 24px 0', fontSize: 20, fontWeight: 700 }}>Adjust Stock</h3>
-                    
-                    <div style={{ marginBottom: 16 }}>
-                        <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 8 }}>New Quantity ({selectedMovement.unit || 'pcs'})</label>
-                        <input 
-                            type="number"
-                            value={adjustForm.quantity} 
-                            onChange={e => setAdjustForm({...adjustForm, quantity: e.target.value})}
-                            style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #e2e8f0', outline: 'none' }}
-                        />
-                    </div>
+        );
+    };
 
-                    <div style={{ marginBottom: 24 }}>
-                        <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 8 }}>Reason for Adjustment</label>
-                        <textarea 
-                            value={adjustForm.reason} 
-                            onChange={e => setAdjustForm({...adjustForm, reason: e.target.value})}
-                            style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #e2e8f0', outline: 'none', minHeight: 80, fontFamily: 'inherit' }}
-                            placeholder="e.g. Damage, Audit correction..."
-                        />
-                    </div>
+    const renderWorkflowTimeline = () => {
+        // Use real timeline from backend if available
+        let stages = [];
+        if (materialTimeline && materialTimeline.length > 0) {
+            stages = materialTimeline.map(t => ({
+                title: t.status,
+                status: 'Completed',
+                user: t.user || 'System',
+                date: formatDate(t.timestamp || t.date || t.createdAt),
+                time: formatTime(t.timestamp || t.date || t.createdAt),
+                remarks: t.notes || '-'
+            }));
+        } else {
+            // Fallback for when there's no backend timeline
+            stages = [
+                { title: 'Material Created', status: 'Completed', user: 'Admin', date: formatDate(materialDetails?.createdAt), time: formatTime(materialDetails?.createdAt), remarks: 'Initial registration' }
+            ];
+        }
 
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
-                        <button onClick={() => setIsAdjustModalOpen(false)} style={{ padding: '10px 20px', borderRadius: 8, border: 'none', background: '#f1f5f9', color: '#475569', fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
-                        <button onClick={() => { toast.success('Stock adjusted successfully!'); setIsAdjustModalOpen(false); }} style={{ padding: '10px 20px', borderRadius: 8, border: 'none', background: '#3b82f6', color: '#fff', fontWeight: 600, cursor: 'pointer' }}>Confirm</button>
-                    </div>
+        const getColorForStatus = (s) => {
+            if (s === 'Completed') return '#10b981';
+            if (s === 'Current') return '#3b82f6';
+            if (s === 'Waiting') return '#f59e0b';
+            if (s === 'Rejected/Hold') return '#ef4444';
+            return '#cbd5e1'; // Upcoming
+        };
+
+        return (
+            <div className="mcc-section">
+                <h3 className="mcc-section-title"><CheckCircle2 size={18} color="#10b981" /> Workflow Timeline</h3>
+                <div className="mcc-timeline">
+                    {stages.length === 0 ? (
+                        <div style={{ padding: 20, textAlign: 'center', color: '#94a3b8', fontSize: 13, fontWeight: 600 }}>No timeline data available.</div>
+                    ) : (
+                        stages.map((stage, i) => (
+                            <div className="mcc-timeline-item" key={i}>
+                                <div className="mcc-timeline-dot" style={{ background: getColorForStatus(stage.status) }}></div>
+                                <div className="mcc-timeline-content">
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <span style={{ fontSize: 14, fontWeight: 700, color: stage.status === 'Upcoming' ? '#94a3b8' : '#0f172a' }}>{stage.title}</span>
+                                        <span style={{ fontSize: 11, fontWeight: 700, color: getColorForStatus(stage.status), padding: '2px 8px', background: `${getColorForStatus(stage.status)}20`, borderRadius: 99 }}>{stage.status}</span>
+                                    </div>
+                                    <div style={{ fontSize: 12, color: '#64748b', display: 'flex', alignItems: 'center', gap: 12, marginTop: 4 }}>
+                                        <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><User size={12}/> {stage.user}</span>
+                                        <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Calendar size={12}/> {stage.date} {stage.time && `• ${stage.time}`}</span>
+                                    </div>
+                                    <div style={{ fontSize: 12, color: '#475569', marginTop: 4 }}>
+                                        <strong>Remarks:</strong> {stage.remarks}
+                                    </div>
+                                </div>
+                            </div>
+                        ))
+                    )}
                 </div>
             </div>
-        )}
+        );
+    };
 
-        {/* Transfer Modal */}
-        {isTransferModalOpen && selectedMovement && (
-            <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <div style={{ background: '#fff', padding: 32, borderRadius: 20, width: 400, maxWidth: '90%' }}>
-                    <h3 style={{ margin: '0 0 24px 0', fontSize: 20, fontWeight: 700 }}>Transfer Material</h3>
-                    
-                    <div style={{ marginBottom: 16 }}>
-                        <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 8 }}>Quantity to Transfer</label>
-                        <input 
-                            type="number"
-                            value={transferForm.quantity} 
-                            onChange={e => setTransferForm({...transferForm, quantity: e.target.value})}
-                            style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #e2e8f0', outline: 'none' }}
-                        />
-                    </div>
+    const renderRecentActivities = () => {
+        return (
+            <div className="mcc-section">
+                <h3 className="mcc-section-title"><Activity size={18} color="#f43f5e" /> Recent Activities</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                    {currentMaterialMovements.length === 0 ? (
+                        <div style={{ padding: 20, textAlign: 'center', color: '#94a3b8', fontSize: 13, fontWeight: 600 }}>No recent activities found.</div>
+                    ) : (
+                        currentMaterialMovements.slice(0, 5).map(m => {
+                            const typeStr = (m.type || '').toUpperCase();
+                            let icon = <ArrowRightLeft size={14} color="#64748b" />;
+                            let bg = '#f1f5f9';
+                            if (typeStr === 'IN') { icon = <ArrowDownRight size={14} color="#059669" />; bg = '#d1fae5'; }
+                            if (typeStr === 'OUT') { icon = <ArrowUpRight size={14} color="#dc2626" />; bg = '#fee2e2'; }
+                            
+                            return (
+                                <div key={m.id || m._id} style={{ display: 'flex', gap: 12, alignItems: 'flex-start', paddingBottom: 16, borderBottom: '1px solid #f1f5f9' }}>
+                                    <div style={{ width: 32, height: 32, borderRadius: 8, background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                        {icon}
+                                    </div>
+                                    <div style={{ flex: 1 }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                                            <span style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>{typeStr} • {m.quantity} {materialDetails?.unit || ''}</span>
+                                            <span style={{ fontSize: 11, color: '#94a3b8', fontWeight: 600 }}>{formatTime(m.createdAt || m.date || m.timestamp)}</span>
+                                        </div>
+                                        <div style={{ fontSize: 12, color: '#64748b', lineHeight: 1.4 }}>
+                                            {m.reason || (m.referenceOrderId ? `Order Ref: ${m.referenceOrderId}` : '-')}
+                                        </div>
+                                    </div>
+                                </div>
+                            )
+                        })
+                    )}
+                </div>
+            </div>
+        );
+    };
 
-                    <div style={{ marginBottom: 24 }}>
-                        <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 8 }}>Destination Warehouse</label>
+    if (loading) {
+        return (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
+                <div className="loader" style={{ width: 40, height: 40, border: '4px solid #f3f3f3', borderTop: '4px solid #3b82f6', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+            </div>
+        );
+    }
+
+    return (
+        <div className="mcc-container">
+            {/* Header */}
+            <div className="mcc-header">
+                <div className="rd-module-title-row">
+                    <h1 className="rd-module-title" style={{ margin: 0, fontSize: 24 }}>Movement Tracking</h1>
+                    <span className="rd-module-badge">ERP DASHBOARD</span>
+                </div>
+                <div className="mcc-actions">
+                    <div style={{ display: 'flex', alignItems: 'center', background: '#fff', border: '1px solid #e2e8f0', borderRadius: 8, padding: '0 12px' }}>
+                        <Search size={16} color="#94a3b8" />
                         <select 
-                            value={transferForm.destination} 
-                            onChange={e => setTransferForm({...transferForm, destination: e.target.value})}
-                            style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #e2e8f0', outline: 'none' }}
+                            value={selectedMaterialId || ''} 
+                            onChange={(e) => setSelectedMaterialId(e.target.value)}
+                            style={{ border: 'none', background: 'transparent', padding: '10px', fontSize: 14, fontWeight: 600, color: '#0f172a', outline: 'none', width: 200 }}
                         >
-                            <option value="">Select Destination...</option>
-                            {uniqueWarehouses.filter(w => w !== 'All warehouses').map(w => (
-                                <option key={w} value={w}>{w}</option>
+                            <option value="">Search material...</option>
+                            {materialsList.map(m => (
+                                <option key={m.id || m._id} value={m.id || m._id}>{m.sku} - {m.name}</option>
                             ))}
                         </select>
                     </div>
-
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
-                        <button onClick={() => setIsTransferModalOpen(false)} style={{ padding: '10px 20px', borderRadius: 8, border: 'none', background: '#f1f5f9', color: '#475569', fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
-                        <button onClick={() => { toast.success('Transfer initiated successfully!'); setIsTransferModalOpen(false); }} style={{ padding: '10px 20px', borderRadius: 8, border: 'none', background: '#3b82f6', color: '#fff', fontWeight: 600, cursor: 'pointer' }}>Confirm Transfer</button>
-                    </div>
+                    <button className="mcc-btn" onClick={fetchDashboardData}><RefreshCw size={16} /> Refresh</button>
+                    <button className="mcc-btn"><Download size={16} /> Export</button>
+                    <button className="mcc-btn"><Printer size={16} /> Print</button>
                 </div>
             </div>
-        )}
 
-        {/* Assign Location Modal */}
-        {isAssignModalOpen && selectedMovement && (
-            <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <div style={{ background: '#fff', padding: 32, borderRadius: 20, width: 400, maxWidth: '90%' }}>
-                    <h3 style={{ margin: '0 0 24px 0', fontSize: 20, fontWeight: 700 }}>Assign Location</h3>
-                    <p style={{ fontSize: 13, color: '#64748b', marginBottom: 24, lineHeight: 1.5 }}>
-                        Select a rack and shelf in <strong>{materialDetails?.warehouse || 'the warehouse'}</strong> to assign this item to.
-                    </p>
+            {!selectedMaterialId || !materialDetails ? (
+                <div style={{ textAlign: 'center', padding: '100px 0', color: '#94a3b8' }}>
+                    <Package size={48} style={{ opacity: 0.5, marginBottom: 16 }} />
+                    <h3 style={{ fontSize: 18, color: '#475569', margin: '0 0 8px 0' }}>No Material Selected</h3>
+                    <p style={{ fontSize: 14 }}>Please select a material from the dropdown above to view its Movement Tracking details.</p>
+                </div>
+            ) : (
+                <>
+                    {/* Top Section */}
+                    {renderMaterialSummary()}
                     
-                    {(() => {
-                        const warehouseMaterials = materialsList.filter(m => m.warehouse === materialDetails?.warehouse && m.rack && m.shelf);
-                        const uniqueRacks = [...new Set(warehouseMaterials.map(m => m.rack))].sort();
-                        // For the dropdown we can just use a list of common shelves, or derive from existing data
-                        const uniqueShelves = [...new Set(warehouseMaterials.map(m => m.shelf))].sort((a, b) => a.localeCompare(b, undefined, {numeric: true}));
-                        
-                        return (
-                            <>
-                                <div style={{ marginBottom: 16 }}>
-                                    <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 8 }}>Rack</label>
-                                    <select 
-                                        value={assignForm.rack} 
-                                        onChange={e => setAssignForm({...assignForm, rack: e.target.value})}
-                                        style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #e2e8f0', outline: 'none' }}
-                                    >
-                                        <option value="">Select Rack...</option>
-                                        {uniqueRacks.length > 0 ? uniqueRacks.map(r => <option key={r} value={r}>Rack {r}</option>) : (
-                                            <>
-                                                <option value="A">Rack A</option>
-                                                <option value="B">Rack B</option>
-                                                <option value="C">Rack C</option>
-                                                <option value="D">Rack D</option>
-                                            </>
-                                        )}
-                                    </select>
-                                </div>
+                    {/* KPI Cards */}
+                    {renderKPICards()}
 
-                                <div style={{ marginBottom: 24 }}>
-                                    <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 8 }}>Shelf</label>
-                                    <select 
-                                        value={assignForm.shelf} 
-                                        onChange={e => setAssignForm({...assignForm, shelf: e.target.value})}
-                                        style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #e2e8f0', outline: 'none' }}
-                                    >
-                                        <option value="">Select Shelf...</option>
-                                        {uniqueShelves.length > 0 ? uniqueShelves.map(s => <option key={s} value={s}>Shelf {s}</option>) : (
-                                            <>
-                                                <option value="1">Shelf 1</option>
-                                                <option value="2">Shelf 2</option>
-                                                <option value="3">Shelf 3</option>
-                                                <option value="4">Shelf 4</option>
-                                                <option value="5">Shelf 5</option>
-                                            </>
-                                        )}
-                                    </select>
-                                </div>
-                            </>
-                        );
-                    })()}
+                    {/* Main Content Layout */}
+                    <div className="mcc-main-grid">
+                        {/* Left Column */}
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                            {renderWarehouseInfo()}
+                            {renderSupplierInfo()}
+                            {renderDocsAndQR()}
+                            {renderAIInsights()}
+                        </div>
 
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
-                        <button onClick={() => setIsAssignModalOpen(false)} style={{ padding: '10px 20px', borderRadius: 8, border: 'none', background: '#f1f5f9', color: '#475569', fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
-                        <button onClick={handleAssignLocation} style={{ padding: '10px 20px', borderRadius: 8, border: 'none', background: '#f59e0b', color: '#fff', fontWeight: 600, cursor: 'pointer' }}>Save Location</button>
+                        {/* Right Column */}
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                            {renderWorkflowTimeline()}
+                            {renderRecentActivities()}
+                            {renderInventoryAnalytics()}
+                        </div>
                     </div>
-                </div>
-            </div>
-        )}
+                </>
+            )}
         </div>
     );
 };

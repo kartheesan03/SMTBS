@@ -682,14 +682,37 @@ const advanceWorkflow = async (req, res) => {
 
             if (activeStageIndex + 1 < workflow.length) {
                 workflow[activeStageIndex + 1].status = 'In Progress';
+                
+                // --- AUTO-GENERATE INVOICE LOGIC ---
+                // Automatically complete 'Invoice Generated' step if we just landed on it
+                if (workflow[activeStageIndex + 1].stage === 'Invoice Generated') {
+                    workflow[activeStageIndex + 1].status = 'Completed';
+                    workflow[activeStageIndex + 1].remarks = 'System auto-generated invoice';
+                    workflow[activeStageIndex + 1].updatedBy = 'System';
+                    workflow[activeStageIndex + 1].completedAt = new Date();
+                    order.status = 'Invoice Generated';
+                    
+                    // If there's a subsequent stage (like Workflow Completed), activate it
+                    if (activeStageIndex + 2 < workflow.length) {
+                        workflow[activeStageIndex + 2].status = 'In Progress';
+                        
+                        if (workflow[activeStageIndex + 2].stage === 'Workflow Completed') {
+                            workflow[activeStageIndex + 2].status = 'Completed';
+                            workflow[activeStageIndex + 2].remarks = 'System auto-completed workflow';
+                            workflow[activeStageIndex + 2].updatedBy = 'System';
+                            workflow[activeStageIndex + 2].completedAt = new Date();
+                            order.status = 'Completed';
+                        }
+                    }
+                }
             }
         }
 
-        order.workflow = workflow;
+        order.workflow = [...workflow];
         
         // Audit log
-        order.trackingTimeline = order.trackingTimeline || [];
-        order.trackingTimeline.push({
+        const currentTimeline = order.trackingTimeline || [];
+        order.trackingTimeline = [...currentTimeline, {
             id: Date.now().toString(),
             status: order.status || currentStage.stage,
             location: currentStage.stage,
@@ -697,7 +720,12 @@ const advanceWorkflow = async (req, res) => {
             remarks: currentStage.remarks,
             updatedBy: updatedBy,
             updatedById: req.user.id
-        });
+        }];
+
+        if (typeof order.changed === 'function') {
+            order.changed('workflow', true);
+            order.changed('trackingTimeline', true);
+        }
 
         await order.save();
         
@@ -1145,6 +1173,202 @@ const getCustomerOrdersById = async (req, res) => {
     }
 };
 
+// @desc    Inventory Verification (Employee)
+// @route   POST /api/orders/:id/inventory-verification
+// @access  Private
+const verifyInventory = async (req, res) => {
+    try {
+        const order = await Order.findById(req.params.id);
+        if (!order) return res.status(404).json({ message: 'Order not found' });
+        
+        const { itemsVerification } = req.body; // array of { materialId, status, remarks }
+        if (!itemsVerification) return res.status(400).json({ message: 'Missing itemsVerification data' });
+
+        let hasLowStock = false;
+        let hasOutStock = false;
+
+        const PurchaseRequest = require('../models/PurchaseRequest');
+
+        for (const verify of itemsVerification) {
+            if (verify.status === 'Low Stock') hasLowStock = true;
+            if (verify.status === 'Out of Stock') hasOutStock = true;
+        }
+
+        let newStatus = 'Inventory Verified';
+        let actionMessage = 'Inventory verified successfully';
+        
+        if (hasOutStock) {
+            newStatus = 'Out Of Stock';
+            actionMessage = 'Marked Out of Stock - Purchase Request Generated';
+            
+            // Auto generate PR
+            const prItems = order.items.map(i => ({
+                materialId: i.materialId || (i.material ? i.material.id : i.material),
+                name: i.name,
+                quantity: i.quantity
+            }));
+            
+            await PurchaseRequest.create({
+                purchaseRequestId: 'PR-' + Date.now(),
+                orderId: order.id || order._id,
+                items: prItems,
+                status: 'Pending',
+                priority: 'Urgent',
+                requestedById: req.user.id || req.user._id
+            });
+
+            await notifyManager({
+                title: 'Out of Stock - Purchase Request Created',
+                message: `Order ${order.orderNumber} is out of stock. A PR has been auto-generated.`,
+                referenceId: order.id || order._id,
+                module: 'Order'
+            });
+
+        } else if (hasLowStock) {
+            newStatus = 'Low Stock';
+            actionMessage = 'Marked Low Stock - Waiting for Manager';
+            await notifyManager({
+                title: 'Low Stock Alert',
+                message: `Order ${order.orderNumber} has low stock items. Please resolve.`,
+                referenceId: order.id || order._id,
+                module: 'Order'
+            });
+        }
+
+        
+        order.status = newStatus;
+
+        // Advance workflow if all items are in stock
+        if (newStatus === "Inventory Verified" && order.workflow && Array.isArray(order.workflow)) {
+            const activeStageIndex = order.workflow.findIndex(w => w.status === "In Progress");
+            if (activeStageIndex !== -1) {
+                order.workflow[activeStageIndex].status = "Completed";
+                order.workflow[activeStageIndex].remarks = "Inventory Physical Check Complete";
+                order.workflow[activeStageIndex].updatedBy = req.user.name;
+                order.workflow[activeStageIndex].completedAt = new Date();
+                
+                // Advance to next stage
+                if (activeStageIndex + 1 < order.workflow.length) {
+                    order.workflow[activeStageIndex + 1].status = "In Progress";
+                }
+                
+                order.changed("workflow", true);
+            }
+        }
+        
+        await order.save();
+
+
+        await AuditLog.create({
+            userId: req.user.id || req.user._id,
+            userName: req.user.name,
+            action: 'UPDATE',
+            module: 'Order',
+            targetId: order.id || order._id,
+            description: actionMessage,
+            changes: { verificationDetails: itemsVerification, newStatus }
+        });
+
+        res.json(order);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Manager Resolution for Stock
+// @route   POST /api/orders/:id/manager-resolution
+// @access  Private
+const managerResolveStock = async (req, res) => {
+    try {
+        const order = await Order.findById(req.params.id);
+        if (!order) return res.status(404).json({ message: 'Order not found' });
+        
+        const { resolution, remarks } = req.body;
+        // resolution can be 'Allocate', 'Approve Purchase', 'Reject'
+
+        order.status = 'Inventory Verification'; // Send back to employee
+        order.notes = (order.notes ? order.notes + '\n' : '') + 'Manager Resolution: ' + resolution + ' - ' + remarks;
+        await order.save();
+
+        await AuditLog.create({
+            userId: req.user.id || req.user._id,
+            userName: req.user.name,
+            action: 'UPDATE',
+            module: 'Order',
+            targetId: order.id || order._id,
+            description: `Manager resolved stock issue: ${resolution}`
+        });
+
+        await broadcast({
+            module: 'Order',
+            referenceId: order.id || order._id,
+            title: 'Stock Issue Resolved',
+            message: `Manager resolved stock issue for Order ${order.orderNumber}`,
+            type: 'info',
+            targetRoles: ['Employee']
+        });
+
+        res.json(order);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Employee Final Approval
+// @route   POST /api/orders/:id/employee-final-approval
+// @access  Private
+const employeeFinalApproval = async (req, res) => {
+    try {
+        const order = await Order.findById(req.params.id);
+        if (!order) return res.status(404).json({ message: 'Order not found' });
+        
+        
+        order.status = 'Sales Processing';
+        order.employeeApproval = 'Approved';
+        
+        if (order.workflow && Array.isArray(order.workflow)) {
+            const activeStageIndex = order.workflow.findIndex(w => w.status === 'In Progress');
+            if (activeStageIndex !== -1) {
+                order.workflow[activeStageIndex].status = 'Completed';
+                order.workflow[activeStageIndex].remarks = 'Employee Final Approval Complete';
+                order.workflow[activeStageIndex].updatedBy = req.user.name;
+                order.workflow[activeStageIndex].completedAt = new Date();
+                
+                // Advance to Sales Processing
+                if (activeStageIndex + 1 < order.workflow.length) {
+                    order.workflow[activeStageIndex + 1].status = 'In Progress';
+                }
+                
+                order.changed('workflow', true);
+            }
+        }
+        
+        await order.save();
+
+
+        await AuditLog.create({
+            userId: req.user.id || req.user._id,
+            userName: req.user.name,
+            action: 'APPROVE',
+            module: 'Order',
+            targetId: order.id || order._id,
+            description: 'Employee completed final approval.'
+        });
+
+        await notifySales({
+            title: 'Order Ready for Processing',
+            message: `Order ${order.orderNumber} has been verified by the warehouse.`,
+            referenceId: order.id || order._id,
+            module: 'Order'
+        });
+
+        res.json(order);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 module.exports = {
     getOrders,
     createOrder,
@@ -1161,5 +1385,8 @@ module.exports = {
     flagAsDelayed,
     managerApproveOrder,
     employeeCheckOrder,
-    advanceWorkflow
+    advanceWorkflow,
+    verifyInventory,
+    managerResolveStock,
+    employeeFinalApproval
 };

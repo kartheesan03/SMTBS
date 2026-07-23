@@ -209,23 +209,8 @@ const CreateOrder = () => {
                                             }} 
                                         />
                                     </td>
-                                    <td style={{ padding: '12px 16px' }}>
-                                        <input 
-                                            type="number" 
-                                            min="0" 
-                                            step="0.01" 
-                                            required 
-                                            value={item.price} 
-                                            style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', textAlign: 'right', background: '#f8fafc' }}
-                                            readOnly={!isSales} // Usually prices are fixed by vendor, but allowing edit if needed could be an option. Keeping it simple.
-                                            onChange={e => {
-                                                if (isSales) {
-                                                    const newItems = [...formData.items];
-                                                    newItems[index] = { ...newItems[index], price: Number(e.target.value) };
-                                                    setFormData({...formData, items: newItems});
-                                                }
-                                            }}
-                                        />
+                                    <td style={{ padding: '12px 16px', textAlign: 'right', fontWeight: 500, color: '#475569' }}>
+                                        {Number(item.price || 0).toFixed(2)}
                                     </td>
                                     <td style={{ padding: '12px 16px', textAlign: 'right', fontWeight: 600, color: '#0f172a' }}>
                                         {(item.quantity * item.price).toLocaleString()}

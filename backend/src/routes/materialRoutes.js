@@ -20,7 +20,7 @@ router.put('/recalculate-status',  protect, authorize('manage_materials'), recal
 
 // ── Collection routes ─────────────────────────────────────────────────────────
 router.route('/')
-    .get(protect, authorize('view_materials'), getMaterials)
+    .get(protect, authorize('view_materials', 'view_erp'), getMaterials)
     .post(protect, authorize('manage_materials'), createMaterial);
 
 // ── Single-item routes ────────────────────────────────────────────────────────

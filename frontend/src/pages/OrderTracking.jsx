@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 import { AuthContext } from '../context/AuthContext';
 import { 
-    ArrowLeft, CheckCircle, Package, Truck, Loader, FileText, Activity, AlertCircle, Clock, ShieldCheck
+    ArrowLeft, CheckCircle, Circle, Package, Truck, Loader, Loader2, FileText, Activity, AlertCircle, Clock, ShieldCheck
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import PageHeader from '../components/PageHeader';
@@ -46,6 +46,8 @@ const OrderTracking = () => {
     const [deliveryType, setDeliveryType] = useState('Delivery');
     const [remarks, setRemarks] = useState('');
     const [submitting, setSubmitting] = useState(false);
+    const [itemsVerification, setItemsVerification] = useState({});
+    const [activePopover, setActivePopover] = useState(null);
 
     const userRole = user?.role || 'Guest';
 
@@ -53,6 +55,10 @@ const OrderTracking = () => {
 
     useEffect(() => {
         fetchData();
+        if (order && order.workflow) {
+            const activeIndex = order.workflow.findIndex(w => w.status === 'In Progress');
+            if (activeIndex !== -1) setActivePopover(activeIndex);
+        }
     }, [orderId]);
 
     const fetchData = async () => {
@@ -62,6 +68,15 @@ const OrderTracking = () => {
             const foundOrder = data.find(o => o.id?.toString() === orderId || o._id?.toString() === orderId);
             if (foundOrder) {
                 setOrder(foundOrder);
+                // init itemsVerification
+                if (foundOrder.items) {
+                    const initVerif = {};
+                    foundOrder.items.forEach(i => {
+                        const id = i.materialId || (i.material ? i.material.id : i.material);
+                        initVerif[id] = { status: "In Stock", remarks: "" };
+                    });
+                    setItemsVerification(initVerif);
+                }
             } else {
                 setError('Order not found');
             }
@@ -114,6 +129,57 @@ const OrderTracking = () => {
         } catch (err) {
             console.error('Update Error:', err);
             toast.error(`Failed to update order: ${err.response?.data?.message || err.message}`);
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    
+    const handleVerifyInventory = async () => {
+        try {
+            setSubmitting(true);
+            const payload = {
+                itemsVerification: Object.keys(itemsVerification).map(key => ({
+                    materialId: key,
+                    ...itemsVerification[key]
+                }))
+            };
+            await API.post(`/orders/${orderId}/inventory-verification`, payload);
+            toast.success("Inventory Verification Submitted");
+            fetchData();
+        } catch(err) {
+            toast.error(err.response?.data?.message || err.message);
+        } finally {
+            setSubmitting(false);
+        }
+    };
+    
+    
+    const handleManagerResolveStock = async (resolution) => {
+        if (!remarks) {
+            toast.error("Please provide remarks for resolution");
+            return;
+        }
+        try {
+            setSubmitting(true);
+            await API.post(`/orders/${orderId}/manager-resolution`, { resolution, remarks });
+            toast.success("Stock issue resolved successfully");
+            fetchData();
+        } catch(err) {
+            toast.error(err.response?.data?.message || err.message);
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    const handleEmployeeFinalApprove = async () => {
+        try {
+            setSubmitting(true);
+            await API.post(`/orders/${orderId}/employee-final-approval`);
+            toast.success("Order final approved by employee");
+            fetchData();
+        } catch(err) {
+            toast.error(err.response?.data?.message || err.message);
         } finally {
             setSubmitting(false);
         }
@@ -229,13 +295,18 @@ const RoleActionPanel = ({ currentStage, loggedInRole, currentStatus, onAction, 
             if (['Low Stock', 'Out of Stock', 'Waiting for Manager'].includes(currentStatus)) {
                 return (
                     <div className="action-form">
+                        <h4 style={{ margin: '0 0 16px 0', color: '#d97706' }}>⚠ Stock Issue Reported</h4>
+                        <p style={{ margin: '0 0 16px 0', color: '#64748b' }}>The employee reported an inventory shortage for this order.</p>
                         <div className="form-group">
-                            <label>Remarks (Resolution Details)</label>
-                            <input type="text" placeholder="Enter how issue was resolved..." value={remarks} onChange={(e) => setRemarks(e.target.value)} />
+                            <label>Resolution Remarks</label>
+                            <input type="text" placeholder="Explain how this issue was resolved..." value={remarks} onChange={(e) => setRemarks(e.target.value)} />
                         </div>
                         <div className="button-group">
-                            <button className="erp-btn btn-primary" disabled={submitting} onClick={() => handleActionClick('RESOLVE_ISSUE', 'Inventory Updated')}>
-                                {submitting ? 'Processing...' : 'Mark Issue Resolved'}
+                            <button className="erp-btn btn-primary" disabled={submitting} onClick={() => handleManagerResolveStock('Allocate')}>
+                                {submitting ? 'Processing...' : 'Allocate from other warehouse'}
+                            </button>
+                            <button className="erp-btn btn-success" disabled={submitting} onClick={() => handleManagerResolveStock('Approve Purchase')}>
+                                {submitting ? 'Processing...' : 'Approve Purchase Request'}
                             </button>
                         </div>
                     </div>
@@ -245,39 +316,109 @@ const RoleActionPanel = ({ currentStage, loggedInRole, currentStatus, onAction, 
         }
 
         if (loggedInRole === 'Employee') {
-            if (['Employee Verification', 'Inventory Updated', 'Approved', 'Manager Approved', 'Awaiting Stock Check'].includes(currentStatus) || currentStage === 'Employee Verification') {
+            if (['Employee Verification', 'Inventory Verification', 'Awaiting Stock Check'].includes(currentStatus) || currentStage === 'Employee Verification') {
+                const allVerified = Object.values(itemsVerification).every(v => v.status === 'In Stock');
+                const hasIssue = Object.values(itemsVerification).some(v => ['Low Stock', 'Out of Stock'].includes(v.status));
+
                 return (
-                    <div className="action-form">
-                        <div className="form-group">
-                            <label>Stock Status</label>
-                            <select value={stockStatus} onChange={(e) => setStockStatus(e.target.value)}>
-                                <option value="In Stock">In Stock</option>
-                                <option value="Low Stock">Low Stock</option>
-                                <option value="Out of Stock">Out of Stock</option>
-                            </select>
+                    <div className="action-form inventory-verify-form" style={{ width: '100%', maxWidth: 'none', background: '#fff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '24px' }}>
+                        <h3 style={{ margin: '0 0 16px 0', color: '#1e293b', fontSize: '18px', fontWeight: 600 }}>Physical Stock Verification</h3>
+                        <p style={{ margin: '0 0 24px 0', color: '#64748b', fontSize: '14px' }}>Please physically verify the materials in the warehouse before proceeding. Select the actual stock status for each item.</p>
+                        
+                        <div style={{ overflowX: 'auto', marginBottom: '24px' }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
+                                <thead>
+                                    <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0', color: '#475569' }}>
+                                        <th style={{ padding: '12px' }}>MATERIAL</th>
+                                        <th style={{ padding: '12px' }}>LOCATION</th>
+                                        <th style={{ padding: '12px', textAlign: 'center' }}>REQ. QTY</th>
+                                        <th style={{ padding: '12px', textAlign: 'center' }}>AVAIL. QTY</th>
+                                        <th style={{ padding: '12px' }}>STATUS</th>
+                                        <th style={{ padding: '12px' }}>REMARKS</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {(order.items || []).map((item, idx) => {
+                                        const mat = item.material || {};
+                                        const matId = item.materialId || mat.id || mat._id;
+                                        const vState = itemsVerification[matId] || { status: 'In Stock', remarks: '' };
+                                        
+                                        const setVState = (key, val) => {
+                                            setItemsVerification(prev => ({
+                                                ...prev,
+                                                [matId]: { ...prev[matId], [key]: val }
+                                            }));
+                                        };
+
+                                        return (
+                                            <tr key={idx} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                                                <td style={{ padding: '12px', fontWeight: 500 }}>{item.name || mat.name}</td>
+                                                <td style={{ padding: '12px', color: '#64748b' }}>
+                                                    {mat.warehouse ? `${mat.warehouse} / ${mat.shelf || 'No Shelf'}` : 'Main Warehouse'}
+                                                </td>
+                                                <td style={{ padding: '12px', textAlign: 'center', fontWeight: 600, color: '#3b82f6' }}>{item.quantity}</td>
+                                                <td style={{ padding: '12px', textAlign: 'center' }}>{mat.quantity || 0}</td>
+                                                <td style={{ padding: '12px' }}>
+                                                    <select 
+                                                        value={vState.status} 
+                                                        onChange={e => setVState('status', e.target.value)}
+                                                        style={{ 
+                                                            padding: '6px 12px', 
+                                                            borderRadius: '4px', 
+                                                            border: '1px solid #cbd5e1',
+                                                            backgroundColor: vState.status === 'In Stock' ? '#ecfdf5' : vState.status === 'Low Stock' ? '#fffbeb' : '#fef2f2',
+                                                            color: vState.status === 'In Stock' ? '#059669' : vState.status === 'Low Stock' ? '#d97706' : '#dc2626',
+                                                            fontWeight: 600
+                                                        }}
+                                                    >
+                                                        <option value="In Stock">🟢 In Stock</option>
+                                                        <option value="Low Stock">🟡 Low Stock</option>
+                                                        <option value="Out of Stock">🔴 Out of Stock</option>
+                                                    </select>
+                                                </td>
+                                                <td style={{ padding: '12px' }}>
+                                                    <input 
+                                                        type="text" 
+                                                        placeholder="Notes..." 
+                                                        value={vState.remarks} 
+                                                        onChange={e => setVState('remarks', e.target.value)}
+                                                        style={{ padding: '6px 12px', width: '100%', border: '1px solid #cbd5e1', borderRadius: '4px' }}
+                                                    />
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
                         </div>
-                        <div className="form-group">
-                            <label>Remarks</label>
-                            <input type="text" placeholder="Enter remarks..." value={remarks} onChange={(e) => setRemarks(e.target.value)} />
-                        </div>
-                        <div className="button-group">
-                            {stockStatus === 'In Stock' ? (
-                                <button className="erp-btn btn-primary" disabled={submitting} onClick={() => handleActionClick('CONFIRM_STOCK', 'Inventory Verified')}>
-                                    {submitting ? 'Processing...' : 'Approve'}
-                                </button>
-                            ) : stockStatus === 'Low Stock' ? (
-                                <button className="erp-btn btn-warning" disabled={submitting} onClick={() => handleActionClick('REPORT_STOCK', stockStatus)}>
-                                    {submitting ? 'Processing...' : 'Send Low Stock Alert'}
+                        
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+                            {hasIssue ? (
+                                <button className="erp-btn btn-danger" disabled={submitting} onClick={handleVerifyInventory}>
+                                    {submitting ? 'Processing...' : 'Submit Stock Alert'}
                                 </button>
                             ) : (
-                                <button className="erp-btn btn-danger" disabled={submitting} onClick={() => handleActionClick('REPORT_STOCK', stockStatus)}>
-                                    {submitting ? 'Processing...' : 'Send Out of Stock Alert'}
+                                <button className="erp-btn btn-primary" disabled={submitting || !allVerified} onClick={handleVerifyInventory}>
+                                    {submitting ? 'Processing...' : 'Verify Inventory'}
                                 </button>
                             )}
                         </div>
                     </div>
                 );
             }
+            
+            if (currentStatus === 'Inventory Verified') {
+                return (
+                    <div className="action-form">
+                        <h4 style={{ margin: '0 0 16px 0', color: '#10b981' }}>✔ Inventory Verified</h4>
+                        <p style={{ margin: '0 0 24px 0', color: '#64748b' }}>All materials are ready for processing. Please provide final approval to send this order to Sales.</p>
+                        <button className="erp-btn btn-success" disabled={submitting} onClick={handleEmployeeFinalApprove}>
+                            {submitting ? 'Processing...' : 'Approve Order'}
+                        </button>
+                    </div>
+                );
+            }
+
             return renderEmptyPanel();
         }
 
@@ -436,7 +577,7 @@ const RoleActionPanel = ({ currentStage, loggedInRole, currentStatus, onAction, 
                         </div>
                         <div className="grid-item">
                             <span className="label">Expected Delivery</span>
-                            <span className="value">{formatDateOnly(order.deliveryDate || order.deliveryETA)}</span>
+                            <span className="value">{formatDateOnly(order.deliveryDate || order.expectedDeliveryDate || order.expectedDelivery || order.dueDate || order.deliveryETA)}</span>
                         </div>
                     </div>
                 </section>
@@ -449,44 +590,64 @@ const RoleActionPanel = ({ currentStage, loggedInRole, currentStatus, onAction, 
                             <h3>Workflow Progress</h3>
                         </div>
                     </div>
-                    <div className="workflow-stepper">
-                        <div style={{ display: 'flex', flexDirection: 'column', padding: '10px 20px' }}>
+                    <div className="workflow-stepper-container">
+                        <div className="workflow-stepper">
                             {workflow.map((stageObj, index) => {
-                                let icon = '⚪';
-                                let color = '#94a3b8';
+                                let statusClass = "waiting";
                                 
-                                if (stageObj.status === 'Completed') {
-                                    icon = '🟢';
-                                    color = '#10b981';
-                                } else if (stageObj.status === 'In Progress') {
-                                    icon = '🟡';
-                                    color = '#f59e0b';
-                                } else if (stageObj.status === 'Issue' || stageObj.status === 'Rejected') {
-                                    icon = '🔴';
-                                    color = '#ef4444';
+                                if (stageObj.status === "Completed") {
+                                    statusClass = "completed";
+                                } else if (stageObj.status === "In Progress") {
+                                    statusClass = "current";
+                                } else if (stageObj.status === "Issue" || stageObj.status === "Rejected") {
+                                    statusClass = "error";
                                 }
+                                
+                                const isPopoverOpen = activePopover === index || (activePopover === null && statusClass === "current");
 
                                 return (
-                                    <div key={stageObj.stage + index} style={{ display: 'flex', flexDirection: 'column' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                            <span style={{ fontSize: '18px' }}>{icon}</span>
-                                            <div>
-                                                <div style={{ fontWeight: 600, color: '#334155' }}>{stageObj.stage}</div>
-                                                <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>
-                                                    {stageObj.status !== 'Upcoming' ? (
-                                                        <span>{stageObj.role} • {stageObj.status} {stageObj.updatedBy ? `by ${stageObj.updatedBy}` : ''}</span>
-                                                    ) : (
-                                                        <span>{stageObj.role} • Upcoming</span>
-                                                    )}
+                                    <div 
+                                        key={stageObj.stage + index} 
+                                        className={`workflow-step ${statusClass}`}
+                                        onMouseEnter={() => setActivePopover(index)}
+                                        onClick={() => setActivePopover(index)}
+                                        onMouseLeave={() => {
+                                            // Optional: close on leave, or let it stay until another is hovered
+                                            // setActivePopover(null)
+                                        }}
+                                    >
+                                        <div className="step-indicator">
+                                            {statusClass === "completed" ? (
+                                                <CheckCircle size={16} strokeWidth={3} />
+                                            ) : (
+                                                <span>{index + 1}</span>
+                                            )}
+                                            {statusClass === "current" && <div className="pulse-ring"></div>}
+                                        </div>
+                                        
+                                        <div className="step-label-small">{stageObj.stage}</div>
+                                        
+                                        {/* Popover Tooltip */}
+                                        <div className={`step-popover ${isPopoverOpen ? "open" : ""}`}>
+                                            <div className="popover-arrow"></div>
+                                            <div className="popover-content">
+                                                <div className="popover-title">{stageObj.stage}</div>
+                                                <div className="step-subtext" style={{ flexDirection: 'row' }}>
+                                                    <span className="role-pill">{stageObj.role}</span>
+                                                    <span className={`status-text ${statusClass}`}>
+                                                        {stageObj.status !== "Upcoming" 
+                                                            ? `${stageObj.status} ${stageObj.updatedBy ? `by ${stageObj.updatedBy}` : ""}` 
+                                                            : "Upcoming"}
+                                                    </span>
                                                 </div>
-                                                {stageObj.remarks && <div style={{ fontSize: '12px', color: '#64748b', fontStyle: 'italic', marginTop: '2px' }}>"{stageObj.remarks}"</div>}
+                                                {stageObj.remarks && (
+                                                    <div className={`action-tag ${statusClass === "completed" ? "completed" : ""}`}>
+                                                        {statusClass === "completed" ? <CheckCircle size={12} /> : <Activity size={12} />}
+                                                        <span style={{ textAlign: "left" }}>{stageObj.remarks}</span>
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
-                                        {index < workflow.length - 1 && (
-                                            <div style={{ marginLeft: '8px', padding: '4px 0', color: color, fontSize: '14px', lineHeight: 1 }}>
-                                                │
-                                            </div>
-                                        )}
                                     </div>
                                 );
                             })}

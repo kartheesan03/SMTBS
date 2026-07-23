@@ -4,7 +4,7 @@ const { createRequest, getRequests, managerAction, employeeReceive, salesUpdate 
 const { protect, authorize } = require('../middleware/authMiddleware');
 
 router.route('/')
-    .post(protect, authorize('manage_materials'), createRequest)
+    .post(protect, createRequest)
     .get(protect, getRequests);
 
 router.put('/:id/manager-action', protect, authorize('manage_materials'), managerAction);

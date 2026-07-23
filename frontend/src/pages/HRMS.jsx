@@ -193,7 +193,7 @@ const HRMS = () => {
                                     <th>Phone</th>
                                     <th>Role / Dept</th>
                                     <th>Status</th>
-                                    {user?.role === 'admin' && <th style={{textAlign: 'center', width: 40}}>Action</th>}
+                                    <th style={{textAlign: 'center', width: 40}}>Action</th>
                                 </tr>
                             </thead>
                         <tbody>
@@ -226,16 +226,14 @@ const HRMS = () => {
                                             </span>
                                         </td>
                                         <td data-label="Status">{getStatusBadge('Active')}</td>
-                                        {user?.role === 'admin' && (
-                                            <td onClick={(e) => e.stopPropagation()} style={{textAlign: 'center'}} data-label="Action">
-                                                <button
-                                                    className="rd-btn-compact"
-                                                    onClick={() => handleDelete(emp.id || emp._id)}
-                                                    style={{background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: 16}}
-                                                    title="Delete"
-                                                >✕</button>
-                                            </td>
-                                        )}
+                                        <td onClick={(e) => e.stopPropagation()} style={{textAlign: 'center'}} data-label="Action">
+                                            <button
+                                                className="rd-btn-compact"
+                                                onClick={() => handleDelete(emp.id || emp._id)}
+                                                style={{background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: 16}}
+                                                title="Delete"
+                                            >✕</button>
+                                        </td>
                                     </tr>
                                 ))
                             )}
