@@ -27,7 +27,7 @@ const BackupKPICard = ({ title, val, subtitle, icon: Icon, color, trendValue }) 
             </div>
             <div className="ent-card-footer">
                 <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'currentColor' }}></div>
+                    <div style={{ width: '6px', height: '6px', borderRadius: '0px', backgroundColor: 'currentColor' }}></div>
                     Updated Today
                 </div>
             </div>
@@ -229,13 +229,13 @@ const BackupRestore = () => {
                                                 </td>
                                                 <td className="td-actions">
                                                     <div className="td-actions-wrapper" style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '8px' }}>
-                                                        <button onClick={() => handleDownload(item._id, item.backupName)} title="Download" style={{ width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', border: 'none', background: '#eff6ff', color: '#3b82f6', cursor: 'pointer' }}>
+                                                        <button onClick={() => handleDownload(item._id, item.backupName)} title="Download" style={{ width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '0px', border: 'none', background: '#eff6ff', color: '#3b82f6', cursor: 'pointer' }}>
                                                             <CloudDownload size={16} style={{ width: '16px', height: '16px', minWidth: '16px', strokeWidth: 2, display: 'block' }} />
                                                         </button>
-                                                        <button onClick={() => handleRestore(item._id)} title="Restore" style={{ width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', border: '1px solid #fef3c7', background: '#fffbeb', color: '#f59e0b', cursor: 'pointer' }}>
+                                                        <button onClick={() => handleRestore(item._id)} title="Restore" style={{ width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '0px', border: '1px solid #fef3c7', background: '#fffbeb', color: '#f59e0b', cursor: 'pointer' }}>
                                                             <RefreshCw size={16} style={{ width: '16px', height: '16px', minWidth: '16px', strokeWidth: 2, display: 'block' }} />
                                                         </button>
-                                                        <button onClick={() => handleDelete(item._id)} title="Delete" style={{ width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', border: 'none', background: '#fef2f2', color: '#ef4444', cursor: 'pointer' }}>
+                                                        <button onClick={() => handleDelete(item._id)} title="Delete" style={{ width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '0px', border: 'none', background: '#fef2f2', color: '#ef4444', cursor: 'pointer' }}>
                                                             <Trash2 size={16} style={{ width: '16px', height: '16px', minWidth: '16px', strokeWidth: 2, display: 'block' }} />
                                                         </button>
                                                     </div>

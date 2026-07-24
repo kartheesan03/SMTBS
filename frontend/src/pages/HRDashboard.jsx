@@ -11,9 +11,10 @@ import { AreaChart, Area, PieChart, Pie, Cell, ResponsiveContainer, XAxis, YAxis
 import { motion } from 'framer-motion';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 import PageHeader from '../components/PageHeader';
-import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
+import { StatCard, StatGrid } from '../components/ui/StatCard';
 import CommandCenter from '../components/CommandCenter';
 import { SparklineKPICard, IconQuickAction, InvRow } from './AdminDashboard';
+import WelcomeBanner from '../components/ui/WelcomeBanner';
 import { LoadingState, ErrorState, EmptyState } from '../components/DataStates';
 
 const HRDashboard = () => {
@@ -116,67 +117,48 @@ const HRDashboard = () => {
 
 
                 {/* ── 1. Hero Banner ── */}
-                <div className="rd-hero">
-                    <div className="rd-hero-left">
-                        <div className="rd-hero-avatar-wrapper">
-                            <img src={user?.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'HR')}&background=7C3AED&color=fff`} alt="Profile" className="rd-hero-avatar" />
-                            <div className="rd-hero-status-dot"></div>
-                        </div>
-                        <div>
-                            <div className="rd-hero-greeting">
-                                {getGreeting()}, {user?.name?.split(' ')[0] || 'HR Admin'}
-                            </div>
-                            <div className="rd-hero-subtitle">
-                                {new Date().toLocaleDateString('en-IN', {weekday:'long', day:'numeric', month:'long', year:'numeric'})} &nbsp;·&nbsp; Human Resources Overview
-                            </div>
-                            <div className="rd-hero-badges">
-                                <span className="rd-hero-badge badge-neutral">
-                                    <Users size={14} /> {totalEmployees} Employees
-                                </span>
-                                <span className="rd-hero-badge badge-status">
-                                    <div className="status-dot-inline"></div> {pendingLeaves} Pending Leaves
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="rd-hero-right">
-                        <div className="rd-hero-visual">
+                <WelcomeBanner 
+                    user={user}
+                    greeting={`${getGreeting()}`}
+                    subtitle={`${new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} · Human Resources Overview`}
+                    badges={[
+                        { icon: Users, text: `${totalEmployees} Employees`, type: 'neutral' },
+                        { type: 'status', text: `${pendingLeaves} Pending Leaves` }
+                    ]}
+                    rightVisuals={
+                        <>
                             <div className="rd-visual-card">
-                                <div className="rd-vc-label">Attendance</div>
-                                <div className="rd-vc-value">{hrStats.attendanceRate || '98%'}</div>
-                                <div className="rd-vc-chart"></div>
-                            </div>
-                            <div className="rd-visual-card">
-                                <div className="rd-vc-label">Activity</div>
-                                <div className="rd-vc-bars">
-                                    <div className="rd-vc-bar" style={{height: '90%'}}></div>
-                                    <div className="rd-vc-bar" style={{height: '70%'}}></div>
-                                    <div className="rd-vc-bar" style={{height: '80%'}}></div>
-                                    <div className="rd-vc-bar" style={{height: '100%'}}></div>
-                                    <div className="rd-vc-bar" style={{height: '60%'}}></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="rd-hero-actions-col">
-                            <button className="hero-action-btn primary" onClick={() => navigate('/leave-management/history')}>
-                                <CheckCircle size={15} /> Apply Leave
-                            </button>
-                            <button className="hero-action-btn secondary" onClick={() => navigate('/attendance')}>
-                                <Clock size={15} /> Check In
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                                                            <div className="rd-vc-label">Attendance</div>
+                                                            <div className="rd-vc-value">{hrStats.attendanceRate || '98%'}</div>
+                                                            <div className="rd-vc-chart"></div>
+                                                        </div>
+                                                        <div className="rd-visual-card">
+                                                            <div className="rd-vc-label">Activity</div>
+                                                            <div className="rd-vc-bars">
+                                                                <div className="rd-vc-bar" style={{height: '90%'}}></div>
+                                                                <div className="rd-vc-bar" style={{height: '70%'}}></div>
+                                                                <div className="rd-vc-bar" style={{height: '80%'}}></div>
+                                                                <div className="rd-vc-bar" style={{height: '100%'}}></div>
+                                                                <div className="rd-vc-bar" style={{height: '60%'}}></div>
+                                                            </div>
+                                                        </div>
+                        </>
+                    }
+                    actions={[
+                        { label: 'Apply Leave', icon: CheckCircle, variant: 'primary', onClick: () => navigate('/leave-management/history') },
+                        { label: 'Check In', icon: Clock, variant: 'secondary', onClick: () => navigate('/attendance') }
+                    ]}
+                />
 
                 {/* ── 2. KPI Row (6 columns) ── */}
-                <PastelKPIGrid columns={6}>
-                    <PastelKPICard title="Total Employees" value={totalEmployees} colorTheme="blue" icon={Users} trendValue={`${newJoiners} new joiners`} trendPositive={true} />
-                    <PastelKPICard title="Attendance Rate" value={hrStats.attendanceRate || '98%'} colorTheme="mint" icon={UserCheck} trendValue="vs last month" trendPositive={true} />
-                    <PastelKPICard title="New Joiners" value={newJoiners} colorTheme="peach" icon={UserPlus} trendValue="This month" trendPositive={true} />
-                    <PastelKPICard title="Pending Leaves" value={pendingLeaves} colorTheme="purple" icon={Calendar} trendValue="Awaiting approval" trendPositive={false} />
-                    <PastelKPICard title="Payroll Processed" value={`${payrollProcessed}%`} colorTheme="pink" icon={DollarSign} trendValue="This month" trendPositive={true} />
-                    <PastelKPICard title="On Leave Today" value={onLeave} colorTheme="yellow" icon={Moon} trendValue="vs average" trendPositive={true} />
-                </PastelKPIGrid>
+                <StatGrid columns={6}>
+                    <StatCard title="Total Employees" value={totalEmployees} colorTheme="blue" icon={Users} trendValue={`${newJoiners} new joiners`} trendPositive={true} />
+                    <StatCard title="Attendance Rate" value={hrStats.attendanceRate || '98%'} colorTheme="mint" icon={UserCheck} trendValue="vs last month" trendPositive={true} />
+                    <StatCard title="New Joiners" value={newJoiners} colorTheme="peach" icon={UserPlus} trendValue="This month" trendPositive={true} />
+                    <StatCard title="Pending Leaves" value={pendingLeaves} colorTheme="purple" icon={Calendar} trendValue="Awaiting approval" trendPositive={false} />
+                    <StatCard title="Payroll Processed" value={`${payrollProcessed}%`} colorTheme="pink" icon={DollarSign} trendValue="This month" trendPositive={true} />
+                    <StatCard title="On Leave Today" value={onLeave} colorTheme="yellow" icon={Moon} trendValue="vs average" trendPositive={true} />
+                </StatGrid>
 
                 {/* ── 3. Middle Row (Quick Actions + Mini Stats) ── */}
                 <div className="rd-middle-row">
@@ -243,7 +225,7 @@ const HRDashboard = () => {
                                     <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false}/>
                                     <XAxis dataKey="range" axisLine={false} tickLine={false} tick={{fontSize: 11, fill: '#94a3b8'}} dy={8}/>
                                     <YAxis axisLine={false} tickLine={false} tick={{fontSize: 11, fill: '#94a3b8'}} width={35} />
-                                    <Tooltip cursor={{fill: '#f8fafc'}} contentStyle={{fontSize: 12, borderRadius: 8, border: '1px solid #e2e8f0'}} />
+                                    <Tooltip cursor={{fill: '#f8fafc'}} contentStyle={{fontSize: 12, borderRadius: 0, border: '1px solid #e2e8f0'}} />
                                     <Bar dataKey="count" name="Employees" fill="#6366f1" radius={[4, 4, 0, 0]} barSize={40} />
                                 </BarChart>
                             </ResponsiveContainer>
@@ -289,7 +271,7 @@ const HRDashboard = () => {
                                     return (
                                         <div key={idx} style={{display:'flex', alignItems:'center', justifyContent:'space-between', fontSize: 11}}>
                                             <span style={{display:'flex', alignItems:'center', gap:5, color:'#475569'}}>
-                                                <div style={{width:8,height:8,borderRadius:'50%',background:colors[idx%colors.length]}}></div>{entry.name}
+                                                <div style={{width:8,height:8,borderRadius: '0px',background:colors[idx%colors.length]}}></div>{entry.name}
                                             </span>
                                             <strong style={{color:'#0f172a'}}>{entry.value}</strong>
                                         </div>
@@ -427,7 +409,7 @@ const HRDashboard = () => {
                                     const colors = ['#3b82f6', '#ec4899', '#f59e0b'];
                                     return (
                                         <div key={idx} style={{display:'flex', alignItems:'center', gap:4}}>
-                                            <div style={{width:8,height:8,borderRadius:'50%',background:entry.color || colors[idx % colors.length]}}></div> 
+                                            <div style={{width:8,height:8,borderRadius: '0px',background:entry.color || colors[idx % colors.length]}}></div> 
                                             <span><b>{entry.value}</b> {entry.name}</span>
                                         </div>
                                     );

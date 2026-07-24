@@ -115,7 +115,7 @@ const OrderKanban = () => {
                     <div style={{ padding: 24, borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <div>
                             <h2 style={{ margin: '0 0 4px 0', fontSize: 20, color: '#0f172a' }}>{item.name}</h2>
-                            <span style={{ fontSize: 13, padding: '2px 8px', background: '#f1f5f9', color: '#64748b', borderRadius: 4, fontFamily: 'monospace' }}>
+                            <span style={{ fontSize: 13, padding: '2px 8px', background: '#f1f5f9', color: '#64748b', borderRadius: 0, fontFamily: 'monospace' }}>
                                 {item.sku || `MAT-${item.id}`}
                             </span>
                         </div>
@@ -147,7 +147,7 @@ const OrderKanban = () => {
                             </div>
                         </div>
 
-                        <div style={{ background: '#f8fafc', padding: 16, borderRadius: 8, border: '1px solid #e2e8f0' }}>
+                        <div style={{ background: '#f8fafc', padding: 16, borderRadius: 0, border: '1px solid #e2e8f0' }}>
                             <h4 style={{ margin: '0 0 12px 0', fontSize: 14, color: '#475569' }}>Timestamp Log</h4>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                                 {item.locationUpdatedAt && (
@@ -245,11 +245,11 @@ const OrderKanban = () => {
             {/* Main Content Area */}
             <div className="rd-section" style={{ background: 'transparent', padding: 0, border: 'none', boxShadow: 'none' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-                    <div style={{ display: 'flex', gap: 8, background: '#fff', padding: 4, borderRadius: 8, border: '1px solid #e2e8f0' }}>
+                    <div style={{ display: 'flex', gap: 8, background: '#fff', padding: 4, borderRadius: 0, border: '1px solid #e2e8f0' }}>
                         <button 
                             onClick={() => setViewMode('board')}
                             style={{ 
-                                padding: '8px 16px', borderRadius: 6, border: 'none', fontWeight: 600, fontSize: 13, cursor: 'pointer',
+                                padding: '8px 16px', borderRadius: 0, border: 'none', fontWeight: 600, fontSize: 13, cursor: 'pointer',
                                 background: viewMode === 'board' ? '#f1f5f9' : 'transparent',
                                 color: viewMode === 'board' ? '#0f172a' : '#64748b',
                                 display: 'flex', alignItems: 'center', gap: 6, transition: 'all 0.2s'
@@ -260,7 +260,7 @@ const OrderKanban = () => {
                         <button 
                             onClick={() => setViewMode('map')}
                             style={{ 
-                                padding: '8px 16px', borderRadius: 6, border: 'none', fontWeight: 600, fontSize: 13, cursor: 'pointer',
+                                padding: '8px 16px', borderRadius: 0, border: 'none', fontWeight: 600, fontSize: 13, cursor: 'pointer',
                                 background: viewMode === 'map' ? '#f1f5f9' : 'transparent',
                                 color: viewMode === 'map' ? '#0f172a' : '#64748b',
                                 display: 'flex', alignItems: 'center', gap: 6, transition: 'all 0.2s'
@@ -284,20 +284,20 @@ const OrderKanban = () => {
                 {viewMode === 'board' ? (
                     <div className="kanban-board">
                         {loading ? (
-                            <div style={{ padding: 40, width: '100%', textAlign: 'center', color: '#64748b', background: '#fff', borderRadius: 12 }}>Loading board data...</div>
+                            <div style={{ padding: 40, width: '100%', textAlign: 'center', color: '#64748b', background: '#fff', borderRadius: 0 }}>Loading board data...</div>
                         ) : (
                             Object.entries(columns).map(([key, col]) => (
                                 <div key={key} className="kanban-column">
                                     <div className="kanban-column-header">
                                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                            <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: col.color }} />
+                                            <div style={{ width: 8, height: 8, borderRadius: '0px', backgroundColor: col.color }} />
                                             {col.title}
                                         </div>
                                         <span className="kanban-column-count">{col.items.length}</span>
                                     </div>
                                     <div className="kanban-column-body">
                                         {col.items.length === 0 ? (
-                                            <div style={{ padding: 20, textAlign: 'center', color: '#94a3b8', fontSize: 13, background: 'rgba(255,255,255,0.5)', borderRadius: 8, border: '1px dashed #cbd5e1' }}>
+                                            <div style={{ padding: 20, textAlign: 'center', color: '#94a3b8', fontSize: 13, background: 'rgba(255,255,255,0.5)', borderRadius: 0, border: '1px dashed #cbd5e1' }}>
                                                 No shipments currently {key.toLowerCase()}
                                             </div>
                                         ) : (
@@ -314,7 +314,7 @@ const OrderKanban = () => {
                                                         </div>
                                                         {item.isDelayed && <AlertCircle size={14} color="#ef4444" style={{ flexShrink: 0 }} />}
                                                     </div>
-                                                    <div style={{ fontSize: 11, padding: '2px 6px', background: '#f1f5f9', color: '#64748b', borderRadius: 4, fontFamily: 'monospace', display: 'inline-block', marginBottom: 12 }}>
+                                                    <div style={{ fontSize: 11, padding: '2px 6px', background: '#f1f5f9', color: '#64748b', borderRadius: 0, fontFamily: 'monospace', display: 'inline-block', marginBottom: 12 }}>
                                                         {item.sku || `MAT-${item.id}`}
                                                     </div>
                                                     
@@ -339,7 +339,7 @@ const OrderKanban = () => {
                         )}
                     </div>
                 ) : (
-                    <div style={{ height: 600, borderRadius: 12, overflow: 'hidden', border: '1px solid #e2e8f0', position: 'relative', zIndex: 0, background: '#fff' }}>
+                    <div style={{ height: 600, borderRadius: 0, overflow: 'hidden', border: '1px solid #e2e8f0', position: 'relative', zIndex: 0, background: '#fff' }}>
                         <MapContainer center={[3.1390, 101.6869]} zoom={6} style={{ height: '100%', width: '100%' }}>
                             <TileLayer
                                 url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
@@ -400,7 +400,7 @@ const OrderKanban = () => {
                                 return (
                                     <tr key={item.id}>
                                         <td data-label="STAGE">
-                                            <span style={{ padding: '4px 10px', fontSize: 11, fontWeight: 600, background: bg, color, border: `1px solid ${border}`, borderRadius: 99, display: 'inline-block' }}>
+                                            <span style={{ padding: '4px 10px', fontSize: 11, fontWeight: 600, background: bg, color, border: `1px solid ${border}`, borderRadius: 0, display: 'inline-block' }}>
                                                 {item.gpsStatus}
                                             </span>
                                         </td>
@@ -420,7 +420,7 @@ const OrderKanban = () => {
                                         <td data-label="ACTION" style={{ textAlign: 'center' }}>
                                             <button style={{
                                                 background: '#fff', border: '1px solid #e2e8f0', padding: '6px 12px',
-                                                borderRadius: 6, fontSize: 12, fontWeight: 600, color: '#3b82f6', cursor: 'pointer',
+                                                borderRadius: 0, fontSize: 12, fontWeight: 600, color: '#3b82f6', cursor: 'pointer',
                                                 boxShadow: '0 1px 2px rgba(0,0,0,0.05)', transition: 'all 0.2s'
                                             }}
                                             onClick={() => {

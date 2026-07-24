@@ -124,7 +124,7 @@ const TaskCalendar = () => {
                     
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
                         <PageHeader title="Task Calendar" badge="TASKS" subtitle="Schedule and manage your upcoming events and tasks." showBack={true} />
-                        <button onClick={handleNewEventClick} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 16px', backgroundColor: '#3b82f6', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 14 }}>
+                        <button onClick={handleNewEventClick} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 16px', backgroundColor: '#3b82f6', color: 'white', border: 'none', borderRadius: 0, cursor: 'pointer', fontWeight: 600, fontSize: 14 }}>
                             <Plus size={16} /> New Event
                         </button>
                     </div>
@@ -135,13 +135,13 @@ const TaskCalendar = () => {
                                 {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
                             </h2>
                             <div style={{ display: 'flex', gap: 8 }}>
-                                <button onClick={prevMonth} style={{ padding: 8, backgroundColor: '#f1f5f9', border: '1px solid #e2e8f0', borderRadius: 6, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <button onClick={prevMonth} style={{ padding: 8, backgroundColor: '#f1f5f9', border: '1px solid #e2e8f0', borderRadius: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     <ChevronLeft size={20} color="#475569" />
                                 </button>
-                                <button onClick={() => setCurrentDate(new Date())} style={{ padding: '8px 16px', backgroundColor: '#f1f5f9', border: '1px solid #e2e8f0', borderRadius: 6, cursor: 'pointer', color: '#475569', fontWeight: 600 }}>
+                                <button onClick={() => setCurrentDate(new Date())} style={{ padding: '8px 16px', backgroundColor: '#f1f5f9', border: '1px solid #e2e8f0', borderRadius: 0, cursor: 'pointer', color: '#475569', fontWeight: 600 }}>
                                     Today
                                 </button>
-                                <button onClick={nextMonth} style={{ padding: 8, backgroundColor: '#f1f5f9', border: '1px solid #e2e8f0', borderRadius: 6, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <button onClick={nextMonth} style={{ padding: 8, backgroundColor: '#f1f5f9', border: '1px solid #e2e8f0', borderRadius: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     <ChevronRight size={20} color="#475569" />
                                 </button>
                             </div>
@@ -228,7 +228,7 @@ const TaskCalendar = () => {
             {/* Modal Overlay for New Event */}
             {isModalOpen && (
                 <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
-                    <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '12px', width: '100%', maxWidth: '400px', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)' }}>
+                    <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '0px', width: '100%', maxWidth: '400px', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                             <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 600, color: '#0f172a' }}>Create New Event</h3>
                             <X size={20} color="#64748b" style={{ cursor: 'pointer' }} onClick={() => setIsModalOpen(false)} />
@@ -241,7 +241,7 @@ const TaskCalendar = () => {
                                     required
                                     value={newTaskForm.title}
                                     onChange={(e) => setNewTaskForm({...newTaskForm, title: e.target.value})}
-                                    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '14px' }}
+                                    style={{ width: '100%', padding: '10px', borderRadius: '0px', border: '1px solid #cbd5e1', fontSize: '14px' }}
                                     placeholder="Enter event title"
                                 />
                             </div>
@@ -253,7 +253,7 @@ const TaskCalendar = () => {
                                         required
                                         value={newTaskForm.date}
                                         onChange={(e) => setNewTaskForm({...newTaskForm, date: e.target.value})}
-                                        style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '14px' }}
+                                        style={{ width: '100%', padding: '10px', borderRadius: '0px', border: '1px solid #cbd5e1', fontSize: '14px' }}
                                     />
                                 </div>
                                 <div style={{ flex: 1 }}>
@@ -263,7 +263,7 @@ const TaskCalendar = () => {
                                         required
                                         value={newTaskForm.time}
                                         onChange={(e) => setNewTaskForm({...newTaskForm, time: e.target.value})}
-                                        style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '14px' }}
+                                        style={{ width: '100%', padding: '10px', borderRadius: '0px', border: '1px solid #cbd5e1', fontSize: '14px' }}
                                     />
                                 </div>
                             </div>
@@ -272,7 +272,7 @@ const TaskCalendar = () => {
                                 <select 
                                     value={newTaskForm.priority}
                                     onChange={(e) => setNewTaskForm({...newTaskForm, priority: e.target.value})}
-                                    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '14px', backgroundColor: 'white' }}
+                                    style={{ width: '100%', padding: '10px', borderRadius: '0px', border: '1px solid #cbd5e1', fontSize: '14px', backgroundColor: 'white' }}
                                 >
                                     <option value="High">High (Red)</option>
                                     <option value="Medium">Medium (Blue)</option>
@@ -280,8 +280,8 @@ const TaskCalendar = () => {
                                 </select>
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '8px' }}>
-                                <button type="button" onClick={() => setIsModalOpen(false)} style={{ padding: '10px 16px', backgroundColor: '#f1f5f9', color: '#475569', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 500 }}>Cancel</button>
-                                <button type="submit" style={{ padding: '10px 16px', backgroundColor: '#3b82f6', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 500 }}>Create Event</button>
+                                <button type="button" onClick={() => setIsModalOpen(false)} style={{ padding: '10px 16px', backgroundColor: '#f1f5f9', color: '#475569', border: 'none', borderRadius: '0px', cursor: 'pointer', fontWeight: 500 }}>Cancel</button>
+                                <button type="submit" style={{ padding: '10px 16px', backgroundColor: '#3b82f6', color: 'white', border: 'none', borderRadius: '0px', cursor: 'pointer', fontWeight: 500 }}>Create Event</button>
                             </div>
                         </form>
                     </div>

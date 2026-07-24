@@ -138,7 +138,7 @@ const AttendanceWidget = ({ onStatusChange }) => {
         <div className="premium-card active-session-card" style={{ marginBottom: '24px' }}>
             <div className="session-info" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    <div className="timer-icon-box" style={{ background: 'var(--bg-body)', padding: '12px', borderRadius: '12px' }}>
+                    <div className="timer-icon-box" style={{ background: 'var(--bg-body)', padding: '12px', borderRadius: '0px' }}>
                         <Timer size={32} className={status?.checkIn && !status?.checkOut ? "pulse text-primary" : "text-secondary"} />
                     </div>
                     <div>
@@ -164,12 +164,12 @@ const AttendanceWidget = ({ onStatusChange }) => {
                             onClick={handleCheckOut} 
                             className="btn btn-danger"
                             disabled={actionLoading}
-                            style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#ef4444', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer' }}
+                            style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#ef4444', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '0px', cursor: 'pointer' }}
                         >
                             <Square size={18} /> {actionLoading ? 'Processing...' : 'Check Out'}
                         </button>
                     ) : (
-                        <div className="status-badge-completed" style={{ background: '#f0fdf4', color: '#166534', padding: '8px 16px', borderRadius: '20px', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div className="status-badge-completed" style={{ background: '#f0fdf4', color: '#166534', padding: '8px 16px', borderRadius: '0px', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <Calendar size={16} /> Shift Completed
                         </div>
                     )}

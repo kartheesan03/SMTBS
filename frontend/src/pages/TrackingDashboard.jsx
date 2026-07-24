@@ -130,7 +130,7 @@ const TrackingDashboard = () => {
     
     const renderMaterialSummary = () => (
         <div className="mcc-section" style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
-            <div style={{ width: 120, height: 120, borderRadius: 12, background: '#f8fafc', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <div style={{ width: 120, height: 120, borderRadius: 0, background: '#f8fafc', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <Package size={48} color="#94a3b8" />
             </div>
             <div style={{ flex: 1 }}>
@@ -152,7 +152,7 @@ const TrackingDashboard = () => {
                         </div>
                     </div>
                     <span className="mcc-badge" style={{ background: statusBg, color: statusColor }}>
-                        <span style={{ width: 6, height: 6, borderRadius: 3, background: statusColor }}></span>
+                        <span style={{ width: 6, height: 6, borderRadius: 0, background: statusColor }}></span>
                         {statusText}
                     </span>
                 </div>
@@ -276,7 +276,7 @@ const TrackingDashboard = () => {
             {uniqueRacks.length > 0 && (
                 <div style={{ marginTop: 24 }}>
                     <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a', marginBottom: 12 }}>Visual Map (Warehouse Racks)</div>
-                    <div style={{ width: '100%', background: '#f8fafc', borderRadius: 12, border: '1px solid #e2e8f0', padding: 16 }}>
+                    <div style={{ width: '100%', background: '#f8fafc', borderRadius: 0, border: '1px solid #e2e8f0', padding: 16 }}>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(60px, 1fr))', gap: 8 }}>
                             {uniqueRacks.map(r => {
                                 const isCurrentRack = r === parseInt(materialDetails?.rack);
@@ -285,7 +285,7 @@ const TrackingDashboard = () => {
                                         height: 60, 
                                         background: isCurrentRack ? '#eff6ff' : '#fff', 
                                         border: `2px solid ${isCurrentRack ? '#3b82f6' : '#e2e8f0'}`,
-                                        borderRadius: 6,
+                                        borderRadius: 0,
                                         display: 'flex',
                                         flexDirection: 'column',
                                         alignItems: 'center',
@@ -294,15 +294,15 @@ const TrackingDashboard = () => {
                                     }}>
                                         <span style={{ fontSize: 11, fontWeight: 700, color: isCurrentRack ? '#2563eb' : '#64748b' }}>Rack {r}</span>
                                         {isCurrentRack && (
-                                            <div style={{ position: 'absolute', top: -6, right: -6, width: 14, height: 14, background: '#ef4444', borderRadius: '50%', border: '2px solid #fff' }}></div>
+                                            <div style={{ position: 'absolute', top: -6, right: -6, width: 14, height: 14, background: '#ef4444', borderRadius: '0px', border: '2px solid #fff' }}></div>
                                         )}
                                     </div>
                                 )
                             })}
                         </div>
                         <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 12, fontSize: 11, color: '#64748b', justifyContent: 'center', fontWeight: 600 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}><div style={{ width: 10, height: 10, borderRadius: '50%', background: '#ef4444' }}></div> Target Location</div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}><div style={{ width: 12, height: 12, borderRadius: 2, border: '2px solid #3b82f6', background: '#eff6ff' }}></div> Current Rack</div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}><div style={{ width: 10, height: 10, borderRadius: '0px', background: '#ef4444' }}></div> Target Location</div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}><div style={{ width: 12, height: 12, borderRadius: 0, border: '2px solid #3b82f6', background: '#eff6ff' }}></div> Current Rack</div>
                         </div>
                     </div>
                 </div>
@@ -353,8 +353,8 @@ const TrackingDashboard = () => {
                             <span style={{ fontSize: 13, fontWeight: 600, color: '#475569' }}>Stock Level Progress</span>
                             <span style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>{materialDetails?.quantity || 0} / {materialDetails?.maxStock}</span>
                         </div>
-                        <div style={{ width: '100%', height: 8, background: '#f1f5f9', borderRadius: 4, overflow: 'hidden' }}>
-                            <div style={{ width: `${Math.min(((materialDetails?.quantity || 0)/materialDetails.maxStock)*100, 100)}%`, height: '100%', background: '#3b82f6', borderRadius: 4 }}></div>
+                        <div style={{ width: '100%', height: 8, background: '#f1f5f9', borderRadius: 0, overflow: 'hidden' }}>
+                            <div style={{ width: `${Math.min(((materialDetails?.quantity || 0)/materialDetails.maxStock)*100, 100)}%`, height: '100%', background: '#3b82f6', borderRadius: 0 }}></div>
                         </div>
                     </div>
                 )}
@@ -385,21 +385,21 @@ const TrackingDashboard = () => {
         <div className="mcc-section">
             <h3 className="mcc-section-title"><FileText size={18} color="#8b5cf6" /> Documents & QR</h3>
             <div style={{ display: 'flex', gap: 20 }}>
-                <div style={{ width: 100, height: 100, background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8, flexShrink: 0 }}>
+                <div style={{ width: 100, height: 100, background: '#fff', border: '1px solid #e2e8f0', borderRadius: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8, flexShrink: 0 }}>
                     <QrCode size={40} color="#0f172a" />
                     <span style={{ fontSize: 10, fontWeight: 700, color: '#64748b' }}>SCAN ME</span>
                 </div>
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10 }}>
                     {materialDetails?.documents && materialDetails.documents.length > 0 ? (
                         materialDetails.documents.map((doc, idx) => (
-                            <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 12px', background: '#f8fafc', borderRadius: 8, cursor: 'pointer' }}>
+                            <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 12px', background: '#f8fafc', borderRadius: 0, cursor: 'pointer' }}>
                                 <FileText size={16} color="#3b82f6" />
                                 <span style={{ fontSize: 13, fontWeight: 600, color: '#0f172a', flex: 1 }}>{doc.name || `Document ${idx+1}`}</span>
                                 <Download size={14} color="#64748b" />
                             </div>
                         ))
                     ) : (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', background: '#f8fafc', borderRadius: 8, border: '1px solid #f1f5f9' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', background: '#f8fafc', borderRadius: 0, border: '1px solid #f1f5f9' }}>
                             <FileText size={16} color="#cbd5e1" />
                             <span style={{ fontSize: 13, fontWeight: 600, color: '#94a3b8' }}>No documents attached</span>
                         </div>
@@ -419,7 +419,7 @@ const TrackingDashboard = () => {
             <div className="mcc-section" style={{ background: 'linear-gradient(145deg, #f0f9ff 0%, #e0f2fe 100%)', borderColor: '#bae6fd' }}>
                 <h3 className="mcc-section-title" style={{ borderBottomColor: '#bae6fd' }}><Zap size={18} color="#0284c7" fill="#0284c7" /> Automated Insights</h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '12px', background: 'rgba(255,255,255,0.6)', borderRadius: 8 }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '12px', background: 'rgba(255,255,255,0.6)', borderRadius: 0 }}>
                         {isCritical ? <AlertCircle size={16} color="#ef4444" style={{ marginTop: 2 }} /> : <ThumbsUp size={16} color="#10b981" style={{ marginTop: 2 }} />}
                         <span style={{ fontSize: 13, color: '#0f172a', fontWeight: 500, lineHeight: 1.5 }}>
                             {isCritical 
@@ -472,7 +472,7 @@ const TrackingDashboard = () => {
                                 <div className="mcc-timeline-content">
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                         <span style={{ fontSize: 14, fontWeight: 700, color: stage.status === 'Upcoming' ? '#94a3b8' : '#0f172a' }}>{stage.title}</span>
-                                        <span style={{ fontSize: 11, fontWeight: 700, color: getColorForStatus(stage.status), padding: '2px 8px', background: `${getColorForStatus(stage.status)}20`, borderRadius: 99 }}>{stage.status}</span>
+                                        <span style={{ fontSize: 11, fontWeight: 700, color: getColorForStatus(stage.status), padding: '2px 8px', background: `${getColorForStatus(stage.status)}20`, borderRadius: 0 }}>{stage.status}</span>
                                     </div>
                                     <div style={{ fontSize: 12, color: '#64748b', display: 'flex', alignItems: 'center', gap: 12, marginTop: 4 }}>
                                         <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><User size={12}/> {stage.user}</span>
@@ -507,7 +507,7 @@ const TrackingDashboard = () => {
                             
                             return (
                                 <div key={m.id || m._id} style={{ display: 'flex', gap: 12, alignItems: 'flex-start', paddingBottom: 16, borderBottom: '1px solid #f1f5f9' }}>
-                                    <div style={{ width: 32, height: 32, borderRadius: 8, background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                    <div style={{ width: 32, height: 32, borderRadius: 0, background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                                         {icon}
                                     </div>
                                     <div style={{ flex: 1 }}>
@@ -531,7 +531,7 @@ const TrackingDashboard = () => {
     if (loading) {
         return (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
-                <div className="loader" style={{ width: 40, height: 40, border: '4px solid #f3f3f3', borderTop: '4px solid #3b82f6', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+                <div className="loader" style={{ width: 40, height: 40, border: '4px solid #f3f3f3', borderTop: '4px solid #3b82f6', borderRadius: '0px', animation: 'spin 1s linear infinite' }} />
             </div>
         );
     }
@@ -545,7 +545,7 @@ const TrackingDashboard = () => {
                     <span className="rd-module-badge">ERP DASHBOARD</span>
                 </div>
                 <div className="mcc-actions">
-                    <div style={{ display: 'flex', alignItems: 'center', background: '#fff', border: '1px solid #e2e8f0', borderRadius: 8, padding: '0 12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', background: '#fff', border: '1px solid #e2e8f0', borderRadius: 0, padding: '0 12px' }}>
                         <Search size={16} color="#94a3b8" />
                         <select 
                             value={selectedMaterialId || ''} 

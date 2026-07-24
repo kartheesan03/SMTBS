@@ -86,14 +86,14 @@ const DataTable = ({ title, headers, data, renderRow, onViewAll, emptyText, sear
                         <button 
                             onClick={() => setCurrentPage(p => Math.max(1, p - 1))} 
                             disabled={currentPage === 1}
-                            style={{ padding: '6px', borderRadius: '4px', border: '1px solid var(--border-light)', background: currentPage === 1 ? '#f1f5f9' : '#fff', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', color: currentPage === 1 ? '#cbd5e1' : '#475569' }}
+                            style={{ padding: '6px', borderRadius: '0px', border: '1px solid var(--border-light)', background: currentPage === 1 ? '#f1f5f9' : '#fff', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', color: currentPage === 1 ? '#cbd5e1' : '#475569' }}
                         >
                             <ChevronLeft size={16} />
                         </button>
                         <button 
                             onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} 
                             disabled={currentPage === totalPages}
-                            style={{ padding: '6px', borderRadius: '4px', border: '1px solid var(--border-light)', background: currentPage === totalPages ? '#f1f5f9' : '#fff', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', color: currentPage === totalPages ? '#cbd5e1' : '#475569' }}
+                            style={{ padding: '6px', borderRadius: '0px', border: '1px solid var(--border-light)', background: currentPage === totalPages ? '#f1f5f9' : '#fff', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', color: currentPage === totalPages ? '#cbd5e1' : '#475569' }}
                         >
                             <ChevronRight size={16} />
                         </button>

@@ -197,7 +197,7 @@ const EmployeeScanner = () => {
                                 </div>
 
                                 {scanState === 'not-found' && (
-                                    <div style={{ marginBottom: '24px', color: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontWeight: 600, background: '#fef2f2', padding: '12px', borderRadius: '8px' }}>
+                                    <div style={{ marginBottom: '24px', color: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontWeight: 600, background: '#fef2f2', padding: '12px', borderRadius: '0px' }}>
                                         <AlertTriangle size={20} /> Barcode not found. Try again or check the SKU.
                                     </div>
                                 )}
@@ -215,7 +215,7 @@ const EmployeeScanner = () => {
                                                 placeholder="Enter SKU (e.g. MAT-1002)" 
                                                 value={scannedId}
                                                 onChange={(e) => setScannedId(e.target.value)}
-                                                style={{ width: '100%', padding: '10px 12px 10px 40px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '15px' }}
+                                                style={{ width: '100%', padding: '10px 12px 10px 40px', borderRadius: '0px', border: '1px solid #cbd5e1', fontSize: '15px' }}
                                                 autoFocus
                                                 disabled={scanState === 'processing'}
                                             />
@@ -261,7 +261,7 @@ const EmployeeScanner = () => {
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                         <div>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                                                <span style={{ fontSize: '12px', fontWeight: 700, color: '#10b981', background: 'rgba(16,185,129,0.1)', padding: '4px 8px', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: 4 }}>
+                                                <span style={{ fontSize: '12px', fontWeight: 700, color: '#10b981', background: 'rgba(16,185,129,0.1)', padding: '4px 8px', borderRadius: '0px', display: 'flex', alignItems: 'center', gap: 4 }}>
                                                     <CheckCircle size={14} /> SCANNED MATCH
                                                 </span>
                                                 <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 600 }}>{material.sku}</span>
@@ -271,7 +271,7 @@ const EmployeeScanner = () => {
                                                 <Box size={14} /> Category: {material.category?.name || material.category || 'N/A'}
                                             </p>
                                         </div>
-                                        <div style={{ textAlign: 'right', background: '#f8fafc', padding: '16px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                                        <div style={{ textAlign: 'right', background: '#f8fafc', padding: '16px', borderRadius: '0px', border: '1px solid #e2e8f0' }}>
                                             <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>Current Stock</div>
                                             <div style={{ fontSize: '28px', fontWeight: 800, color: '#0f172a' }}>{material.quantity} <span style={{fontSize: '14px', color: '#94a3b8'}}>{material.unit}</span></div>
                                         </div>
@@ -288,7 +288,7 @@ const EmployeeScanner = () => {
                                             type="button"
                                             onClick={() => setActionType('inward')}
                                             style={{ 
-                                                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', padding: '16px', borderRadius: '12px', fontWeight: 600, transition: 'all 0.2s',
+                                                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', padding: '16px', borderRadius: '0px', fontWeight: 600, transition: 'all 0.2s',
                                                 background: actionType === 'inward' ? 'rgba(59,130,246,0.1)' : '#f8fafc',
                                                 border: `2px solid ${actionType === 'inward' ? '#3b82f6' : 'transparent'}`,
                                                 color: actionType === 'inward' ? '#3b82f6' : '#64748b'
@@ -302,7 +302,7 @@ const EmployeeScanner = () => {
                                             type="button"
                                             onClick={() => setActionType('outward')}
                                             style={{ 
-                                                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', padding: '16px', borderRadius: '12px', fontWeight: 600, transition: 'all 0.2s',
+                                                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', padding: '16px', borderRadius: '0px', fontWeight: 600, transition: 'all 0.2s',
                                                 background: actionType === 'outward' ? 'rgba(245,158,11,0.1)' : '#f8fafc',
                                                 border: `2px solid ${actionType === 'outward' ? '#f59e0b' : 'transparent'}`,
                                                 color: actionType === 'outward' ? '#f59e0b' : '#64748b'
@@ -321,7 +321,7 @@ const EmployeeScanner = () => {
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                             <button 
                                                 className="ui-btn-outline" 
-                                                style={{ width: '40px', height: '40px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px' }}
+                                                style={{ width: '40px', height: '40px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '0px' }}
                                                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
                                             >-</button>
                                             <input 
@@ -329,11 +329,11 @@ const EmployeeScanner = () => {
                                                 min="1"
                                                 value={quantity}
                                                 onChange={(e) => setQuantity(Number(e.target.value))}
-                                                style={{ width: '100px', height: '40px', textAlign: 'center', fontSize: '16px', fontWeight: 700, borderRadius: '8px', border: '1px solid #cbd5e1' }}
+                                                style={{ width: '100px', height: '40px', textAlign: 'center', fontSize: '16px', fontWeight: 700, borderRadius: '0px', border: '1px solid #cbd5e1' }}
                                             />
                                             <button 
                                                 className="ui-btn-outline" 
-                                                style={{ width: '40px', height: '40px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px' }}
+                                                style={{ width: '40px', height: '40px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '0px' }}
                                                 onClick={() => setQuantity(quantity + 1)}
                                             >+</button>
                                             <span style={{ fontSize: '14px', color: '#64748b', fontWeight: 500, marginLeft: '8px' }}>{material.unit}</span>
@@ -344,7 +344,7 @@ const EmployeeScanner = () => {
                                     <button 
                                         onClick={handleStockAction}
                                         style={{ 
-                                            width: '100%', padding: '14px', borderRadius: '8px', border: 'none', fontWeight: 700, fontSize: '15px', color: '#fff', cursor: 'pointer', transition: 'all 0.2s',
+                                            width: '100%', padding: '14px', borderRadius: '0px', border: 'none', fontWeight: 700, fontSize: '15px', color: '#fff', cursor: 'pointer', transition: 'all 0.2s',
                                             background: actionType === 'inward' ? '#3b82f6' : '#f59e0b',
                                             boxShadow: actionType === 'inward' ? '0 4px 12px rgba(59,130,246,0.3)' : '0 4px 12px rgba(245,158,11,0.3)'
                                         }}

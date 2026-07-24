@@ -52,7 +52,7 @@ const Projects = () => {
         <div className="content-area" style={{ padding: '24px', backgroundColor: '#f8fafc', minHeight: 'calc(100vh - 70px)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
                 <PageHeader title="Projects" badge="PROJECTS" subtitle="Manage all active and past projects across departments." />
-                <button onClick={handleCreateProject} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 16px', backgroundColor: '#3b82f6', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 14, flexShrink: 0 }}>
+                <button onClick={handleCreateProject} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 16px', backgroundColor: '#3b82f6', color: 'white', border: 'none', borderRadius: 0, cursor: 'pointer', fontWeight: 600, fontSize: 14, flexShrink: 0 }}>
                     <Plus size={16} /> New Project
                 </button>
             </div>
@@ -63,12 +63,12 @@ const Projects = () => {
                     <input 
                         type="text" 
                         placeholder="Search projects by name or manager..." 
-                        style={{ width: '100%', padding: '10px 10px 10px 38px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 14 }}
+                        style={{ width: '100%', padding: '10px 10px 10px 38px', borderRadius: 0, border: '1px solid #e2e8f0', fontSize: 14 }}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
                 </div>
-                <button style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 16px', backgroundColor: 'white', border: '1px solid #e2e8f0', borderRadius: 6, cursor: 'pointer', color: '#475569', fontWeight: 600, fontSize: 14 }}>
+                <button style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 16px', backgroundColor: 'white', border: '1px solid #e2e8f0', borderRadius: 0, cursor: 'pointer', color: '#475569', fontWeight: 600, fontSize: 14 }}>
                     <Filter size={16} /> Filter
                 </button>
             </div>
@@ -79,7 +79,7 @@ const Projects = () => {
                     <div key={project.id} className="dashboard-panel" style={{ padding: '20px', borderTop: `4px solid ${project.color || '#3b82f6'}` }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
                             <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e293b' }}>{project.name}</h3>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 8px', backgroundColor: '#f1f5f9', borderRadius: 4, fontSize: 12, fontWeight: 600, color: '#475569' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 8px', backgroundColor: '#f1f5f9', borderRadius: 0, fontSize: 12, fontWeight: 600, color: '#475569' }}>
                                 {getStatusIcon(project.status)}
                                 <span>{project.status}</span>
                             </div>
@@ -90,8 +90,8 @@ const Projects = () => {
                                 <span style={{ fontSize: 13, color: '#64748b', fontWeight: 500 }}>Progress</span>
                                 <span style={{ fontSize: 13, color: '#0f172a', fontWeight: 700 }}>{project.progress}%</span>
                             </div>
-                            <div style={{ height: 8, backgroundColor: '#e2e8f0', borderRadius: 4, overflow: 'hidden' }}>
-                                <div style={{ height: '100%', width: `${project.progress}%`, backgroundColor: project.color, borderRadius: 4 }}></div>
+                            <div style={{ height: 8, backgroundColor: '#e2e8f0', borderRadius: 0, overflow: 'hidden' }}>
+                                <div style={{ height: '100%', width: `${project.progress}%`, backgroundColor: project.color, borderRadius: 0 }}></div>
                             </div>
                         </div>
 

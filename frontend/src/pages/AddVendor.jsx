@@ -94,7 +94,7 @@ const AddVendor = ({ isEditMode = false }) => {
             loading={loading}
             infoCard={
                 <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-                    <div style={{ padding: '12px', background: '#e0e7ff', borderRadius: '50%', color: '#4f46e5' }}>
+                    <div style={{ padding: '12px', background: '#e0e7ff', borderRadius: '0px', color: '#4f46e5' }}>
                         <UserPlus size={24} />
                     </div>
                     <div>
@@ -105,7 +105,7 @@ const AddVendor = ({ isEditMode = false }) => {
             }
         >
             <form id="vendor-form" onSubmit={e => { e.preventDefault(); handleSubmit(); }}>
-                {error && <div className="error-alert" style={{color: '#ef4444', background: '#fef2f2', padding: '12px', borderRadius: '8px', marginBottom: '16px'}}>{error}</div>}
+                {error && <div className="error-alert" style={{color: '#ef4444', background: '#fef2f2', padding: '12px', borderRadius: '0px', marginBottom: '16px'}}>{error}</div>}
                 
                 <div className="ui-grid-2">
                     <FormSection title="Company Information">
@@ -260,7 +260,7 @@ const AddVendor = ({ isEditMode = false }) => {
                                                     </button>
                                                     <button 
                                                         type="button"
-                                                        style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#ef4444', borderRadius: '8px', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, padding: 0 }}
+                                                        style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#ef4444', borderRadius: '0px', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, padding: 0 }}
                                                         onClick={() => setFormData({...formData, materialsSupplied: formData.materialsSupplied.filter((_, idx) => idx !== i)})}
                                                     >
                                                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
@@ -273,7 +273,7 @@ const AddVendor = ({ isEditMode = false }) => {
                             </table>
                         </div>
                     ) : (
-                        <div style={{ textAlign: 'center', padding: '30px', background: '#f8fafc', borderRadius: '12px', border: '1px dashed #cbd5e1', color: '#64748b' }}>
+                        <div style={{ textAlign: 'center', padding: '30px', background: '#f8fafc', borderRadius: '0px', border: '1px dashed #cbd5e1', color: '#64748b' }}>
                             No materials added yet. Click "Add New Material" to link materials to this vendor.
                         </div>
                     )}
@@ -281,7 +281,7 @@ const AddVendor = ({ isEditMode = false }) => {
 
                 {editingMaterialIndex !== null && editingMaterialData && (
                     <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <div style={{ background: '#fff', borderRadius: '16px', width: '600px', maxWidth: '90vw', maxHeight: '90vh', overflowY: 'auto', padding: '24px', position: 'relative' }}>
+                        <div style={{ background: '#fff', borderRadius: '0px', width: '600px', maxWidth: '90vw', maxHeight: '90vh', overflowY: 'auto', padding: '24px', position: 'relative' }}>
                             <h3 style={{ margin: '0 0 20px 0' }}>{editingMaterialIndex === -1 ? 'Add New Material' : 'Edit Material'}</h3>
                             
                             <div className="ui-grid-2">

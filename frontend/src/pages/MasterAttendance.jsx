@@ -8,7 +8,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import API from '../api/axios';
 import { AuthContext } from '../context/AuthContext';
-import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
+import { StatCard, StatGrid } from '../components/ui/StatCard';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 
 /* ─── Helper Utilities ─────────────────────────── */
@@ -44,11 +44,11 @@ const StatusBadge = ({ status }) => {
     return (
         <span style={{
             display: 'inline-flex', alignItems: 'center', gap: 6,
-            padding: '3px 10px', borderRadius: 20,
+            padding: '3px 10px', borderRadius: 0,
             background: s.bg, color: s.color,
             fontSize: 12, fontWeight: 600
         }}>
-            <span style={{ width: 7, height: 7, borderRadius: '50%', background: s.dot, display: 'inline-block' }} />
+            <span style={{ width: 7, height: 7, borderRadius: '0px', background: s.dot, display: 'inline-block' }} />
             {status === '-' ? 'Not Checked In' : status}
         </span>
     );
@@ -94,7 +94,7 @@ const EditModal = ({ record, onClose, onSave }) => {
             display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999
         }}>
             <div style={{
-                background: '#fff', borderRadius: 16, padding: 28, width: 400,
+                background: '#fff', borderRadius: 0, padding: 28, width: 400,
                 boxShadow: '0 20px 60px rgba(0,0,0,0.2)'
             }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
@@ -121,7 +121,7 @@ const EditModal = ({ record, onClose, onSave }) => {
                 <div style={{ marginBottom: 14 }}>
                     <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>Status</label>
                     <select value={status} onChange={e => setStatus(e.target.value)}
-                        style={{ width: '100%', padding: '9px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 14, outline: 'none', background: '#f8fafc' }}>
+                        style={{ width: '100%', padding: '9px 12px', border: '1px solid #e2e8f0', borderRadius: 0, fontSize: 14, outline: 'none', background: '#f8fafc' }}>
                         <option value="Present">Present</option>
                         <option value="Late">Late</option>
                         <option value="Half-day">Half-day</option>
@@ -134,22 +134,22 @@ const EditModal = ({ record, onClose, onSave }) => {
                     <div>
                         <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>Check In</label>
                         <input type="time" value={checkIn} onChange={e => setCheckIn(e.target.value)}
-                            style={{ width: '100%', padding: '9px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 14, outline: 'none', background: '#f8fafc', boxSizing: 'border-box' }} />
+                            style={{ width: '100%', padding: '9px 12px', border: '1px solid #e2e8f0', borderRadius: 0, fontSize: 14, outline: 'none', background: '#f8fafc', boxSizing: 'border-box' }} />
                     </div>
                     <div>
                         <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>Check Out</label>
                         <input type="time" value={checkOut} onChange={e => setCheckOut(e.target.value)}
-                            style={{ width: '100%', padding: '9px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 14, outline: 'none', background: '#f8fafc', boxSizing: 'border-box' }} />
+                            style={{ width: '100%', padding: '9px 12px', border: '1px solid #e2e8f0', borderRadius: 0, fontSize: 14, outline: 'none', background: '#f8fafc', boxSizing: 'border-box' }} />
                     </div>
                 </div>
 
                 <div style={{ display: 'flex', gap: 10 }}>
                     <button onClick={onClose}
-                        style={{ flex: 1, padding: '10px', border: '1px solid #e2e8f0', borderRadius: 8, background: '#f8fafc', color: '#64748b', fontWeight: 600, cursor: 'pointer', fontSize: 14 }}>
+                        style={{ flex: 1, padding: '10px', border: '1px solid #e2e8f0', borderRadius: 0, background: '#f8fafc', color: '#64748b', fontWeight: 600, cursor: 'pointer', fontSize: 14 }}>
                         Cancel
                     </button>
                     <button onClick={handleSave} disabled={saving}
-                        style={{ flex: 1, padding: '10px', border: 'none', borderRadius: 8, background: '#3b82f6', color: '#fff', fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer', fontSize: 14, opacity: saving ? 0.7 : 1 }}>
+                        style={{ flex: 1, padding: '10px', border: 'none', borderRadius: 0, background: '#3b82f6', color: '#fff', fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer', fontSize: 14, opacity: saving ? 0.7 : 1 }}>
                         {saving ? 'Saving…' : 'Save Changes'}
                     </button>
                 </div>
@@ -226,12 +226,12 @@ const DailyTab = ({ canEdit }) => {
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
             <div style={{ marginBottom: 24 }}>
-                <PastelKPIGrid>
-                    <PastelKPICard title="Present Today" value={stats.presentToday} colorTheme="mint" icon={CheckCircle} trendValue={stats.totalEmployees > 0 ? `${Math.round((stats.presentToday/stats.totalEmployees)*100)}% workforce` : '—'} trendPositive={true} />
-                    <PastelKPICard title="Not Checked In" value={stats.notCheckedInToday} colorTheme="peach" icon={Clock} trendValue="Expected today" trendPositive={false} />
-                    <PastelKPICard title="Absent" value={stats.absentToday} colorTheme="pink" icon={XCircle} trendValue="No record" trendPositive={false} />
-                    <PastelKPICard title="On Leave" value={stats.onLeaveToday} colorTheme="purple" icon={Users} trendValue="Approved leave" trendPositive={true} />
-                </PastelKPIGrid>
+                <StatGrid>
+                    <StatCard title="Present Today" value={stats.presentToday} colorTheme="mint" icon={CheckCircle} trendValue={stats.totalEmployees > 0 ? `${Math.round((stats.presentToday/stats.totalEmployees)*100)}% workforce` : '—'} trendPositive={true} />
+                    <StatCard title="Not Checked In" value={stats.notCheckedInToday} colorTheme="peach" icon={Clock} trendValue="Expected today" trendPositive={false} />
+                    <StatCard title="Absent" value={stats.absentToday} colorTheme="pink" icon={XCircle} trendValue="No record" trendPositive={false} />
+                    <StatCard title="On Leave" value={stats.onLeaveToday} colorTheme="purple" icon={Users} trendValue="Approved leave" trendPositive={true} />
+                </StatGrid>
             </div>
 
             <div className="rd-table-card">
@@ -239,7 +239,7 @@ const DailyTab = ({ canEdit }) => {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16, padding: '16px 20px', borderBottom: '1px solid #f1f5f9' }}>
                     <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap', flex: 1 }}>
                         {/* Date Picker */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, border: '1px solid #e2e8f0', borderRadius: 8, padding: '0 12px', height: 38, background: '#f8fafc', whiteSpace: 'nowrap', boxSizing: 'border-box' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, border: '1px solid #e2e8f0', borderRadius: 0, padding: '0 12px', height: 38, background: '#f8fafc', whiteSpace: 'nowrap', boxSizing: 'border-box' }}>
                             <Calendar size={15} color="#64748b" />
                             <input type="date" value={selectedDate} onChange={e => setSelectedDate(e.target.value)}
                                 style={{ border: 'none', background: 'transparent', outline: 'none', fontSize: 13, color: '#1e293b', fontWeight: 500, height: '100%' }} />
@@ -252,12 +252,12 @@ const DailyTab = ({ canEdit }) => {
                         </div>
 
                         <select value={deptFilter} onChange={e => setDeptFilter(e.target.value)}
-                            style={{ height: 38, padding: '0 12px', border: '1px solid #e2e8f0', borderRadius: 8, background: '#f8fafc', color: '#64748b', fontSize: 13, outline: 'none', minWidth: 140, boxSizing: 'border-box' }}>
+                            style={{ height: 38, padding: '0 12px', border: '1px solid #e2e8f0', borderRadius: 0, background: '#f8fafc', color: '#64748b', fontSize: 13, outline: 'none', minWidth: 140, boxSizing: 'border-box' }}>
                             {departments.map(d => <option key={d} value={d}>{d === 'All' ? 'All Depts' : d}</option>)}
                         </select>
 
                         <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
-                            style={{ height: 38, padding: '0 12px', border: '1px solid #e2e8f0', borderRadius: 8, background: '#f8fafc', color: '#64748b', fontSize: 13, outline: 'none', minWidth: 140, boxSizing: 'border-box' }}>
+                            style={{ height: 38, padding: '0 12px', border: '1px solid #e2e8f0', borderRadius: 0, background: '#f8fafc', color: '#64748b', fontSize: 13, outline: 'none', minWidth: 140, boxSizing: 'border-box' }}>
                             <option value="All">All Status</option>
                             <option value="Present">Present / Late</option>
                             <option value="-">Not Checked In</option>
@@ -268,11 +268,11 @@ const DailyTab = ({ canEdit }) => {
 
                     <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
                         <button onClick={fetchData}
-                            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 14px', height: 38, border: '1px solid #e2e8f0', borderRadius: 8, background: '#f8fafc', color: '#64748b', fontSize: 13, fontWeight: 600, cursor: 'pointer', boxSizing: 'border-box' }}>
+                            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 14px', height: 38, border: '1px solid #e2e8f0', borderRadius: 0, background: '#f8fafc', color: '#64748b', fontSize: 13, fontWeight: 600, cursor: 'pointer', boxSizing: 'border-box' }}>
                             <RefreshCw size={14} /> Refresh
                         </button>
                         <button onClick={exportCSV}
-                            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 14px', height: 38, border: 'none', borderRadius: 8, background: '#3b82f6', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer', boxSizing: 'border-box' }}>
+                            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 14px', height: 38, border: 'none', borderRadius: 0, background: '#3b82f6', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer', boxSizing: 'border-box' }}>
                             <Download size={14} /> Export CSV
                         </button>
                     </div>
@@ -397,12 +397,12 @@ const MonthlyTab = () => {
         <>
             {/* Summary KPIs */}
             <div style={{ marginBottom: 24 }}>
-                <PastelKPIGrid>
-                    <PastelKPICard title="Total Employees" value={filtered.length} colorTheme="blue" icon={Users} trendValue="Active workforce" trendPositive={true} />
-                    <PastelKPICard title="Avg Attendance" value={`${Math.round(avgRate * 100)}%`} colorTheme="mint" icon={TrendingUp} trendValue="This month" trendPositive={true} />
-                    <PastelKPICard title="Perfect Attendance" value={filtered.filter(r => r.absent === 0).length} colorTheme="purple" icon={CheckCircle} trendValue="No absences" trendPositive={true} />
-                    <PastelKPICard title="Needs Attention" value={filtered.filter(r => (r.rate || 0) < 0.75).length} colorTheme="pink" icon={AlertCircle} trendValue="Below 75% rate" trendPositive={false} />
-                </PastelKPIGrid>
+                <StatGrid>
+                    <StatCard title="Total Employees" value={filtered.length} colorTheme="blue" icon={Users} trendValue="Active workforce" trendPositive={true} />
+                    <StatCard title="Avg Attendance" value={`${Math.round(avgRate * 100)}%`} colorTheme="mint" icon={TrendingUp} trendValue="This month" trendPositive={true} />
+                    <StatCard title="Perfect Attendance" value={filtered.filter(r => r.absent === 0).length} colorTheme="purple" icon={CheckCircle} trendValue="No absences" trendPositive={true} />
+                    <StatCard title="Needs Attention" value={filtered.filter(r => (r.rate || 0) < 0.75).length} colorTheme="pink" icon={AlertCircle} trendValue="Below 75% rate" trendPositive={false} />
+                </StatGrid>
             </div>
 
             <div className="rd-table-card">
@@ -410,7 +410,7 @@ const MonthlyTab = () => {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16, padding: '16px 20px', borderBottom: '1px solid #f1f5f9' }}>
                     <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap', flex: 1 }}>
                         {/* Month Navigator */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 4, border: '1px solid #e2e8f0', borderRadius: 8, height: 38, background: '#f8fafc', boxSizing: 'border-box' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 4, border: '1px solid #e2e8f0', borderRadius: 0, height: 38, background: '#f8fafc', boxSizing: 'border-box' }}>
                             <button onClick={prevMonth} style={{ padding: '0 10px', height: '100%', background: 'transparent', border: 'none', cursor: 'pointer', color: '#64748b', display: 'flex', alignItems: 'center' }}>
                                 <ChevronLeft size={15} />
                             </button>
@@ -430,11 +430,11 @@ const MonthlyTab = () => {
 
                     <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
                         <button onClick={fetchData}
-                            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 14px', height: 38, border: '1px solid #e2e8f0', borderRadius: 8, background: '#f8fafc', color: '#64748b', fontSize: 13, fontWeight: 600, cursor: 'pointer', boxSizing: 'border-box' }}>
+                            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 14px', height: 38, border: '1px solid #e2e8f0', borderRadius: 0, background: '#f8fafc', color: '#64748b', fontSize: 13, fontWeight: 600, cursor: 'pointer', boxSizing: 'border-box' }}>
                             <RefreshCw size={14} /> Refresh
                         </button>
                         <button onClick={exportCSV}
-                            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 14px', height: 38, border: 'none', borderRadius: 8, background: '#3b82f6', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer', boxSizing: 'border-box' }}>
+                            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 14px', height: 38, border: 'none', borderRadius: 0, background: '#3b82f6', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer', boxSizing: 'border-box' }}>
                             <Download size={14} /> Export CSV
                         </button>
                     </div>
@@ -486,8 +486,8 @@ const MonthlyTab = () => {
                                         </td>
                                         <td style={{ textAlign: 'center' }} data-label="Attendance %">
                                             <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center' }}>
-                                                <div style={{ width: 60, height: 6, background: '#f1f5f9', borderRadius: 3, overflow: 'hidden' }}>
-                                                    <div style={{ width: `${pct}%`, height: '100%', background: barColor, borderRadius: 3, transition: 'width 0.5s ease' }} />
+                                                <div style={{ width: 60, height: 6, background: '#f1f5f9', borderRadius: 0, overflow: 'hidden' }}>
+                                                    <div style={{ width: `${pct}%`, height: '100%', background: barColor, borderRadius: 0, transition: 'width 0.5s ease' }} />
                                                 </div>
                                                 <span style={{ fontWeight: 700, color: barColor, minWidth: 36, fontSize: 13 }}>{pct}%</span>
                                             </div>
@@ -566,12 +566,12 @@ const HistoryTab = () => {
                         <div>
                             <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#64748b', marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 }}>From</label>
                             <input type="date" value={fromDate} onChange={e => setFromDate(e.target.value)}
-                                style={{ height: 38, padding: '0 10px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 13, outline: 'none', background: '#f8fafc', color: '#1e293b', boxSizing: 'border-box' }} />
+                                style={{ height: 38, padding: '0 10px', border: '1px solid #e2e8f0', borderRadius: 0, fontSize: 13, outline: 'none', background: '#f8fafc', color: '#1e293b', boxSizing: 'border-box' }} />
                         </div>
                         <div>
                             <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#64748b', marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 }}>To</label>
                             <input type="date" value={toDate} onChange={e => setToDate(e.target.value)}
-                                style={{ height: 38, padding: '0 10px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 13, outline: 'none', background: '#f8fafc', color: '#1e293b', boxSizing: 'border-box' }} />
+                                style={{ height: 38, padding: '0 10px', border: '1px solid #e2e8f0', borderRadius: 0, fontSize: 13, outline: 'none', background: '#f8fafc', color: '#1e293b', boxSizing: 'border-box' }} />
                         </div>
 
                         <div className="rd-search-bar" style={{ flex: '1 1 200px', maxWidth: 300, background: '#f8fafc', height: 38, boxSizing: 'border-box' }}>
@@ -581,7 +581,7 @@ const HistoryTab = () => {
 
                         <div>
                             <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
-                                style={{ height: 38, padding: '0 12px', border: '1px solid #e2e8f0', borderRadius: 8, background: '#f8fafc', color: '#64748b', fontSize: 13, outline: 'none', minWidth: 140, boxSizing: 'border-box' }}>
+                                style={{ height: 38, padding: '0 12px', border: '1px solid #e2e8f0', borderRadius: 0, background: '#f8fafc', color: '#64748b', fontSize: 13, outline: 'none', minWidth: 140, boxSizing: 'border-box' }}>
                                 <option value="All">All Status</option>
                                 <option value="Present">Present</option>
                                 <option value="Late">Late</option>
@@ -591,14 +591,14 @@ const HistoryTab = () => {
                         </div>
 
                         <button onClick={fetchData}
-                            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 16px', height: 38, border: 'none', borderRadius: 8, background: '#1e293b', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer', boxSizing: 'border-box' }}>
+                            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 16px', height: 38, border: 'none', borderRadius: 0, background: '#1e293b', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer', boxSizing: 'border-box' }}>
                             <Filter size={14} /> Apply
                         </button>
                     </div>
 
                     <div style={{ flexShrink: 0 }}>
                         <button onClick={exportCSV}
-                            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 14px', height: 38, border: 'none', borderRadius: 8, background: '#3b82f6', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer', boxSizing: 'border-box' }}>
+                            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 14px', height: 38, border: 'none', borderRadius: 0, background: '#3b82f6', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer', boxSizing: 'border-box' }}>
                             <Download size={14} /> Export CSV
                         </button>
                     </div>
@@ -660,7 +660,7 @@ const HistoryTab = () => {
                 {totalPages > 1 && (
                     <div style={{ display: 'flex', justifyContent: 'center', gap: 6, padding: '16px 20px', borderTop: '1px solid #f1f5f9' }}>
                         <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
-                            style={{ padding: '6px 12px', border: '1px solid #e2e8f0', borderRadius: 6, background: '#f8fafc', color: page === 1 ? '#cbd5e1' : '#1e293b', cursor: page === 1 ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center' }}>
+                            style={{ padding: '6px 12px', border: '1px solid #e2e8f0', borderRadius: 0, background: '#f8fafc', color: page === 1 ? '#cbd5e1' : '#1e293b', cursor: page === 1 ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center' }}>
                             <ChevronLeft size={14} />
                         </button>
                         {Array.from({ length: Math.min(5, totalPages) }, (_, idx) => {
@@ -668,13 +668,13 @@ const HistoryTab = () => {
                             if (p < 1 || p > totalPages) return null;
                             return (
                                 <button key={p} onClick={() => setPage(p)}
-                                    style={{ padding: '6px 12px', border: '1px solid #e2e8f0', borderRadius: 6, background: p === page ? '#1e293b' : '#f8fafc', color: p === page ? '#fff' : '#1e293b', fontWeight: p === page ? 700 : 400, cursor: 'pointer', fontSize: 13 }}>
+                                    style={{ padding: '6px 12px', border: '1px solid #e2e8f0', borderRadius: 0, background: p === page ? '#1e293b' : '#f8fafc', color: p === page ? '#fff' : '#1e293b', fontWeight: p === page ? 700 : 400, cursor: 'pointer', fontSize: 13 }}>
                                     {p}
                                 </button>
                             );
                         })}
                         <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}
-                            style={{ padding: '6px 12px', border: '1px solid #e2e8f0', borderRadius: 6, background: '#f8fafc', color: page === totalPages ? '#cbd5e1' : '#1e293b', cursor: page === totalPages ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center' }}>
+                            style={{ padding: '6px 12px', border: '1px solid #e2e8f0', borderRadius: 0, background: '#f8fafc', color: page === totalPages ? '#cbd5e1' : '#1e293b', cursor: page === totalPages ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center' }}>
                             <ChevronRight size={14} />
                         </button>
                     </div>
@@ -719,13 +719,13 @@ const MasterAttendance = () => {
                 {/* Tab Bar */}
                 <div style={{
                     display: 'flex', gap: 4, background: '#f1f5f9',
-                    borderRadius: 10, padding: 4, width: 'fit-content', marginBottom: 24
+                    borderRadius: 0, padding: 4, width: 'fit-content', marginBottom: 24
                 }}>
                     {tabs.map(t => (
                         <button key={t.id} onClick={() => setActiveTab(t.id)}
                             style={{
                                 display: 'flex', alignItems: 'center', gap: 8,
-                                padding: '8px 18px', borderRadius: 8, border: 'none', cursor: 'pointer',
+                                padding: '8px 18px', borderRadius: 0, border: 'none', cursor: 'pointer',
                                 background: activeTab === t.id ? '#ffffff' : 'transparent',
                                 color: activeTab === t.id ? '#1e293b' : '#64748b',
                                 fontWeight: activeTab === t.id ? 700 : 500,

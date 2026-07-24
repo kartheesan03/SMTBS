@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import API from '../api/axios';
 import { Activity, Search, Filter, RefreshCw, Database, Clock } from 'lucide-react';
-import { PastelKPICard } from '../components/PastelKPICard';
+import { StatCard } from '../components/ui/StatCard';
 import PageHeader from '../components/PageHeader';
 const AuditLogs = () => {
     const [logs, setLogs] = useState([]);
@@ -51,7 +51,7 @@ const AuditLogs = () => {
                 <button 
                     onClick={fetchLogs}
                     className="btn-secondary"
-                    style={{ padding: '8px 16px', background: '#fff', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 500 }}
+                    style={{ padding: '8px 16px', background: '#fff', border: '1px solid #e2e8f0', borderRadius: '0px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 500 }}
                 >
                     <RefreshCw size={16} /> Refresh
                 </button>
@@ -59,17 +59,17 @@ const AuditLogs = () => {
 
             <div style={{ display: 'flex', gap: '24px', marginBottom: '24px' }}>
                 <div style={{ flex: 1 }}>
-                    <PastelKPICard title="Total Events Logged" value={stats.totalLogs} colorTheme="blue" icon={Database} trendValue="All time" trendPositive={true} />
+                    <StatCard title="Total Events Logged" value={stats.totalLogs} colorTheme="blue" icon={Database} trendValue="All time" trendPositive={true} />
                 </div>
                 <div style={{ flex: 1 }}>
-                    <PastelKPICard title="Events Today" value={stats.todayLogs} colorTheme="mint" icon={Clock} trendValue="Today's activity" trendPositive={true} />
+                    <StatCard title="Events Today" value={stats.todayLogs} colorTheme="mint" icon={Clock} trendValue="Today's activity" trendPositive={true} />
                 </div>
-                <div style={{ flex: 2, background: '#fff', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0', display: 'flex', gap: '16px', alignItems: 'center' }}>
+                <div style={{ flex: 2, background: '#fff', padding: '20px', borderRadius: '0px', border: '1px solid #e2e8f0', display: 'flex', gap: '16px', alignItems: 'center' }}>
                     <Filter size={20} color="#64748b" />
                     <select 
                         value={filter.module} 
                         onChange={(e) => setFilter({...filter, module: e.target.value})}
-                        style={{ padding: '8px', borderRadius: '6px', border: '1px solid #e2e8f0', flex: 1 }}
+                        style={{ padding: '8px', borderRadius: '0px', border: '1px solid #e2e8f0', flex: 1 }}
                     >
                         <option value="">All Modules</option>
                         <option value="Order">Orders</option>
@@ -79,7 +79,7 @@ const AuditLogs = () => {
                     <select 
                         value={filter.action} 
                         onChange={(e) => setFilter({...filter, action: e.target.value})}
-                        style={{ padding: '8px', borderRadius: '6px', border: '1px solid #e2e8f0', flex: 1 }}
+                        style={{ padding: '8px', borderRadius: '0px', border: '1px solid #e2e8f0', flex: 1 }}
                     >
                         <option value="">All Actions</option>
                         <option value="CREATE">CREATE</option>
@@ -90,7 +90,7 @@ const AuditLogs = () => {
                 </div>
             </div>
 
-            <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+            <div style={{ background: '#fff', borderRadius: '0px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                     <thead style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
                         <tr>
@@ -120,7 +120,7 @@ const AuditLogs = () => {
                                         padding: '4px 8px', 
                                         background: `${getActionColor(log.action)}15`, 
                                         color: getActionColor(log.action),
-                                        borderRadius: '6px',
+                                        borderRadius: '0px',
                                         fontSize: '12px',
                                         fontWeight: 600
                                     }}>
@@ -133,7 +133,7 @@ const AuditLogs = () => {
                                 <td style={{ padding: '16px', fontSize: '14px', color: '#475569' }}>
                                     {log.description}
                                     {log.changes && log.changes.oldStatus && log.changes.newStatus && (
-                                        <div style={{ fontSize: '12px', marginTop: '4px', color: '#64748b', background: '#f8fafc', padding: '6px', borderRadius: '4px' }}>
+                                        <div style={{ fontSize: '12px', marginTop: '4px', color: '#64748b', background: '#f8fafc', padding: '6px', borderRadius: '0px' }}>
                                             Status: <span style={{ textDecoration: 'line-through' }}>{log.changes.oldStatus}</span> &rarr; <span style={{ fontWeight: 600 }}>{log.changes.newStatus}</span>
                                         </div>
                                     )}

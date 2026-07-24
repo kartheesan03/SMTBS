@@ -62,7 +62,7 @@ const UserAvatar = ({
     const baseStyle = {
         width: size,
         height: size,
-        borderRadius: '50%',
+        borderRadius: '0px',
         flexShrink: 0,
         display: 'flex',
         alignItems: 'center',
@@ -78,7 +78,7 @@ const UserAvatar = ({
                     src={src}
                     alt={alt || name || 'User avatar'}
                     onError={() => setImgError(true)}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '0px' }}
                 />
             </div>
         );

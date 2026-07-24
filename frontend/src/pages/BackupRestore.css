@@ -24,7 +24,7 @@
     width: 52px;
     height: 52px;
     background-color: #ccfbf1;
-    border-radius: 12px;
+    border-radius: 0px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -65,7 +65,7 @@
     color: #14b8a6;
     border: 1px solid #99f6e4;
     padding: 10px 16px;
-    border-radius: 8px;
+    border-radius: 0px;
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
@@ -84,7 +84,7 @@
     color: white;
     border: none;
     padding: 10px 16px;
-    border-radius: 8px;
+    border-radius: 0px;
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
@@ -104,7 +104,7 @@
 }
 
 .backup-kpi-card {
-    border-radius: 20px;
+    border-radius: 0px;
     padding: 24px;
     position: relative;
     overflow: hidden;
@@ -129,7 +129,7 @@
 .kpi-arrow {
     width: 24px;
     height: 24px;
-    border-radius: 6px;
+    border-radius: 0px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -187,7 +187,7 @@
     top: -30%; right: -10%;
     width: 150px; height: 150px;
     background: radial-gradient(circle, rgba(134,239,172,0.4) 0%, transparent 70%);
-    border-radius: 50%;
+    border-radius: 0px;
 }
 
 .kpi-teal {
@@ -204,7 +204,7 @@
     top: -20%; right: -20%;
     width: 180px; height: 180px;
     background: radial-gradient(circle, rgba(94,234,212,0.3) 0%, transparent 70%);
-    border-radius: 50%;
+    border-radius: 0px;
 }
 
 .kpi-blue {
@@ -221,7 +221,7 @@
     top: -40%; right: -20%;
     width: 200px; height: 200px;
     background: radial-gradient(circle, rgba(147,197,253,0.4) 0%, transparent 70%);
-    border-radius: 50%;
+    border-radius: 0px;
 }
 
 .kpi-purple {
@@ -238,7 +238,7 @@
     top: -20%; right: -30%;
     width: 220px; height: 220px;
     background: radial-gradient(circle, rgba(192,132,252,0.3) 0%, transparent 70%);
-    border-radius: 50%;
+    border-radius: 0px;
 }
 
 /* Background mockup icons */
@@ -264,7 +264,7 @@
 
 .backup-history-card, .backup-settings-card, .backup-warning-card {
     background: #ffffff;
-    border-radius: 16px;
+    border-radius: 0px;
     padding: 24px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     border: 1px solid #e2e8f0;
@@ -361,7 +361,7 @@
     align-items: center;
     gap: 6px;
     padding: 4px 10px;
-    border-radius: 20px;
+    border-radius: 0px;
     font-size: 12px;
     font-weight: 600;
 }
@@ -381,7 +381,7 @@
 .status-dot {
     width: 6px;
     height: 6px;
-    border-radius: 50%;
+    border-radius: 0px;
 }
 .status-dot.green { background-color: #22c55e; }
 .status-dot.red { background-color: #ef4444; }
@@ -401,7 +401,7 @@
 .br-action-btn {
     width: 32px;
     height: 32px;
-    border-radius: 8px;
+    border-radius: 0px;
     border: none;
     display: flex;
     align-items: center;
@@ -504,11 +504,11 @@ input:checked + .slider:before {
 }
 
 .slider.round {
-    border-radius: 24px;
+    border-radius: 0px;
 }
 
 .slider.round:before {
-    border-radius: 50%;
+    border-radius: 0px;
 }
 
 /* Settings Selects */
@@ -531,7 +531,7 @@ input:checked + .slider:before {
 .br-select {
     width: 100%;
     padding: 10px 12px;
-    border-radius: 8px;
+    border-radius: 0px;
     border: 1px solid #cbd5e1;
     background-color: #fff;
     color: #1e293b;

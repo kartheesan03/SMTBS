@@ -4,7 +4,7 @@ import { Search, FileText, Clock, CheckCircle, XCircle, Plus , Calendar} from 'l
 import { motion } from 'framer-motion';
 import API from '../api/axios';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
-import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
+import { StatCard, StatGrid } from '../components/ui/StatCard';
 
 const LeaveManagement = () => {
     const navigate = useNavigate();
@@ -58,10 +58,10 @@ const LeaveManagement = () => {
     };
 
     const getTypePill = (type) => {
-        if (type === 'Casual') return <span style={{background: '#eff6ff', color: '#3b82f6', border: '1px solid #bfdbfe', padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600}}>{type}</span>;
-        if (type === 'Sick') return <span style={{background: '#fdf2f8', color: '#ec4899', border: '1px solid #fbcfe8', padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600}}>{type}</span>;
-        if (type === 'Annual') return <span style={{background: '#ecfdf5', color: '#10b981', border: '1px solid #a7f3d0', padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600}}>{type}</span>;
-        return <span style={{background: '#f1f5f9', color: '#64748b', padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600}}>{type}</span>;
+        if (type === 'Casual') return <span style={{background: '#eff6ff', color: '#3b82f6', border: '1px solid #bfdbfe', padding: '4px 10px', borderRadius: 0, fontSize: 12, fontWeight: 600}}>{type}</span>;
+        if (type === 'Sick') return <span style={{background: '#fdf2f8', color: '#ec4899', border: '1px solid #fbcfe8', padding: '4px 10px', borderRadius: 0, fontSize: 12, fontWeight: 600}}>{type}</span>;
+        if (type === 'Annual') return <span style={{background: '#ecfdf5', color: '#10b981', border: '1px solid #a7f3d0', padding: '4px 10px', borderRadius: 0, fontSize: 12, fontWeight: 600}}>{type}</span>;
+        return <span style={{background: '#f1f5f9', color: '#64748b', padding: '4px 10px', borderRadius: 0, fontSize: 12, fontWeight: 600}}>{type}</span>;
     };
 
     const getInitials = (firstName, lastName) => `${(firstName || '')[0] || ''}${(lastName || '')[0] || ''}`.toUpperCase() || '??';
@@ -109,12 +109,12 @@ const LeaveManagement = () => {
                         </div>
                 </div>
 
-                <PastelKPIGrid>
-                    <PastelKPICard title="Total Requests" value={totalRequests} colorTheme="blue" icon={FileText} trendValue="All time" trendPositive={true} />
-                    <PastelKPICard title="Pending" value={pendingCount} colorTheme="peach" icon={Clock} trendValue="Action required" trendPositive={false} />
-                    <PastelKPICard title="Approved" value={approvedCount} colorTheme="mint" icon={CheckCircle} trendValue={`${approvalRate}% approved`} trendPositive={true} />
-                    <PastelKPICard title="Rejected" value={rejectedCount} colorTheme="pink" icon={XCircle} trendValue="Declined leaves" trendPositive={false} />
-                </PastelKPIGrid>
+                <StatGrid>
+                    <StatCard title="Total Requests" value={totalRequests} colorTheme="blue" icon={FileText} trendValue="All time" trendPositive={true} />
+                    <StatCard title="Pending" value={pendingCount} colorTheme="peach" icon={Clock} trendValue="Action required" trendPositive={false} />
+                    <StatCard title="Approved" value={approvedCount} colorTheme="mint" icon={CheckCircle} trendValue={`${approvalRate}% approved`} trendPositive={true} />
+                    <StatCard title="Rejected" value={rejectedCount} colorTheme="pink" icon={XCircle} trendValue="Declined leaves" trendPositive={false} />
+                </StatGrid>
 
                 {/* Table Section */}
                 <motion.div 
@@ -138,7 +138,7 @@ const LeaveManagement = () => {
                             <select
                                 value={statusFilter}
                                 onChange={(e) => setStatusFilter(e.target.value)}
-                                style={{padding: '8px 16px', border: '1px solid #e2e8f0', borderRadius: 8, outline: 'none', background: '#fff', color: '#64748b', fontSize: 14}}
+                                style={{padding: '8px 16px', border: '1px solid #e2e8f0', borderRadius: 0, outline: 'none', background: '#fff', color: '#64748b', fontSize: 14}}
                             >
                                 <option value="All">All Status</option>
                                 <option value="Pending">Pending</option>

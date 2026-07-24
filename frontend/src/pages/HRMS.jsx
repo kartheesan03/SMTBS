@@ -4,7 +4,7 @@ import { Users, Search, CheckCircle, Clock, XCircle, Plus, UserCheck, Moon } fro
 import { motion } from 'framer-motion';
 import API from '../api/axios';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
-import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
+import { StatCard, StatGrid } from '../components/ui/StatCard';
 import { AuthContext } from '../context/AuthContext';
 
 const HRMS = () => {
@@ -132,12 +132,12 @@ const HRMS = () => {
 
                 {/* KPI Cards — Real Data */}
                 {/* Employee Roster Strip */}
-                <PastelKPIGrid>
-                    <PastelKPICard title="Total Employees" value={totalEmployees} colorTheme="blue" icon={Users} trendValue="All staff" trendPositive={true} />
-                    <PastelKPICard title="Active" value={activeCount} colorTheme="mint" icon={UserCheck} trendValue={`${activePercent}% active`} trendPositive={true} />
-                    <PastelKPICard title="On Leave" value={leaveCount} colorTheme="peach" icon={Moon} trendValue={`${leavePercent}% away`} trendPositive={false} />
-                    <PastelKPICard title="Inactive" value={0} colorTheme="purple" icon={Users} trendValue="No inactive records" trendPositive={true} />
-                </PastelKPIGrid>
+                <StatGrid>
+                    <StatCard title="Total Employees" value={totalEmployees} colorTheme="blue" icon={Users} trendValue="All staff" trendPositive={true} />
+                    <StatCard title="Active" value={activeCount} colorTheme="mint" icon={UserCheck} trendValue={`${activePercent}% active`} trendPositive={true} />
+                    <StatCard title="On Leave" value={leaveCount} colorTheme="peach" icon={Moon} trendValue={`${leavePercent}% away`} trendPositive={false} />
+                    <StatCard title="Inactive" value={0} colorTheme="purple" icon={Users} trendValue="No inactive records" trendPositive={true} />
+                </StatGrid>
 
                 {/* Table Section */}
                 <motion.div 
@@ -161,14 +161,14 @@ const HRMS = () => {
                             <select
                                 value={deptFilter}
                                 onChange={(e) => setDeptFilter(e.target.value)}
-                                style={{padding: '8px 16px', border: '1px solid #e2e8f0', borderRadius: 8, outline: 'none', background: '#fff', color: '#64748b', fontSize: 14, minWidth: '150px', width: 'auto'}}
+                                style={{padding: '8px 16px', border: '1px solid #e2e8f0', borderRadius: 0, outline: 'none', background: '#fff', color: '#64748b', fontSize: 14, minWidth: '150px', width: 'auto'}}
                             >
                                 {departments.map(d => <option key={d} value={d}>{d === 'All' ? 'All Roles' : d}</option>)}
                             </select>
                             <select
                                 value={statusFilter}
                                 onChange={(e) => setStatusFilter(e.target.value)}
-                                style={{padding: '8px 16px', border: '1px solid #e2e8f0', borderRadius: 8, outline: 'none', background: '#fff', color: '#64748b', fontSize: 14, minWidth: '150px', width: 'auto'}}
+                                style={{padding: '8px 16px', border: '1px solid #e2e8f0', borderRadius: 0, outline: 'none', background: '#fff', color: '#64748b', fontSize: 14, minWidth: '150px', width: 'auto'}}
                             >
                                 <option value="All">All Status</option>
                                 <option value="Active">Active</option>
@@ -221,7 +221,7 @@ const HRMS = () => {
                                         <td style={{color: 'var(--rd-blue)'}} data-label="Email">{emp.userId?.email || emp.email || emp.contact || '—'}</td>
                                         <td style={{color: '#64748b'}} data-label="Phone">{emp.phone || (emp.contact && emp.contact.match(/^[0-9+\-\\s]+$/) ? emp.contact : '—')}</td>
                                         <td data-label="Role / Dept">
-                                            <span style={{background: '#f1f5f9', color: '#64748b', padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600}}>
+                                            <span style={{background: '#f1f5f9', color: '#64748b', padding: '4px 10px', borderRadius: 0, fontSize: 12, fontWeight: 600}}>
                                                 {emp.department || 'Employee'}
                                             </span>
                                         </td>

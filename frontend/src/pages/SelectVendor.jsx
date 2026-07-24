@@ -58,7 +58,7 @@ const SelectVendor = () => {
                     </div>
                     <p className="header-subtitle">Choose a vendor to create a purchase order for.</p>
                 </div>
-                <div className="search-bar" style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-card)', padding: '8px 16px', borderRadius: '8px', border: '1px solid var(--border)', width: '300px' }}>
+                <div className="search-bar" style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-card)', padding: '8px 16px', borderRadius: '0px', border: '1px solid var(--border)', width: '300px' }}>
                     <Search size={16} color="var(--text-muted)" style={{ marginRight: '8px' }} />
                     <input 
                         type="text" 
@@ -111,7 +111,7 @@ const SelectVendor = () => {
                                     <td className="col-address">
                                         <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
                                             {(v.materialsSupplied && v.materialsSupplied.length > 0 ? v.materialsSupplied : ['Steel', 'PVC Pipes', 'Cement'].slice(0, (v.id || v._id || 1) % 3 + 1)).map((m, idx) => (
-                                                <span key={idx} style={{ background: '#f1f5f9', padding: '2px 8px', borderRadius: '4px', fontSize: 11, color: '#475569' }}>
+                                                <span key={idx} style={{ background: '#f1f5f9', padding: '2px 8px', borderRadius: '0px', fontSize: 11, color: '#475569' }}>
                                                     {m}
                                                 </span>
                                             ))}

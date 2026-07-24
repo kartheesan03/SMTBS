@@ -106,7 +106,7 @@ const GPSTracking = () => {
             />
 
             <DetailViewContainer>
-                <div style={{ height: 'calc(100vh - 260px)', minHeight: '500px', width: '100%', borderRadius: '16px', overflow: 'hidden', border: '1px solid #e2e8f0', position: 'relative' }}>
+                <div style={{ height: 'calc(100vh - 260px)', minHeight: '500px', width: '100%', borderRadius: '0px', overflow: 'hidden', border: '1px solid #e2e8f0', position: 'relative' }}>
                     {loading && orders.length === 0 && locations.length === 0 ? (
                         <div style={{ padding: '40px', textAlign: 'center' }}>Loading live map...</div>
                     ) : (
@@ -135,7 +135,7 @@ const GPSTracking = () => {
                                             <div style={{ minWidth: '220px', maxHeight: '250px', overflowY: 'auto' }}>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
                                                     <span style={{
-                                                        padding: '2px 6px', borderRadius: '4px', fontSize: '10px', fontWeight: 'bold', textTransform: 'uppercase',
+                                                        padding: '2px 6px', borderRadius: '0px', fontSize: '10px', fontWeight: 'bold', textTransform: 'uppercase',
                                                         background: loc.type === 'Warehouse' ? '#bfdbfe' : loc.type === 'Yard' ? '#fde68a' : '#a7f3d0',
                                                         color: loc.type === 'Warehouse' ? '#1e40af' : loc.type === 'Yard' ? '#92400e' : '#065f46'
                                                     }}>{loc.type}</span>
@@ -143,7 +143,7 @@ const GPSTracking = () => {
                                                 </div>
 
                                                 <h4 style={{ margin: '0 0 8px 0', fontSize: '12px', color: '#64748b' }}>CURRENT STOCK ({loc.materials.length})</h4>
-                                                <div style={{ marginBottom: '12px', background: '#f8fafc', padding: '8px', borderRadius: '6px' }}>
+                                                <div style={{ marginBottom: '12px', background: '#f8fafc', padding: '8px', borderRadius: '0px' }}>
                                                     {loc.materials.length > 0 ? loc.materials.map(mat => (
                                                         <div key={mat.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', padding: '2px 0' }}>
                                                             <span style={{ fontWeight: 500 }}>{mat.name}</span>
@@ -193,7 +193,7 @@ const GPSTracking = () => {
                                                 <div style={{ minWidth: '200px' }}>
                                                     <h3 style={{ margin: '0 0 8px 0', fontSize: '15px' }}>{order.orderNumber}</h3>
                                                     {order.sourcedLocation && (
-                                                        <div style={{ marginBottom: '8px', fontSize: '11px', color: '#64748b', background: '#f1f5f9', padding: '4px 6px', borderRadius: '4px' }}>
+                                                        <div style={{ marginBottom: '8px', fontSize: '11px', color: '#64748b', background: '#f1f5f9', padding: '4px 6px', borderRadius: '0px' }}>
                                                             Sourced from: <strong>{order.sourcedLocation}</strong>
                                                         </div>
                                                     )}

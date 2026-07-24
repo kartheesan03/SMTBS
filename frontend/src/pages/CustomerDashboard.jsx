@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
-import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
+import { StatCard, StatGrid } from '../components/ui/StatCard';
 import { LoadingState, EmptyState } from '../components/DataStates';
 
 const CustomerDashboard = () => {
@@ -82,69 +82,46 @@ const CustomerDashboard = () => {
             <div className="rd-content">
 
                 {/* ── Hero Banner ── */}
-                <div className="rd-hero">
-                    <div className="rd-hero-left">
-                        <div className="rd-hero-avatar-wrapper">
-                            <img
-                                src={`https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=EC4899&color=fff`}
-                                alt="Profile"
-                                className="rd-hero-avatar"
-                            />
-                            <div className="rd-hero-status-dot"></div>
-                        </div>
-                        <div>
-                            <div className="rd-hero-greeting">
-                                {getGreeting()}, {displayName.split(' ')[0]}
-                            </div>
-                            <div className="rd-hero-subtitle">
-                                {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} &nbsp;·&nbsp; Customer Portal
-                            </div>
-                            <div className="rd-hero-badges">
-                                <span className="rd-hero-badge badge-neutral">
-                                    <Package size={14} /> {orders.length} Orders
-                                </span>
-                                <span className="rd-hero-badge badge-status">
-                                    <div className="status-dot-inline"></div> {activeDeliveries} Active Deliveries
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="rd-hero-right">
-                        <div className="rd-hero-visual">
+                <WelcomeBanner 
+                    user={user}
+                    greeting={`${getGreeting()}`}
+                    subtitle={`${new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} · Customer Portal`}
+                    badges={[
+                        { icon: Package, text: `${orders.length} Orders`, type: 'neutral' },
+                        { type: 'status', text: `${activeDeliveries} Active Deliveries` }
+                    ]}
+                    rightVisuals={
+                        <>
                             <div className="rd-visual-card">
-                                <div className="rd-vc-label">Completed</div>
-                                <div className="rd-vc-value">{completedOrders}</div>
-                                <div className="rd-vc-chart"></div>
-                            </div>
-                            <div className="rd-visual-card">
-                                <div className="rd-vc-label">Activity</div>
-                                <div className="rd-vc-bars">
-                                    <div className="rd-vc-bar" style={{ height: '55%' }}></div>
-                                    <div className="rd-vc-bar" style={{ height: '80%' }}></div>
-                                    <div className="rd-vc-bar" style={{ height: '65%' }}></div>
-                                    <div className="rd-vc-bar" style={{ height: '100%' }}></div>
-                                    <div className="rd-vc-bar" style={{ height: '70%' }}></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="rd-hero-actions-col">
-                            <button className="hero-action-btn primary" onClick={() => navigate('/customer/new-order')}>
-                                <Plus size={15} /> New Order
-                            </button>
-                            <button className="hero-action-btn secondary" onClick={() => navigate('/orders')}>
-                                <Truck size={15} /> Track Orders
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                                                            <div className="rd-vc-label">Completed</div>
+                                                            <div className="rd-vc-value">{completedOrders}</div>
+                                                            <div className="rd-vc-chart"></div>
+                                                        </div>
+                                                        <div className="rd-visual-card">
+                                                            <div className="rd-vc-label">Activity</div>
+                                                            <div className="rd-vc-bars">
+                                                                <div className="rd-vc-bar" style={{ height: '55%' }}></div>
+                                                                <div className="rd-vc-bar" style={{ height: '80%' }}></div>
+                                                                <div className="rd-vc-bar" style={{ height: '65%' }}></div>
+                                                                <div className="rd-vc-bar" style={{ height: '100%' }}></div>
+                                                                <div className="rd-vc-bar" style={{ height: '70%' }}></div>
+                                                            </div>
+                                                        </div>
+                        </>
+                    }
+                    actions={[
+                        { label: 'New Order', icon: Plus, variant: 'primary', onClick: () => navigate('/customer/new-order') },
+                        { label: 'Track Orders', icon: Truck, variant: 'secondary', onClick: () => navigate('/orders') }
+                    ]}
+                />
 
                 {/* ── KPI Row ── */}
-                <PastelKPIGrid columns={4}>
-                    <PastelKPICard title="Total Orders" value={orders.length} colorTheme="blue" icon={Package} trendValue="Lifetime orders" trendPositive={true} />
-                    <PastelKPICard title="Active Deliveries" value={activeDeliveries} colorTheme="peach" icon={Truck} trendValue="In transit" trendPositive={activeDeliveries === 0} />
-                    <PastelKPICard title="Completed Orders" value={completedOrders} colorTheme="mint" icon={CheckCircle} trendValue="Successfully delivered" trendPositive={true} />
-                    <PastelKPICard title="Total Spend" value={formatCurrency(totalSpend)} colorTheme="yellow" icon={TrendingUp} trendValue="On delivered orders" trendPositive={true} />
-                </PastelKPIGrid>
+                <StatGrid columns={4}>
+                    <StatCard title="Total Orders" value={orders.length} colorTheme="blue" icon={Package} trendValue="Lifetime orders" trendPositive={true} />
+                    <StatCard title="Active Deliveries" value={activeDeliveries} colorTheme="peach" icon={Truck} trendValue="In transit" trendPositive={activeDeliveries === 0} />
+                    <StatCard title="Completed Orders" value={completedOrders} colorTheme="mint" icon={CheckCircle} trendValue="Successfully delivered" trendPositive={true} />
+                    <StatCard title="Total Spend" value={formatCurrency(totalSpend)} colorTheme="yellow" icon={TrendingUp} trendValue="On delivered orders" trendPositive={true} />
+                </StatGrid>
 
                 {/* ── Main Content ── */}
                 <motion.div
@@ -160,7 +137,7 @@ const CustomerDashboard = () => {
                             <button
                                 className="panel-action-btn"
                                 onClick={() => navigate('/customer/new-order')}
-                                style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, fontWeight: 600, color: '#ec4899', background: 'rgba(236,72,153,0.07)', border: 'none', borderRadius: 8, padding: '5px 12px', cursor: 'pointer' }}
+                                style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, fontWeight: 600, color: '#ec4899', background: 'rgba(236,72,153,0.07)', border: 'none', borderRadius: 0, padding: '5px 12px', cursor: 'pointer' }}
                             >
                                 <Plus size={12} /> New Order
                             </button>
@@ -196,7 +173,7 @@ const CustomerDashboard = () => {
                                                 </td>
                                                 <td style={{ padding: '10px 12px' }}>
                                                     <span style={{
-                                                        fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 20,
+                                                        fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 0,
                                                         background: statusBg(order.status), color: statusColor(order.status)
                                                     }}>
                                                         {order.status || 'Pending'}
@@ -206,19 +183,19 @@ const CustomerDashboard = () => {
                                                     <div style={{ display: 'flex', gap: 6 }}>
                                                         <button
                                                             onClick={() => setSelectedOrder(order)}
-                                                            style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#f8fafc', color: '#475569', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}
+                                                            style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 0, border: '1px solid #e2e8f0', background: '#f8fafc', color: '#475569', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}
                                                         >
                                                             <FileText size={12} /> View
                                                         </button>
                                                         <Link to={`/orders/${order._id}/tracking`}
-                                                            style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#f8fafc', color: '#475569', fontSize: 11, fontWeight: 600, textDecoration: 'none' }}
+                                                            style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 0, border: '1px solid #e2e8f0', background: '#f8fafc', color: '#475569', fontSize: 11, fontWeight: 600, textDecoration: 'none' }}
                                                         >
                                                             <Truck size={12} /> Track
                                                         </Link>
                                                         {!['Processing', 'Shipped', 'Delivered', 'Cancelled', 'Rejected'].includes(order.status) && (
                                                             <button
                                                                 onClick={() => handleCancelOrder(order._id)}
-                                                                style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 6, border: '1px solid #fca5a5', background: '#fee2e2', color: '#b91c1c', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}
+                                                                style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 0, border: '1px solid #fca5a5', background: '#fee2e2', color: '#b91c1c', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}
                                                             >
                                                                 <XCircle size={12} /> Cancel
                                                             </button>
@@ -248,7 +225,7 @@ const CustomerDashboard = () => {
                                         { icon: MapPin, label: 'Address', value: profile.address },
                                     ].map(({ icon: Icon, label, value }) => (
                                         <div key={label} style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                                            <div style={{ width: 32, height: 32, borderRadius: 8, background: '#fdf2f8', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                            <div style={{ width: 32, height: 32, borderRadius: 0, background: '#fdf2f8', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                                                 <Icon size={14} color="#ec4899" />
                                             </div>
                                             <div>
@@ -282,9 +259,9 @@ const CustomerDashboard = () => {
                                     <button
                                         key={label}
                                         onClick={() => navigate(path)}
-                                        style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', borderRadius: 10, border: '1px solid #f1f5f9', background: '#fff', cursor: 'pointer', textAlign: 'left', width: '100%' }}
+                                        style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', borderRadius: 0, border: '1px solid #f1f5f9', background: '#fff', cursor: 'pointer', textAlign: 'left', width: '100%' }}
                                     >
-                                        <div style={{ width: 32, height: 32, borderRadius: 8, background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        <div style={{ width: 32, height: 32, borderRadius: 0, background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                             <Icon size={15} color={color} />
                                         </div>
                                         <span style={{ fontSize: 13, fontWeight: 600, color: '#374151' }}>{label}</span>
@@ -312,7 +289,7 @@ const CustomerDashboard = () => {
                                     </div>
                                     <div className="status-info">
                                         <span className="label">Status</span>
-                                        <span style={{ fontSize: 12, fontWeight: 700, padding: '3px 10px', borderRadius: 20, background: statusBg(selectedOrder.status), color: statusColor(selectedOrder.status) }}>
+                                        <span style={{ fontSize: 12, fontWeight: 700, padding: '3px 10px', borderRadius: 0, background: statusBg(selectedOrder.status), color: statusColor(selectedOrder.status) }}>
                                             {selectedOrder.status?.toUpperCase()}
                                         </span>
                                     </div>

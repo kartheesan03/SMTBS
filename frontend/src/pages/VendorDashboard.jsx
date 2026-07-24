@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
-import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
+import { StatCard, StatGrid } from '../components/ui/StatCard';
 import { LoadingState, EmptyState } from '../components/DataStates';
 
 const VendorDashboard = () => {
@@ -65,74 +65,46 @@ const VendorDashboard = () => {
             <div className="rd-content">
 
                 {/* ── Hero Banner ── */}
-                <div className="rd-hero">
-                    <div className="rd-hero-left">
-                        <div className="rd-hero-avatar-wrapper">
-                            <img
-                                src={`https://ui-avatars.com/api/?name=${encodeURIComponent(profile?.name || user?.name || 'Vendor')}&background=0EA5E9&color=fff`}
-                                alt="Profile"
-                                className="rd-hero-avatar"
-                            />
-                            <div className="rd-hero-status-dot"></div>
-                        </div>
-                        <div>
-                            <div className="rd-hero-greeting">
-                                {getGreeting()}, {(profile?.name || user?.name || 'Vendor').split(' ')[0]}
-                            </div>
-                            <div className="rd-hero-subtitle">
-                                {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} &nbsp;·&nbsp; Vendor Portal
-                            </div>
-                            <div className="rd-hero-badges">
-                                <span className="rd-hero-badge badge-neutral">
-                                    <Package size={14} /> {materials.length} Materials
-                                </span>
-                                <span className="rd-hero-badge badge-status">
-                                    <div className="status-dot-inline"></div> {activePOs} Active POs
-                                </span>
-                                {profile?.status && (
-                                    <span className="rd-hero-badge badge-neutral">
-                                        <CheckCircle size={14} /> {profile.status}
-                                    </span>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                    <div className="rd-hero-right">
-                        <div className="rd-hero-visual">
+                <WelcomeBanner 
+                    user={user}
+                    greeting={`${getGreeting()}`}
+                    subtitle={`${new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} · Vendor Portal`}
+                    badges={[
+                        { icon: Package, text: `${materials.length} Materials`, type: 'neutral' },
+                        { type: 'status', text: `${activePOs} Active POs` }
+                    ]}
+                    rightVisuals={
+                        <>
                             <div className="rd-visual-card">
-                                <div className="rd-vc-label">Completed</div>
-                                <div className="rd-vc-value">{completedPOs}</div>
-                                <div className="rd-vc-chart"></div>
-                            </div>
-                            <div className="rd-visual-card">
-                                <div className="rd-vc-label">Revenue</div>
-                                <div className="rd-vc-bars">
-                                    <div className="rd-vc-bar" style={{ height: '60%' }}></div>
-                                    <div className="rd-vc-bar" style={{ height: '80%' }}></div>
-                                    <div className="rd-vc-bar" style={{ height: '70%' }}></div>
-                                    <div className="rd-vc-bar" style={{ height: '100%' }}></div>
-                                    <div className="rd-vc-bar" style={{ height: '75%' }}></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="rd-hero-actions-col">
-                            <button className="hero-action-btn primary" onClick={() => navigate('/erp/orders')}>
-                                <Truck size={15} /> View Orders
-                            </button>
-                            <button className="hero-action-btn secondary" onClick={() => navigate('/materials')}>
-                                <Package size={15} /> Materials
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                                                            <div className="rd-vc-label">Completed</div>
+                                                            <div className="rd-vc-value">{completedPOs}</div>
+                                                            <div className="rd-vc-chart"></div>
+                                                        </div>
+                                                        <div className="rd-visual-card">
+                                                            <div className="rd-vc-label">Revenue</div>
+                                                            <div className="rd-vc-bars">
+                                                                <div className="rd-vc-bar" style={{ height: '60%' }}></div>
+                                                                <div className="rd-vc-bar" style={{ height: '80%' }}></div>
+                                                                <div className="rd-vc-bar" style={{ height: '70%' }}></div>
+                                                                <div className="rd-vc-bar" style={{ height: '100%' }}></div>
+                                                                <div className="rd-vc-bar" style={{ height: '75%' }}></div>
+                                                            </div>
+                                                        </div>
+                        </>
+                    }
+                    actions={[
+                        { label: 'View Orders', icon: Truck, variant: 'primary', onClick: () => navigate('/erp/orders') },
+                        { label: 'Materials', icon: Package, variant: 'secondary', onClick: () => navigate('/materials') }
+                    ]}
+                />
 
                 {/* ── KPI Row ── */}
-                <PastelKPIGrid columns={4}>
-                    <PastelKPICard title="Materials Supplied" value={materials.length} colorTheme="blue" icon={Package} trendValue="Listed materials" trendPositive={true} />
-                    <PastelKPICard title="Active POs" value={activePOs} colorTheme="peach" icon={Store} trendValue="Pending fulfillment" trendPositive={activePOs === 0} />
-                    <PastelKPICard title="Completed POs" value={completedPOs} colorTheme="mint" icon={CheckCircle} trendValue="Successfully delivered" trendPositive={true} />
-                    <PastelKPICard title="Total Value" value={formatCurrency(totalValue)} colorTheme="yellow" icon={TrendingUp} trendValue="Lifetime orders" trendPositive={true} />
-                </PastelKPIGrid>
+                <StatGrid columns={4}>
+                    <StatCard title="Materials Supplied" value={materials.length} colorTheme="blue" icon={Package} trendValue="Listed materials" trendPositive={true} />
+                    <StatCard title="Active POs" value={activePOs} colorTheme="peach" icon={Store} trendValue="Pending fulfillment" trendPositive={activePOs === 0} />
+                    <StatCard title="Completed POs" value={completedPOs} colorTheme="mint" icon={CheckCircle} trendValue="Successfully delivered" trendPositive={true} />
+                    <StatCard title="Total Value" value={formatCurrency(totalValue)} colorTheme="yellow" icon={TrendingUp} trendValue="Lifetime orders" trendPositive={true} />
+                </StatGrid>
 
                 {/* ── Main Content Grid ── */}
                 <motion.div
@@ -177,7 +149,7 @@ const VendorDashboard = () => {
                                                 </td>
                                                 <td style={{ padding: '10px 12px' }}>
                                                     <span style={{
-                                                        fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 20,
+                                                        fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 0,
                                                         background: statusBg(order.status), color: statusColor(order.status)
                                                     }}>
                                                         {order.status || 'Pending'}
@@ -205,7 +177,7 @@ const VendorDashboard = () => {
                                     { icon: MapPin, label: 'Address', value: profile?.address },
                                 ].map(({ icon: Icon, label, value }) => (
                                     <div key={label} style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                                        <div style={{ width: 32, height: 32, borderRadius: 8, background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                        <div style={{ width: 32, height: 32, borderRadius: 0, background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                                             <Icon size={14} color="#64748b" />
                                         </div>
                                         <div>
@@ -232,7 +204,7 @@ const VendorDashboard = () => {
                                                 <div style={{ fontSize: 13, fontWeight: 600, color: '#1e293b' }}>{m.name}</div>
                                                 <div style={{ fontSize: 11, color: '#94a3b8' }}>{m.category || 'General'}</div>
                                             </div>
-                                            <span style={{ fontSize: 11, fontWeight: 700, color: '#3b82f6', background: '#eff6ff', padding: '2px 8px', borderRadius: 10 }}>
+                                            <span style={{ fontSize: 11, fontWeight: 700, color: '#3b82f6', background: '#eff6ff', padding: '2px 8px', borderRadius: 0 }}>
                                                 {m.quantity} {m.unit}
                                             </span>
                                         </div>

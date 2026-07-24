@@ -59,7 +59,7 @@ const SelectCustomer = () => {
                     </div>
                     <p className="header-subtitle">Choose a customer to create a sales order for.</p>
                 </div>
-                <div className="search-bar" style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-card)', padding: '8px 16px', borderRadius: '8px', border: '1px solid var(--border)', width: '300px' }}>
+                <div className="search-bar" style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-card)', padding: '8px 16px', borderRadius: '0px', border: '1px solid var(--border)', width: '300px' }}>
                     <Search size={16} color="var(--text-muted)" style={{ marginRight: '8px' }} />
                     <input 
                         type="text" 

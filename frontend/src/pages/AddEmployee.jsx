@@ -86,7 +86,7 @@ const AddEmployee = ({ isEditMode = false }) => {
             isEditMode={isEditMode}
             infoCard={
                 <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-                    <div style={{ padding: '12px', background: '#e0e7ff', borderRadius: '50%', color: '#4f46e5' }}>
+                    <div style={{ padding: '12px', background: '#e0e7ff', borderRadius: '0px', color: '#4f46e5' }}>
                         <UserPlus size={24} />
                     </div>
                     <div>
@@ -98,25 +98,25 @@ const AddEmployee = ({ isEditMode = false }) => {
         >
             <div className="standard-section">
                 <div className="standard-section-header">Basic Details</div>
-                {error && <div className="error-alert" style={{color: '#ef4444', background: '#fef2f2', padding: '12px', borderRadius: '8px', marginBottom: '16px'}}>{error}</div>}
+                {error && <div className="error-alert" style={{color: '#ef4444', background: '#fef2f2', padding: '12px', borderRadius: '0px', marginBottom: '16px'}}>{error}</div>}
                 
                 <form id="employee-form" onSubmit={e => { e.preventDefault(); handleSubmit(); }}>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                             <label style={{ fontSize: '14px', fontWeight: 500, color: '#475569' }}>Employee ID *</label>
-                            <input type="text" required value={formData.employeeId} onChange={e => setFormData({...formData, employeeId: e.target.value})} placeholder="e.g. EMP-001" style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px' }} />
+                            <input type="text" required value={formData.employeeId} onChange={e => setFormData({...formData, employeeId: e.target.value})} placeholder="e.g. EMP-001" style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '0px' }} />
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                             <label style={{ fontSize: '14px', fontWeight: 500, color: '#475569' }}>First Name *</label>
-                            <input type="text" required value={formData.firstName} onChange={e => setFormData({...formData, firstName: e.target.value})} placeholder="First name" style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px' }} />
+                            <input type="text" required value={formData.firstName} onChange={e => setFormData({...formData, firstName: e.target.value})} placeholder="First name" style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '0px' }} />
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                             <label style={{ fontSize: '14px', fontWeight: 500, color: '#475569' }}>Last Name</label>
-                            <input type="text" value={formData.lastName} onChange={e => setFormData({...formData, lastName: e.target.value})} placeholder="Last name" style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px' }} />
+                            <input type="text" value={formData.lastName} onChange={e => setFormData({...formData, lastName: e.target.value})} placeholder="Last name" style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '0px' }} />
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                             <label style={{ fontSize: '14px', fontWeight: 500, color: '#475569' }}>Role / Department *</label>
-                            <select value={formData.department} onChange={e => setFormData({...formData, department: e.target.value})} required style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px', background: '#fff' }}>
+                            <select value={formData.department} onChange={e => setFormData({...formData, department: e.target.value})} required style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '0px', background: '#fff' }}>
                                 <option value="Employee">Employee</option>
                                 <option value="HR">HR</option>
                                 <option value="Manager">Manager</option>
@@ -125,11 +125,11 @@ const AddEmployee = ({ isEditMode = false }) => {
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                             <label style={{ fontSize: '14px', fontWeight: 500, color: '#475569' }}>Designation *</label>
-                            <input type="text" required value={formData.designation} onChange={e => setFormData({...formData, designation: e.target.value})} placeholder="e.g. Senior Manager" style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px' }} />
+                            <input type="text" required value={formData.designation} onChange={e => setFormData({...formData, designation: e.target.value})} placeholder="e.g. Senior Manager" style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '0px' }} />
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                             <label style={{ fontSize: '14px', fontWeight: 500, color: '#475569' }}>Join Date *</label>
-                            <input type="date" required value={formData.joinDate} onChange={e => setFormData({...formData, joinDate: e.target.value})} style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px' }} />
+                            <input type="date" required value={formData.joinDate} onChange={e => setFormData({...formData, joinDate: e.target.value})} style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '0px' }} />
                         </div>
                     </div>
                 </form>
@@ -140,15 +140,15 @@ const AddEmployee = ({ isEditMode = false }) => {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         <label style={{ fontSize: '14px', fontWeight: 500, color: '#475569' }}>Email Address *</label>
-                        <input type="email" required value={formData.contact} onChange={e => setFormData({...formData, contact: e.target.value})} placeholder="email@company.com" style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px' }} />
+                        <input type="email" required value={formData.contact} onChange={e => setFormData({...formData, contact: e.target.value})} placeholder="email@company.com" style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '0px' }} />
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         <label style={{ fontSize: '14px', fontWeight: 500, color: '#475569' }}>Phone Number *</label>
-                        <input type="tel" pattern="[0-9\-\+\s\(\)]+" maxLength="15" title="Valid mobile number" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} placeholder="+91 9876543210" required style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px' }} />
+                        <input type="tel" pattern="[0-9\-\+\s\(\)]+" maxLength="15" title="Valid mobile number" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} placeholder="+91 9876543210" required style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '0px' }} />
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', gridColumn: '1 / -1' }}>
                         <label style={{ fontSize: '14px', fontWeight: 500, color: '#475569' }}>Address</label>
-                        <textarea rows="3" value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} placeholder="Full address..." style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px' }}></textarea>
+                        <textarea rows="3" value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} placeholder="Full address..." style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '0px' }}></textarea>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', gridColumn: '1 / -1' }}>
                         <label style={{ fontSize: '14px', fontWeight: 500, color: '#475569' }}>Password {isEditMode ? '(Leave blank to keep current)' : '*'}</label>
@@ -157,7 +157,7 @@ const AddEmployee = ({ isEditMode = false }) => {
                             value={formData.password} 
                             onChange={e => setFormData({...formData, password: e.target.value})} 
                             placeholder={isEditMode ? "Enter new password..." : "Enter initial password"}
-                            style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px' }}
+                            style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '0px' }}
                         />
                     </div>
                 </div>

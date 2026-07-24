@@ -111,7 +111,7 @@ const Invoices = () => {
         >
             <div className="standard-section">
                 <div className="standard-section-header">All Invoices</div>
-                <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden' }}>
+                <div style={{ border: '1px solid #e2e8f0', borderRadius: '0px', overflow: 'hidden' }}>
                     <DataTable 
                         columns={columns} 
                         data={orders} 

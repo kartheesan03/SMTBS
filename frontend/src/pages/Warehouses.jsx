@@ -3,7 +3,7 @@ import { Building, Package, AlertTriangle, DollarSign, MapPin, Plus, Box, Shield
 import API from '../api/axios';
 import { toast } from 'react-hot-toast';
 import { DataTable } from '../components/ui';
-import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
+import { StatCard, StatGrid } from '../components/ui/StatCard';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 
 const Warehouses = () => {
@@ -78,7 +78,7 @@ const Warehouses = () => {
             sortable: true,
             render: (val) => (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div style={{ width: 36, height: 36, borderRadius: '8px', background: '#eef2ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div style={{ width: 36, height: 36, borderRadius: '0px', background: '#eef2ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <Building size={18} color="#4f46e5" />
                     </div>
                     <div>
@@ -121,7 +121,7 @@ const Warehouses = () => {
             label: 'STATUS',
             render: (_, row) => {
                 if (row.name === 'Unassigned') {
-                    return <span style={{ padding: '4px 10px', fontSize: 11, fontWeight: 600, background: '#f1f5f9', color: '#64748b', borderRadius: 99 }}>Virtual</span>;
+                    return <span style={{ padding: '4px 10px', fontSize: 11, fontWeight: 600, background: '#f1f5f9', color: '#64748b', borderRadius: 0 }}>Virtual</span>;
                 }
                 const isWarning = row.lowStockItems > 0;
                 return (
@@ -130,7 +130,7 @@ const Warehouses = () => {
                         background: isWarning ? '#fffbeb' : '#ecfdf5', 
                         color: isWarning ? '#f59e0b' : '#10b981', 
                         border: `1px solid ${isWarning ? '#fde68a' : '#a7f3d0'}`, 
-                        borderRadius: 99,
+                        borderRadius: 0,
                         display: 'inline-flex', alignItems: 'center', gap: '4px'
                     }}>
                         {isWarning ? <AlertTriangle size={12} /> : <ShieldCheck size={12} />}
@@ -148,7 +148,7 @@ const Warehouses = () => {
                     <button 
                         className="rd-btn-compact" 
                         onClick={() => setSelectedZone(row)}
-                        style={{ padding: '6px 12px', fontSize: 12, fontWeight: 600, borderRadius: 6, background: '#eff6ff', color: '#3b82f6', border: '1px solid #dbeafe', cursor: 'pointer' }}>
+                        style={{ padding: '6px 12px', fontSize: 12, fontWeight: 600, borderRadius: 0, background: '#eff6ff', color: '#3b82f6', border: '1px solid #dbeafe', cursor: 'pointer' }}>
                         View Zone
                     </button>
                 </div>
@@ -168,32 +168,32 @@ const Warehouses = () => {
                     </div>
                 </div>
 
-                <PastelKPIGrid>
-                    <PastelKPICard
+                <StatGrid>
+                    <StatCard
                         title="Active Facilities" value={summary.total}
                         colorTheme="blue" icon={Building}
                         trendValue="Managed locations"
                         trendPositive={true}
                     />
-                    <PastelKPICard
+                    <StatCard
                         title="Total Value" value={`$${summary.totalValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}`}
                         colorTheme="mint" icon={DollarSign}
                         trendValue="Across all warehouses"
                         trendPositive={true}
                     />
-                    <PastelKPICard
+                    <StatCard
                         title="Total Items Managed" value={summary.items.toLocaleString()}
                         colorTheme="purple" icon={Box}
                         trendValue="Total inventory units"
                         trendPositive={true}
                     />
-                    <PastelKPICard
+                    <StatCard
                         title="Critical Alerts" value={summary.lowStock}
                         colorTheme="peach" icon={AlertTriangle}
                         trendValue="Items needing attention"
                         trendPositive={false}
                     />
-                </PastelKPIGrid>
+                </StatGrid>
 
                 <div style={{ marginTop: '24px' }}>
                     <DataTable
@@ -215,7 +215,7 @@ const Warehouses = () => {
 
             {selectedZone && (
                 <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(15, 23, 42, 0.4)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setSelectedZone(null)}>
-                    <div style={{ background: '#fff', borderRadius: 12, width: '90%', maxWidth: 800, maxHeight: '85vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)' }} onClick={e => e.stopPropagation()}>
+                    <div style={{ background: '#fff', borderRadius: 0, width: '90%', maxWidth: 800, maxHeight: '85vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)' }} onClick={e => e.stopPropagation()}>
                         <div style={{ padding: '20px 24px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <div>
                                 <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: '#0f172a' }}>{selectedZone.name} Zone Details</h3>
@@ -257,7 +257,7 @@ const Warehouses = () => {
                             </table>
                         </div>
                         <div style={{ padding: '16px 24px', borderTop: '1px solid #e2e8f0', background: '#f8fafc', display: 'flex', justifyContent: 'flex-end' }}>
-                            <button className="rd-btn-compact" onClick={() => setSelectedZone(null)} style={{ padding: '8px 16px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: 6, fontWeight: 500, cursor: 'pointer' }}>Close</button>
+                            <button className="rd-btn-compact" onClick={() => setSelectedZone(null)} style={{ padding: '8px 16px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: 0, fontWeight: 500, cursor: 'pointer' }}>Close</button>
                         </div>
                     </div>
                 </div>

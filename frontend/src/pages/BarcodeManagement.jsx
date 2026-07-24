@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Package, Search, Camera, QrCode, AlertTriangle, ScanLine, Eye, Printer } from 'lucide-react';
 import API from '../api/axios';
-import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
+import { StatCard, StatGrid } from '../components/ui/StatCard';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 const BarcodeManagement = () => {
     const [materials, setMaterials] = useState([]);
@@ -135,32 +135,32 @@ const BarcodeManagement = () => {
                 </div>
 
                 {/* KPI Cards */}
-                <PastelKPIGrid>
-                    <PastelKPICard
+                <StatGrid>
+                    <StatCard
                         title="Labelled Items" value={totalItems}
                         colorTheme="blue" icon={Package}
                         trendValue="Items with barcode/QR"
                         trendPositive={true}
                     />
-                    <PastelKPICard
+                    <StatCard
                         title="Total Scans" value={totalScans}
                         colorTheme="mint" icon={ScanLine}
                         trendValue="All scan events today"
                         trendPositive={true}
                     />
-                    <PastelKPICard
+                    <StatCard
                         title="Camera Scans" value={0}
                         colorTheme="purple" icon={Camera}
                         trendValue="Via camera scanner"
                         trendPositive={true}
                     />
-                    <PastelKPICard
+                    <StatCard
                         title="Unlabelled" value={0}
                         colorTheme="yellow" icon={AlertTriangle}
                         trendValue="No missing labels"
                         trendPositive={true}
                     />
-                </PastelKPIGrid>
+                </StatGrid>
 
                 {/* Table Section */}
                 <div className="rd-table-card">
@@ -233,7 +233,7 @@ const BarcodeManagement = () => {
                                             <td style={{padding: '10px 10px', fontSize: 13, fontWeight: 700, color: '#1e293b', maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} data-label="Material" title={item.name}>{item.name}</td>
                                             <td style={{padding: '10px 10px'}} data-label="Stock Status">
                                                 <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}>
-                                                    <span style={{ padding: '4px 10px', fontSize: 11, fontWeight: 600, background: item.status === 'Low Stock' ? '#fffbeb' : item.status === 'Out of Stock' ? '#fff1f2' : '#ecfdf5', color: item.status === 'Low Stock' ? '#f59e0b' : item.status === 'Out of Stock' ? '#ef4444' : '#10b981', border: `1px solid ${item.status === 'Low Stock' ? '#fde68a' : item.status === 'Out of Stock' ? '#fecdd3' : '#a7f3d0'}`, borderRadius: 99 }}>
+                                                    <span style={{ padding: '4px 10px', fontSize: 11, fontWeight: 600, background: item.status === 'Low Stock' ? '#fffbeb' : item.status === 'Out of Stock' ? '#fff1f2' : '#ecfdf5', color: item.status === 'Low Stock' ? '#f59e0b' : item.status === 'Out of Stock' ? '#ef4444' : '#10b981', border: `1px solid ${item.status === 'Low Stock' ? '#fde68a' : item.status === 'Out of Stock' ? '#fecdd3' : '#a7f3d0'}`, borderRadius: 0 }}>
                                                         {item.status}
                                                     </span>
                                                     <span style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>{item.quantity} {item.unit}</span>
@@ -248,7 +248,7 @@ const BarcodeManagement = () => {
                                                 <div style={{display: 'flex', gap: 4, justifyContent: 'center'}}>
                                                     <button 
                                                         className="rd-btn-compact" 
-                                                        style={{padding: '4px', background: '#eff6ff', color: '#3b82f6', border: '1px solid #dbeafe', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center'}}
+                                                        style={{padding: '4px', background: '#eff6ff', color: '#3b82f6', border: '1px solid #dbeafe', borderRadius: 0, display: 'flex', alignItems: 'center', justifyContent: 'center'}}
                                                         title="Preview"
                                                         onClick={(e) => { e.stopPropagation(); setPreviewItem(item); }}
                                                     >
@@ -256,7 +256,7 @@ const BarcodeManagement = () => {
                                                     </button>
                                                     <button 
                                                         className="rd-btn-compact" 
-                                                        style={{padding: '4px', background: '#ecfdf5', color: '#10b981', border: '1px solid #a7f3d0', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center'}}
+                                                        style={{padding: '4px', background: '#ecfdf5', color: '#10b981', border: '1px solid #a7f3d0', borderRadius: 0, display: 'flex', alignItems: 'center', justifyContent: 'center'}}
                                                         title="Print"
                                                         onClick={(e) => { 
                                                             e.stopPropagation(); 
@@ -295,7 +295,7 @@ const BarcodeManagement = () => {
                             <button className="rd-modal-close" onClick={() => setShowScanModal(false)}>&times;</button>
                         </div>
                         <div className="rd-modal-body" style={{padding: 24, textAlign: 'center'}}>
-                            <div style={{background: '#000', width: '100%', height: 300, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden'}}>
+                            <div style={{background: '#000', width: '100%', height: 300, borderRadius: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden'}}>
                                 <ScanLine size={48} color="#22c55e" style={{opacity: 0.5}} />
                                 <div style={{position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: '80%', height: 2, background: '#22c55e', boxShadow: '0 0 10px #22c55e', animation: 'scan 2s infinite linear'}}></div>
                             </div>
@@ -356,7 +356,7 @@ const BarcodeManagement = () => {
                         </div>
                         <div className="rd-modal-body" style={{padding: 24, textAlign: 'center'}}>
                             <div id="print-area" style={{display: 'inline-block'}}>
-                                <div style={{border: '2px solid #000', padding: 20, borderRadius: 8, background: '#fff', textAlign: 'center', width: 250}}>
+                                <div style={{border: '2px solid #000', padding: 20, borderRadius: 0, background: '#fff', textAlign: 'center', width: 250}}>
                                     <h2 style={{margin: '0 0 15px 0', fontSize: 18, color: '#000'}}>{previewItem.name}</h2>
                                     <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(previewItem.qr)}`} alt="QR Code" style={{marginBottom: 15}} />
                                     <div style={{fontSize: 16, fontWeight: 'bold', color: '#000', letterSpacing: 2}}>{previewItem.barcode}</div>

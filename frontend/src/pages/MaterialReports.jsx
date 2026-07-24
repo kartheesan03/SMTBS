@@ -3,7 +3,7 @@ import { Package, TrendingUp, AlertTriangle, Download, FileText, Filter, CheckCi
 import API from '../api/axios';
 import { toast } from 'react-hot-toast';
 import { DataTable } from '../components/ui';
-import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
+import { StatCard, StatGrid } from '../components/ui/StatCard';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 
 const MaterialReports = () => {
@@ -70,7 +70,7 @@ const MaterialReports = () => {
             key: 'category',
             label: 'CATEGORY',
             sortable: true,
-            render: (val) => <span style={{ padding: '4px 10px', fontSize: 12, fontWeight: 600, background: '#f1f5f9', color: '#475569', borderRadius: 99 }}>{val || 'General'}</span>
+            render: (val) => <span style={{ padding: '4px 10px', fontSize: 12, fontWeight: 600, background: '#f1f5f9', color: '#475569', borderRadius: 0 }}>{val || 'General'}</span>
         },
         {
             key: 'quantity',
@@ -113,7 +113,7 @@ const MaterialReports = () => {
                 }
                 
                 return (
-                    <span style={{ padding: '4px 10px', fontSize: 11, fontWeight: 600, background: bg, color: color, borderRadius: 99 }}>
+                    <span style={{ padding: '4px 10px', fontSize: 11, fontWeight: 600, background: bg, color: color, borderRadius: 0 }}>
                         {status}
                     </span>
                 );
@@ -165,32 +165,32 @@ const MaterialReports = () => {
                     </div>
                 </div>
 
-                <PastelKPIGrid>
-                    <PastelKPICard
+                <StatGrid>
+                    <StatCard
                         title="Total Inventory Value" value={`$${summary.totalValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}`}
                         colorTheme="mint" icon={TrendingUp}
                         trendValue="Across all materials"
                         trendPositive={true}
                     />
-                    <PastelKPICard
+                    <StatCard
                         title="Unique Materials" value={summary.items.toLocaleString()}
                         colorTheme="blue" icon={Package}
                         trendValue="Tracked SKUs"
                         trendPositive={true}
                     />
-                    <PastelKPICard
+                    <StatCard
                         title="Low Stock Items" value={summary.lowStock}
                         colorTheme="peach" icon={AlertTriangle}
                         trendValue="Requires restocking"
                         trendPositive={false}
                     />
-                    <PastelKPICard
+                    <StatCard
                         title="Total Movements" value={summary.movementsCount.toLocaleString()}
                         colorTheme="purple" icon={Clock}
                         trendValue="Recorded transactions"
                         trendPositive={true}
                     />
-                </PastelKPIGrid>
+                </StatGrid>
 
                 <div style={{ marginTop: '24px' }}>
                     <DataTable

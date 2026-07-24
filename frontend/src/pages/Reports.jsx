@@ -16,7 +16,7 @@ import './ReportsRedesign.css';
 
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 import PageHeader from '../components/PageHeader';
-import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
+import { StatCard, StatGrid } from '../components/ui/StatCard';
 import { formatCurrency } from '../utils/currency';
 
 const Reports = () => {
@@ -186,9 +186,9 @@ const Reports = () => {
             ) : (
                 <>
                     {/* KPI Cards */}
-                    <PastelKPIGrid columns={5}>
+                    <StatGrid columns={5}>
                         {kpis.map((kpi, idx) => (
-                            <PastelKPICard 
+                            <StatCard 
                                 key={idx}
                                 title={kpi.title}
                                 value={kpi.value}
@@ -198,7 +198,7 @@ const Reports = () => {
                                 trendPositive={kpi.isUp}
                             />
                         ))}
-                    </PastelKPIGrid>
+                    </StatGrid>
 
                     {/* Chart Section */}
                     <motion.div 

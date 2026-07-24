@@ -5,7 +5,7 @@ import { Package, Truck, CheckCircle, DollarSign, Search, Plus, Eye, ArrowRight,
 import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell } from 'recharts';
 import { motion } from 'framer-motion';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
-import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
+import { StatCard, StatGrid } from '../components/ui/StatCard';
 import toast from 'react-hot-toast';
 
 const OrderManagement = () => {
@@ -129,11 +129,11 @@ const OrderManagement = () => {
                 </div>
 
                 {/* KPI Cards */}
-                <PastelKPIGrid>
-                    <PastelKPICard title="Total Orders" value={orders.length} colorTheme="purple" icon={Package} trendValue="+18% vs last month" trendPositive={true} />
-                    <PastelKPICard title="Delivered" value={deliveredOrders.length} colorTheme="mint" icon={CheckCircle} trendValue="+12% vs last month" trendPositive={true} />
-                    <PastelKPICard title="Order Revenue" value={formatCurrency(orderRevenue)} colorTheme="yellow" icon={DollarSign} trendValue="+22% vs last month" trendPositive={true} />
-                </PastelKPIGrid>
+                <StatGrid>
+                    <StatCard title="Total Orders" value={orders.length} colorTheme="purple" icon={Package} trendValue="+18% vs last month" trendPositive={true} />
+                    <StatCard title="Delivered" value={deliveredOrders.length} colorTheme="mint" icon={CheckCircle} trendValue="+12% vs last month" trendPositive={true} />
+                    <StatCard title="Order Revenue" value={formatCurrency(orderRevenue)} colorTheme="yellow" icon={DollarSign} trendValue="+22% vs last month" trendPositive={true} />
+                </StatGrid>
 
                 {/* Charts */}
                 <motion.div 
@@ -145,12 +145,12 @@ const OrderManagement = () => {
                     <div className="rd-chart-card" style={{flex: 1}}>
                         <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20}}>
                             <div style={{display: 'flex', alignItems: 'center', gap: 8}}>
-                                <div style={{width: 32, height: 32, borderRadius: 8, background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                                <div style={{width: 32, height: 32, borderRadius: 0, background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
                                     <Activity size={16} color="#3b82f6" />
                                 </div>
                                 <h3 className="rd-chart-title" style={{margin: 0}}>Order Status Distribution</h3>
                             </div>
-                            <select style={{padding: '4px 10px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 12, color: '#475569', background: '#f8fafc', outline: 'none'}}>
+                            <select style={{padding: '4px 10px', borderRadius: 0, border: '1px solid #e2e8f0', fontSize: 12, color: '#475569', background: '#f8fafc', outline: 'none'}}>
                                 <option>This Month</option>
                                 <option>Last Month</option>
                             </select>
@@ -161,7 +161,7 @@ const OrderManagement = () => {
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                                     <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 11}} dy={10} />
                                     <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 11}} />
-                                    <Tooltip cursor={{fill: 'transparent'}} contentStyle={{borderRadius: 8, border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'}} />
+                                    <Tooltip cursor={{fill: 'transparent'}} contentStyle={{borderRadius: 0, border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'}} />
                                     <Bar dataKey="value" radius={[4,4,0,0]}>
                                         {statusDistData.map((entry, index) => (
                                             <Cell key={`cell-${index}`} fill={entry.fill} />
@@ -175,12 +175,12 @@ const OrderManagement = () => {
                     <div className="rd-chart-card" style={{flex: 1.5}}>
                         <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20}}>
                             <div style={{display: 'flex', alignItems: 'center', gap: 8}}>
-                                <div style={{width: 32, height: 32, borderRadius: 8, background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                                <div style={{width: 32, height: 32, borderRadius: 0, background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
                                     <TrendingUp size={16} color="#3b82f6" />
                                 </div>
                                 <h3 className="rd-chart-title" style={{margin: 0}}>Monthly Order Revenue</h3>
                             </div>
-                            <select style={{padding: '4px 10px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 12, color: '#475569', background: '#f8fafc', outline: 'none'}}>
+                            <select style={{padding: '4px 10px', borderRadius: 0, border: '1px solid #e2e8f0', fontSize: 12, color: '#475569', background: '#f8fafc', outline: 'none'}}>
                                 <option>This Year</option>
                                 <option>Last Year</option>
                             </select>
@@ -191,7 +191,7 @@ const OrderManagement = () => {
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                                     <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} dy={10} />
                                     <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 11}} tickFormatter={v => `${v}K`} />
-                                    <Tooltip formatter={(value) => `₹${value}K`} cursor={{fill: 'transparent'}} contentStyle={{borderRadius: 8, border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'}} />
+                                    <Tooltip formatter={(value) => `₹${value}K`} cursor={{fill: 'transparent'}} contentStyle={{borderRadius: 0, border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'}} />
                                     <Legend verticalAlign="top" height={36} iconType="circle" wrapperStyle={{fontSize: 12, fontWeight: 600, color: '#475569'}} />
                                     <Bar dataKey="orderRevenue" name="Order Revenue" fill="#3b82f6" radius={[4,4,0,0]} />
                                     <Bar dataKey="deliveredRevenue" name="Delivered Revenue" fill="#10b981" radius={[4,4,0,0]} />
@@ -222,7 +222,7 @@ const OrderManagement = () => {
                                 {filters.map(f => (
                                     <button key={f} onClick={() => setActiveFilter(f)}
                                         style={{
-                                            padding: '6px 14px', borderRadius: 20, fontSize: 13, fontWeight: 600, cursor: 'pointer', border: '1px solid',
+                                            padding: '6px 14px', borderRadius: 0, fontSize: 13, fontWeight: 600, cursor: 'pointer', border: '1px solid',
                                             background: activeFilter === f ? '#3b82f6' : '#fff',
                                             color: activeFilter === f ? '#fff' : '#64748b',
                                             borderColor: activeFilter === f ? '#3b82f6' : '#e2e8f0'
@@ -289,7 +289,7 @@ const OrderManagement = () => {
                                         <td style={{fontWeight: 700, color: 'var(--rd-text-main)', textAlign: 'right'}} data-label="Amount">₹{(Number(o.totalAmount) || Number(o.grandTotal) || 0).toLocaleString()}</td>
                                         <td style={{color: '#64748b'}} data-label="Ordered">{o.createdAt ? new Date(o.createdAt).toLocaleDateString('en-GB', {day:'2-digit', month:'2-digit', year:'2-digit'}) : '—'}</td>
                                         <td data-label="Priority">
-                                            <span style={{padding: '4px 10px', borderRadius: 6, fontSize: 12, fontWeight: 700, background: priStyle.bg, color: priStyle.color}}>
+                                            <span style={{padding: '4px 10px', borderRadius: 0, fontSize: 12, fontWeight: 700, background: priStyle.bg, color: priStyle.color}}>
                                                 {pri}
                                             </span>
                                         </td>
@@ -333,7 +333,7 @@ const OrderKPICard = ({ title, val, trend, subtitle, color, icon: Icon, data }) 
             </div>
             <div className="ent-card-footer">
                 <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'currentColor' }}></div>
+                    <div style={{ width: '6px', height: '6px', borderRadius: '0px', backgroundColor: 'currentColor' }}></div>
                     Updated Today
                 </div>
             </div>

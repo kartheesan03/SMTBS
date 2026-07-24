@@ -8,7 +8,7 @@ import {
     MessageSquare, Shield, Calendar, User, Zap, X, AlertCircle
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
+import { StatCard, StatGrid } from '../components/ui/StatCard';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 
 // ── Category config ───────────────────────────────────────────────────────────
@@ -60,13 +60,13 @@ const AddCourseModal = ({ onClose, onSave }) => {
 
     const inp = {
         width: '100%', padding: '9px 12px', border: '1px solid #e2e8f0',
-        borderRadius: 8, fontSize: 13, outline: 'none',
+        borderRadius: 0, fontSize: 13, outline: 'none',
         boxSizing: 'border-box', color: '#0f172a', background: '#fff'
     };
 
     return (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.45)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ background: '#fff', borderRadius: 18, padding: 28, width: 520, maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
+            <div style={{ background: '#fff', borderRadius: 0, padding: 28, width: 520, maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
                     <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: '#0f172a' }}>Add New Course</h2>
                     <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}><X size={20} /></button>
@@ -128,7 +128,7 @@ const AddCourseModal = ({ onClose, onSave }) => {
                         </div>
                     </div>
                     <button type="submit" disabled={saving} style={{
-                        padding: '11px 0', borderRadius: 10, border: 'none',
+                        padding: '11px 0', borderRadius: 0, border: 'none',
                         background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', color: '#fff',
                         fontWeight: 700, fontSize: 14, cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1
                     }}>
@@ -224,8 +224,8 @@ const TrainingDevelopment = () => {
                 </div>
 
                 {/* ── KPI Cards ── */}
-                <PastelKPIGrid>
-                    <PastelKPICard
+                <StatGrid>
+                    <StatCard
                         title="Total Courses"
                         value={stats.totalCourses ?? 0}
                         colorTheme="blue"
@@ -233,7 +233,7 @@ const TrainingDevelopment = () => {
                         trendValue="All categories"
                         trendPositive={true}
                     />
-                    <PastelKPICard
+                    <StatCard
                         title="Enrolled Employees"
                         value={stats.enrolledEmployees ?? 0}
                         colorTheme="purple"
@@ -241,7 +241,7 @@ const TrainingDevelopment = () => {
                         trendValue="Across all courses"
                         trendPositive={true}
                     />
-                    <PastelKPICard
+                    <StatCard
                         title="Avg. Completion"
                         value={`${stats.avgCompletion ?? 0}%`}
                         colorTheme="mint"
@@ -249,7 +249,7 @@ const TrainingDevelopment = () => {
                         trendValue="Overall completion rate"
                         trendPositive={(stats.avgCompletion ?? 0) >= 60}
                     />
-                    <PastelKPICard
+                    <StatCard
                         title="Certifications"
                         value={stats.certifications ?? 0}
                         colorTheme="yellow"
@@ -257,7 +257,7 @@ const TrainingDevelopment = () => {
                         trendValue="Courses completed"
                         trendPositive={true}
                     />
-                </PastelKPIGrid>
+                </StatGrid>
 
                 {/* ── Table / Course Section ── */}
                 <motion.div
@@ -287,7 +287,7 @@ const TrainingDevelopment = () => {
                                         onClick={() => setActiveCategory(cat.id)}
                                         style={{
                                             display: 'flex', alignItems: 'center', gap: 5,
-                                            padding: '6px 12px', borderRadius: 20, fontSize: 11, fontWeight: 600,
+                                            padding: '6px 12px', borderRadius: 0, fontSize: 11, fontWeight: 600,
                                             border: activeCategory === cat.id ? '1.5px solid #6366f1' : '1.5px solid #e2e8f0',
                                             background: activeCategory === cat.id ? '#eef2ff' : '#fff',
                                             color: activeCategory === cat.id ? '#4f46e5' : '#64748b',
@@ -349,7 +349,7 @@ const TrainingDevelopment = () => {
                                             <td data-label="Course">
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                                                     <div style={{
-                                                        width: 36, height: 36, borderRadius: 10,
+                                                        width: 36, height: 36, borderRadius: 0,
                                                         background: `${course.color || '#3b82f6'}18`,
                                                         display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
                                                         borderLeft: `3px solid ${course.color || '#3b82f6'}`
@@ -359,7 +359,7 @@ const TrainingDevelopment = () => {
                                                     <div>
                                                         <div style={{ fontWeight: 700, color: 'var(--rd-text-main)', fontSize: 13 }}>{course.title}</div>
                                                         {bs && (
-                                                            <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 7px', borderRadius: 99, background: bs.bg, color: bs.color }}>
+                                                            <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 7px', borderRadius: 0, background: bs.bg, color: bs.color }}>
                                                                 {course.badge}
                                                             </span>
                                                         )}
@@ -368,7 +368,7 @@ const TrainingDevelopment = () => {
                                             </td>
                                             {/* Category */}
                                             <td data-label="Category">
-                                                <span style={{ background: '#f1f5f9', color: '#475569', padding: '4px 10px', borderRadius: 6, fontSize: 11, fontWeight: 600 }}>
+                                                <span style={{ background: '#f1f5f9', color: '#475569', padding: '4px 10px', borderRadius: 0, fontSize: 11, fontWeight: 600 }}>
                                                     {catLabel}
                                                 </span>
                                             </td>
@@ -398,8 +398,8 @@ const TrainingDevelopment = () => {
                                             {/* Progress bar */}
                                             <td data-label="My Progress">
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                                    <div style={{ flex: 1, height: 4, background: '#f1f5f9', borderRadius: 4, overflow: 'hidden', minWidth: 60 }}>
-                                                        <div style={{ width: `${course.myProgress || 0}%`, height: '100%', background: course.color || '#3b82f6', borderRadius: 4 }} />
+                                                    <div style={{ flex: 1, height: 4, background: '#f1f5f9', borderRadius: 0, overflow: 'hidden', minWidth: 60 }}>
+                                                        <div style={{ width: `${course.myProgress || 0}%`, height: '100%', background: course.color || '#3b82f6', borderRadius: 0 }} />
                                                     </div>
                                                     <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--rd-text-main)', width: 28 }}>
                                                         {course.myProgress || 0}
@@ -424,7 +424,7 @@ const TrainingDevelopment = () => {
                                                     onClick={() => course.myStatus === 'Not Started' && handleEnroll(course.id)}
                                                     disabled={isEnrolling || course.myStatus !== 'Not Started'}
                                                     style={{
-                                                        padding: '6px 12px', borderRadius: 7, border: 'none',
+                                                        padding: '6px 12px', borderRadius: 0, border: 'none',
                                                         background: course.myStatus === 'Completed'
                                                             ? '#ecfdf5'
                                                             : course.myStatus === 'In Progress'

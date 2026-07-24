@@ -30,7 +30,7 @@
 .enlight-search-input {
   width: 100%;
   padding: 10px 16px 10px 40px;
-  border-radius: 20px;
+  border-radius: 0px;
   border: 1px solid #e2e8f0;
   background-color: #ffffff;
   font-size: 14px;
@@ -61,7 +61,7 @@
 
 .enlight-card {
   background: #ffffff;
-  border-radius: 16px;
+  border-radius: 0px;
   padding: 24px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.02);
   display: flex;
@@ -131,7 +131,7 @@
 
 .kpi-pill {
   padding: 4px 10px;
-  border-radius: 20px;
+  border-radius: 0px;
   font-size: 12px;
   font-weight: 600;
 }
@@ -194,7 +194,7 @@
   gap: 8px;
   background: white;
   padding: 12px 16px;
-  border-radius: 12px;
+  border-radius: 0px;
   box-shadow: 0 4px 15px rgba(0,0,0,0.05);
   position: absolute;
   top: 40px;
@@ -213,7 +213,7 @@
 .legend-dot {
   width: 8px;
   height: 8px;
-  border-radius: 50%;
+  border-radius: 0px;
 }
 
 .legend-value {
@@ -250,7 +250,7 @@
   display: flex;
   padding: 16px;
   border: 1px solid #f1f5f9;
-  border-radius: 12px;
+  border-radius: 0px;
   transition: all 0.2s;
 }
 
@@ -262,7 +262,7 @@
 .schedule-avatar {
   width: 40px;
   height: 40px;
-  border-radius: 10px;
+  border-radius: 0px;
   object-fit: cover;
   margin-right: 16px;
 }
@@ -358,7 +358,7 @@
 .status-pill {
   display: inline-block;
   padding: 4px 12px;
-  border-radius: 20px;
+  border-radius: 0px;
   font-size: 12px;
   font-weight: 600;
 }

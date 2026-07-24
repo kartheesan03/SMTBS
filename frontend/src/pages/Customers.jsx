@@ -5,7 +5,7 @@ import { Users, UserCheck, AlertCircle, DollarSign, Plus, Eye, Edit, Trash2 } fr
 import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
-import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
+import { StatCard, StatGrid } from '../components/ui/StatCard';
 import { DataTable } from '../components/ui';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 const Customers = ({ directoryOnly }) => {
@@ -87,7 +87,7 @@ const Customers = ({ directoryOnly }) => {
                 }
                 return (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div style={{ width: '40px', height: '40px', background: '#f1f5f9', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
+                    <div style={{ width: '40px', height: '40px', background: '#f1f5f9', borderRadius: '0px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
                         <Users size={20} />
                     </div>
                     <div>
@@ -149,12 +149,12 @@ const Customers = ({ directoryOnly }) => {
                         </div>
                 </div>
 
-                <PastelKPIGrid>
-                    <PastelKPICard title="Total Accounts" value={customers.length} colorTheme="blue" icon={Users} trendValue="All customers" trendPositive={true} />
-                    <PastelKPICard title="Active" value={activeAccounts.length} colorTheme="mint" icon={UserCheck} trendValue="Ordering" trendPositive={true} />
-                    <PastelKPICard title="At Risk" value={atRisk.length} colorTheme="peach" icon={AlertCircle} trendValue="Churn warning" trendPositive={false} />
-                    <PastelKPICard title="LTV / Revenue" value={formatCurrency(totalRevenue)} colorTheme="purple" icon={DollarSign} trendValue="Lifetime" trendPositive={true} />
-                </PastelKPIGrid>
+                <StatGrid>
+                    <StatCard title="Total Accounts" value={customers.length} colorTheme="blue" icon={Users} trendValue="All customers" trendPositive={true} />
+                    <StatCard title="Active" value={activeAccounts.length} colorTheme="mint" icon={UserCheck} trendValue="Ordering" trendPositive={true} />
+                    <StatCard title="At Risk" value={atRisk.length} colorTheme="peach" icon={AlertCircle} trendValue="Churn warning" trendPositive={false} />
+                    <StatCard title="LTV / Revenue" value={formatCurrency(totalRevenue)} colorTheme="purple" icon={DollarSign} trendValue="Lifetime" trendPositive={true} />
+                </StatGrid>
 
                 <motion.div 
                     initial={{ opacity: 0, y: 20 }}
@@ -163,7 +163,7 @@ const Customers = ({ directoryOnly }) => {
                     style={{ marginTop: '24px' }}
                 >
                     {loading ? (
-                        <div style={{ textAlign: 'center', padding: '40px', background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                        <div style={{ textAlign: 'center', padding: '40px', background: '#fff', borderRadius: '0px', border: '1px solid #e2e8f0' }}>
                             Loading customer data...
                         </div>
                     ) : (
@@ -209,7 +209,7 @@ const CustomerKPICard = ({ title, val, icon: Icon, color, data }) => {
             <div className="ent-card-footer">
                 <div style={{ display: 'flex', alignItems: 'center', height: '18px' }}>
                     <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'currentColor' }}></div>
+                        <div style={{ width: '6px', height: '6px', borderRadius: '0px', backgroundColor: 'currentColor' }}></div>
                         Updated Today
                     </div>
                 </div>

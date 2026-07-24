@@ -2,7 +2,7 @@
     font-family: 'Plus Jakarta Sans', sans-serif;
     color: #1A1D1F;
     background-color: #FAFAFB;
-    border-radius: 24px;
+    border-radius: 0px;
     padding: 30px;
     display: flex;
     flex-direction: column;
@@ -34,7 +34,7 @@
     gap: 12px;
     background-color: #F8F9FA;
     padding: 12px 20px;
-    border-radius: 16px;
+    border-radius: 0px;
     width: 280px;
     border: 1px solid #EFEFEF;
 }
@@ -51,7 +51,7 @@
 .davbank-notif-btn {
     width: 48px;
     height: 48px;
-    border-radius: 16px;
+    border-radius: 0px;
     border: 1px solid #EFEFEF;
     background: #FFFFFF;
     display: flex;
@@ -68,7 +68,7 @@
     width: 8px;
     height: 8px;
     background-color: #EF6A4F;
-    border-radius: 50%;
+    border-radius: 0px;
     border: 2px solid #FFFFFF;
 }
 
@@ -103,7 +103,7 @@
     border: none;
     width: 36px;
     height: 36px;
-    border-radius: 10px;
+    border-radius: 0px;
     cursor: pointer;
     display: flex;
     justify-content: center;
@@ -173,7 +173,7 @@
     font-weight: 700;
     background: rgba(36, 87, 81, 0.05);
     padding: 6px 12px;
-    border-radius: 8px;
+    border-radius: 0px;
 }
 
 /* Chart */
@@ -216,7 +216,7 @@
 
 .davbank-bar {
     width: 100%;
-    border-radius: 6px;
+    border-radius: 0px;
     transition: height 1s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
 }
@@ -248,14 +248,14 @@
     gap: 16px;
     background: #FFFFFF;
     padding: 16px;
-    border-radius: 12px;
+    border-radius: 0px;
     border: 1px solid #EFEFEF;
 }
 
 .davbank-history-icon {
     width: 48px;
     height: 48px;
-    border-radius: 16px;
+    border-radius: 0px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -350,7 +350,7 @@
 .davbank-credit-card {
     background: linear-gradient(135deg, #183C38, #245751);
     color: white;
-    border-radius: 20px;
+    border-radius: 0px;
     padding: 24px;
     width: 280px;
     height: 170px;
@@ -414,7 +414,7 @@
 
 .davbank-add-card {
     border: 2px dashed #E2E2E2;
-    border-radius: 20px;
+    border-radius: 0px;
     width: 80px;
     height: 170px;
     display: flex;
@@ -438,7 +438,7 @@
 .davbank-planning-item {
     background-color: #FFFFFF;
     padding: 16px 20px;
-    border-radius: 16px;
+    border-radius: 0px;
     border: 1px solid #EFEFEF;
 }
 
@@ -465,11 +465,11 @@
 .davbank-progress-bar {
     height: 6px;
     background-color: #E2E2E2;
-    border-radius: 3px;
+    border-radius: 0px;
     overflow: hidden;
 }
 
 .davbank-progress-fill {
     height: 100%;
-    border-radius: 3px;
+    border-radius: 0px;
 }

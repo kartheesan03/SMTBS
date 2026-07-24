@@ -20,7 +20,7 @@ class ErrorBoundary extends React.Component {
       return (
         <div style={{ padding: '40px', background: '#fef2f2', color: '#991b1b', height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
           <h2>Something went wrong in the React Application.</h2>
-          <details style={{ whiteSpace: 'pre-wrap', background: '#fff', padding: '20px', borderRadius: '8px', maxWidth: '800px', overflowX: 'auto' }}>
+          <details style={{ whiteSpace: 'pre-wrap', background: '#fff', padding: '20px', borderRadius: '0px', maxWidth: '800px', overflowX: 'auto' }}>
             <summary style={{ fontWeight: 'bold', cursor: 'pointer', marginBottom: '10px' }}>Error Details</summary>
             {this.state.error && this.state.error.toString()}
             <br />

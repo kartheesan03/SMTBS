@@ -3,7 +3,7 @@ import { BarChart as BarChartIcon, TrendingUp, DollarSign, Award, Users, Crossha
 import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, Legend, Cell, PieChart, Pie } from 'recharts';
 import { motion } from 'framer-motion';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
-import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
+import { StatCard, StatGrid } from '../components/ui/StatCard';
 import toast from 'react-hot-toast';
 import API from '../api/axios';
 
@@ -171,12 +171,12 @@ const SalesPipeline = () => {
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.1, duration: 0.4 }}
                 >
-                    <PastelKPIGrid>
-                        <PastelKPICard title="Total Pipeline Value" value={formatShortCurrency(pipelineValue)} colorTheme="blue" icon={BarChartIcon} trendValue="+5% vs last month" trendPositive={true} />
-                        <PastelKPICard title="Deals in Pipeline" value={dealCount} colorTheme="mint" icon={TrendingUp} trendValue="Active" trendPositive={true} />
-                        <PastelKPICard title="Avg. Deal Size" value={formatShortCurrency(avgDealSize)} colorTheme="purple" icon={DollarSign} trendValue="Steady" trendPositive={true} />
-                        <PastelKPICard title="Win Rate" value={`${winRate}%`} colorTheme="peach" icon={Award} trendValue="Lead conversion" trendPositive={true} />
-                    </PastelKPIGrid>
+                    <StatGrid>
+                        <StatCard title="Total Pipeline Value" value={formatShortCurrency(pipelineValue)} colorTheme="blue" icon={BarChartIcon} trendValue="+5% vs last month" trendPositive={true} />
+                        <StatCard title="Deals in Pipeline" value={dealCount} colorTheme="mint" icon={TrendingUp} trendValue="Active" trendPositive={true} />
+                        <StatCard title="Avg. Deal Size" value={formatShortCurrency(avgDealSize)} colorTheme="purple" icon={DollarSign} trendValue="Steady" trendPositive={true} />
+                        <StatCard title="Win Rate" value={`${winRate}%`} colorTheme="peach" icon={Award} trendValue="Lead conversion" trendPositive={true} />
+                    </StatGrid>
                 </motion.div>
 
                 {/* Stage Funnel Chart */}
@@ -188,7 +188,7 @@ const SalesPipeline = () => {
                 >
                     <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20}}>
                         <div style={{display: 'flex', alignItems: 'center', gap: 8}}>
-                            <div style={{width: 32, height: 32, borderRadius: 8, background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                            <div style={{width: 32, height: 32, borderRadius: 0, background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
                                 <BarChartIcon size={16} color="#3b82f6" />
                             </div>
                             <h3 className="rd-chart-title" style={{margin: 0}}>Sales Pipeline — Stage Funnel</h3>
@@ -200,12 +200,12 @@ const SalesPipeline = () => {
                         {funnelData.map((stage, i) => (
                             <div key={i} style={{display: 'flex', alignItems: 'center'}}>
                                 <div style={{width: 140, display: 'flex', alignItems: 'center', gap: 8}}>
-                                    <div style={{width: 8, height: 8, borderRadius: '50%', background: stage.color}}></div>
+                                    <div style={{width: 8, height: 8, borderRadius: '0px', background: stage.color}}></div>
                                     <span style={{fontWeight: 700, color: '#1e293b', fontSize: 13}}>{stage.stage}</span>
                                 </div>
                                 <div style={{width: 80, fontSize: 13, color: '#64748b'}}>{stage.count} deals</div>
-                                <div style={{flex: 1, position: 'relative', height: 8, background: '#f1f5f9', borderRadius: 4, overflow: 'hidden'}}>
-                                    <div style={{position: 'absolute', top: 0, left: 0, height: '100%', width: `${stage.percent}%`, background: stage.color, borderRadius: 4}}></div>
+                                <div style={{flex: 1, position: 'relative', height: 8, background: '#f1f5f9', borderRadius: 0, overflow: 'hidden'}}>
+                                    <div style={{position: 'absolute', top: 0, left: 0, height: '100%', width: `${stage.percent}%`, background: stage.color, borderRadius: 0}}></div>
                                 </div>
                                 <div style={{width: 80, textAlign: 'right', fontWeight: 800, color: stage.color, fontSize: 14}}>
                                     {formatShortCurrency(stage.value)}
@@ -225,7 +225,7 @@ const SalesPipeline = () => {
                     <div className="rd-chart-card" style={{flex: 1, display: 'flex', flexDirection: 'column'}}>
                         <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20}}>
                             <div style={{display: 'flex', alignItems: 'center', gap: 8}}>
-                                <div style={{width: 32, height: 32, borderRadius: 8, background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                                <div style={{width: 32, height: 32, borderRadius: 0, background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
                                     <TrendingUp size={16} color="#3b82f6" />
                                 </div>
                                 <div>
@@ -233,15 +233,15 @@ const SalesPipeline = () => {
                                     <div style={{fontSize: 12, color: '#94a3b8'}}>Track your revenue and delivered amount over time</div>
                                 </div>
                             </div>
-                            <select style={{padding: '4px 10px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 12, color: '#475569', background: '#f8fafc', outline: 'none'}}>
+                            <select style={{padding: '4px 10px', borderRadius: 0, border: '1px solid #e2e8f0', fontSize: 12, color: '#475569', background: '#f8fafc', outline: 'none'}}>
                                 <option>This Year</option>
                             </select>
                         </div>
                         
                         <div style={{display: 'flex', gap: 16, marginBottom: 24}}>
-                            <div style={{flex: 1, background: '#f8fafc', border: '1px solid #f1f5f9', borderRadius: 12, padding: 16}}>
+                            <div style={{flex: 1, background: '#f8fafc', border: '1px solid #f1f5f9', borderRadius: 0, padding: 16}}>
                                 <div style={{display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8}}>
-                                    <div style={{width: 10, height: 10, borderRadius: 2, background: '#3b82f6'}}></div>
+                                    <div style={{width: 10, height: 10, borderRadius: 0, background: '#3b82f6'}}></div>
                                     <span style={{fontSize: 12, fontWeight: 700, color: '#475569'}}>Total Revenue</span>
                                 </div>
                                 <div style={{display: 'flex', alignItems: 'baseline', gap: 8}}>
@@ -250,9 +250,9 @@ const SalesPipeline = () => {
                                 </div>
                                 <div style={{fontSize: 11, color: '#94a3b8', marginTop: 4}}>vs last 6 months</div>
                             </div>
-                            <div style={{flex: 1, background: '#f8fafc', border: '1px solid #f1f5f9', borderRadius: 12, padding: 16}}>
+                            <div style={{flex: 1, background: '#f8fafc', border: '1px solid #f1f5f9', borderRadius: 0, padding: 16}}>
                                 <div style={{display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8}}>
-                                    <div style={{width: 10, height: 10, borderRadius: 2, background: '#10b981'}}></div>
+                                    <div style={{width: 10, height: 10, borderRadius: 0, background: '#10b981'}}></div>
                                     <span style={{fontSize: 12, fontWeight: 700, color: '#475569'}}>Total Delivered</span>
                                 </div>
                                 <div style={{display: 'flex', alignItems: 'baseline', gap: 8}}>
@@ -269,7 +269,7 @@ const SalesPipeline = () => {
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                                     <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} dy={6} />
                                     <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 11}} tickFormatter={v => formatShortCurrency(v)} />
-                                    <Tooltip formatter={(val) => `₹${val.toLocaleString()}`} cursor={{fill: '#f1f5f9'}} contentStyle={{borderRadius: 8, border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', padding: 12, fontWeight: 600}} />
+                                    <Tooltip formatter={(val) => `₹${val.toLocaleString()}`} cursor={{fill: '#f1f5f9'}} contentStyle={{borderRadius: 0, border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', padding: 12, fontWeight: 600}} />
                                     <Legend verticalAlign="bottom" height={32} iconType="circle" wrapperStyle={{fontSize: 12, fontWeight: 600, color: '#475569', paddingTop: 12}} />
                                     <Bar dataKey="revenue" name="Revenue (₹)" fill="#3b82f6" radius={[4,4,0,0]} />
                                     <Bar dataKey="delivered" name="Delivered (₹)" fill="#10b981" radius={[4,4,0,0]} />
@@ -277,9 +277,9 @@ const SalesPipeline = () => {
                             </ResponsiveContainer>
                         </div>
                         
-                        <div style={{background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)', borderRadius: 12, padding: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'white', marginTop: 24}}>
+                        <div style={{background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)', borderRadius: 0, padding: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'white', marginTop: 24}}>
                             <div style={{display: 'flex', alignItems: 'center', gap: 12}}>
-                                <div style={{width: 36, height: 36, borderRadius: '50%', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                                <div style={{width: 36, height: 36, borderRadius: '0px', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
                                     <TrendingUp size={18} />
                                 </div>
                                 <div>
@@ -295,7 +295,7 @@ const SalesPipeline = () => {
                     <div className="rd-chart-card" style={{flex: 1, display: 'flex', flexDirection: 'column'}}>
                         <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20}}>
                             <div style={{display: 'flex', alignItems: 'center', gap: 8}}>
-                                <div style={{width: 32, height: 32, borderRadius: 8, background: '#f5f3ff', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                                <div style={{width: 32, height: 32, borderRadius: 0, background: '#f5f3ff', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
                                     <Users size={16} color="#8b5cf6" />
                                 </div>
                                 <div>
@@ -303,15 +303,15 @@ const SalesPipeline = () => {
                                     <div style={{fontSize: 12, color: '#94a3b8'}}>Analyze customer segments by industry</div>
                                 </div>
                             </div>
-                            <select style={{padding: '4px 10px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 12, color: '#475569', background: '#f8fafc', outline: 'none'}}>
+                            <select style={{padding: '4px 10px', borderRadius: 0, border: '1px solid #e2e8f0', fontSize: 12, color: '#475569', background: '#f8fafc', outline: 'none'}}>
                                 <option>All Time</option>
                             </select>
                         </div>
 
                         <div style={{display: 'flex', gap: 16, marginBottom: 24}}>
-                            <div style={{flex: 1, background: '#f8fafc', border: '1px solid #f1f5f9', borderRadius: 12, padding: 16}}>
+                            <div style={{flex: 1, background: '#f8fafc', border: '1px solid #f1f5f9', borderRadius: 0, padding: 16}}>
                                 <div style={{display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8}}>
-                                    <div style={{width: 20, height: 20, borderRadius: '50%', background: '#e0e7ff', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                                    <div style={{width: 20, height: 20, borderRadius: '0px', background: '#e0e7ff', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
                                         <Users size={10} color="#4f46e5" />
                                     </div>
                                     <span style={{fontSize: 12, fontWeight: 700, color: '#475569'}}>Total Customers</span>
@@ -321,9 +321,9 @@ const SalesPipeline = () => {
                                 </div>
                                 <div style={{fontSize: 11, color: '#94a3b8', marginTop: 4}}>active customers</div>
                             </div>
-                            <div style={{flex: 1, background: '#f8fafc', border: '1px solid #f1f5f9', borderRadius: 12, padding: 16}}>
+                            <div style={{flex: 1, background: '#f8fafc', border: '1px solid #f1f5f9', borderRadius: 0, padding: 16}}>
                                 <div style={{display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8}}>
-                                    <div style={{width: 20, height: 20, borderRadius: '50%', background: '#ecfdf5', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                                    <div style={{width: 20, height: 20, borderRadius: '0px', background: '#ecfdf5', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
                                         <Crosshair size={10} color="#059669" />
                                     </div>
                                     <span style={{fontSize: 12, fontWeight: 700, color: '#475569'}}>Conversion Rate</span>
@@ -341,7 +341,7 @@ const SalesPipeline = () => {
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                                     <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 11}} dy={10} />
                                     <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 11}} />
-                                    <Tooltip cursor={{fill: 'transparent'}} contentStyle={{borderRadius: 8, border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'}} />
+                                    <Tooltip cursor={{fill: 'transparent'}} contentStyle={{borderRadius: 0, border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'}} />
                                     <Bar dataKey="value" radius={[6,6,0,0]} label={{position: 'top', fill: '#1e293b', fontSize: 12, fontWeight: 700}}>
                                         {sourceData.map((entry, index) => (
                                             <Cell key={`cell-${index}`} fill={entry.fill} />
@@ -351,9 +351,9 @@ const SalesPipeline = () => {
                             </ResponsiveContainer>
                         </div>
 
-                        <div style={{background: 'linear-gradient(135deg, #a855f7 0%, #7e22ce 100%)', borderRadius: 12, padding: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'white', marginTop: 24}}>
+                        <div style={{background: 'linear-gradient(135deg, #a855f7 0%, #7e22ce 100%)', borderRadius: 0, padding: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'white', marginTop: 24}}>
                             <div style={{display: 'flex', alignItems: 'center', gap: 12}}>
-                                <div style={{width: 36, height: 36, borderRadius: '50%', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                                <div style={{width: 36, height: 36, borderRadius: '0px', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
                                     <Award size={18} />
                                 </div>
                                 <div>
@@ -374,7 +374,7 @@ const SalesPipeline = () => {
                 >
                     <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20}}>
                         <div style={{display: 'flex', alignItems: 'center', gap: 8}}>
-                            <div style={{width: 32, height: 32, borderRadius: 8, background: '#f5f3ff', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                            <div style={{width: 32, height: 32, borderRadius: 0, background: '#f5f3ff', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
                                 <Crosshair size={16} color="#8b5cf6" />
                             </div>
                             <h3 className="rd-chart-title" style={{margin: 0}}>Top Open Opportunities</h3>
@@ -393,9 +393,9 @@ const SalesPipeline = () => {
                             const bg = oppBgs[i % oppBgs.length];
                             
                             return (
-                                <div key={opp._id || opp.id || i} style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 16, background: '#f8fafc', borderRadius: 12, border: '1px solid #f1f5f9'}}>
+                                <div key={opp._id || opp.id || i} style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 16, background: '#f8fafc', borderRadius: 0, border: '1px solid #f1f5f9'}}>
                                     <div style={{display: 'flex', alignItems: 'center', gap: 16}}>
-                                        <div style={{width: 40, height: 40, borderRadius: 10, background: bg, color: color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 16}}>
+                                        <div style={{width: 40, height: 40, borderRadius: 0, background: bg, color: color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 16}}>
                                             {custName.charAt(0)}
                                         </div>
                                         <div>
@@ -404,7 +404,7 @@ const SalesPipeline = () => {
                                         </div>
                                     </div>
                                     <div style={{display: 'flex', alignItems: 'center', gap: 24}}>
-                                        <span style={{padding: '4px 12px', borderRadius: 20, fontSize: 12, fontWeight: 600, color: color, border: `1px solid ${color}50`}}>
+                                        <span style={{padding: '4px 12px', borderRadius: 0, fontSize: 12, fontWeight: 600, color: color, border: `1px solid ${color}50`}}>
                                             {oppStage}
                                         </span>
                                         <div style={{textAlign: 'right'}}>
@@ -437,7 +437,7 @@ const PipelineKPICard = ({ title, val, color, icon: Icon }) => {
             </div>
             <div className="ent-card-footer">
                 <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'currentColor' }}></div>
+                    <div style={{ width: '6px', height: '6px', borderRadius: '0px', backgroundColor: 'currentColor' }}></div>
                     Updated Today
                 </div>
             </div>

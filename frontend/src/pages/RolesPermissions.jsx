@@ -158,7 +158,7 @@ const RolesPermissions = () => {
             {/* Create Role Modal */}
             {isModalOpen && (
                 <div className="modal-overlay" style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000}}>
-                    <div className="modal-content" style={{background: 'white', borderRadius: 12, width: 400, maxWidth: '90%', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', padding: 0, overflow: 'hidden'}}>
+                    <div className="modal-content" style={{background: 'white', borderRadius: 0, width: 400, maxWidth: '90%', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', padding: 0, overflow: 'hidden'}}>
                         <div style={{padding: '20px 24px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                             <h3 style={{margin: 0, fontSize: 18, color: '#0f172a'}}>Create New Role</h3>
                             <button onClick={() => setIsModalOpen(false)} style={{background: 'none', border: 'none', cursor: 'pointer', color: '#64748b', display: 'flex', alignItems: 'center', padding: 0}}><X size={20} /></button>
@@ -166,11 +166,11 @@ const RolesPermissions = () => {
                         <form onSubmit={handleCreateRole} style={{padding: 24}}>
                             <div style={{marginBottom: 16}}>
                                 <label style={{display: 'block', fontSize: 13, fontWeight: 600, color: '#334155', marginBottom: 8}}>Role Name <span style={{color: '#ef4444'}}>*</span></label>
-                                <input type="text" value={newRoleName} onChange={e => setNewRoleName(e.target.value)} placeholder="e.g. Content Editor" style={{width: '100%', padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: 6, outline: 'none', boxSizing: 'border-box', fontSize: 14}} required />
+                                <input type="text" value={newRoleName} onChange={e => setNewRoleName(e.target.value)} placeholder="e.g. Content Editor" style={{width: '100%', padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: 0, outline: 'none', boxSizing: 'border-box', fontSize: 14}} required />
                             </div>
                             <div style={{marginBottom: 24}}>
                                 <label style={{display: 'block', fontSize: 13, fontWeight: 600, color: '#334155', marginBottom: 8}}>Permissions</label>
-                                <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', maxHeight: '180px', overflowY: 'auto', padding: '12px', border: '1px solid #cbd5e1', borderRadius: 6, background: '#f8fafc'}}>
+                                <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', maxHeight: '180px', overflowY: 'auto', padding: '12px', border: '1px solid #cbd5e1', borderRadius: 0, background: '#f8fafc'}}>
                                     {availablePermissions.map(p => (
                                         <label key={p} style={{display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, cursor: 'pointer', margin: 0, color: '#475569'}}>
                                             <input type="checkbox" checked={newRolePerms.includes(p)} onChange={e => {
@@ -182,7 +182,7 @@ const RolesPermissions = () => {
                                     ))}
                                 </div>
                                 <div style={{marginTop: 8, display: 'flex', gap: 8}}>
-                                    <input type="text" value={customPerm} onChange={e => setCustomPerm(e.target.value)} placeholder="Type custom permission..." style={{flex: 1, padding: '6px 10px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12, outline: 'none'}} />
+                                    <input type="text" value={customPerm} onChange={e => setCustomPerm(e.target.value)} placeholder="Type custom permission..." style={{flex: 1, padding: '6px 10px', border: '1px solid #cbd5e1', borderRadius: 0, fontSize: 12, outline: 'none'}} />
                                     <button type="button" onClick={() => {
                                         const p = customPerm.trim().toLowerCase().replace(/ /g, '_');
                                         if (p && !newRolePerms.includes(p)) {
@@ -190,12 +190,12 @@ const RolesPermissions = () => {
                                             if (!availablePermissions.includes(p)) setAvailablePermissions([...availablePermissions, p]);
                                         }
                                         setCustomPerm('');
-                                    }} style={{padding: '6px 12px', background: '#e2e8f0', color: '#475569', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer'}}>Add</button>
+                                    }} style={{padding: '6px 12px', background: '#e2e8f0', color: '#475569', border: 'none', borderRadius: 0, fontSize: 12, fontWeight: 600, cursor: 'pointer'}}>Add</button>
                                 </div>
                             </div>
                             <div style={{display: 'flex', justifyContent: 'flex-end', gap: 12}}>
-                                <button type="button" onClick={() => setIsModalOpen(false)} style={{padding: '8px 16px', background: 'white', border: '1px solid #cbd5e1', borderRadius: 6, color: '#475569', fontWeight: 600, cursor: 'pointer', fontSize: 14}}>Cancel</button>
-                                <button type="submit" disabled={submitting} style={{padding: '8px 16px', background: '#3b82f6', border: 'none', borderRadius: 6, color: 'white', fontWeight: 600, cursor: submitting ? 'not-allowed' : 'pointer', opacity: submitting ? 0.7 : 1, fontSize: 14}}>
+                                <button type="button" onClick={() => setIsModalOpen(false)} style={{padding: '8px 16px', background: 'white', border: '1px solid #cbd5e1', borderRadius: 0, color: '#475569', fontWeight: 600, cursor: 'pointer', fontSize: 14}}>Cancel</button>
+                                <button type="submit" disabled={submitting} style={{padding: '8px 16px', background: '#3b82f6', border: 'none', borderRadius: 0, color: 'white', fontWeight: 600, cursor: submitting ? 'not-allowed' : 'pointer', opacity: submitting ? 0.7 : 1, fontSize: 14}}>
                                     {submitting ? 'Creating...' : 'Create Role'}
                                 </button>
                             </div>
@@ -207,7 +207,7 @@ const RolesPermissions = () => {
             {/* Edit Role Modal */}
             {editingRole && (
                 <div className="modal-overlay" style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000}}>
-                    <div className="modal-content" style={{background: 'white', borderRadius: 12, width: 400, maxWidth: '90%', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', padding: 0, overflow: 'hidden'}}>
+                    <div className="modal-content" style={{background: 'white', borderRadius: 0, width: 400, maxWidth: '90%', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', padding: 0, overflow: 'hidden'}}>
                         <div style={{padding: '20px 24px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                             <h3 style={{margin: 0, fontSize: 18, color: '#0f172a'}}>Edit Role</h3>
                             <button onClick={() => setEditingRole(null)} style={{background: 'none', border: 'none', cursor: 'pointer', color: '#64748b', display: 'flex', alignItems: 'center', padding: 0}}><X size={20} /></button>
@@ -215,11 +215,11 @@ const RolesPermissions = () => {
                         <form onSubmit={handleEditRole} style={{padding: 24}}>
                             <div style={{marginBottom: 16}}>
                                 <label style={{display: 'block', fontSize: 13, fontWeight: 600, color: '#334155', marginBottom: 8}}>Role Name <span style={{color: '#ef4444'}}>*</span></label>
-                                <input type="text" value={editRoleName} onChange={e => setEditRoleName(e.target.value)} placeholder="e.g. Content Editor" style={{width: '100%', padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: 6, outline: 'none', boxSizing: 'border-box', fontSize: 14}} required />
+                                <input type="text" value={editRoleName} onChange={e => setEditRoleName(e.target.value)} placeholder="e.g. Content Editor" style={{width: '100%', padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: 0, outline: 'none', boxSizing: 'border-box', fontSize: 14}} required />
                             </div>
                             <div style={{marginBottom: 24}}>
                                 <label style={{display: 'block', fontSize: 13, fontWeight: 600, color: '#334155', marginBottom: 8}}>Permissions</label>
-                                <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', maxHeight: '180px', overflowY: 'auto', padding: '12px', border: '1px solid #cbd5e1', borderRadius: 6, background: '#f8fafc'}}>
+                                <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', maxHeight: '180px', overflowY: 'auto', padding: '12px', border: '1px solid #cbd5e1', borderRadius: 0, background: '#f8fafc'}}>
                                     {availablePermissions.map(p => (
                                         <label key={p} style={{display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, cursor: 'pointer', margin: 0, color: '#475569'}}>
                                             <input type="checkbox" checked={editRolePerms.includes(p)} onChange={e => {
@@ -231,7 +231,7 @@ const RolesPermissions = () => {
                                     ))}
                                 </div>
                                 <div style={{marginTop: 8, display: 'flex', gap: 8}}>
-                                    <input type="text" value={customPerm} onChange={e => setCustomPerm(e.target.value)} placeholder="Type custom permission..." style={{flex: 1, padding: '6px 10px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12, outline: 'none'}} />
+                                    <input type="text" value={customPerm} onChange={e => setCustomPerm(e.target.value)} placeholder="Type custom permission..." style={{flex: 1, padding: '6px 10px', border: '1px solid #cbd5e1', borderRadius: 0, fontSize: 12, outline: 'none'}} />
                                     <button type="button" onClick={() => {
                                         const p = customPerm.trim().toLowerCase().replace(/ /g, '_');
                                         if (p && !editRolePerms.includes(p)) {
@@ -239,12 +239,12 @@ const RolesPermissions = () => {
                                             if (!availablePermissions.includes(p)) setAvailablePermissions([...availablePermissions, p]);
                                         }
                                         setCustomPerm('');
-                                    }} style={{padding: '6px 12px', background: '#e2e8f0', color: '#475569', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer'}}>Add</button>
+                                    }} style={{padding: '6px 12px', background: '#e2e8f0', color: '#475569', border: 'none', borderRadius: 0, fontSize: 12, fontWeight: 600, cursor: 'pointer'}}>Add</button>
                                 </div>
                             </div>
                             <div style={{display: 'flex', justifyContent: 'flex-end', gap: 12}}>
-                                <button type="button" onClick={() => setEditingRole(null)} style={{padding: '8px 16px', background: 'white', border: '1px solid #cbd5e1', borderRadius: 6, color: '#475569', fontWeight: 600, cursor: 'pointer', fontSize: 14}}>Cancel</button>
-                                <button type="submit" disabled={submitting} style={{padding: '8px 16px', background: '#3b82f6', border: 'none', borderRadius: 6, color: 'white', fontWeight: 600, cursor: submitting ? 'not-allowed' : 'pointer', opacity: submitting ? 0.7 : 1, fontSize: 14}}>
+                                <button type="button" onClick={() => setEditingRole(null)} style={{padding: '8px 16px', background: 'white', border: '1px solid #cbd5e1', borderRadius: 0, color: '#475569', fontWeight: 600, cursor: 'pointer', fontSize: 14}}>Cancel</button>
+                                <button type="submit" disabled={submitting} style={{padding: '8px 16px', background: '#3b82f6', border: 'none', borderRadius: 0, color: 'white', fontWeight: 600, cursor: submitting ? 'not-allowed' : 'pointer', opacity: submitting ? 0.7 : 1, fontSize: 14}}>
                                     {submitting ? 'Saving...' : 'Save Changes'}
                                 </button>
                             </div>
@@ -256,7 +256,7 @@ const RolesPermissions = () => {
             {/* View Access Modal */}
             {viewingRole && (
                 <div className="modal-overlay" style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000}}>
-                    <div className="modal-content" style={{background: 'white', borderRadius: 12, width: 500, maxWidth: '90%', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', padding: 0, overflow: 'hidden'}}>
+                    <div className="modal-content" style={{background: 'white', borderRadius: 0, width: 500, maxWidth: '90%', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', padding: 0, overflow: 'hidden'}}>
                         <div style={{padding: '20px 24px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                             <h3 style={{margin: 0, fontSize: 18, color: '#0f172a'}}>Access Overview: {viewingRole.name}</h3>
                             <button onClick={() => setViewingRole(null)} style={{background: 'none', border: 'none', cursor: 'pointer', color: '#64748b', display: 'flex', alignItems: 'center', padding: 0}}><X size={20} /></button>
@@ -268,12 +268,12 @@ const RolesPermissions = () => {
                                 {(!Array.isArray(viewingRole.permissions) || viewingRole.permissions.length === 0) ? (
                                     <span style={{fontSize: 13, color: '#94a3b8'}}>No specific permissions configured.</span>
                                 ) : viewingRole.permissions.map((perm, i) => (
-                                    <span key={i} className="rp-tag" style={{background: '#f1f5f9', color: '#334155', padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600, border: '1px solid #e2e8f0'}}>{perm}</span>
+                                    <span key={i} className="rp-tag" style={{background: '#f1f5f9', color: '#334155', padding: '4px 10px', borderRadius: 0, fontSize: 12, fontWeight: 600, border: '1px solid #e2e8f0'}}>{perm}</span>
                                 ))}
                             </div>
                         </div>
                         <div style={{padding: '16px 24px', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'flex-end'}}>
-                            <button onClick={() => setViewingRole(null)} style={{padding: '8px 16px', background: '#3b82f6', border: 'none', borderRadius: 6, color: 'white', fontWeight: 600, cursor: 'pointer', fontSize: 14}}>Close</button>
+                            <button onClick={() => setViewingRole(null)} style={{padding: '8px 16px', background: '#3b82f6', border: 'none', borderRadius: 0, color: 'white', fontWeight: 600, cursor: 'pointer', fontSize: 14}}>Close</button>
                         </div>
                     </div>
                 </div>

@@ -4,7 +4,7 @@ import API from '../api/axios';
 import PageHeader from '../components/PageHeader';
 import { motion } from 'framer-motion';
 import { Calendar, Clock, FileText, CheckCircle, XCircle, Search, AlertCircle, Users } from 'lucide-react';
-import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
+import { StatCard, StatGrid } from '../components/ui/StatCard';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 
 const MyLeaveHistory = () => {
@@ -61,10 +61,10 @@ const MyLeaveHistory = () => {
     };
 
     const getTypePill = (type) => {
-        if (type === 'Casual') return <span style={{background: '#eff6ff', color: '#3b82f6', border: '1px solid #bfdbfe', padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600}}>{type}</span>;
-        if (type === 'Sick') return <span style={{background: '#fdf2f8', color: '#ec4899', border: '1px solid #fbcfe8', padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600}}>{type}</span>;
-        if (type === 'Annual') return <span style={{background: '#ecfdf5', color: '#10b981', border: '1px solid #a7f3d0', padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600}}>{type}</span>;
-        return <span style={{background: '#f1f5f9', color: '#64748b', padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600}}>{type}</span>;
+        if (type === 'Casual') return <span style={{background: '#eff6ff', color: '#3b82f6', border: '1px solid #bfdbfe', padding: '4px 10px', borderRadius: 0, fontSize: 12, fontWeight: 600}}>{type}</span>;
+        if (type === 'Sick') return <span style={{background: '#fdf2f8', color: '#ec4899', border: '1px solid #fbcfe8', padding: '4px 10px', borderRadius: 0, fontSize: 12, fontWeight: 600}}>{type}</span>;
+        if (type === 'Annual') return <span style={{background: '#ecfdf5', color: '#10b981', border: '1px solid #a7f3d0', padding: '4px 10px', borderRadius: 0, fontSize: 12, fontWeight: 600}}>{type}</span>;
+        return <span style={{background: '#f1f5f9', color: '#64748b', padding: '4px 10px', borderRadius: 0, fontSize: 12, fontWeight: 600}}>{type}</span>;
     };
 
     const calculateDays = (start, end) => {
@@ -87,7 +87,7 @@ const MyLeaveHistory = () => {
                             color: '#fff', 
                             border: 'none', 
                             padding: '10px 18px', 
-                            borderRadius: 8, 
+                            borderRadius: 0, 
                             fontWeight: 600, 
                             display: 'flex', 
                             alignItems: 'center', 
@@ -105,8 +105,8 @@ const MyLeaveHistory = () => {
 
                 {!loading && (
                     <div style={{ marginBottom: 24 }}>
-                        <PastelKPIGrid>
-                            <PastelKPICard 
+                        <StatGrid>
+                            <StatCard 
                                 title="Annual Leave" 
                                 value={`${balances.Annual.left} left`} 
                                 colorTheme="mint" 
@@ -114,7 +114,7 @@ const MyLeaveHistory = () => {
                                 trendValue={`${balances.Annual.used} used | ${balances.Annual.total} total`} 
                                 trendPositive={true} 
                             />
-                            <PastelKPICard 
+                            <StatCard 
                                 title="Sick Leave" 
                                 value={`${balances.Sick.left} left`} 
                                 colorTheme="peach" 
@@ -122,7 +122,7 @@ const MyLeaveHistory = () => {
                                 trendValue={`${balances.Sick.used} used | ${balances.Sick.total} total`} 
                                 trendPositive={true} 
                             />
-                            <PastelKPICard 
+                            <StatCard 
                                 title="Casual Leave" 
                                 value={`${balances.Casual.left} left`} 
                                 colorTheme="blue" 
@@ -130,7 +130,7 @@ const MyLeaveHistory = () => {
                                 trendValue={`${balances.Casual.used} used | ${balances.Casual.total} total`} 
                                 trendPositive={true} 
                             />
-                        </PastelKPIGrid>
+                        </StatGrid>
                     </div>
                 )}
 

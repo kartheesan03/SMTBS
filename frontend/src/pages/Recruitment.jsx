@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import API from '../api/axios';
 import toast from 'react-hot-toast';
-import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
+import { StatCard, StatGrid } from '../components/ui/StatCard';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 
 // ── Config ────────────────────────────────────────────────────────────────────
@@ -57,11 +57,11 @@ const JobModal = ({ job, onClose, onSave }) => {
         finally { setSaving(false); }
     };
 
-    const inp = { width: '100%', padding: '9px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box', color: '#0f172a', background: '#fff' };
+    const inp = { width: '100%', padding: '9px 12px', border: '1px solid #e2e8f0', borderRadius: 0, fontSize: 13, outline: 'none', boxSizing: 'border-box', color: '#0f172a', background: '#fff' };
 
     return (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.45)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ background: '#fff', borderRadius: 18, padding: 28, width: 560, maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
+            <div style={{ background: '#fff', borderRadius: 0, padding: 28, width: 560, maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
                     <h2 style={{ margin: 0, fontSize: 17, fontWeight: 800, color: '#0f172a' }}>{job ? 'Edit Job Posting' : 'Post New Job'}</h2>
                     <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}><X size={20} /></button>
@@ -121,7 +121,7 @@ const JobModal = ({ job, onClose, onSave }) => {
                         <label style={{ fontSize: 12, fontWeight: 600, color: '#475569', display: 'block', marginBottom: 5 }}>Requirements</label>
                         <textarea name="requirements" value={form.requirements} onChange={handle} rows={2} placeholder="e.g. 5+ years in material handling, inventory tracking software..." style={{ ...inp, resize: 'vertical' }} />
                     </div>
-                    <button type="submit" disabled={saving} style={{ padding: '11px 0', borderRadius: 10, border: 'none', background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', color: '#fff', fontWeight: 700, fontSize: 14, cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1 }}>
+                    <button type="submit" disabled={saving} style={{ padding: '11px 0', borderRadius: 0, border: 'none', background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', color: '#fff', fontWeight: 700, fontSize: 14, cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1 }}>
                         {saving ? 'Saving…' : job ? 'Save Changes' : 'Post Job'}
                     </button>
                 </form>
@@ -156,11 +156,11 @@ const CandidateModal = ({ jobs, candidate, onClose, onSave }) => {
         finally { setSaving(false); }
     };
 
-    const inp = { width: '100%', padding: '9px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box', color: '#0f172a', background: '#fff' };
+    const inp = { width: '100%', padding: '9px 12px', border: '1px solid #e2e8f0', borderRadius: 0, fontSize: 13, outline: 'none', boxSizing: 'border-box', color: '#0f172a', background: '#fff' };
 
     return (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.45)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ background: '#fff', borderRadius: 18, padding: 28, width: 480, boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
+            <div style={{ background: '#fff', borderRadius: 0, padding: 28, width: 480, boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
                     <h2 style={{ margin: 0, fontSize: 17, fontWeight: 800, color: '#0f172a' }}>{candidate ? 'Update Candidate' : 'Add Candidate'}</h2>
                     <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}><X size={20} /></button>
@@ -212,7 +212,7 @@ const CandidateModal = ({ jobs, candidate, onClose, onSave }) => {
                             ))}
                         </div>
                     </div>
-                    <button type="submit" disabled={saving} style={{ padding: '11px 0', borderRadius: 10, border: 'none', background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', color: '#fff', fontWeight: 700, fontSize: 14, cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1 }}>
+                    <button type="submit" disabled={saving} style={{ padding: '11px 0', borderRadius: 0, border: 'none', background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', color: '#fff', fontWeight: 700, fontSize: 14, cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1 }}>
                         {saving ? 'Saving…' : candidate ? 'Update Candidate' : 'Add Candidate'}
                     </button>
                 </form>
@@ -311,36 +311,36 @@ const Recruitment = () => {
                     <div className="rd-module-info">
                         <div className="rd-module-title-row" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                             <span className="rd-module-title" style={{ fontSize: 28, fontWeight: 700, color: '#0f172a', margin: 0 }}>Recruitment</span>
-                            <span className="rd-module-badge" style={{ background: '#f1f5f9', color: '#0f172a', padding: '3px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700, textTransform: 'uppercase' }}>HRMS</span>
+                            <span className="rd-module-badge" style={{ background: '#f1f5f9', color: '#0f172a', padding: '3px 8px', borderRadius: 0, fontSize: 10, fontWeight: 700, textTransform: 'uppercase' }}>HRMS</span>
                         </div>
                     </div>
                     <div style={{ display: 'flex', gap: 10 }}>
-                        <button onClick={() => { setEditCand(null); setCandModal(true); }} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 10, border: '1.5px solid #e2e8f0', background: '#fff', color: '#475569', fontWeight: 600, fontSize: 13, cursor: 'pointer' }}>
+                        <button onClick={() => { setEditCand(null); setCandModal(true); }} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 0, border: '1.5px solid #e2e8f0', background: '#fff', color: '#475569', fontWeight: 600, fontSize: 13, cursor: 'pointer' }}>
                             <UserPlus size={15} /> Add Candidate
                         </button>
-                        <button onClick={() => { setEditJob(null); setJobModal(true); }} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 10, border: 'none', background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', color: '#fff', fontWeight: 600, fontSize: 13, cursor: 'pointer', boxShadow: '0 4px 12px rgba(99, 102, 241, 0.2)' }}>
+                        <button onClick={() => { setEditJob(null); setJobModal(true); }} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 0, border: 'none', background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', color: '#fff', fontWeight: 600, fontSize: 13, cursor: 'pointer', boxShadow: '0 4px 12px rgba(99, 102, 241, 0.2)' }}>
                             <Plus size={15} /> Post Job
                         </button>
                     </div>
                 </div>
 
                 {/* ── KPI Cards ── */}
-                <PastelKPIGrid>
-                    <PastelKPICard title="Open Positions"  value={loading ? '…' : stats.openJobs || 0}     colorTheme="blue"   icon={Briefcase}    trendValue="Active job postings" trendPositive={true} />
-                    <PastelKPICard title="Total Applicants" value={loading ? '…' : stats.totalApplied || 0} colorTheme="purple" icon={Users}         trendValue="All applications"   trendPositive={true} />
-                    <PastelKPICard title="In Interview"    value={loading ? '…' : stats.interviews || 0}    colorTheme="yellow" icon={Calendar}      trendValue="Scheduled interviews" trendPositive={true} />
-                    <PastelKPICard title="Hired"           value={loading ? '…' : stats.hired || 0}          colorTheme="mint"   icon={CheckCircle}  trendValue="Successfully placed" trendPositive={true} />
-                </PastelKPIGrid>
+                <StatGrid>
+                    <StatCard title="Open Positions"  value={loading ? '…' : stats.openJobs || 0}     colorTheme="blue"   icon={Briefcase}    trendValue="Active job postings" trendPositive={true} />
+                    <StatCard title="Total Applicants" value={loading ? '…' : stats.totalApplied || 0} colorTheme="purple" icon={Users}         trendValue="All applications"   trendPositive={true} />
+                    <StatCard title="In Interview"    value={loading ? '…' : stats.interviews || 0}    colorTheme="yellow" icon={Calendar}      trendValue="Scheduled interviews" trendPositive={true} />
+                    <StatCard title="Hired"           value={loading ? '…' : stats.hired || 0}          colorTheme="mint"   icon={CheckCircle}  trendValue="Successfully placed" trendPositive={true} />
+                </StatGrid>
 
                 {/* ── Pipeline strip ── */}
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} style={{ marginBottom: 20 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', background: '#fff', borderRadius: 16, padding: '12px 16px', boxShadow: '0 4px 15px rgba(15,23,42,0.03)', border: '1px solid #e2e8f0', overflowX: 'auto', gap: 4 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', background: '#fff', borderRadius: 0, padding: '12px 16px', boxShadow: '0 4px 15px rgba(15,23,42,0.03)', border: '1px solid #e2e8f0', overflowX: 'auto', gap: 4 }}>
                         {STAGES.map((stage, idx) => {
                             const cfg = STAGE_CONFIG[stage];
                             return (
                                 <React.Fragment key={stage}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 16px', borderRadius: 12, background: cfg.bg, flex: 1, minWidth: 140, border: `1px solid ${cfg.color}30` }}>
-                                        <div style={{ width: 38, height: 38, borderRadius: '50%', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: `0 4px 10px ${cfg.color}20` }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 16px', borderRadius: 0, background: cfg.bg, flex: 1, minWidth: 140, border: `1px solid ${cfg.color}30` }}>
+                                        <div style={{ width: 38, height: 38, borderRadius: '0px', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: `0 4px 10px ${cfg.color}20` }}>
                                             <span style={{ fontSize: 16, fontWeight: 800, color: cfg.color }}>{pipelineCounts[stage] || 0}</span>
                                         </div>
                                         <div>
@@ -386,7 +386,7 @@ const Recruitment = () => {
                                     const cfg = STAGE_CONFIG[s];
                                     return (
                                         <button key={s} onClick={() => setStageFilter(s)} style={{
-                                            padding: '5px 12px', borderRadius: 20, fontSize: 11, fontWeight: 600, cursor: 'pointer', flexShrink: 0, whiteSpace: 'nowrap',
+                                            padding: '5px 12px', borderRadius: 0, fontSize: 11, fontWeight: 600, cursor: 'pointer', flexShrink: 0, whiteSpace: 'nowrap',
                                             border: stageFilter === s ? `1.5px solid ${cfg?.color || '#6366f1'}` : '1.5px solid #e2e8f0',
                                             background: stageFilter === s ? (cfg?.bg || '#eef2ff') : '#fff',
                                             color: stageFilter === s ? (cfg?.color || '#4f46e5') : '#64748b',
@@ -431,7 +431,7 @@ const Recruitment = () => {
                                             <tr key={job.id}>
                                                 <td data-label="Job Title">
                                                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                                                        <div style={{ width: 36, height: 36, borderRadius: 10, background: '#eef2ff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                                        <div style={{ width: 36, height: 36, borderRadius: 0, background: '#eef2ff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                                                             <Briefcase size={16} color="#6366f1" />
                                                         </div>
                                                         <div>
@@ -446,19 +446,19 @@ const Recruitment = () => {
                                                 <td data-label="Location" style={{ fontSize: 13, color: '#475569' }}>
                                                     {job.location ? <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}><MapPin size={12} color="#94a3b8" />{job.location}</span> : <span style={{ color: '#cbd5e1' }}>—</span>}
                                                 </td>
-                                                <td data-label="Type"><span style={{ fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 99, background: '#f1f5f9', color: '#475569' }}>{job.type}</span></td>
+                                                <td data-label="Type"><span style={{ fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 0, background: '#f1f5f9', color: '#475569' }}>{job.type}</span></td>
                                                 <td data-label="Openings" style={{ fontSize: 13, fontWeight: 700, color: '#0f172a', textAlign: 'center' }}>{job.openings}</td>
                                                 <td data-label="Applicants" style={{ fontSize: 13, fontWeight: 700, color: '#6366f1', textAlign: 'center' }}>{job.totalCandidates}</td>
                                                 <td data-label="Deadline" style={{ fontSize: 12, color: '#64748b' }}>
                                                     {job.deadline ? new Date(job.deadline).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : <span style={{ color: '#cbd5e1' }}>—</span>}
                                                 </td>
                                                 <td data-label="Status">
-                                                    <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 99, background: sc.bg, color: sc.color }}>{job.status}</span>
+                                                    <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 0, background: sc.bg, color: sc.color }}>{job.status}</span>
                                                 </td>
                                                 <td data-label="Actions">
                                                     <div style={{ display: 'flex', gap: 6 }}>
-                                                        <button onClick={() => setEditJob(job)} style={{ background: '#f1f5f9', border: 'none', borderRadius: 7, padding: '5px 8px', cursor: 'pointer', color: '#475569', display: 'flex' }}><Edit2 size={13} /></button>
-                                                        <button onClick={() => deleteJob(job.id)} style={{ background: '#fee2e2', border: 'none', borderRadius: 7, padding: '5px 8px', cursor: 'pointer', color: '#ef4444', display: 'flex' }}><Trash2 size={13} /></button>
+                                                        <button onClick={() => setEditJob(job)} style={{ background: '#f1f5f9', border: 'none', borderRadius: 0, padding: '5px 8px', cursor: 'pointer', color: '#475569', display: 'flex' }}><Edit2 size={13} /></button>
+                                                        <button onClick={() => deleteJob(job.id)} style={{ background: '#fee2e2', border: 'none', borderRadius: 0, padding: '5px 8px', cursor: 'pointer', color: '#ef4444', display: 'flex' }}><Trash2 size={13} /></button>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -501,7 +501,7 @@ const Recruitment = () => {
                                             <tr key={c.id}>
                                                 <td data-label="Candidate">
                                                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                                                        <div style={{ width: 34, height: 34, borderRadius: '50%', background: 'linear-gradient(135deg,#6366f1,#8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>
+                                                        <div style={{ width: 34, height: 34, borderRadius: '0px', background: 'linear-gradient(135deg,#6366f1,#8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>
                                                             {(c.name || '?').split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase()}
                                                         </div>
                                                         <div>
@@ -513,11 +513,11 @@ const Recruitment = () => {
                                                 <td data-label="Job" style={{ fontSize: 12, color: '#475569', fontWeight: 600 }}>{c.job?.title || '—'}</td>
                                                 <td data-label="Contact" style={{ fontSize: 12, color: '#64748b' }}>{c.phone || <span style={{ color: '#cbd5e1' }}>—</span>}</td>
                                                 <td data-label="Source">
-                                                    {c.source ? <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 99, background: '#f1f5f9', color: '#475569' }}>{c.source}</span> : <span style={{ color: '#cbd5e1' }}>—</span>}
+                                                    {c.source ? <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 0, background: '#f1f5f9', color: '#475569' }}>{c.source}</span> : <span style={{ color: '#cbd5e1' }}>—</span>}
                                                 </td>
                                                 <td data-label="Stage">
                                                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                                        <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 99, background: cfg.bg, color: cfg.color, flexShrink: 0 }}>{c.stage}</span>
+                                                        <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 0, background: cfg.bg, color: cfg.color, flexShrink: 0 }}>{c.stage}</span>
                                                         {/* Quick advance */}
                                                         {stageIdx < STAGES.length - 2 && (
                                                             <button onClick={() => moveStage(c, STAGES[stageIdx + 1])} title={`Move to ${STAGES[stageIdx+1]}`} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', display: 'flex', padding: 2 }}>
@@ -536,8 +536,8 @@ const Recruitment = () => {
                                                 </td>
                                                 <td data-label="Actions">
                                                     <div style={{ display: 'flex', gap: 6 }}>
-                                                        <button onClick={() => setEditCand(c)} style={{ background: '#f1f5f9', border: 'none', borderRadius: 7, padding: '5px 8px', cursor: 'pointer', color: '#475569', display: 'flex' }}><Edit2 size={13} /></button>
-                                                        <button onClick={() => deleteCand(c.id)} style={{ background: '#fee2e2', border: 'none', borderRadius: 7, padding: '5px 8px', cursor: 'pointer', color: '#ef4444', display: 'flex' }}><Trash2 size={13} /></button>
+                                                        <button onClick={() => setEditCand(c)} style={{ background: '#f1f5f9', border: 'none', borderRadius: 0, padding: '5px 8px', cursor: 'pointer', color: '#475569', display: 'flex' }}><Edit2 size={13} /></button>
+                                                        <button onClick={() => deleteCand(c.id)} style={{ background: '#fee2e2', border: 'none', borderRadius: 0, padding: '5px 8px', cursor: 'pointer', color: '#ef4444', display: 'flex' }}><Trash2 size={13} /></button>
                                                     </div>
                                                 </td>
                                             </tr>

@@ -43,7 +43,7 @@ const MaterialDetails = ({ embeddedId }) => {
         fetchMaterialData();
     }, [id]);
 
-    if (loading) return <div style={{ display: 'flex', justifyContent: 'center', padding: '100px' }}><div className="loader" style={{ width: 40, height: 40, border: '4px solid #f3f3f3', borderTop: '4px solid #3b82f6', borderRadius: '50%', animation: 'spin 1s linear infinite' }} /></div>;
+    if (loading) return <div style={{ display: 'flex', justifyContent: 'center', padding: '100px' }}><div className="loader" style={{ width: 40, height: 40, border: '4px solid #f3f3f3', borderTop: '4px solid #3b82f6', borderRadius: '0px', animation: 'spin 1s linear infinite' }} /></div>;
     
     if (error || !material) {
         return (
@@ -51,7 +51,7 @@ const MaterialDetails = ({ embeddedId }) => {
                 <AlertTriangle size={48} color="#ef4444" style={{ marginBottom: '16px' }} />
                 <h2 style={{ marginBottom: '8px', color: '#0f172a' }}>Material Not Found</h2>
                 <p style={{ color: '#64748b', marginBottom: '24px' }}>{error}</p>
-                <button onClick={() => navigate('/materials')} style={{ padding: '10px 20px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 600, cursor: 'pointer' }}>
+                <button onClick={() => navigate('/materials')} style={{ padding: '10px 20px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 0, fontWeight: 600, cursor: 'pointer' }}>
                     Back to Inventory
                 </button>
             </div>
@@ -88,15 +88,15 @@ const MaterialDetails = ({ embeddedId }) => {
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
                     <button 
                         onClick={() => navigate('/materials')}
-                        style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', background: '#f8fafc', color: '#475569', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}
+                        style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', background: '#f8fafc', color: '#475569', border: '1px solid #e2e8f0', borderRadius: 0, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}
                     >
                         <ArrowLeft size={16} /> Back to Inventory
                     </button>
                     
                     {(currentUserRole === 'Admin' || currentUserRole === 'Manager') && (
                         <div style={{ display: 'flex', gap: 12 }}>
-                            <button onClick={() => alert('Adjust Stock')} style={{ padding: '8px 16px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#0f172a', cursor: 'pointer' }}>Adjust Stock</button>
-                            <button onClick={() => navigate(`/materials/${material._id || material.id}/edit`)} style={{ padding: '8px 16px', background: '#3b82f6', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#fff', cursor: 'pointer' }}>Edit Material</button>
+                            <button onClick={() => alert('Adjust Stock')} style={{ padding: '8px 16px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: 0, fontSize: 13, fontWeight: 600, color: '#0f172a', cursor: 'pointer' }}>Adjust Stock</button>
+                            <button onClick={() => navigate(`/materials/${material._id || material.id}/edit`)} style={{ padding: '8px 16px', background: '#3b82f6', border: 'none', borderRadius: 0, fontSize: 13, fontWeight: 600, color: '#fff', cursor: 'pointer' }}>Edit Material</button>
                         </div>
                     )}
                 </div>
@@ -125,7 +125,7 @@ const MaterialDetails = ({ embeddedId }) => {
             `}</style>
 
             {/* Tabs */}
-            <div style={{ display: 'flex', background: '#f1f5f9', padding: 4, borderRadius: 8, marginBottom: 24, width: 'fit-content' }}>
+            <div style={{ display: 'flex', background: '#f1f5f9', padding: 4, borderRadius: 0, marginBottom: 24, width: 'fit-content' }}>
                 <button className={`tab-btn ${activeTab === 'details' ? 'active' : ''}`} onClick={() => setActiveTab('details')}><Info size={16}/> Details</button>
                 <button className={`tab-btn ${activeTab === 'tracking' ? 'active' : ''}`} onClick={() => setActiveTab('tracking')}><Target size={16}/> Tracking</button>
             </div>
@@ -137,7 +137,7 @@ const MaterialDetails = ({ embeddedId }) => {
                     <div style={{ flex: '1 1 350px', minWidth: 0 }}>
                         {/* Hero Card */}
                         <div className="card" style={{ display: 'flex', gap: 24, alignItems: 'center', position: 'relative' }}>
-                            <div style={{ width: 160, height: 160, flexShrink: 0, borderRadius: 12, background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+                            <div style={{ width: 160, height: 160, flexShrink: 0, borderRadius: 0, background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
                                 {/* Category-specific icon */}
                                 {(() => {
                                     const cat = (material.category || '').toLowerCase();
@@ -150,12 +150,12 @@ const MaterialDetails = ({ embeddedId }) => {
                                 {/* Dimension Overlay */}
                                 <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: 12 }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-                                        <div style={{ background: 'rgba(255,255,255,0.8)', padding: '2px 6px', borderRadius: 4, fontSize: 11, fontWeight: 700, color: '#334155', border: '1px solid #cbd5e1' }}>
+                                        <div style={{ background: 'rgba(255,255,255,0.8)', padding: '2px 6px', borderRadius: 0, fontSize: 11, fontWeight: 700, color: '#334155', border: '1px solid #cbd5e1' }}>
                                             {specs?.Thickness || '50'} mm
                                         </div>
                                     </div>
                                     <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
-                                        <div style={{ background: 'rgba(255,255,255,0.8)', padding: '2px 6px', borderRadius: 4, fontSize: 11, fontWeight: 700, color: '#334155', border: '1px solid #cbd5e1' }}>
+                                        <div style={{ background: 'rgba(255,255,255,0.8)', padding: '2px 6px', borderRadius: 0, fontSize: 11, fontWeight: 700, color: '#334155', border: '1px solid #cbd5e1' }}>
                                             {specs?.Length || '6000'} mm
                                         </div>
                                     </div>
@@ -163,7 +163,7 @@ const MaterialDetails = ({ embeddedId }) => {
                             </div>
                             <div style={{ flex: 1, minWidth: 0 }}>
                                 <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 12 }}>
-                                    <span className="pill" style={{ background: stockBg, color: stockColor }}><span style={{ width: 6, height: 6, borderRadius: 3, background: stockColor }}></span> {stockStatus}</span>
+                                    <span className="pill" style={{ background: stockBg, color: stockColor }}><span style={{ width: 6, height: 6, borderRadius: 0, background: stockColor }}></span> {stockStatus}</span>
                                     {material.tags && material.tags.map((t, idx) => (
                                         <span key={idx} className="pill pill-blue">{t}</span>
                                     ))}
@@ -193,8 +193,8 @@ const MaterialDetails = ({ embeddedId }) => {
                                     <div style={{ fontSize: 13, fontWeight: 600, color: '#475569', display: 'flex', alignItems: 'center', gap: 6 }}><Layers size={14}/> Stock Level</div>
                                     <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>{material.quantity} / {material.maxCapacity || 1000} {material.unit}</div>
                                 </div>
-                                <div style={{ width: '100%', height: 8, background: '#f1f5f9', borderRadius: 4, overflow: 'hidden' }}>
-                                    <div style={{ width: `${Math.min(100, (material.quantity / (material.maxCapacity || 1000)) * 100)}%`, height: '100%', background: stockColor, borderRadius: 4 }}></div>
+                                <div style={{ width: '100%', height: 8, background: '#f1f5f9', borderRadius: 0, overflow: 'hidden' }}>
+                                    <div style={{ width: `${Math.min(100, (material.quantity / (material.maxCapacity || 1000)) * 100)}%`, height: '100%', background: stockColor, borderRadius: 0 }}></div>
                                 </div>
                             </div>
 
@@ -238,7 +238,7 @@ const MaterialDetails = ({ embeddedId }) => {
                             <div>
                                 <h3 style={{ margin: '0 0 16px 0', fontSize: 14, color: '#0f172a', fontWeight: 700 }}>Location info</h3>
                                 <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
-                                    <div style={{ width: 48, height: 48, background: '#f8fafc', borderRadius: 8, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                                    <div style={{ width: 48, height: 48, background: '#f8fafc', borderRadius: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                                         <div style={{ fontSize: 16, fontWeight: 700, color: '#0f172a', lineHeight: 1.2 }}>21</div>
                                         <div style={{ fontSize: 11, color: '#64748b', fontWeight: 600 }}>Jul</div>
                                     </div>
@@ -288,7 +288,7 @@ const MaterialDetails = ({ embeddedId }) => {
                                 <h3 style={{ margin: 0, fontSize: 14, color: '#0f172a', fontWeight: 700 }}>Stock worthy</h3>
                                 <button 
                                     onClick={() => toast.success('Report submitted for administration review.')}
-                                    style={{ padding: '6px 12px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: 6, color: '#0f172a', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
+                                    style={{ padding: '6px 12px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: 0, color: '#0f172a', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
                                 >
                                     <Flag size={12}/> Report
                                 </button>
@@ -316,22 +316,22 @@ const MaterialDetails = ({ embeddedId }) => {
                                                         key={idx} 
                                                         src={imgUrl} 
                                                         alt={`Shelf ${idx + 1}`} 
-                                                        style={{ width: '100%', aspectRatio: '1', objectFit: 'cover', borderRadius: 8 }} 
+                                                        style={{ width: '100%', aspectRatio: '1', objectFit: 'cover', borderRadius: 0 }} 
                                                         onError={(e) => { e.target.style.display = 'none'; }}
                                                     />
                                                 ))}
                                                 {validImages.length > 3 ? (
-                                                    <div style={{ aspectRatio: '1', background: '#f8fafc', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#3b82f6', fontSize: 14, fontWeight: 700, border: '1px solid #e2e8f0', cursor: 'pointer' }}>+{validImages.length - 3}</div>
+                                                    <div style={{ aspectRatio: '1', background: '#f8fafc', borderRadius: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#3b82f6', fontSize: 14, fontWeight: 700, border: '1px solid #e2e8f0', cursor: 'pointer' }}>+{validImages.length - 3}</div>
                                                 ) : (
                                                     Array.from({ length: 4 - validImages.length }).map((_, idx) => (
-                                                        <div key={`empty-${idx}`} style={{ aspectRatio: '1', background: '#f8fafc', borderRadius: 8, border: '1px dashed #e2e8f0' }}></div>
+                                                        <div key={`empty-${idx}`} style={{ aspectRatio: '1', background: '#f8fafc', borderRadius: 0, border: '1px dashed #e2e8f0' }}></div>
                                                     ))
                                                 )}
                                             </>
                                         );
                                     } else {
                                         return (
-                                            <div style={{ gridColumn: 'span 4', textAlign: 'center', padding: '24px 0', color: '#94a3b8', fontSize: 13, background: '#f8fafc', borderRadius: 8 }}>
+                                            <div style={{ gridColumn: 'span 4', textAlign: 'center', padding: '24px 0', color: '#94a3b8', fontSize: 13, background: '#f8fafc', borderRadius: 0 }}>
                                                 No shelf photos available
                                             </div>
                                         );
@@ -356,7 +356,7 @@ const MaterialDetails = ({ embeddedId }) => {
                                         <Check size={14} color="#16a34a" />
                                     </div>
                                 )) : (
-                                    <div style={{ fontSize: 13, color: '#64748b', padding: '16px 0', textAlign: 'center', background: '#f8fafc', borderRadius: 8 }}>
+                                    <div style={{ fontSize: 13, color: '#64748b', padding: '16px 0', textAlign: 'center', background: '#f8fafc', borderRadius: 0 }}>
                                         No movement history found
                                     </div>
                                 )}
@@ -398,11 +398,11 @@ const MaterialDetails = ({ embeddedId }) => {
                             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
                                 <h2 style={{ margin: 0, fontSize: 20, color: '#0f172a' }}>Active Movement</h2>
                                 {isLive ? (
-                                    <span style={{ padding: '6px 12px', borderRadius: 99, background: '#dcfce7', color: '#16a34a', fontSize: 13, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
-                                        <motion.div animate={{ opacity: [1, 0.4, 1] }} transition={{ repeat: Infinity, duration: 1.5 }} style={{ width: 8, height: 8, borderRadius: 4, background: '#16a34a' }}/> Live Tracking
+                                    <span style={{ padding: '6px 12px', borderRadius: 0, background: '#dcfce7', color: '#16a34a', fontSize: 13, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
+                                        <motion.div animate={{ opacity: [1, 0.4, 1] }} transition={{ repeat: Infinity, duration: 1.5 }} style={{ width: 8, height: 8, borderRadius: 0, background: '#16a34a' }}/> Live Tracking
                                     </span>
                                 ) : (
-                                    <span style={{ padding: '6px 12px', borderRadius: 99, background: '#f1f5f9', color: '#64748b', fontSize: 13, fontWeight: 700 }}>No active movement</span>
+                                    <span style={{ padding: '6px 12px', borderRadius: 0, background: '#f1f5f9', color: '#64748b', fontSize: 13, fontWeight: 700 }}>No active movement</span>
                                 )}
                             </div>
                             <div style={{ fontSize: 14, color: '#64748b' }}>Shipment ID: SHP-882910</div>
@@ -433,7 +433,7 @@ const MaterialDetails = ({ embeddedId }) => {
 
                             {/* Node 1: Origin */}
                             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 2, gap: 12 }}>
-                                <div style={{ width: 52, height: 52, borderRadius: 26, background: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', border: '4px solid #fff', boxShadow: '0 0 0 1px #e2e8f0' }}>
+                                <div style={{ width: 52, height: 52, borderRadius: 0, background: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', border: '4px solid #fff', boxShadow: '0 0 0 1px #e2e8f0' }}>
                                     <Building2 size={24} />
                                 </div>
                                 <div style={{ textAlign: 'center' }}>
@@ -447,7 +447,7 @@ const MaterialDetails = ({ embeddedId }) => {
                                 <motion.div 
                                     animate={{ y: [0, -6, 0] }} 
                                     transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-                                    style={{ width: 52, height: 52, borderRadius: 26, background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#3b82f6', border: '4px solid #fff', boxShadow: '0 0 0 2px #3b82f6' }}
+                                    style={{ width: 52, height: 52, borderRadius: 0, background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#3b82f6', border: '4px solid #fff', boxShadow: '0 0 0 2px #3b82f6' }}
                                 >
                                     <Truck size={24} />
                                 </motion.div>
@@ -459,7 +459,7 @@ const MaterialDetails = ({ embeddedId }) => {
 
                             {/* Node 3: Destination */}
                             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 2, gap: 12 }}>
-                                <div style={{ width: 52, height: 52, borderRadius: 26, background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', border: '4px solid #fff', boxShadow: '0 0 0 1px #e2e8f0' }}>
+                                <div style={{ width: 52, height: 52, borderRadius: 0, background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', border: '4px solid #fff', boxShadow: '0 0 0 1px #e2e8f0' }}>
                                     <MapPin size={24} />
                                 </div>
                                 <div style={{ textAlign: 'center' }}>
@@ -476,7 +476,7 @@ const MaterialDetails = ({ embeddedId }) => {
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 24, paddingLeft: 12, borderLeft: '2px solid #e2e8f0', marginLeft: 16 }}>
                             {timeline.length > 0 ? timeline.slice(0, 3).map((log, i) => (
                                 <div key={i} style={{ position: 'relative' }}>
-                                    <div style={{ position: 'absolute', left: -21, top: 4, width: 14, height: 14, borderRadius: 7, background: i === 0 ? '#3b82f6' : '#94a3b8', border: '3px solid #fff' }} />
+                                    <div style={{ position: 'absolute', left: -21, top: 4, width: 14, height: 14, borderRadius: 0, background: i === 0 ? '#3b82f6' : '#94a3b8', border: '3px solid #fff' }} />
                                     <div style={{ fontSize: 14, fontWeight: 600, color: '#0f172a', marginBottom: 4 }}>{log.action}</div>
                                     <div style={{ fontSize: 13, color: '#475569' }}>{log.description || 'System log recorded.'}</div>
                                     <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4, fontWeight: 500 }}>{log.time} by {log.user || 'System'}</div>

@@ -27,7 +27,7 @@
 .ui-detail-avatar {
     width: 80px;
     height: 80px;
-    border-radius: 20px;
+    border-radius: 0px;
     background: linear-gradient(135deg, #eef2ff, #e0e7ff);
     border: 1px solid rgba(79, 70, 229, 0.1);
     display: flex;
@@ -152,7 +152,7 @@
     top: 2px;
     width: 10px;
     height: 10px;
-    border-radius: 50%;
+    border-radius: 0px;
     background: #ffffff;
     border: 2px solid var(--primary, #3b82f6);
     z-index: 2;

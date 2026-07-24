@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { DataTable } from '../components/ui';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
-import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
+import { StatCard, StatGrid } from '../components/ui/StatCard';
 const Vendors = () => {
     const navigate = useNavigate();
     const [vendors, setVendors] = useState([]);
@@ -88,7 +88,7 @@ const Vendors = () => {
                 }
                 return (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div style={{ width: '40px', height: '40px', background: '#f1f5f9', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
+                    <div style={{ width: '40px', height: '40px', background: '#f1f5f9', borderRadius: '0px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
                         <Building2 size={20} />
                     </div>
                     <div>
@@ -151,12 +151,12 @@ const Vendors = () => {
                         </div>
                 </div>
 
-                <PastelKPIGrid>
-                    <PastelKPICard title="Total Vendors" value={vendors.length} colorTheme="blue" icon={Building2} trendValue="All partners" trendPositive={true} />
-                    <PastelKPICard title="Active" value={activeVendors.length} colorTheme="mint" icon={CheckCircle} trendValue="Good standing" trendPositive={true} />
-                    <PastelKPICard title="On Hold" value={onHoldVendors.length} colorTheme="peach" icon={AlertTriangle} trendValue="Needs attention" trendPositive={false} />
-                    <PastelKPICard title="Total Outstanding" value={formatCurrency(totalOutstanding)} colorTheme="pink" icon={DollarSign} trendValue="Unpaid balance" trendPositive={false} />
-                </PastelKPIGrid>
+                <StatGrid>
+                    <StatCard title="Total Vendors" value={vendors.length} colorTheme="blue" icon={Building2} trendValue="All partners" trendPositive={true} />
+                    <StatCard title="Active" value={activeVendors.length} colorTheme="mint" icon={CheckCircle} trendValue="Good standing" trendPositive={true} />
+                    <StatCard title="On Hold" value={onHoldVendors.length} colorTheme="peach" icon={AlertTriangle} trendValue="Needs attention" trendPositive={false} />
+                    <StatCard title="Total Outstanding" value={formatCurrency(totalOutstanding)} colorTheme="pink" icon={DollarSign} trendValue="Unpaid balance" trendPositive={false} />
+                </StatGrid>
 
                 <motion.div 
                     initial={{ opacity: 0, y: 20 }}
@@ -165,7 +165,7 @@ const Vendors = () => {
                     style={{ marginTop: '24px' }}
                 >
                     {loading ? (
-                        <div style={{ textAlign: 'center', padding: '40px', background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                        <div style={{ textAlign: 'center', padding: '40px', background: '#fff', borderRadius: '0px', border: '1px solid #e2e8f0' }}>
                             Loading vendor data...
                         </div>
                     ) : (
@@ -204,7 +204,7 @@ const VendorKPICard = ({ title, val, color, icon: Icon, data }) => {
             </div>
             <div className="ent-card-footer">
                 <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'currentColor' }}></div>
+                    <div style={{ width: '6px', height: '6px', borderRadius: '0px', backgroundColor: 'currentColor' }}></div>
                     Updated Today
                 </div>
             </div>

@@ -138,7 +138,7 @@ const CreateOrder = () => {
             isEditMode={false}
             infoCard={
                 <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
-                    <div style={{ padding: '12px', background: isSales ? '#e0e7ff' : '#dcfce7', borderRadius: '50%', color: isSales ? '#4f46e5' : '#10b981' }}>
+                    <div style={{ padding: '12px', background: isSales ? '#e0e7ff' : '#dcfce7', borderRadius: '0px', color: isSales ? '#4f46e5' : '#10b981' }}>
                         {isSales ? <User size={24} /> : <Truck size={24} />}
                     </div>
                     <div style={{ flex: 1 }}>
@@ -152,7 +152,7 @@ const CreateOrder = () => {
                     <button 
                         type="button" 
                         onClick={() => navigate(isSales ? '/erp/customers/select' : '/erp/vendors/select')}
-                        style={{ padding: '8px 16px', background: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e1', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 600 }}
+                        style={{ padding: '8px 16px', background: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e1', borderRadius: '0px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 600 }}
                     >
                         <Edit2 size={14} /> Change {isSales ? 'Customer' : 'Vendor'}
                     </button>
@@ -161,7 +161,7 @@ const CreateOrder = () => {
         >
             <div className="standard-section">
                 <div className="standard-section-header">Order Items</div>
-                <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden' }}>
+                <div style={{ border: '1px solid #e2e8f0', borderRadius: '0px', overflow: 'hidden' }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                         <thead>
                             <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
@@ -179,7 +179,7 @@ const CreateOrder = () => {
                                         <select 
                                             required 
                                             value={item.material} 
-                                            style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none' }}
+                                            style={{ width: '100%', padding: '8px', borderRadius: '0px', border: '1px solid #cbd5e1', outline: 'none' }}
                                             onChange={e => {
                                                 const mat = materials.find(m => String(m.id || m._id) === e.target.value);
                                                 const newItems = [...formData.items];
@@ -201,7 +201,7 @@ const CreateOrder = () => {
                                             min="1" 
                                             required 
                                             value={item.quantity} 
-                                            style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', textAlign: 'right' }}
+                                            style={{ width: '100%', padding: '8px', borderRadius: '0px', border: '1px solid #cbd5e1', outline: 'none', textAlign: 'right' }}
                                             onChange={e => {
                                                 const newItems = [...formData.items];
                                                 newItems[index] = { ...newItems[index], quantity: Number(e.target.value) };
@@ -232,7 +232,7 @@ const CreateOrder = () => {
                 </div>
                 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px' }}>
-                    <button type="button" onClick={addItem} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#f1f5f9', color: '#3b82f6', border: '1px dashed #bfdbfe', padding: '8px 16px', borderRadius: '6px', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
+                    <button type="button" onClick={addItem} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#f1f5f9', color: '#3b82f6', border: '1px dashed #bfdbfe', padding: '8px 16px', borderRadius: '0px', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
                         <Plus size={14} /> Add Another Item
                     </button>
                     <div style={{ fontSize: '18px', display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -247,15 +247,15 @@ const CreateOrder = () => {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         <label style={{ fontSize: '14px', fontWeight: 500, color: '#475569' }}>Order Date *</label>
-                        <input type="date" required value={formData.orderDate} onChange={e => setFormData({...formData, orderDate: e.target.value})} style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px', outline: 'none' }} />
+                        <input type="date" required value={formData.orderDate} onChange={e => setFormData({...formData, orderDate: e.target.value})} style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '0px', outline: 'none' }} />
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         <label style={{ fontSize: '14px', fontWeight: 500, color: '#475569' }}>Expected Delivery Date *</label>
-                        <input type="date" required value={formData.expectedDeliveryDate} min={formData.orderDate} onChange={e => setFormData({...formData, expectedDeliveryDate: e.target.value})} style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px', outline: 'none' }} />
+                        <input type="date" required value={formData.expectedDeliveryDate} min={formData.orderDate} onChange={e => setFormData({...formData, expectedDeliveryDate: e.target.value})} style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '0px', outline: 'none' }} />
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', gridColumn: '1 / -1' }}>
                         <label style={{ fontSize: '14px', fontWeight: 500, color: '#475569' }}>Internal Notes</label>
-                        <textarea rows="3" value={formData.notes} onChange={e => setFormData({...formData, notes: e.target.value})} placeholder="Add any special instructions or remarks here..." style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px', outline: 'none', resize: 'vertical' }}></textarea>
+                        <textarea rows="3" value={formData.notes} onChange={e => setFormData({...formData, notes: e.target.value})} placeholder="Add any special instructions or remarks here..." style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '0px', outline: 'none', resize: 'vertical' }}></textarea>
                     </div>
                 </div>
             </div>

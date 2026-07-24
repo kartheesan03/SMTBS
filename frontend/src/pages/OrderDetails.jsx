@@ -178,7 +178,7 @@ const OrderDetails = () => {
     const infoCard = (
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-                <div style={{ width: '64px', height: '64px', background: isSales ? '#e0e7ff' : '#dcfce7', borderRadius: '12px', color: isSales ? '#4f46e5' : '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: '64px', height: '64px', background: isSales ? '#e0e7ff' : '#dcfce7', borderRadius: '0px', color: isSales ? '#4f46e5' : '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <ShoppingCart size={32} />
                 </div>
                 <div>
@@ -194,44 +194,44 @@ const OrderDetails = () => {
                 </div>
             </div>
             <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                <span style={{ padding: '6px 12px', background: '#f1f5f9', color: '#475569', borderRadius: '20px', fontSize: '14px', fontWeight: 500 }}>
+                <span style={{ padding: '6px 12px', background: '#f1f5f9', color: '#475569', borderRadius: '0px', fontSize: '14px', fontWeight: 500 }}>
                     {order.status || 'Pending'}
                 </span>
                 
                 {/* Workflow Action Buttons */}
                 {(userRole === 'manager' || userRole === 'admin') && order.approvalStatus === 'Pending Manager Approval' && (
-                    <button onClick={handleManagerApprove} style={{ padding: '8px 16px', background: '#10b981', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}>
+                    <button onClick={handleManagerApprove} style={{ padding: '8px 16px', background: '#10b981', color: '#fff', border: 'none', borderRadius: '0px', cursor: 'pointer', fontWeight: 600 }}>
                         Approve Order
                     </button>
                 )}
 
                 {userRole === 'employee' && order.status === 'Awaiting Stock Check' && (
                     <>
-                        <button onClick={() => handleEmployeeCheck('low_stock')} style={{ padding: '8px 16px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}>
+                        <button onClick={() => handleEmployeeCheck('low_stock')} style={{ padding: '8px 16px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '0px', cursor: 'pointer', fontWeight: 600 }}>
                             Low Stock Alert
                         </button>
-                        <button onClick={() => handleEmployeeCheck('approve')} style={{ padding: '8px 16px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}>
+                        <button onClick={() => handleEmployeeCheck('approve')} style={{ padding: '8px 16px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '0px', cursor: 'pointer', fontWeight: 600 }}>
                             Approve & Forward to Sales
                         </button>
                     </>
                 )}
 
                 {userRole === 'sales' && order.status === 'Ready for Delivery' && (
-                    <button onClick={() => handleSalesAction('Out for Delivery')} style={{ padding: '8px 16px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <button onClick={() => handleSalesAction('Out for Delivery')} style={{ padding: '8px 16px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '0px', cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
                         <Truck size={14} /> Start {isSales ? 'Delivery' : 'Pickup'}
                     </button>
                 )}
 
                 {userRole === 'sales' && order.status === 'Out for Delivery' && (
-                    <button onClick={() => handleSalesAction(isSales ? 'Delivered' : 'Completed')} style={{ padding: '8px 16px', background: '#10b981', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <button onClick={() => handleSalesAction(isSales ? 'Delivered' : 'Completed')} style={{ padding: '8px 16px', background: '#10b981', color: '#fff', border: 'none', borderRadius: '0px', cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
                         <Truck size={14} /> Mark {isSales ? 'Delivered' : 'Picked Up'}
                     </button>
                 )}
 
-                <button onClick={() => navigate(`/orders/${order._id || order.id}/tracking`)} style={{ padding: '8px 16px', background: '#f8fafc', color: '#3b82f6', border: '1px solid #bfdbfe', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <button onClick={() => navigate(`/orders/${order._id || order.id}/tracking`)} style={{ padding: '8px 16px', background: '#f8fafc', color: '#3b82f6', border: '1px solid #bfdbfe', borderRadius: '0px', cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <Truck size={14} /> Track Order
                 </button>
-                <button onClick={handleDownloadInvoice} style={{ padding: '8px 16px', background: '#3b82f6', color: '#ffffff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <button onClick={handleDownloadInvoice} style={{ padding: '8px 16px', background: '#3b82f6', color: '#ffffff', border: 'none', borderRadius: '0px', cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <FileText size={14} /> Invoice
                 </button>
             </div>
@@ -291,7 +291,7 @@ const OrderDetails = () => {
                         alignItems: 'center',
                         gap: '4px'
                     }}>
-                        {stock} {isLow && <span style={{ fontSize: '11px', background: '#fef2f2', padding: '2px 6px', borderRadius: '4px' }}>Low Stock</span>}
+                        {stock} {isLow && <span style={{ fontSize: '11px', background: '#fef2f2', padding: '2px 6px', borderRadius: '0px' }}>Low Stock</span>}
                     </span>
                 );
             }
@@ -314,11 +314,11 @@ const OrderDetails = () => {
             <div className="standard-section">
                 <div className="standard-section-header">Financial Summary</div>
                 <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
-                    <div style={{ background: '#f8fafc', padding: '20px', borderRadius: '8px', flex: 1, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div style={{ background: '#f8fafc', padding: '20px', borderRadius: '0px', flex: 1, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         <div style={{ color: '#64748b', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}><ShoppingCart size={16} /> Total Items</div>
                         <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#0f172a' }}>{items.length}</div>
                     </div>
-                    <div style={{ background: '#f8fafc', padding: '20px', borderRadius: '8px', flex: 1, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div style={{ background: '#f8fafc', padding: '20px', borderRadius: '0px', flex: 1, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         <div style={{ color: '#64748b', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}><DollarSign size={16} /> Order Value</div>
                         <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#3b82f6' }}>₹{(order.totalAmount || order.amount || order.grandTotal || 0).toLocaleString()}</div>
                     </div>
@@ -330,7 +330,7 @@ const OrderDetails = () => {
                     <span>Order Items</span>
                 </div>
                 {items.length > 0 ? (
-                    <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden' }}>
+                    <div style={{ border: '1px solid #e2e8f0', borderRadius: '0px', overflow: 'hidden' }}>
                         <DataTable 
                             columns={itemColumns}
                             data={items}
@@ -339,7 +339,7 @@ const OrderDetails = () => {
                         />
                     </div>
                 ) : (
-                    <div style={{ textAlign: 'center', padding: '40px', background: '#f8fafc', borderRadius: '8px', border: '1px dashed #cbd5e1', color: '#64748b' }}>
+                    <div style={{ textAlign: 'center', padding: '40px', background: '#f8fafc', borderRadius: '0px', border: '1px dashed #cbd5e1', color: '#64748b' }}>
                         <ShoppingCart size={32} style={{ margin: '0 auto 12px auto', opacity: 0.5 }} />
                         <p style={{ margin: 0 }}>No items found for this order.</p>
                     </div>
@@ -349,7 +349,7 @@ const OrderDetails = () => {
             {order.notes && (
                 <div className="standard-section">
                     <div className="standard-section-header">Notes / Instructions</div>
-                    <p style={{ margin: 0, color: '#334155', lineHeight: '1.6', background: '#fffbeb', padding: '16px', borderRadius: '8px', border: '1px solid #fef3c7' }}>
+                    <p style={{ margin: 0, color: '#334155', lineHeight: '1.6', background: '#fffbeb', padding: '16px', borderRadius: '0px', border: '1px solid #fef3c7' }}>
                         {order.notes}
                     </p>
                 </div>
@@ -360,12 +360,12 @@ const OrderDetails = () => {
                     <div className="standard-section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <span>Live Delivery Tracking</span>
                         {liveData?.trackingStatus !== 'Delayed' && liveData?.trackingStatus !== 'Delivered' && (
-                            <button onClick={handleFlagDelayed} style={{ padding: '6px 12px', background: '#fef2f2', color: '#ef4444', border: '1px solid #fca5a5', borderRadius: '6px', fontSize: '13px', cursor: 'pointer', fontWeight: 600 }}>
+                            <button onClick={handleFlagDelayed} style={{ padding: '6px 12px', background: '#fef2f2', color: '#ef4444', border: '1px solid #fca5a5', borderRadius: '0px', fontSize: '13px', cursor: 'pointer', fontWeight: 600 }}>
                                 Flag as Delayed
                             </button>
                         )}
                     </div>
-                    <div style={{ height: '300px', width: '100%', borderRadius: '12px', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
+                    <div style={{ height: '300px', width: '100%', borderRadius: '0px', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
                         {liveData?.liveLocation ? (
                             <MapContainer center={[liveData.liveLocation.lat, liveData.liveLocation.lng]} zoom={14} style={{ height: '100%', width: '100%' }}>
                                 <TileLayer

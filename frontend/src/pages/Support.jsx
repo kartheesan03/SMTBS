@@ -41,7 +41,7 @@ const Support = () => {
         toast('Guide currently under development.', { 
             icon: '🚧',
             style: {
-                borderRadius: '10px',
+                borderRadius: '0px',
                 background: '#333',
                 color: '#fff',
             }

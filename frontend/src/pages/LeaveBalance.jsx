@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import API from '../api/axios';
-import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
+import { StatCard, StatGrid } from '../components/ui/StatCard';
 import { motion } from 'framer-motion';
 import { Calendar, Users, CheckCircle, Clock, Search, Filter, AlertCircle, TrendingDown } from 'lucide-react';
 import '../components/AdminDashboard/AdminDashboardRedesign.css'; // Uses rd-container, rd-module-header etc.
@@ -94,8 +94,8 @@ const LeaveBalance = () => {
                     <span>{used} used</span>
                     <span>{total - used} left</span>
                 </div>
-                <div style={{ height: 6, background: '#f1f5f9', borderRadius: 10, overflow: 'hidden' }}>
-                    <div style={{ height: '100%', width: `${percentage}%`, background: colorHex, borderRadius: 10 }}></div>
+                <div style={{ height: 6, background: '#f1f5f9', borderRadius: 0, overflow: 'hidden' }}>
+                    <div style={{ height: '100%', width: `${percentage}%`, background: colorHex, borderRadius: 0 }}></div>
                 </div>
             </div>
         );
@@ -109,21 +109,21 @@ const LeaveBalance = () => {
                     <div className="rd-module-info">
                         <div className="rd-module-title-row" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                             <span className="rd-module-title" style={{ fontSize: 28, fontWeight: 700, color: '#0f172a', margin: 0 }}>Leave Balance</span>
-                            <span className="rd-module-badge" style={{ background: '#f1f5f9', color: '#0f172a', padding: '3px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700, textTransform: 'uppercase' }}>HRMS</span>
+                            <span className="rd-module-badge" style={{ background: '#f1f5f9', color: '#0f172a', padding: '3px 8px', borderRadius: 0, fontSize: 10, fontWeight: 700, textTransform: 'uppercase' }}>HRMS</span>
                         </div>
                     </div>
                 </div>
 
                 {/* ── KPIs ── */}
-                <PastelKPIGrid columns={4}>
-                    <PastelKPICard title="Total Staff Tracked" value={loading ? '…' : totalStaff} colorTheme="blue" icon={Users} trendValue="Active profiles" trendPositive={true} />
-                    <PastelKPICard title="Total Leaves Taken" value={loading ? '…' : totalLeavesTaken} colorTheme="peach" icon={TrendingDown} trendValue="Company wide" trendPositive={false} />
-                    <PastelKPICard title="Avg Leaves / Employee" value={loading ? '…' : avgLeavesTaken} colorTheme="purple" icon={CheckCircle} trendValue="Per employee" trendPositive={true} />
-                    <PastelKPICard title="Currently On Leave" value={loading ? '…' : currentlyOnLeave} colorTheme="yellow" icon={Clock} trendValue="Away today" trendPositive={false} />
-                </PastelKPIGrid>
+                <StatGrid columns={4}>
+                    <StatCard title="Total Staff Tracked" value={loading ? '…' : totalStaff} colorTheme="blue" icon={Users} trendValue="Active profiles" trendPositive={true} />
+                    <StatCard title="Total Leaves Taken" value={loading ? '…' : totalLeavesTaken} colorTheme="peach" icon={TrendingDown} trendValue="Company wide" trendPositive={false} />
+                    <StatCard title="Avg Leaves / Employee" value={loading ? '…' : avgLeavesTaken} colorTheme="purple" icon={CheckCircle} trendValue="Per employee" trendPositive={true} />
+                    <StatCard title="Currently On Leave" value={loading ? '…' : currentlyOnLeave} colorTheme="yellow" icon={Clock} trendValue="Away today" trendPositive={false} />
+                </StatGrid>
 
                 {error ? (
-                    <div style={{ background: '#fef2f2', color: '#ef4444', padding: 16, borderRadius: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div style={{ background: '#fef2f2', color: '#ef4444', padding: 16, borderRadius: 0, display: 'flex', alignItems: 'center', gap: 10 }}>
                         <AlertCircle size={20} /> {error}
                     </div>
                 ) : (
@@ -138,7 +138,7 @@ const LeaveBalance = () => {
                                         placeholder="Search employee or dept..."
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
-                                        style={{ padding: '8px 12px 8px 32px', borderRadius: 8, border: '1.5px solid #e2e8f0', fontSize: 13, width: 220, outline: 'none' }}
+                                        style={{ padding: '8px 12px 8px 32px', borderRadius: 0, border: '1.5px solid #e2e8f0', fontSize: 13, width: 220, outline: 'none' }}
                                     />
                                 </div>
                             </div>
@@ -166,7 +166,7 @@ const LeaveBalance = () => {
                                             <tr key={emp._id}>
                                                 <td>
                                                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                                                        <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 12 }}>
+                                                        <div style={{ width: 32, height: 32, borderRadius: '0px', background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 12 }}>
                                                             {emp.firstName?.[0]}{emp.lastName?.[0] || ''}
                                                         </div>
                                                         <div>
@@ -175,7 +175,7 @@ const LeaveBalance = () => {
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td><span style={{ background: '#f1f5f9', color: '#475569', padding: '3px 8px', borderRadius: 6, fontSize: 12, fontWeight: 600 }}>{emp.department || 'N/A'}</span></td>
+                                                <td><span style={{ background: '#f1f5f9', color: '#475569', padding: '3px 8px', borderRadius: 0, fontSize: 12, fontWeight: 600 }}>{emp.department || 'N/A'}</span></td>
                                                 <td>{renderProgressBar(emp.used.Annual, LIMITS.Annual, '#3b82f6')}</td>
                                                 <td>{renderProgressBar(emp.used.Sick, LIMITS.Sick, '#ef4444')}</td>
                                                 <td>{renderProgressBar(emp.used.Casual, LIMITS.Casual, '#10b981')}</td>

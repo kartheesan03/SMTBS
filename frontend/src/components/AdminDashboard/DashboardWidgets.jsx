@@ -111,7 +111,7 @@ export const TopWelcomeBar = ({ username, data }) => {
             <div className="erp-quick-metric">
                 <span className="erp-quick-metric-label">Business Health</span>
                 <div className="erp-quick-metric-value-row">
-                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--erp-success-color)' }}></div>
+                    <div style={{ width: '8px', height: '8px', borderRadius: '0px', background: 'var(--erp-success-color)' }}></div>
                     <span style={{ fontSize: '0.875rem', fontWeight: '500' }}>{data?.healthStatus || 'Good'}</span>
                     <span className="erp-trend-indicator erp-trend-up erp-trend-pill">{data?.healthScore || 0}%</span>
                 </div>
@@ -234,7 +234,7 @@ export const PendingApprovalsList = ({ approvals = [] }) => {
                 {approvals.map((app, idx) => (
                     <div key={idx} className="erp-approval-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <span className="erp-approval-name" style={{ fontSize: '0.875rem', color: 'var(--erp-text-primary)', fontWeight: '500' }}>{app.name}</span>
-                        <span className="erp-approval-badge" style={{ backgroundColor: 'var(--erp-primary-light)', color: 'var(--erp-text-secondary)', fontSize: '0.75rem', fontWeight: '600', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%' }}>{app.count}</span>
+                        <span className="erp-approval-badge" style={{ backgroundColor: 'var(--erp-primary-light)', color: 'var(--erp-text-secondary)', fontSize: '0.75rem', fontWeight: '600', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '0px' }}>{app.count}</span>
                     </div>
                 ))}
             </div>

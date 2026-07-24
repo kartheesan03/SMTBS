@@ -21,8 +21,8 @@ const StatCard = ({ title, value, icon: Icon, color }) => {
     };
     const c = colorMap[color] || colorMap.primary;
     return (
-        <div style={{ background: 'var(--bg-body)', padding: '20px', borderRadius: '12px', border: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: `${c}15`, color: c, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ background: 'var(--bg-body)', padding: '20px', borderRadius: '0px', border: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ width: '48px', height: '48px', borderRadius: '0px', background: `${c}15`, color: c, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Icon size={24} />
             </div>
             <div>

@@ -1,10 +1,34 @@
-import React, { useState, useContext, useEffect, useRef } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import API from '../api/axios';
 import { AuthContext } from '../context/AuthContext';
 import { useGoogleLogin } from '@react-oauth/google';
-import { Shield, Users, Monitor, User, TrendingUp, Eye, EyeOff, Mail, Lock, Activity, Map, Box, CheckCircle } from 'lucide-react';
-import SmtbmsLogo from '../components/SmtbmsLogo';
+import { Shield, Users, Monitor, User, TrendingUp, Eye, EyeOff, Mail, Lock } from 'lucide-react';
+
+// Shared inline style constants — immune to global CSS overrides
+const S = {
+    input: {
+        width: '100%', height: '44px', minHeight: '44px', maxHeight: '44px',
+        background: '#FFFFFF', backgroundColor: '#FFFFFF',
+        border: '1px solid #D1D5DB', borderRadius: '0px',
+        fontSize: '14px', color: '#111827', fontFamily: 'Inter, sans-serif',
+        padding: '0 14px 0 42px', outline: 'none', boxShadow: '0 1px 2px rgba(0,0,0,0.02)',
+        transition: 'all 0.2s ease',
+    },
+    select: {
+        width: '100%', height: '44px', minHeight: '44px', maxHeight: '44px',
+        background: '#FFFFFF', backgroundColor: '#FFFFFF',
+        border: '1px solid #D1D5DB', borderRadius: '0px',
+        fontSize: '14px', color: '#111827', fontFamily: 'Inter, sans-serif',
+        padding: '0 36px 0 14px', outline: 'none', boxShadow: '0 1px 2px rgba(0,0,0,0.02)',
+        appearance: 'none', WebkitAppearance: 'none', cursor: 'pointer',
+        transition: 'all 0.2s ease',
+    },
+    label: {
+        display: 'block', fontSize: '13px', fontWeight: 600,
+        color: '#374151', marginBottom: '6px', letterSpacing: '-0.01em',
+    }
+};
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -91,515 +115,411 @@ const Login = () => {
     });
 
     return (
-        <div className="auth-split-layout">
-            
-            {/* LEFT PANEL - Brand & Floating Dashboard Cards */}
-            <div className="auth-brand-panel">
-                {/* Logo */}
-                <div className="brand-header">
-                    <SmtbmsLogo size={48} showText={true} showTagline={true} title="Smart Material Tracking & Business Management System" />
-                </div>
+        <div className="pro-login-shell">
 
-                {/* Content */}
-                <div className="brand-content">
-                    <h1 className="brand-headline">Every material,<br/>tracked in real time.</h1>
-                    <p className="brand-subheadline">
-                        Command your operations with precision. Automated inventory, dynamic tracking, and unified workforce management.
-                    </p>
-
-                    {/* Features Grid */}
-                    <div className="features-compact-grid">
-                        <div className="feature-item">
-                            <Map size={16} className="feature-icon" />
-                            <span>Material Tracking</span>
-                        </div>
-                        <div className="feature-item">
-                            <Box size={16} className="feature-icon" />
-                            <span>Smart Replenishment</span>
-                        </div>
-                        <div className="feature-item">
-                            <Activity size={16} className="feature-icon" />
-                            <span>Real-time Analytics</span>
-                        </div>
-                        <div className="feature-item">
-                            <CheckCircle size={16} className="feature-icon" />
-                            <span>Unified HR & Payroll</span>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Floating Angled Dashboard Cards */}
-                <div className="floating-cards-container">
-                    
-                    {/* Data Table Card (Back) */}
-                    <div className="float-card card-table">
-                        <div className="fc-header">Recent Movements</div>
-                        <div className="fc-row"><div className="fc-dot blue"></div><div className="fc-line long"></div></div>
-                        <div className="fc-row"><div className="fc-dot green"></div><div className="fc-line short"></div></div>
-                        <div className="fc-row"><div className="fc-dot purple"></div><div className="fc-line med"></div></div>
-                    </div>
-
-                    {/* KPI Card (Middle) */}
-                    <div className="float-card card-kpi">
-                        <div className="fc-kpi-val">99.8%</div>
-                        <div className="fc-kpi-label">Fulfillment Rate</div>
-                        <svg className="fc-sparkline" viewBox="0 0 100 30" fill="none">
-                            <path d="M0 25 Q 20 5 40 20 T 80 10 T 100 15" stroke="url(#sparkGradient)" strokeWidth="3" strokeLinecap="round" />
-                            <defs>
-                                <linearGradient id="sparkGradient" x1="0" y1="0" x2="1" y2="0">
-                                    <stop offset="0%" stopColor="#4F46E5" />
-                                    <stop offset="100%" stopColor="#818CF8" />
-                                </linearGradient>
-                            </defs>
+            {/* ========== LEFT BRAND PANEL ========== */}
+            <div className="pro-brand-panel">
+                <div className="brand-inner">
+                    {/* Logo */}
+                    <div className="brand-logo">
+                        <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
+                            <rect width="40" height="40" rx="0" fill="#FFFFFF" fillOpacity="0.15" />
+                            <path d="M 20 10.5 L 31 16 L 20 21.5 L 9 16 Z" fill="#fff" />
+                            <path d="M 9 19.5 L 20 25 L 31 19.5 L 31 22 L 20 27.5 L 9 22 Z" fill="#fff" opacity="0.6" />
+                            <path d="M 9 24 L 20 29.5 L 31 24 L 31 26.5 L 20 32 L 9 26.5 Z" fill="#fff" opacity="0.3" />
                         </svg>
+                        <span>SMTBMS</span>
                     </div>
 
-                    {/* GPS Map Card (Front) */}
-                    <div className="float-card card-map">
-                        <div className="fc-map-bg"></div>
-                        <div className="fc-pin" style={{top: '30%', left: '40%'}}></div>
-                        <div className="fc-pin" style={{top: '60%', left: '70%'}}></div>
-                        <svg className="fc-route" viewBox="0 0 100 100" fill="none">
-                            <path d="M40 30 Q 60 40 70 60" stroke="#5B47C2" strokeWidth="2" strokeDasharray="4 4" />
+                    {/* Headline */}
+                    <div className="brand-headline">
+                        <h1 style={{ color: '#F8F9FF' }}>Smart Material Tracking & Business Management</h1>
+                        <p>One platform to manage inventory, workforce, and operations with real-time intelligence.</p>
+                    </div>
+
+                    {/* Stats Row */}
+                    <div className="brand-stats">
+                        <div className="stat-item">
+                            <span className="stat-val">99.8%</span>
+                            <span className="stat-desc">Uptime</span>
+                        </div>
+                        <div className="stat-divider"></div>
+                        <div className="stat-item">
+                            <span className="stat-val">50k+</span>
+                            <span className="stat-desc">Items Tracked</span>
+                        </div>
+                        <div className="stat-divider"></div>
+                        <div className="stat-item">
+                            <span className="stat-val">24/7</span>
+                            <span className="stat-desc">Monitoring</span>
+                        </div>
+                    </div>
+
+                    {/* Testimonial */}
+                    <div className="brand-quote">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{marginBottom: '12px', opacity: 0.5}}>
+                            <path d="M10 11L8 15H11V19H5V15L7 11H10ZM19 11L17 15H20V19H14V15L16 11H19Z" fill="currentColor"/>
                         </svg>
-                        <div className="fc-map-badge">Active Route</div>
+                        <p>"SMTBMS transformed our entire inventory workflow. We went from spreadsheets to full automation in a week."</p>
+                        <div className="quote-author">
+                            <div className="author-avatar">AK</div>
+                            <div>
+                                <strong>Arun Kumar</strong>
+                                <span>Operations Manager</span>
+                            </div>
+                        </div>
                     </div>
-
                 </div>
+
+                <div className="brand-footer">© 2026 SMTBMS. All rights reserved.</div>
             </div>
 
-            {/* RIGHT PANEL - Form */}
-            <div className="auth-form-panel">
-                <div className="auth-form-container">
-                    
-                    <div className="form-header">
+            {/* ========== RIGHT FORM PANEL ========== */}
+            <div className="pro-form-panel">
+                <div className="form-inner">
+
+                    <div className="form-top-text">
                         <h2>Welcome back</h2>
-                        <p>Sign in to your account</p>
+                        <p>Enter your credentials to access your account</p>
                     </div>
 
-                    {error && (
-                        <div className="error-alert">
-                            {error}
-                        </div>
-                    )}
+                    {error && <div className="pro-error">{error}</div>}
 
-                    <form onSubmit={handleSubmit} className="login-form">
-                        
-                        {/* Role Selector Pills */}
-                        <div className="form-group">
-                            <label className="input-label">Select Role</label>
-                            <div className="role-pills-container">
-                                {roles.map((r) => (
-                                    <button
-                                        key={r.id}
-                                        type="button"
-                                        className={`role-pill ${selectedRole === r.id ? 'active' : ''}`}
-                                        onClick={() => setSelectedRole(r.id)}
-                                    >
-                                        <r.icon size={14} />
-                                        <span>{r.id}</span>
-                                    </button>
-                                ))}
+                    <form onSubmit={handleSubmit} className="pro-form">
+                        {/* Role */}
+                        <div className="pro-field">
+                            <label style={S.label}>Role</label>
+                            <div style={{position:'relative'}}>
+                                <select
+                                    value={selectedRole}
+                                    onChange={(e) => setSelectedRole(e.target.value)}
+                                    style={S.select}
+                                >
+                                    {roles.map((r) => (
+                                        <option key={r.id} value={r.id}>{r.id}</option>
+                                    ))}
+                                </select>
+                                <span style={{position:'absolute',right:'14px',top:'50%',transform:'translateY(-50%)',color:'#9CA3AF',fontSize:'12px',pointerEvents:'none'}}>▾</span>
                             </div>
                         </div>
 
-                        {/* Email Input */}
-                        <div className="form-group">
-                            <label className="input-label">Email Address</label>
-                            <div className="input-with-icon">
-                                <Mail size={16} className="input-icon" />
+                        {/* Email */}
+                        <div className="pro-field">
+                            <label style={S.label}>Email address</label>
+                            <div style={{position:'relative',display:'flex',alignItems:'center'}}>
+                                <Mail size={16} style={{position:'absolute',left:'14px',color:'#9CA3AF',zIndex:2}} />
                                 <input
-                                    type="email"
-                                    placeholder="name@company.com"
+                                    type="email" placeholder="name@company.com"
                                     value={email}
                                     onChange={(e) => { setEmail(e.target.value); setError(''); }}
                                     required
+                                    style={S.input}
                                 />
                             </div>
                         </div>
 
-                        {/* Password Input */}
-                        <div className="form-group">
-                            <div className="label-row">
-                                <label className="input-label">Password</label>
-                                <Link to="/forgot-password" className="forgot-link">Forgot Password?</Link>
+                        {/* Password */}
+                        <div className="pro-field">
+                            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'6px'}}>
+                                <label style={{...S.label, marginBottom: 0}}>Password</label>
+                                <Link to="/forgot-password" style={{fontSize:'13px',fontWeight:500,color:'#6366F1',textDecoration:'none'}}>Forgot password?</Link>
                             </div>
-                            <div className="input-with-icon">
-                                <Lock size={16} className="input-icon" />
+                            <div style={{position:'relative',display:'flex',alignItems:'center'}}>
+                                <Lock size={16} style={{position:'absolute',left:'14px',color:'#9CA3AF',zIndex:2}} />
                                 <input
                                     type={showPassword ? "text" : "password"}
-                                    placeholder="••••••••"
+                                    placeholder="Enter your password"
                                     value={password}
                                     onChange={(e) => { setPassword(e.target.value); setError(''); }}
                                     required
+                                    style={S.input}
                                 />
-                                <button type="button" className="eye-toggle" onClick={() => setShowPassword(!showPassword)}>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    style={{position:'absolute',right:'12px',background:'none',border:'none',padding:0,color:'#9CA3AF',cursor:'pointer',display:'flex',alignItems:'center',zIndex:2,width:'auto',height:'auto',minHeight:0,boxShadow:'none'}}
+                                >
                                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                                 </button>
                             </div>
                         </div>
 
-                        {/* Remember Me Toggle */}
-                        <div className="toggle-row" onClick={() => setRememberMe(!rememberMe)}>
-                            <div className={`custom-toggle ${rememberMe ? 'active' : ''}`}>
-                                <div className="toggle-thumb"></div>
-                            </div>
-                            <span className="toggle-label">Remember me for 30 days</span>
+                        {/* Remember */}
+                        <div 
+                            onClick={() => setRememberMe(!rememberMe)} 
+                            style={{display:'flex',alignItems:'center',gap:'8px',cursor:'pointer',fontSize:'13px',color:'#6B7280',fontWeight:500,marginTop:'2px',marginBottom:0}}
+                        >
+                            <div className="pro-checkbox" data-checked={rememberMe}></div>
+                            Remember me for 30 days
                         </div>
 
                         {/* Submit */}
-                        <button type="submit" className="btn-primary" disabled={isLoading}>
-                            {isLoading ? 'Signing in...' : 'Sign in'}
+                        <button type="submit" className="pro-submit" disabled={isLoading}>
+                            {isLoading ? <span className="pro-spinner"></span> : 'Sign in'}
                         </button>
 
                         {/* Divider */}
-                        <div className="social-divider">
-                            <span>OR CONTINUE WITH</span>
-                        </div>
+                        <div className="pro-divider"><span>or</span></div>
 
-                        {/* Social Buttons */}
-                        <div className="social-buttons">
-                            <button type="button" className="btn-social" onClick={() => handleGoogleLogin()}>
-                                <svg viewBox="0 0 24 24" width="16" height="16">
-                                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-                                </svg>
+                        {/* Social */}
+                        <div style={{display:'flex',gap:'10px'}}>
+                            <button type="button" className="pro-social" onClick={() => handleGoogleLogin()}>
+                                <svg viewBox="0 0 24 24" width="18" height="18"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.07 5.07 0 01-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09a6.97 6.97 0 010-4.18V7.07H2.18A11 11 0 001 12c0 1.78.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
                                 Google
                             </button>
-                            <button type="button" className="btn-social">
-                                <svg viewBox="0 0 21 21" width="16" height="16">
-                                    <rect x="1" y="1" width="9" height="9" fill="#F25022"/>
-                                    <rect x="11" y="1" width="9" height="9" fill="#7FBA00"/>
-                                    <rect x="1" y="11" width="9" height="9" fill="#00A4EF"/>
-                                    <rect x="11" y="11" width="9" height="9" fill="#FFB900"/>
-                                </svg>
+                            <button type="button" className="pro-social">
+                                <svg viewBox="0 0 21 21" width="18" height="18"><rect x="1" y="1" width="9" height="9" fill="#F25022"/><rect x="11" y="1" width="9" height="9" fill="#7FBA00"/><rect x="1" y="11" width="9" height="9" fill="#00A4EF"/><rect x="11" y="11" width="9" height="9" fill="#FFB900"/></svg>
                                 Microsoft
                             </button>
                         </div>
-
                     </form>
 
-                    <div className="form-footer">
-                        Don't have an account? <Link to="/register">Sign up</Link>
-                    </div>
-
+                    <p className="pro-signup-link">
+                        Don't have an account? <Link to="/register">Create account</Link>
+                    </p>
                 </div>
             </div>
 
             <style jsx="true">{`
-                @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+                @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-                .auth-split-layout {
+                .pro-login-shell {
+                    position: fixed; inset: 0;
                     display: flex;
-                    position: fixed;
-                    top: 0; left: 0; right: 0; bottom: 0;
-                    width: 100vw;
-                    height: 100vh;
+                    width: 100vw; height: 100vh;
+                    font-family: 'Inter', -apple-system, sans-serif;
                     z-index: 9999;
-                    background: #FFFFFF;
-                    font-family: 'Inter', sans-serif;
                     overflow: hidden;
                 }
 
-                /* ================= LEFT PANEL ================= */
-                .auth-brand-panel {
-                    flex: 1;
-                    background: linear-gradient(135deg, #1C113A 0%, #311E66 50%, #4B35A6 100%);
+                /* ===== LEFT BRAND PANEL ===== */
+                .pro-brand-panel {
+                    flex: 0 0 46%;
+                    background: linear-gradient(135deg, #7c3aed 0%, #4338ca 50%, #1e1b4b 100%);
+                    color: #FFFFFF;
                     display: flex;
                     flex-direction: column;
-                    padding: 48px;
+                    justify-content: space-between;
+                    padding: 40px 48px;
                     position: relative;
                     overflow: hidden;
-                    color: white;
                 }
-
-                .brand-header {
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                    z-index: 10;
+                .pro-brand-panel::before {
+                    content: '';
+                    position: absolute; inset: 0;
+                    background: radial-gradient(ellipse at 30% 20%, rgba(99,102,241,0.25) 0%, transparent 60%),
+                                radial-gradient(ellipse at 80% 80%, rgba(139,92,246,0.15) 0%, transparent 50%);
+                    pointer-events: none;
                 }
-                .logo-icon-wrap {
-                    width: 40px; height: 40px;
-                    background: rgba(255,255,255,0.1);
-                    backdrop-filter: blur(10px);
-                    border-radius: 10px;
-                    border: 1px solid rgba(255,255,255,0.2);
-                    display: flex; align-items: center; justify-content: center;
-                }
-                .brand-text {
-                    font-size: 20px;
-                    font-weight: 700;
-                    letter-spacing: -0.5px;
-                }
-
-                .brand-content {
-                    margin-top: 80px;
-                    margin-bottom: auto;
-                    max-width: 480px;
-                    z-index: 10;
-                    position: relative;
-                }                    z-index: 10;
-                    position: relative;
-                }
-
-                .brand-headline {
-                    font-size: 48px;
-                    font-weight: 700;
-                    line-height: 1.1;
-                    margin: 0 0 16px 0;
-                    letter-spacing: -1.5px;
-                }
-
-                .brand-subheadline {
-                    font-size: 16px;
-                    line-height: 1.5;
-                    color: rgba(255,255,255,0.7);
-                    margin: 0 0 40px 0;
-                }
-
-                .features-compact-grid {
-                    display: grid;
-                    grid-template-columns: 1fr 1fr;
-                    gap: 16px;
-                }
-
-                .feature-item {
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    font-size: 14px;
-                    color: rgba(255,255,255,0.9);
-                    font-weight: 500;
-                }
-                .feature-icon {
-                    color: #8B77E3;
-                }
-
-                /* Floating Cards Composition */
-                .floating-cards-container {
-                    position: absolute;
-                    bottom: -20px;
-                    right: -20px; /* Anchored to bottom right */
-                    transform: scale(0.75);
-                    transform-origin: bottom right;
-                    width: 440px;
-                    height: 480px;
-                    z-index: 5;
+                .pro-brand-panel::after {
+                    content: '';
+                    position: absolute; inset: 0;
+                    background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
+                    background-size: 20px 20px;
                     pointer-events: none;
                 }
 
-                .float-card {
-                    position: absolute;
-                    background: rgba(255, 255, 255, 0.98);
-                    border-radius: 16px;
-                    border: 1px solid rgba(255,255,255,0.4);
+                .brand-inner { position: relative; z-index: 2; }
+
+                .brand-logo {
+                    display: flex; align-items: center; gap: 12px;
+                    font-size: 18px; font-weight: 700;
+                    letter-spacing: -0.3px;
+                    margin-bottom: 60px;
                 }
 
-                /* Data Table Card (Back) */
-                .card-table {
-                    width: 320px; height: 180px;
-                    top: 30px; right: 40px;
-                    transform: rotate(-6deg);
+                .brand-headline h1 {
+                    font-size: 32px; font-weight: 800;
+                    line-height: 1.15; letter-spacing: -0.5px;
+                    margin: 0 0 16px 0;
+                    max-width: 400px;
+                }
+                .brand-headline p {
+                    font-size: 15px; line-height: 1.6;
+                    color: rgba(255,255,255,0.6);
+                    margin: 0 0 48px 0;
+                    max-width: 380px;
+                }
+
+                .brand-stats {
+                    display: flex; align-items: center; gap: 24px;
+                    margin-bottom: 48px;
+                }
+                .stat-item { display: flex; flex-direction: column; gap: 4px; }
+                .stat-val { 
+                    font-size: 24px; 
+                    font-weight: 700; 
+                    color: #F8F9FF;
+                    border-bottom: 2px solid #818CF8;
+                    padding-bottom: 2px;
+                    display: inline-block;
+                }
+                .stat-desc { font-size: 12px; color: rgba(255,255,255,0.7); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+                .stat-divider { width: 1px; height: 36px; background: rgba(255,255,255,0.15); }
+
+                .brand-quote {
+                    background: rgba(255,255,255,0.06);
+                    border: 1px solid rgba(255,255,255,0.2);
+                    border-radius: 0px;
                     padding: 24px;
-                    display: flex; flex-direction: column; gap: 14px;
-                    z-index: 1;
-                    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
                 }
-                .fc-header { font-size: 12px; font-weight: 600; color: #4B5563; margin-bottom: 4px; }
-                .fc-row { display: flex; align-items: center; gap: 12px; }
-                .fc-dot { width: 8px; height: 8px; border-radius: 50%; }
-                .fc-dot.blue { background: #3B82F6; }
-                .fc-dot.green { background: #10B981; }
-                .fc-dot.purple { background: #8B5CF6; }
-                .fc-line { height: 8px; background: #E5E7EB; border-radius: 4px; }
-                .fc-line.long { width: 80%; }
-                .fc-line.med { width: 60%; }
-                .fc-line.short { width: 40%; }
+                .brand-quote p {
+                    font-size: 14px; line-height: 1.6;
+                    color: rgba(255,255,255,0.8);
+                    margin: 0 0 16px 0; font-style: italic;
+                }
+                .quote-author {
+                    display: flex; align-items: center; gap: 10px;
+                }
+                .author-avatar {
+                    width: 32px; height: 32px;
+                    background: rgba(255,255,255,0.15);
+                    border-radius: 2px;
+                    display: flex; align-items: center; justify-content: center;
+                    font-size: 11px; font-weight: 700;
+                }
+                .quote-author strong { font-size: 13px; font-weight: 600; display: block; }
+                .quote-author span { font-size: 12px; color: rgba(255,255,255,0.5); }
 
-                /* KPI Card (Middle) */
-                .card-kpi {
-                    width: 200px; height: 150px;
-                    top: 170px; left: 0px;
-                    transform: rotate(5deg);
-                    padding: 24px;
-                    z-index: 2;
-                    box-shadow: 0 24px 48px rgba(0,0,0,0.3);
-                }
-                .fc-kpi-val { font-size: 32px; font-weight: 700; color: #111827; line-height: 1; }
-                .fc-kpi-label { font-size: 12px; color: #6B7280; margin-top: 4px; margin-bottom: 16px; }
-                .fc-sparkline { width: 100%; height: 30px; }
-
-                /* Map Card (Front) */
-                .card-map {
-                    width: 260px; height: 220px;
-                    top: 230px; right: 10px;
-                    transform: rotate(-3deg);
-                    padding: 8px;
-                    z-index: 3;
-                    box-shadow: 0 30px 60px rgba(0,0,0,0.4);
-                }
-                .fc-map-bg {
-                    width: 100%; height: 100%;
-                    border-radius: 12px;
-                    background-image: radial-gradient(#E5E7EB 1px, transparent 1px);
-                    background-size: 20px 20px;
-                    background-color: #F9FAFB;
-                    position: relative;
-                    overflow: hidden;
-                }
-                .fc-pin {
-                    position: absolute; width: 12px; height: 12px;
-                    background: #5B47C2; border-radius: 50%;
-                    border: 2px solid white;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-                }
-                .fc-route { position: absolute; inset: 0; width: 100%; height: 100%; }
-                .fc-map-badge {
-                    position: absolute; bottom: 20px; left: 20px;
-                    background: white; padding: 6px 12px; border-radius: 20px;
-                    font-size: 11px; font-weight: 600; color: #374151;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                .brand-footer {
+                    position: relative; z-index: 2;
+                    font-size: 12px; color: rgba(255,255,255,0.3);
                 }
 
-
-                .auth-form-panel {
+                /* ===== RIGHT FORM PANEL ===== */
+                .pro-form-panel {
                     flex: 1;
                     background: #FFFFFF;
                     display: flex;
-                    align-items: flex-start;
+                    align-items: center;
                     justify-content: center;
+                    padding: 40px;
                     overflow-y: auto;
                 }
-
-                .auth-form-container {
+                .form-inner {
                     width: 100%;
-                    max-width: 440px;
-                    padding: 40px;
-                    margin: auto 0;
+                    max-width: 380px;
                 }
 
-                .form-header { margin-bottom: 32px; }
-                .form-header h2 { font-size: 28px; font-weight: 700; color: #111827; margin: 0 0 8px 0; letter-spacing: -0.5px; }
-                .form-header p { font-size: 15px; color: #6B7280; margin: 0; }
-
-                .error-alert {
-                    background: #FEF2F2; color: #DC2626; padding: 12px 16px;
-                    border-radius: 8px; font-size: 14px; font-weight: 500; margin-bottom: 24px;
-                    border: 1px solid #FECACA;
+                .form-top-text { margin-bottom: 28px; }
+                .form-top-text h2 {
+                    font-size: 24px; font-weight: 700;
+                    color: #111827; margin: 0 0 6px 0;
+                    letter-spacing: -0.5px;
+                }
+                .form-top-text p {
+                    font-size: 14px; color: #6B7280; margin: 0;
                 }
 
-                .login-form { display: flex; flex-direction: column; gap: 20px; }
-                .form-group { display: flex; flex-direction: column; }
-                .input-label { font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 8px; }
-                .label-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-                .label-row .input-label { margin-bottom: 0; }
-                .forgot-link { font-size: 12px; font-weight: 500; color: #5B47C2; text-decoration: none; }
-                .forgot-link:hover { text-decoration: underline; }
-
-                /* Role Pills */
-                .role-pills-container {
-                    display: flex;
-                    flex-wrap: wrap;
-                    gap: 10px;
+                .pro-error {
+                    background: #FEF2F2; border: 1px solid #FECACA;
+                    color: #DC2626; padding: 10px 14px;
+                    border-radius: 0px; font-size: 13px;
+                    font-weight: 500; margin-bottom: 16px;
                 }
-                .role-pill {
-                    display: flex; align-items: center; gap: 6px;
-                    padding: 8px 14px;
-                    border-radius: 20px;
-                    border: 1px solid #E5E7EB;
+
+                .pro-form { display: flex; flex-direction: column; gap: 16px; }
+                .pro-field { display: flex; flex-direction: column; }
+
+                /* Checkbox */
+                .pro-checkbox {
+                    width: 18px; height: 18px;
+                    border-radius: 0px;
+                    border: 1.5px solid #D1D5DB;
                     background: #FFFFFF;
-                    color: #4B5563;
-                    font-size: 13px; font-weight: 500; font-family: inherit;
-                    cursor: pointer; transition: all 0.2s;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    transition: all 0.15s;
+                    flex-shrink: 0;
                 }
-                .role-pill:hover { border-color: #D1D5DB; background: #F9FAFB; }
-                .role-pill.active {
-                    background: #5B47C2;
-                    border-color: #5B47C2;
+                .pro-checkbox[data-checked="true"] {
+                    background: #6366F1;
+                    border-color: #6366F1;
+                }
+                .pro-checkbox[data-checked="true"]::after {
+                    content: '✓';
+                    font-size: 11px;
                     color: #FFFFFF;
-                    box-shadow: 0 2px 8px rgba(91,71,194,0.3);
+                    font-weight: 700;
                 }
 
-                /* Inputs with Icon */
-                .input-with-icon { position: relative; display: flex; align-items: center; }
-                .input-icon { position: absolute; left: 14px; color: #9CA3AF; z-index: 2; }
-                .input-with-icon input {
+                /* Submit */
+                .pro-submit {
                     width: 100%; height: 44px;
-                    border: 1px solid #D1D5DB; border-radius: 10px;
-                    padding: 0 14px 0 40px; /* Space for icon */
-                    font-size: 14px; color: #111827; font-family: inherit;
-                    transition: all 0.2s; outline: none; background: #FFFFFF;
+                    background: #4F46E5; color: #FFFFFF;
+                    border: none; border-radius: 0px;
+                    font-size: 15px; font-weight: 600;
+                    font-family: inherit; cursor: pointer;
+                    transition: all 0.2s;
+                    display: flex; align-items: center; justify-content: center;
+                    box-shadow: 0 1px 3px rgba(79,70,229,0.3);
+                    margin-top: 4px;
                 }
-                .input-with-icon input:focus { border-color: #5B47C2; box-shadow: 0 0 0 3px rgba(91,71,194,0.1); }
-                .input-with-icon input:-webkit-autofill {
-                    -webkit-box-shadow: 0 0 0 30px white inset !important;
-                    -webkit-text-fill-color: #111827 !important;
+                .pro-submit:hover:not(:disabled) {
+                    background: #4338CA;
+                    box-shadow: 0 4px 12px rgba(79,70,229,0.35);
+                    transform: translateY(-1px);
                 }
-                
-                .eye-toggle {
-                    position: absolute; right: 14px;
-                    background: none; border: none; padding: 0;
-                    color: #9CA3AF; cursor: pointer; display: flex; align-items: center; z-index: 2;
-                }
-                .eye-toggle:hover { color: #5B47C2; }
+                .pro-submit:active:not(:disabled) { transform: translateY(0); }
+                .pro-submit:disabled { opacity: 0.6; cursor: not-allowed; }
 
-                /* Custom Toggle */
-                .toggle-row { display: flex; align-items: center; gap: 10px; cursor: pointer; margin-top: 4px; }
-                .custom-toggle {
-                    width: 36px; height: 20px;
-                    background: #E5E7EB; border-radius: 20px;
-                    position: relative; transition: background 0.2s;
+                .pro-spinner {
+                    width: 20px; height: 20px;
+                    border: 2.5px solid rgba(255,255,255,0.3);
+                    border-top-color: #FFF;
+                    border-radius: 50%;
+                    animation: pro-spin 0.6s linear infinite;
                 }
-                .custom-toggle.active { background: #5B47C2; }
-                .toggle-thumb {
-                    position: absolute; top: 2px; left: 2px;
-                    width: 16px; height: 16px;
-                    background: #FFFFFF; border-radius: 50%;
-                    transition: transform 0.2s;
-                    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-                }
-                .custom-toggle.active .toggle-thumb { transform: translateX(16px); }
-                .toggle-label { font-size: 13px; color: #4B5563; font-weight: 500; }
+                @keyframes pro-spin { to { transform: rotate(360deg); } }
 
-                /* Buttons */
-                .btn-primary {
-                    height: 44px; background: #5B47C2; color: #FFF;
-                    border: none; border-radius: 10px;
-                    font-size: 14.5px; font-weight: 600; font-family: inherit;
-                    cursor: pointer; transition: background 0.2s;
-                    margin-top: 8px;
+                /* Divider */
+                .pro-divider {
+                    display: flex; align-items: center; gap: 14px;
                 }
-                .btn-primary:hover:not(:disabled) { background: #4B38B2; }
-                .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
-
-                /* Social */
-                .social-divider {
-                    display: flex; align-items: center; gap: 12px; margin: 8px 0;
-                }
-                .social-divider::before, .social-divider::after {
+                .pro-divider::before, .pro-divider::after {
                     content: ''; flex: 1; height: 1px; background: #E5E7EB;
                 }
-                .social-divider span { font-size: 11px; font-weight: 600; color: #9CA3AF; letter-spacing: 0.5px;}
-
-                .social-buttons { display: flex; gap: 12px; }
-                .btn-social {
-                    flex: 1; height: 44px;
-                    background: #FFF; border: 1px solid #D1D5DB; border-radius: 10px;
-                    display: flex; align-items: center; justify-content: center; gap: 8px;
-                    font-size: 14px; font-weight: 500; color: #374151; font-family: inherit;
-                    cursor: pointer; transition: all 0.2s;
+                .pro-divider span {
+                    font-size: 12px; font-weight: 500; color: #9CA3AF;
+                    text-transform: uppercase;
                 }
-                .btn-social:hover { background: #F9FAFB; border-color: #9CA3AF; }
 
-                .form-footer { margin-top: 32px; text-align: center; font-size: 14px; color: #6B7280; }
-                .form-footer a { color: #5B47C2; font-weight: 600; text-decoration: none; }
-                .form-footer a:hover { text-decoration: underline; }
+                /* Social */
+                .pro-social {
+                    flex: 1; height: 44px;
+                    background: #FFFFFF;
+                    border: 1px solid #E5E7EB;
+                    border-radius: 0px;
+                    display: flex; align-items: center; justify-content: center; gap: 8px;
+                    font-size: 14px; font-weight: 500; color: #374151;
+                    font-family: inherit; cursor: pointer;
+                    transition: all 0.15s;
+                }
+                .pro-social:hover {
+                    background: #F9FAFB;
+                    border-color: #D1D5DB;
+                }
 
+                .pro-signup-link {
+                    margin-top: 24px; text-align: center;
+                    font-size: 14px; color: #6B7280;
+                }
+                .pro-signup-link a {
+                    color: #4F46E5; font-weight: 600;
+                    text-decoration: none;
+                }
+                .pro-signup-link a:hover { text-decoration: underline; }
+
+                /* ===== RESPONSIVE ===== */
                 @media (max-width: 900px) {
-                    .auth-brand-panel { display: none; }
+                    .pro-login-shell { flex-direction: column; overflow-y: auto; }
+                    .pro-brand-panel { flex: none; min-height: auto; padding: 32px 24px; }
+                    .brand-headline h1 { font-size: 24px; }
+                    .brand-headline p { margin-bottom: 24px; }
+                    .brand-stats { margin-bottom: 24px; }
+                    .brand-logo { margin-bottom: 32px; }
+                    .pro-form-panel { flex: none; padding: 32px 24px; }
                 }
             `}</style>
         </div>

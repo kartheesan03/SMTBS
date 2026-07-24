@@ -315,10 +315,10 @@ const DataTable = ({
                                 <tr key={`skeleton-${idx}`} style={{ animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' }}>
                                     {columns.filter(c => visibleColumns[c.key]).map(col => (
                                         <td key={`skeleton-col-${col.key}`}>
-                                            <div style={{height: 16, background: '#e2e8f0', borderRadius: 4, width: '70%'}}></div>
+                                            <div style={{height: 16, background: '#e2e8f0', borderRadius: 0, width: '70%'}}></div>
                                         </td>
                                     ))}
-                                    {actions.length > 0 && <td><div style={{height: 24, background: '#e2e8f0', borderRadius: 4, width: '60px', margin: '0 auto'}}></div></td>}
+                                    {actions.length > 0 && <td><div style={{height: 24, background: '#e2e8f0', borderRadius: 0, width: '60px', margin: '0 auto'}}></div></td>}
                                     {expandableRowRender && <td></td>}
                                 </tr>
                             ))
@@ -380,7 +380,7 @@ const DataTable = ({
                             <motion.tr initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                                 <td colSpan={columns.filter(c => visibleColumns[c.key]).length + (actions.length ? 1 : 0) + (expandableRowRender ? 1 : 0)} style={{ textAlign: 'center', padding: '64px 20px', background: '#fafafa' }}>
                                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
-                                        <div style={{ width: 64, height: 64, background: '#f1f5f9', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.05)' }}>
+                                        <div style={{ width: 64, height: 64, background: '#f1f5f9', borderRadius: '0px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.05)' }}>
                                             <Database size={32} color="#94a3b8" />
                                         </div>
                                         <h4 style={{ margin: 0, fontSize: 16, color: '#0f172a', fontWeight: 600 }}>No records found</h4>

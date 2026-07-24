@@ -127,7 +127,7 @@ const PayrollPayment = () => {
                     <AlertCircle size={48} style={{ color: '#ef4444', marginBottom: '16px' }} />
                     <h2 style={{ color: '#0f172a', fontSize: '20px', marginBottom: '8px' }}>Payroll Record Not Found</h2>
                     <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '24px' }}>The requested payroll record does not exist or has been deleted.</p>
-                    <button onClick={() => navigate('/payroll')} className="rd-back-btn" style={{ background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', padding: '10px 24px', margin: '0 auto' }}>
+                    <button onClick={() => navigate('/payroll')} className="rd-back-btn" style={{ background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '0px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', padding: '10px 24px', margin: '0 auto' }}>
                         <ArrowLeft size={16} /> Back to Payroll
                     </button>
                 </div>
@@ -149,15 +149,15 @@ const PayrollPayment = () => {
                 style={{ padding: '30px', maxWidth: '600px', margin: '0 auto' }}
             >
                 {toast && (
-                    <div style={{ position: 'fixed', top: '24px', right: '24px', zIndex: 9999, display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 20px', borderRadius: '10px', fontSize: '13px', fontWeight: 600, color: '#fff', background: toast.ok ? '#10b981' : '#ef4444', }}>
+                    <div style={{ position: 'fixed', top: '24px', right: '24px', zIndex: 9999, display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 20px', borderRadius: '0px', fontSize: '13px', fontWeight: 600, color: '#fff', background: toast.ok ? '#10b981' : '#ef4444', }}>
                         {toast.ok ? <CheckCircle size={15} /> : <AlertCircle size={15} />}
                         {toast.msg}
                     </div>
                 )}
 
-                <div className="premium-card" style={{ borderRadius: '16px', overflow: 'hidden' }}>
+                <div className="premium-card" style={{ borderRadius: '0px', overflow: 'hidden' }}>
                     <div style={{ textAlign: 'center', padding: '40px 20px', background: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)' }}>
-                        <div style={{ width: '72px', height: '72px', background: '#10b981', color: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', }}>
+                        <div style={{ width: '72px', height: '72px', background: '#10b981', color: 'white', borderRadius: '0px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', }}>
                             <CheckCircle size={36} />
                         </div>
                         <h2 style={{ margin: '0 0 8px', color: '#064e3b', fontSize: '22px', fontWeight: 800 }}>Payment Successful!</h2>
@@ -181,7 +181,7 @@ const PayrollPayment = () => {
                     </div>
 
                     <div style={{ padding: '16px 28px 28px', display: 'flex', gap: '12px' }}>
-                        <button onClick={() => navigate('/payroll')} className="rd-back-btn" style={{ background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', padding: '12px', flex: 1, justifyContent: 'center' }}>
+                        <button onClick={() => navigate('/payroll')} className="rd-back-btn" style={{ background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '0px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', padding: '12px', flex: 1, justifyContent: 'center' }}>
                             <ArrowLeft size={16} /> Back to Payroll
                         </button>
                     </div>
@@ -200,7 +200,7 @@ const PayrollPayment = () => {
         >
             {/* Toast */}
             {toast && (
-                <div style={{ position: 'fixed', top: '24px', right: '24px', zIndex: 9999, display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 20px', borderRadius: '10px', fontSize: '13px', fontWeight: 600, color: '#fff', background: toast.ok ? '#10b981' : '#ef4444', }}>
+                <div style={{ position: 'fixed', top: '24px', right: '24px', zIndex: 9999, display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 20px', borderRadius: '0px', fontSize: '13px', fontWeight: 600, color: '#fff', background: toast.ok ? '#10b981' : '#ef4444', }}>
                     {toast.ok ? <CheckCircle size={15} /> : <AlertCircle size={15} />}
                     {toast.msg}
                 </div>
@@ -227,7 +227,7 @@ const PayrollPayment = () => {
                         </div>
                         <div style={{ padding: '20px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '18px' }}>
-                                <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'linear-gradient(135deg, #e0e7ff, #c7d2fe)', color: '#4f46e5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', fontWeight: 700, flexShrink: 0 }}>
+                                <div style={{ width: '48px', height: '48px', borderRadius: '0px', background: 'linear-gradient(135deg, #e0e7ff, #c7d2fe)', color: '#4f46e5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', fontWeight: 700, flexShrink: 0 }}>
                                     {employeeName[0]?.toUpperCase() || 'U'}
                                 </div>
                                 <div>
@@ -240,7 +240,7 @@ const PayrollPayment = () => {
                                     { label: 'Payroll Month', value: salary.month, icon: <Calendar size={14} /> },
                                     { label: 'Status', value: salary.status, icon: <Clock size={14} /> }
                                 ].map((item, i) => (
-                                    <div key={i} style={{ background: '#f8fafc', padding: '12px', borderRadius: '10px', }}>
+                                    <div key={i} style={{ background: '#f8fafc', padding: '12px', borderRadius: '0px', }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#94a3b8', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', marginBottom: '6px' }}>
                                             {item.icon} {item.label}
                                         </div>
@@ -302,7 +302,7 @@ const PayrollPayment = () => {
                                         }))}
                                         style={{
                                             display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px',
-                                            padding: '12px 6px', borderRadius: '10px', cursor: 'pointer',
+                                            padding: '12px 6px', borderRadius: '0px', cursor: 'pointer',
                                             fontSize: '11px', fontWeight: 600, transition: 'all 0.2s',
                                             border: form.paymentMethod === m ? '2px solid #6366f1' : '1px solid #e2e8f0',
                                             background: form.paymentMethod === m ? '#eef2ff' : '#fff',
@@ -317,7 +317,7 @@ const PayrollPayment = () => {
                         </div>
 
                         {/* Dynamic Fields */}
-                        <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '12px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                        <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '0px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
                             {form.paymentMethod === 'UPI' && (
                                 <>
                                     <FieldRow icon={<Send size={14} />} label="UPI ID *" placeholder="e.g. name@upi" value={form.paymentDetails.upiId} onChange={v => updateField('upiId', v)} />
@@ -341,7 +341,7 @@ const PayrollPayment = () => {
                                             <Calendar size={14} /> Cheque Date *
                                         </label>
                                         <input type="date" value={form.paymentDetails.chequeDate} onChange={e => updateField('chequeDate', e.target.value)}
-                                            style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', fontSize: '13px', outline: 'none', background: '#fff', boxSizing: 'border-box' }} />
+                                            style={{ width: '100%', padding: '10px 12px', borderRadius: '0px', fontSize: '13px', outline: 'none', background: '#fff', boxSizing: 'border-box' }} />
                                     </div>
                                 </>
                             )}
@@ -356,7 +356,7 @@ const PayrollPayment = () => {
                                         <Calendar size={14} /> Payment Date *
                                     </label>
                                     <input type="date" value={form.paymentDetails.paymentDate} onChange={e => updateField('paymentDate', e.target.value)}
-                                        style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', fontSize: '13px', outline: 'none', background: '#fff', boxSizing: 'border-box' }} />
+                                        style={{ width: '100%', padding: '10px 12px', borderRadius: '0px', fontSize: '13px', outline: 'none', background: '#fff', boxSizing: 'border-box' }} />
                                 </div>
                             )}
 
@@ -365,7 +365,7 @@ const PayrollPayment = () => {
                                     <MessageSquare size={14} /> Remarks
                                 </label>
                                 <input type="text" placeholder="Optional" value={form.paymentDetails.remarks} onChange={e => updateField('remarks', e.target.value)}
-                                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', fontSize: '13px', outline: 'none', background: '#fff', boxSizing: 'border-box' }} />
+                                    style={{ width: '100%', padding: '10px 12px', borderRadius: '0px', fontSize: '13px', outline: 'none', background: '#fff', boxSizing: 'border-box' }} />
                             </div>
                         </div>
                     </div>
@@ -373,14 +373,14 @@ const PayrollPayment = () => {
                     {/* Action Buttons */}
                     <div style={{ padding: '16px 20px', background: '#f8fafc', borderTop: '1px solid #f1f5f9', display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
                         <button onClick={() => navigate('/payroll')}
-                            style={{ padding: '10px 24px', background: '#fff', color: '#475569', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }}
+                            style={{ padding: '10px 24px', background: '#fff', color: '#475569', borderRadius: '0px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }}
                             onMouseEnter={e => { e.currentTarget.style.background = '#f1f5f9'; }}
                             onMouseLeave={e => { e.currentTarget.style.background = '#fff'; }}>
                             Cancel
                         </button>
                         <button onClick={handleSubmit} disabled={submitting || !isFormValid()}
                             style={{
-                                padding: '10px 28px', borderRadius: '10px', border: 'none',
+                                padding: '10px 28px', borderRadius: '0px', border: 'none',
                                 fontSize: '14px', fontWeight: 600, cursor: isFormValid() ? 'pointer' : 'not-allowed',
                                 display: 'inline-flex', alignItems: 'center', gap: '8px', transition: 'all 0.2s',
                                 background: isFormValid() ? '#10b981' : '#cbd5e1',
@@ -414,7 +414,7 @@ const FieldRow = ({ icon, label, placeholder, value, onChange }) => (
             {icon} {label}
         </label>
         <input type="text" placeholder={placeholder} value={value || ''} onChange={e => onChange(e.target.value)}
-            style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', fontSize: '13px', outline: 'none', background: '#fff', boxSizing: 'border-box' }} />
+            style={{ width: '100%', padding: '10px 12px', borderRadius: '0px', fontSize: '13px', outline: 'none', background: '#fff', boxSizing: 'border-box' }} />
     </div>
 );
 

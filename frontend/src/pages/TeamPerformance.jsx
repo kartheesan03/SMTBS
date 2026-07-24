@@ -4,7 +4,7 @@ import { Search, TrendingUp, Star, ThumbsUp, ThumbsDown , Award} from 'lucide-re
 import { motion } from 'framer-motion';
 import API from '../api/axios';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
-import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
+import { StatCard, StatGrid } from '../components/ui/StatCard';
 
 const TeamPerformance = () => {
     const navigate = useNavigate();
@@ -124,8 +124,8 @@ const TeamPerformance = () => {
     
     const renderMiniBar = (val, color) => (
         <div style={{display: 'flex', alignItems: 'center', gap: 12}}>
-            <div style={{flex: 1, height: 4, background: '#f1f5f9', borderRadius: 4, overflow: 'hidden'}}>
-                <div style={{width: `${val}%`, height: '100%', background: color, borderRadius: 4}}></div>
+            <div style={{flex: 1, height: 4, background: '#f1f5f9', borderRadius: 0, overflow: 'hidden'}}>
+                <div style={{width: `${val}%`, height: '100%', background: color, borderRadius: 0}}></div>
             </div>
             <span style={{fontSize: 13, fontWeight: 700, color: 'var(--rd-text-main)', width: 28}}>{val}</span>
         </div>
@@ -175,12 +175,12 @@ const TeamPerformance = () => {
                 </div>
 
                 {/* KPI Cards */}
-                <PastelKPIGrid>
-                    <PastelKPICard title="Team Avg. Score" value={`${teamAvg}%`} colorTheme="blue" icon={TrendingUp} trendValue="Overall performance" trendPositive={teamAvg >= 75} />
-                    <PastelKPICard title="Excellent" value={excellentCount} colorTheme="mint" icon={Award} trendValue="Score ≥ 90" trendPositive={true} />
-                    <PastelKPICard title="Good" value={goodCount} colorTheme="yellow" icon={ThumbsUp} trendValue="Score 75–89" trendPositive={true} />
-                    <PastelKPICard title="Below Average" value={belowAvgCount} colorTheme="peach" icon={ThumbsDown} trendValue="Score < 75" trendPositive={false} />
-                </PastelKPIGrid>
+                <StatGrid>
+                    <StatCard title="Team Avg. Score" value={`${teamAvg}%`} colorTheme="blue" icon={TrendingUp} trendValue="Overall performance" trendPositive={teamAvg >= 75} />
+                    <StatCard title="Excellent" value={excellentCount} colorTheme="mint" icon={Award} trendValue="Score ≥ 90" trendPositive={true} />
+                    <StatCard title="Good" value={goodCount} colorTheme="yellow" icon={ThumbsUp} trendValue="Score 75–89" trendPositive={true} />
+                    <StatCard title="Below Average" value={belowAvgCount} colorTheme="peach" icon={ThumbsDown} trendValue="Score < 75" trendPositive={false} />
+                </StatGrid>
 
                 {/* Table Section */}
                 <motion.div 
@@ -204,14 +204,14 @@ const TeamPerformance = () => {
                             <select
                                 value={deptFilter}
                                 onChange={(e) => setDeptFilter(e.target.value)}
-                                style={{padding: '8px 16px', border: '1px solid #e2e8f0', borderRadius: 8, outline: 'none', background: '#fff', color: '#64748b', fontSize: 14}}
+                                style={{padding: '8px 16px', border: '1px solid #e2e8f0', borderRadius: 0, outline: 'none', background: '#fff', color: '#64748b', fontSize: 14}}
                             >
                                 {departments.map(d => <option key={d} value={d}>{d === 'All' ? 'All Depts' : d}</option>)}
                             </select>
                             <select
                                 value={ratingFilter}
                                 onChange={(e) => setRatingFilter(e.target.value)}
-                                style={{padding: '8px 16px', border: '1px solid #e2e8f0', borderRadius: 8, outline: 'none', background: '#fff', color: '#64748b', fontSize: 14}}
+                                style={{padding: '8px 16px', border: '1px solid #e2e8f0', borderRadius: 0, outline: 'none', background: '#fff', color: '#64748b', fontSize: 14}}
                             >
                                 <option value="All Ratings">All Ratings</option>
                                 <option value="Excellent">Excellent</option>
@@ -260,7 +260,7 @@ const TeamPerformance = () => {
                                             </div>
                                         </td>
                                         <td data-label="Department">
-                                            <span style={{background: emp.dept === 'Finance' || emp.dept === 'Sales' ? '#fff7ed' : '#ecfdf5', color: emp.dept === 'Finance' || emp.dept === 'Sales' ? '#f59e0b' : '#10b981', padding: '4px 10px', borderRadius: 6, fontSize: 12, fontWeight: 600}}>
+                                            <span style={{background: emp.dept === 'Finance' || emp.dept === 'Sales' ? '#fff7ed' : '#ecfdf5', color: emp.dept === 'Finance' || emp.dept === 'Sales' ? '#f59e0b' : '#10b981', padding: '4px 10px', borderRadius: 0, fontSize: 12, fontWeight: 600}}>
                                                 {emp.dept}
                                             </span>
                                         </td>

@@ -31,7 +31,7 @@
     color: #111827;
     background: #FFFFFF;
     border: 1.5px solid #E5E7EB;
-    border-radius: 10px;
+    border-radius: 0px;
     transition: all 0.2s ease;
     outline: none;
     font-family: 'Inter', sans-serif;
@@ -134,7 +134,7 @@
     width: 100%;
     padding: 8px 12px;
     border: 1px solid var(--border-subtle, #e2e8f0);
-    border-radius: 6px;
+    border-radius: 0px;
     font-size: 13px;
     outline: none;
 }
@@ -205,7 +205,7 @@
     gap: 12px;
     padding: 12px;
     border: 1px solid var(--border-subtle, #e2e8f0);
-    border-radius: 6px;
+    border-radius: 0px;
     margin-top: 12px;
     background: var(--bg-subtle, #f8fafc);
 }
@@ -235,7 +235,7 @@
     background: transparent;
     border: none;
     padding: 4px;
-    border-radius: 4px;
+    border-radius: 0px;
 }
 
 .ui-file-remove:hover {

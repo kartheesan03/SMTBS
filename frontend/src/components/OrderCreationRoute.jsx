@@ -17,7 +17,7 @@ const OrderCreationRoute = ({ children }) => {
     if (!allowedRoles.includes(userRole)) {
         return (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: 'var(--bg-body)' }}>
-                <div style={{ textAlign: 'center', background: 'var(--bg-card)', padding: '40px', borderRadius: '12px', border: '1px solid var(--border)' }}>
+                <div style={{ textAlign: 'center', background: 'var(--bg-card)', padding: '40px', borderRadius: '0px', border: '1px solid var(--border)' }}>
                     <h2 style={{ color: 'var(--danger)', marginBottom: '16px' }}>Access Denied</h2>
                     <p style={{ color: 'var(--text-primary)', fontSize: '16px', fontWeight: '500' }}>Access Denied. You do not have permission to create orders.</p>
                 </div>

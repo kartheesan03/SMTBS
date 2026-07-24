@@ -96,7 +96,7 @@ const GeneratePayroll = () => {
         >
             {/* Toast */}
             {toast && (
-                <div style={{ position: 'fixed', top: '24px', right: '24px', zIndex: 9999, display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 20px', borderRadius: '10px', fontSize: '13px', fontWeight: 600, color: '#fff', background: toast.ok ? '#10b981' : '#ef4444', animation: 'slideIn 0.3s ease' }}>
+                <div style={{ position: 'fixed', top: '24px', right: '24px', zIndex: 9999, display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 20px', borderRadius: '0px', fontSize: '13px', fontWeight: 600, color: '#fff', background: toast.ok ? '#10b981' : '#ef4444', animation: 'slideIn 0.3s ease' }}>
                     {toast.ok ? <CheckCircle size={15} /> : <AlertCircle size={15} />}
                     {toast.msg}
                 </div>
@@ -119,7 +119,7 @@ const GeneratePayroll = () => {
                                 gap: '6px',
                                 cursor: 'pointer',
                                 padding: '6px 10px 6px 0',
-                                borderRadius: '6px',
+                                borderRadius: '0px',
                                 transition: 'all 0.2s ease'
                             }}
                             onMouseEnter={(e) => { e.currentTarget.style.background = '#f1f5f9'; e.currentTarget.style.color = '#334155'; }}
@@ -132,7 +132,7 @@ const GeneratePayroll = () => {
                     <PageHeader title="Generate New Payroll Entry" badge="HRMS" subtitle="Create employee salary record for selected month" />
                 </div>
 
-                <div className="premium-card" style={{ maxWidth: '800px', padding: '32px', background: '#fff', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.04)', border: '1px solid #e2e8f0' }}>
+                <div className="premium-card" style={{ maxWidth: '800px', padding: '32px', background: '#fff', borderRadius: '0px', boxShadow: '0 4px 20px rgba(0,0,0,0.04)', border: '1px solid #e2e8f0' }}>
 
                     <form onSubmit={handleGenerate}>
                         <div className="form-group mb-20" style={{ marginBottom: '24px' }}>
@@ -149,7 +149,7 @@ const GeneratePayroll = () => {
                                     });
                                     setCalcStats(null);
                                 }}
-                                style={{ width: '100%', padding: '12px 16px', borderRadius: '10px', border: '1px solid #cbd5e1', fontSize: '14px', outline: 'none', appearance: 'none', background: '#f8fafc' }}
+                                style={{ width: '100%', padding: '12px 16px', borderRadius: '0px', border: '1px solid #cbd5e1', fontSize: '14px', outline: 'none', appearance: 'none', background: '#f8fafc' }}
                             >
                                 <option value="">Choose...</option>
                                 {employees.length === 0 ? (
@@ -172,7 +172,7 @@ const GeneratePayroll = () => {
                                     required 
                                     value={formData.month} 
                                     onChange={e => setFormData({...formData, month: e.target.value})} 
-                                    style={{ width: '100%', padding: '12px 16px', borderRadius: '10px', border: '1px solid #cbd5e1', fontSize: '14px', outline: 'none' }}
+                                    style={{ width: '100%', padding: '12px 16px', borderRadius: '0px', border: '1px solid #cbd5e1', fontSize: '14px', outline: 'none' }}
                                 />
                             </div>
                             <div className="form-group">
@@ -183,7 +183,7 @@ const GeneratePayroll = () => {
                                     value={formData.basicSalary} 
                                     onChange={e => setFormData({...formData, basicSalary: Number(e.target.value)})} 
                                     placeholder="Enter amount" 
-                                    style={{ width: '100%', padding: '12px 16px', borderRadius: '10px', border: '1px solid #cbd5e1', fontSize: '14px', outline: 'none' }}
+                                    style={{ width: '100%', padding: '12px 16px', borderRadius: '0px', border: '1px solid #cbd5e1', fontSize: '14px', outline: 'none' }}
                                 />
                             </div>
                         </div>
@@ -195,7 +195,7 @@ const GeneratePayroll = () => {
                                     type="number" 
                                     value={formData.allowances} 
                                     onChange={e => setFormData({...formData, allowances: Number(e.target.value)})} 
-                                    style={{ width: '100%', padding: '12px 16px', borderRadius: '10px', border: '1px solid #cbd5e1', fontSize: '14px', outline: 'none' }}
+                                    style={{ width: '100%', padding: '12px 16px', borderRadius: '0px', border: '1px solid #cbd5e1', fontSize: '14px', outline: 'none' }}
                                 />
                             </div>
                             <div className="form-group">
@@ -203,7 +203,7 @@ const GeneratePayroll = () => {
                                 <div style={{ display: 'flex', gap: '10px', alignItems: 'stretch' }}>
                                     <input 
                                         type="number" 
-                                        style={{ flex: 1, padding: '12px 16px', borderRadius: '10px', border: '1px solid #cbd5e1', fontSize: '14px', outline: 'none' }} 
+                                        style={{ flex: 1, padding: '12px 16px', borderRadius: '0px', border: '1px solid #cbd5e1', fontSize: '14px', outline: 'none' }} 
                                         value={formData.deductions} 
                                         onChange={e => setFormData({...formData, deductions: Number(e.target.value)})} 
                                     />
@@ -216,7 +216,7 @@ const GeneratePayroll = () => {
                                             color: '#334155',
                                             fontWeight: 600,
                                             border: '1px solid #e2e8f0',
-                                            borderRadius: '10px',
+                                            borderRadius: '0px',
                                             cursor: 'pointer',
                                             transition: 'all 0.2s'
                                         }} 
@@ -232,7 +232,7 @@ const GeneratePayroll = () => {
                         </div>
                         
                         {calcStats && (
-                            <div style={{ background: '#f8fafc', borderRadius: '10px', padding: '16px', marginBottom: '20px' }}>
+                            <div style={{ background: '#f8fafc', borderRadius: '0px', padding: '16px', marginBottom: '20px' }}>
                                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', fontSize: '13px' }}>
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                                         <span style={{ color: '#64748b', fontWeight: 600 }}>Total Days</span>
@@ -255,7 +255,7 @@ const GeneratePayroll = () => {
                         )}
 
                         {formData.basicSalary > 0 && (
-                            <div style={{ background: '#eff6ff', borderRadius: '10px', padding: '16px', marginBottom: '30px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div style={{ background: '#eff6ff', borderRadius: '0px', padding: '16px', marginBottom: '30px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <span style={{ color: '#1e3a8a', fontWeight: 600, fontSize: '14px' }}>Net Payable:</span>
                                 <strong style={{ color: '#1d4ed8', fontSize: '20px', fontWeight: 800 }}>
                                     ₹{((formData.basicSalary || 0) + (formData.allowances || 0) - (formData.deductions || 0)).toLocaleString()}
@@ -280,7 +280,7 @@ const GeneratePayroll = () => {
                                     background: '#6366f1',
                                     border: 'none',
                                     color: '#fff',
-                                    borderRadius: '8px',
+                                    borderRadius: '0px',
                                     fontWeight: 600,
                                     cursor: submitting ? 'not-allowed' : 'pointer',
                                     opacity: submitting ? 0.7 : 1,

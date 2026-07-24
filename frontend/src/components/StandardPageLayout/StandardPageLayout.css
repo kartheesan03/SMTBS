@@ -33,7 +33,7 @@
     color: #64748b;
     font-size: 14px;
     font-weight: 500;
-    border-radius: 6px;
+    border-radius: 0px;
     cursor: pointer;
     transition: all 0.2s ease;
 }
@@ -96,7 +96,7 @@
 .standard-info-card {
     background: linear-gradient(135deg, rgba(79, 70, 229, 0.05) 0%, rgba(255,255,255,0.8) 100%);
     border: 1px solid rgba(79, 70, 229, 0.1);
-    border-radius: 16px;
+    border-radius: 0px;
     padding: 24px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
     backdrop-filter: blur(10px);
@@ -111,7 +111,7 @@
 .standard-section {
     background: #ffffff;
     border: 1px solid #f1f5f9;
-    border-radius: 16px;
+    border-radius: 0px;
     padding: 28px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -161,7 +161,7 @@
     color: #475569;
     border: 1px solid #e2e8f0;
     padding: 10px 20px;
-    border-radius: 8px;
+    border-radius: 0px;
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;
@@ -178,7 +178,7 @@
     color: #3b82f6;
     border: 1px solid #bfdbfe;
     padding: 10px 20px;
-    border-radius: 8px;
+    border-radius: 0px;
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;
@@ -197,7 +197,7 @@
     color: #ffffff;
     border: none;
     padding: 10px 24px;
-    border-radius: 10px;
+    border-radius: 0px;
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;

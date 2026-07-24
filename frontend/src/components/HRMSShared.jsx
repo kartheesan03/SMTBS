@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 const Panel = ({ children, style }) => (
     <div style={{
         background: '#fff',
-        borderRadius: '16px',
+        borderRadius: '0px',
         boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
         padding: '22px',
         width: '100%',
@@ -32,28 +32,28 @@ export const EmployeeRosterStrip = ({ total, active, onLeave, inactive }) => {
                     <div style={{ fontSize: '36px', fontWeight: 700, color: '#0f172a', lineHeight: 1 }}>{total}</div>
                 </div>
                 <div style={{ flex: 1, minWidth: '250px' }}>
-                    <div style={{ display: 'flex', height: '12px', borderRadius: '6px', overflow: 'hidden', marginBottom: '16px', backgroundColor: '#f1f5f9' }}>
+                    <div style={{ display: 'flex', height: '12px', borderRadius: '0px', overflow: 'hidden', marginBottom: '16px', backgroundColor: '#f1f5f9' }}>
                         <div style={{ width: `${activePct}%`, backgroundColor: '#10b981' }} title={`Active: ${active}`} />
                         <div style={{ width: `${leavePct}%`, backgroundColor: '#f59e0b' }} title={`On Leave: ${onLeave}`} />
                         <div style={{ width: `${inactivePct}%`, backgroundColor: '#ef4444' }} title={`Inactive: ${inactive}`} />
                     </div>
                     <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#10b981' }} />
+                            <div style={{ width: '10px', height: '10px', borderRadius: '0px', backgroundColor: '#10b981' }} />
                             <div>
                                 <span style={{ fontWeight: 700, color: '#1e293b', marginRight: '6px' }}>{active}</span>
                                 <span style={{ fontSize: '12px', color: '#64748b' }}>Active</span>
                             </div>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#f59e0b' }} />
+                            <div style={{ width: '10px', height: '10px', borderRadius: '0px', backgroundColor: '#f59e0b' }} />
                             <div>
                                 <span style={{ fontWeight: 700, color: '#1e293b', marginRight: '6px' }}>{onLeave}</span>
                                 <span style={{ fontSize: '12px', color: '#64748b' }}>On Leave</span>
                             </div>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#ef4444' }} />
+                            <div style={{ width: '10px', height: '10px', borderRadius: '0px', backgroundColor: '#ef4444' }} />
                             <div>
                                 <span style={{ fontWeight: 700, color: '#1e293b', marginRight: '6px' }}>{inactive}</span>
                                 <span style={{ fontSize: '12px', color: '#64748b' }}>Inactive</span>
@@ -114,7 +114,7 @@ const PremiumKPICard = ({ icon: Icon, label, desc, count, statusText, color }) =
             onMouseLeave={() => setIsHovered(false)}
             style={{ 
                 backgroundColor: '#fff',
-                borderRadius: '16px',
+                borderRadius: '0px',
                 padding: '24px',
                 borderTop: `3px solid ${color}`,
                 boxShadow: isHovered 
@@ -128,7 +128,7 @@ const PremiumKPICard = ({ icon: Icon, label, desc, count, statusText, color }) =
             }}
         >
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', marginBottom: '16px' }}>
-                <div style={{ width: '40px', height: '40px', borderRadius: '8px', backgroundColor: `${color}15`, color: color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '0px', backgroundColor: `${color}15`, color: color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     {Icon && <Icon size={20} strokeWidth={2.5} />}
                 </div>
                 <div style={{ flex: 1 }}>
@@ -145,7 +145,7 @@ const PremiumKPICard = ({ icon: Icon, label, desc, count, statusText, color }) =
                 backgroundColor: `${color}15`, 
                 color: color, 
                 padding: '6px 12px', 
-                borderRadius: '16px', 
+                borderRadius: '0px', 
                 fontSize: '11px', 
                 fontWeight: 700, 
                 display: 'inline-flex', 
@@ -155,7 +155,7 @@ const PremiumKPICard = ({ icon: Icon, label, desc, count, statusText, color }) =
                 marginTop: '16px',
                 minWidth: '100px'
             }}>
-                <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: color }} />
+                <div style={{ width: '6px', height: '6px', borderRadius: '0px', backgroundColor: color }} />
                 {statusText}
             </div>
         </div>
@@ -184,8 +184,8 @@ export const LeaveQueueList = ({ total, pending, approved, rejected, approvalRat
 const WaterfallRow = ({ label, valStr, caption, pct, color }) => (
     <div style={{ display: 'flex', alignItems: 'center', padding: '12px 0', gap: '16px', flexWrap: 'wrap' }}>
         <div style={{ width: '160px', fontWeight: 600, color: '#334155', fontSize: '14px' }}>{label}</div>
-        <div style={{ flex: 1, minWidth: '150px', height: '8px', backgroundColor: '#f1f5f9', borderRadius: '4px', overflow: 'hidden' }}>
-            <div style={{ width: `${pct}%`, height: '100%', backgroundColor: color, borderRadius: '4px' }} />
+        <div style={{ flex: 1, minWidth: '150px', height: '8px', backgroundColor: '#f1f5f9', borderRadius: '0px', overflow: 'hidden' }}>
+            <div style={{ width: `${pct}%`, height: '100%', backgroundColor: color, borderRadius: '0px' }} />
         </div>
         <div style={{ width: '180px', textAlign: 'right' }}>
             <span style={{ fontWeight: 700, color: '#0f172a', fontSize: '16px', marginRight: '8px' }}>{valStr}</span>
@@ -222,37 +222,37 @@ export const PerformanceDistributionTrack = ({ teamAvg, excellent, good, belowAv
                     <span>Needs Improvement</span>
                     <span>Excellent</span>
                 </div>
-                <div style={{ display: 'flex', height: '16px', borderRadius: '8px', overflow: 'hidden', backgroundColor: '#f1f5f9' }}>
+                <div style={{ display: 'flex', height: '16px', borderRadius: '0px', overflow: 'hidden', backgroundColor: '#f1f5f9' }}>
                     <div style={{ width: `${belowPct}%`, backgroundColor: '#ef4444' }} title={`Below Avg: ${belowAvg}`} />
                     <div style={{ width: `${goodPct}%`, backgroundColor: '#f59e0b' }} title={`Good: ${good}`} />
                     <div style={{ width: `${excPct}%`, backgroundColor: '#10b981' }} title={`Excellent: ${excellent}`} />
                 </div>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px', padding: '16px', backgroundColor: '#f8fafc', borderRadius: '12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px', padding: '16px', backgroundColor: '#f8fafc', borderRadius: '0px' }}>
                 <div>
                     <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#8b5cf6' }} />
+                        <div style={{ width: '8px', height: '8px', borderRadius: '0px', backgroundColor: '#8b5cf6' }} />
                         Team Avg Score
                     </div>
                     <div style={{ fontSize: '24px', fontWeight: 700, color: '#0f172a' }}>{teamAvg}<span style={{fontSize: '14px', color: '#94a3b8'}}>/100</span></div>
                 </div>
                 <div>
                     <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10b981' }} />
+                        <div style={{ width: '8px', height: '8px', borderRadius: '0px', backgroundColor: '#10b981' }} />
                         Excellent {'>'}90%
                     </div>
                     <div style={{ fontSize: '24px', fontWeight: 700, color: '#0f172a' }}>{excellent}</div>
                 </div>
                 <div>
                     <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#f59e0b' }} />
+                        <div style={{ width: '8px', height: '8px', borderRadius: '0px', backgroundColor: '#f59e0b' }} />
                         Good 75-89%
                     </div>
                     <div style={{ fontSize: '24px', fontWeight: 700, color: '#0f172a' }}>{good}</div>
                 </div>
                 <div>
                     <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#ef4444' }} />
+                        <div style={{ width: '8px', height: '8px', borderRadius: '0px', backgroundColor: '#ef4444' }} />
                         Avg / Below {'<'}75%
                     </div>
                     <div style={{ fontSize: '24px', fontWeight: 700, color: '#0f172a' }}>{belowAvg}</div>

@@ -87,7 +87,7 @@ const Payslips = () => {
                             <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 700, color: 'var(--text-heading)', display: 'flex', alignItems: 'center', gap: '8px' }}>
                                 <FileText size={18} className="text-primary" /> Employee Payslips
                             </h3>
-                            <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 600, background: 'var(--bg-app)', padding: '4px 10px', borderRadius: '12px' }}>
+                            <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 600, background: 'var(--bg-app)', padding: '4px 10px', borderRadius: '0px' }}>
                                 {history.length} record{history.length !== 1 ? 's' : ''}
                             </span>
                         </div>

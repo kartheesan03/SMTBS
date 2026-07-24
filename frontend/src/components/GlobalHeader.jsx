@@ -137,7 +137,7 @@ const GlobalHeader = ({ onRefresh, onOpenModuleLauncher, onOpenCommandCenter }) 
                             right: '0', 
                             marginTop: '8px',
                             background: '#fff', 
-                            borderRadius: '8px', 
+                            borderRadius: '0px', 
                             boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
                             border: '1px solid #e2e8f0',
                             width: '240px',
@@ -153,7 +153,7 @@ const GlobalHeader = ({ onRefresh, onOpenModuleLauncher, onOpenCommandCenter }) 
                             </div>
                             <div style={{ padding: '8px' }}>
                                 <div 
-                                    style={{ padding: '8px 12px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', borderRadius: '6px', fontSize: '14px', color: '#475569' }}
+                                    style={{ padding: '8px 12px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', borderRadius: '0px', fontSize: '14px', color: '#475569' }}
                                     onClick={() => { setIsProfileMenuOpen(false); navigate('/profile'); }}
                                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f1f5f9'}
                                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
@@ -161,7 +161,7 @@ const GlobalHeader = ({ onRefresh, onOpenModuleLauncher, onOpenCommandCenter }) 
                                     <User size={16} /> My Profile
                                 </div>
                                 <div 
-                                    style={{ padding: '8px 12px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', borderRadius: '6px', fontSize: '14px', color: '#ef4444', marginTop: '4px' }}
+                                    style={{ padding: '8px 12px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', borderRadius: '0px', fontSize: '14px', color: '#ef4444', marginTop: '4px' }}
                                     onClick={handleLogout}
                                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fef2f2'}
                                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}

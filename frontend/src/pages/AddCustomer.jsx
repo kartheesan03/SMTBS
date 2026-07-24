@@ -111,7 +111,7 @@ const AddCustomer = ({ isEditMode = false }) => {
             loading={isLoading}
             infoCard={
                 <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-                    <div style={{ padding: '12px', background: '#e0e7ff', borderRadius: '50%', color: '#4f46e5' }}>
+                    <div style={{ padding: '12px', background: '#e0e7ff', borderRadius: '0px', color: '#4f46e5' }}>
                         <User size={24} />
                     </div>
                     <div>
@@ -122,7 +122,7 @@ const AddCustomer = ({ isEditMode = false }) => {
             }
         >
             <form id="customer-form" onSubmit={e => { e.preventDefault(); handleSubmit(); }}>
-                {error && <div className="error-alert" style={{color: '#ef4444', background: '#fef2f2', padding: '12px', borderRadius: '8px', marginBottom: '16px'}}>{error}</div>}
+                {error && <div className="error-alert" style={{color: '#ef4444', background: '#fef2f2', padding: '12px', borderRadius: '0px', marginBottom: '16px'}}>{error}</div>}
                 
                 <div className="ui-grid-2">
                     <FormSection title="Account Details">

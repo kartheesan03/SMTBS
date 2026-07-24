@@ -139,7 +139,7 @@ const Topbar = ({ onOpenModuleLauncher, onOpenCommandCenter }) => {
                     {isNotificationOpen && (
                         <div className="notification-dropdown" style={{
                             position: 'absolute', top: '100%', right: '0', width: '320px', background: '#fff',
-                            borderRadius: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0',
+                            borderRadius: '0px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0',
                             zIndex: 1000, marginTop: '12px', overflow: 'hidden', display: 'flex', flexDirection: 'column'
                         }}>
                             <div style={{ padding: '16px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc' }}>
@@ -152,7 +152,7 @@ const Topbar = ({ onOpenModuleLauncher, onOpenCommandCenter }) => {
                                         padding: '16px', borderBottom: '1px solid #f1f5f9', cursor: 'pointer',
                                         background: notif.read ? '#fff' : '#eff6ff', display: 'flex', gap: '12px', transition: 'background 0.2s'
                                     }}>
-                                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: notif.read ? 'transparent' : '#3b82f6', marginTop: '6px', flexShrink: 0 }} />
+                                        <div style={{ width: '8px', height: '8px', borderRadius: '0px', background: notif.read ? 'transparent' : '#3b82f6', marginTop: '6px', flexShrink: 0 }} />
                                         <div>
                                             <div style={{ fontSize: '14px', fontWeight: 600, color: '#0f172a', marginBottom: '4px' }}>{notif.title}</div>
                                             <div style={{ fontSize: '13px', color: '#64748b', lineHeight: '1.4', marginBottom: '6px' }}>{notif.message}</div>

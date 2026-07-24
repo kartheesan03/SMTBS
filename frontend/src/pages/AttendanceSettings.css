@@ -19,7 +19,7 @@
 
 .settings-card {
     background: #ffffff;
-    border-radius: 16px;
+    border-radius: 0px;
     padding: 24px;
     border: 1px solid var(--card-border, #e8ecf1);
     box-shadow: 0 4px 20px rgba(15, 23, 42, 0.03);
@@ -42,7 +42,7 @@
 .settings-card-icon {
     width: 40px;
     height: 40px;
-    border-radius: 10px;
+    border-radius: 0px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -85,7 +85,7 @@
 .settings-input {
     width: 100%;
     padding: 10px 14px;
-    border-radius: 8px;
+    border-radius: 0px;
     border: 1px solid #cbd5e1;
     font-size: 14px;
     color: var(--text-heading, #0f172a);
@@ -172,11 +172,11 @@ input:checked + .slider:before {
 }
 
 .slider.round {
-    border-radius: 24px;
+    border-radius: 0px;
 }
 
 .slider.round:before {
-    border-radius: 50%;
+    border-radius: 0px;
 }
 
 .settings-footer {
@@ -190,7 +190,7 @@ input:checked + .slider:before {
 
 .settings-btn-cancel {
     padding: 10px 20px;
-    border-radius: 8px;
+    border-radius: 0px;
     border: 1px solid #cbd5e1;
     background: transparent;
     color: #475569;
@@ -207,7 +207,7 @@ input:checked + .slider:before {
 
 .settings-btn-save {
     padding: 10px 24px;
-    border-radius: 8px;
+    border-radius: 0px;
     border: none;
     background: var(--dash-primary, #3b82f6);
     color: white;

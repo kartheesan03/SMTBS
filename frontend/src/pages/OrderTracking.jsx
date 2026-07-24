@@ -254,7 +254,7 @@ const RoleActionPanel = ({ currentStage, loggedInRole, currentStatus, onAction, 
     const currentActiveRole = roleMap[currentStage] || 'System';
 
     const renderEmptyPanel = () => (
-        <div className="empty-panel" style={{ backgroundColor: '#f8fafc', borderLeft: '4px solid #94a3b8', padding: '16px', borderRadius: '4px' }}>
+        <div className="empty-panel" style={{ backgroundColor: '#f8fafc', borderLeft: '4px solid #94a3b8', padding: '16px', borderRadius: '0px' }}>
             <p style={{ color: '#475569', margin: 0, fontWeight: 500 }}>
                 <ShieldCheck size={16} style={{ display: 'inline', verticalAlign: 'text-bottom', marginRight: '6px' }} />
                 Order is currently with <strong>{currentActiveRole}</strong> for <strong>{currentStage}</strong>. No action needed from you.
@@ -264,7 +264,7 @@ const RoleActionPanel = ({ currentStage, loggedInRole, currentStatus, onAction, 
 
     if (isCancelled || currentStatus === 'Delivered') {
         return (
-            <div className="empty-panel" style={{ backgroundColor: '#f1f5f9', padding: '16px', borderRadius: '4px' }}>
+            <div className="empty-panel" style={{ backgroundColor: '#f1f5f9', padding: '16px', borderRadius: '0px' }}>
                 <p style={{ margin: 0 }}>No further actions can be taken on this order. Workflow is concluded.</p>
             </div>
         );
@@ -321,7 +321,7 @@ const RoleActionPanel = ({ currentStage, loggedInRole, currentStatus, onAction, 
                 const hasIssue = Object.values(itemsVerification).some(v => ['Low Stock', 'Out of Stock'].includes(v.status));
 
                 return (
-                    <div className="action-form inventory-verify-form" style={{ width: '100%', maxWidth: 'none', background: '#fff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '24px' }}>
+                    <div className="action-form inventory-verify-form" style={{ width: '100%', maxWidth: 'none', background: '#fff', border: '1px solid #e2e8f0', borderRadius: '0px', padding: '24px' }}>
                         <h3 style={{ margin: '0 0 16px 0', color: '#1e293b', fontSize: '18px', fontWeight: 600 }}>Physical Stock Verification</h3>
                         <p style={{ margin: '0 0 24px 0', color: '#64748b', fontSize: '14px' }}>Please physically verify the materials in the warehouse before proceeding. Select the actual stock status for each item.</p>
                         
@@ -364,7 +364,7 @@ const RoleActionPanel = ({ currentStage, loggedInRole, currentStatus, onAction, 
                                                         onChange={e => setVState('status', e.target.value)}
                                                         style={{ 
                                                             padding: '6px 12px', 
-                                                            borderRadius: '4px', 
+                                                            borderRadius: '0px', 
                                                             border: '1px solid #cbd5e1',
                                                             backgroundColor: vState.status === 'In Stock' ? '#ecfdf5' : vState.status === 'Low Stock' ? '#fffbeb' : '#fef2f2',
                                                             color: vState.status === 'In Stock' ? '#059669' : vState.status === 'Low Stock' ? '#d97706' : '#dc2626',
@@ -382,7 +382,7 @@ const RoleActionPanel = ({ currentStage, loggedInRole, currentStatus, onAction, 
                                                         placeholder="Notes..." 
                                                         value={vState.remarks} 
                                                         onChange={e => setVState('remarks', e.target.value)}
-                                                        style={{ padding: '6px 12px', width: '100%', border: '1px solid #cbd5e1', borderRadius: '4px' }}
+                                                        style={{ padding: '6px 12px', width: '100%', border: '1px solid #cbd5e1', borderRadius: '0px' }}
                                                     />
                                                 </td>
                                             </tr>

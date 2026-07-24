@@ -27,7 +27,7 @@ const AttendanceKPICard = ({ title, value, subtitle, icon: Icon, color }) => {
             </div>
             <div className="ent-card-footer">
                 <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'currentColor' }}></div>
+                    <div style={{ width: '6px', height: '6px', borderRadius: '0px', backgroundColor: 'currentColor' }}></div>
                     Updated Today
                 </div>
             </div>
@@ -242,7 +242,7 @@ const MyAttendance = () => {
     const CustomTooltip = ({ active, payload, label }) => {
         if (active && payload && payload.length) {
             return (
-                <div style={{ background: '#111827', color: '#fff', padding: '8px 12px', borderRadius: 8, fontSize: 12 }}>
+                <div style={{ background: '#111827', color: '#fff', padding: '8px 12px', borderRadius: 0, fontSize: 12 }}>
                     <p style={{ margin: '0 0 4px 0', fontWeight: 600 }}>{label}</p>
                     <p style={{ margin: 0, color: '#10B981' }}>{`${payload[0].value} Hours`}</p>
                 </div>
@@ -437,10 +437,10 @@ const MyAttendance = () => {
                                     ))}
                                 </div>
                                 <div style={{display: 'flex', gap: 12, marginTop: 16, fontSize: 11, color: '#64748b', justifyContent: 'center', flexWrap: 'wrap'}}>
-                                    <span style={{display: 'flex', alignItems: 'center', gap: 4}}><div style={{width: 8, height: 8, borderRadius: 2, background: '#dcfce7', border: '1px solid #16a34a'}}></div> Present</span>
-                                    <span style={{display: 'flex', alignItems: 'center', gap: 4}}><div style={{width: 8, height: 8, borderRadius: 2, background: '#fee2e2', border: '1px solid #ef4444'}}></div> Absent</span>
-                                    <span style={{display: 'flex', alignItems: 'center', gap: 4}}><div style={{width: 8, height: 8, borderRadius: 2, background: '#ffedd5', border: '1px solid #f97316'}}></div> Leave</span>
-                                    <span style={{display: 'flex', alignItems: 'center', gap: 4}}><div style={{width: 8, height: 8, borderRadius: 2, background: '#dbeafe', border: '1px solid #2563eb'}}></div> Holiday</span>
+                                    <span style={{display: 'flex', alignItems: 'center', gap: 4}}><div style={{width: 8, height: 8, borderRadius: 0, background: '#dcfce7', border: '1px solid #16a34a'}}></div> Present</span>
+                                    <span style={{display: 'flex', alignItems: 'center', gap: 4}}><div style={{width: 8, height: 8, borderRadius: 0, background: '#fee2e2', border: '1px solid #ef4444'}}></div> Absent</span>
+                                    <span style={{display: 'flex', alignItems: 'center', gap: 4}}><div style={{width: 8, height: 8, borderRadius: 0, background: '#ffedd5', border: '1px solid #f97316'}}></div> Leave</span>
+                                    <span style={{display: 'flex', alignItems: 'center', gap: 4}}><div style={{width: 8, height: 8, borderRadius: 0, background: '#dbeafe', border: '1px solid #2563eb'}}></div> Holiday</span>
                                 </div>
                             </div>
                         </div>

@@ -11,7 +11,7 @@ import '../components/AdminDashboard/AdminDashboardRedesign.css';
 import PageHeader from '../components/PageHeader';
 import CommandCenter from '../components/CommandCenter';
 import { SparklineKPICard, IconQuickAction, InvRow } from './AdminDashboard';
-import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
+import { StatCard, StatGrid } from '../components/ui/StatCard';
 
 const ManagerDashboard = () => {
     const navigate = useNavigate();
@@ -172,68 +172,49 @@ const ManagerDashboard = () => {
             <div className="rd-content">
 
                 {/* ── 1. Hero Banner ── */}
-                <div className="rd-hero">
-                    <div className="rd-hero-left">
-                        <div className="rd-hero-avatar-wrapper">
-                            <img src={user?.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'Manager')}&background=D97706&color=fff`} alt="Profile" className="rd-hero-avatar" />
-                            <div className="rd-hero-status-dot"></div>
-                        </div>
-                        <div>
-                            <div className="rd-hero-greeting">
-                                {getGreeting()}, {user?.name?.split(' ')[0] || 'Manager'}
-                            </div>
-                            <div className="rd-hero-subtitle">
-                                {new Date().toLocaleDateString('en-IN', {weekday:'long', day:'numeric', month:'long', year:'numeric'})} &nbsp;·&nbsp; Team Performance Overview
-                            </div>
-                            <div className="rd-hero-badges">
-                                <span className="rd-hero-badge badge-neutral">
-                                    <Users size={14} /> {myTeamSize} Team Members
-                                </span>
-                                <span className="rd-hero-badge badge-status">
-                                    <div className="status-dot-inline"></div> {activeProjects} Active Projects
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="rd-hero-right">
-                        <div className="rd-hero-visual">
+                <WelcomeBanner 
+                    user={user}
+                    greeting={`${getGreeting()}`}
+                    subtitle={`${new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} · Team Performance Overview`}
+                    badges={[
+                        { icon: Users, text: `${myTeamSize} Team Members`, type: 'neutral' },
+                        { type: 'status', text: `${activeProjects} Active Projects` }
+                    ]}
+                    rightVisuals={
+                        <>
                             <div className="rd-visual-card">
-                                <div className="rd-vc-label">Productivity</div>
-                                <div className="rd-vc-value">{teamProductivity}%</div>
-                                <div className="rd-vc-chart"></div>
-                            </div>
-                            <div className="rd-visual-card">
-                                <div className="rd-vc-label">Activity</div>
-                                <div className="rd-vc-bars">
-                                    <div className="rd-vc-bar" style={{height: '60%'}}></div>
-                                    <div className="rd-vc-bar" style={{height: '90%'}}></div>
-                                    <div className="rd-vc-bar" style={{height: '50%'}}></div>
-                                    <div className="rd-vc-bar" style={{height: '80%'}}></div>
-                                    <div className="rd-vc-bar" style={{height: '70%'}}></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="rd-hero-actions-col">
-                            <button className="hero-action-btn primary" onClick={() => navigate('/leave-management/history')}>
-                                <CheckCircle size={15} /> Apply Leave
-                            </button>
-                            <button className="hero-action-btn secondary" onClick={() => navigate('/attendance')}>
-                                <Clock size={15} /> Check In
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                                                            <div className="rd-vc-label">Productivity</div>
+                                                            <div className="rd-vc-value">{teamProductivity}%</div>
+                                                            <div className="rd-vc-chart"></div>
+                                                        </div>
+                                                        <div className="rd-visual-card">
+                                                            <div className="rd-vc-label">Activity</div>
+                                                            <div className="rd-vc-bars">
+                                                                <div className="rd-vc-bar" style={{height: '60%'}}></div>
+                                                                <div className="rd-vc-bar" style={{height: '90%'}}></div>
+                                                                <div className="rd-vc-bar" style={{height: '50%'}}></div>
+                                                                <div className="rd-vc-bar" style={{height: '80%'}}></div>
+                                                                <div className="rd-vc-bar" style={{height: '70%'}}></div>
+                                                            </div>
+                                                        </div>
+                        </>
+                    }
+                    actions={[
+                        { label: 'Apply Leave', icon: CheckCircle, variant: 'primary', onClick: () => navigate('/leave-management/history') },
+                        { label: 'Check In', icon: Clock, variant: 'secondary', onClick: () => navigate('/attendance') }
+                    ]}
+                />
 
 
                 {/* ── 2. KPI Row (6 columns) ── */}
-                <PastelKPIGrid columns={6}>
-                    <PastelKPICard title="My Team Size" value={myTeamSize} colorTheme="blue" icon={Users} trendValue="Active members" trendPositive={true} />
-                    <PastelKPICard title="Active Projects" value={activeProjects} colorTheme="purple" icon={Briefcase} trendValue="In progress" trendPositive={true} />
-                    <PastelKPICard title="Completed Tasks" value={completedTasks} colorTheme="mint" icon={CheckCircle} trendValue="This week" trendPositive={true} />
-                    <PastelKPICard title="Pending Tasks" value={pendingTasks} colorTheme="peach" icon={Clock} trendValue="Needs attention" trendPositive={false} />
-                    <PastelKPICard title="Pending Approvals" value={pendingApprovals} colorTheme="pink" icon={AlertCircle} trendValue="Awaiting action" trendPositive={false} />
-                    <PastelKPICard title="Team Productivity" value={`${teamProductivity}%`} colorTheme="yellow" icon={TrendingUp} trendValue="Efficiency rate" trendPositive={true} />
-                </PastelKPIGrid>
+                <StatGrid columns={6}>
+                    <StatCard title="My Team Size" value={myTeamSize} colorTheme="blue" icon={Users} trendValue="Active members" trendPositive={true} />
+                    <StatCard title="Active Projects" value={activeProjects} colorTheme="purple" icon={Briefcase} trendValue="In progress" trendPositive={true} />
+                    <StatCard title="Completed Tasks" value={completedTasks} colorTheme="mint" icon={CheckCircle} trendValue="This week" trendPositive={true} />
+                    <StatCard title="Pending Tasks" value={pendingTasks} colorTheme="peach" icon={Clock} trendValue="Needs attention" trendPositive={false} />
+                    <StatCard title="Pending Approvals" value={pendingApprovals} colorTheme="pink" icon={AlertCircle} trendValue="Awaiting action" trendPositive={false} />
+                    <StatCard title="Team Productivity" value={`${teamProductivity}%`} colorTheme="yellow" icon={TrendingUp} trendValue="Efficiency rate" trendPositive={true} />
+                </StatGrid>
 
                 {/* ── 3. Middle Row (Quick Actions + Mini Stats) ── */}
                 <div className="rd-middle-row">
@@ -312,10 +293,10 @@ const ManagerDashboard = () => {
                             }].map(s => (
                                 <div key={s.label} style={{
                                     display: 'flex', alignItems: 'center', gap: 8,
-                                    background: s.bg, borderRadius: 10,
+                                    background: s.bg, borderRadius: 0,
                                     padding: '7px 14px', flex: 1
                                 }}>
-                                    <div style={{ width: 8, height: 8, borderRadius: '50%', background: s.dot, flexShrink: 0 }} />
+                                    <div style={{ width: 8, height: 8, borderRadius: '0px', background: s.dot, flexShrink: 0 }} />
                                     <div>
                                         <div style={{ fontSize: 18, fontWeight: 800, color: s.color, lineHeight: 1 }}>{s.value}</div>
                                         <div style={{ fontSize: 10, fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.4px', marginTop: 2 }}>{s.label}</div>
@@ -346,7 +327,7 @@ const ManagerDashboard = () => {
                                     <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94a3b8' }} dy={6}/>
                                     <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94a3b8' }} width={28} allowDecimals={false}/>
                                     <Tooltip
-                                        contentStyle={{ fontSize: 12, borderRadius: 12, border: '1px solid #e2e8f0', boxShadow: '0 8px 24px rgba(0,0,0,0.1)', padding: '10px 14px' }}
+                                        contentStyle={{ fontSize: 12, borderRadius: 0, border: '1px solid #e2e8f0', boxShadow: '0 8px 24px rgba(0,0,0,0.1)', padding: '10px 14px' }}
                                         itemStyle={{ fontWeight: 600 }}
                                         cursor={{ stroke: '#e2e8f0', strokeWidth: 1 }}
                                     />
@@ -391,7 +372,7 @@ const ManagerDashboard = () => {
                                     return (
                                         <div key={idx} style={{display:'flex', alignItems:'center', justifyContent:'space-between', fontSize: 11}}>
                                             <span style={{display:'flex', alignItems:'center', gap:5, color:'#475569'}}>
-                                                <div style={{width:8,height:8,borderRadius:'50%',background:colors[idx%colors.length]}}></div>{entry.name}
+                                                <div style={{width:8,height:8,borderRadius: '0px',background:colors[idx%colors.length]}}></div>{entry.name}
                                             </span>
                                             <strong style={{color:'#0f172a'}}>{entry.value}</strong>
                                         </div>
@@ -437,12 +418,12 @@ const ManagerDashboard = () => {
                                 const pending = ordersData.filter(o => o.status === 'Awaiting Approval' || o.status === 'Pending').slice(0, 5);
                                 if (pending.length === 0) return (
                                     <div style={{display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'28px 16px', gap:10}}>
-                                        <div style={{width:48, height:48, borderRadius:'50%', background:'#ecfdf5', display:'flex', alignItems:'center', justifyContent:'center'}}>
+                                        <div style={{width:48, height:48, borderRadius: '0px', background:'#ecfdf5', display:'flex', alignItems:'center', justifyContent:'center'}}>
                                             <CheckCircle size={22} color="#10b981" />
                                         </div>
                                         <div style={{fontSize:13, fontWeight:600, color:'#0f172a'}}>All clear!</div>
                                         <div style={{fontSize:12, color:'#94a3b8', textAlign:'center', maxWidth:180}}>No pending approvals right now. New requests will appear here.</div>
-                                        <button onClick={() => navigate('/orders')} style={{marginTop:4, padding:'6px 16px', borderRadius:8, background:'#f1f5f9', border:'none', fontSize:12, fontWeight:600, color:'#475569', cursor:'pointer'}}>
+                                        <button onClick={() => navigate('/orders')} style={{marginTop:4, padding:'6px 16px', borderRadius: 0, background:'#f1f5f9', border:'none', fontSize:12, fontWeight:600, color:'#475569', cursor:'pointer'}}>
                                             View Orders
                                         </button>
                                     </div>
@@ -454,8 +435,8 @@ const ManagerDashboard = () => {
                                     const typeColor = order.orderType === 'purchase' ? '#8b5cf6' : '#3b82f6';
                                     const typeBg = order.orderType === 'purchase' ? '#f5f3ff' : '#eff6ff';
                                     return (
-                                        <div key={order._id || idx} style={{display:'flex', alignItems:'center', gap:10, padding:'10px 12px', borderRadius:10, background:'#f8fafc', border:'1px solid #f1f5f9', transition:'all 0.2s'}}>
-                                            <div style={{width:36, height:36, borderRadius:9, background:typeBg, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0}}>
+                                        <div key={order._id || idx} style={{display:'flex', alignItems:'center', gap:10, padding:'10px 12px', borderRadius: 0, background:'#f8fafc', border:'1px solid #f1f5f9', transition:'all 0.2s'}}>
+                                            <div style={{width:36, height:36, borderRadius: 0, background:typeBg, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0}}>
                                                 <Briefcase size={16} color={typeColor} />
                                             </div>
                                             <div style={{flex:1, minWidth:0}}>
@@ -464,7 +445,7 @@ const ManagerDashboard = () => {
                                             </div>
                                             <div style={{textAlign:'right', flexShrink:0}}>
                                                 <div style={{fontSize:12, fontWeight:700, color:'#0f172a'}}>₹{(amount/1000).toFixed(0)}K</div>
-                                                <button onClick={() => navigate('/orders')} style={{fontSize:10, fontWeight:700, color:'#fff', background:'#3b82f6', border:'none', borderRadius:5, padding:'3px 8px', cursor:'pointer', marginTop:2}}>
+                                                <button onClick={() => navigate('/orders')} style={{fontSize:10, fontWeight:700, color:'#fff', background:'#3b82f6', border:'none', borderRadius: 0, padding:'3px 8px', cursor:'pointer', marginTop:2}}>
                                                     Approve
                                                 </button>
                                             </div>
@@ -540,7 +521,7 @@ const ManagerDashboard = () => {
                             <div style={{ width: '100%', fontSize: 10, display:'grid', gridTemplateColumns:'1fr 1fr', gap:4 }}>
                                 {(dashboardData?.charts?.crmDonut || []).map((entry, idx) => (
                                     <div key={idx} style={{display:'flex', alignItems:'center', gap:4}}>
-                                        <div style={{width:8,height:8,borderRadius:'50%',background:entry.color || '#10b981'}}></div> 
+                                        <div style={{width:8,height:8,borderRadius: '0px',background:entry.color || '#10b981'}}></div> 
                                         <span><b>{entry.value}</b> {entry.name}</span>
                                     </div>
                                 ))}

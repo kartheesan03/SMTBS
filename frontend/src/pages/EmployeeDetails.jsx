@@ -33,7 +33,7 @@ const EmployeeDetails = () => {
     const infoCard = (
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-                <div style={{ width: '64px', height: '64px', background: '#8b5cf6', borderRadius: '12px', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px', fontWeight: 'bold' }}>
+                <div style={{ width: '64px', height: '64px', background: '#8b5cf6', borderRadius: '0px', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px', fontWeight: 'bold' }}>
                     {employee.firstName.substring(0, 1).toUpperCase()}{employee.lastName ? employee.lastName.substring(0, 1).toUpperCase() : ''}
                 </div>
                 <div>
@@ -45,10 +45,10 @@ const EmployeeDetails = () => {
                 </div>
             </div>
             <div style={{ display: 'flex', gap: '12px' }}>
-                <span style={{ padding: '6px 12px', background: '#dcfce7', color: '#166534', borderRadius: '20px', fontSize: '14px', fontWeight: 500 }}>
+                <span style={{ padding: '6px 12px', background: '#dcfce7', color: '#166534', borderRadius: '0px', fontSize: '14px', fontWeight: 500 }}>
                     Active
                 </span>
-                <button onClick={() => navigate(`/employees/${employee._id}/edit`)} style={{ padding: '8px 16px', background: '#f1f5f9', color: '#3b82f6', border: '1px solid #bfdbfe', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}>
+                <button onClick={() => navigate(`/employees/${employee._id}/edit`)} style={{ padding: '8px 16px', background: '#f1f5f9', color: '#3b82f6', border: '1px solid #bfdbfe', borderRadius: '0px', cursor: 'pointer', fontWeight: 600 }}>
                     Edit Profile
                 </button>
             </div>
@@ -129,13 +129,13 @@ const EmployeeDetails = () => {
             <div className="standard-section">
                 <div className="standard-section-header">Quick Stats</div>
                 <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
-                    <div style={{ background: '#f8fafc', padding: '20px', borderRadius: '8px', flex: 1, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div style={{ background: '#f8fafc', padding: '20px', borderRadius: '0px', flex: 1, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         <div style={{ color: '#64748b', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}><Clock size={16} /> Tenure</div>
                         <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#0f172a' }}>
                             {employee.joinDate ? `${Math.floor((new Date() - new Date(employee.joinDate)) / (1000 * 60 * 60 * 24 * 30.44))} months` : 'N/A'}
                         </div>
                     </div>
-                    <div style={{ background: '#f8fafc', padding: '20px', borderRadius: '8px', flex: 1, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div style={{ background: '#f8fafc', padding: '20px', borderRadius: '0px', flex: 1, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         <div style={{ color: '#64748b', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}><CheckCircle size={16} /> Attendance</div>
                         <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#0f172a' }}>98%</div>
                     </div>

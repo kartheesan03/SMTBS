@@ -15,66 +15,12 @@ import { AreaChart, Area, PieChart, Pie, Cell, ResponsiveContainer, XAxis, YAxis
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 import PageHeader from '../components/PageHeader';
 import CommandCenter from '../components/CommandCenter';
-import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
+import { StatCard, StatGrid } from '../components/ui/StatCard';
+import WelcomeBanner from '../components/ui/WelcomeBanner';
 import { LoadingState, ErrorState, EmptyState } from '../components/DataStates';
 
-// ─── Unified KPI Card ────────────────────────────────────────────────────────
-// Accent colors are functional: green=good/performance, purple=business metric,
-// orange=inventory/stock, teal=people, blue=informational
-const KPI_THEMES = {
-    green:  { main: '#637D68', bg: 'rgba(99,125,104,0.03)', border: 'rgba(99,125,104,0.2)', iconBg: 'rgba(99,125,104,0.1)' },
-    purple: { main: '#64748B', bg: 'rgba(100,116,139,0.03)', border: 'rgba(100,116,139,0.2)', iconBg: 'rgba(100,116,139,0.1)' },
-    orange: { main: '#A37F39', bg: 'rgba(163,127,57,0.03)', border: 'rgba(163,127,57,0.2)', iconBg: 'rgba(163,127,57,0.1)' },
-    teal:   { main: '#52797B', bg: 'rgba(82,121,123,0.03)', border: 'rgba(82,121,123,0.2)', iconBg: 'rgba(82,121,123,0.1)' },
-    blue:   { main: '#8D806F', bg: 'rgba(141,128,111,0.03)', border: 'rgba(141,128,111,0.2)', iconBg: 'rgba(141,128,111,0.1)' },
-    pink:   { main: '#846274', bg: 'rgba(132,98,116,0.03)', border: 'rgba(132,98,116,0.2)', iconBg: 'rgba(132,98,116,0.1)' },
-};
+// ─── Unified KPI Card removed in favor of StatCard ──────────────────────────────
 
-export const DashboardKPICard = ({ title, value, icon: Icon, theme = 'purple', trendValue, trendUp = true, sparklineData }) => {
-    const t = KPI_THEMES[theme] || KPI_THEMES.purple;
-    // Each card gets a distinct sparkline shape via its seed
-    const defaultData = sparklineData || Array.from({ length: 12 }, (_, i) => ({
-        v: 40 + Math.sin((i + title.charCodeAt(0)) * 0.7) * 20 + (trendUp ? i * 1.5 : -i * 1)
-    }));
-
-    const gradId = `spark-${title.replace(/\s+/g, '-')}`;
-
-    return (
-        <div className="dash-kpi-card" style={{ backgroundColor: t.bg, borderColor: t.border }}>
-            {/* Header: label left, icon right */}
-            <div className="dash-kpi-header">
-                <span className="dash-kpi-eyebrow" style={{ color: t.main }}>{title}</span>
-                <div className="dash-kpi-icon-badge" style={{ background: t.iconBg }}>
-                    <Icon size={16} strokeWidth={2.5} color={t.main} />
-                </div>
-            </div>
-
-            {/* Big number */}
-            <div className="dash-kpi-value">{value}</div>
-
-            {/* Caption: Plain text, wraps to 2 lines, never truncates. Semantic color for trend. */}
-            <div className="dash-kpi-trend-badge" style={{ color: trendUp ? '#059669' : '#DC2626' }}>
-                {trendUp ? <TrendingUp size={11} strokeWidth={3} style={{ flexShrink: 0 }} /> : <TrendingDown size={11} strokeWidth={3} style={{ flexShrink: 0 }} />}
-                <span>{trendValue}</span>
-            </div>
-
-            {/* Sparkline — Area chart with gradient */}
-            <div className="dash-kpi-sparkline-row">
-                <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={defaultData}>
-                        <defs>
-                            <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor={t.main} stopOpacity={0.2} />
-                                <stop offset="95%" stopColor={t.main} stopOpacity={0} />
-                            </linearGradient>
-                        </defs>
-                        <Area type="monotone" dataKey="v" stroke={t.main} strokeWidth={1.5} fillOpacity={1} fill={`url(#${gradId})`} isAnimationActive={false} />
-                    </AreaChart>
-                </ResponsiveContainer>
-            </div>
-        </div>
-    );
-};
 
 // ─── Quick Action Item ────────────────────────────────────────────────────────
 export const IconQuickAction = ({ icon: Icon, label, colorClass, onClick }) => (
@@ -228,37 +174,16 @@ const AdminDashboard = () => {
         <div className="rd-container theme-admin">
             <div className="rd-content">
 
-                {/* 🌟 1. Hero Banner 🌟 */}
-                <div className="rd-hero">
-                    <div className="rd-hero-left">
-                        <div className="rd-hero-avatar-wrapper">
-                            <img
-                                src={user?.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'Admin')}&background=2563EB&color=fff`}
-                                alt="Profile"
-                                className="rd-hero-avatar"
-                            />
-                            <div className="rd-hero-status-dot"></div>
-                        </div>
-                        <div>
-                            <div className="rd-hero-greeting">
-                                {getGreeting()}, {user?.name?.split(' ')[0] || 'Admin'}
-                            </div>
-                            <div className="rd-hero-subtitle">
-                                {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
-                                &nbsp;·&nbsp; Here's your business overview
-                            </div>
-                            <div className="rd-hero-badges">
-                                <span className="rd-hero-badge badge-neutral">
-                                    <Package size={14} /> {activeOrdersCount} Active Orders
-                                </span>
-                                <span className="rd-hero-badge badge-status">
-                                    <div className="status-dot-inline"></div> All Systems Operational
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="rd-hero-right">
-                        <div className="rd-hero-visual">
+                <WelcomeBanner 
+                    user={user}
+                    greeting={`${getGreeting()}`}
+                    subtitle={`${new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} · Here's your business overview`}
+                    badges={[
+                        { icon: Package, text: `${activeOrdersCount} Active Orders`, type: 'neutral' },
+                        { type: 'status', text: 'All Systems Operational' }
+                    ]}
+                    rightVisuals={
+                        <>
                             <div className="rd-visual-card">
                                 <div className="rd-vc-label">Efficiency</div>
                                 <div className="rd-vc-value">98.2%</div>
@@ -274,27 +199,23 @@ const AdminDashboard = () => {
                                     <div className="rd-vc-bar" style={{height: '60%'}}></div>
                                 </div>
                             </div>
-                        </div>
-                        <div className="rd-hero-actions-col">
-                            <button className="hero-action-btn primary" onClick={() => navigate('/leave-management/history')}>
-                                <CheckCircle size={15} /> Apply Leave
-                            </button>
-                            <button className="hero-action-btn secondary" onClick={() => navigate('/attendance')}>
-                                <Clock size={15} /> Check In
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                        </>
+                    }
+                    actions={[
+                        { label: 'Apply Leave', icon: CheckCircle, variant: 'primary', onClick: () => navigate('/leave-management/history') },
+                        { label: 'Check In', icon: Clock, variant: 'secondary', onClick: () => navigate('/attendance') }
+                    ]}
+                />
 
                 {/* ── 2. KPI Row (Full Width) ── */}
-                <PastelKPIGrid columns={6}>
-                    <PastelKPICard title="Order Fulfillment" value={`${orderFulfillment}%`} colorTheme="mint" icon={Activity} trendValue="Successfully delivered" trendPositive={true} />
-                    <PastelKPICard title="Total Orders" value={totalOrders} colorTheme="purple" icon={ShoppingCart} trendValue="12% vs last month" trendPositive={true} />
-                    <PastelKPICard title="Total Revenue" value={formatINR(totalRevenue)} colorTheme="blue" icon={DollarSign} trendValue="8% vs last month" trendPositive={true} />
-                    <PastelKPICard title="Total Materials" value={totalMaterials} colorTheme="peach" icon={Box} trendValue="Stock stable" trendPositive={true} />
-                    <PastelKPICard title="Total Employees" value={totalEmployees} colorTheme="mint" icon={Users} trendValue="Across all branches" trendPositive={true} />
-                    <PastelKPICard title="Total Tasks" value={completedTasks + pendingTasks} colorTheme="pink" icon={ListTodo} trendValue="High priority pending" trendPositive={false} />
-                </PastelKPIGrid>
+                <StatGrid columns={6}>
+                    <StatCard title="Order Fulfillment" value={`${orderFulfillment}%`} colorTheme="mint" icon={Activity} trendValue="Successfully delivered" trendPositive={true} />
+                    <StatCard title="Total Orders" value={totalOrders} colorTheme="purple" icon={ShoppingCart} trendValue="12% vs last month" trendPositive={true} />
+                    <StatCard title="Total Revenue" value={formatINR(totalRevenue)} colorTheme="blue" icon={DollarSign} trendValue="8% vs last month" trendPositive={true} />
+                    <StatCard title="Total Materials" value={totalMaterials} colorTheme="peach" icon={Box} trendValue="Stock stable" trendPositive={true} />
+                    <StatCard title="Total Employees" value={totalEmployees} colorTheme="teal" icon={Users} trendValue="Across all branches" trendPositive={true} />
+                    <StatCard title="Total Tasks" value={completedTasks + pendingTasks} colorTheme="pink" icon={ListTodo} trendValue="High priority pending" trendPositive={false} />
+                </StatGrid>
 
                 {/* ── MAIN LAYOUT (Content) ── */}
                     <div className="rd-middle-row">
@@ -425,7 +346,7 @@ const AdminDashboard = () => {
                                             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
                                             <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94a3b8' }} dy={8} />
                                             <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94a3b8' }} width={48} tickFormatter={(val) => val >= 1000 ? `${(val / 1000).toFixed(0)}k` : val} />
-                                            <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #e2e8f0' }} formatter={(val, name) => [`₹${val.toLocaleString()}`, name]} />
+                                            <Tooltip contentStyle={{ fontSize: 12, borderRadius: 0, border: '1px solid #e2e8f0' }} formatter={(val, name) => [`₹${val.toLocaleString()}`, name]} />
                                             <Legend iconType="circle" wrapperStyle={{ fontSize: '12px' }} verticalAlign="top" height={36} />
                                             <Line type="monotone" dataKey={revenueTrendYear === 'current' ? 'revenue' : 'lastYearRevenue'} name="Revenue" stroke="#7C3AED" strokeWidth={2} dot={false} activeDot={{ r: 6 }} />
                                             <Line type="monotone" dataKey={revenueTrendYear === 'current' ? 'expenses' : 'lastYearExpenses'} name="Expenses" stroke="#D97706" strokeWidth={2} dot={false} activeDot={{ r: 6 }} />
@@ -454,7 +375,7 @@ const AdminDashboard = () => {
                                             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
                                             <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94a3b8' }} dy={8} />
                                             <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94a3b8' }} allowDecimals={false} />
-                                            <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #e2e8f0' }} cursor={{ fill: '#f1f5f9' }} />
+                                            <Tooltip contentStyle={{ fontSize: 12, borderRadius: 0, border: '1px solid #e2e8f0' }} cursor={{ fill: '#f1f5f9' }} />
                                             <Bar dataKey="value" radius={[4, 4, 0, 0]} maxBarSize={40}>
                                                 {dashboardData.hrStats.employeeDistribution.map((entry, index) => (
                                                     <Cell key={`cell-${index}`} fill={entry.color || '#7C3AED'} />
@@ -625,7 +546,7 @@ const AdminDashboard = () => {
                                             return (
                                                 <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 15, fontSize: 11, width: '100%' }}>
                                                     <span style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#475569' }}>
-                                                        <div style={{ width: 8, height: 8, borderRadius: '50%', background: colors[idx % colors.length], flexShrink: 0 }}></div>
+                                                        <div style={{ width: 8, height: 8, borderRadius: '0px', background: colors[idx % colors.length], flexShrink: 0 }}></div>
                                                         <span>{entry.name}</span>
                                                     </span>
                                                     <strong style={{ color: '#0f172a' }}>₹{entry.value.toLocaleString()}</strong>
@@ -688,14 +609,14 @@ const AdminDashboard = () => {
                         <div className="feed-list" style={{ gap: 14 }}>
                             {upcomingEvents.length > 0 ? upcomingEvents.map((ev, i) => (
                                 <div className="event-item" key={i} style={{ borderLeft: ev.isOverdue ? '3px solid #ef4444' : 'none', paddingLeft: ev.isOverdue ? 6 : 0 }}>
-                                    <div style={{ background: ev.bg, borderRadius: 8, padding: '4px 8px', textAlign: 'center', flexShrink: 0, minWidth: 36 }}>
+                                    <div style={{ background: ev.bg, borderRadius: 0, padding: '4px 8px', textAlign: 'center', flexShrink: 0, minWidth: 36 }}>
                                         <div style={{ color: ev.col, fontSize: 9, fontWeight: 700, textTransform: 'uppercase' }}>{ev.month}</div>
                                         <div style={{ color: '#0f172a', fontSize: 16, fontWeight: 800, lineHeight: 1.1 }}>{ev.day}</div>
                                     </div>
                                     <div className="feed-content" style={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1, minWidth: 0 }}>
                                         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
                                             <div className="feed-title" style={{ color: ev.isOverdue ? '#ef4444' : 'inherit', flex: 1, paddingRight: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.title}</div>
-                                            <span style={{ fontSize: 9, background: '#f1f5f9', padding: '2px 6px', borderRadius: 4, color: '#475569', fontWeight: 600, flexShrink: 0 }}>{ev.category}</span>
+                                            <span style={{ fontSize: 9, background: '#f1f5f9', padding: '2px 6px', borderRadius: 0, color: '#475569', fontWeight: 600, flexShrink: 0 }}>{ev.category}</span>
                                         </div>
                                         <div className="feed-desc" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                                             {ev.isOverdue && <AlertCircle size={10} color="#ef4444" />}

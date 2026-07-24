@@ -6,7 +6,7 @@ import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGri
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
-import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
+import { StatCard, StatGrid } from '../components/ui/StatCard';
 
 const Leads = () => {
     const navigate = useNavigate();
@@ -93,12 +93,12 @@ const Leads = () => {
                     </div>
                 </div>
 
-                <PastelKPIGrid>
-                    <PastelKPICard title="Total Leads" value={leads.length} colorTheme="blue" icon={Target} trendValue="All leads" trendPositive={true} />
-                    <PastelKPICard title="Hot Leads (≥80)" value={hotLeads.length} colorTheme="pink" icon={Zap} trendValue="High priority" trendPositive={true} />
-                    <PastelKPICard title="In Negotiation" value={inNegotiation.length} colorTheme="purple" icon={Handshake} trendValue="Active talks" trendPositive={true} />
-                    <PastelKPICard title="Pipeline Value" value={formatCurrency(pipelineValue)} colorTheme="mint" icon={DollarSign} trendValue="Potential revenue" trendPositive={true} />
-                </PastelKPIGrid>
+                <StatGrid>
+                    <StatCard title="Total Leads" value={leads.length} colorTheme="blue" icon={Target} trendValue="All leads" trendPositive={true} />
+                    <StatCard title="Hot Leads (≥80)" value={hotLeads.length} colorTheme="pink" icon={Zap} trendValue="High priority" trendPositive={true} />
+                    <StatCard title="In Negotiation" value={inNegotiation.length} colorTheme="purple" icon={Handshake} trendValue="Active talks" trendPositive={true} />
+                    <StatCard title="Pipeline Value" value={formatCurrency(pipelineValue)} colorTheme="mint" icon={DollarSign} trendValue="Potential revenue" trendPositive={true} />
+                </StatGrid>
 
                 <motion.div 
                     initial={{ opacity: 0, y: 20 }}
@@ -119,7 +119,7 @@ const Leads = () => {
                             <select 
                                 value={activeFilter} 
                                 onChange={e => setActiveFilter(e.target.value)}
-                                style={{padding: '8px 14px', borderRadius: 20, border: '1px solid #e2e8f0', background: '#fff', color: '#1e293b', fontWeight: 600, outline: 'none', width: 'auto', flexShrink: 0}}
+                                style={{padding: '8px 14px', borderRadius: 0, border: '1px solid #e2e8f0', background: '#fff', color: '#1e293b', fontWeight: 600, outline: 'none', width: 'auto', flexShrink: 0}}
                             >
                                 <option value="All">All</option>
                                 <option value="New">New</option>
@@ -176,17 +176,17 @@ const Leads = () => {
                                             </div>
                                         </td>
                                         <td data-label="Source">
-                                            <span style={{padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600, background: '#eff6ff', color: '#3b82f6', border: '1px solid #bfdbfe'}}>
+                                            <span style={{padding: '4px 10px', borderRadius: 0, fontSize: 12, fontWeight: 600, background: '#eff6ff', color: '#3b82f6', border: '1px solid #bfdbfe'}}>
                                                 {l.source}
                                             </span>
                                         </td>
                                         <td data-label="Stage">
-                                            <span style={{padding: '4px 12px', borderRadius: 20, fontSize: 12, fontWeight: 600, color: stColor, border: `1.5px solid ${stColor}50`}}>
+                                            <span style={{padding: '4px 12px', borderRadius: 0, fontSize: 12, fontWeight: 600, color: stColor, border: `1.5px solid ${stColor}50`}}>
                                                 {l.stage}
                                             </span>
                                         </td>
                                         <td data-label="Score">
-                                            <div style={{width: 32, height: 32, borderRadius: 8, background: scoreBg, color: scoreColor, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 13}}>
+                                            <div style={{width: 32, height: 32, borderRadius: 0, background: scoreBg, color: scoreColor, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 13}}>
                                                 {l.score}
                                             </div>
                                         </td>
@@ -226,7 +226,7 @@ const LeadKPICard = ({ title, val, trend, color, icon: Icon, data }) => {
             </div>
             <div className="ent-card-footer">
                 <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'currentColor' }}></div>
+                    <div style={{ width: '6px', height: '6px', borderRadius: '0px', backgroundColor: 'currentColor' }}></div>
                     Updated Today
                 </div>
             </div>

@@ -40,7 +40,7 @@ const PageHeader = ({ title, badge, subtitle, showBack = false, hasInsights = fa
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 color: '#0f172a',
-                                borderRadius: '6px',
+                                borderRadius: '0px',
                                 marginRight: '2px',
                                 flexShrink: 0,
                             }}
@@ -68,7 +68,7 @@ const PageHeader = ({ title, badge, subtitle, showBack = false, hasInsights = fa
                         <div style={{
                             width: 8,
                             height: 8,
-                            borderRadius: '50%',
+                            borderRadius: '0px',
                             background: '#ef4444',
                             marginLeft: 8,
                             boxShadow: '0 0 0 2px rgba(239, 68, 68, 0.2)'

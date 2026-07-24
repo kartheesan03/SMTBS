@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Package, TrendingUp, AlertTriangle, XCircle, ExternalLink } from 'lucide-react';
 import { AreaChart, Area, ResponsiveContainer, XAxis, Tooltip } from 'recharts';
 import API from '../api/axios';
-import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
+import { StatCard, StatGrid } from '../components/ui/StatCard';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 
 // ─── SVG Arc Gauge (pure SVG, no lib dependency) ─────────────────────────────
@@ -89,7 +89,7 @@ const Sparkline = ({ data }) => (
                 </linearGradient>
             </defs>
             <Tooltip
-                contentStyle={{ borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 11, padding: '5px 10px' }}
+                contentStyle={{ borderRadius: 0, border: '1px solid #e2e8f0', fontSize: 11, padding: '5px 10px' }}
                 itemStyle={{ color: '#10b981' }}
                 labelStyle={{ color: '#64748b', fontWeight: 600 }}
             />
@@ -105,7 +105,7 @@ const Sparkline = ({ data }) => (
 const SegBar = ({ categories, total }) => {
     const safeTotal = total || 1;
     return (
-        <div style={{ display: 'flex', height: 10, borderRadius: 99, overflow: 'hidden', background: '#f1f5f9' }}>
+        <div style={{ display: 'flex', height: 10, borderRadius: 0, overflow: 'hidden', background: '#f1f5f9' }}>
             {categories.map((cat) => {
                 const w = (cat.value / safeTotal) * 100;
                 return w > 0 ? (
@@ -197,7 +197,7 @@ const StockHealthPanel = ({ healthyCount, lowCount, outCount, totalItems, allCat
                         </div>
                         {/* status pill */}
                         <span style={{
-                            padding: '4px 12px', borderRadius: 99, fontSize: 11, fontWeight: 700,
+                            padding: '4px 12px', borderRadius: 0, fontSize: 11, fontWeight: 700,
                             background: pct === 100 ? '#d1fae5' : pct >= 80 ? '#fef9c3' : '#fee2e2',
                             color:      pct === 100 ? '#059669' : pct >= 80 ? '#a16207' : '#dc2626',
                         }}>
@@ -219,7 +219,7 @@ const StockHealthPanel = ({ healthyCount, lowCount, outCount, totalItems, allCat
                                 }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                                         <span style={{
-                                            width: 10, height: 10, borderRadius: '50%',
+                                            width: 10, height: 10, borderRadius: '0px',
                                             background: active ? cat.color : '#e2e8f0',
                                             flexShrink: 0,
                                             boxShadow: active ? `0 0 0 3px ${cat.color}20` : 'none',
@@ -233,12 +233,12 @@ const StockHealthPanel = ({ healthyCount, lowCount, outCount, totalItems, allCat
                                     </div>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                                         {/* percentage bar track */}
-                                        <div style={{ width: 80, height: 4, background: '#f1f5f9', borderRadius: 99, overflow: 'hidden' }}>
+                                        <div style={{ width: 80, height: 4, background: '#f1f5f9', borderRadius: 0, overflow: 'hidden' }}>
                                             <div style={{
                                                 width: `${catPct}%`,
                                                 height: '100%',
                                                 background: active ? cat.color : 'transparent',
-                                                borderRadius: 99,
+                                                borderRadius: 0,
                                                 transition: 'width 0.6s ease',
                                             }} />
                                         </div>
@@ -359,36 +359,36 @@ const StockRequests = () => {
                 </div>
 
                 {/* KPI Cards */}
-                <PastelKPIGrid>
-                    <PastelKPICard
+                <StatGrid>
+                    <StatCard
                         title="Total SKUs" value={totalItems}
                         colorTheme="blue" icon={Package}
                         trendValue="All tracked items"
                         trendPositive={true}
                         onClick={() => navigate('/stock-requests')}
                     />
-                    <PastelKPICard
+                    <StatCard
                         title="Healthy" value={healthyCount}
                         colorTheme="mint" icon={TrendingUp}
                         trendValue={`${totalItems ? Math.round((healthyCount/totalItems)*100) : 0}% within thresholds`}
                         trendPositive={true}
                         onClick={() => navigate('/stock-requests')}
                     />
-                    <PastelKPICard
+                    <StatCard
                         title="Low Stock" value={lowCount}
                         colorTheme="yellow" icon={AlertTriangle}
                         trendValue={`${totalItems ? Math.round((lowCount/totalItems)*100) : 0}% approaching reorder`}
                         trendPositive={false}
                         onClick={() => navigate('/stock-requests')}
                     />
-                    <PastelKPICard
+                    <StatCard
                         title="Critical / 0" value={outCount}
                         colorTheme="peach" icon={XCircle}
                         trendValue={`${totalItems ? Math.round((outCount/totalItems)*100) : 0}% need action`}
                         trendPositive={false}
                         onClick={() => navigate('/stock-requests')}
                     />
-                </PastelKPIGrid>
+                </StatGrid>
 
                 {/* ── Stock Health Panel ── */}
                 <StockHealthPanel
@@ -410,7 +410,7 @@ const StockRequests = () => {
                             <div className="rd-table-subtitle">Items requiring immediate attention</div>
                         </div>
                         <div className="rd-table-actions">
-                            <span style={{padding: '6px 12px', background: '#ffe4e6', color: '#e11d48', borderRadius: 20, fontSize: 13, fontWeight: 600, border: '1px solid #fecdd3'}}>
+                            <span style={{padding: '6px 12px', background: '#ffe4e6', color: '#e11d48', borderRadius: 0, fontSize: 13, fontWeight: 600, border: '1px solid #fecdd3'}}>
                                 {alertsData.length} Active Alerts
                             </span>
                         </div>

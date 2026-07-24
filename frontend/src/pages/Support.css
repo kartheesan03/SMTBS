@@ -24,7 +24,7 @@
     width: 52px;
     height: 52px;
     background-color: #fce7f3;
-    border-radius: 12px;
+    border-radius: 0px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -60,7 +60,7 @@
     color: #f43f5e;
     border: 1px solid #fbcfe8;
     padding: 10px 16px;
-    border-radius: 8px;
+    border-radius: 0px;
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
@@ -82,7 +82,7 @@
 
 .quick-link-card {
     background: #ffffff;
-    border-radius: 16px;
+    border-radius: 0px;
     padding: 24px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     border: 1px solid #e2e8f0;
@@ -94,7 +94,7 @@
 .ql-icon-box {
     width: 40px;
     height: 40px;
-    border-radius: 10px;
+    border-radius: 0px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -152,7 +152,7 @@
 
 .support-faq-section, .contact-form-card, .other-ways-card {
     background: #ffffff;
-    border-radius: 16px;
+    border-radius: 0px;
     padding: 24px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     border: 1px solid #e2e8f0;
@@ -206,7 +206,7 @@
     width: 100%;
     padding: 10px 12px 10px 36px;
     border: 1px solid #cbd5e1;
-    border-radius: 8px;
+    border-radius: 0px;
     outline: none;
     font-size: 13px;
     transition: border-color 0.2s;
@@ -305,7 +305,7 @@
     width: 100%;
     padding: 12px;
     border: 1px solid #cbd5e1;
-    border-radius: 8px;
+    border-radius: 0px;
     outline: none;
     font-size: 14px;
     color: #1e293b;
@@ -327,7 +327,7 @@
     display: flex;
     background: #f8fafc;
     padding: 4px;
-    border-radius: 8px;
+    border-radius: 0px;
     border: 1px solid #cbd5e1;
 }
 
@@ -336,7 +336,7 @@
     background: transparent;
     border: none;
     padding: 8px;
-    border-radius: 6px;
+    border-radius: 0px;
     font-size: 13px;
     font-weight: 600;
     color: #64748b;
@@ -361,7 +361,7 @@
     color: white;
     border: none;
     padding: 12px;
-    border-radius: 8px;
+    border-radius: 0px;
     font-size: 15px;
     font-weight: 600;
     cursor: pointer;
@@ -391,7 +391,7 @@
     width: 44px;
     height: 44px;
     background-color: #eff6ff;
-    border-radius: 12px;
+    border-radius: 0px;
     display: flex;
     align-items: center;
     justify-content: center;

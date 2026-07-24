@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import PageHeader from '../components/PageHeader';
-import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
+import { StatCard, StatGrid } from '../components/ui/StatCard';
 
 // Map category → icon component & colors
 // Map module → icon component & colors
@@ -155,7 +155,7 @@ const NotificationsPage = () => {
 
             {/* Toast */}
             {toast && (
-                <div style={{ position: 'fixed', top: '24px', right: '24px', zIndex: 9999, display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 20px', borderRadius: '10px', fontSize: '13px', fontWeight: 600, color: '#fff', background: toast.ok ? '#10b981' : '#ef4444', }}>
+                <div style={{ position: 'fixed', top: '24px', right: '24px', zIndex: 9999, display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 20px', borderRadius: '0px', fontSize: '13px', fontWeight: 600, color: '#fff', background: toast.ok ? '#10b981' : '#ef4444', }}>
                     {toast.ok ? <Check size={15} /> : <AlertTriangle size={15} />}
                     {toast.msg}
                 </div>
@@ -189,12 +189,12 @@ const NotificationsPage = () => {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.1, duration: 0.4 }}
             >
-                <PastelKPIGrid>
-                    <PastelKPICard title="Total Notifications" value={notifications.length} colorTheme="blue" icon={Bell} trendValue="All alerts" trendPositive={true} />
-                    <PastelKPICard title="Unread" value={unreadCount} colorTheme="peach" icon={Clock} trendValue="Needs attention" trendPositive={unreadCount === 0} />
-                    <PastelKPICard title="Read" value={readCount} colorTheme="mint" icon={CheckCircle} trendValue="Viewed alerts" trendPositive={true} />
-                    <PastelKPICard title="Critical" value={criticalCount} colorTheme="pink" icon={AlertCircle} trendValue="Urgent issues" trendPositive={criticalCount === 0} />
-                </PastelKPIGrid>
+                <StatGrid>
+                    <StatCard title="Total Notifications" value={notifications.length} colorTheme="blue" icon={Bell} trendValue="All alerts" trendPositive={true} />
+                    <StatCard title="Unread" value={unreadCount} colorTheme="peach" icon={Clock} trendValue="Needs attention" trendPositive={unreadCount === 0} />
+                    <StatCard title="Read" value={readCount} colorTheme="mint" icon={CheckCircle} trendValue="Viewed alerts" trendPositive={true} />
+                    <StatCard title="Critical" value={criticalCount} colorTheme="pink" icon={AlertCircle} trendValue="Urgent issues" trendPositive={criticalCount === 0} />
+                </StatGrid>
             </motion.div>
 
             {/* ===== SEARCH + FILTER BAR ===== */}
@@ -205,7 +205,7 @@ const NotificationsPage = () => {
                 style={{ marginBottom: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}
             >
                 {/* Search */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: '#fff', borderRadius: '10px', padding: '8px 16px', width: '100%', }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: '#fff', borderRadius: '0px', padding: '8px 16px', width: '100%', }}>
                     <Search size={16} color="#64748b" />
                     <input
                         type="text"
@@ -227,7 +227,7 @@ const NotificationsPage = () => {
                             onClick={() => setFilter(tab.key)}
                             style={{
                                 display: 'flex', alignItems: 'center', gap: '6px',
-                                padding: '6px 14px', borderRadius: '20px', border: '1px solid',
+                                padding: '6px 14px', borderRadius: '0px', border: '1px solid',
                                 borderColor: filter === tab.key ? '#3b82f6' : '#e2e8f0',
                                 fontSize: '13px', fontWeight: 600, cursor: 'pointer',
                                 whiteSpace: 'nowrap', transition: 'all 0.2s',
@@ -239,7 +239,7 @@ const NotificationsPage = () => {
                             {tab.count !== undefined && tab.count > 0 && (
                                 <span style={{
                                     fontSize: '11px', fontWeight: 800, padding: '2px 6px',
-                                    borderRadius: '10px', lineHeight: 1,
+                                    borderRadius: '0px', lineHeight: 1,
                                     background: filter === tab.key ? '#3b82f6' : '#f1f5f9',
                                     color: filter === tab.key ? '#fff' : '#64748b',
                                 }}>
@@ -257,7 +257,7 @@ const NotificationsPage = () => {
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.3, duration: 0.4 }}
-                    className="premium-card" style={{ borderRadius: '14px', padding: '60px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '16px', color: '#94a3b8', textAlign: 'center' }}
+                    className="premium-card" style={{ borderRadius: '0px', padding: '60px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '16px', color: '#94a3b8', textAlign: 'center' }}
                 >
                     <BellOff size={36} />
                     <div>
@@ -270,7 +270,7 @@ const NotificationsPage = () => {
                     </div>
                     {notifications.length === 0 && canAdmin && (
                         <button onClick={handleSeed}
-                            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 18px', borderRadius: '10px', background: '#eff6ff', fontSize: '13px', fontWeight: 600, color: '#3b82f6', cursor: 'pointer', marginTop: '8px' }}>
+                            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 18px', borderRadius: '0px', background: '#eff6ff', fontSize: '13px', fontWeight: 600, color: '#3b82f6', cursor: 'pointer', marginTop: '8px' }}>
                             <RefreshCw size={14} /> Load Notifications
                         </button>
                     )}
@@ -290,7 +290,7 @@ const NotificationsPage = () => {
                                 key={n._id}
                                 style={{
                                     display: 'flex', alignItems: 'center', gap: '16px',
-                                    padding: '14px 18px', borderRadius: '12px',
+                                    padding: '14px 18px', borderRadius: '0px',
                                     background: '#fff',
                                     border: '1px solid #e2e8f0',
                                     borderLeft: `4px solid ${typeStyle.color}`,
@@ -303,7 +303,7 @@ const NotificationsPage = () => {
                                 onMouseLeave={e => { e.currentTarget.style.opacity = n.status === 'read' ? '0.6' : '1'; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
                             >
                                 {/* Category Icon */}
-                                <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: catConfig.bg, color: catConfig.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                <div style={{ width: '42px', height: '42px', borderRadius: '0px', background: catConfig.bg, color: catConfig.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                                     <CatIcon size={20} strokeWidth={2.25} />
                                 </div>
 
@@ -312,12 +312,12 @@ const NotificationsPage = () => {
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                         <span style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{n.title}</span>
                                         {/* Priority Badge */}
-                                        <span style={{ fontSize: '10px', fontWeight: 800, padding: '2px 8px', borderRadius: '6px', textTransform: 'uppercase', letterSpacing: '0.5px', background: typeStyle.badgeBg, color: typeStyle.badgeColor, flexShrink: 0 }}>
+                                        <span style={{ fontSize: '10px', fontWeight: 800, padding: '2px 8px', borderRadius: '0px', textTransform: 'uppercase', letterSpacing: '0.5px', background: typeStyle.badgeBg, color: typeStyle.badgeColor, flexShrink: 0 }}>
                                             {typeStyle.badge}
                                         </span>
                                         {/* Unread Indicator */}
                                         {n.status === 'unread' && (
-                                            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: typeStyle.color, flexShrink: 0, boxShadow: `0 0 6px ${typeStyle.color}40`, marginLeft: 'auto' }}></span>
+                                            <span style={{ width: '8px', height: '8px', borderRadius: '0px', background: typeStyle.color, flexShrink: 0, boxShadow: `0 0 6px ${typeStyle.color}40`, marginLeft: 'auto' }}></span>
                                         )}
                                     </div>
                                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
@@ -334,7 +334,7 @@ const NotificationsPage = () => {
                                         <button
                                             onClick={(e) => { e.stopPropagation(); handleMarkOne(n._id); }}
                                             title="Mark Read"
-                                            style={{ width: '34px', height: '34px', borderRadius: '8px', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#10b981', transition: 'all 0.2s' }}
+                                            style={{ width: '34px', height: '34px', borderRadius: '0px', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#10b981', transition: 'all 0.2s' }}
                                             onMouseEnter={e => { e.currentTarget.style.background = '#ecfdf5'; e.currentTarget.style.borderColor = '#10b981'; }}
                                             onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
                                         >
@@ -345,7 +345,7 @@ const NotificationsPage = () => {
                                         <button
                                             onClick={(e) => { e.stopPropagation(); handleNotificationClick(n); }}
                                             title="View Details"
-                                            style={{ width: '34px', height: '34px', borderRadius: '8px', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#3b82f6', transition: 'all 0.2s' }}
+                                            style={{ width: '34px', height: '34px', borderRadius: '0px', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#3b82f6', transition: 'all 0.2s' }}
                                             onMouseEnter={e => { e.currentTarget.style.background = '#eff6ff'; e.currentTarget.style.borderColor = '#3b82f6'; }}
                                             onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
                                         >
@@ -355,7 +355,7 @@ const NotificationsPage = () => {
                                     <button
                                         onClick={(e) => { e.stopPropagation(); handleDelete(n._id); }}
                                         title="Delete"
-                                        style={{ width: '34px', height: '34px', borderRadius: '8px', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#64748b', transition: 'all 0.2s' }}
+                                        style={{ width: '34px', height: '34px', borderRadius: '0px', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#64748b', transition: 'all 0.2s' }}
                                         onMouseEnter={e => { e.currentTarget.style.background = '#fef2f2'; e.currentTarget.style.borderColor = '#ef4444'; e.currentTarget.style.color = '#ef4444'; }}
                                         onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#64748b'; }}
                                     >

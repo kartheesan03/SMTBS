@@ -5,7 +5,7 @@ import { toast } from 'react-hot-toast';
 import { useLocation } from 'react-router-dom';
 import { DataTable } from '../components/ui';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
+import { StatCard, StatGrid } from '../components/ui/StatCard';
 import { AuthContext } from '../context/AuthContext';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
@@ -166,7 +166,7 @@ const MyMaterials = () => {
         { 
             key: 'materialCategory', 
             label: 'CATEGORY',
-            render: (_, row) => <span style={{ padding: '4px 10px', fontSize: 12, fontWeight: 600, background: '#eff6ff', color: '#3b82f6', border: '1px solid #bfdbfe', borderRadius: 99, display: 'inline-block' }}>{row.material?.category || 'General'}</span>
+            render: (_, row) => <span style={{ padding: '4px 10px', fontSize: 12, fontWeight: 600, background: '#eff6ff', color: '#3b82f6', border: '1px solid #bfdbfe', borderRadius: 0, display: 'inline-block' }}>{row.material?.category || 'General'}</span>
         },
         { 
             key: 'warehouse', 
@@ -196,7 +196,7 @@ const MyMaterials = () => {
             render: (val) => (
                 <span style={{ 
                     padding: '4px 10px', 
-                    borderRadius: '99px', 
+                    borderRadius: '0px', 
                     fontSize: '11px', 
                     fontWeight: '600',
                     backgroundColor: `${getStatusColor(val)}15`,
@@ -226,7 +226,7 @@ const MyMaterials = () => {
                         <button 
                             onClick={() => handleReceive(row.id || row._id)}
                             className="rd-btn-compact"
-                            style={{ padding: '4px 10px', fontSize: 12, fontWeight: 600, borderRadius: 6, background: '#ecfdf5', color: '#10b981', border: '1px solid #a7f3d0', cursor: 'pointer' }}
+                            style={{ padding: '4px 10px', fontSize: 12, fontWeight: 600, borderRadius: 0, background: '#ecfdf5', color: '#10b981', border: '1px solid #a7f3d0', cursor: 'pointer' }}
                         >
                             Receive
                         </button>
@@ -235,7 +235,7 @@ const MyMaterials = () => {
                         <button 
                             onClick={() => handleReturn(row.id || row._id)}
                             className="rd-btn-compact"
-                            style={{ padding: '4px 10px', fontSize: 12, fontWeight: 600, borderRadius: 6, background: '#fff1f2', color: '#ef4444', border: '1px solid #fecdd3', cursor: 'pointer' }}
+                            style={{ padding: '4px 10px', fontSize: 12, fontWeight: 600, borderRadius: 0, background: '#fff1f2', color: '#ef4444', border: '1px solid #fecdd3', cursor: 'pointer' }}
                         >
                             Return
                         </button>
@@ -243,7 +243,7 @@ const MyMaterials = () => {
                     <button 
                         onClick={() => handlePrint(row)}
                         className="rd-btn-compact"
-                        style={{ padding: '4px 8px', fontSize: 12, borderRadius: 6, background: '#eff6ff', color: '#3b82f6', border: '1px solid #bfdbfe', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        style={{ padding: '4px 8px', fontSize: 12, borderRadius: 0, background: '#eff6ff', color: '#3b82f6', border: '1px solid #bfdbfe', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                         title="Print"
                     >
                         <Printer size={14} />
@@ -269,7 +269,7 @@ const MyMaterials = () => {
             key: 'materialCategory', 
             label: 'CATEGORY',
             sortable: true,
-            render: (val, row) => <span style={{ padding: '4px 10px', fontSize: 12, fontWeight: 600, background: '#eff6ff', color: '#3b82f6', border: '1px solid #bfdbfe', borderRadius: 99, display: 'inline-block' }}>{val || row.material?.category || 'General'}</span>
+            render: (val, row) => <span style={{ padding: '4px 10px', fontSize: 12, fontWeight: 600, background: '#eff6ff', color: '#3b82f6', border: '1px solid #bfdbfe', borderRadius: 0, display: 'inline-block' }}>{val || row.material?.category || 'General'}</span>
         },
         {
             key: 'location',
@@ -313,7 +313,7 @@ const MyMaterials = () => {
                 else if (stock <= min) { statusText = 'Low Stock'; bg = '#fffbeb'; color = '#f59e0b'; border = '#fde68a'; }
                 
                 return (
-                    <span style={{ padding: '4px 10px', fontSize: 11, fontWeight: 600, background: bg, color, border: `1px solid ${border}`, borderRadius: 99 }}>
+                    <span style={{ padding: '4px 10px', fontSize: 11, fontWeight: 600, background: bg, color, border: `1px solid ${border}`, borderRadius: 0 }}>
                         {statusText}
                     </span>
                 );
@@ -348,7 +348,7 @@ const MyMaterials = () => {
                 <div style={{ display: 'flex', gap: 6, justifyContent: 'center' }}>
                     <button 
                         className="rd-btn-compact"
-                        style={{ padding: '4px 10px', fontSize: 12, fontWeight: 600, borderRadius: 6, background: 'transparent', color: '#3b82f6', border: '1px solid #3b82f6', cursor: 'pointer' }}
+                        style={{ padding: '4px 10px', fontSize: 12, fontWeight: 600, borderRadius: 0, background: 'transparent', color: '#3b82f6', border: '1px solid #3b82f6', cursor: 'pointer' }}
                         onClick={() => {
                             setFormData({...formData, materialId: row.id || row.material?.id || row.material?._id});
                             setShowModal(true);
@@ -432,7 +432,7 @@ const MyMaterials = () => {
                 
                 return (
                     <span style={{ 
-                        padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '600',
+                        padding: '4px 12px', borderRadius: '0px', fontSize: '12px', fontWeight: '600',
                         backgroundColor: bgColor,
                         color: color,
                         display: 'inline-flex', alignItems: 'center', gap: '4px'
@@ -523,32 +523,32 @@ const MyMaterials = () => {
                 </div>
 
                 {/* KPI Cards */}
-                <PastelKPIGrid>
-                    <PastelKPICard
+                <StatGrid>
+                    <StatCard
                         title="Total Items" value={totalAssigned}
                         colorTheme="blue" icon={Package}
                         trendValue="Inventory tracking active"
                         trendPositive={true}
                     />
-                    <PastelKPICard
+                    <StatCard
                         title="In Stock" value={availableQty}
                         colorTheme="mint" icon={CheckCircle}
                         trendValue={`${totalAssigned ? '100' : '0'}% of inventory`}
                         trendPositive={true}
                     />
-                    <PastelKPICard
+                    <StatCard
                         title="Low Stock" value={lowStockItems}
                         colorTheme="yellow" icon={AlertTriangle}
                         trendValue={`${totalAssigned ? Math.round((lowStockItems / totalAssigned) * 100) : 0}% need attention`}
                         trendPositive={false}
                     />
-                    <PastelKPICard
+                    <StatCard
                         title="Out of Stock" value={pendingRequests}
                         colorTheme="peach" icon={AlertCircle}
                         trendValue="0% critical"
                         trendPositive={false}
                     />
-                </PastelKPIGrid>
+                </StatGrid>
 
                 {/* Assigned Materials Section (Only in Requests View) */}
                 {pageMode === 'requests' && (
@@ -832,7 +832,7 @@ const MyMaterials = () => {
                     </div>
                 </div>
 
-                <div className="rd-panel" style={{ border: 'none', boxShadow: '0 4px 12px rgba(15,23,42,0.03)', background: '#ffffff', borderRadius: '16px' }}>
+                <div className="rd-panel" style={{ border: 'none', boxShadow: '0 4px 12px rgba(15,23,42,0.03)', background: '#ffffff', borderRadius: '0px' }}>
                     <DataTable 
                         title="Available Stock Levels"
                         subtitle="Detailed view of your current inventory and threshold statuses."
@@ -880,12 +880,12 @@ const MyMaterials = () => {
                             exit={{ scale: 0.95, y: 20, opacity: 0 }}
                             onClick={e => e.stopPropagation()}
                             style={{
-                                backgroundColor: '#fff', borderRadius: '24px', padding: '32px',
+                                backgroundColor: '#fff', borderRadius: '0px', padding: '32px',
                                 width: '100%', maxWidth: '600px', boxShadow: '0 24px 60px rgba(0, 0, 0, 0.15)'
                             }}
                         >
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '28px' }}>
-                                <div style={{ width: 48, height: 48, background: '#eef2ff', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <div style={{ width: 48, height: 48, background: '#eef2ff', borderRadius: '0px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     <FileText size={24} color="#4f46e5" />
                                 </div>
                                 <div>
@@ -903,7 +903,7 @@ const MyMaterials = () => {
                                             required
                                             value={formData.materialId}
                                             onChange={(e) => setFormData({...formData, materialId: e.target.value})}
-                                            style={{ height: '48px', borderRadius: '12px', border: '1px solid #e2e8f0', background: '#f8fafc', width: '100%', padding: '0 16px', fontSize: '14px' }}
+                                            style={{ height: '48px', borderRadius: '0px', border: '1px solid #e2e8f0', background: '#f8fafc', width: '100%', padding: '0 16px', fontSize: '14px' }}
                                         >
                                             <option value="">Select a material</option>
                                             {allMaterialsList.map(m => (
@@ -920,7 +920,7 @@ const MyMaterials = () => {
                                             required
                                             value={formData.requiredQuantity}
                                             onChange={(e) => setFormData({...formData, requiredQuantity: e.target.value})}
-                                            style={{ height: '48px', borderRadius: '12px', border: '1px solid #e2e8f0', background: '#f8fafc', width: '100%', padding: '0 16px', fontSize: '14px' }}
+                                            style={{ height: '48px', borderRadius: '0px', border: '1px solid #e2e8f0', background: '#f8fafc', width: '100%', padding: '0 16px', fontSize: '14px' }}
                                         />
                                     </div>
                                 </div>
@@ -932,7 +932,7 @@ const MyMaterials = () => {
                                             className="rd-input"
                                             value={formData.warehouse}
                                             onChange={(e) => setFormData({...formData, warehouse: e.target.value})}
-                                            style={{ height: '48px', borderRadius: '12px', border: '1px solid #e2e8f0', background: '#f8fafc', width: '100%', padding: '0 16px', fontSize: '14px' }}
+                                            style={{ height: '48px', borderRadius: '0px', border: '1px solid #e2e8f0', background: '#f8fafc', width: '100%', padding: '0 16px', fontSize: '14px' }}
                                         >
                                             <option value="Main Warehouse">Main Warehouse</option>
                                             <option value="Secondary Warehouse">Secondary Warehouse</option>
@@ -944,7 +944,7 @@ const MyMaterials = () => {
                                             className="rd-input"
                                             value={formData.priority}
                                             onChange={(e) => setFormData({...formData, priority: e.target.value})}
-                                            style={{ height: '48px', borderRadius: '12px', border: '1px solid #e2e8f0', background: '#f8fafc', width: '100%', padding: '0 16px', fontSize: '14px' }}
+                                            style={{ height: '48px', borderRadius: '0px', border: '1px solid #e2e8f0', background: '#f8fafc', width: '100%', padding: '0 16px', fontSize: '14px' }}
                                         >
                                             <option value="Normal">Normal</option>
                                             <option value="High">High</option>
@@ -961,12 +961,12 @@ const MyMaterials = () => {
                                         required
                                         value={formData.reason}
                                         onChange={(e) => setFormData({...formData, reason: e.target.value})}
-                                        style={{ borderRadius: '12px', border: '1px solid #e2e8f0', background: '#f8fafc', width: '100%', padding: '16px', fontSize: '14px', resize: 'vertical', minHeight: '100px' }}
+                                        style={{ borderRadius: '0px', border: '1px solid #e2e8f0', background: '#f8fafc', width: '100%', padding: '16px', fontSize: '14px', resize: 'vertical', minHeight: '100px' }}
                                     />
                                 </div>
                                 <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '16px' }}>
-                                    <button type="button" className="rd-btn secondary" onClick={() => setShowModal(false)} style={{ padding: '12px 24px', borderRadius: '10px', fontWeight: 600 }}>Cancel</button>
-                                    <button type="submit" className="rd-btn primary" disabled={submitting} style={{ padding: '12px 24px', borderRadius: '10px', fontWeight: 600, background: 'linear-gradient(135deg, #4f46e5, #6366f1)', border: 'none' }}>
+                                    <button type="button" className="rd-btn secondary" onClick={() => setShowModal(false)} style={{ padding: '12px 24px', borderRadius: '0px', fontWeight: 600 }}>Cancel</button>
+                                    <button type="submit" className="rd-btn primary" disabled={submitting} style={{ padding: '12px 24px', borderRadius: '0px', fontWeight: 600, background: 'linear-gradient(135deg, #4f46e5, #6366f1)', border: 'none' }}>
                                         {submitting ? 'Submitting...' : 'Submit Request'}
                                     </button>
                                 </div>

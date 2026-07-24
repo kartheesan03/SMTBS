@@ -6,7 +6,7 @@ import { ShoppingCart, Clock, CheckCircle, DollarSign, Search, Eye, Truck, FileT
 import { BarChart, Bar, ResponsiveContainer } from 'recharts';
 import { motion } from 'framer-motion';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
-import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
+import { StatCard, StatGrid } from '../components/ui/StatCard';
 import jsPDF from 'jspdf';
 import toast from 'react-hot-toast';
 
@@ -103,12 +103,12 @@ const ERP = () => {
                 </div>
 
                 {/* KPI Cards */}
-                <PastelKPIGrid>
-                    <PastelKPICard title="Total POs" value={orders.length} colorTheme="blue" icon={ShoppingCart} trendValue="+12% vs last month" trendPositive={true} />
-                    <PastelKPICard title="Pending Approval" value={pendingOrders.length} colorTheme="peach" icon={Clock} trendValue="Action required" trendPositive={false} />
-                    <PastelKPICard title="Approved" value={approvedOrders.length} colorTheme="mint" icon={CheckCircle} trendValue="+5% vs last month" trendPositive={true} />
-                    <PastelKPICard title="Total PO Value" value={formatCurrency(totalPOValue)} colorTheme="purple" icon={DollarSign} trendValue="+8% vs last month" trendPositive={true} />
-                </PastelKPIGrid>
+                <StatGrid>
+                    <StatCard title="Total POs" value={orders.length} colorTheme="blue" icon={ShoppingCart} trendValue="+12% vs last month" trendPositive={true} />
+                    <StatCard title="Pending Approval" value={pendingOrders.length} colorTheme="peach" icon={Clock} trendValue="Action required" trendPositive={false} />
+                    <StatCard title="Approved" value={approvedOrders.length} colorTheme="mint" icon={CheckCircle} trendValue="+5% vs last month" trendPositive={true} />
+                    <StatCard title="Total PO Value" value={formatCurrency(totalPOValue)} colorTheme="purple" icon={DollarSign} trendValue="+8% vs last month" trendPositive={true} />
+                </StatGrid>
 
                 {/* Table Card */}
                 <motion.div 
@@ -131,7 +131,7 @@ const ERP = () => {
                                 {filters.map(f => (
                                     <button key={f} onClick={() => setActiveFilter(f)}
                                         style={{
-                                            padding: '6px 14px', borderRadius: 20, fontSize: 13, fontWeight: 600, cursor: 'pointer', border: '1px solid',
+                                            padding: '6px 14px', borderRadius: 0, fontSize: 13, fontWeight: 600, cursor: 'pointer', border: '1px solid',
                                             background: activeFilter === f ? '#3b82f6' : '#fff',
                                             color: activeFilter === f ? '#fff' : '#64748b',
                                             borderColor: activeFilter === f ? '#3b82f6' : '#e2e8f0'
@@ -246,7 +246,7 @@ const ProcKPICard = ({ title, val, trend, subtitle, subtitleColor, color, icon: 
             </div>
             <div className="ent-card-footer">
                 <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'currentColor' }}></div>
+                    <div style={{ width: '6px', height: '6px', borderRadius: '0px', backgroundColor: 'currentColor' }}></div>
                     Updated Today
                 </div>
             </div>

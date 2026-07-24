@@ -84,7 +84,7 @@ const CompleteCustomerProfile = () => {
                         </div>
                         <div className="input-group">
                             <FileText size={20} className="input-icon" />
-                            <textarea name="notes" placeholder="Internal Notes / Additional Info (Optional)" value={formData.notes} onChange={handleChange} rows="3" style={{ width: '100%', padding: '12px 12px 12px 48px', border: '1px solid var(--border)', borderRadius: '12px', background: 'var(--bg-input)', color: 'var(--text-primary)' }}></textarea>
+                            <textarea name="notes" placeholder="Internal Notes / Additional Info (Optional)" value={formData.notes} onChange={handleChange} rows="3" style={{ width: '100%', padding: '12px 12px 12px 48px', border: '1px solid var(--border)', borderRadius: '0px', background: 'var(--bg-input)', color: 'var(--text-primary)' }}></textarea>
                         </div>
                         
                         <button type="submit" className="submit-btn" disabled={isLoading}>

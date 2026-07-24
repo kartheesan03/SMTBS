@@ -186,7 +186,7 @@ const Materials = () => {
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                                     <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dy={10} />
                                     <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
-                                    <RechartsTooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 8px 24px rgba(0,0,0,0.12)' }} />
+                                    <RechartsTooltip contentStyle={{ borderRadius: '0px', border: 'none', boxShadow: '0 8px 24px rgba(0,0,0,0.12)' }} />
                                     <Legend verticalAlign="top" height={36} iconType="circle" wrapperStyle={{ fontSize: '13px', color: '#475569' }} />
                                     <Area type="monotone" dataKey="IN" name="Inbound (Receipts)" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorIn)" />
                                     <Area type="monotone" dataKey="OUT" name="Outbound (Issues)" stroke="#ef4444" strokeWidth={3} fillOpacity={1} fill="url(#colorOut)" />
@@ -207,14 +207,14 @@ const Materials = () => {
                                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                         ))}
                                     </Pie>
-                                    <RechartsTooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 8px 24px rgba(0,0,0,0.12)' }} />
+                                    <RechartsTooltip contentStyle={{ borderRadius: '0px', border: 'none', boxShadow: '0 8px 24px rgba(0,0,0,0.12)' }} />
                                 </PieChart>
                             </ResponsiveContainer>
                             <div style={{ width: '40%', maxHeight: '240px', overflowY: 'auto', paddingRight: '10px' }}>
                                 {categoryData.map((cat, idx) => (
                                     <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', fontSize: '13px' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                            <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: COLORS[idx % COLORS.length] }}></div>
+                                            <div style={{ width: '10px', height: '10px', borderRadius: '0px', background: COLORS[idx % COLORS.length] }}></div>
                                             <span style={{ fontWeight: 600, color: '#334155' }}>{cat.name}</span>
                                         </div>
                                         <span style={{ color: '#64748b', fontWeight: 700 }}>{cat.value}</span>
@@ -234,7 +234,7 @@ const Materials = () => {
                             <div>
                                 <h3 className="erp-section-title" style={{ margin: 0 }}><Search size={20} color="#06b6d4" /> Enterprise Material Master</h3>
                             </div>
-                            <div style={{ background: '#f8fafc', padding: '6px 12px', borderRadius: '8px', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <div style={{ background: '#f8fafc', padding: '6px 12px', borderRadius: '0px', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '8px' }}>
                                 <Search size={14} color="#64748b" />
                                 <input type="text" placeholder="Search SKU or Name..." style={{ border: 'none', background: 'transparent', outline: 'none', fontSize: '13px', width: '200px' }} />
                             </div>
@@ -287,7 +287,7 @@ const Materials = () => {
                             <h3 className="erp-section-title"><AlertTriangle size={20} color="#f59e0b" /> Critical Shortages</h3>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                                 {lowStockItems.length > 0 ? lowStockItems.map((item, idx) => (
-                                    <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', background: '#fffbeb', borderRadius: '12px', border: '1px solid #fde68a' }}>
+                                    <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', background: '#fffbeb', borderRadius: '0px', border: '1px solid #fde68a' }}>
                                         <div>
                                             <div style={{ fontWeight: 700, color: '#92400e', fontSize: '14px' }}>{item.name}</div>
                                             <div style={{ fontSize: '12px', color: '#b45309' }}>Req: {item.lowStockThreshold || 10} {item.unit || 'EA'}</div>

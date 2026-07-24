@@ -89,7 +89,7 @@ const CompleteVendorProfile = () => {
                         </div>
                         <div className="input-group">
                             <Package size={20} className="input-icon" />
-                            <textarea name="materialsSupplied" placeholder="Materials Supplied (comma separated, e.g. Steel, Aluminum)" value={formData.materialsSupplied} onChange={handleChange} rows="2" style={{ width: '100%', padding: '12px 12px 12px 48px', border: '1px solid var(--border)', borderRadius: '12px', background: 'var(--bg-input)', color: 'var(--text-primary)' }}></textarea>
+                            <textarea name="materialsSupplied" placeholder="Materials Supplied (comma separated, e.g. Steel, Aluminum)" value={formData.materialsSupplied} onChange={handleChange} rows="2" style={{ width: '100%', padding: '12px 12px 12px 48px', border: '1px solid var(--border)', borderRadius: '0px', background: 'var(--bg-input)', color: 'var(--text-primary)' }}></textarea>
                         </div>
                         <div className="input-group">
                             <Building2 size={20} className="input-icon" />

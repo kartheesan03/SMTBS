@@ -11,7 +11,7 @@ import ExcelJS from 'exceljs';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import PageHeader from '../components/PageHeader';
-import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
+import { StatCard, StatGrid } from '../components/ui/StatCard';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 
 const HRReports = () => {
@@ -334,7 +334,7 @@ const HRReports = () => {
                             </>
                         )}
                     </button>
-                    <button className="btn-secondary-light flex-center" onClick={fetchHRStats} title="Sync Live Data" style={{ padding: '8px', borderRadius: '8px' }}>
+                    <button className="btn-secondary-light flex-center" onClick={fetchHRStats} title="Sync Live Data" style={{ padding: '8px', borderRadius: '0px' }}>
                         <RefreshCw size={16} className={loading ? 'spin-icon' : ''} />
                     </button>
                 </div>
@@ -342,8 +342,8 @@ const HRReports = () => {
 
             {/* KPI Row — Pastel style matching Training page */}
             <div style={{ marginBottom: 24 }}>
-                <PastelKPIGrid>
-                    <PastelKPICard
+                <StatGrid>
+                    <StatCard
                         title="Total Active Staff"
                         value={loading ? '…' : liveKPIs.totalEmployees}
                         colorTheme="blue"
@@ -351,7 +351,7 @@ const HRReports = () => {
                         trendValue="Live Headcount"
                         trendPositive={true}
                     />
-                    <PastelKPICard
+                    <StatCard
                         title="Attendance Rate"
                         value={loading ? '…' : liveKPIs.attendanceRate}
                         colorTheme="mint"
@@ -359,7 +359,7 @@ const HRReports = () => {
                         trendValue="Weekly Average"
                         trendPositive={true}
                     />
-                    <PastelKPICard
+                    <StatCard
                         title="Active Absences"
                         value={loading ? '…' : liveKPIs.onLeave}
                         colorTheme="yellow"
@@ -367,7 +367,7 @@ const HRReports = () => {
                         trendValue="Approved Leaves"
                         trendPositive={false}
                     />
-                    <PastelKPICard
+                    <StatCard
                         title="Monthly Hires"
                         value={loading ? '…' : `+${liveKPIs.newJoiners}`}
                         colorTheme="pink"
@@ -375,7 +375,7 @@ const HRReports = () => {
                         trendValue="New Personnel"
                         trendPositive={true}
                     />
-                </PastelKPIGrid>
+                </StatGrid>
             </div>
 
             <section className="reports-grid-section">

@@ -60,10 +60,10 @@ const StatusBadge = ({ status }) => {
     return (
         <span style={{
             display: 'inline-flex', alignItems: 'center', gap: 5,
-            padding: '4px 12px', borderRadius: 20,
+            padding: '4px 12px', borderRadius: 0,
             background: s.bg, color: s.color, fontSize: 12, fontWeight: 700
         }}>
-            <span style={{ width: 7, height: 7, borderRadius: '50%', background: s.dot, flexShrink: 0 }} />
+            <span style={{ width: 7, height: 7, borderRadius: '0px', background: s.dot, flexShrink: 0 }} />
             {status === '-' ? 'Not Checked In' : status}
         </span>
     );
@@ -80,7 +80,7 @@ const TodayCard = ({ status, timer, onCheckIn, onCheckOut, busy }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
             style={{
-                background: '#1E293B', borderRadius: 16, padding: '24px 28px',
+                background: '#1E293B', borderRadius: 0, padding: '24px 28px',
                 color: '#fff', position: 'relative', overflow: 'hidden',
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                 flexWrap: 'wrap', gap: 20, marginBottom: 24,
@@ -89,7 +89,7 @@ const TodayCard = ({ status, timer, onCheckIn, onCheckOut, busy }) => {
         >
             <div style={{ position:'relative', zIndex:1 }}>
                 <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:8 }}>
-                    <div style={{ width:32, height:32, borderRadius:8, background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                    <div style={{ width:32, height:32, borderRadius: 0, background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', display:'flex', alignItems:'center', justifyContent:'center' }}>
                         <Timer size={16} />
                     </div>
                     <span style={{ fontSize:13, fontWeight:600, opacity:0.8, textTransform:'uppercase', letterSpacing:0.5 }}>
@@ -97,7 +97,7 @@ const TodayCard = ({ status, timer, onCheckIn, onCheckOut, busy }) => {
                     </span>
                     {isActive && (
                         <span style={{ display:'inline-flex', alignItems:'center', gap:6, padding:'4px 10px', fontSize:11, fontWeight:600, color:'#EF4444', background:'transparent' }}>
-                            <span style={{ width:6, height:6, borderRadius:'50%', background:'#EF4444', boxShadow:'0 0 0 2px rgba(239,68,68,0.2)' }} /> LIVE
+                            <span style={{ width:6, height:6, borderRadius: '0px', background:'#EF4444', boxShadow:'0 0 0 2px rgba(239,68,68,0.2)' }} /> LIVE
                         </span>
                     )}
                 </div>
@@ -122,7 +122,7 @@ const TodayCard = ({ status, timer, onCheckIn, onCheckOut, busy }) => {
             <div style={{ position:'relative', zIndex:1 }}>
                 {!status?.checkIn ? (
                     <button onClick={onCheckIn} disabled={busy} style={{
-                        display:'flex', alignItems:'center', gap:8, padding:'10px 20px', borderRadius:10,
+                        display:'flex', alignItems:'center', gap:8, padding:'10px 20px', borderRadius: 0,
                         border:'1px solid transparent', background:'#F1F3F5', color:'#0F172A', fontWeight:600, fontSize:13,
                         cursor: busy ? 'not-allowed' : 'pointer', opacity: busy ? 0.7 : 1, transition:'all 0.2s ease'
                     }}>
@@ -130,14 +130,14 @@ const TodayCard = ({ status, timer, onCheckIn, onCheckOut, busy }) => {
                     </button>
                 ) : !status?.checkOut ? (
                     <button onClick={onCheckOut} disabled={busy} style={{
-                        display:'flex', alignItems:'center', gap:8, padding:'10px 20px', borderRadius:10,
+                        display:'flex', alignItems:'center', gap:8, padding:'10px 20px', borderRadius: 0,
                         border:'1px solid rgba(255,255,255,0.15)', background:'rgba(255,255,255,0.05)', color:'rgba(255,255,255,0.9)', fontWeight:600, fontSize:13,
                         cursor: busy ? 'not-allowed' : 'pointer', opacity: busy ? 0.7 : 1, transition:'all 0.2s ease'
                     }}>
-                        <span style={{ width:6, height:6, borderRadius:'50%', background:'#EF4444' }} /> {busy ? 'Processing…' : 'Check Out'}
+                        <span style={{ width:6, height:6, borderRadius: '0px', background:'#EF4444' }} /> {busy ? 'Processing…' : 'Check Out'}
                     </button>
                 ) : (
-                    <div style={{ display:'flex', alignItems:'center', gap:8, padding:'10px 20px', borderRadius:10, background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', fontWeight:600, fontSize:13 }}>
+                    <div style={{ display:'flex', alignItems:'center', gap:8, padding:'10px 20px', borderRadius: 0, background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', fontWeight:600, fontSize:13 }}>
                         <CheckCircle size={15} /> Shift Done!
                     </div>
                 )}
@@ -181,7 +181,7 @@ const AttendanceTable = ({ rows, showDate = true }) => {
                                 {showDate && (
                                     <td style={TD}>
                                         <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-                                            {isToday && <span style={{ background:'#3b82f6', color:'#fff', fontSize:9, fontWeight:800, padding:'2px 7px', borderRadius:20 }}>TODAY</span>}
+                                            {isToday && <span style={{ background:'#3b82f6', color:'#fff', fontSize:9, fontWeight:800, padding:'2px 7px', borderRadius: 0 }}>TODAY</span>}
                                             <span style={{ fontWeight:isToday?700:500, color:isToday?'#1e40af':'#374151' }}>
                                                 {fmtDate(r.date)}
                                             </span>
@@ -250,7 +250,7 @@ const MonthlyTable = ({ rows, todayStr }) => {
                             >
                                 <td style={TD}>
                                     <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-                                        {isToday && <span style={{ background:'#3b82f6', color:'#fff', fontSize:9, fontWeight:800, padding:'2px 7px', borderRadius:20 }}>TODAY</span>}
+                                        {isToday && <span style={{ background:'#3b82f6', color:'#fff', fontSize:9, fontWeight:800, padding:'2px 7px', borderRadius: 0 }}>TODAY</span>}
                                         <span style={{ fontWeight:isToday?700:600, color:isToday?'#1e40af':isSun?'#94a3b8':'#374151' }}>
                                             {fmtDate(r.date)}
                                         </span>
@@ -276,8 +276,8 @@ const MonthlyTable = ({ rows, todayStr }) => {
                                 </td>
                                 <td style={TD}>
                                     {isSun || noRecord ? (
-                                        <span style={{ display:'inline-flex', alignItems:'center', gap:5, padding:'4px 12px', borderRadius:20, background:meta.bg, color:meta.color, fontSize:12, fontWeight:600 }}>
-                                            <span style={{ width:7, height:7, borderRadius:'50%', background:meta.dot }} />
+                                        <span style={{ display:'inline-flex', alignItems:'center', gap:5, padding:'4px 12px', borderRadius: 0, background:meta.bg, color:meta.color, fontSize:12, fontWeight:600 }}>
+                                            <span style={{ width:7, height:7, borderRadius: '0px', background:meta.dot }} />
                                             {r.status}
                                         </span>
                                     ) : (
@@ -310,7 +310,7 @@ const DailyTab = ({ myHistory }) => {
             {/* Navigator */}
             <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:20 }}>
                 <button onClick={() => goDay(-1)} style={NAV_BTN}><ChevronLeft size={15} /></button>
-                <div style={{ display:'flex', alignItems:'center', gap:8, border:'1px solid #e2e8f0', borderRadius:10, padding:'8px 14px', background:'#f8fafc' }}>
+                <div style={{ display:'flex', alignItems:'center', gap:8, border:'1px solid #e2e8f0', borderRadius: 0, padding:'8px 14px', background:'#f8fafc' }}>
                     <Calendar size={15} color="#3b82f6" />
                     <input type="date" value={selDate} max={new Date().toISOString().split('T')[0]}
                         onChange={e => setSelDate(e.target.value)}
@@ -347,8 +347,8 @@ const DailyTab = ({ myHistory }) => {
         </div>
     );
 };
-const NAV_BTN = { width:34, height:34, border:'1px solid #e2e8f0', borderRadius:8, background:'#f8fafc', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', color:'#64748b', flexShrink:0 };
-const CARD = { background:'#fff', border:'1px solid #f1f5f9', borderRadius:14, overflow:'hidden', boxShadow:'0 1px 4px rgba(0,0,0,0.05)' };
+const NAV_BTN = { width:34, height:34, border:'1px solid #e2e8f0', borderRadius: 0, background:'#f8fafc', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', color:'#64748b', flexShrink:0 };
+const CARD = { background:'#fff', border:'1px solid #f1f5f9', borderRadius: 0, overflow:'hidden', boxShadow:'0 1px 4px rgba(0,0,0,0.05)' };
 
 /* ─────────────────────────── Monthly Tab ───────────────────────── */
 const MonthlyTab = ({ myHistory }) => {
@@ -455,7 +455,7 @@ const MonthlyTab = ({ myHistory }) => {
                         <ChevronRight size={15} />
                     </button>
                 </div>
-                <button onClick={exportCSV} style={{ display:'flex',alignItems:'center',gap:6,padding:'8px 16px',border:'none',borderRadius:8,background:'#3b82f6',color:'#fff',fontSize:13,fontWeight:600,cursor:'pointer' }}>
+                <button onClick={exportCSV} style={{ display:'flex',alignItems:'center',gap:6,padding:'8px 16px',border:'none',borderRadius: 0,background:'#3b82f6',color:'#fff',fontSize:13,fontWeight:600,cursor:'pointer' }}>
                     <Download size={14} /> Export CSV
                 </button>
             </div>
@@ -469,7 +469,7 @@ const MonthlyTab = ({ myHistory }) => {
                     { label:'Total Hours', val:`${totalHrs.toFixed(1)}h`, color:'#8b5cf6', bg:'#f5f3ff' },
                     { label:'Attendance %', val:`${pct}%`, color:pctColor, bg:`${pctColor}18` },
                 ].map(k=>(
-                    <div key={k.label} style={{ background:'#fff', border:'1px solid #f1f5f9', borderRadius:12, padding:'14px 18px', boxShadow:'0 1px 3px rgba(0,0,0,0.04)' }}>
+                    <div key={k.label} style={{ background:'#fff', border:'1px solid #f1f5f9', borderRadius: 0, padding:'14px 18px', boxShadow:'0 1px 3px rgba(0,0,0,0.04)' }}>
                         <p style={{ margin:'0 0 4px', fontSize:11, fontWeight:700, color:'#64748b', textTransform:'uppercase', letterSpacing:0.5 }}>{k.label}</p>
                         <p style={{ margin:0, fontSize:22, fontWeight:900, color:k.color }}>{k.val}</p>
                     </div>
@@ -493,7 +493,7 @@ const MonthlyTab = ({ myHistory }) => {
                             </defs>
                             <XAxis dataKey="d" stroke="#94a3b8" fontSize={10} axisLine={false} tickLine={false} dy={6} interval={1} />
                             <YAxis stroke="#94a3b8" fontSize={10} axisLine={false} tickLine={false} unit="h" />
-                            <Tooltip formatter={v=>[`${v}h`,'Hours']} contentStyle={{borderRadius:8,border:'1px solid #e2e8f0',fontSize:12}} />
+                            <Tooltip formatter={v=>[`${v}h`,'Hours']} contentStyle={{borderRadius: 0,border:'1px solid #e2e8f0',fontSize:12}} />
                             <Area type="monotone" dataKey="h" stroke="#6366f1" strokeWidth={2.5} fill="url(#hGrad)" dot={{r:2.5,fill:'#6366f1'}} />
                         </AreaChart>
                     </ResponsiveContainer>
@@ -506,11 +506,11 @@ const MonthlyTab = ({ myHistory }) => {
                     <div style={{ display:'flex', alignItems:'center', gap:8 }}>
                         <Calendar size={15} color="#3b82f6" />
                         <h3 style={{ margin:0, fontSize:14, fontWeight:700, color:'#1e293b' }}>Monthly Records</h3>
-                        <span style={{ background:'#f1f5f9', color:'#64748b', fontSize:12, fontWeight:600, padding:'2px 8px', borderRadius:20 }}>
+                        <span style={{ background:'#f1f5f9', color:'#64748b', fontSize:12, fontWeight:600, padding:'2px 8px', borderRadius: 0 }}>
                             {limitDay} days
                         </span>
                     </div>
-                    <div style={{ display:'flex', alignItems:'center', gap:8, border:'1px solid #e2e8f0', borderRadius:8, padding:'6px 12px', background:'#f8fafc' }}>
+                    <div style={{ display:'flex', alignItems:'center', gap:8, border:'1px solid #e2e8f0', borderRadius: 0, padding:'6px 12px', background:'#f8fafc' }}>
                         <Search size={13} color="#94a3b8" />
                         <input placeholder="Search..." value={search} onChange={e=>setSearch(e.target.value)}
                             style={{ border:'none', background:'transparent', outline:'none', fontSize:13, color:'#1e293b', width:200 }} />
@@ -622,7 +622,7 @@ const Attendance = () => {
 
     if (loading) return (
         <div style={{ display:'flex', alignItems:'center', justifyContent:'center', height:'60vh', flexDirection:'column', gap:14 }}>
-            <div style={{ width:36, height:36, border:'3px solid #e2e8f0', borderTopColor:'#3b82f6', borderRadius:'50%', animation:'spin 0.8s linear infinite' }} />
+            <div style={{ width:36, height:36, border:'3px solid #e2e8f0', borderTopColor:'#3b82f6', borderRadius: '0px', animation:'spin 0.8s linear infinite' }} />
             <p style={{ color:'#64748b', fontSize:14, margin:0 }}>Loading your attendance…</p>
             <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
         </div>
@@ -666,11 +666,11 @@ const Attendance = () => {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.1 + (idx * 0.1) }}
-                            style={{ background:k.bg, border:`1px solid ${k.border}`, borderRadius:20, padding:'24px', display:'flex', flexDirection:'column', gap:12, boxShadow:'none' }}
+                            style={{ background:k.bg, border:`1px solid ${k.border}`, borderRadius: 0, padding:'24px', display:'flex', flexDirection:'column', gap:12, boxShadow:'none' }}
                         >
                             <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
                                 <p style={{ margin:0, fontSize:11, fontWeight:700, color:k.color, textTransform:'uppercase', letterSpacing:0.5 }}>{k.label}</p>
-                                <div style={{ width:32, height:32, borderRadius:8, background:k.iconBg, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                                <div style={{ width:32, height:32, borderRadius: 0, background:k.iconBg, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
                                     <k.icon size={16} color={k.color} strokeWidth={2.5} />
                                 </div>
                             </div>
@@ -687,10 +687,10 @@ const Attendance = () => {
                 <TodayCard status={status} timer={timer} onCheckIn={handleCheckIn} onCheckOut={handleCheckOut} busy={busy} />
 
                 {/* Tabs */}
-                <div style={{ display:'flex', gap:4, background:'#f1f5f9', borderRadius:10, padding:4, width:'fit-content', marginBottom:22 }}>
+                <div style={{ display:'flex', gap:4, background:'#f1f5f9', borderRadius: 0, padding:4, width:'fit-content', marginBottom:22 }}>
                     {tabs.map(t=>(
                         <button key={t.id} onClick={()=>setActiveTab(t.id)} style={{
-                            display:'flex', alignItems:'center', gap:7, padding:'8px 20px', borderRadius:8, border:'none', cursor:'pointer',
+                            display:'flex', alignItems:'center', gap:7, padding:'8px 20px', borderRadius: 0, border:'none', cursor:'pointer',
                             background: activeTab===t.id?'#fff':'transparent',
                             color: activeTab===t.id?'#1e293b':'#64748b',
                             fontWeight: activeTab===t.id?700:500, fontSize:13,

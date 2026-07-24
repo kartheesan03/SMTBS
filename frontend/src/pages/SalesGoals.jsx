@@ -19,12 +19,12 @@ const ProgressBar = ({ pct, label, status }) => {
                 <span style={{ color: '#475569' }}>{label}</span>
                 <span style={{ color }}>{pct}%</span>
             </div>
-            <div style={{ width: '100%', height: '8px', background: '#e2e8f0', borderRadius: '4px', overflow: 'hidden' }}>
+            <div style={{ width: '100%', height: '8px', background: '#e2e8f0', borderRadius: '0px', overflow: 'hidden' }}>
                 <motion.div 
                     initial={{ width: 0 }}
                     animate={{ width: `${pct}%` }}
                     transition={{ duration: 1, ease: "easeOut" }}
-                    style={{ height: '100%', background: color, borderRadius: '4px' }}
+                    style={{ height: '100%', background: color, borderRadius: '0px' }}
                 />
             </div>
         </div>
@@ -75,7 +75,7 @@ const CreateGoalModal = ({ onClose, onSuccess }) => {
             <motion.div 
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                style={{ background: '#fff', padding: '32px', borderRadius: '16px', width: '100%', maxWidth: '500px', boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}
+                style={{ background: '#fff', padding: '32px', borderRadius: '0px', width: '100%', maxWidth: '500px', boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}
             >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
                     <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 700, color: '#0f172a' }}>Create Sales Goal</h2>
@@ -199,7 +199,7 @@ const SalesGoals = () => {
                 {loading ? (
                     <div style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>Loading goals...</div>
                 ) : goals.length === 0 ? (
-                    <div style={{ padding: '60px 20px', textAlign: 'center', background: '#fff', borderRadius: '16px', border: '1px dashed #cbd5e1' }}>
+                    <div style={{ padding: '60px 20px', textAlign: 'center', background: '#fff', borderRadius: '0px', border: '1px dashed #cbd5e1' }}>
                         <Target size={48} color="#94a3b8" style={{ marginBottom: '16px' }} />
                         <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', color: '#0f172a' }}>No active goals</h3>
                         <p style={{ margin: 0, color: '#64748b' }}>Get started by creating a new sales target for your team.</p>
@@ -231,7 +231,7 @@ const SalesGoals = () => {
                                     </div>
                                     <span style={{ 
                                         padding: '4px 10px', 
-                                        borderRadius: '20px', 
+                                        borderRadius: '0px', 
                                         fontSize: '11px', 
                                         fontWeight: 700, 
                                         textTransform: 'uppercase',
@@ -242,7 +242,7 @@ const SalesGoals = () => {
                                     </span>
                                 </div>
 
-                                <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '16px' }}>
+                                <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '0px', border: '1px solid #e2e8f0', marginBottom: '16px' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '4px' }}>
                                         <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 600 }}>Revenue Target</span>
                                         <span style={{ fontSize: '15px', color: '#0f172a', fontWeight: 700 }}>{formatCurrency(goal.targetAmount)}</span>

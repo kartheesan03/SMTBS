@@ -4,7 +4,7 @@ import { Search, Briefcase, CreditCard, User, FileText, Play, CheckCircle , Doll
 import { motion } from 'framer-motion';
 import API from '../api/axios';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
-import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
+import { StatCard, StatGrid } from '../components/ui/StatCard';
 import { formatCurrency } from '../utils/currency';
 
 const Payroll = () => {
@@ -42,9 +42,9 @@ const Payroll = () => {
     
 
     const getStatusBadge = (status) => {
-        if (status === 'Paid') return <span className="ui-badge success"><div style={{width: 6, height: 6, borderRadius: '50%', background: '#059669'}}></div>Paid</span>;
-        if (status === 'Approved') return <span className="ui-badge info"><div style={{width: 6, height: 6, borderRadius: '50%', background: '#2563EB'}}></div>Approved</span>;
-        if (status === 'Awaiting Approval') return <span className="ui-badge warning"><div style={{width: 6, height: 6, borderRadius: '50%', background: '#D97706'}}></div>Pending</span>;
+        if (status === 'Paid') return <span className="ui-badge success"><div style={{width: 6, height: 6, borderRadius: '0px', background: '#059669'}}></div>Paid</span>;
+        if (status === 'Approved') return <span className="ui-badge info"><div style={{width: 6, height: 6, borderRadius: '0px', background: '#2563EB'}}></div>Approved</span>;
+        if (status === 'Awaiting Approval') return <span className="ui-badge warning"><div style={{width: 6, height: 6, borderRadius: '0px', background: '#D97706'}}></div>Pending</span>;
         return <span className="ui-badge default">{status}</span>;
     };
 
@@ -104,12 +104,12 @@ const Payroll = () => {
                 </div>
 
                 {/* KPI Cards */}
-                <PastelKPIGrid>
-                    <PastelKPICard title="Gross Payroll" value={formatCurrency(totalGross, 'short')} colorTheme="blue" icon={Briefcase} trendValue="Total payout" trendPositive={true} />
-                    <PastelKPICard title="Net Payroll" value={formatCurrency(totalNet, 'short')} colorTheme="mint" icon={CreditCard} trendValue="After deductions" trendPositive={true} />
-                    <PastelKPICard title="Provident Fund" value={formatCurrency(totalPF, 'short')} colorTheme="purple" icon={DollarSign} trendValue="12% PF" trendPositive={true} />
-                    <PastelKPICard title="Tax & Deductions" value={formatCurrency(totalTax > 0 ? totalTax : 0, 'short')} colorTheme="peach" icon={FileText} trendValue="Other deductions" trendPositive={false} />
-                </PastelKPIGrid>
+                <StatGrid>
+                    <StatCard title="Gross Payroll" value={formatCurrency(totalGross, 'short')} colorTheme="blue" icon={Briefcase} trendValue="Total payout" trendPositive={true} />
+                    <StatCard title="Net Payroll" value={formatCurrency(totalNet, 'short')} colorTheme="mint" icon={CreditCard} trendValue="After deductions" trendPositive={true} />
+                    <StatCard title="Provident Fund" value={formatCurrency(totalPF, 'short')} colorTheme="purple" icon={DollarSign} trendValue="12% PF" trendPositive={true} />
+                    <StatCard title="Tax & Deductions" value={formatCurrency(totalTax > 0 ? totalTax : 0, 'short')} colorTheme="peach" icon={FileText} trendValue="Other deductions" trendPositive={false} />
+                </StatGrid>
 
                 {/* Table Section */}
                 <motion.div 
@@ -133,14 +133,14 @@ const Payroll = () => {
                             <select
                                 value={monthFilter}
                                 onChange={(e) => setMonthFilter(e.target.value)}
-                                style={{padding: '8px 16px', border: '1px solid #e2e8f0', borderRadius: 8, outline: 'none', background: '#fff', color: '#64748b', fontSize: 14}}
+                                style={{padding: '8px 16px', border: '1px solid #e2e8f0', borderRadius: 0, outline: 'none', background: '#fff', color: '#64748b', fontSize: 14}}
                             >
                                 {months.map(m => <option key={m} value={m}>{m === 'All' ? 'All Months' : m}</option>)}
                             </select>
                             <select
                                 value={deptFilter}
                                 onChange={(e) => setDeptFilter(e.target.value)}
-                                style={{padding: '8px 16px', border: '1px solid #e2e8f0', borderRadius: 8, outline: 'none', background: '#fff', color: '#64748b', fontSize: 14}}
+                                style={{padding: '8px 16px', border: '1px solid #e2e8f0', borderRadius: 0, outline: 'none', background: '#fff', color: '#64748b', fontSize: 14}}
                             >
                                 {departments.map(d => <option key={d} value={d}>{d === 'All' ? 'All Depts' : d}</option>)}
                             </select>
@@ -203,7 +203,7 @@ const Payroll = () => {
                                                 </div>
                                             </td>
                                             <td>
-                                                <span style={{background: '#eff6ff', color: '#3b82f6', padding: '4px 10px', borderRadius: 6, fontSize: 12, fontWeight: 600}}>
+                                                <span style={{background: '#eff6ff', color: '#3b82f6', padding: '4px 10px', borderRadius: 0, fontSize: 12, fontWeight: 600}}>
                                                     {emp.department || '—'}
                                                 </span>
                                             </td>

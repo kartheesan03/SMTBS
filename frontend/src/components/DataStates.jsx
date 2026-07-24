@@ -15,7 +15,7 @@ export const EmptyState = ({ icon: Icon = Database, title = "No Data Available",
         animate={{ opacity: 1 }} 
         style={{ height, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px', textAlign: 'center' }}
     >
-        <div style={{ width: 48, height: 48, borderRadius: '50%', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12, color: '#94a3b8' }}>
+        <div style={{ width: 48, height: 48, borderRadius: '0px', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12, color: '#94a3b8' }}>
             <Icon size={24} />
         </div>
         <h4 style={{ margin: '0 0 4px 0', fontSize: '15px', color: '#334155', fontWeight: 600 }}>{title}</h4>
@@ -26,12 +26,12 @@ export const EmptyState = ({ icon: Icon = Database, title = "No Data Available",
 
 export const ErrorState = ({ message = "Failed to load data", onRetry, height = 200 }) => (
     <div style={{ height, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px', textAlign: 'center' }}>
-        <div style={{ width: 48, height: 48, borderRadius: '50%', background: '#fef2f2', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12, color: '#ef4444' }}>
+        <div style={{ width: 48, height: 48, borderRadius: '0px', background: '#fef2f2', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12, color: '#ef4444' }}>
             <AlertCircle size={24} />
         </div>
         <p style={{ margin: '0 0 12px 0', fontSize: '14px', color: '#ef4444' }}>{message}</p>
         {onRetry && (
-            <button onClick={onRetry} style={{ background: '#ef4444', color: '#fff', border: 'none', padding: '6px 14px', borderRadius: 6, fontSize: 13, cursor: 'pointer', fontWeight: 500 }}>
+            <button onClick={onRetry} style={{ background: '#ef4444', color: '#fff', border: 'none', padding: '6px 14px', borderRadius: 0, fontSize: 13, cursor: 'pointer', fontWeight: 500 }}>
                 Retry
             </button>
         )}

@@ -12,7 +12,7 @@ import { AreaChart, Area, PieChart, Pie, Cell, ResponsiveContainer, XAxis, YAxis
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 import PageHeader from '../components/PageHeader';
 import CommandCenter from '../components/CommandCenter';
-import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
+import { StatCard, StatGrid } from '../components/ui/StatCard';
 import { SparklineKPICard, IconQuickAction, MiniStatCard, InvRow } from './AdminDashboard';
 
 const SalesDashboard = () => {
@@ -159,68 +159,49 @@ const SalesDashboard = () => {
             <div className="rd-content">
 
                 {/* ── 1. Hero Banner ── */}
-                <div className="rd-hero">
-                    <div className="rd-hero-left">
-                        <div className="rd-hero-avatar-wrapper">
-                            <img src={user?.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'Sales')}&background=DC2626&color=fff`} alt="Profile" className="rd-hero-avatar" />
-                            <div className="rd-hero-status-dot"></div>
-                        </div>
-                        <div>
-                            <div className="rd-hero-greeting">
-                                {getGreeting()}, {user?.name?.split(' ')[0] || 'Sales Lead'}
-                            </div>
-                            <div className="rd-hero-subtitle">
-                                {new Date().toLocaleDateString('en-IN', {weekday:'long', day:'numeric', month:'long', year:'numeric'})} &nbsp;·&nbsp; Sales Pipeline Overview
-                            </div>
-                            <div className="rd-hero-badges">
-                                <span className="rd-hero-badge badge-neutral">
-                                    <Target size={14} /> {formatINR(totalRevenue)} Revenue
-                                </span>
-                                <span className="rd-hero-badge badge-status">
-                                    <div className="status-dot-inline"></div> {activeLeads} Active Leads
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="rd-hero-right">
-                        <div className="rd-hero-visual">
+                <WelcomeBanner 
+                    user={user}
+                    greeting={`${getGreeting()}`}
+                    subtitle={`${new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} · Sales Pipeline Overview`}
+                    badges={[
+                        { icon: Target, text: `${formatINR(totalRevenue)} Revenue`, type: 'neutral' },
+                        { type: 'status', text: `${activeLeads} Active Leads` }
+                    ]}
+                    rightVisuals={
+                        <>
                             <div className="rd-visual-card">
-                                <div className="rd-vc-label">Conversion</div>
-                                <div className="rd-vc-value">{conversionRate}%</div>
-                                <div className="rd-vc-chart"></div>
-                            </div>
-                            <div className="rd-visual-card">
-                                <div className="rd-vc-label">Activity</div>
-                                <div className="rd-vc-bars">
-                                    <div className="rd-vc-bar" style={{height: '20%'}}></div>
-                                    <div className="rd-vc-bar" style={{height: '80%'}}></div>
-                                    <div className="rd-vc-bar" style={{height: '60%'}}></div>
-                                    <div className="rd-vc-bar" style={{height: '100%'}}></div>
-                                    <div className="rd-vc-bar" style={{height: '40%'}}></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="rd-hero-actions-col">
-                            <button className="hero-action-btn primary" onClick={() => navigate('/leave-management/history')}>
-                                <CheckCircle size={15} /> Apply Leave
-                            </button>
-                            <button className="hero-action-btn secondary" onClick={() => navigate('/attendance')}>
-                                <Clock size={15} /> Check In
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                                                            <div className="rd-vc-label">Conversion</div>
+                                                            <div className="rd-vc-value">{conversionRate}%</div>
+                                                            <div className="rd-vc-chart"></div>
+                                                        </div>
+                                                        <div className="rd-visual-card">
+                                                            <div className="rd-vc-label">Activity</div>
+                                                            <div className="rd-vc-bars">
+                                                                <div className="rd-vc-bar" style={{height: '20%'}}></div>
+                                                                <div className="rd-vc-bar" style={{height: '80%'}}></div>
+                                                                <div className="rd-vc-bar" style={{height: '60%'}}></div>
+                                                                <div className="rd-vc-bar" style={{height: '100%'}}></div>
+                                                                <div className="rd-vc-bar" style={{height: '40%'}}></div>
+                                                            </div>
+                                                        </div>
+                        </>
+                    }
+                    actions={[
+                        { label: 'Apply Leave', icon: CheckCircle, variant: 'primary', onClick: () => navigate('/leave-management/history') },
+                        { label: 'Check In', icon: Clock, variant: 'secondary', onClick: () => navigate('/attendance') }
+                    ]}
+                />
 
 
                 {/* ── 2. KPI Row (6 columns) ── */}
-                <PastelKPIGrid columns={6}>
-                    <PastelKPICard title="Total Revenue" value={formatINR(totalRevenue)} colorTheme="blue" icon={DollarSign} trendValue="This month" trendPositive={true} />
-                    <PastelKPICard title="Active Leads" value={activeLeads} colorTheme="purple" icon={Target} trendValue="In pipeline" trendPositive={true} />
-                    <PastelKPICard title="Conversion Rate" value={`${conversionRate}%`} colorTheme="mint" icon={TrendingUp} trendValue="Lead to deal" trendPositive={true} />
-                    <PastelKPICard title="Total Customers" value={totalCustomers} colorTheme="yellow" icon={Users} trendValue="Active" trendPositive={true} />
-                    <PastelKPICard title="Sales Meetings" value={meetings} colorTheme="peach" icon={CheckCircle} trendValue="Scheduled" trendPositive={true} />
-                    <PastelKPICard title="Total Orders" value={totalOrders} colorTheme="pink" icon={ShoppingCart} trendValue="Completed" trendPositive={true} />
-                </PastelKPIGrid>
+                <StatGrid columns={6}>
+                    <StatCard title="Total Revenue" value={formatINR(totalRevenue)} colorTheme="blue" icon={DollarSign} trendValue="This month" trendPositive={true} />
+                    <StatCard title="Active Leads" value={activeLeads} colorTheme="purple" icon={Target} trendValue="In pipeline" trendPositive={true} />
+                    <StatCard title="Conversion Rate" value={`${conversionRate}%`} colorTheme="mint" icon={TrendingUp} trendValue="Lead to deal" trendPositive={true} />
+                    <StatCard title="Total Customers" value={totalCustomers} colorTheme="yellow" icon={Users} trendValue="Active" trendPositive={true} />
+                    <StatCard title="Sales Meetings" value={meetings} colorTheme="peach" icon={CheckCircle} trendValue="Scheduled" trendPositive={true} />
+                    <StatCard title="Total Orders" value={totalOrders} colorTheme="pink" icon={ShoppingCart} trendValue="Completed" trendPositive={true} />
+                </StatGrid>
 
                 {/* ── 3. Middle Row (Quick Actions + Mini Stats) ── */}
                 <div className="rd-middle-row">
@@ -306,7 +287,7 @@ const SalesDashboard = () => {
                                     <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false}/>
                                     <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 11, fill: '#94a3b8'}} dy={8}/>
                                     <YAxis axisLine={false} tickLine={false} tick={{fontSize: 11, fill: '#94a3b8'}} width={35} tickFormatter={(val) => val >= 1000 ? `${(val/1000).toFixed(0)}k` : val}/>
-                                    <Tooltip contentStyle={{fontSize: 12, borderRadius: 10, border: '1px solid #e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.08)'}} />
+                                    <Tooltip contentStyle={{fontSize: 12, borderRadius: 0, border: '1px solid #e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.08)'}} />
                                     <Legend iconType="circle" wrapperStyle={{fontSize: '12px'}} verticalAlign="top" height={36} />
                                     <Area
                                         type="monotone"
@@ -368,7 +349,7 @@ const SalesDashboard = () => {
                                 {(dashboardData?.charts?.crmDonut || []).map((entry, idx) => (
                                     <div key={idx} style={{display:'flex', alignItems:'center', justifyContent:'space-between', fontSize: 11}}>
                                         <span style={{display:'flex', alignItems:'center', gap:5, color:'#475569'}}>
-                                            <div style={{width:8,height:8,borderRadius:'50%',background:entry.color || '#3b82f6'}}></div>{entry.name}
+                                            <div style={{width:8,height:8,borderRadius: '0px',background:entry.color || '#3b82f6'}}></div>{entry.name}
                                         </span>
                                         <strong style={{color:'#0f172a'}}>{entry.value}</strong>
                                     </div>
@@ -431,7 +412,7 @@ const SalesDashboard = () => {
                                             {(lead.value || lead.dealValue) ? (
                                                 <span style={{ fontSize: 12, fontWeight: 700, color: '#0f172a' }}>{formatINR(lead.value || lead.dealValue)}</span>
                                             ) : null}
-                                            <span style={{ fontSize: 10, fontWeight: 600, padding: '2px 7px', borderRadius: 99, background: sc.bg, color: sc.color }}>{lead.status}</span>
+                                            <span style={{ fontSize: 10, fontWeight: 600, padding: '2px 7px', borderRadius: 0, background: sc.bg, color: sc.color }}>{lead.status}</span>
                                         </div>
                                     </div>
                                 );
@@ -506,7 +487,7 @@ const SalesDashboard = () => {
                             <div style={{ width: '100%', fontSize: 10, display:'grid', gridTemplateColumns:'1fr 1fr', gap:4 }}>
                                 {(dashboardData?.charts?.erpDonut || []).map((entry, idx) => (
                                     <div key={idx} style={{display:'flex', alignItems:'center', gap:4}}>
-                                        <div style={{width:8,height:8,borderRadius:'50%',background:entry.color || '#3b82f6'}}></div> 
+                                        <div style={{width:8,height:8,borderRadius: '0px',background:entry.color || '#3b82f6'}}></div> 
                                         <span><b>{entry.value}</b> {entry.name}</span>
                                     </div>
                                 ))}

@@ -5,7 +5,7 @@ import LocationTag from '../components/LocationTag';
 import API from '../api/axios';
 import { toast } from 'react-hot-toast';
 import { DataTable } from '../components/ui';
-import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
+import { StatCard, StatGrid } from '../components/ui/StatCard';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
@@ -36,11 +36,11 @@ const GpsStatusBadge = ({ status }) => {
     const cfg = GPS_STATUS_CONFIG[status] || { color: '#94a3b8', bg: '#f1f5f9', label: status || '—' };
     return (
         <span style={{
-            fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 99,
+            fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 0,
             color: cfg.color, background: cfg.bg, display: 'inline-flex', alignItems: 'center', gap: 4,
             whiteSpace: 'nowrap'
         }}>
-            <span style={{ width: 6, height: 6, borderRadius: '50%', background: cfg.color, flexShrink: 0 }} />
+            <span style={{ width: 6, height: 6, borderRadius: '0px', background: cfg.color, flexShrink: 0 }} />
             {cfg.label}
         </span>
     );
@@ -113,7 +113,7 @@ const Materials = () => {
             key: 'category',
             label: 'CATEGORY',
             sortable: true,
-            render: (val) => <span style={{ padding: '4px 10px', fontSize: 12, fontWeight: 600, background: '#eff6ff', color: '#3b82f6', border: '1px solid #bfdbfe', borderRadius: 99, display: 'inline-block' }}>{val || '—'}</span>
+            render: (val) => <span style={{ padding: '4px 10px', fontSize: 12, fontWeight: 600, background: '#eff6ff', color: '#3b82f6', border: '1px solid #bfdbfe', borderRadius: 0, display: 'inline-block' }}>{val || '—'}</span>
         },
         {
             key: 'quantity',
@@ -150,7 +150,7 @@ const Materials = () => {
                 let bg = '#ecfdf5', color = '#10b981', border = '#a7f3d0';
                 if (status === 'Low Stock') { bg = '#fffbeb'; color = '#f59e0b'; border = '#fde68a'; }
                 else if (status === 'Out of Stock') { bg = '#fff1f2'; color = '#ef4444'; border = '#fecdd3'; }
-                return <span style={{ padding: '4px 10px', fontSize: 11, fontWeight: 600, background: bg, color, border: `1px solid ${border}`, borderRadius: 99 }}>{status}</span>;
+                return <span style={{ padding: '4px 10px', fontSize: 11, fontWeight: 600, background: bg, color, border: `1px solid ${border}`, borderRadius: 0 }}>{status}</span>;
             }
         },
 
@@ -174,21 +174,21 @@ const Materials = () => {
                 <div style={{ display: 'flex', gap: 6, justifyContent: 'center' }}>
                     <button
                         className="rd-btn-compact"
-                        style={{ padding: '4px 10px', fontSize: 12, fontWeight: 600, borderRadius: 6, background: '#eff6ff', color: '#3b82f6', border: '1px solid #dbeafe', cursor: 'pointer' }}
+                        style={{ padding: '4px 10px', fontSize: 12, fontWeight: 600, borderRadius: 0, background: '#eff6ff', color: '#3b82f6', border: '1px solid #dbeafe', cursor: 'pointer' }}
                         onClick={(e) => { e.stopPropagation(); navigate(`/materials/${row._id || row.id}`); }}
                     >
                         Edit
                     </button>
                     <button
                         className="rd-btn-compact"
-                        style={{ padding: '4px 10px', fontSize: 12, fontWeight: 600, borderRadius: 6, background: '#fff1f2', color: '#ef4444', border: '1px solid #fee2e2', cursor: 'pointer' }}
+                        style={{ padding: '4px 10px', fontSize: 12, fontWeight: 600, borderRadius: 0, background: '#fff1f2', color: '#ef4444', border: '1px solid #fee2e2', cursor: 'pointer' }}
                         onClick={(e) => { e.stopPropagation(); handleDelete(row); }}
                     >
                         Del
                     </button>
                     <button
                         className="rd-btn-compact"
-                        style={{ padding: '4px 8px', fontSize: 12, borderRadius: 6, background: '#ecfeff', color: '#06b6d4', border: '1px solid #cffafe', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        style={{ padding: '4px 8px', fontSize: 12, borderRadius: 0, background: '#ecfeff', color: '#06b6d4', border: '1px solid #cffafe', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                         title="Track"
                         onClick={(e) => { e.stopPropagation(); navigate(`/tracking-overview?search=${encodeURIComponent(row.sku || row.name)}`); }}
                     >
@@ -216,50 +216,50 @@ const Materials = () => {
                     </div>
                 </div>
 
-                <PastelKPIGrid>
-                    <PastelKPICard
+                <StatGrid>
+                    <StatCard
                         title="Total Items" value={totalItems}
                         colorTheme="blue" icon={Package}
                         trendValue="Inventory tracking active"
                         trendPositive={true}
                         onClick={() => navigate('/materials')}
                     />
-                    <PastelKPICard
+                    <StatCard
                         title="In Stock" value={inStock}
                         colorTheme="mint" icon={CheckCircle}
                         trendValue={`${totalItems ? Math.round((inStock / totalItems) * 100) : 0}% of inventory`}
                         trendPositive={true}
                         onClick={() => navigate('/materials')}
                     />
-                    <PastelKPICard
+                    <StatCard
                         title="Low Stock" value={lowStock}
                         colorTheme="yellow" icon={AlertTriangle}
                         trendValue={`${totalItems ? Math.round((lowStock / totalItems) * 100) : 0}% need attention`}
                         trendPositive={false}
                         onClick={() => navigate('/materials')}
                     />
-                    <PastelKPICard
+                    <StatCard
                         title="Out of Stock" value={outOfStock}
                         colorTheme="peach" icon={XCircle}
                         trendValue={`${totalItems ? Math.round((outOfStock / totalItems) * 100) : 0}% critical`}
                         trendPositive={false}
                         onClick={() => navigate('/materials')}
                     />
-                </PastelKPIGrid>
+                </StatGrid>
 
                 <div style={{ marginTop: '24px' }}>
                     {loading ? (
-                        <div style={{ background: '#fff', borderRadius: '16px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+                        <div style={{ background: '#fff', borderRadius: '0px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
                             <div style={{ padding: '24px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between' }}>
                                 <div>
-                                    <div style={{ height: 20, width: 150, background: '#e2e8f0', borderRadius: 4, marginBottom: 8, animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' }}></div>
-                                    <div style={{ height: 14, width: 250, background: '#f1f5f9', borderRadius: 4, animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' }}></div>
+                                    <div style={{ height: 20, width: 150, background: '#e2e8f0', borderRadius: 0, marginBottom: 8, animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' }}></div>
+                                    <div style={{ height: 14, width: 250, background: '#f1f5f9', borderRadius: 0, animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' }}></div>
                                 </div>
-                                <div style={{ height: 38, width: 120, background: '#e2e8f0', borderRadius: 8, animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' }}></div>
+                                <div style={{ height: 38, width: 120, background: '#e2e8f0', borderRadius: 0, animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' }}></div>
                             </div>
                             <div style={{ padding: '24px' }}>
                                 {[1, 2, 3, 4, 5].map(i => (
-                                    <div key={i} style={{ height: 40, background: '#f8fafc', borderRadius: 8, marginBottom: 12, animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' }}></div>
+                                    <div key={i} style={{ height: 40, background: '#f8fafc', borderRadius: 0, marginBottom: 12, animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' }}></div>
                                 ))}
                             </div>
                         </div>
@@ -279,7 +279,7 @@ const Materials = () => {
                                     </div>
                                     <div>
                                         <div style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', marginBottom: 8, letterSpacing: '0.5px' }}>Barcode Data</div>
-                                        <div style={{ fontFamily: '"SFMono-Regular", Consolas, monospace', background: '#f1f5f9', padding: '6px 12px', borderRadius: 6, display: 'inline-block', border: '1px solid #e2e8f0', color: '#334155', fontWeight: 500 }}>
+                                        <div style={{ fontFamily: '"SFMono-Regular", Consolas, monospace', background: '#f1f5f9', padding: '6px 12px', borderRadius: 0, display: 'inline-block', border: '1px solid #e2e8f0', color: '#334155', fontWeight: 500 }}>
                                             {row.sku}-{row._id ? String(row._id).substring(0, 6) : (row.id ? String(row.id).substring(0, 6) : '100A')}
                                         </div>
                                     </div>

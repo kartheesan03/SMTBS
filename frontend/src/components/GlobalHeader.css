@@ -12,7 +12,7 @@
 .rd-icon-btn {
     width: 36px;
     height: 36px;
-    border-radius: 8px;
+    border-radius: 0px;
     border: 1px solid transparent;
     background: transparent;
     color: #64748b;
@@ -35,7 +35,7 @@
     gap: 8px;
     background: #F9FAFB;
     border: 1px solid #E5E7EB;
-    border-radius: 8px;
+    border-radius: 0px;
     padding: 0 16px;
     height: 38px;
     width: 300px;
@@ -76,7 +76,7 @@
     background: #f8fafc;
     border: 1px solid #e2e8f0;
     padding: 6px 14px;
-    border-radius: 12px;
+    border-radius: 0px;
     font-size: 13px;
     font-weight: 600;
     color: #475569;
@@ -92,7 +92,7 @@
     font-weight: 700;
     min-width: 16px;
     height: 16px;
-    border-radius: 8px;
+    border-radius: 0px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -105,7 +105,7 @@
     align-items: center;
     gap: 10px;
     padding: 4px 8px 4px 4px;
-    border-radius: 20px;
+    border-radius: 0px;
     transition: all 0.2s;
 }
 
@@ -118,7 +118,7 @@
     height: 36px;
     background: #ef4444;
     color: #ffffff;
-    border-radius: 50%;
+    border-radius: 0px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -152,5 +152,5 @@
     width: 6px;
     height: 6px;
     background: #10b981;
-    border-radius: 50%;
+    border-radius: 0px;
 }

@@ -10,7 +10,7 @@ import './AdminDashboardPremium.css';
 const CustomTooltip = ({ active, payload, label, formatter }) => {
     if (active && payload && payload.length) {
         return (
-            <div style={{ backgroundColor: 'var(--erp-bg-surface)', border: '1px solid var(--erp-border-light)', padding: '10px', borderRadius: '8px', boxShadow: 'var(--erp-shadow-md)' }}>
+            <div style={{ backgroundColor: 'var(--erp-bg-surface)', border: '1px solid var(--erp-border-light)', padding: '10px', borderRadius: '0px', boxShadow: 'var(--erp-shadow-md)' }}>
                 <p style={{ margin: '0 0 5px 0', fontWeight: 600, color: 'var(--erp-text-primary)' }}>{label}</p>
                 {payload.map((entry, index) => (
                     <p key={`item-${index}`} style={{ margin: 0, color: entry.color, fontSize: '14px' }}>

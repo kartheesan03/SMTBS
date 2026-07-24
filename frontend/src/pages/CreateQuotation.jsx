@@ -168,7 +168,7 @@ const CreateQuotation = () => {
                         </div>
 
                         {formData.items.length === 0 ? (
-                            <div style={{padding: '30px', textAlign: 'center', background: '#F9FAFB', borderRadius: '8px', border: '1px dashed #D1D5DB'}}>
+                            <div style={{padding: '30px', textAlign: 'center', background: '#F9FAFB', borderRadius: '0px', border: '1px dashed #D1D5DB'}}>
                                 <p style={{color: '#6B7280', margin: 0}}>No items added yet. Click 'Add Item' to start building the quote.</p>
                             </div>
                         ) : (
@@ -194,7 +194,7 @@ const CreateQuotation = () => {
                                                             value={item.material} 
                                                             onChange={(e) => handleItemChange(index, 'material', e.target.value)}
                                                             required
-                                                            style={{width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #D1D5DB'}}
+                                                            style={{width: '100%', padding: '8px', borderRadius: '0px', border: '1px solid #D1D5DB'}}
                                                         >
                                                             <option value="">Select Material</option>
                                                             {materials.map(m => (
@@ -207,7 +207,7 @@ const CreateQuotation = () => {
                                                             type="number" min="1" 
                                                             value={item.quantity}
                                                             onChange={(e) => handleItemChange(index, 'quantity', e.target.value)}
-                                                            style={{width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #D1D5DB'}}
+                                                            style={{width: '100%', padding: '8px', borderRadius: '0px', border: '1px solid #D1D5DB'}}
                                                         />
                                                     </td>
                                                     <td style={{fontWeight: '500', color: '#475569'}}>
@@ -218,7 +218,7 @@ const CreateQuotation = () => {
                                                             type="number" min="0" max="100"
                                                             value={item.discountPercent}
                                                             onChange={(e) => handleItemChange(index, 'discountPercent', e.target.value)}
-                                                            style={{width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #D1D5DB'}}
+                                                            style={{width: '100%', padding: '8px', borderRadius: '0px', border: '1px solid #D1D5DB'}}
                                                         />
                                                     </td>
                                                     <td style={{fontWeight: '500'}}>{itemTotal.toFixed(2)}</td>

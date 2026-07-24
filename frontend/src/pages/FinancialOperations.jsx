@@ -4,7 +4,7 @@ import { TrendingUp, CreditCard, AlertTriangle, DollarSign, Search , Wallet} fro
 import { LineChart, Line, PieChart, Pie, Cell, BarChart, Bar, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { motion } from 'framer-motion';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
-import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
+import { StatCard, StatGrid } from '../components/ui/StatCard';
 import toast from 'react-hot-toast';
 
 const FinancialOperations = () => {
@@ -152,12 +152,12 @@ const FinancialOperations = () => {
                 </div>
 
                 {/* KPI Cards */}
-                <PastelKPIGrid>
-                    <PastelKPICard title="Revenue (Paid)" value={formatCurrency(revenue)} colorTheme="mint" icon={TrendingUp} trendValue="+14% vs last month" trendPositive={true} />
-                    <PastelKPICard title="Total Payables" value={formatCurrency(totalPayables)} colorTheme="blue" icon={CreditCard} trendValue="Expected outflow" trendPositive={false} />
-                    <PastelKPICard title="Overdue" value={formatCurrency(overdueAmount)} colorTheme="pink" icon={AlertTriangle} trendValue="Immediate attention" trendPositive={false} />
-                    <PastelKPICard title="Outstanding Recv." value={formatCurrency(outstandingRecv)} colorTheme="peach" icon={DollarSign} trendValue="Pending inflow" trendPositive={true} />
-                </PastelKPIGrid>
+                <StatGrid>
+                    <StatCard title="Revenue (Paid)" value={formatCurrency(revenue)} colorTheme="mint" icon={TrendingUp} trendValue="+14% vs last month" trendPositive={true} />
+                    <StatCard title="Total Payables" value={formatCurrency(totalPayables)} colorTheme="blue" icon={CreditCard} trendValue="Expected outflow" trendPositive={false} />
+                    <StatCard title="Overdue" value={formatCurrency(overdueAmount)} colorTheme="pink" icon={AlertTriangle} trendValue="Immediate attention" trendPositive={false} />
+                    <StatCard title="Outstanding Recv." value={formatCurrency(outstandingRecv)} colorTheme="peach" icon={DollarSign} trendValue="Pending inflow" trendPositive={true} />
+                </StatGrid>
 
                 {/* Charts Section */}
                 <motion.div 
@@ -169,7 +169,7 @@ const FinancialOperations = () => {
                     {/* P&L Chart */}
                     <div className="rd-chart-card" style={{flex: 2}}>
                         <div style={{display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20}}>
-                            <div style={{width: 4, height: 20, borderRadius: 2, background: '#3b82f6'}}></div>
+                            <div style={{width: 4, height: 20, borderRadius: 0, background: '#3b82f6'}}></div>
                             <h3 className="rd-chart-title" style={{margin: 0}}>P&L Overview — 6 Months</h3>
                         </div>
                         <div style={{height: 220}}>
@@ -178,22 +178,22 @@ const FinancialOperations = () => {
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                                     <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} dy={10} />
                                     <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 11}} tickFormatter={v => `${v/1000}K`} />
-                                    <Tooltip formatter={(val, name) => [`$${val.toLocaleString()}`, `${name} amount`]} contentStyle={{borderRadius: 8, border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'}} />
+                                    <Tooltip formatter={(val, name) => [`$${val.toLocaleString()}`, `${name} amount`]} contentStyle={{borderRadius: 0, border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'}} />
                                     <Line type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={3} dot={{r: 4, strokeWidth: 2, fill: '#fff'}} activeDot={{r: 6}} />
                                     <Line type="monotone" dataKey="profit" stroke="#10b981" strokeWidth={3} dot={{r: 4, strokeWidth: 2, fill: '#fff'}} />
                                 </LineChart>
                             </ResponsiveContainer>
                         </div>
                         <div style={{display: 'flex', gap: 16, marginTop: 20}}>
-                            <div style={{flex: 1, padding: '12px 16px', borderRadius: 12, border: '1px solid #e2e8f0', background: '#f8fafc'}}>
+                            <div style={{flex: 1, padding: '12px 16px', borderRadius: 0, border: '1px solid #e2e8f0', background: '#f8fafc'}}>
                                 <div style={{fontSize: 11, fontWeight: 700, color: '#94a3b8', marginBottom: 4}}>REVENUE ({(latestPL.name || '').toUpperCase()})</div>
                                 <div style={{fontSize: 20, fontWeight: 800, color: '#1d4ed8'}}>{formatCurrency(latestPL.revenue)}</div>
                             </div>
-                            <div style={{flex: 1, padding: '12px 16px', borderRadius: 12, border: '1px solid #e2e8f0', background: '#f8fafc'}}>
+                            <div style={{flex: 1, padding: '12px 16px', borderRadius: 0, border: '1px solid #e2e8f0', background: '#f8fafc'}}>
                                 <div style={{fontSize: 11, fontWeight: 700, color: '#94a3b8', marginBottom: 4}}>EXPENSE ({(latestPL.name || '').toUpperCase()})</div>
                                 <div style={{fontSize: 20, fontWeight: 800, color: '#dc2626'}}>{formatCurrency(latestExpense)}</div>
                             </div>
-                            <div style={{flex: 1, padding: '12px 16px', borderRadius: 12, border: '1px solid #e2e8f0', background: '#f8fafc'}}>
+                            <div style={{flex: 1, padding: '12px 16px', borderRadius: 0, border: '1px solid #e2e8f0', background: '#f8fafc'}}>
                                 <div style={{fontSize: 11, fontWeight: 700, color: '#94a3b8', marginBottom: 4}}>PROFIT ({(latestPL.name || '').toUpperCase()})</div>
                                 <div style={{fontSize: 20, fontWeight: 800, color: '#059669'}}>{formatCurrency(latestPL.profit)}</div>
                             </div>
@@ -203,7 +203,7 @@ const FinancialOperations = () => {
                     {/* Spend by Category Donut */}
                     <div className="rd-chart-card" style={{flex: 1}}>
                         <div style={{display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20}}>
-                            <div style={{width: 4, height: 20, borderRadius: 2, background: '#f59e0b'}}></div>
+                            <div style={{width: 4, height: 20, borderRadius: 0, background: '#f59e0b'}}></div>
                             <h3 className="rd-chart-title" style={{margin: 0}}>Spend by Category</h3>
                         </div>
                         <div style={{height: 180, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative'}}>
@@ -225,7 +225,7 @@ const FinancialOperations = () => {
                             {spendData.map((item, i) => (
                                 <div key={i} style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
                                     <div style={{display: 'flex', alignItems: 'center', gap: 8}}>
-                                        <span style={{width: 8, height: 8, borderRadius: '50%', background: item.color}}></span>
+                                        <span style={{width: 8, height: 8, borderRadius: '0px', background: item.color}}></span>
                                         <span style={{fontSize: 13, color: '#475569'}}>{item.name}</span>
                                     </div>
                                     <div style={{display: 'flex', alignItems: 'center', gap: 8}}>
@@ -255,7 +255,7 @@ const FinancialOperations = () => {
                                 {typeFilters.map(f => (
                                     <button key={f} onClick={() => setTypeFilter(f)}
                                         style={{
-                                            padding: '6px 14px', borderRadius: 20, fontSize: 13, fontWeight: 600, cursor: 'pointer', border: '1px solid',
+                                            padding: '6px 14px', borderRadius: 0, fontSize: 13, fontWeight: 600, cursor: 'pointer', border: '1px solid',
                                             background: typeFilter === f ? '#3b82f6' : '#fff',
                                             color: typeFilter === f ? '#fff' : '#64748b',
                                             borderColor: typeFilter === f ? '#3b82f6' : '#e2e8f0'
@@ -266,7 +266,7 @@ const FinancialOperations = () => {
                                 {statusFilters.map(f => (
                                     <button key={f} onClick={() => setStatusFilter(f)}
                                         style={{
-                                            padding: '6px 14px', borderRadius: 20, fontSize: 13, fontWeight: 600, cursor: 'pointer', border: '1px solid',
+                                            padding: '6px 14px', borderRadius: 0, fontSize: 13, fontWeight: 600, cursor: 'pointer', border: '1px solid',
                                             background: statusFilter === f ? '#475569' : '#fff',
                                             color: statusFilter === f ? '#fff' : '#64748b',
                                             borderColor: statusFilter === f ? '#475569' : '#e2e8f0'
@@ -306,7 +306,7 @@ const FinancialOperations = () => {
                                     <tr key={inv._id || i}>
                                         <td style={{fontWeight: 700, color: '#3b82f6'}} data-label="Invoice ID">{inv.id}</td>
                                         <td data-label="Type">
-                                            <span style={{padding: '4px 10px', borderRadius: 6, fontSize: 12, fontWeight: 600, background: typeBg, color: typeColor}}>
+                                            <span style={{padding: '4px 10px', borderRadius: 0, fontSize: 12, fontWeight: 600, background: typeBg, color: typeColor}}>
                                                 {inv.type}
                                             </span>
                                         </td>
@@ -353,7 +353,7 @@ const FinKPICard = ({ title, val, trend, subtitle, subtitleColor, color, icon: I
             </div>
             <div className="ent-card-footer">
                 <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'currentColor' }}></div>
+                    <div style={{ width: '6px', height: '6px', borderRadius: '0px', backgroundColor: 'currentColor' }}></div>
                     Updated Today
                 </div>
             </div>

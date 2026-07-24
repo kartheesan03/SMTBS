@@ -63,7 +63,7 @@ const ModuleLauncher = ({ isOpen, onClose }) => {
                                 display: 'flex', 
                                 alignItems: 'center', 
                                 justifyContent: 'center',
-                                borderRadius: '50%',
+                                borderRadius: '0px',
                                 transition: 'background-color 0.2s'
                             }}
                             onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f1f5f9'}

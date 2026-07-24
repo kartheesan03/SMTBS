@@ -6,7 +6,7 @@ import { ChevronRight } from 'lucide-react';
 const Panel = ({ children }) => (
     <div style={{
         background: '#fff',
-        borderRadius: '16px',
+        borderRadius: '0px',
         boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
         padding: '22px',
         width: '100%',
@@ -24,7 +24,7 @@ const StepperStep = ({ label, count, color, isLast }) => (
             <div style={{ fontSize: '13px', color: '#64748b', fontWeight: 600, textTransform: 'uppercase', marginBottom: '4px' }}>{label}</div>
             <div style={{ fontSize: '28px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 {count}
-                <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: color }} />
+                <div style={{ width: '8px', height: '8px', borderRadius: '0px', backgroundColor: color }} />
             </div>
         </div>
         {!isLast && (
@@ -47,7 +47,7 @@ export const PurchaseOrderFunnel = ({ total, pending, approved, totalValue }) =>
             
             <div style={{ width: '1px', height: '60px', backgroundColor: '#e2e8f0', margin: '0 16px', display: 'none' }} className="d-md-block" />
 
-            <div style={{ flex: 1, minWidth: '200px', padding: '16px', backgroundColor: '#f8fafc', borderRadius: '12px', border: '1px solid #f1f5f9' }}>
+            <div style={{ flex: 1, minWidth: '200px', padding: '16px', backgroundColor: '#f8fafc', borderRadius: '0px', border: '1px solid #f1f5f9' }}>
                 <div style={{ fontSize: '13px', color: '#64748b', fontWeight: 600, textTransform: 'uppercase', marginBottom: '4px' }}>Total Purchase Value</div>
                 <div style={{ fontSize: '32px', fontWeight: 700, color: '#10b981' }}>{totalValue}</div>
             </div>
@@ -70,20 +70,20 @@ export const VendorSplitPanel = ({ total, active, onHold, outstanding }) => {
                 </div>
 
                 <div style={{ flex: 1, minWidth: '200px' }}>
-                    <div style={{ display: 'flex', height: '12px', borderRadius: '6px', overflow: 'hidden', marginBottom: '16px', backgroundColor: '#f1f5f9' }}>
+                    <div style={{ display: 'flex', height: '12px', borderRadius: '0px', overflow: 'hidden', marginBottom: '16px', backgroundColor: '#f1f5f9' }}>
                         <div style={{ width: `${activePct}%`, backgroundColor: '#10b981' }} title={`Active: ${active}`} />
                         <div style={{ width: `${onHoldPct}%`, backgroundColor: '#f59e0b' }} title={`On Hold: ${onHold}`} />
                     </div>
                     <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#10b981' }} />
+                            <div style={{ width: '10px', height: '10px', borderRadius: '0px', backgroundColor: '#10b981' }} />
                             <div>
                                 <span style={{ fontWeight: 700, color: '#1e293b', marginRight: '6px' }}>{active}</span>
                                 <span style={{ fontSize: '12px', color: '#64748b' }}>Active</span>
                             </div>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#f59e0b' }} />
+                            <div style={{ width: '10px', height: '10px', borderRadius: '0px', backgroundColor: '#f59e0b' }} />
                             <div>
                                 <span style={{ fontWeight: 700, color: '#1e293b', marginRight: '6px' }}>{onHold}</span>
                                 <span style={{ fontSize: '12px', color: '#64748b' }}>On Hold</span>
@@ -94,7 +94,7 @@ export const VendorSplitPanel = ({ total, active, onHold, outstanding }) => {
 
                 <div style={{ width: '1px', height: '60px', backgroundColor: '#e2e8f0', margin: '0 8px', display: 'none' }} className="d-md-block" />
 
-                <div style={{ flex: 1, minWidth: '200px', padding: '16px', backgroundColor: '#fff1f2', borderRadius: '12px', border: '1px solid #ffe4e6' }}>
+                <div style={{ flex: 1, minWidth: '200px', padding: '16px', backgroundColor: '#fff1f2', borderRadius: '0px', border: '1px solid #ffe4e6' }}>
                     <div style={{ fontSize: '13px', color: '#9f1239', fontWeight: 600, textTransform: 'uppercase', marginBottom: '4px' }}>Total Outstanding</div>
                     <div style={{ fontSize: '32px', fontWeight: 700, color: '#be123c' }}>{outstanding}</div>
                 </div>
@@ -112,8 +112,8 @@ const ComparisonBarRow = ({ label, valStr, caption, pct, color, forceMin = false
     return (
         <div style={{ display: 'flex', alignItems: 'center', padding: '12px 0', gap: '16px', flexWrap: 'wrap' }}>
             <div style={{ width: '160px', fontWeight: 600, color: '#334155', fontSize: '14px' }}>{label}</div>
-            <div style={{ flex: 1, minWidth: '150px', height: '8px', backgroundColor: '#f1f5f9', borderRadius: '4px', overflow: 'hidden' }}>
-                <div style={{ width: `${visualPct}%`, height: '100%', backgroundColor: color, borderRadius: '4px' }} />
+            <div style={{ flex: 1, minWidth: '150px', height: '8px', backgroundColor: '#f1f5f9', borderRadius: '0px', overflow: 'hidden' }}>
+                <div style={{ width: `${visualPct}%`, height: '100%', backgroundColor: color, borderRadius: '0px' }} />
             </div>
             <div style={{ width: '220px', textAlign: 'right' }}>
                 <span style={{ fontWeight: 700, color: '#0f172a', fontSize: '18px', marginRight: '8px' }}>{valStr}</span>
@@ -150,7 +150,7 @@ export const SalesOrderFulfillmentStepper = ({ total, active, delivered, revenue
             
             <div style={{ width: '1px', height: '60px', backgroundColor: '#e2e8f0', margin: '0 16px', display: 'none' }} className="d-md-block" />
 
-            <div style={{ flex: 1, minWidth: '200px', padding: '16px', backgroundColor: '#f0fdf4', borderRadius: '12px', border: '1px solid #dcfce7' }}>
+            <div style={{ flex: 1, minWidth: '200px', padding: '16px', backgroundColor: '#f0fdf4', borderRadius: '0px', border: '1px solid #dcfce7' }}>
                 <div style={{ fontSize: '13px', color: '#166534', fontWeight: 600, textTransform: 'uppercase', marginBottom: '4px' }}>Order Revenue</div>
                 <div style={{ fontSize: '32px', fontWeight: 700, color: '#15803d' }}>{revenue}</div>
             </div>

@@ -77,7 +77,7 @@ const ApplyLeave = () => {
                             fontSize: '13px',
                             fontWeight: 600,
                             padding: '4px 8px',
-                            borderRadius: '6px'
+                            borderRadius: '0px'
                         }}
                     >
                         <ArrowLeft size={15} /> Back

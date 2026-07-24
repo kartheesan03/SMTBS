@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import API from '../api/axios';
 import toast from 'react-hot-toast';
-import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
+import { StatCard, StatGrid } from '../components/ui/StatCard';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 
 const TYPE_CONFIG = {
@@ -51,12 +51,12 @@ const HolidayModal = ({ holiday, onClose, onSave }) => {
 
     const inp = {
         width: '100%', padding: '9px 12px', border: '1px solid #e2e8f0',
-        borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box', color: '#0f172a', background: '#fff'
+        borderRadius: 0, fontSize: 13, outline: 'none', boxSizing: 'border-box', color: '#0f172a', background: '#fff'
     };
 
     return (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.45)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ background: '#fff', borderRadius: 18, padding: 28, width: 460, boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
+            <div style={{ background: '#fff', borderRadius: 0, padding: 28, width: 460, boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
                     <h2 style={{ margin: 0, fontSize: 17, fontWeight: 800, color: '#0f172a' }}>{holiday ? 'Edit Holiday' : 'Add Holiday'}</h2>
                     <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}><X size={20} /></button>
@@ -93,7 +93,7 @@ const HolidayModal = ({ holiday, onClose, onSave }) => {
                         </label>
                     </div>
                     <button type="submit" disabled={saving} style={{
-                        padding: '11px 0', borderRadius: 10, border: 'none',
+                        padding: '11px 0', borderRadius: 0, border: 'none',
                         background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', color: '#fff',
                         fontWeight: 700, fontSize: 14, cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1, marginTop: 4
                     }}>
@@ -145,7 +145,7 @@ const MiniCalendar = ({ year, month, holidays }) => {
                             title={h ? h.name : ''}
                             style={{
                                 textAlign: 'center', fontSize: 11, fontWeight: isToday || isHoliday ? 700 : 400,
-                                padding: '5px 2px', borderRadius: 6, cursor: isHoliday ? 'pointer' : 'default',
+                                padding: '5px 2px', borderRadius: 0, cursor: isHoliday ? 'pointer' : 'default',
                                 background: isHoliday ? (h?.color || '#6366f1') + '20' : isToday ? '#eef2ff' : 'transparent',
                                 color: isHoliday ? (h?.color || '#6366f1') : isToday ? '#4f46e5' : '#475569',
                                 border: isToday ? '1.5px solid #c7d2fe' : '1.5px solid transparent',
@@ -153,7 +153,7 @@ const MiniCalendar = ({ year, month, holidays }) => {
                             }}
                         >
                             {day}
-                            {isHoliday && <div style={{ width: 4, height: 4, borderRadius: '50%', background: h?.color || '#6366f1', margin: '2px auto 0' }} />}
+                            {isHoliday && <div style={{ width: 4, height: 4, borderRadius: '0px', background: h?.color || '#6366f1', margin: '2px auto 0' }} />}
                         </div>
                     );
                 })}
@@ -237,29 +237,29 @@ const HolidayCalendar = () => {
                     <div className="rd-module-info">
                         <div className="rd-module-title-row" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                             <span className="rd-module-title" style={{ fontSize: 28, fontWeight: 700, color: '#0f172a', margin: 0 }}>Holiday Calendar</span>
-                            <span className="rd-module-badge" style={{ background: '#f1f5f9', color: '#0f172a', padding: '3px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700, textTransform: 'uppercase' }}>HRMS</span>
+                            <span className="rd-module-badge" style={{ background: '#f1f5f9', color: '#0f172a', padding: '3px 8px', borderRadius: 0, fontSize: 10, fontWeight: 700, textTransform: 'uppercase' }}>HRMS</span>
                         </div>
                     </div>
                     <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
                         {/* Year navigation */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#f1f5f9', borderRadius: 10, padding: '4px 10px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#f1f5f9', borderRadius: 0, padding: '4px 10px' }}>
                             <button onClick={() => setYear(y => y - 1)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b', display: 'flex' }}><ChevronLeft size={16} /></button>
                             <span style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', minWidth: 40, textAlign: 'center' }}>{year}</span>
                             <button onClick={() => setYear(y => y + 1)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b', display: 'flex' }}><ChevronRight size={16} /></button>
                         </div>
-                        <button onClick={() => { setEditHoliday(null); setShowModal(true); }} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 10, border: 'none', background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', color: '#fff', fontWeight: 600, fontSize: 13, cursor: 'pointer', boxShadow: '0 4px 12px rgba(99, 102, 241, 0.2)' }}>
+                        <button onClick={() => { setEditHoliday(null); setShowModal(true); }} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 0, border: 'none', background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', color: '#fff', fontWeight: 600, fontSize: 13, cursor: 'pointer', boxShadow: '0 4px 12px rgba(99, 102, 241, 0.2)' }}>
                             <Plus size={15} /> Add Holiday
                         </button>
                     </div>
                 </div>
 
                 {/* KPI Cards */}
-                <PastelKPIGrid>
-                    <PastelKPICard title="Total Holidays"   value={loading ? '…' : holidays.length} colorTheme="blue"   icon={Calendar} trendValue={`In ${year}`} trendPositive={true} />
-                    <PastelKPICard title="Upcoming"         value={loading ? '…' : upcoming}         colorTheme="mint"   icon={Gift}     trendValue="Remaining this year" trendPositive={true} />
-                    <PastelKPICard title="National"         value={loading ? '…' : national}         colorTheme="peach"  icon={Flag}     trendValue="Public holidays" trendPositive={true} />
-                    <PastelKPICard title="Company Declared" value={loading ? '…' : company}          colorTheme="purple" icon={Building2} trendValue="Internal holidays" trendPositive={true} />
-                </PastelKPIGrid>
+                <StatGrid>
+                    <StatCard title="Total Holidays"   value={loading ? '…' : holidays.length} colorTheme="blue"   icon={Calendar} trendValue={`In ${year}`} trendPositive={true} />
+                    <StatCard title="Upcoming"         value={loading ? '…' : upcoming}         colorTheme="mint"   icon={Gift}     trendValue="Remaining this year" trendPositive={true} />
+                    <StatCard title="National"         value={loading ? '…' : national}         colorTheme="peach"  icon={Flag}     trendValue="Public holidays" trendPositive={true} />
+                    <StatCard title="Company Declared" value={loading ? '…' : company}          colorTheme="purple" icon={Building2} trendValue="Internal holidays" trendPositive={true} />
+                </StatGrid>
 
                 {/* Main Grid: Calendar + List */}
                 <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: 20, alignItems: 'start' }}>
@@ -282,7 +282,7 @@ const HolidayCalendar = () => {
                                     <div style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.5 }}>This Month</div>
                                     {monthHolidays.map(h => (
                                         <div key={h.id} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                                            <div style={{ width: 8, height: 8, borderRadius: '50%', background: h.color || '#6366f1', flexShrink: 0 }} />
+                                            <div style={{ width: 8, height: 8, borderRadius: '0px', background: h.color || '#6366f1', flexShrink: 0 }} />
                                             <div>
                                                 <div style={{ fontSize: 12, fontWeight: 600, color: '#0f172a' }}>{h.name}</div>
                                                 <div style={{ fontSize: 10, color: '#94a3b8' }}>{new Date(h.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</div>
@@ -298,7 +298,7 @@ const HolidayCalendar = () => {
                             <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a', marginBottom: 14 }}>Holiday Types</div>
                             {Object.entries(TYPE_CONFIG).map(([type, cfg]) => (
                                 <div key={type} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-                                    <div style={{ width: 30, height: 30, borderRadius: 8, background: cfg.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                    <div style={{ width: 30, height: 30, borderRadius: 0, background: cfg.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                                         <cfg.icon size={14} color={cfg.color} />
                                     </div>
                                     <div>
@@ -317,7 +317,7 @@ const HolidayCalendar = () => {
                             <div style={{ display: 'flex', gap: 6 }}>
                                 {['All', ...Object.keys(TYPE_CONFIG)].map(t => (
                                     <button key={t} onClick={() => setFilterType(t)} style={{
-                                        padding: '5px 12px', borderRadius: 20, fontSize: 11, fontWeight: 600, cursor: 'pointer',
+                                        padding: '5px 12px', borderRadius: 0, fontSize: 11, fontWeight: 600, cursor: 'pointer',
                                         border: filterType === t ? `1.5px solid ${TYPE_CONFIG[t]?.color || '#6366f1'}` : '1.5px solid #e2e8f0',
                                         background: filterType === t ? (TYPE_CONFIG[t]?.bg || '#eef2ff') : '#fff',
                                         color: filterType === t ? (TYPE_CONFIG[t]?.color || '#4f46e5') : '#64748b',
@@ -367,7 +367,7 @@ const HolidayCalendar = () => {
                                                     <tr key={h.id} style={{ opacity: isPast ? 0.6 : 1 }}>
                                                         <td data-label="Holiday">
                                                             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                                                                <div style={{ width: 36, height: 36, borderRadius: 10, background: cfg.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                                                <div style={{ width: 36, height: 36, borderRadius: 0, background: cfg.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                                                                     <cfg.icon size={16} color={cfg.color} />
                                                                 </div>
                                                                 <div>
@@ -383,7 +383,7 @@ const HolidayCalendar = () => {
                                                             {d.toLocaleDateString('en-IN', { weekday: 'long' })}
                                                         </td>
                                                         <td data-label="Type">
-                                                            <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 99, background: cfg.bg, color: cfg.color }}>
+                                                            <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 0, background: cfg.bg, color: cfg.color }}>
                                                                 {h.type}
                                                             </span>
                                                         </td>
@@ -394,8 +394,8 @@ const HolidayCalendar = () => {
                                                         </td>
                                                         <td data-label="Actions">
                                                             <div style={{ display: 'flex', gap: 6 }}>
-                                                                <button onClick={() => setEditHoliday(h)} style={{ background: '#f1f5f9', border: 'none', borderRadius: 7, padding: '5px 8px', cursor: 'pointer', color: '#475569', display: 'flex' }}><Edit2 size={13} /></button>
-                                                                <button onClick={() => handleDelete(h.id)} style={{ background: '#fee2e2', border: 'none', borderRadius: 7, padding: '5px 8px', cursor: 'pointer', color: '#ef4444', display: 'flex' }}><Trash2 size={13} /></button>
+                                                                <button onClick={() => setEditHoliday(h)} style={{ background: '#f1f5f9', border: 'none', borderRadius: 0, padding: '5px 8px', cursor: 'pointer', color: '#475569', display: 'flex' }}><Edit2 size={13} /></button>
+                                                                <button onClick={() => handleDelete(h.id)} style={{ background: '#fee2e2', border: 'none', borderRadius: 0, padding: '5px 8px', cursor: 'pointer', color: '#ef4444', display: 'flex' }}><Trash2 size={13} /></button>
                                                             </div>
                                                         </td>
                                                     </tr>

@@ -114,7 +114,7 @@ const RevenueDashboard = () => {
                 <div className="premium-card" style={{ position: 'relative', overflow: 'hidden', padding: '20px', display: 'flex', flexDirection: 'column', minHeight: '130px', justifyContent: 'space-between' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <div style={{ color: 'var(--text-muted)', fontSize: '13px', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Total Revenue</div>
-                        <div className="kpi-icon-3d" style={{ width: '36px', height: '36px', borderRadius: '8px', background: `linear-gradient(135deg, #10b98115, #10b98105)`, color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <div className="kpi-icon-3d" style={{ width: '36px', height: '36px', borderRadius: '0px', background: `linear-gradient(135deg, #10b98115, #10b98105)`, color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                             <DollarSign size={18} strokeWidth={2.5} />
                         </div>
                     </div>
@@ -129,7 +129,7 @@ const RevenueDashboard = () => {
                 <div className="premium-card" style={{ position: 'relative', overflow: 'hidden', padding: '20px', display: 'flex', flexDirection: 'column', minHeight: '130px', justifyContent: 'space-between' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <div style={{ color: 'var(--text-muted)', fontSize: '13px', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Monthly Revenue</div>
-                        <div className="kpi-icon-3d" style={{ width: '36px', height: '36px', borderRadius: '8px', background: `linear-gradient(135deg, #3b82f615, #3b82f605)`, color: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <div className="kpi-icon-3d" style={{ width: '36px', height: '36px', borderRadius: '0px', background: `linear-gradient(135deg, #3b82f615, #3b82f605)`, color: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                             <Calendar size={18} strokeWidth={2.5} />
                         </div>
                     </div>
@@ -145,7 +145,7 @@ const RevenueDashboard = () => {
                 <div className="premium-card" style={{ position: 'relative', overflow: 'hidden', padding: '20px', display: 'flex', flexDirection: 'column', minHeight: '130px', justifyContent: 'space-between' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <div style={{ color: 'var(--text-muted)', fontSize: '13px', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Highest Month</div>
-                        <div className="kpi-icon-3d" style={{ width: '36px', height: '36px', borderRadius: '8px', background: `linear-gradient(135deg, #f59e0b15, #f59e0b05)`, color: '#f59e0b', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <div className="kpi-icon-3d" style={{ width: '36px', height: '36px', borderRadius: '0px', background: `linear-gradient(135deg, #f59e0b15, #f59e0b05)`, color: '#f59e0b', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                             <Award size={18} strokeWidth={2.5} />
                         </div>
                     </div>
@@ -160,7 +160,7 @@ const RevenueDashboard = () => {
                 <div className="premium-card" style={{ position: 'relative', overflow: 'hidden', padding: '20px', display: 'flex', flexDirection: 'column', minHeight: '130px', justifyContent: 'space-between' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <div style={{ color: 'var(--text-muted)', fontSize: '13px', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Total Orders</div>
-                        <div className="kpi-icon-3d" style={{ width: '36px', height: '36px', borderRadius: '8px', background: `linear-gradient(135deg, #8b5cf615, #8b5cf605)`, color: '#8b5cf6', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <div className="kpi-icon-3d" style={{ width: '36px', height: '36px', borderRadius: '0px', background: `linear-gradient(135deg, #8b5cf615, #8b5cf605)`, color: '#8b5cf6', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                             <ShoppingCart size={18} strokeWidth={2.5} />
                         </div>
                     </div>
