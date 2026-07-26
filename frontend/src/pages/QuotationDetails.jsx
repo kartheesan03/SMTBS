@@ -45,7 +45,7 @@ const QuotationDetails = () => {
             toast.success('Successfully converted to Sales Order!');
             
             // Navigate to the new order
-            navigate(`/orders/${data.order._id || data.order.id}`);
+            navigate(`/orders/${data.order._id || data.order.id}/tracking`);
         } catch (err) {
             toast.error(err.response?.data?.message || 'Conversion failed');
         } finally {

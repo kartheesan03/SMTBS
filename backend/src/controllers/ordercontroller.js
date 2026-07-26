@@ -683,28 +683,7 @@ const advanceWorkflow = async (req, res) => {
             if (activeStageIndex + 1 < workflow.length) {
                 workflow[activeStageIndex + 1].status = 'In Progress';
                 
-                // --- AUTO-GENERATE INVOICE LOGIC ---
-                // Automatically complete 'Invoice Generated' step if we just landed on it
-                if (workflow[activeStageIndex + 1].stage === 'Invoice Generated') {
-                    workflow[activeStageIndex + 1].status = 'Completed';
-                    workflow[activeStageIndex + 1].remarks = 'System auto-generated invoice';
-                    workflow[activeStageIndex + 1].updatedBy = 'System';
-                    workflow[activeStageIndex + 1].completedAt = new Date();
-                    order.status = 'Invoice Generated';
-                    
-                    // If there's a subsequent stage (like Workflow Completed), activate it
-                    if (activeStageIndex + 2 < workflow.length) {
-                        workflow[activeStageIndex + 2].status = 'In Progress';
-                        
-                        if (workflow[activeStageIndex + 2].stage === 'Workflow Completed') {
-                            workflow[activeStageIndex + 2].status = 'Completed';
-                            workflow[activeStageIndex + 2].remarks = 'System auto-completed workflow';
-                            workflow[activeStageIndex + 2].updatedBy = 'System';
-                            workflow[activeStageIndex + 2].completedAt = new Date();
-                            order.status = 'Completed';
-                        }
-                    }
-                }
+
             }
         }
 

@@ -3,9 +3,10 @@ import {
     Search, ChevronDown, ChevronUp, MoreVertical, Download, 
     FileText, FileSpreadsheet, Printer, Filter, EyeOff, Check, X, Database
 } from 'lucide-react';
-import ExcelJS from 'exceljs';
+import toast from 'react-hot-toast';
+import * as ExcelJS from 'exceljs';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import { motion, AnimatePresence } from 'framer-motion';
 import './DataTable.css';
 
@@ -132,73 +133,96 @@ const DataTable = ({
     };
 
     // Export functions
-    const exportCSV = () => {
-        const headers = columns.filter(c => visibleColumns[c.key]).map(c => c.label).join(',');
-        const rows = sortedData.map(row => 
-            columns.filter(c => visibleColumns[c.key]).map(c => {
-                let val = row[c.key] || '';
-                if (typeof val === 'string') val = val.replace(/"/g, '""');
-                return `"${val}"`;
-            }).join(',')
-        ).join('\n');
-        
-        const csvContent = `data:text/csv;charset=utf-8,${headers}\n${rows}`;
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement('a');
-        link.setAttribute('href', encodedUri);
-        link.setAttribute('download', `${title.replace(/\s+/g, '_')}_Export.csv`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+    const exportCSV = (e) => {
+        if (e) e.preventDefault();
+        try {
+            const headers = columns.filter(c => visibleColumns[c.key]).map(c => c.label).join(',');
+            const rows = sortedData.map(row => 
+                columns.filter(c => visibleColumns[c.key]).map(c => {
+                    let val = row[c.key] || '';
+                    if (typeof val === 'string') val = val.replace(/"/g, '""');
+                    return `"${val}"`;
+                }).join(',')
+            ).join('\n');
+            
+            const csvContent = `data:text/csv;charset=utf-8,${headers}\n${rows}`;
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement('a');
+            link.setAttribute('href', encodedUri);
+            link.setAttribute('download', `${title.replace(/\\s+/g, '_')}_Export.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            toast.success('CSV exported successfully');
+        } catch (err) {
+            console.error('CSV Export Error:', err);
+            toast.error('Failed to export CSV');
+        }
         setShowExportDropdown(false);
     };
 
-    const exportExcel = async () => {
-        const workbook = new ExcelJS.Workbook();
-        const worksheet = workbook.addWorksheet(title);
-        
-        const exportCols = columns.filter(c => visibleColumns[c.key]);
-        worksheet.columns = exportCols.map(c => ({ header: c.label, key: c.key, width: 20 }));
+    const exportExcel = async (e) => {
+        if (e) e.preventDefault();
+        try {
+            const ExcelJSConstructor = ExcelJS.default || ExcelJS.Workbook ? ExcelJS : window.ExcelJS;
+            const workbook = ExcelJSConstructor.Workbook ? new ExcelJSConstructor.Workbook() : new ExcelJS.Workbook();
+            const worksheet = workbook.addWorksheet(title);
+            
+            const exportCols = columns.filter(c => visibleColumns[c.key]);
+            worksheet.columns = exportCols.map(c => ({ header: c.label, key: c.key, width: 20 }));
 
-        sortedData.forEach(row => {
-            const rowData = {};
-            exportCols.forEach(c => rowData[c.key] = row[c.key]);
-            worksheet.addRow(rowData);
-        });
+            sortedData.forEach(row => {
+                const rowData = {};
+                exportCols.forEach(c => rowData[c.key] = row[c.key]);
+                worksheet.addRow(rowData);
+            });
 
-        worksheet.getRow(1).font = { bold: true };
-        
-        const buffer = await workbook.xlsx.writeBuffer();
-        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = `${title.replace(/\s+/g, '_')}_Export.xlsx`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+            worksheet.getRow(1).font = { bold: true };
+            
+            const buffer = await workbook.xlsx.writeBuffer();
+            const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `${title.replace(/\\s+/g, '_')}_Export.xlsx`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            toast.success('Excel exported successfully');
+        } catch (err) {
+            console.error('Excel Export Error:', err);
+            toast.error('Failed to export Excel');
+        }
         setShowExportDropdown(false);
     };
 
-    const exportPDF = () => {
-        const doc = new jsPDF();
-        const exportCols = columns.filter(c => visibleColumns[c.key]);
-        const head = [exportCols.map(c => c.label)];
-        const body = sortedData.map(row => exportCols.map(c => String(row[c.key] || '')));
-        
-        doc.text(title, 14, 15);
-        doc.autoTable({
-            startY: 20,
-            head: head,
-            body: body,
-            theme: 'grid',
-            headStyles: { fillColor: [59, 130, 246] }
-        });
-        
-        doc.save(`${title.replace(/\s+/g, '_')}_Export.pdf`);
+    const exportPDF = (e) => {
+        if (e) e.preventDefault();
+        try {
+            const doc = new jsPDF();
+            const exportCols = columns.filter(c => visibleColumns[c.key]);
+            const head = [exportCols.map(c => typeof c.label === 'string' ? c.label : c.key)];
+            const body = sortedData.map(row => exportCols.map(c => String(row[c.key] || '')));
+            
+            doc.text(title, 14, 15);
+            autoTable(doc, {
+                startY: 20,
+                head: head,
+                body: body,
+                theme: 'grid',
+                headStyles: { fillColor: [59, 130, 246] }
+            });
+            
+            doc.save(`${title.replace(/\\s+/g, '_')}_Export.pdf`);
+            toast.success('PDF exported successfully');
+        } catch (err) {
+            console.error('PDF Export Error:', err);
+            toast.error('Failed to export PDF');
+        }
         setShowExportDropdown(false);
     };
 
-    const printTable = () => {
+    const printTable = (e) => {
+        if (e) e.preventDefault();
         window.print();
         setShowExportDropdown(false);
     };
@@ -255,10 +279,10 @@ const DataTable = ({
                         </button>
                         {showExportDropdown && (
                             <div className="ui-action-dropdown show" style={{ top: '100%', right: 0 }}>
-                                <button className="ui-dropdown-item" onClick={exportCSV}><FileText size={14} /> CSV</button>
-                                <button className="ui-dropdown-item" onClick={exportExcel}><FileSpreadsheet size={14} /> Excel</button>
-                                <button className="ui-dropdown-item" onClick={exportPDF}><FileText size={14} /> PDF</button>
-                                <button className="ui-dropdown-item" onClick={printTable}><Printer size={14} /> Print</button>
+                                <button type="button" className="ui-dropdown-item" onMouseDown={exportCSV} onClick={(e) => e.preventDefault()}><FileText size={14} /> CSV</button>
+                                <button type="button" className="ui-dropdown-item" onMouseDown={exportExcel} onClick={(e) => e.preventDefault()}><FileSpreadsheet size={14} /> Excel</button>
+                                <button type="button" className="ui-dropdown-item" onMouseDown={exportPDF} onClick={(e) => e.preventDefault()}><FileText size={14} /> PDF</button>
+                                <button type="button" className="ui-dropdown-item" onMouseDown={printTable} onClick={(e) => e.preventDefault()}><Printer size={14} /> Print</button>
                             </div>
                         )}
                     </div>

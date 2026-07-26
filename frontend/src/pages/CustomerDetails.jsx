@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import API from '../api/axios';
 import toast from 'react-hot-toast';
-import { Mail, Phone, MapPin, Building2, Globe, FileText, Briefcase, Tag, Calendar, Activity, Edit, Users } from 'lucide-react';
+import { Mail, Phone, MapPin, Building2, Globe, FileText, Briefcase, Tag, Calendar, Activity, Edit, Users, ArrowLeft } from 'lucide-react';
 import { DetailViewContainer, ProfileHeader, Tabs, KeyValueCard, Timeline, DataTable } from '../components/ui';
 import { motion } from 'framer-motion';
 
@@ -106,6 +106,14 @@ const CustomerDetails = () => {
             transition={{ duration: 0.4 }}
             style={{ padding: '24px' }}
         >
+            <div style={{ marginBottom: '16px' }}>
+                <button 
+                    onClick={() => navigate('/customers')}
+                    className="btn btn-secondary"
+                >
+                    <ArrowLeft size={16} /> Back to Customers
+                </button>
+            </div>
             <DetailViewContainer>
                 <ProfileHeader 
                     title={customer.company || customer.name}

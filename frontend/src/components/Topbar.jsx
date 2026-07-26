@@ -83,7 +83,7 @@ const Topbar = ({ onOpenModuleLauncher, onOpenCommandCenter }) => {
             }
             setIsNotificationOpen(false);
             if (notif.referenceId && notif.module === 'Orders') {
-                navigate(`/orders/${notif.referenceId}`);
+                navigate(`/orders/${notif.referenceId}/tracking`);
             } else {
                 navigate('/notifications');
             }

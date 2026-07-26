@@ -82,6 +82,7 @@ const FinancialOperations = React.lazy(() => import('./pages/FinancialOperations
 const OrderManagement = React.lazy(() => import('./pages/OrderManagement'));
 const Leads = React.lazy(() => import('./pages/Leads'));
 const SalesPipeline = React.lazy(() => import('./pages/SalesPipeline'));
+const InvoicePage = React.lazy(() => import('./pages/InvoicePage'));
 import ErrorBoundary from './components/ErrorBoundary';
 
 const CompleteCustomerProfile = React.lazy(() => import('./pages/CompleteCustomerProfile'));
@@ -274,6 +275,7 @@ const AppContent = () => {
                     <Route path="/customers/:id/edit" element={<ProtectedRoute requiredPermission="view_crm"><AddCustomer isEditMode={true} /></ProtectedRoute>} />
                     <Route path="/customers/:id" element={<ProtectedRoute requiredPermission="view_crm"><CustomerDetails /></ProtectedRoute>} />
                     <Route path="/orders/:id" element={<ProtectedRoute><OrderDetails /></ProtectedRoute>} />
+                    <Route path="/invoice/:invoiceId" element={<ProtectedRoute><InvoicePage /></ProtectedRoute>} />
                     <Route path="/invoices" element={<ProtectedRoute requiredPermission="view_erp"><Invoices /></ProtectedRoute>} />
                     <Route path="/customer/profile-settings" element={<ProtectedRoute requiredPermission="view_crm"><CustomerProfileSettings /></ProtectedRoute>} />
                     <Route path="/access-denied" element={<AccessDenied />} />

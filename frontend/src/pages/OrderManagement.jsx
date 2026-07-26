@@ -14,6 +14,8 @@ const OrderManagement = () => {
     const [loading, setLoading] = useState(true);
     const [activeFilter, setActiveFilter] = useState('All');
     const [searchTerm, setSearchTerm] = useState('');
+    const [statusPeriod, setStatusPeriod] = useState('This Month');
+    const [revenuePeriod, setRevenuePeriod] = useState('This Year');
 
     const fetchOrders = async () => {
         try {
@@ -72,28 +74,40 @@ const OrderManagement = () => {
         return matchesFilter && matchesSearch;
     });
 
-    const statusDistData = [
-        { name: 'Created', value: orders.filter(o => ['New', 'Created'].includes(o.status)).length || 0, fill: '#3b82f6' },
-        { name: 'Manager/Admin', value: orders.filter(o => ['Pending Approval', 'Manager/Admin Review'].includes(o.status)).length || 0, fill: '#f59e0b' },
-        { name: 'Verification', value: orders.filter(o => ['Employee Verification', 'Awaiting Stock Check'].includes(o.status)).length || 0, fill: '#8b5cf6' },
-        { name: 'Stock Issue', value: orders.filter(o => ['Low Stock', 'Low Stock Hold', 'Out of Stock', 'Waiting for Manager'].includes(o.status)).length || 0, fill: '#ef4444' },
-        { name: 'Sales Processing', value: orders.filter(o => ['Sales Processing', 'Inventory Verified', 'Ready for Delivery'].includes(o.status)).length || 0, fill: '#f59e0b' },
-        { name: 'Out for Delivery', value: orders.filter(o => o.status === 'Out for Delivery').length || 0, fill: '#0ea5e9' },
-        { name: 'Delivered', value: orders.filter(o => ['Delivered', 'Invoice Generated'].includes(o.status)).length || 0, fill: '#10b981' }
-    ];
-
-    if(statusDistData.length === 0) {
-        statusDistData.push({ name: 'No Data', value: 1, fill: '#e2e8f0' });
-    }
-
     // Dynamic Chart Data Generation
     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     const revMap = {};
     const delRevMap = {};
+
+    let targetMonth = currentMonth;
+    let targetYearForStatus = currentYear;
+    if (statusPeriod === 'Last Month') {
+        targetMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+        targetYearForStatus = currentMonth === 0 ? currentYear - 1 : currentYear;
+    }
+
+    const filteredOrdersForStatus = orders.filter(o => {
+        if (!o.createdAt) return false;
+        const d = new Date(o.createdAt);
+        return d.getMonth() === targetMonth && d.getFullYear() === targetYearForStatus;
+    });
+
+    const statusDistData = [
+        { name: 'Created', value: filteredOrdersForStatus.filter(o => ['New', 'Created', 'Pending'].includes(o.status)).length || 0, fill: '#3b82f6' },
+        { name: 'Manager/Admin', value: filteredOrdersForStatus.filter(o => ['Pending Approval', 'Manager/Admin Review'].includes(o.status)).length || 0, fill: '#f59e0b' },
+        { name: 'Verification', value: filteredOrdersForStatus.filter(o => ['Employee Verification', 'Awaiting Stock Check'].includes(o.status)).length || 0, fill: '#8b5cf6' },
+        { name: 'Stock Issue', value: filteredOrdersForStatus.filter(o => ['Low Stock', 'Low Stock Hold', 'Out of Stock', 'Waiting for Manager'].includes(o.status)).length || 0, fill: '#ef4444' },
+        { name: 'Processing', value: filteredOrdersForStatus.filter(o => ['Sales Processing', 'Inventory Verified', 'Ready for Delivery', 'Processing', 'In Transit'].includes(o.status)).length || 0, fill: '#f59e0b' },
+        { name: 'Out for Delivery', value: filteredOrdersForStatus.filter(o => o.status === 'Out for Delivery').length || 0, fill: '#0ea5e9' },
+        { name: 'Delivered', value: filteredOrdersForStatus.filter(o => ['Delivered', 'Invoice Generated', 'Completed', 'Workflow Completed'].includes(o.status)).length || 0, fill: '#10b981' }
+    ];
+
+    const targetYearForRevenue = revenuePeriod === 'This Year' ? currentYear : currentYear - 1;
+
     orders.forEach(o => {
         if(!o.createdAt) return;
         const date = new Date(o.createdAt);
-        if(date.getFullYear() !== currentYear) return;
+        if(date.getFullYear() !== targetYearForRevenue) return;
         const month = monthNames[date.getMonth()];
         const amt = (Number(o.totalAmount) || Number(o.grandTotal) || 0) / 1000;
         revMap[month] = (revMap[month] || 0) + amt;
@@ -102,7 +116,8 @@ const OrderManagement = () => {
         }
     });
 
-    const revenueChartData = monthNames.slice(0, currentMonth + 1).map(month => ({
+    const monthsToShow = revenuePeriod === 'This Year' ? monthNames.slice(0, currentMonth + 1) : monthNames;
+    const revenueChartData = monthsToShow.map(month => ({
         name: month,
         orderRevenue: Math.round(revMap[month] || 0),
         deliveredRevenue: Math.round(delRevMap[month] || 0)
@@ -150,7 +165,10 @@ const OrderManagement = () => {
                                 </div>
                                 <h3 className="rd-chart-title" style={{margin: 0}}>Order Status Distribution</h3>
                             </div>
-                            <select style={{padding: '4px 10px', borderRadius: 0, border: '1px solid #e2e8f0', fontSize: 12, color: '#475569', background: '#f8fafc', outline: 'none'}}>
+                            <select 
+                                value={statusPeriod} 
+                                onChange={(e) => setStatusPeriod(e.target.value)}
+                                style={{padding: '4px 10px', borderRadius: 0, border: '1px solid #e2e8f0', fontSize: 12, color: '#475569', background: '#f8fafc', outline: 'none', height: 'fit-content'}}>
                                 <option>This Month</option>
                                 <option>Last Month</option>
                             </select>
@@ -160,7 +178,7 @@ const OrderManagement = () => {
                                 <BarChart data={statusDistData} barSize={24}>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                                     <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 11}} dy={10} />
-                                    <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 11}} />
+                                    <YAxis allowDecimals={false} axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 11}} />
                                     <Tooltip cursor={{fill: 'transparent'}} contentStyle={{borderRadius: 0, border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'}} />
                                     <Bar dataKey="value" radius={[4,4,0,0]}>
                                         {statusDistData.map((entry, index) => (
@@ -180,7 +198,10 @@ const OrderManagement = () => {
                                 </div>
                                 <h3 className="rd-chart-title" style={{margin: 0}}>Monthly Order Revenue</h3>
                             </div>
-                            <select style={{padding: '4px 10px', borderRadius: 0, border: '1px solid #e2e8f0', fontSize: 12, color: '#475569', background: '#f8fafc', outline: 'none'}}>
+                            <select 
+                                value={revenuePeriod} 
+                                onChange={(e) => setRevenuePeriod(e.target.value)}
+                                style={{padding: '4px 10px', borderRadius: 0, border: '1px solid #e2e8f0', fontSize: 12, color: '#475569', background: '#f8fafc', outline: 'none', height: 'fit-content'}}>
                                 <option>This Year</option>
                                 <option>Last Year</option>
                             </select>
@@ -300,7 +321,7 @@ const OrderManagement = () => {
                                         </td>
                                         <td style={{color: '#475569'}} data-label="Manager">{o.manager || o.salesRep || '—'}</td>
                                         <td style={{textAlign: 'center'}} data-label="Action">
-                                            <button className="rd-btn-compact outline" style={{padding: '6px', display: 'inline-flex', alignItems: 'center'}} title="View Order" onClick={(e) => { e.stopPropagation(); navigate(`/orders/${o._id || o.id}`); }}>
+                                            <button className="rd-btn-compact outline" style={{padding: '6px', display: 'inline-flex', alignItems: 'center'}} title="View Order" onClick={(e) => { e.stopPropagation(); navigate(`/orders/${o._id || o.id}/tracking`); }}>
                                                 <Eye size={14} />
                                             </button>
                                         </td>

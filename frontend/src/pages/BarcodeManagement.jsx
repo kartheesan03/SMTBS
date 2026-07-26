@@ -309,7 +309,7 @@ const BarcodeManagement = () => {
                             `}</style>
                         </div>
                         <div className="rd-modal-footer">
-                            <button className="rd-btn-outline" onClick={() => setShowScanModal(false)}>Close Scanner</button>
+                            <button className="btn-secondary" onClick={() => setShowScanModal(false)}>Close Scanner</button>
                         </div>
                     </div>
                 </div>
@@ -339,7 +339,7 @@ const BarcodeManagement = () => {
                             </div>
                         </div>
                         <div className="rd-modal-footer">
-                            <button className="rd-btn-outline" onClick={() => setShowGenerateModal(false)}>Cancel</button>
+                            <button className="btn-secondary" onClick={() => setShowGenerateModal(false)}>Cancel</button>
                             <button className="rd-btn-solid" onClick={() => setShowGenerateModal(false)}>Generate & Print</button>
                         </div>
                     </div>

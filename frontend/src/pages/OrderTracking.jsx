@@ -262,10 +262,30 @@ const RoleActionPanel = ({ currentStage, loggedInRole, currentStatus, onAction, 
         </div>
     );
 
-    if (isCancelled || currentStatus === 'Delivered') {
+    if (isCancelled || currentStatus === 'Workflow Completed') {
         return (
-            <div className="empty-panel" style={{ backgroundColor: '#f1f5f9', padding: '16px', borderRadius: '0px' }}>
+            <div className="empty-panel" style={{ backgroundColor: '#f1f5f9', padding: '16px', borderRadius: '0px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
                 <p style={{ margin: 0 }}>No further actions can be taken on this order. Workflow is concluded.</p>
+                {currentStatus === 'Workflow Completed' && (
+                    <button className="erp-btn btn-primary" onClick={(e) => { e.preventDefault(); navigate(`/invoice/${order.id || order._id}`); }}>
+                        View / Generate Bill
+                    </button>
+                )}
+            </div>
+        );
+    }
+
+    if (currentStatus === 'Invoice Generated' || currentStage === 'Invoice Generated') {
+        return (
+            <div className="action-form">
+                <div className="button-group">
+                    <button className="erp-btn btn-primary" onClick={(e) => { e.preventDefault(); navigate(`/invoice/${order.id || order._id}`); }}>
+                        View / Generate Bill
+                    </button>
+                    <button className="erp-btn btn-success" disabled={submitting} onClick={() => handleActionClick('COMPLETE', 'Workflow Completed')}>
+                        {submitting ? 'Processing...' : 'Complete Workflow'}
+                    </button>
+                </div>
             </div>
         );
     }
@@ -526,9 +546,9 @@ const RoleActionPanel = ({ currentStage, loggedInRole, currentStatus, onAction, 
             transition={{ duration: 0.4 }}
             className="erp-tracking-page"
         >
-            <header className="page-header" style={{ marginBottom: 24 }}>
+            <header className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 0 }}>
                 <PageHeader title="Order Workflow" badge="ERP" subtitle="Manage and track the complete order lifecycle" />
-                <button className="erp-btn btn-outline" onClick={() => navigate('/erp')} style={{ marginTop: 12, width: 'fit-content' }}>
+                <button className="erp-btn btn-outline" onClick={() => navigate(-1)} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 16px', fontWeight: 600, height: 'fit-content', marginTop: 4 }}>
                     <ArrowLeft size={16} />
                     <span>Back to Orders</span>
                 </button>
@@ -717,32 +737,38 @@ const RoleActionPanel = ({ currentStage, loggedInRole, currentStatus, onAction, 
                             <thead>
                                 <tr>
                                     <th>Date & Time</th>
-                                    <th>Performed By</th>
-                                    <th>Role</th>
-                                    <th>Action</th>
-                                    <th>Previous Status</th>
-                                    <th>New Status</th>
+                                    <th>User & Role</th>
+                                    <th>Status Change</th>
                                     <th>Remarks</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {timeline.length === 0 ? (
-                                    <tr><td colSpan="7" className="empty-text">No order history available.</td></tr>
+                                    <tr><td colSpan="4" className="empty-text">No order history available.</td></tr>
                                 ) : (
                                     timeline.slice().reverse().map((row, i) => {
                                         // To display previous status, we look at the next element in the reversed array
                                         const nextRow = timeline.slice().reverse()[i + 1];
                                         const prevStatus = nextRow ? nextRow.status : 'None';
                                         
+                                        const userText = row.userId ? `User #${row.userId}` : 'System';
+                                        const roleText = row.role || 'System';
+                                        
                                         return (
                                             <tr key={i}>
-                                                <td>{formatDateTime(row.date)}</td>
-                                                <td>{row.userId ? `User #${row.userId}` : 'System'}</td>
-                                                <td>{row.role || 'System'}</td>
-                                                <td>Update Status</td>
-                                                <td><span className="badge-outline">{prevStatus}</span></td>
-                                                <td><span className="badge-outline">{row.status}</span></td>
-                                                <td>{row.remarks || '-'}</td>
+                                                <td style={{ whiteSpace: 'nowrap' }}>{formatDateTime(row.date)}</td>
+                                                <td>
+                                                    <div style={{ fontWeight: 600, color: '#0f172a' }}>{userText}</div>
+                                                    <div style={{ fontSize: '12px', color: '#64748b' }}>{roleText}</div>
+                                                </td>
+                                                <td>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                                                        <span className="badge-outline">{prevStatus}</span>
+                                                        <span style={{ color: '#94a3b8' }}>➔</span>
+                                                        <span className="badge-outline" style={{ background: '#f0f9ff', borderColor: '#bae6fd', color: '#0369a1' }}>{row.status}</span>
+                                                    </div>
+                                                </td>
+                                                <td style={{ color: '#475569' }}>{row.remarks || '-'}</td>
                                             </tr>
                                         );
                                     })
@@ -754,6 +780,7 @@ const RoleActionPanel = ({ currentStage, loggedInRole, currentStatus, onAction, 
 
 
             </div>
+            {/* Invoice page is now accessed via /invoice/:invoiceId */}
         </motion.div>
     );
 };

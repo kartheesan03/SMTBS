@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import API from '../api/axios';
 import toast from 'react-hot-toast';
-import { Mail, Phone, MapPin, Building2, Globe, FileText, CheckCircle, Package, Edit, ShoppingCart, Plus } from 'lucide-react';
+import { Mail, Phone, MapPin, Building2, Globe, FileText, CheckCircle, Package, Edit, ShoppingCart, Plus, ArrowLeft } from 'lucide-react';
 import { DetailViewContainer, ProfileHeader, Tabs, KeyValueCard, Timeline, DataTable } from '../components/ui';
 import { motion } from 'framer-motion';
 
@@ -25,6 +25,30 @@ const VendorDetails = () => {
                 const vId = String(actualVendor.id || actualVendor._id);
                 const vMaterials = materialsData.filter(m => String(m.vendorId) === vId || String(m.vendor?.id || m.vendor?._id || m.vendor) === vId);
                 setMaterials(vMaterials);
+
+                // Build Timeline Events
+                const events = [];
+                if (actualVendor.createdAt) {
+                    events.push({ id: 'created', time: new Date(actualVendor.createdAt).toLocaleDateString(), action: 'Vendor Profile Created', description: `Vendor profile for ${actualVendor.name} was successfully created.`, color: '#10B981' });
+                }
+                if (actualVendor.updatedAt && actualVendor.updatedAt !== actualVendor.createdAt) {
+                    events.push({ id: 'updated', time: new Date(actualVendor.updatedAt).toLocaleDateString(), action: 'Profile Updated', description: `Vendor details were recently updated.`, color: '#3b82f6' });
+                }
+                
+                // Fetch associated orders for history
+                try {
+                    const { data: orders } = await API.get(`/orders`);
+                    const vendorOrders = (orders || []).filter(o => String(o.vendorId) === vId || String(o.vendor?.id || o.vendor?._id) === vId);
+                    vendorOrders.forEach(order => {
+                        events.push({ id: `order-${order._id || order.id}`, time: new Date(order.createdAt || order.date || new Date()).toLocaleDateString(), action: `Purchase Order Placed`, description: `Order ${order.orderNumber || 'Unknown'} was raised for ₹${(order.totalAmount || order.grandTotal || 0).toLocaleString()}`, color: '#8b5cf6' });
+                    });
+                } catch (e) {
+                    console.log("Could not fetch orders for timeline");
+                }
+                
+                // Sort descending by trying to parse the date back, though it's a locale string now, it's better than nothing
+                setTimeline(events.reverse());
+
             } catch (err) {
                 console.error("VendorDetails load error:", err);
                 toast.error('Failed to load vendor details: ' + (err.response?.data?.message || err.message));
@@ -118,6 +142,14 @@ const VendorDetails = () => {
             transition={{ duration: 0.4 }}
             style={{ padding: '24px' }}
         >
+            <div style={{ marginBottom: '16px' }}>
+                <button 
+                    onClick={() => navigate('/vendors')}
+                    className="btn btn-secondary"
+                >
+                    <ArrowLeft size={16} /> Back to Vendor Management
+                </button>
+            </div>
             <DetailViewContainer>
                 <ProfileHeader 
                     title={vendor.name || 'Unnamed Vendor'}

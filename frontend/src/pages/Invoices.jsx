@@ -73,7 +73,7 @@ const Invoices = () => {
         if (action === 'download') {
             handleDownloadInvoice(row);
         } else if (action === 'view') {
-            navigate(`/orders/${row._id || row.id}`);
+            navigate(`/orders/${row._id || row.id}/tracking`);
         }
     };
 
