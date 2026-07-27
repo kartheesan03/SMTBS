@@ -34,6 +34,7 @@ const locationRoutes = require('./src/routes/locationRoutes');
 const trainingRoutes = require('./src/routes/trainingRoutes');
 const holidayRoutes  = require('./src/routes/holidayRoutes');
 const recruitmentRoutes = require('./src/routes/recruitmentRoutes');
+const chatRoutes = require('./src/routes/chatRoutes');
 
 const app = express();
 
@@ -73,6 +74,7 @@ app.use('/api/sales-goals', salesGoalRoutes);
 app.use('/api/training', trainingRoutes);
 app.use('/api/holidays',    holidayRoutes);
 app.use('/api/recruitment', recruitmentRoutes);
+app.use('/api/chat', chatRoutes);
 
 // 404 Handler
 app.use((req, res, next) => {

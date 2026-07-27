@@ -983,6 +983,19 @@ input[type="password"]::-ms-clear {
   padding: 0;
 }
 
+/* Full-screen public pages (no sidebar margin, no content padding) */
+.app-main:has(.landing-container),
+.app-main:has(.fx-login-shell) {
+  margin-left: 0 !important;
+  width: 100% !important;
+}
+
+.app-content:has(.landing-container),
+.app-content:has(.fx-login-shell) {
+  padding: 0 !important;
+  overflow-y: auto;
+}
+
 .flex-center {
     display: flex;
     justify-content: center;

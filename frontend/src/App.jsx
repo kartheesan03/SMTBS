@@ -20,6 +20,7 @@ import GlobalHeader from './components/GlobalHeader';
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
 const Login = React.lazy(() => import('./pages/Login'));
 const Register = React.lazy(() => import('./pages/Register'));
+const PublicPlaceholder = React.lazy(() => import('./pages/PublicPlaceholder'));
 const Materials = React.lazy(() => import('./pages/Materials'));
 const MyMaterials = React.lazy(() => import('./pages/MyMaterials'));
 const AddMaterial = React.lazy(() => import('./pages/AddMaterial'));
@@ -103,7 +104,7 @@ const SalesGoals = React.lazy(() => import('./pages/SalesGoals'));
 const HolidayCalendar = React.lazy(() => import('./pages/HolidayCalendar'));
 const Recruitment = React.lazy(() => import('./pages/Recruitment'));
 const LeaveBalance = React.lazy(() => import('./pages/LeaveBalance'));
-
+const LandingPage = React.lazy(() => import('./pages/LandingPage'));
 const AppContent = () => {
     const { user, loading, logout } = useContext(AuthContext);
     
@@ -176,14 +177,20 @@ const AppContent = () => {
 
                 <Routes>
                     <Route path="/settings/audit-logs" element={<ProtectedRoute roles={['admin']}><AuditLogs /></ProtectedRoute>} />
-                    {/* Public Route */}
+                    {/* Public Routes */}
                     <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
                     <Route path="/register" element={!user ? <Register /> : <Navigate to="/" />} />
+                    <Route path="/features" element={<PublicPlaceholder title="Features" />} />
+                    <Route path="/pricing" element={<PublicPlaceholder title="Pricing" />} />
+                    <Route path="/faq" element={<PublicPlaceholder title="FAQ" />} />
+                    <Route path="/help" element={<PublicPlaceholder title="Help" />} />
                     
-                    {/* Protected Root Route - Dispatches to correct dashboard */}
+                    {/* Root Route - Landing Page if not logged in, Dashboard if logged in */}
                     <Route path="/" element={
-                        <ProtectedRoute>
-                            {(() => {
+                        !user ? (
+                            <LandingPage />
+                        ) : (
+                            (() => {
                                 const r = user?.role ? user.role.toLowerCase() : '';
                                 const isSuperAdmin = user?.email === 'admin@smtbms.com' || r === 'super admin';
                                 if (isSuperAdmin || r === 'admin') return <AdminDashboard />;
@@ -194,8 +201,8 @@ const AppContent = () => {
                                 if (r === 'customer') return <CustomerDashboard />;
                                 if (r === 'vendor') return <VendorDashboard />;
                                 return <Dashboard />;
-                            })()}
-                        </ProtectedRoute>
+                            })()
+                        )
                     } />
                     
                     {/* HRMS Routes */}

@@ -1,6 +1,13 @@
 import React from 'react';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 
+/* ═══════════════════════════════════════════════════════════════
+   GRADIENT STAT CARDS — Reference-style design
+   ─ Vibrant gradient backgrounds with wavy SVG texture
+   ─ Large semi-transparent watermark icon on the right
+   ─ White text, rounded corners, premium depth
+   ═══════════════════════════════════════════════════════════════ */
+
 const PASTEL_PALETTE = [
     '#3b82f6', // blue
     '#8b5cf6', // purple
@@ -10,19 +17,50 @@ const PASTEL_PALETTE = [
     '#10b981', // green
 ];
 
-// Mapping themes to specific colors if explicitly provided
-const THEMES = {
-    blue: '#3b82f6',
-    purple: '#8b5cf6',
-    peach: '#f97316',
-    orange: '#f97316',
-    pink: '#ec4899',
-    mint: '#10b981',
-    green: '#10b981',
-    teal: '#14b8a6',
-    yellow: '#eab308',
-    red: '#ef4444'
+// Mapping themes to gradient pairs [from, to]
+const GRADIENT_THEMES = {
+    blue:   { from: '#3b82f6', to: '#06b6d4' },
+    purple: { from: '#8b5cf6', to: '#6366f1' },
+    peach:  { from: '#f97316', to: '#f43f5e' },
+    orange: { from: '#f97316', to: '#f43f5e' },
+    pink:   { from: '#ec4899', to: '#a855f7' },
+    mint:   { from: '#10b981', to: '#06b6d4' },
+    green:  { from: '#10b981', to: '#06b6d4' },
+    teal:   { from: '#14b8a6', to: '#3b82f6' },
+    yellow: { from: '#eab308', to: '#f97316' },
+    red:    { from: '#ef4444', to: '#ec4899' },
 };
+
+// Fallback gradient pairs (indexed by position)
+const GRADIENT_FALLBACKS = [
+    { from: '#3b82f6', to: '#06b6d4' },
+    { from: '#8b5cf6', to: '#6366f1' },
+    { from: '#ec4899', to: '#a855f7' },
+    { from: '#f97316', to: '#f43f5e' },
+    { from: '#14b8a6', to: '#3b82f6' },
+    { from: '#10b981', to: '#06b6d4' },
+];
+
+// SVG wave pattern overlay for the card background
+const WavePattern = () => (
+    <svg
+        style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            pointerEvents: 'none',
+            opacity: 0.12,
+        }}
+        viewBox="0 0 400 200"
+        preserveAspectRatio="none"
+        xmlns="http://www.w3.org/2000/svg"
+    >
+        <path d="M0,80 C80,120 160,40 240,80 C320,120 400,60 400,60 L400,200 L0,200 Z" fill="white" />
+        <path d="M0,120 C100,160 200,80 300,120 C350,140 400,100 400,100 L400,200 L0,200 Z" fill="white" opacity="0.5" />
+    </svg>
+);
 
 export const StatCard = ({ 
     title,
@@ -47,7 +85,6 @@ export const StatCard = ({
     let cardSubtext = subtext;
 
     if (!cardSubtext && trendValue) {
-        // Many older uses passed trendValue="12% vs last month"
         if (String(trendValue).includes('%')) {
             const parts = String(trendValue).split(' ');
             cardTrend = cardTrend || parts[0];
@@ -61,10 +98,10 @@ export const StatCard = ({
         cardSubtext = 'vs last period';
     }
     
-    // Determine color
-    let bgColor = PASTEL_PALETTE[index % PASTEL_PALETTE.length];
+    // Determine gradient
+    let gradient = GRADIENT_FALLBACKS[index % GRADIENT_FALLBACKS.length];
     if (colorTheme || color) {
-        bgColor = THEMES[colorTheme || color] || bgColor;
+        gradient = GRADIENT_THEMES[colorTheme || color] || gradient;
     }
     
     const isPositive = trendPositive !== undefined ? trendPositive : (trend && trend > 0);
@@ -73,75 +110,117 @@ export const StatCard = ({
         <div 
             onClick={onClick}
             style={{
-                background: bgColor,
-                borderRadius: '16px',
-                padding: '24px',
+                background: `linear-gradient(135deg, ${gradient.from} 0%, ${gradient.to} 100%)`,
+                borderRadius: '18px',
+                padding: '24px 24px 20px',
                 display: 'flex',
                 flexDirection: 'column',
                 height: '100%',
+                minHeight: '160px',
                 cursor: onClick ? 'pointer' : 'default',
-                transition: 'transform 0.2s, box-shadow 0.2s',
+                transition: 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease',
                 color: '#ffffff',
-                boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06)'
+                boxShadow: `0 8px 24px -4px ${gradient.from}40, 0 4px 8px -2px ${gradient.from}20`,
+                position: 'relative',
+                overflow: 'hidden',
             }}
             onMouseEnter={(e) => {
-                if (onClick) e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.transform = 'translateY(-4px) scale(1.02)';
+                e.currentTarget.style.boxShadow = `0 16px 32px -4px ${gradient.from}50, 0 8px 16px -4px ${gradient.from}30`;
             }}
             onMouseLeave={(e) => {
-                if (onClick) e.currentTarget.style.transform = 'none';
+                e.currentTarget.style.transform = 'none';
+                e.currentTarget.style.boxShadow = `0 8px 24px -4px ${gradient.from}40, 0 4px 8px -2px ${gradient.from}20`;
             }}
         >
-            {/* Top row: Icon and Trend Pill */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
-                <div style={{ 
-                    width: '44px', height: '44px', borderRadius: '50%', 
-                    backgroundColor: 'rgba(255, 255, 255, 0.2)', 
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    flexShrink: 0
+            {/* Wave texture overlay */}
+            <WavePattern />
+
+            {/* Large watermark icon (background decoration) */}
+            {Icon && (
+                <div style={{
+                    position: 'absolute',
+                    right: '16px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    opacity: 0.2,
+                    pointerEvents: 'none',
                 }}>
-                    {Icon && <Icon size={22} strokeWidth={2.5} color="#ffffff" />}
-                </div>
-
-                {cardTrend && (
-                    <div style={{ 
-                        display: 'flex', alignItems: 'center', gap: '4px', 
-                        padding: '4px 10px', borderRadius: '12px',
-                        backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                        fontSize: '12px', fontWeight: 600, color: '#ffffff'
-                    }}>
-                        {isPositive ? <TrendingUp size={14} strokeWidth={2.5} /> : <TrendingDown size={14} strokeWidth={2.5} />}
-                        <span>{cardTrend}</span>
-                    </div>
-                )}
-            </div>
-            
-            {/* Middle: Label and Value */}
-            <div style={{ flex: 1, marginTop: '8px' }}>
-                <div style={{ fontSize: '14px', fontWeight: 500, color: 'rgba(255, 255, 255, 0.9)', marginBottom: '8px' }}>
-                    {cardTitle}
-                </div>
-                <div style={{ fontSize: '32px', fontWeight: 700, color: '#ffffff', fontVariantNumeric: 'tabular-nums', lineHeight: 1.1 }}>
-                    {value}
-                </div>
-            </div>
-
-            {/* Bottom: Subtext */}
-            {cardSubtext && (
-                <div style={{ fontSize: '13px', color: 'rgba(255, 255, 255, 0.7)', marginTop: '16px' }}>
-                    {cardSubtext}
+                    <Icon size={72} strokeWidth={1.5} color="#ffffff" />
                 </div>
             )}
+
+            {/* Content (positioned above overlays) */}
+            <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', flex: 1 }}>
+                
+                {/* Title */}
+                <div style={{ 
+                    fontSize: '14px', 
+                    fontWeight: 600, 
+                    color: 'rgba(255, 255, 255, 0.9)', 
+                    marginBottom: '12px',
+                    letterSpacing: '0.3px',
+                }}>
+                    {cardTitle}
+                </div>
+
+                {/* Value */}
+                <div style={{ 
+                    fontSize: '36px', 
+                    fontWeight: 800, 
+                    color: '#ffffff', 
+                    fontVariantNumeric: 'tabular-nums', 
+                    lineHeight: 1,
+                    fontFamily: "'Outfit', 'Inter', sans-serif",
+                    marginBottom: '4px',
+                }}>
+                    {value}
+                </div>
+
+                {/* Spacer */}
+                <div style={{ flex: 1 }} />
+
+                {/* Bottom row: Trend + Subtext */}
+                <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '8px', 
+                    marginTop: '12px',
+                }}>
+                    {cardTrend && (
+                        <div style={{ 
+                            display: 'inline-flex', 
+                            alignItems: 'center', 
+                            gap: '3px', 
+                            padding: '3px 8px',
+                            borderRadius: '8px',
+                            backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                            fontSize: '12px', 
+                            fontWeight: 700, 
+                            color: '#ffffff',
+                            backdropFilter: 'blur(4px)',
+                        }}>
+                            {isPositive ? <TrendingUp size={13} strokeWidth={2.5} /> : <TrendingDown size={13} strokeWidth={2.5} />}
+                            <span>{cardTrend}</span>
+                        </div>
+                    )}
+                    {cardSubtext && (
+                        <div style={{ fontSize: '13px', color: 'rgba(255, 255, 255, 0.75)', fontWeight: 500 }}>
+                            {cardSubtext}
+                        </div>
+                    )}
+                </div>
+            </div>
         </div>
     );
 };
 
 export const StatGrid = ({ children }) => {
     const count = React.Children.count(children);
-    // User wants a single row: set columns to match the number of children (max 6 for safety)
     const lgCols = Math.min(count, 6);
 
     return (
-        <div style={{ gap: '24px' }} className={`pastel-stat-grid cols-${lgCols}`}>
+        <div style={{ gap: '20px' }} className={`pastel-stat-grid cols-${lgCols}`}>
             <style>{`
                 .pastel-stat-grid {
                     display: grid;

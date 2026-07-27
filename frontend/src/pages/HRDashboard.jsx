@@ -115,7 +115,6 @@ const HRDashboard = () => {
             <div className="rd-content">
                 
 
-
                 {/* ── 1. Hero Banner ── */}
                 <WelcomeBanner 
                     user={user}
@@ -206,7 +205,6 @@ const HRDashboard = () => {
 
                 </div>
 
-                {/* ── 4. Chart Row 1 (4 Columns) ── */}
                 {/* ── 4. Chart Row 1: Employee Growth (wide) + Attendance Today ── */}
                 <div className="rd-chart-row-wide">
                     <div className="dashboard-panel">

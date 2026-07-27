@@ -12,6 +12,7 @@ import PageHeader from '../components/PageHeader';
 import CommandCenter from '../components/CommandCenter';
 import { SparklineKPICard, IconQuickAction, InvRow } from './AdminDashboard';
 import { StatCard, StatGrid } from '../components/ui/StatCard';
+import WelcomeBanner from '../components/ui/WelcomeBanner';
 
 const ManagerDashboard = () => {
     const navigate = useNavigate();
