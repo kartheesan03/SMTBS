@@ -117,12 +117,22 @@ const Materials = () => {
         },
         {
             key: 'quantity',
-            label: 'QTY',
+            label: 'AVAIL / TOTAL',
             sortable: true,
-            align: 'right',
-            render: (val) => (
-                <span style={{ fontWeight: 700, color: '#1e293b', fontSize: 14 }}>{val}</span>
-            )
+            align: 'center',
+            minWidth: '120px',
+            nowrap: true,
+            render: (val, row) => {
+                const total = row.quantity || 0;
+                const reserved = row.reservedQuantity || 0;
+                const available = Math.max(0, total - reserved);
+                return (
+                    <span>
+                        <span style={{ fontWeight: 700, color: '#1e293b', fontSize: 14 }}>{available}</span>
+                        <span style={{ color: '#94a3b8', fontWeight: 500, fontSize: 13, marginLeft: 4 }}>/ {total}</span>
+                    </span>
+                );
+            }
         },
         {
             key: 'unit',

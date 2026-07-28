@@ -66,8 +66,8 @@ export const SearchableSelect = ({ options = [], value, onChange, placeholder = 
                 className={`ui-select-button ${error ? 'error' : ''}`} 
                 onClick={() => setIsOpen(!isOpen)}
             >
-                <span style={{ color: selectedOption ? 'inherit' : '#94a3b8' }}>{displayValue}</span>
-                <ChevronDown size={16} color="#64748b" />
+                <span className="ui-select-value" style={{ color: selectedOption ? 'inherit' : '#94a3b8' }}>{displayValue}</span>
+                <ChevronDown size={16} color="#64748b" style={{ flexShrink: 0 }} />
             </div>
             
             {isOpen && (

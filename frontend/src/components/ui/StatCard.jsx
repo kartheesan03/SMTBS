@@ -67,14 +67,11 @@ export const StatCard = ({
     label, 
     value, 
     icon: Icon, 
-    colorTheme, 
-    color, 
     trendValue, 
     percentChange,
     trendPositive = true, 
     trend,
     subtext,
-    index = 0,
     onClick
 }) => {
     // Props backward compatibility mapping
@@ -98,149 +95,116 @@ export const StatCard = ({
         cardSubtext = 'vs last period';
     }
     
-    // Determine gradient
-    let gradient = GRADIENT_FALLBACKS[index % GRADIENT_FALLBACKS.length];
-    if (colorTheme || color) {
-        gradient = GRADIENT_THEMES[colorTheme || color] || gradient;
-    }
-    
     const isPositive = trendPositive !== undefined ? trendPositive : (trend && trend > 0);
 
     return (
         <div 
             onClick={onClick}
             style={{
-                background: `linear-gradient(135deg, ${gradient.from} 0%, ${gradient.to} 100%)`,
-                borderRadius: '18px',
-                padding: '24px 24px 20px',
+                background: '#ffffff',
+                border: '1px solid #e5e7eb',
+                borderRadius: '12px',
+                padding: '24px',
                 display: 'flex',
                 flexDirection: 'column',
                 height: '100%',
-                minHeight: '160px',
                 cursor: onClick ? 'pointer' : 'default',
-                transition: 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease',
-                color: '#ffffff',
-                boxShadow: `0 8px 24px -4px ${gradient.from}40, 0 4px 8px -2px ${gradient.from}20`,
+                transition: 'background-color 0.2s ease',
+                boxShadow: '0 1px 2px rgba(0, 0, 0, 0.04)',
                 position: 'relative',
-                overflow: 'hidden',
             }}
             onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-4px) scale(1.02)';
-                e.currentTarget.style.boxShadow = `0 16px 32px -4px ${gradient.from}50, 0 8px 16px -4px ${gradient.from}30`;
+                if (onClick) e.currentTarget.style.backgroundColor = '#f9fafb';
             }}
             onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'none';
-                e.currentTarget.style.boxShadow = `0 8px 24px -4px ${gradient.from}40, 0 4px 8px -2px ${gradient.from}20`;
+                if (onClick) e.currentTarget.style.backgroundColor = '#ffffff';
             }}
         >
-            {/* Wave texture overlay */}
-            <WavePattern />
-
-            {/* Large watermark icon (background decoration) */}
-            {Icon && (
-                <div style={{
-                    position: 'absolute',
-                    right: '16px',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    opacity: 0.2,
-                    pointerEvents: 'none',
-                }}>
-                    <Icon size={72} strokeWidth={1.5} color="#ffffff" />
-                </div>
-            )}
-
-            {/* Content (positioned above overlays) */}
-            <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', flex: 1 }}>
-                
-                {/* Title */}
+            {/* Header: Title and Icon */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+                {Icon && <Icon size={16} strokeWidth={2} color="#6b7280" />}
                 <div style={{ 
-                    fontSize: '14px', 
+                    fontSize: '12px', 
                     fontWeight: 600, 
-                    color: 'rgba(255, 255, 255, 0.9)', 
-                    marginBottom: '12px',
-                    letterSpacing: '0.3px',
+                    color: '#6b7280', 
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
                 }}>
                     {cardTitle}
                 </div>
+            </div>
 
-                {/* Value */}
-                <div style={{ 
-                    fontSize: '36px', 
-                    fontWeight: 800, 
-                    color: '#ffffff', 
-                    fontVariantNumeric: 'tabular-nums', 
-                    lineHeight: 1,
-                    fontFamily: "'Outfit', 'Inter', sans-serif",
-                    marginBottom: '4px',
-                }}>
-                    {value}
-                </div>
+            {/* Value */}
+            <div style={{ 
+                fontSize: '32px', 
+                fontWeight: 600, 
+                color: '#111827', 
+                fontVariantNumeric: 'tabular-nums', 
+                lineHeight: 1,
+                fontFamily: "'Inter', sans-serif",
+                marginBottom: '12px',
+            }}>
+                {value}
+            </div>
 
-                {/* Spacer */}
-                <div style={{ flex: 1 }} />
+            {/* Spacer */}
+            <div style={{ flex: 1 }} />
 
-                {/* Bottom row: Trend + Subtext */}
-                <div style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    gap: '8px', 
-                    marginTop: '12px',
-                }}>
-                    {cardTrend && (
-                        <div style={{ 
-                            display: 'inline-flex', 
-                            alignItems: 'center', 
-                            gap: '3px', 
-                            padding: '3px 8px',
-                            borderRadius: '8px',
-                            backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                            fontSize: '12px', 
-                            fontWeight: 700, 
-                            color: '#ffffff',
-                            backdropFilter: 'blur(4px)',
-                        }}>
-                            {isPositive ? <TrendingUp size={13} strokeWidth={2.5} /> : <TrendingDown size={13} strokeWidth={2.5} />}
-                            <span>{cardTrend}</span>
-                        </div>
-                    )}
-                    {cardSubtext && (
-                        <div style={{ fontSize: '13px', color: 'rgba(255, 255, 255, 0.75)', fontWeight: 500 }}>
-                            {cardSubtext}
-                        </div>
-                    )}
-                </div>
+            {/* Bottom row: Trend + Subtext */}
+            <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '8px', 
+            }}>
+                {cardTrend && (
+                    <div style={{ 
+                        display: 'inline-flex', 
+                        alignItems: 'center', 
+                        gap: '2px', 
+                        fontSize: '13px', 
+                        fontWeight: 500, 
+                        color: isPositive ? '#059669' : '#dc2626',
+                    }}>
+                        {isPositive ? <TrendingUp size={14} strokeWidth={2.5} /> : <TrendingDown size={14} strokeWidth={2.5} />}
+                        <span>{cardTrend}</span>
+                    </div>
+                )}
+                {cardSubtext && (
+                    <div style={{ fontSize: '13px', color: '#6b7280', fontWeight: 400 }}>
+                        {cardSubtext}
+                    </div>
+                )}
             </div>
         </div>
     );
 };
 
-export const StatGrid = ({ children }) => {
+export const StatGrid = ({ children, columns }) => {
     const count = React.Children.count(children);
-    const lgCols = Math.min(count, 6);
+    const lgCols = columns || Math.min(count, 6); // Default to a single row for up to 6 cards
 
     return (
-        <div style={{ gap: '20px' }} className={`pastel-stat-grid cols-${lgCols}`}>
+        <div style={{ gap: '24px' }} className={`minimal-stat-grid cols-${lgCols}`}>
             <style>{`
-                .pastel-stat-grid {
+                .minimal-stat-grid {
                     display: grid;
                     grid-template-columns: 1fr;
                 }
-                @media (min-width: 768px) {
-                    .pastel-stat-grid { grid-template-columns: repeat(2, 1fr); }
+                @media (min-width: 640px) {
+                    .minimal-stat-grid { grid-template-columns: repeat(2, 1fr); }
                 }
                 @media (min-width: 1024px) {
-                    .pastel-stat-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
-                    .pastel-stat-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
-                }
-                @media (min-width: 1280px) {
-                    .pastel-stat-grid.cols-5 { grid-template-columns: repeat(5, 1fr); }
-                    .pastel-stat-grid.cols-6 { grid-template-columns: repeat(6, 1fr); }
+                    .minimal-stat-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+                    .minimal-stat-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+                    .minimal-stat-grid.cols-5 { grid-template-columns: repeat(5, 1fr); }
+                    .minimal-stat-grid.cols-6 { grid-template-columns: repeat(6, 1fr); }
                 }
             `}</style>
-            {React.Children.map(children, (child, idx) => {
+            {React.Children.map(children, (child) => {
                 if (!React.isValidElement(child)) return child;
-                return React.cloneElement(child, { index: idx });
+                // Remove featured and other bento props
+                const { featured, colorTheme, color, ...cleanProps } = child.props;
+                return React.cloneElement(child, cleanProps);
             })}
         </div>
     );

@@ -1,0 +1,234 @@
+.ocr-container {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.ocr-header h2 {
+    margin: 0;
+    color: #1e293b;
+    font-size: 24px;
+}
+
+.ocr-header p {
+    margin: 4px 0 0 0;
+    color: #64748b;
+}
+
+.ocr-content {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.ocr-upload-zone {
+    border: 2px dashed #cbd5e1;
+    border-radius: 8px;
+    padding: 40px;
+    text-align: center;
+    cursor: pointer;
+    background: #f8fafc;
+    transition: all 0.2s;
+}
+
+.ocr-upload-zone:hover {
+    border-color: #3b82f6;
+    background: #eff6ff;
+}
+
+.ocr-upload-zone.drag-active {
+    border-color: #3b82f6;
+    background: #eff6ff;
+}
+
+.ocr-upload-zone input {
+    display: none;
+}
+
+.ocr-upload-icon {
+    margin-bottom: 12px;
+    color: #94a3b8;
+}
+
+.ocr-upload-text {
+    font-size: 16px;
+    color: #334155;
+    margin: 0 0 8px 0;
+}
+
+.ocr-upload-hint {
+    font-size: 14px;
+    color: #64748b;
+    margin: 0;
+}
+
+.ocr-results {
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    overflow: hidden;
+    flex: 1;
+}
+
+.ocr-results-split {
+    display: flex;
+    gap: 24px;
+    align-items: stretch;
+}
+
+@media (max-width: 768px) {
+    .ocr-results-split {
+        flex-direction: column;
+    }
+}
+
+.ocr-preview-pane {
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    overflow: hidden;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.ocr-preview-content {
+    flex: 1;
+    background: #f1f5f9;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+}
+
+.ocr-results-header {
+    padding: 16px;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8fafc;
+}
+
+.ocr-results-header h3 {
+    margin: 0;
+    font-size: 16px;
+    color: #1e293b;
+}
+
+.ocr-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.ocr-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    border-radius: 6px;
+    color: #475569;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.ocr-action-btn:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #1e293b;
+}
+
+.ocr-text-viewer {
+    padding: 16px;
+    max-height: 500px;
+    overflow-y: auto;
+    font-family: monospace;
+    font-size: 14px;
+    color: #334155;
+    line-height: 1.5;
+    white-space: pre-wrap;
+}
+
+.ocr-search {
+    padding: 12px 16px;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ocr-search input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 14px;
+    outline: none;
+}
+
+.ocr-search input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.highlight {
+    background-color: #fef08a;
+    padding: 2px 0;
+}
+
+.ocr-loader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px;
+    gap: 16px;
+    color: #64748b;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #f3f4f6;
+    border-top: 3px solid #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.ocr-history-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.ocr-history-table th, .ocr-history-table td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.ocr-history-table th {
+    background: #f8fafc;
+    font-weight: 600;
+    color: #475569;
+    font-size: 13px;
+}
+
+.ocr-history-table td {
+    color: #334155;
+    font-size: 14px;
+}
+
+.ocr-history-table tr:hover {
+    background: #f8fafc;
+}

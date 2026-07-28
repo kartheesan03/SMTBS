@@ -282,10 +282,22 @@ const MyMaterials = () => {
         },
         { 
             key: 'materialQty', 
-            label: 'AVAILABLE QTY', 
+            label: 'AVAIL / TOTAL', 
             align: 'center',
             sortable: true,
-            render: (val, row) => <span><span style={{ fontWeight: 700, color: '#1e293b', fontSize: 14 }}>{val}</span> <span style={{ color: '#94a3b8', fontSize: 13, fontWeight: 500 }}>{row.material?.unit || 'units'}</span></span>
+            minWidth: '120px',
+            nowrap: true,
+            render: (val, row) => {
+                const total = val || 0;
+                const reserved = row.materialReserved || 0;
+                const available = Math.max(0, total - reserved);
+                return (
+                    <span>
+                        <span style={{ fontWeight: 700, color: '#1e293b', fontSize: 14 }}>{available}</span>
+                        <span style={{ color: '#94a3b8', fontWeight: 500, fontSize: 13, marginLeft: 4 }}>/ {total}</span>
+                    </span>
+                );
+            }
         },
         { 
             key: 'requiredQuantity', 
@@ -388,21 +400,31 @@ const MyMaterials = () => {
         },
         { 
             key: 'quantity', 
-            label: 'Available Stock', 
+            label: 'AVAIL / TOTAL', 
+            align: 'center',
+            minWidth: '120px',
+            nowrap: true,
             render: (val, row) => {
+                const total = val || 0;
+                const reserved = row.reservedQuantity || 0;
+                const available = Math.max(0, total - reserved);
                 const max = (row.lowStockThreshold || 10) * 3;
-                const percent = Math.min(100, Math.max(0, ((val || 0) / max) * 100));
+                const percent = Math.min(100, Math.max(0, (available / max) * 100));
+                
                 let color = '#10b981';
-                if ((val || 0) === 0) color = '#ef4444';
-                else if ((val || 0) <= (row.lowStockThreshold || 10)) color = '#f59e0b';
+                if (available === 0) color = '#ef4444';
+                else if (available <= (row.lowStockThreshold || 10)) color = '#f59e0b';
                 
                 return (
                     <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <span style={{ fontWeight: '600' }}>{val || 0}</span>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                            <span>
+                                <span style={{ fontWeight: 700, color: '#1e293b', fontSize: 14 }}>{available}</span>
+                                <span style={{ color: '#94a3b8', fontWeight: 500, fontSize: 13, marginLeft: 4 }}>/ {total}</span>
+                            </span>
                             <span style={{ color: '#64748b', fontSize: '12px' }}>{row.unit || 'units'}</span>
                         </div>
-                        <div className="stock-progress-container">
+                        <div className="stock-progress-container" style={{ marginTop: 4 }}>
                             <div className="stock-progress-fill" style={{ width: `${percent}%`, backgroundColor: color }}></div>
                         </div>
                     </div>

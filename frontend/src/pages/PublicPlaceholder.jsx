@@ -10,7 +10,11 @@ const PublicPlaceholder = ({ title }) => {
         <div className="landing-container">
             <nav className="landing-nav">
                 <div className="nav-logo" onClick={() => navigate('/')} style={{cursor: 'pointer'}}>
-                    <Globe size={28} className="logo-icon" />
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="logo-icon" style={{ filter: 'drop-shadow(0 0 10px rgba(168, 85, 247, 0.65))' }}>
+                        <g stroke="#c084fc" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M 15 3 L 22 7 L 15 11 L 8 7 Z M 22 7 L 22 15 L 15 19 L 15 11 M 15 19 L 10.5 16.43 M 3 10 L 8 10 M 5.5 13.5 L 11.5 13.5 M 4 17 L 9.5 17" />
+                        </g>
+                    </svg>
                     <span>SMTBMS</span>
                 </div>
                 <div className="nav-actions">

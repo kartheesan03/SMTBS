@@ -59,7 +59,8 @@ const MaterialDetails = ({ embeddedId }) => {
     }
 
     const isLowStock = material.quantity <= (material.lowStockThreshold || 10);
-    const isOutOfStock = material.quantity === 0;
+    const availableStock = Math.max(0, material.quantity - (material.reservedQuantity || 0));
+    const isOutOfStock = availableStock === 0;
     const stockStatus = isOutOfStock ? 'Out of stock' : (isLowStock ? 'Low stock' : 'In stock');
     const stockColor = isOutOfStock ? '#dc2626' : (isLowStock ? '#f59e0b' : '#16a34a');
     const stockBg = isOutOfStock ? '#fef2f2' : (isLowStock ? '#fffbeb' : '#f0fdf4');
@@ -190,8 +191,8 @@ const MaterialDetails = ({ embeddedId }) => {
                             
                             <div style={{ marginBottom: 24 }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                                    <div style={{ fontSize: 13, fontWeight: 600, color: '#475569', display: 'flex', alignItems: 'center', gap: 6 }}><Layers size={14}/> Stock Level</div>
-                                    <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>{material.quantity} / {material.maxCapacity || 1000} {material.unit}</div>
+                                    <div style={{ fontSize: 13, fontWeight: 600, color: '#475569', display: 'flex', alignItems: 'center', gap: 6 }}><Layers size={14}/> Stock Level (Avail/Total)</div>
+                                    <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>{availableStock} / {material.quantity} {material.unit}</div>
                                 </div>
                                 <div style={{ width: '100%', height: 8, background: '#f1f5f9', borderRadius: 0, overflow: 'hidden' }}>
                                     <div style={{ width: `${Math.min(100, (material.quantity / (material.maxCapacity || 1000)) * 100)}%`, height: '100%', background: stockColor, borderRadius: 0 }}></div>
@@ -201,8 +202,8 @@ const MaterialDetails = ({ embeddedId }) => {
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
                                 <div>
                                     <Layers size={16} color="#64748b" style={{ marginBottom: 12 }}/>
-                                    <div style={{ fontSize: 16, color: '#0f172a', fontWeight: 700 }}>{material.quantity}</div>
-                                    <div style={{ fontSize: 12, color: '#64748b', fontWeight: 500 }}>Qty ({material.unit})</div>
+                                    <div style={{ fontSize: 16, color: '#0f172a', fontWeight: 700 }}>{availableStock}</div>
+                                    <div style={{ fontSize: 12, color: '#64748b', fontWeight: 500 }}>Avail Qty ({material.unit})</div>
                                 </div>
                                 <div>
                                     <Pencil size={16} color="#64748b" style={{ marginBottom: 12 }}/>

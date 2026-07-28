@@ -58,6 +58,8 @@ const PayrollPayment = React.lazy(() => import('./pages/PayrollPayment'));
 const Payslips = React.lazy(() => import('./pages/Payslips'));
 const LeaveManagement = React.lazy(() => import('./pages/LeaveManagement'));
 const MyLeaveHistory = React.lazy(() => import('./pages/MyLeaveHistory'));
+const OCRPage = React.lazy(() => import('./pages/OCR/OCRPage'));
+const AIExtractionPage = React.lazy(() => import('./pages/AIExtraction/AIExtractionPage'));
 const ApplyLeave = React.lazy(() => import('./pages/ApplyLeave'));
 const MySalaryPage = React.lazy(() => import('./pages/MySalary'));
 const Customers = React.lazy(() => import('./pages/Customers'));
@@ -228,6 +230,8 @@ const AppContent = () => {
 
                     <Route path="/materials/:id/edit" element={<ProtectedRoute allowedRoles={['admin', 'manager']}><AddMaterial isEditMode={true} /></ProtectedRoute>} />
                     <Route path="/materials/:id" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'sales', 'hr']}><MaterialDetails /></ProtectedRoute>} />
+                    <Route path="/ocr" element={<ProtectedRoute><OCRPage /></ProtectedRoute>} />
+                    <Route path="/ai-extraction" element={<ProtectedRoute><AIExtractionPage /></ProtectedRoute>} />
                     <Route path="/materials" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'sales', 'hr']}><Materials /></ProtectedRoute>} />
                     
                     <Route path="/tracking-overview" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'employee']}><TrackingDashboard /></ProtectedRoute>} />

@@ -183,6 +183,21 @@ const FarmakuSidebar = () => {
                 if (settingsIndex !== -1 && navData[settingsIndex].children) {
                     navData[settingsIndex].children = navData[settingsIndex].children.filter(c => c.title !== 'Audit Logs');
                 }
+                
+                // Inject OCR Module for admins or managers
+                if (isSuperAdminForAudit || roleForAudit === 'manager') {
+                    navData.push({
+                        title: 'OCR Engine',
+                        path: '/ocr',
+                        icon: 'FileText'
+                    });
+                    
+                    navData.push({
+                        title: 'AI Extraction',
+                        path: '/ai-extraction',
+                        icon: 'Cpu'
+                    });
+                }
                 // ------------------------------------
                 
                 setNavigation(navData);

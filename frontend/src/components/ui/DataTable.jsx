@@ -320,7 +320,7 @@ const DataTable = ({
                     <thead>
                         <tr>
                             {columns.filter(c => visibleColumns[c.key]).map((col) => (
-                                <th key={col.key} onClick={() => handleSort(col.key)} style={{ cursor: 'pointer', textAlign: col.align || 'left', width: col.width || 'auto' }}>
+                                <th key={col.key} onClick={() => handleSort(col.key)} style={{ cursor: 'pointer', textAlign: col.align || 'left', width: col.width || 'auto', minWidth: col.minWidth || 'auto', whiteSpace: col.nowrap ? 'nowrap' : 'normal' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '4px', justifyContent: col.align === 'right' ? 'flex-end' : col.align === 'center' ? 'center' : 'flex-start' }}>
                                         {col.label}
                                         {sortConfig.key === col.key && (

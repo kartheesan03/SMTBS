@@ -207,14 +207,14 @@ const AdminDashboard = () => {
                     ]}
                 />
 
-                {/* ── 2. KPI Row (Full Width) ── */}
-                <StatGrid columns={6}>
-                    <StatCard title="Order Fulfillment" value={`${orderFulfillment}%`} colorTheme="mint" icon={Activity} trendValue="Successfully delivered" trendPositive={true} />
-                    <StatCard title="Total Orders" value={totalOrders} colorTheme="purple" icon={ShoppingCart} trendValue="12% vs last month" trendPositive={true} />
-                    <StatCard title="Total Revenue" value={formatINR(totalRevenue)} colorTheme="blue" icon={DollarSign} trendValue="8% vs last month" trendPositive={true} />
-                    <StatCard title="Total Materials" value={totalMaterials} colorTheme="peach" icon={Box} trendValue="Stock stable" trendPositive={true} />
-                    <StatCard title="Total Employees" value={totalEmployees} colorTheme="teal" icon={Users} trendValue="Across all branches" trendPositive={true} />
-                    <StatCard title="Total Tasks" value={completedTasks + pendingTasks} colorTheme="pink" icon={ListTodo} trendValue="High priority pending" trendPositive={false} />
+                {/* ── 2. KPI Row (Minimalist Grid) ── */}
+                <StatGrid>
+                    <StatCard title="Total Revenue" value={formatINR(totalRevenue)} icon={DollarSign} trendValue="8% vs last month" trendPositive={true} />
+                    <StatCard title="Order Fulfillment" value={`${orderFulfillment}%`} icon={Activity} trendValue="Successfully delivered" trendPositive={true} />
+                    <StatCard title="Total Orders" value={totalOrders} icon={ShoppingCart} trendValue="12% vs last month" trendPositive={true} />
+                    <StatCard title="Total Materials" value={totalMaterials} icon={Box} trendValue="Stock stable" trendPositive={true} />
+                    <StatCard title="Total Employees" value={totalEmployees} icon={Users} trendValue="Across all branches" trendPositive={true} />
+                    <StatCard title="Total Tasks" value={completedTasks + pendingTasks} icon={ListTodo} trendValue="High priority pending" trendPositive={false} />
                 </StatGrid>
 
                 {/* ── MAIN LAYOUT (Content) ── */}
