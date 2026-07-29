@@ -1,4 +1,4 @@
-﻿from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File, HTTPException
 from fastapi.responses import JSONResponse
 import os
 import uuid
@@ -41,7 +41,7 @@ async def ocr_endpoint(file: UploadFile = File(...)):
         )
 
     safe_filename = f"{uuid.uuid4()}{ext}"
-    file_path = os.path.join(UPLOAD_DIR, safe_filename)
+    file_path = os.path.abspath(os.path.join(UPLOAD_DIR, safe_filename))
 
     try:
         with open(file_path, "wb") as buffer:
@@ -54,3 +54,9 @@ async def ocr_endpoint(file: UploadFile = File(...)):
             status_code=500,
             content={"success": False, "error": f"OCR processing failed: {str(e)}"}
         )
+    finally:
+        if os.path.exists(file_path):
+            try:
+                os.remove(file_path)
+            except Exception:
+                pass

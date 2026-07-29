@@ -1,4 +1,4 @@
-﻿import sys
+import sys
 import io
 import os
 import uuid
@@ -24,13 +24,13 @@ def _init_reader():
     logger.info("EasyOCR reader initialized successfully.")
     return reader
 
-def _ocr_image_file(r, img_path: str) -> str:
+def _ocr_image_file(img_path: str) -> str:
     """Run OCR on a single image file and return extracted text."""
+    r = _init_reader()
     result = r.readtext(img_path)
     return " ".join([text for (_, text, _) in result])
 
 def extract_text(file_path: str, ext: str = None) -> str:
-    r = _init_reader()
     ext = (ext or os.path.splitext(file_path)[1]).lower()
 
     # ── PDF: convert each page to PNG, run OCR, then clean up ────────────────
@@ -46,12 +46,20 @@ def extract_text(file_path: str, ext: str = None) -> str:
 
         for page_num in range(len(doc)):
             page = doc[page_num]
+            
+            # 1. Try to extract native text first (extremely fast)
+            native_text = page.get_text().strip()
+            if len(native_text) > 20:  # If we got decent text, assume it's a digital PDF
+                all_text.append(f"--- Page {page_num + 1} ---\n{native_text}")
+                continue
+                
+            # 2. Fallback to OCR if no native text is found (scanned PDF)
             # Render at 150 DPI for a good quality/speed balance
             pix = page.get_pixmap(dpi=150)
             tmp_img = os.path.join(tmp_dir, f"_page_{uuid.uuid4()}.png")
             try:
                 pix.save(tmp_img)
-                page_text = _ocr_image_file(r, tmp_img)
+                page_text = _ocr_image_file(tmp_img)
                 if page_text.strip():
                     all_text.append(f"--- Page {page_num + 1} ---\n{page_text.strip()}")
             finally:
@@ -63,5 +71,5 @@ def extract_text(file_path: str, ext: str = None) -> str:
 
     # ── Images: pass directly to EasyOCR ─────────────────────────────────────
     else:
-        text = _ocr_image_file(r, file_path)
+        text = _ocr_image_file(file_path)
         return text.strip() if text.strip() else "(No text detected in image)"

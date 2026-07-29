@@ -1,0 +1,14 @@
+{
+  "exclude": [
+    "**/node_modules",
+    "**/__pycache__",
+    "c:\\__pyrefly_virtual__",
+    "**/*__pyrefly_virtual__*"
+  ],
+  "venvPath": "c:\\Users\\Admin\\Documents\\project\\backend\\ocr_service",
+  "venv": "venv",
+  "extraPaths": [
+    "c:\\Users\\Admin\\Documents\\project\\backend\\ocr_service",
+    "c:\\Users\\Admin\\Documents\\project\\backend\\ocr_service\\venv\\Lib\\site-packages"
+  ]
+}
