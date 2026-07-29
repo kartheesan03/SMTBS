@@ -312,7 +312,7 @@ const AdminDashboard = () => {
                                 <option value="last">Last Year</option>
                             </select>
                         </div>
-                        <div style={{ height: 220, width: '100%' }}>
+                        <div style={{ height: 260, width: '100%' }}>
                             {(() => {
                                 // Primary: use analytics.trendData
                                 // Fallback: use charts.monthlyStats (revenue field)
@@ -337,20 +337,96 @@ const AdminDashboard = () => {
                                 }
 
                                 if (!chartData || chartData.length === 0) {
-                                    return <EmptyState title="No Revenue Data" message="No historical revenue data available." height={220} />;
+                                    return <EmptyState title="No Revenue Data" message="No historical revenue data available." height={260} />;
                                 }
+
+                                // Data integrity check — verify actual values in browser console
+                                console.log('[RevenueTrend] chartData:', chartData);
+
+                                // Determine which data keys to use based on year selection
+                                const revenueKey = revenueTrendYear === 'current' ? 'revenue' : 'lastYearRevenue';
+                                const expensesKey = revenueTrendYear === 'current' ? 'expenses' : 'lastYearExpenses';
+                                const profitKey = revenueTrendYear === 'current' ? 'currentYearProfit' : 'lastYearProfit';
+
+                                // Custom dot renderer: only show dots at data points with value > 0
+                                const renderConditionalDot = (dataKey, color) => (props) => {
+                                    const { cx, cy, payload } = props;
+                                    if (!payload || !payload[dataKey] || payload[dataKey] === 0) return null;
+                                    return (
+                                        <circle cx={cx} cy={cy} r={3} fill={color} stroke="#fff" strokeWidth={1.5} />
+                                    );
+                                };
+
+                                // Custom tooltip with styled card
+                                const CustomRevenueTrendTooltip = ({ active, payload, label }) => {
+                                    if (!active || !payload || payload.length === 0) return null;
+                                    return (
+                                        <div style={{
+                                            background: '#fff',
+                                            border: '1px solid #e2e8f0',
+                                            borderRadius: '8px',
+                                            padding: '10px 14px',
+                                            boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                                            fontSize: '12px',
+                                            lineHeight: '1.6',
+                                            minWidth: '150px',
+                                        }}>
+                                            <div style={{ fontWeight: 700, color: '#1e293b', marginBottom: '6px', fontSize: '13px', borderBottom: '1px solid #f1f5f9', paddingBottom: '5px' }}>
+                                                {label}
+                                            </div>
+                                            {payload.map((entry, i) => (
+                                                <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+                                                    <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#64748b' }}>
+                                                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: entry.color, display: 'inline-block', flexShrink: 0 }} />
+                                                        {entry.name}
+                                                    </span>
+                                                    <span style={{ fontWeight: 600, color: '#0f172a' }}>
+                                                        ₹{Number(entry.value).toLocaleString('en-IN')}
+                                                    </span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    );
+                                };
 
                                 return (
                                     <ResponsiveContainer width="100%" height="100%">
-                                        <LineChart data={chartData} margin={{ top: 4, right: 10, left: 0, bottom: 0 }}>
-                                            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                                        <LineChart data={chartData} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
+                                            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
                                             <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94a3b8' }} dy={8} />
-                                            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94a3b8' }} width={48} tickFormatter={(val) => val >= 1000 ? `${(val / 1000).toFixed(0)}k` : val} />
-                                            <Tooltip contentStyle={{ fontSize: 12, borderRadius: 0, border: '1px solid #e2e8f0' }} formatter={(val, name) => [`₹${val.toLocaleString()}`, name]} />
-                                            <Legend iconType="circle" wrapperStyle={{ fontSize: '12px' }} verticalAlign="top" height={36} />
-                                            <Line type="monotone" dataKey={revenueTrendYear === 'current' ? 'revenue' : 'lastYearRevenue'} name="Revenue" stroke="#7C3AED" strokeWidth={2} dot={false} activeDot={{ r: 6 }} />
-                                            <Line type="monotone" dataKey={revenueTrendYear === 'current' ? 'expenses' : 'lastYearExpenses'} name="Expenses" stroke="#D97706" strokeWidth={2} dot={false} activeDot={{ r: 6 }} />
-                                            <Line type="monotone" dataKey={revenueTrendYear === 'current' ? 'currentYearProfit' : 'lastYearProfit'} name="Net Profit" stroke="#059669" strokeWidth={2} dot={false} activeDot={{ r: 6 }} />
+                                            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94a3b8' }} width={52} tickFormatter={(val) => val >= 100000 ? `${(val / 100000).toFixed(1)}L` : val >= 1000 ? `${(val / 1000).toFixed(0)}k` : val} />
+                                            <Tooltip content={<CustomRevenueTrendTooltip />} cursor={{ stroke: '#cbd5e1', strokeDasharray: '4 4' }} />
+                                            <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: '12px', fontWeight: 500, color: '#64748b' }} verticalAlign="top" height={32} />
+                                            <Line
+                                                type="linear"
+                                                dataKey={revenueKey}
+                                                name="Revenue"
+                                                stroke="#7C3AED"
+                                                strokeWidth={2}
+                                                dot={renderConditionalDot(revenueKey, '#7C3AED')}
+                                                activeDot={{ r: 5, stroke: '#7C3AED', strokeWidth: 2, fill: '#fff' }}
+                                                connectNulls={false}
+                                            />
+                                            <Line
+                                                type="linear"
+                                                dataKey={expensesKey}
+                                                name="Expenses"
+                                                stroke="#F59E0B"
+                                                strokeWidth={2}
+                                                dot={renderConditionalDot(expensesKey, '#F59E0B')}
+                                                activeDot={{ r: 5, stroke: '#F59E0B', strokeWidth: 2, fill: '#fff' }}
+                                                connectNulls={false}
+                                            />
+                                            <Line
+                                                type="linear"
+                                                dataKey={profitKey}
+                                                name="Net Profit"
+                                                stroke="#10B981"
+                                                strokeWidth={2}
+                                                dot={renderConditionalDot(profitKey, '#10B981')}
+                                                activeDot={{ r: 5, stroke: '#10B981', strokeWidth: 2, fill: '#fff' }}
+                                                connectNulls={false}
+                                            />
                                         </LineChart>
                                     </ResponsiveContainer>
                                 );
