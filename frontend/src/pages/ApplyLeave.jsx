@@ -63,29 +63,8 @@ const ApplyLeave = () => {
             )}
 
             <div style={{ width: '100%', maxWidth: '800px' }}>
-                <div style={{ marginBottom: '16px', marginLeft: '-4px' }}>
-                    <button 
-                        onClick={() => navigate(-1)}
-                        style={{ 
-                            background: 'transparent', 
-                            border: 'none', 
-                            color: '#64748b',
-                            display: 'inline-flex', 
-                            alignItems: 'center', 
-                            gap: '6px',
-                            cursor: 'pointer',
-                            fontSize: '13px',
-                            fontWeight: 600,
-                            padding: '4px 8px',
-                            borderRadius: '0px'
-                        }}
-                    >
-                        <ArrowLeft size={15} /> Back
-                    </button>
-                </div>
-                
                 <div style={{ marginBottom: '24px' }}>
-                    <PageHeader title="New Leave Application" badge="HRMS" subtitle="Submit a new request for time off" />
+                    <PageHeader title="New Leave Application" badge="HRMS" subtitle="Submit a new request for time off" showBack={true} />
                 </div>
             </div>
 

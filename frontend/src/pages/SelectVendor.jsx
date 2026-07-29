@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 import { ArrowLeft, Search, Truck } from 'lucide-react';
 import { motion } from 'framer-motion';
+import PageHeader from '../components/PageHeader';
 
 const SelectVendor = () => {
     const navigate = useNavigate();
@@ -48,16 +49,15 @@ const SelectVendor = () => {
                 <span className="crumb active">Select Vendor</span>
             </div>
 
+
+
             <header className="module-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '4px' }}>
-                        <button className="rd-back-btn icon-only" onClick={() => navigate('/orders/select-type')}>
-                            <ArrowLeft size={18} />
-                        </button>
-                        <h1 className="header-title" style={{ margin: 0 }}>Select Vendor / Supplier</h1>
-                    </div>
-                    <p className="header-subtitle">Choose a vendor to create a purchase order for.</p>
-                </div>
+                <PageHeader 
+                    title="Select Vendor / Supplier" 
+                    subtitle="Choose a vendor to create a purchase order for." 
+                    showBack={true} 
+                    backPath="/orders/select-type" 
+                />
                 <div className="search-bar" style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-card)', padding: '8px 16px', borderRadius: '0px', border: '1px solid var(--border)', width: '300px' }}>
                     <Search size={16} color="var(--text-muted)" style={{ marginRight: '8px' }} />
                     <input 

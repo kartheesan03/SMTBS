@@ -4,8 +4,11 @@ import { DollarSign, Download, Eye, X, FileText, CheckCircle, Clock, Loader2, Al
 import { generatePayslipPDF } from '../utils/pdfGenerator';
 import { motion } from 'framer-motion';
 import PageHeader from '../components/PageHeader';
+import { useLocation } from 'react-router-dom';
 
 const Payslips = () => {
+    const location = useLocation();
+    const isPersonal = location.pathname === '/my-salary';
     const [history, setHistory] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedPayslip, setSelectedPayslip] = useState(null);
@@ -15,7 +18,8 @@ const Payslips = () => {
     const fetchHistory = useCallback(async () => {
         try {
             setLoading(true);
-            const { data } = await API.get('/salaries');
+            const endpoint = isPersonal ? '/salaries/my' : '/salaries';
+            const { data } = await API.get(endpoint);
             setHistory(Array.isArray(data) ? data : []);
         } catch (error) {
             console.error('Error fetching salary history:', error);

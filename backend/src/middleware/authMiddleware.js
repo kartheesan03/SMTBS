@@ -23,8 +23,37 @@ const protect = async (req, res, next) => {
                 ? (await RoleSeq.findOne({ where: { name: titleRole } }) || await RoleSeq.findOne({ where: { name: user.role } }))
                 : null;
             req.user.permissions = roleRecord
-                ? (roleRecord.permissions || roleRecord.dataValues?.permissions || [])
+                ? (typeof roleRecord.permissions === 'string' ? JSON.parse(roleRecord.permissions) : roleRecord.permissions) || 
+                  (roleRecord.dataValues?.permissions ? (typeof roleRecord.dataValues.permissions === 'string' ? JSON.parse(roleRecord.dataValues.permissions) : roleRecord.dataValues.permissions) : [])
                 : [];
+
+            // Apply implicit permissions for HR
+            if (user.role && user.role.toLowerCase() === 'hr') {
+                const hrPerms = [
+                    'view_hrms', 'manage_hrms',
+                    'hrms:employeeData:view', 'hrms:employeeData:manage',
+                    'hrms:attendance:view', 'hrms:attendance:manage',
+                    'hrms:payroll:view', 'hrms:payroll:generate', 'hrms:payroll:manage',
+                    'hrms:performance:view', 'hrms:performance:manage',
+                    'hrms:leave:view', 'hrms:leave:manage',
+                    'hrms:mySalary:view'
+                ];
+                hrPerms.forEach(p => { if (!req.user.permissions.includes(p)) req.user.permissions.push(p); });
+            }
+            if (user.role && user.role.toLowerCase() === 'employee' && !req.user.permissions.includes('view_materials_self')) {
+                req.user.permissions.push('view_materials_self');
+            }
+            if (user.role && user.role.toLowerCase() === 'manager') {
+                const managerPerms = [
+                    'view_materials', 'manage_materials',
+                    'view_hrms', 
+                    'view_erp', 'manage_erp',
+                    'view_crm', 'manage_crm',
+                    'view_tasks', 'manage_tasks',
+                    'view_reports', 'view_dashboard'
+                ];
+                managerPerms.forEach(p => { if (!req.user.permissions.includes(p)) req.user.permissions.push(p); });
+            }
 
             return next();
         }

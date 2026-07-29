@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 import { ArrowLeft, Search, UserCheck } from 'lucide-react';
 import { motion } from 'framer-motion';
+import PageHeader from '../components/PageHeader';
 
 const SelectCustomer = () => {
     const navigate = useNavigate();
@@ -49,16 +50,15 @@ const SelectCustomer = () => {
                 <span className="crumb active">Select Customer</span>
             </div>
 
+
+
             <header className="module-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '4px' }}>
-                        <button className="rd-back-btn icon-only" onClick={() => navigate('/orders/select-type')}>
-                            <ArrowLeft size={18} />
-                        </button>
-                        <h1 className="header-title" style={{ margin: 0 }}>Select Customer</h1>
-                    </div>
-                    <p className="header-subtitle">Choose a customer to create a sales order for.</p>
-                </div>
+                <PageHeader 
+                    title="Select Customer" 
+                    subtitle="Choose a customer to create a sales order for." 
+                    showBack={true} 
+                    backPath="/orders/select-type" 
+                />
                 <div className="search-bar premium-search">
                     <Search size={18} className="search-icon" />
                     <input 
@@ -206,24 +206,24 @@ const SelectCustomer = () => {
                     overflow: hidden;
                 }
                 .table-responsive { overflow-x: auto; }
-                .enterprise-table { width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; }
+                .enterprise-table { width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; min-width: 950px; }
                 
                 .enterprise-table th { 
-                    text-align: left; padding: 16px 20px; font-size: 13px; font-weight: 600; 
+                    text-align: left; padding: 16px 12px; font-size: 13px; font-weight: 600; 
                     color: var(--text-muted); border-bottom: 1px solid var(--border); 
                     background: rgba(0,0,0,0.01); text-transform: uppercase; letter-spacing: 0.5px;
                 }
                 .enterprise-table td { 
-                    padding: 16px 20px; border-bottom: 1px solid var(--border); 
+                    padding: 16px 12px; border-bottom: 1px solid var(--border); 
                     font-size: 14px; color: var(--text-primary); vertical-align: middle; 
-                    word-break: break-word; line-height: 1.5;
+                    overflow-wrap: break-word; word-break: normal; line-height: 1.5; white-space: normal;
                 }
                 
                 .table-row-hover { transition: background-color 0.2s ease; }
                 .table-row-hover:hover { background-color: rgba(37, 99, 235, 0.02); }
                 .table-row-hover:last-child td { border-bottom: none; }
                 
-                .company-info { display: flex; align-items: center; gap: 12px; }
+                .company-info { display: flex; align-items: center; gap: 12px; width: 100%; min-width: 0; }
                 .avatar-circle {
                     width: 36px; height: 36px; border-radius: 50%;
                     background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
@@ -231,11 +231,13 @@ const SelectCustomer = () => {
                     font-weight: 700; font-size: 16px; flex-shrink: 0;
                 }
 
+                .company-info strong { display: block; overflow-wrap: break-word; white-space: normal; min-width: 0; word-break: break-word; }
+
                 .col-company { width: 22%; }
-                .col-contact { width: 15%; }
+                .col-contact { width: 13%; padding-left: 10px; }
                 .col-email { width: 18%; }
-                .col-phone { width: 14%; }
-                .col-address { width: 16%; }
+                .col-phone { width: 12%; }
+                .col-address { width: 15%; }
                 .col-status { width: 9%; text-align: center !important; }
                 .col-action { width: 11%; text-align: right !important; padding-right: 24px !important; }
                 

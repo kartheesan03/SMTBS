@@ -20,6 +20,7 @@ const FinancialOperations = () => {
             if (Array.isArray(res.data)) extractedOrders = res.data;
             else if (res.data && Array.isArray(res.data.orders)) extractedOrders = res.data.orders;
             else if (res.data && Array.isArray(res.data.data)) extractedOrders = res.data.data;
+            console.log('Fetched Orders:', extractedOrders);
             setOrders(extractedOrders);
         } catch (error) {
             console.error('Failed to fetch financial data:', error);
@@ -33,7 +34,7 @@ const FinancialOperations = () => {
     // Compute financial KPIs
     const salesOrders = orders.filter(o => (o.orderType || '').toLowerCase().includes('sales'));
     const purchaseOrders = orders.filter(o => (o.orderType || '').toLowerCase().includes('purchase'));
-    const completedSales = salesOrders.filter(o => ['Delivered', 'Completed'].includes(o.status));
+    const completedSales = salesOrders.filter(o => ['Delivered', 'Completed', 'Invoice Generated', 'Workflow Completed'].includes(o.status));
     const revenue = completedSales.reduce((s, o) => s + (Number(o.totalAmount) || Number(o.grandTotal) || 0), 0);
     const totalPayables = purchaseOrders.reduce((s, o) => s + (Number(o.totalAmount) || Number(o.grandTotal) || 0), 0);
     const overdueOrders = orders.filter(o => o.paymentStatus === 'Overdue' || (o.dueDate && new Date(o.dueDate) < new Date() && o.paymentStatus !== 'Paid'));
@@ -55,7 +56,7 @@ const FinancialOperations = () => {
         if (mIdx < 0) mIdx += 12;
         const mName = monthNames[mIdx];
         let monthSalesRev = salesOrders
-            .filter(o => ['Delivered', 'Completed'].includes(o.status))
+            .filter(o => ['Delivered', 'Completed', 'Invoice Generated', 'Workflow Completed'].includes(o.status))
             .filter(o => { const d = new Date(o.orderDate || o.createdAt); return !isNaN(d) && d.getMonth() === mIdx; })
             .reduce((s, o) => s + (Number(o.totalAmount) || Number(o.grandTotal) || 0), 0);
         let monthPurchaseExp = purchaseOrders

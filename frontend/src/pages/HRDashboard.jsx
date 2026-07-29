@@ -110,6 +110,17 @@ const HRDashboard = () => {
         payrollProcessed = Math.round((paidSalaries / salariesData.length) * 100);
     }
 
+    const avgTenure = employees.length > 0 
+        ? (employees.reduce((sum, emp) => {
+            if (!emp.joinDate) return sum;
+            const years = (new Date() - new Date(emp.joinDate)) / (1000 * 60 * 60 * 24 * 365);
+            return sum + years;
+        }, 0) / employees.length).toFixed(1)
+        : '0.0';
+
+    const inactiveCount = employees.filter(e => e.status === 'Inactive' || e.isActive === false).length;
+    const turnover = employees.length > 0 ? ((inactiveCount / employees.length) * 100).toFixed(1) : '0.0';
+
     return (
         <div className="rd-container theme-hr">
             <div className="rd-content">
@@ -197,9 +208,9 @@ const HRDashboard = () => {
                             <InvRow icon={Moon} iconBg="#fffbeb" iconColor="#D97706" label="On Leave" value={onLeave} caption="Approved" />
                             
                             <InvRow icon={Calendar} iconBg="#fdf2f8" iconColor="#DB2777" label="Leave Reqs" value={pendingLeaves} caption="Pending" isAlert={pendingLeaves > 0} />
-                            <InvRow icon={Clock} iconBg="#f3e8ff" iconColor="#9333ea" label="Avg Tenure" value="2.4" caption="Years" />
+                            <InvRow icon={Clock} iconBg="#f3e8ff" iconColor="#9333ea" label="Avg Tenure" value={`${avgTenure}`} caption="Years" />
                             <InvRow icon={UserPlus} iconBg="#f0fdfa" iconColor="#0D9488" label="New Joiners" value={newJoiners} caption="This Month" />
-                            <InvRow icon={TrendingDown} iconBg="#ecfdf5" iconColor="#059669" label="Turnover" value="1.2%" caption="This Qtr" />
+                            <InvRow icon={TrendingDown} iconBg="#ecfdf5" iconColor="#059669" label="Turnover" value={`${turnover}%`} caption="All Time" />
                         </div>
                     </div>
 

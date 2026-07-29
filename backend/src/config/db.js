@@ -243,24 +243,26 @@ const safelyRecreateTable = async (modelName) => {
             // Find common columns
             const commonCols = currentCols.filter(c => modelCols.includes(c));
             
-            // Create temp table with data
-            await sequelize.query(`DROP TABLE IF EXISTS "${tempTableName}";`);
-            await sequelize.query(`CREATE TABLE "${tempTableName}" AS SELECT * FROM "${tableName}";`);
-            
-            // Drop original table
-            await sequelize.query(`DROP TABLE "${tableName}";`);
+            // Rename original table
+            await sequelize.query(`ALTER TABLE "${tableName}" RENAME TO "${tempTableName}";`);
             
             // Recreate table with new schema
             await Model.sync();
             
-            // Copy data back
-            if (commonCols.length > 0) {
-                const colsStr = commonCols.map(c => `"${c}"`).join(', ');
-                await sequelize.query(`INSERT INTO "${tableName}" (${colsStr}) SELECT ${colsStr} FROM "${tempTableName}";`);
+            try {
+                // Copy data back
+                if (commonCols.length > 0) {
+                    const colsStr = commonCols.map(c => `"${c}"`).join(', ');
+                    await sequelize.query(`INSERT INTO "${tableName}" (${colsStr}) SELECT ${colsStr} FROM "${tempTableName}";`);
+                }
+                
+                // Drop temp table
+                await sequelize.query(`DROP TABLE "${tempTableName}";`);
+            } catch (copyError) {
+                console.error(`Failed to copy data for ${tableName}, restoring original table. Error:`, copyError.message);
+                await sequelize.query(`DROP TABLE "${tableName}";`);
+                await sequelize.query(`ALTER TABLE "${tempTableName}" RENAME TO "${tableName}";`);
             }
-            
-            // Drop temp table
-            await sequelize.query(`DROP TABLE "${tempTableName}";`);
         } else {
             // Just sync if it doesn't exist
             await Model.sync();

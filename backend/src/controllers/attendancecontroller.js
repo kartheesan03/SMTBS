@@ -5,14 +5,19 @@ const Notification = require('../models/Notification');
 const { notifyHR } = require('../services/notificationService');
 
 // @desc    Get Current Attendance Status for logged in employee
+const getLocalYMD = (d = new Date()) => {
+    const y = d.getFullYear(), m = String(d.getMonth()+1).padStart(2,'0'), day = String(d.getDate()).padStart(2,'0');
+    return `${y}-${m}-${day}`;
+};
+
 // @route   GET /api/attendance/status
 // @access  Private
 const getAttendanceStatus = async (req, res) => {
     try {
-        const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format for DATEONLY
+        const today = getLocalYMD(); // YYYY-MM-DD format for DATEONLY
 
         // Find employee linked to this user
-        let employee = await Employee.findOne({ userId: req.user._id });
+        let employee = await Employee.findOne({ userId: req.user.id || req.user._id });
         if (!employee) {
             // Auto-create basic employee profile if missing
             employee = await Employee.create({
@@ -66,9 +71,9 @@ const getAttendanceStatus = async (req, res) => {
 // @access  Private
 const checkIn = async (req, res) => {
     try {
-        const today = new Date().toISOString().split('T')[0];
+        const today = getLocalYMD();
 
-        let employee = await Employee.findOne({ userId: req.user._id });
+        let employee = await Employee.findOne({ userId: req.user.id || req.user._id });
         if (!employee) {
             employee = await Employee.create({
                 userId: req.user._id,
@@ -145,9 +150,9 @@ const checkIn = async (req, res) => {
 // @access  Private
 const checkOut = async (req, res) => {
     try {
-        const today = new Date().toISOString().split('T')[0];
+        const today = getLocalYMD();
 
-        let employee = await Employee.findOne({ userId: req.user._id });
+        let employee = await Employee.findOne({ userId: req.user.id || req.user._id });
         if (!employee) {
             return res.status(404).json({ message: 'Employee profile not found. Please check in first.' });
         }
@@ -198,7 +203,7 @@ const checkOut = async (req, res) => {
 // @access  Private
 const getMyAttendanceHistory = async (req, res) => {
     try {
-        let employee = await Employee.findOne({ userId: req.user._id });
+        let employee = await Employee.findOne({ userId: req.user.id || req.user._id });
         if (!employee) {
             return res.json([]); // Return empty history if no profile
         }

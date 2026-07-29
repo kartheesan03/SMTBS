@@ -4,6 +4,7 @@ const User = require('../models/User');
 const Customer = require('../models/Customer');
 const Vendor = require('../models/Vendor');
 const Role = require('../models/Role');
+const { logAudit } = require('../services/auditService');
 
 const getRolePermissions = async (roleName) => {
     try {
@@ -11,6 +12,29 @@ const getRolePermissions = async (roleName) => {
         let perms = role && role.permissions ? (typeof role.permissions === 'string' ? JSON.parse(role.permissions) : role.permissions) : [];
         if (roleName && roleName.toLowerCase() === 'employee' && !perms.includes('view_materials_self')) {
             perms.push('view_materials_self');
+        }
+        if (roleName && roleName.toLowerCase() === 'hr') {
+            const hrPerms = [
+                'view_hrms', 'manage_hrms',
+                'hrms:employeeData:view', 'hrms:employeeData:manage',
+                'hrms:attendance:view', 'hrms:attendance:manage',
+                'hrms:payroll:view', 'hrms:payroll:generate', 'hrms:payroll:manage',
+                'hrms:performance:view', 'hrms:performance:manage',
+                'hrms:leave:view', 'hrms:leave:manage',
+                'hrms:mySalary:view'
+            ];
+            hrPerms.forEach(p => { if (!perms.includes(p)) perms.push(p); });
+        }
+        if (roleName && roleName.toLowerCase() === 'manager') {
+            const managerPerms = [
+                'view_materials', 'manage_materials',
+                'view_hrms', 
+                'view_erp', 'manage_erp',
+                'view_crm', 'manage_crm',
+                'view_tasks', 'manage_tasks',
+                'view_reports', 'view_dashboard'
+            ];
+            managerPerms.forEach(p => { if (!perms.includes(p)) perms.push(p); });
         }
         return perms;
     } catch (e) {
@@ -43,6 +67,15 @@ const registerUser = async (req, res) => {
         if (!user) {
             return res.status(400).json({ message: 'Invalid user data' });
         }
+
+        // Log registration audit event
+        logAudit({
+            user: { id: user._id, name: user.name },
+            action: 'CREATE',
+            module: 'Auth',
+            description: `New user registered: ${user.name} (${user.role}).`,
+            ipAddress: req.ip
+        }).catch(() => {});
 
         res.status(201).json({
             _id: user._id,
@@ -101,20 +134,20 @@ const loginUser = async (req, res) => {
     }
 
     let actualName = user.name;
-    try {
-        const Employee = require('../models/Employee');
-        const emp = await Employee.findOne({ userId: user.id || user._id });
-        if (emp && emp.firstName) {
-            actualName = `${emp.firstName} ${emp.lastName || ''}`.trim();
-        }
-    } catch (e) {
-        console.error("Error fetching employee for login:", e);
-    }
 
     const permissions = await getRolePermissions(role);
     if (user.email === 'admin@smtbms.com' && !permissions.includes('all')) {
         permissions.push('all');
     }
+
+    // Log login audit event
+    logAudit({
+        user: { id: user._id, name: actualName },
+        action: 'LOGIN',
+        module: 'Auth',
+        description: `${actualName} (${role}) logged in successfully.`,
+        ipAddress: req.ip
+    }).catch(() => {});
 
     return res.json({
         _id: user._id,
@@ -226,15 +259,6 @@ const googleAuth = async (req, res) => {
             }
 
             let actualName = user.name;
-            try {
-                const Employee = require('../models/Employee');
-                const emp = await Employee.findOne({ contact: user.email });
-                if (emp && emp.firstName) {
-                    actualName = `${emp.firstName} ${emp.lastName || ''}`.trim();
-                }
-            } catch (e) {
-                console.error("Error fetching employee for google login:", e);
-            }
 
             const permissions = await getRolePermissions(role);
             if (user.email === 'admin@smtbms.com' && !permissions.includes('all')) {
@@ -399,15 +423,6 @@ const getUserProfile = async (req, res) => {
         if (user) {
             let role = user.role;
             let actualName = user.name;
-            try {
-                const Employee = require('../models/Employee');
-                const emp = await Employee.findOne({ userId: user.id || user._id });
-                if (emp && emp.firstName) {
-                    actualName = `${emp.firstName} ${emp.lastName || ''}`.trim();
-                }
-            } catch (e) {
-                console.error("Error fetching employee for profile:", e);
-            }
 
             const permissions = await getRolePermissions(role);
             if (user.email === 'admin@smtbms.com' && !permissions.includes('all')) {

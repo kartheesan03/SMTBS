@@ -104,7 +104,7 @@ const SalesPipeline = () => {
         const key = d.toLocaleString('default', { month: 'short' });
         const amt = Number(o.totalAmount) || Number(o.grandTotal) || 0;
         monthlyRevMap[key] = (monthlyRevMap[key] || 0) + amt;
-        if (['Delivered', 'Completed'].includes(o.status)) {
+        if (['Delivered', 'Completed', 'Invoice Generated', 'Workflow Completed'].includes(o.status)) {
             monthlyDeliveredMap[key] = (monthlyDeliveredMap[key] || 0) + amt;
         }
     });

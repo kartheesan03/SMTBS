@@ -37,7 +37,7 @@ const RevenueDashboard = () => {
         return t.includes('SALES');
     });
 
-    const completedOrders = salesOrders.filter(o => ['Delivered', 'Completed'].includes(o.status));
+    const completedOrders = salesOrders.filter(o => ['Delivered', 'Completed', 'Invoice Generated', 'Workflow Completed'].includes(o.status));
     
     const totalRevenue = completedOrders.reduce((sum, o) => sum + (Number(o.totalAmount) || Number(o.grandTotal) || 0), 0);
     const totalSalesOrders = completedOrders.length;

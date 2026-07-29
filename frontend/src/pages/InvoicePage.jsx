@@ -5,6 +5,7 @@ import { ArrowLeft, Printer, Download } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import './InvoicePage.css';
+import PageHeader from '../components/PageHeader';
 
 const formatDateOnly = (dateValue) => {
     if (!dateValue) return "-";
@@ -53,8 +54,9 @@ const InvoicePage = () => {
     if (error || !order) {
         return (
             <div className="flex-center" style={{height:'100vh', flexDirection:'column'}}>
-                <h2>{error || 'Invoice not found'}</h2>
-                <button onClick={() => navigate(-1)} className="invoice-action-btn btn-print" style={{marginTop:'20px'}}>Go Back</button>
+                <div style={{ width: '100%', maxWidth: '600px', padding: '24px' }}>
+                    <PageHeader title={error || 'Invoice not found'} showBack={true} />
+                </div>
             </div>
         );
     }
@@ -89,23 +91,19 @@ const InvoicePage = () => {
         }
     };
 
+
     return (
         <div className="invoice-page-wrapper">
             {/* Top Action Bar - Hidden on print */}
-            <div className="invoice-action-bar">
-                <div className="invoice-action-left">
-                    <button onClick={() => navigate(-1)} className="invoice-action-btn btn-back">
-                        <ArrowLeft size={18} /> Back to Orders
-                    </button>
-                </div>
-                <div className="invoice-action-right">
-                    <button onClick={() => window.print()} className="invoice-action-btn btn-print">
-                        <Printer size={18} /> Print Invoice
-                    </button>
-                    <button onClick={handleDownloadPDF} className="invoice-action-btn btn-download">
-                        <Download size={18} /> Download PDF
-                    </button>
-                </div>
+            <div className="invoice-action-bar" style={{ display: 'block', padding: '0 24px' }}>
+                <PageHeader 
+                    title="Invoice" 
+                    showBack={true} 
+                    actions={[
+                        { label: 'Print Invoice', icon: Printer, onClick: () => window.print() },
+                        { label: 'Download PDF', icon: Download, onClick: handleDownloadPDF, primary: true }
+                    ]}
+                />
             </div>
 
             {/* A4 Paper Container */}

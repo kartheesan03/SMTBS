@@ -435,17 +435,7 @@ const GeneratePayroll = () => {
 
                 {/* Back + Header */}
                 <div style={{ marginBottom: '20px', maxWidth: '960px' }}>
-                    <div style={{ marginBottom: '12px' }}>
-                        <button
-                            onClick={() => navigate('/payroll')}
-                            style={s.backBtn}
-                            onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--text-heading)'; }}
-                            onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-muted)'; }}
-                        >
-                            <ArrowLeft size={14} /> Back to Payroll
-                        </button>
-                    </div>
-                    <PageHeader title="Generate New Payroll Entry" badge="HRMS" subtitle="Create employee salary record for selected month" />
+                    <PageHeader title="Generate New Payroll Entry" badge="HRMS" subtitle="Create employee salary record for selected month" showBack={true} backPath="/payroll" />
                 </div>
 
                 {/* ═══ SPLIT LAYOUT ═══ */}

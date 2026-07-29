@@ -18,6 +18,7 @@ import '../components/AdminDashboard/AdminDashboardRedesign.css';
 import PageHeader from '../components/PageHeader';
 import { StatCard, StatGrid } from '../components/ui/StatCard';
 import { formatCurrency } from '../utils/currency';
+import NetProfitChart from '../components/NetProfitChart';
 
 const Reports = () => {
 
@@ -62,6 +63,9 @@ const Reports = () => {
     ];
 
     const trendData = analytics.trendData || [];
+    
+    const chartCyData = trendData.map(d => ({ month: d.name, netProfit: d.currentYearProfit }));
+    const chartLyData = trendData.map(d => ({ month: d.name, netProfit: d.lastYearProfit }));
 
     const hm = analytics.healthMetrics;
     const healthMetrics = [
@@ -205,103 +209,12 @@ const Reports = () => {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2, duration: 0.4 }}
-                        className="rd-chart-card"
+                        style={{ marginBottom: '24px' }}
                     >
-                        <div className="chart-header-split">
-                            <div className="chart-header-block">
-                                <div className="chart-header-title">
-                                    Net profit <span className="legend-dot" style={{ background: '#3b82f6', marginLeft: '12px' }}></span> <span style={{color: '#3b82f6'}}>Current year</span>
-                                </div>
-                                <div className="chart-header-value">
-                                    {formatCurrency(analytics.kpis.currentYearTotalProfit || 0, true)}
-                                    {analytics.kpis.lastYearTotalProfit > 0 && (
-                                        <span className={`trend-badge ${((analytics.kpis.currentYearTotalProfit - analytics.kpis.lastYearTotalProfit) / analytics.kpis.lastYearTotalProfit) >= 0 ? 'up' : 'down'}`}>
-                                            {((analytics.kpis.currentYearTotalProfit - analytics.kpis.lastYearTotalProfit) / analytics.kpis.lastYearTotalProfit) >= 0 ? '+' : ''}
-                                            {(((analytics.kpis.currentYearTotalProfit - analytics.kpis.lastYearTotalProfit) / analytics.kpis.lastYearTotalProfit) * 100).toFixed(1)}%
-                                        </span>
-                                    )}
-                                </div>
-                            </div>
-                            <div className="chart-header-block">
-                                <div className="chart-header-title">
-                                    Net profit <span className="legend-dot" style={{ background: '#cbd5e1', marginLeft: '12px', width: '8px', height: '8px', border: '2px solid #cbd5e1', background: 'white' }}></span> <span style={{color: '#94a3b8'}}>Last year</span>
-                                </div>
-                                <div className="chart-header-value">
-                                    {formatCurrency(analytics.kpis.lastYearTotalProfit || 0, true)}
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div className="rd-chart-body" style={{ height: '350px' }}>
-                            <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={trendData} margin={{ top: 20, right: 20, left: 15, bottom: 0 }}>
-                                    <defs>
-                                        <linearGradient id="colorCy" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
-                                            <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
-                                        </linearGradient>
-                                        <linearGradient id="colorLy" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#cbd5e1" stopOpacity={0.3}/>
-                                            <stop offset="95%" stopColor="#cbd5e1" stopOpacity={0}/>
-                                        </linearGradient>
-                                    </defs>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                                    <XAxis 
-                                        dataKey="name" 
-                                        scale="point"
-                                        padding={{ left: 15, right: 15 }} 
-                                        axisLine={false} 
-                                        tickLine={false} 
-                                        tick={{fill: '#64748b', fontSize: 12}} 
-                                        dy={10} 
-                                    />
-                                    <YAxis 
-                                        axisLine={false} 
-                                        tickLine={false} 
-                                        tick={{fill: '#64748b', fontSize: 12}}
-                                        width={65}
-                                        tickFormatter={(value) => {
-                                            const isNegative = value < 0;
-                                            const absVal = Math.abs(value);
-                                            const prefix = isNegative ? '₹-' : '₹';
-                                            if (absVal >= 100000) return prefix + (absVal / 100000).toFixed(1).replace('.0', '') + 'L';
-                                            if (absVal >= 1000) return prefix + (absVal / 1000).toFixed(0) + 'K';
-                                            return prefix + absVal;
-                                        }}
-                                        padding={{ top: 50, bottom: 0 }}
-                                    />
-                                    <Tooltip 
-                                        content={({ active, payload, label }) => {
-                                            if (active && payload && payload.length) {
-                                                const currentData = payload.find(p => p.dataKey === 'currentYearProfit');
-                                                const lastData = payload.find(p => p.dataKey === 'lastYearProfit');
-                                                const currentVal = currentData ? currentData.value : 0;
-                                                const lastVal = lastData ? lastData.value : 0;
-                                                const monthName = payload[0]?.payload?.fullMonth || label;
-                                                return (
-                                                    <div className="custom-tooltip-box">
-                                                        <div className="tooltip-date">{monthName} 2026</div>
-                                                        <div className="tooltip-row">
-                                                            <span className="legend-dot" style={{ background: '#3b82f6' }}></span>
-                                                            <span className="tooltip-val blue">{currentVal.toLocaleString()}</span>
-                                                        </div>
-                                                        <div className="tooltip-row">
-                                                            <span className="legend-dot-hollow"></span>
-                                                            <span className="tooltip-val gray">{lastVal.toLocaleString()}</span>
-                                                        </div>
-                                                    </div>
-                                                );
-                                            }
-                                            return null;
-                                        }}
-                                        cursor={{ stroke: '#eff6ff', strokeWidth: 2, fill: 'transparent' }}
-                                    />
-                                    
-                                    <Area type="monotone" dataKey="currentYearProfit" name="Current year" stroke="#3b82f6" strokeWidth={2} fillOpacity={1} fill="url(#colorCy)" activeDot={{r: 6, strokeWidth: 2, fill: '#3b82f6', stroke: '#fff'}} />
-                                    <Area type="monotone" dataKey="lastYearProfit" name="Last year" stroke="#cbd5e1" strokeWidth={2} fillOpacity={1} fill="url(#colorLy)" activeDot={{r: 6, strokeWidth: 2, fill: '#fff', stroke: '#cbd5e1'}} />
-                                </AreaChart>
-                            </ResponsiveContainer>
-                        </div>
+                        <NetProfitChart 
+                            currentYearData={chartCyData} 
+                            lastYearData={chartLyData} 
+                        />
                     </motion.div>
 
                     {/* Health Metrics Bottom Row */}

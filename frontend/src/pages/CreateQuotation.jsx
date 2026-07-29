@@ -124,8 +124,9 @@ const CreateQuotation = () => {
             <PageHeader 
                 title="Create Quotation" 
                 subtitle="Generate a new sales quote for a customer"
+                showBack={true}
+                backPath="/quotations"
                 actions={[
-                    { label: 'Cancel', icon: ArrowLeft, onClick: () => navigate('/quotations') },
                     { label: 'Save Quote', icon: Save, primary: true, onClick: handleSubmit, disabled: loading }
                 ]}
             />

@@ -10,6 +10,7 @@ const TeamPerformance = () => {
     const navigate = useNavigate();
     const [employees, setEmployees] = useState([]);
     const [tasks, setTasks] = useState([]);
+    const [attendance, setAttendance] = useState([]);
     const [loading, setLoading] = useState(true);
     
     // Filters
@@ -20,13 +21,15 @@ const TeamPerformance = () => {
     const fetchData = useCallback(async () => {
         setLoading(true);
         try {
-            const [empRes, taskRes] = await Promise.all([
+            const [empRes, taskRes, attRes] = await Promise.all([
                 API.get('/employees'),
-                API.get('/tasks')
+                API.get('/tasks'),
+                API.get('/attendance/all').catch(() => ({ data: [] }))
             ]);
             
             setEmployees(empRes.data || []);
             setTasks(taskRes.data || []);
+            setAttendance(attRes.data?.employeeAttendanceList || attRes.data || []);
         } catch (err) {
             console.error('Failed to fetch performance data:', err);
         } finally {
@@ -40,7 +43,7 @@ const TeamPerformance = () => {
 
     // Calculate Performance Metrics dynamically
     const perfData = employees.map(emp => {
-        const userIdStr = String(emp.userId?._id || emp.userId || '');
+        const userIdStr = String(emp.userId?._id || emp.userId || emp.id || '');
         
         // Find tasks assigned to this employee
         const empTasks = tasks.filter(t => {
@@ -76,8 +79,13 @@ const TeamPerformance = () => {
         // Target score based strictly on actual task score
         const targetScore = totalTasks > 0 ? Math.max(0, Math.min(100, Math.round(taskScore * 0.8))) : 0;
         
-        // No attendance data available yet, don't hardcode to 100
-        const attendanceScore = 0; 
+        // Calculate attendance score
+        const empAttendance = attendance.filter(a => String(a.employeeId?._id || a.employeeId || a.employee) === String(emp.id));
+        let attendanceScore = 0;
+        if (empAttendance.length > 0) {
+            const present = empAttendance.filter(a => a.status === 'Present' || a.status === 'Late').length;
+            attendanceScore = Math.round((present / empAttendance.length) * 100);
+        }
         
         // Overall is average, but if everything is 0, overall is 0
         const overall = totalTasks > 0 ? Math.round((taskScore + attendanceScore + targetScore) / 3) : 0;

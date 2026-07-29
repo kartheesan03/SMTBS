@@ -140,7 +140,8 @@ const QuotationDetails = () => {
             <PageHeader 
                 title="Quotation Details" 
                 subtitle={quotation.quotationNumber}
-                actions={[{ label: 'Back', icon: ArrowLeft, onClick: () => navigate('/quotations') }]}
+                showBack={true}
+                backPath="/quotations"
             />
 
             <DetailViewContainer>

@@ -16,6 +16,7 @@ import '../components/AdminDashboard/AdminDashboardRedesign.css';
 import PageHeader from '../components/PageHeader';
 import CommandCenter from '../components/CommandCenter';
 import { StatCard, StatGrid } from '../components/ui/StatCard';
+import LedgerChart from '../components/LedgerChart';
 import WelcomeBanner from '../components/ui/WelcomeBanner';
 import { LoadingState, ErrorState, EmptyState } from '../components/DataStates';
 
@@ -114,8 +115,7 @@ const AdminDashboard = () => {
                             isOverdue,
                         };
                     });
-                // Temporarily disable mock backend tasks to remove hardcode and reduce row size
-                setUpcomingEvents([]); 
+                setUpcomingEvents(pendingTasks); 
             } catch (err) {
                 console.error('Failed to load upcoming tasks', err);
             }
@@ -298,151 +298,81 @@ const AdminDashboard = () => {
                 </div>
 
                 {/* ── 4. Chart Row: Revenue Trend + Employee Distribution ── */}
-                <div className="rd-chart-row-wide">
-                    <div className="dashboard-panel">
-                        <div className="panel-header">
-                            <div className="panel-title">Revenue Trend</div>
-                            <select
-                                className="panel-dropdown"
-                                style={{ paddingRight: '24px', width: 'auto' }}
-                                value={revenueTrendYear}
-                                onChange={(e) => setRevenueTrendYear(e.target.value)}
-                            >
-                                <option value="current">This Year</option>
-                                <option value="last">Last Year</option>
-                            </select>
-                        </div>
-                        <div style={{ height: 260, width: '100%' }}>
-                            {(() => {
-                                // Primary: use analytics.trendData
-                                // Fallback: use charts.monthlyStats (revenue field)
-                                const trendData = dashboardData?.analytics?.trendData;
-                                const monthlyStats = dashboardData?.charts?.monthlyStats;
-                                
-                                // Build chart data: prefer trendData, fallback to monthlyStats
-                                let chartData = null;
-                                if (trendData && trendData.length > 0) {
-                                    chartData = trendData;
-                                } else if (monthlyStats && monthlyStats.length > 0) {
-                                    // monthlyStats has {name, revenue, sales} — map to trendData shape
-                                    chartData = monthlyStats.map(m => ({
-                                        name: m.name,
-                                        revenue: m.revenue || 0,
-                                        expenses: 0,
-                                        currentYearProfit: m.revenue || 0,
-                                        lastYearRevenue: 0,
-                                        lastYearExpenses: 0,
-                                        lastYearProfit: 0,
-                                    }));
-                                }
+                <div className="rd-chart-row-wide" style={{ alignItems: 'stretch' }}>
+                    <div className="dashboard-panel" style={{ flex: 1.5, display: 'flex', flexDirection: 'column', height: '100%', boxSizing: 'border-box', padding: 0, overflow: 'hidden' }}>
+                        {(() => {
+                            const trendData = dashboardData?.analytics?.trendData;
+                            const monthlyStats = dashboardData?.charts?.monthlyStats;
+                            
+                            let chartData = null;
+                            if (trendData && trendData.length > 0) {
+                                chartData = trendData;
+                            } else if (monthlyStats && monthlyStats.length > 0) {
+                                chartData = monthlyStats.map(m => ({
+                                    name: m.name,
+                                    revenue: m.revenue || 0,
+                                    expenses: 0,
+                                    currentYearProfit: m.revenue || 0,
+                                    lastYearRevenue: 0,
+                                    lastYearExpenses: 0,
+                                    lastYearProfit: 0,
+                                }));
+                            }
 
-                                if (!chartData || chartData.length === 0) {
-                                    return <EmptyState title="No Revenue Data" message="No historical revenue data available." height={260} />;
-                                }
+                            if (!chartData || chartData.length === 0) {
+                                return <EmptyState title="No Revenue Data" message="No historical revenue data available." height={300} />;
+                            }
 
-                                // Data integrity check — verify actual values in browser console
-                                console.log('[RevenueTrend] chartData:', chartData);
+                            const revenueKey = revenueTrendYear === 'current' ? 'revenue' : 'lastYearRevenue';
+                            const expensesKey = revenueTrendYear === 'current' ? 'expenses' : 'lastYearExpenses';
+                            const profitKey = revenueTrendYear === 'current' ? 'currentYearProfit' : 'lastYearProfit';
 
-                                // Determine which data keys to use based on year selection
-                                const revenueKey = revenueTrendYear === 'current' ? 'revenue' : 'lastYearRevenue';
-                                const expensesKey = revenueTrendYear === 'current' ? 'expenses' : 'lastYearExpenses';
-                                const profitKey = revenueTrendYear === 'current' ? 'currentYearProfit' : 'lastYearProfit';
+                            const ledgerData = chartData.map(d => ({
+                                month: d.name,
+                                revenue: d[revenueKey] || 0,
+                                expenses: d[expensesKey] || 0,
+                                netProfit: d[profitKey] || 0
+                            }));
 
-                                // Custom dot renderer: only show dots at data points with value > 0
-                                const renderConditionalDot = (dataKey, color) => (props) => {
-                                    const { cx, cy, payload } = props;
-                                    if (!payload || !payload[dataKey] || payload[dataKey] === 0) return null;
-                                    return (
-                                        <circle cx={cx} cy={cy} r={3} fill={color} stroke="#fff" strokeWidth={1.5} />
-                                    );
-                                };
-
-                                // Custom tooltip with styled card
-                                const CustomRevenueTrendTooltip = ({ active, payload, label }) => {
-                                    if (!active || !payload || payload.length === 0) return null;
-                                    return (
-                                        <div style={{
-                                            background: '#fff',
-                                            border: '1px solid #e2e8f0',
-                                            borderRadius: '8px',
-                                            padding: '10px 14px',
-                                            boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                                            fontSize: '12px',
-                                            lineHeight: '1.6',
-                                            minWidth: '150px',
-                                        }}>
-                                            <div style={{ fontWeight: 700, color: '#1e293b', marginBottom: '6px', fontSize: '13px', borderBottom: '1px solid #f1f5f9', paddingBottom: '5px' }}>
-                                                {label}
-                                            </div>
-                                            {payload.map((entry, i) => (
-                                                <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
-                                                    <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#64748b' }}>
-                                                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: entry.color, display: 'inline-block', flexShrink: 0 }} />
-                                                        {entry.name}
-                                                    </span>
-                                                    <span style={{ fontWeight: 600, color: '#0f172a' }}>
-                                                        ₹{Number(entry.value).toLocaleString('en-IN')}
-                                                    </span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    );
-                                };
-
-                                return (
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <LineChart data={chartData} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
-                                            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
-                                            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94a3b8' }} dy={8} />
-                                            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94a3b8' }} width={52} tickFormatter={(val) => val >= 100000 ? `${(val / 100000).toFixed(1)}L` : val >= 1000 ? `${(val / 1000).toFixed(0)}k` : val} />
-                                            <Tooltip content={<CustomRevenueTrendTooltip />} cursor={{ stroke: '#cbd5e1', strokeDasharray: '4 4' }} />
-                                            <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: '12px', fontWeight: 500, color: '#64748b' }} verticalAlign="top" height={32} />
-                                            <Line
-                                                type="linear"
-                                                dataKey={revenueKey}
-                                                name="Revenue"
-                                                stroke="#7C3AED"
-                                                strokeWidth={2}
-                                                dot={renderConditionalDot(revenueKey, '#7C3AED')}
-                                                activeDot={{ r: 5, stroke: '#7C3AED', strokeWidth: 2, fill: '#fff' }}
-                                                connectNulls={false}
-                                            />
-                                            <Line
-                                                type="linear"
-                                                dataKey={expensesKey}
-                                                name="Expenses"
-                                                stroke="#F59E0B"
-                                                strokeWidth={2}
-                                                dot={renderConditionalDot(expensesKey, '#F59E0B')}
-                                                activeDot={{ r: 5, stroke: '#F59E0B', strokeWidth: 2, fill: '#fff' }}
-                                                connectNulls={false}
-                                            />
-                                            <Line
-                                                type="linear"
-                                                dataKey={profitKey}
-                                                name="Net Profit"
-                                                stroke="#10B981"
-                                                strokeWidth={2}
-                                                dot={renderConditionalDot(profitKey, '#10B981')}
-                                                activeDot={{ r: 5, stroke: '#10B981', strokeWidth: 2, fill: '#fff' }}
-                                                connectNulls={false}
-                                            />
-                                        </LineChart>
-                                    </ResponsiveContainer>
-                                );
-                            })()}
-                        </div>
+                            return (
+                                <div style={{ position: 'relative' }}>
+                                    <div style={{ position: 'absolute', top: 40, right: 40, zIndex: 10 }}>
+                                        <select
+                                            className="panel-dropdown"
+                                            style={{ 
+                                                paddingRight: '24px', 
+                                                width: 'auto', 
+                                                background: '#fff', 
+                                                border: '1px solid #E6E2D8', 
+                                                fontFamily: "'Inter', sans-serif" 
+                                            }}
+                                            value={revenueTrendYear}
+                                            onChange={(e) => setRevenueTrendYear(e.target.value)}
+                                        >
+                                            <option value="current">This Year</option>
+                                            <option value="last">Last Year</option>
+                                        </select>
+                                    </div>
+                                    <LedgerChart 
+                                        data={ledgerData} 
+                                        currencySymbol="₹" 
+                                        periodLabel={revenueTrendYear === 'current' ? 'Current Year' : 'Last Year'}
+                                        compact={true}
+                                    />
+                                </div>
+                            );
+                        })()}
                     </div>
 
-                    <div className="dashboard-panel">
+                    <div className="dashboard-panel" style={{ height: '100%', boxSizing: 'border-box', display: 'flex', flexDirection: 'column' }}>
                         <div className="panel-header">
                             <div className="panel-title">Employees by Dept.</div>
                             <select className="panel-dropdown" style={{ paddingRight: '24px', width: 'auto' }}>
                                 <option>By Department</option>
                             </select>
                         </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-                            <div style={{ width: '100%', height: 170 }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, flex: 1, minHeight: 0 }}>
+                            <div style={{ width: '100%', height: '100%', minHeight: 170 }}>
                                 {(!dashboardData?.hrStats?.employeeDistribution || dashboardData.hrStats.employeeDistribution.length === 0) ? (
                                     <EmptyState title="No Employee Data" message="No department data available." height={170} />
                                 ) : (
@@ -575,10 +505,10 @@ const AdminDashboard = () => {
                                         margin={{ top: 0, right: 45, left: 0, bottom: 0 }}
                                     >
                                         <XAxis type="number" hide />
-                                        <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tickFormatter={(val) => val.length > 18 ? val.substring(0, 18) + '...' : val} tick={{ fill: '#475569', fontSize: 11 }} width={120} />
-                                        <Tooltip contentStyle={{ fontSize: 11 }} cursor={{ fill: '#f8fafc' }} formatter={(val) => topMaterialsSortBy === 'revenue' ? formatINR(val) : val} />
+                                        <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tickFormatter={(val) => (val && typeof val === 'string' && val.length > 18) ? val.substring(0, 18) + '...' : (val || '')} tick={{ fill: '#475569', fontSize: 11 }} width={120} />
+                                        <Tooltip contentStyle={{ fontSize: 11 }} cursor={{ fill: '#f8fafc' }} formatter={(val) => topMaterialsSortBy === 'revenue' ? formatINR(val || 0) : (val || 0)} />
                                         <Bar dataKey={topMaterialsSortBy} fill="#7C3AED" radius={[0, 4, 4, 0]} barSize={12}>
-                                            <LabelList dataKey={topMaterialsSortBy} position="right" formatter={(val) => topMaterialsSortBy === 'revenue' ? formatINR(val) : val} style={{ fontSize: 10, fill: '#475569', fontWeight: 600 }} />
+                                            <LabelList dataKey={topMaterialsSortBy} position="right" formatter={(val) => topMaterialsSortBy === 'revenue' ? formatINR(val || 0) : (val || 0)} style={{ fontSize: 10, fill: '#475569', fontWeight: 600 }} />
                                         </Bar>
                                     </BarChart>
                                 </ResponsiveContainer>

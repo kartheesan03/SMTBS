@@ -125,21 +125,14 @@ const CustomerNewOrder = () => {
     return (
         <div className="page-container">
             {/* Header */}
-            <header className="module-header glass-card">
-                <div className="header-top">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                        <button className="rd-back-btn icon-only" onClick={() => navigate('/')}>
-                            <ArrowLeft size={18} />
-                        </button>
-                        <div>
-                            <h1>Create New Order</h1>
-                            <p style={{ color: 'var(--text-secondary)', marginTop: '4px' }}>
-                                Select materials and configure your delivery request.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </header>
+            <div style={{ marginBottom: '24px' }}>
+                <PageHeader 
+                    title="Create New Order" 
+                    subtitle="Select materials and configure your delivery request."
+                    showBack={true}
+                    backPath="/"
+                />
+            </div>
 
             {/* Error/Success Banner */}
             {successMessage && (

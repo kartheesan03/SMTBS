@@ -13,7 +13,8 @@ const StandardPageLayout = ({
     isEditMode = false,
     children,
     sidebarContent,
-    infoCard
+    infoCard,
+    backPath = null
 }) => {
     const navigate = useNavigate();
 
@@ -21,7 +22,7 @@ const StandardPageLayout = ({
         if (onCancel) {
             onCancel();
         } else {
-            navigate(-1);
+            backPath ? navigate(backPath) : navigate(-1);
         }
     };
 

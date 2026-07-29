@@ -370,19 +370,19 @@ const MaterialDetails = ({ embeddedId }) => {
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                     <div className="icon-value" style={{ margin: 0, fontSize: 12 }}><Calendar size={14}/> Mill TC date</div>
-                                    <div style={{ fontSize: 12, fontWeight: 700, color: '#0f172a' }}>10/06/2026</div>
+                                    <div style={{ fontSize: 12, fontWeight: 700, color: '#0f172a' }}>{material.compliance?.tcDate || 'N/A'}</div>
                                 </div>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                     <div className="icon-value" style={{ margin: 0, fontSize: 12 }}><Calendar size={14}/> TC expiry</div>
-                                    <div style={{ fontSize: 12, fontWeight: 700, color: '#0f172a' }}>10/06/2028</div>
+                                    <div style={{ fontSize: 12, fontWeight: 700, color: '#0f172a' }}>{material.compliance?.tcExpiry || 'N/A'}</div>
                                 </div>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                     <div className="icon-value" style={{ margin: 0, fontSize: 12 }}><CheckCircle size={14}/> QC status</div>
-                                    <div style={{ fontSize: 12, fontWeight: 700, color: '#16a34a' }}>Passed</div>
+                                    <div style={{ fontSize: 12, fontWeight: 700, color: '#16a34a' }}>{material.compliance?.qcStatus || 'Pending'}</div>
                                 </div>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                     <div className="icon-value" style={{ margin: 0, fontSize: 12 }}><Hash size={14}/> Batch no.</div>
-                                    <div style={{ fontSize: 12, fontWeight: 700, color: '#0f172a' }}>N/A</div>
+                                    <div style={{ fontSize: 12, fontWeight: 700, color: '#0f172a' }}>{material.batchNo || 'N/A'}</div>
                                 </div>
                             </div>
                         </div>
@@ -406,20 +406,20 @@ const MaterialDetails = ({ embeddedId }) => {
                                     <span style={{ padding: '6px 12px', borderRadius: 0, background: '#f1f5f9', color: '#64748b', fontSize: 13, fontWeight: 700 }}>No active movement</span>
                                 )}
                             </div>
-                            <div style={{ fontSize: 14, color: '#64748b' }}>Shipment ID: SHP-882910</div>
+                            <div style={{ fontSize: 14, color: '#64748b' }}>Shipment ID: {material.activeShipmentId || 'N/A'}</div>
                         </div>
 
                         <div style={{ display: 'flex', gap: 32 }}>
                             <div style={{ textAlign: 'center' }}>
-                                <div style={{ fontSize: 24, fontWeight: 800, color: '#3b82f6' }}>1</div>
+                                <div style={{ fontSize: 24, fontWeight: 800, color: '#3b82f6' }}>{material.inTransitCount || 0}</div>
                                 <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>In Transit</div>
                             </div>
                             <div style={{ textAlign: 'center' }}>
-                                <div style={{ fontSize: 24, fontWeight: 800, color: '#16a34a' }}>0</div>
+                                <div style={{ fontSize: 24, fontWeight: 800, color: '#16a34a' }}>{material.arrivingSoonCount || 0}</div>
                                 <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>Arriving Soon</div>
                             </div>
                             <div style={{ textAlign: 'center' }}>
-                                <div style={{ fontSize: 24, fontWeight: 800, color: '#dc2626' }}>0</div>
+                                <div style={{ fontSize: 24, fontWeight: 800, color: '#dc2626' }}>{material.delayedCount || 0}</div>
                                 <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>Delayed</div>
                             </div>
                         </div>

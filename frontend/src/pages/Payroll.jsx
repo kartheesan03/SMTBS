@@ -38,8 +38,6 @@ const Payroll = () => {
     const totalPF = salaries.reduce((sum, s) => sum + ((s.basicSalary || 0) * 0.12), 0); // Assuming 12% PF for KPI
     const totalTax = salaries.reduce((sum, s) => sum + (s.deductions || 0) - ((s.basicSalary || 0) * 0.12), 0); // Remaining deductions as Tax
 
-    // Trend mock generator
-    
 
     const getStatusBadge = (status) => {
         if (status === 'Paid') return <span className="ui-badge success"><div style={{width: 6, height: 6, borderRadius: '0px', background: '#059669'}}></div>Paid</span>;

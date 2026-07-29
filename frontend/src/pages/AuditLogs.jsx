@@ -112,7 +112,7 @@ const AuditLogs = () => {
                                     {new Date(log.createdAt).toLocaleString()}
                                 </td>
                                 <td style={{ padding: '16px' }}>
-                                    <div style={{ fontWeight: 500, color: '#0f172a', fontSize: '14px' }}>{log.userName || 'System'}</div>
+                                    <div style={{ fontWeight: 500, color: '#0f172a', fontSize: '14px' }}>{log.user?.name || log.userName || 'System'}</div>
                                     {log.changes?.role && <div style={{ fontSize: '12px', color: '#64748b' }}>Role: {log.changes.role}</div>}
                                 </td>
                                 <td style={{ padding: '16px' }}>

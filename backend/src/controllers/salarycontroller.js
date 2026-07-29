@@ -7,7 +7,10 @@ const { broadcast, notifyHR } = require('../services/notificationService');
 // @access  Private
 const getMySalaryHistory = async (req, res) => {
     try {
-        const employee = await Employee.findOne({ userId: req.user._id || req.user.id });
+        let employee = await Employee.findOne({ userId: req.user._id || req.user.id });
+        if (!employee) {
+            employee = await Employee.findOne({ id: req.user._id || req.user.id });
+        }
         if (!employee) return res.status(404).json({ message: 'Employee profile not found' });
 
         // Show all salary records to the employee so they can track status
@@ -28,7 +31,10 @@ const getMySalaryHistory = async (req, res) => {
 // @access  Private
 const getMySalarySummary = async (req, res) => {
     try {
-        const employee = await Employee.findOne({ userId: req.user._id || req.user.id });
+        let employee = await Employee.findOne({ userId: req.user._id || req.user.id });
+        if (!employee) {
+            employee = await Employee.findOne({ id: req.user._id || req.user.id });
+        }
         if (!employee) return res.status(404).json({ message: 'Employee profile not found' });
 
         const latest = await Salary.findOne({ 

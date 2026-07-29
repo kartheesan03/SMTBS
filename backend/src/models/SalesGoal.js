@@ -1,36 +1,41 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/sequelize');
+const { makeBridgedModel } = require('../config/mongoose-bridge');
 
-const salesGoalSchema = new mongoose.Schema({
+const SalesGoalSequelize = sequelize.define('SalesGoal', {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
     assignedTo: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
+        type: DataTypes.INTEGER,
+        allowNull: false
     },
     period: {
-        type: String,
-        enum: ['Monthly', 'Quarterly', 'Yearly', 'Custom'],
-        default: 'Monthly'
+        type: DataTypes.STRING,
+        defaultValue: 'Monthly'
     },
     startDate: {
-        type: Date,
-        required: true
+        type: DataTypes.DATE,
+        allowNull: false
     },
     endDate: {
-        type: Date,
-        required: true
+        type: DataTypes.DATE,
+        allowNull: false
     },
     targetAmount: {
-        type: Number,
-        default: 0
+        type: DataTypes.FLOAT,
+        defaultValue: 0
     },
     targetOrders: {
-        type: Number,
-        default: 0
+        type: DataTypes.INTEGER,
+        defaultValue: 0
     },
     createdBy: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
+        type: DataTypes.INTEGER
     }
-}, { timestamps: true });
+});
 
-module.exports = mongoose.model('SalesGoal', salesGoalSchema);
+const SalesGoal = makeBridgedModel('SalesGoal', SalesGoalSequelize);
+module.exports = SalesGoal;

@@ -16,13 +16,18 @@ import API from '../api/axios';
 const MONTHS = ['January','February','March','April','May','June',
     'July','August','September','October','November','December'];
 
+const getLocalYMD = (d = new Date()) => {
+    const y = d.getFullYear(), m = String(d.getMonth()+1).padStart(2,'0'), day = String(d.getDate()).padStart(2,'0');
+    return `${y}-${m}-${day}`;
+};
+
 const parseDateTime = (ts, base) => {
     if (!ts) return null;
     if (ts.includes('T') || (ts.includes('-') && ts.includes(':') && ts.length > 10)) {
         const d = new Date(ts);
         if (!isNaN(d)) return d;
     }
-    const dp = base ? base.split('T')[0] : new Date().toISOString().split('T')[0];
+    const dp = base ? base.split('T')[0] : getLocalYMD();
     const d = new Date(`${dp} ${ts}`);
     return isNaN(d) ? null : d;
 };
@@ -154,7 +159,7 @@ const AttendanceTable = ({ rows, showDate = true }) => {
             <p style={{ margin:0, fontSize:15, fontWeight:500 }}>No records found</p>
         </div>
     );
-    const todayStr = new Date().toISOString().split('T')[0];
+    const todayStr = getLocalYMD();
     return (
         <div style={{ overflowX:'auto' }}>
             <table style={{ width:'100%', borderCollapse:'collapse', fontFamily:'Inter,sans-serif' }}>
@@ -295,13 +300,13 @@ const MonthlyTable = ({ rows, todayStr }) => {
 
 /* ─────────────────────────── Daily Tab ────────────────────────── */
 const DailyTab = ({ myHistory }) => {
-    const [selDate, setSelDate] = useState(new Date().toISOString().split('T')[0]);
+    const [selDate, setSelDate] = useState(getLocalYMD());
     const goDay = (d) => {
         const nd = new Date(selDate);
         nd.setDate(nd.getDate() + d);
-        setSelDate(nd.toISOString().split('T')[0]);
+        setSelDate(getLocalYMD(nd));
     };
-    const isFuture = new Date(selDate) > new Date(new Date().toISOString().split('T')[0]);
+    const isFuture = new Date(selDate) > new Date(getLocalYMD());
     const record = myHistory.find(h => (h.date || '').split('T')[0] === selDate);
     const rows = record ? [record] : [];
 
@@ -312,7 +317,7 @@ const DailyTab = ({ myHistory }) => {
                 <button onClick={() => goDay(-1)} style={NAV_BTN}><ChevronLeft size={15} /></button>
                 <div style={{ display:'flex', alignItems:'center', gap:8, border:'1px solid #e2e8f0', borderRadius: 0, padding:'8px 14px', background:'#f8fafc' }}>
                     <Calendar size={15} color="#3b82f6" />
-                    <input type="date" value={selDate} max={new Date().toISOString().split('T')[0]}
+                    <input type="date" value={selDate} max={getLocalYMD()}
                         onChange={e => setSelDate(e.target.value)}
                         style={{ border:'none', background:'transparent', outline:'none', fontSize:13, fontWeight:600, color:'#1e293b', cursor:'pointer' }} />
                 </div>
@@ -365,7 +370,7 @@ const MonthlyTab = ({ myHistory }) => {
     const atCurrentMonth = year===now.getFullYear()&&month===now.getMonth();
 
     const daysInMonth  = new Date(year, month+1, 0).getDate();
-    const todayStr     = now.toISOString().split('T')[0];
+    const todayStr     = getLocalYMD(now);
     const todayDay     = now.getDate();
     const limitDay     = atCurrentMonth ? todayDay : daysInMonth;
 
@@ -384,7 +389,7 @@ const MonthlyTab = ({ myHistory }) => {
         const day      = i + 1;
         const dateObj  = new Date(year, month, day);
         const isSun    = dateObj.getDay() === 0;
-        const dateStr  = dateObj.toISOString().split('T')[0];
+        const dateStr  = getLocalYMD(dateObj);
         const rec      = histMap[day];
         if (rec) return rec;
         // Synthesise a row for days without a record
@@ -561,7 +566,7 @@ const Attendance = () => {
                 API.get('/attendance/my-history'),
             ]);
             setStatus(sRes.data);
-            const today = new Date().toISOString().split('T')[0];
+            const today = getLocalYMD();
             let hist = hRes.data || [];
             // Replace or prepend today's record using live status data
             const todayIdx = hist.findIndex(h=>(h.date||'').split('T')[0]===today);

@@ -4,7 +4,6 @@ import { AuthContext } from '../context/AuthContext';
 import { NotificationContext } from '../context/NotificationContext';
 import * as Icons from 'lucide-react';
 import API from '../api/axios';
-import { hrmsMenuItems, hasHrmsPermission } from '../config/hrmsMenuConfig';
 import './FarmakuSidebar.css';
 
 // Map module titles → icon color class for visual distinction
@@ -80,127 +79,7 @@ const FarmakuSidebar = () => {
         const fetchNavigation = async () => {
             try {
                 const response = await API.get(`/system/navigation?t=${Date.now()}`);
-                let navData = response.data;
-                
-                // Check if the backend already returned HR-specific navigation
-                // (hrNavigationConfig includes 'Employee Management' / 'Leave Management' as top-level items)
-                const hasHrNav = navData.some(item =>
-                    item.title === 'Employee Management' ||
-                    item.title === 'Leave Management' ||
-                    item.title === 'Payroll'
-                );
-
-                // Only inject the client-side HRMS block if the backend hasn't already
-                // provided HR navigation — prevents duplicate menus for HR role
-                if (!hasHrNav) {
-                    const allowedHrmsChildren = hrmsMenuItems
-                        .filter(item => hasHrmsPermission(user, item.permission))
-                        .map(item => ({
-                            title: item.label,
-                            path: item.path,
-                        }));
-
-                    if (allowedHrmsChildren.length > 0) {
-                        const hrmsNode = {
-                            title: 'HRMS',
-                            icon: 'Users',
-                            permission: 'view_hrms',
-                            children: allowedHrmsChildren
-                        };
-                        
-                        let inserted = false;
-                        for (let i = 0; i < navData.length; i++) {
-                            if (navData[i].title === 'Attendance') {
-                                navData.splice(i + 1, 0, hrmsNode);
-                                inserted = true;
-                                break;
-                            }
-                        }
-                        if (!inserted) {
-                            for (let i = 0; i < navData.length; i++) {
-                                if (navData[i].title === 'Dashboard') {
-                                    navData.splice(i + 1, 0, hrmsNode);
-                                    inserted = true;
-                                    break;
-                                }
-                            }
-                        }
-                        if (!inserted) {
-                            navData.push(hrmsNode);
-                        }
-                    }
-                }
-                // --- Apply Material Tracking RBAC ---
-                const materialTrackingIndex = navData.findIndex(item => item.title === 'Material Tracking');
-                if (materialTrackingIndex !== -1) {
-                    const role = (user?.role || '').toLowerCase();
-                    const allChildren = [
-                        { title: 'Inventory', path: '/materials' },
-                        { title: 'Assigned Inventory', path: '/my-materials/inventory' },
-                        { title: 'Movement Tracking', path: '/tracking-overview' },
-                        { title: 'Stock Monitoring', path: '/my-materials/stock' },
-                        { title: 'Barcode / QR', path: role === 'employee' ? '/my-materials/barcode' : '/materials/barcode' },
-                        { title: 'Warehouse Management', path: '/warehouses' },
-                        { title: 'Reports', path: '/reports/materials' }
-                    ];
-
-                    let allowedTitles = [];
-                    const isSuperAdmin = user?.email === 'admin@smtbms.com' || role === 'admin' || role === 'super admin';
-                    
-                    if (isSuperAdmin) {
-                        allowedTitles = ['Inventory', 'Movement Tracking', 'Stock Monitoring', 'Barcode / QR', 'Material Requests', 'Warehouse Management', 'Reports'];
-                    } else if (role === 'manager') {
-                        allowedTitles = ['Inventory', 'Movement Tracking', 'Stock Monitoring', 'Material Requests', 'Reports'];
-                    } else if (role === 'employee') {
-                        allowedTitles = ['Assigned Inventory', 'Movement Tracking', 'Barcode / QR', 'Material Requests'];
-                    } else if (role === 'sales') {
-                        allowedTitles = ['Inventory', 'Barcode / QR'];
-                    } else if (role === 'hr') {
-                        allowedTitles = ['Reports', 'Inventory'];
-                    }
-
-                    const filteredChildren = allChildren.filter(c => allowedTitles.includes(c.title));
-                    navData[materialTrackingIndex] = {
-                        ...navData[materialTrackingIndex],
-                        children: filteredChildren
-                    };
-                }
-
-                // Add Audit Logs to main menu for super admins
-                const roleForAudit = (user?.role || '').toLowerCase();
-                const isSuperAdminForAudit = user?.email === 'admin@smtbms.com' || roleForAudit === 'admin' || roleForAudit === 'super admin';
-                
-                if (isSuperAdminForAudit) {
-                    navData.push({
-                        title: 'Audit Logs',
-                        path: '/settings/audit-logs',
-                        icon: 'ClipboardList'
-                    });
-                }
-                
-                // Remove Audit Logs from Settings submenu to prevent duplicates
-                const settingsIndex = navData.findIndex(item => item.title === 'Settings');
-                if (settingsIndex !== -1 && navData[settingsIndex].children) {
-                    navData[settingsIndex].children = navData[settingsIndex].children.filter(c => c.title !== 'Audit Logs');
-                }
-                
-                // Inject OCR Module for admins or managers
-                if (isSuperAdminForAudit || roleForAudit === 'manager') {
-                    navData.push({
-                        title: 'OCR Engine',
-                        path: '/ocr',
-                        icon: 'FileText'
-                    });
-                    
-                    navData.push({
-                        title: 'AI Extraction',
-                        path: '/ai-extraction',
-                        icon: 'Cpu'
-                    });
-                }
-                // ------------------------------------
-                
-                setNavigation(navData);
+                setNavigation(response.data);
             } catch (error) {
                 console.error('Failed to load navigation:', error);
             } finally {
@@ -375,6 +254,19 @@ const FarmakuSidebar = () => {
                             </NavLink>
                         </li>
                     )}
+
+                    {/* OCR Tool */}
+                    <li>
+                        <NavLink
+                            to="/ocr"
+                            end
+                            className={({ isActive }) => `farmaku-nav-item${isLeafActive('/ocr') ? ' active' : ''}`}
+                        >
+                            <Icons.Scan size={18} className="nav-icon-teal" />
+                            <span>OCR Tool</span>
+                            <Icons.ChevronRight size={14} />
+                        </NavLink>
+                    </li>
 
                     {/* Settings (if available in nav) */}
                     {!loading && navigation.find((item) => item.title === 'Settings') &&

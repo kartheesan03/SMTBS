@@ -244,15 +244,12 @@ const EmployeeScanner = () => {
                                 exit={{ opacity: 0, y: -20 }}
                                 transition={{ duration: 0.3 }}
                             >
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-                                    <button 
-                                        className="ui-btn-outline" 
-                                        onClick={() => { setScanState('scanning'); setScannedId(''); setTimeout(() => inputRef.current?.focus(), 100); }}
-                                        style={{ padding: '8px' }}
-                                    >
-                                        <ArrowLeft size={18} />
-                                    </button>
-                                    <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 700 }}>Scan Result</h2>
+                                <div style={{ marginBottom: '24px' }}>
+                                    <PageHeader 
+                                        title="Scan Result" 
+                                        showBack={true} 
+                                        onBack={() => { setScanState('scanning'); setScannedId(''); setTimeout(() => inputRef.current?.focus(), 100); }} 
+                                    />
                                 </div>
 
                                 {/* Material Details Card */}

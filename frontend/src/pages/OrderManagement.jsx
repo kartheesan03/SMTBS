@@ -45,7 +45,7 @@ const OrderManagement = () => {
 
     // KPI computations
     const activeOrders = orders.filter(o => !['Delivered', 'Completed', 'Cancelled'].includes(o.status));
-    const deliveredOrders = orders.filter(o => ['Delivered', 'Completed'].includes(o.status));
+    const deliveredOrders = orders.filter(o => ['Delivered', 'Completed', 'Invoice Generated', 'Workflow Completed'].includes(o.status));
     const orderRevenue = deliveredOrders.reduce((sum, o) => sum + (Number(o.totalAmount) || Number(o.grandTotal) || 0), 0);
     const currentMonth = new Date().getMonth();
     const currentYear = new Date().getFullYear();
@@ -111,7 +111,7 @@ const OrderManagement = () => {
         const month = monthNames[date.getMonth()];
         const amt = (Number(o.totalAmount) || Number(o.grandTotal) || 0) / 1000;
         revMap[month] = (revMap[month] || 0) + amt;
-        if(['Delivered', 'Completed'].includes(o.status)) {
+        if(['Delivered', 'Completed', 'Invoice Generated', 'Workflow Completed'].includes(o.status)) {
             delRevMap[month] = (delRevMap[month] || 0) + amt;
         }
     });

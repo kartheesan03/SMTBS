@@ -14,15 +14,35 @@ import '../components/AdminDashboard/AdminDashboardRedesign.css';
 /* ─── Helper Utilities ─────────────────────────── */
 const formatTime = (iso) => {
     if (!iso) return '—';
-    return new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    if (typeof iso === 'string' && !iso.includes('T') && iso.includes(':')) return iso;
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return iso;
+    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 };
 const formatDate = (d) => {
     if (!d) return '—';
     return new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
 };
-const calcHours = (ci, co) => {
+const calcHours = (ci, co, dateStr) => {
     if (!ci || !co) return '—';
-    const h = (new Date(co) - new Date(ci)) / 36e5;
+    const parseTime = (t, d) => {
+        if (t.includes('T')) return new Date(t);
+        const base = d ? new Date(d) : new Date();
+        const match = t.match(/(\d+):(\d+)\s*(AM|PM)?/i);
+        if (!match) return new Date('invalid');
+        let [_, h, m, mod] = match;
+        h = parseInt(h, 10);
+        if (mod) {
+            if (h === 12 && mod.toUpperCase() === 'AM') h = 0;
+            if (h < 12 && mod.toUpperCase() === 'PM') h += 12;
+        }
+        base.setHours(h, parseInt(m, 10), 0, 0);
+        return base;
+    };
+    const d1 = parseTime(ci, dateStr);
+    const d2 = parseTime(co, dateStr);
+    if (isNaN(d1) || isNaN(d2)) return '—';
+    const h = (d2 - d1) / 36e5;
     return h > 0 ? `${h.toFixed(1)}h` : '—';
 };
 const getInitials = (fn, ln) =>
@@ -213,7 +233,7 @@ const DailyTab = ({ canEdit }) => {
                 `${e.firstName || ''} ${e.lastName || ''}`.trim(),
                 e.employeeId || '', e.department || '',
                 formatTime(r.checkIn), formatTime(r.checkOut),
-                calcHours(r.checkIn, r.checkOut), r.status || '-'
+                calcHours(r.checkIn, r.checkOut, r.date), r.status || '-'
             ]);
         });
         const csv = rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
@@ -321,7 +341,7 @@ const DailyTab = ({ canEdit }) => {
                                         <td style={{ fontWeight: 500, color: '#1e293b', textAlign: 'center' }} data-label="Check In">{formatTime(r.checkIn)}</td>
                                         <td style={{ fontWeight: 500, color: '#1e293b', textAlign: 'center' }} data-label="Check Out">{formatTime(r.checkOut)}</td>
                                         <td style={{ textAlign: 'center' }} data-label="Hours">
-                                            <span style={{ fontWeight: 700, color: '#3b82f6' }}>{calcHours(r.checkIn, r.checkOut)}</span>
+                                            <span style={{ fontWeight: 700, color: '#3b82f6' }}>{calcHours(r.checkIn, r.checkOut, r.date)}</span>
                                         </td>
                                         <td style={{ textAlign: 'center' }} data-label="Status"><StatusBadge status={r.status} /></td>
                                         <td style={{ textAlign: 'center' }} data-label="Action">
@@ -547,7 +567,7 @@ const HistoryTab = () => {
                 `${e.firstName || ''} ${e.lastName || ''}`.trim(),
                 e.employeeId || '', e.department || '',
                 formatTime(r.checkIn), formatTime(r.checkOut),
-                calcHours(r.checkIn, r.checkOut), r.status || '-'
+                calcHours(r.checkIn, r.checkOut, r.date), r.status || '-'
             ]);
         });
         const csv = rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
@@ -647,7 +667,7 @@ const HistoryTab = () => {
                                         <td style={{ color: '#64748b' }} data-label="Department">{emp.department || '—'}</td>
                                         <td style={{ fontWeight: 500 }} data-label="Check In">{formatTime(r.checkIn)}</td>
                                         <td style={{ fontWeight: 500 }} data-label="Check Out">{formatTime(r.checkOut)}</td>
-                                        <td data-label="Hours"><span style={{ fontWeight: 700, color: '#3b82f6' }}>{calcHours(r.checkIn, r.checkOut)}</span></td>
+                                        <td data-label="Hours"><span style={{ fontWeight: 700, color: '#3b82f6' }}>{calcHours(r.checkIn, r.checkOut, r.date)}</span></td>
                                         <td data-label="Status"><StatusBadge status={r.status} /></td>
                                     </tr>
                                 );

@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import { Mail, Phone, MapPin, Building2, Globe, FileText, CheckCircle, Package, Edit, ShoppingCart, Plus, ArrowLeft } from 'lucide-react';
 import { DetailViewContainer, ProfileHeader, Tabs, KeyValueCard, Timeline, DataTable } from '../components/ui';
 import { motion } from 'framer-motion';
+import PageHeader from '../components/PageHeader';
 
 const VendorDetails = () => {
     const navigate = useNavigate();
@@ -135,6 +136,8 @@ const VendorDetails = () => {
         { id: 'history', label: 'History', icon: FileText, content: <Timeline items={timeline.map((t, i) => ({ id: t.id || i, time: t.date ? new Date(t.date).toLocaleDateString() : t.time, title: t.action || 'Event', description: t.description || 'System action', color: '#3b82f6' }))} /> }
     ];
 
+
+
     return (
         <motion.div 
             initial={{ opacity: 0, y: 15 }}
@@ -143,12 +146,7 @@ const VendorDetails = () => {
             style={{ padding: '24px' }}
         >
             <div style={{ marginBottom: '16px' }}>
-                <button 
-                    onClick={() => navigate('/vendors')}
-                    className="btn btn-secondary"
-                >
-                    <ArrowLeft size={16} /> Back to Vendor Management
-                </button>
+                <PageHeader title="" showBack={true} backPath="/vendors" />
             </div>
             <DetailViewContainer>
                 <ProfileHeader 

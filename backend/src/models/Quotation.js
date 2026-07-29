@@ -1,107 +1,92 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/sequelize');
+const { makeBridgedModel } = require('../config/mongoose-bridge');
 
-const quotationItemSchema = new mongoose.Schema({
-    material: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Material',
-        required: true
+const QuotationSequelize = sequelize.define('Quotation', {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
     },
-    materialName: {
-        type: String,
-        required: true
-    },
-    quantity: {
-        type: Number,
-        required: true,
-        min: 1
-    },
-    unitPrice: {
-        type: Number,
-        required: true
-    },
-    discountPercent: {
-        type: Number,
-        default: 0
-    },
-    total: {
-        type: Number,
-        required: true
-    }
-});
-
-const quotationSchema = new mongoose.Schema({
     quotationNumber: {
-        type: String,
-        required: true,
+        type: DataTypes.STRING,
+        allowNull: false,
         unique: true
     },
     customer: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Customer',
-        required: true
+        type: DataTypes.INTEGER,
+        allowNull: false
     },
     customerName: {
-        type: String,
-        required: true
+        type: DataTypes.STRING,
+        allowNull: false
     },
     date: {
-        type: Date,
-        default: Date.now
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW
     },
     validUntil: {
-        type: Date,
-        required: true
+        type: DataTypes.DATE,
+        allowNull: false
     },
-    items: [quotationItemSchema],
+    items: {
+        type: DataTypes.JSON, 
+        defaultValue: []
+    },
     subTotal: {
-        type: Number,
-        required: true
+        type: DataTypes.FLOAT,
+        allowNull: false
     },
     taxAmount: {
-        type: Number,
-        default: 0
+        type: DataTypes.FLOAT,
+        defaultValue: 0
     },
     grandTotal: {
-        type: Number,
-        required: true
+        type: DataTypes.FLOAT,
+        allowNull: false
     },
     status: {
-        type: String,
-        enum: ['Draft', 'Sent', 'Accepted', 'Rejected', 'Expired', 'Converted'],
-        default: 'Draft'
+        type: DataTypes.STRING,
+        defaultValue: 'Draft' 
     },
     notes: {
-        type: String
+        type: DataTypes.TEXT
     },
     termsAndConditions: {
-        type: String,
-        default: 'Quotation valid until the specified date. All prices are final unless changed by mutual agreement.'
+        type: DataTypes.TEXT,
+        defaultValue: 'Quotation valid until the specified date. All prices are final unless changed by mutual agreement.'
     },
     createdBy: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
+        type: DataTypes.INTEGER
     },
-    createdByName: String,
+    createdByName: {
+        type: DataTypes.STRING
+    },
     salesOrderId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Order'
+        type: DataTypes.INTEGER
     }
 }, {
-    timestamps: true
-});
-
-// Calculate total before save
-quotationSchema.pre('save', function (next) {
-    if (this.isModified('items')) {
-        this.subTotal = this.items.reduce((sum, item) => {
-            const priceAfterDiscount = item.unitPrice * (1 - (item.discountPercent / 100));
-            item.total = item.quantity * priceAfterDiscount;
-            return sum + item.total;
-        }, 0);
-        this.grandTotal = this.subTotal + (this.taxAmount || 0);
+    hooks: {
+        beforeSave: (instance) => {
+            let items = instance.items || [];
+            if (typeof items === 'string') {
+                items = JSON.parse(items);
+            }
+            
+            let subTotal = 0;
+            items.forEach(item => {
+                const priceAfterDiscount = item.unitPrice * (1 - ((item.discountPercent || 0) / 100));
+                item.total = item.quantity * priceAfterDiscount;
+                subTotal += item.total;
+            });
+            
+            instance.items = items; 
+            instance.subTotal = subTotal;
+            instance.grandTotal = subTotal + (instance.taxAmount || 0);
+        }
     }
-    next();
 });
 
-const Quotation = mongoose.model('Quotation', quotationSchema);
+const Quotation = makeBridgedModel('Quotation', QuotationSequelize);
+
 module.exports = Quotation;

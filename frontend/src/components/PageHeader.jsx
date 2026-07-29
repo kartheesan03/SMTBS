@@ -13,8 +13,18 @@ import './PageHeader.css';
  * @param {boolean} showBack - Whether to show a back arrow — optional
  * @param {boolean} hasInsights - Whether to show an attention dot (e.g. for pending actions)
  */
-const PageHeader = ({ title, badge, subtitle, showBack = false, hasInsights = false }) => {
+const PageHeader = ({ title, badge, subtitle, showBack = false, hasInsights = false, backPath = null, onBack = null }) => {
     const navigate = useNavigate();
+
+    const handleBack = () => {
+        if (onBack) {
+            onBack();
+        } else if (backPath) {
+            navigate(backPath);
+        } else {
+            navigate(-1);
+        }
+    };
 
     return (
         <div className="rd-module-header">
@@ -30,7 +40,7 @@ const PageHeader = ({ title, badge, subtitle, showBack = false, hasInsights = fa
                 >
                     {showBack && (
                         <button
-                            onClick={() => navigate(-1)}
+                            onClick={handleBack}
                             style={{
                                 background: 'transparent',
                                 border: 'none',

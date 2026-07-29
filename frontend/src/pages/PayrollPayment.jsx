@@ -127,9 +127,7 @@ const PayrollPayment = () => {
                     <AlertCircle size={48} style={{ color: '#ef4444', marginBottom: '16px' }} />
                     <h2 style={{ color: '#0f172a', fontSize: '20px', marginBottom: '8px' }}>Payroll Record Not Found</h2>
                     <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '24px' }}>The requested payroll record does not exist or has been deleted.</p>
-                    <button onClick={() => navigate('/payroll')} className="rd-back-btn" style={{ background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '0px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', padding: '10px 24px', margin: '0 auto' }}>
-                        <ArrowLeft size={16} /> Back to Payroll
-                    </button>
+                    <PageHeader title="" showBack={true} backPath="/payroll" />
                 </div>
             </div>
         );
@@ -181,9 +179,7 @@ const PayrollPayment = () => {
                     </div>
 
                     <div style={{ padding: '16px 28px 28px', display: 'flex', gap: '12px' }}>
-                        <button onClick={() => navigate('/payroll')} className="rd-back-btn" style={{ background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '0px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', padding: '12px', flex: 1, justifyContent: 'center' }}>
-                            <ArrowLeft size={16} /> Back to Payroll
-                        </button>
+                        <PageHeader title="" showBack={true} backPath="/payroll" />
                     </div>
                 </div>
             </motion.div>
@@ -207,13 +203,8 @@ const PayrollPayment = () => {
             )}
 
             {/* Back Button + Title */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
-                <button onClick={() => navigate('/payroll')} className="rd-back-btn icon-only">
-                    <ArrowLeft size={18} />
-                </button>
-                <div>
-                    <PageHeader title="Process Salary Payment" badge="HRMS" subtitle="Complete payment details and confirm disbursement" />
-                </div>
+            <div style={{ marginBottom: '24px' }}>
+                <PageHeader title="Process Salary Payment" badge="HRMS" subtitle="Complete payment details and confirm disbursement" showBack={true} backPath="/payroll" />
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', maxWidth: '1100px' }}>

@@ -24,10 +24,13 @@ const navigationConfig = [
         icon: 'Box',
         permission: 'view_materials',
         children: [
-            { title: 'Inventory', path: '/materials' },
-            { title: 'Movement Tracking', path: '/tracking-overview' },
-            { title: 'Stock Monitoring', path: '/stock-requests' },
-            { title: 'Barcode / QR', path: '/materials/barcode' }
+            { title: 'Inventory', path: '/materials', permission: 'view_materials' },
+            { title: 'Movement Tracking', path: '/tracking-overview', permission: 'view_materials' },
+            { title: 'Stock Monitoring', path: '/stock-requests', permission: 'view_materials' },
+            { title: 'Barcode / QR', path: '/materials/barcode', permission: 'view_materials' },
+            { title: 'Material Requests', path: '/my-materials/requests', permission: 'view_materials' },
+            { title: 'Warehouse Management', path: '/warehouses', permission: 'manage_materials' },
+            { title: 'Reports', path: '/reports/materials', permission: 'view_reports' }
         ]
     },
     {
@@ -35,10 +38,23 @@ const navigationConfig = [
         icon: 'Box',
         permission: 'view_materials_self',
         children: [
-            { title: 'Inventory', path: '/my-materials/inventory' },
-            { title: 'Movement Tracking', path: '/my-materials/requests' },
-            { title: 'Stock Monitoring', path: '/my-materials/stock' },
-            { title: 'Barcode / QR', path: '/my-materials/barcode' }
+            { title: 'Assigned Inventory', path: '/my-materials/inventory', permission: 'view_materials_self' },
+            { title: 'Movement Tracking', path: '/tracking-overview', permission: 'view_materials_self' },
+            { title: 'Barcode / QR', path: '/my-materials/barcode', permission: 'view_materials_self' },
+            { title: 'Material Requests', path: '/my-materials/requests', permission: 'view_materials_self' }
+        ]
+    },
+    {
+        title: 'HRMS',
+        icon: 'Users',
+        permission: 'view_hrms',
+        children: [
+            { title: 'Employee Data', path: '/hrms' },
+            { title: 'Master Attendance', path: '/attendance/master' },
+            { title: 'Leave Management', path: '/leave-management/history' },
+            { title: 'All Leave Requests', path: '/leave-management' },
+            { title: 'Payroll', path: '/payroll' },
+            { title: 'Performance', path: '/team-performance' }
         ]
     },
     {
@@ -96,6 +112,12 @@ const navigationConfig = [
         permission: ''
     },
     {
+        title: 'Audit Logs',
+        icon: 'ClipboardList',
+        path: '/settings/audit-logs',
+        permission: 'view_audit_logs'
+    },
+    {
         title: 'Settings',
         icon: 'Settings',
         permission: '',
@@ -103,7 +125,6 @@ const navigationConfig = [
             { title: 'General Settings', path: '/settings', permission: '' },
             { title: 'User Management', path: '/users', permission: 'manage_users' },
             { title: 'Roles & Permissions', path: '/settings/roles', permission: 'manage_settings' },
-            { title: 'Audit Logs', path: '/settings/audit-logs', permission: 'view_audit_logs' },
             { title: 'Backup & Restore', path: '/settings/backup', permission: 'manage_backup' },
             { title: 'Integrations', path: '/settings/integrations', permission: 'manage_settings' }
         ]
@@ -218,6 +239,7 @@ exports.getNavigation = async (req, res) => {
         let userPermissions = Array.isArray(req.user.permissions) ? req.user.permissions : [];
         
         const roleName = req.user.role ? req.user.role.toLowerCase() : '';
+        console.log(`[getNavigation] User Email: ${req.user.email}, Role: ${roleName}, Permissions: ${userPermissions}`);
 
         // Super Admin / Admin get everything
         if (req.user.email === 'admin@smtbms.com' || roleName === 'admin' || roleName === 'super admin') {
@@ -227,6 +249,18 @@ exports.getNavigation = async (req, res) => {
         // Grant employee access to the self-service materials menu
         if (roleName === 'employee') {
             userPermissions.push('view_materials_self');
+        }
+        // Grant HR access to HRMS modules if not already in DB
+        if (roleName === 'hr') {
+            userPermissions.push(
+                'view_hrms', 'manage_hrms',
+                'hrms:employeeData:view', 'hrms:employeeData:manage',
+                'hrms:attendance:view', 'hrms:attendance:manage',
+                'hrms:payroll:view', 'hrms:payroll:generate', 'hrms:payroll:manage',
+                'hrms:performance:view', 'hrms:performance:manage',
+                'hrms:leave:view', 'hrms:leave:manage',
+                'hrms:mySalary:view'
+            );
         }
 
         // ── HR role: use the dedicated HR navigation config ───────────────────

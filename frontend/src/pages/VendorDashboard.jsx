@@ -9,6 +9,7 @@ import {
 import { motion } from 'framer-motion';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 import { StatCard, StatGrid } from '../components/ui/StatCard';
+import WelcomeBanner from '../components/ui/WelcomeBanner';
 import { LoadingState, EmptyState } from '../components/DataStates';
 
 const VendorDashboard = () => {
@@ -60,6 +61,18 @@ const VendorDashboard = () => {
         return m[s] || '#f1f5f9';
     };
 
+    // Calculate dynamic bar heights for revenue trend
+    const recentOrders = [...orders].sort((a, b) => new Date(a.orderDate) - new Date(b.orderDate)).slice(-5);
+    const maxOrderVal = Math.max(...recentOrders.map(o => Number(o.grandTotal) || Number(o.totalAmount) || 0), 1);
+    const barHeights = recentOrders.map(o => {
+        const val = Number(o.grandTotal) || Number(o.totalAmount) || 0;
+        return `${Math.max((val / maxOrderVal) * 100, 10)}%`;
+    });
+    // Fallback if less than 5 orders
+    while (barHeights.length < 5) {
+        barHeights.unshift('10%');
+    }
+
     return (
         <div className="rd-container theme-vendor" style={{ '--theme-accent': '#0ea5e9' }}>
             <div className="rd-content">
@@ -83,11 +96,9 @@ const VendorDashboard = () => {
                                                         <div className="rd-visual-card">
                                                             <div className="rd-vc-label">Revenue</div>
                                                             <div className="rd-vc-bars">
-                                                                <div className="rd-vc-bar" style={{ height: '60%' }}></div>
-                                                                <div className="rd-vc-bar" style={{ height: '80%' }}></div>
-                                                                <div className="rd-vc-bar" style={{ height: '70%' }}></div>
-                                                                <div className="rd-vc-bar" style={{ height: '100%' }}></div>
-                                                                <div className="rd-vc-bar" style={{ height: '75%' }}></div>
+                                                                {barHeights.map((h, i) => (
+                                                                    <div key={i} className="rd-vc-bar" style={{ height: h }}></div>
+                                                                ))}
                                                             </div>
                                                         </div>
                         </>

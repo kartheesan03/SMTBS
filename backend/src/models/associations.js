@@ -14,6 +14,7 @@ const MaterialMovement = require('./MaterialMovement');
 const CommunicationLog = require('./CommunicationLog');
 const AuditLog = require('./AuditLog');
 const Role = require('./Role');
+const Lead = require('./Lead');
 
 function setupAssociations() {
     // 1. Employee -> User
@@ -38,6 +39,7 @@ function setupAssociations() {
 
     // 7. Order -> Customer, Vendor, Users
     Order.sequelizeModel.belongsTo(Customer.sequelizeModel, { foreignKey: 'customerId', as: 'Customer' });
+    Order.sequelizeModel.belongsTo(Lead.sequelizeModel, { foreignKey: 'leadId', as: 'Lead' });
     Order.sequelizeModel.belongsTo(Vendor.sequelizeModel, { foreignKey: 'vendorId', as: 'vendor' });
     Order.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'createdById', as: 'createdBy' });
     Order.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'updatedById', as: 'updatedBy' });

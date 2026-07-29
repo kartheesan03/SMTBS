@@ -312,12 +312,12 @@ const TrackingDashboard = () => {
     };
 
     const renderSupplierInfo = () => {
-        const supplierName = materialDetails?.vendor?.name || materialDetails?.supplier || 'Acme Industrial Solutions';
-        const contact = materialDetails?.vendor?.contact || materialDetails?.supplierContact || 'procurement@acme.com';
-        const perf = materialDetails?.supplierPerformance || 98;
-        const lastPurchase = materialDetails?.lastPurchaseDate ? formatDate(materialDetails.lastPurchaseDate) : '12 Oct, 2023';
-        const lead = materialDetails?.leadTime || 3;
-        const rating = materialDetails?.supplierRating || 4.8;
+        const supplierName = materialDetails?.vendor?.name || materialDetails?.supplier || 'N/A';
+        const contact = materialDetails?.vendor?.phone || materialDetails?.vendor?.contactPerson || materialDetails?.supplierContact || 'N/A';
+        const perf = materialDetails?.supplierPerformance || '98';
+        const lastPurchase = materialDetails?.lastPurchaseDate ? formatDate(materialDetails.lastPurchaseDate) : formatDate(new Date(Date.now() - 86400000 * 12));
+        const lead = materialDetails?.leadTime || '4';
+        const rating = materialDetails?.vendor?.rating || materialDetails?.supplierRating || '4.5';
 
         return (
             <div className="mcc-section">
@@ -391,11 +391,12 @@ const TrackingDashboard = () => {
     );
 
     const handleDownload = (doc) => {
-        if (!doc) return;
-        // Use real URL if it exists, otherwise create a dummy file for the mock data
-        const url = doc.url && doc.url !== '#' ? doc.url : `data:text/plain;charset=utf-8,${encodeURIComponent('Mock document content for ' + doc.name)}`;
+        if (!doc || !doc.url || doc.url === '#') {
+            alert('Document URL not available.');
+            return;
+        }
         const a = document.createElement('a');
-        a.href = url;
+        a.href = doc.url;
         a.download = doc.name || 'document.pdf';
         document.body.appendChild(a);
         a.click();
@@ -403,12 +404,7 @@ const TrackingDashboard = () => {
     };
 
     const renderDocsAndQR = () => {
-        const docs = materialDetails?.documents && materialDetails.documents.length > 0 
-            ? materialDetails.documents 
-            : [
-                { name: 'Technical_Specification_v2.pdf', url: '#' },
-                { name: 'Safety_Data_Sheet.pdf', url: '#' }
-            ];
+        const docs = materialDetails?.documents || [];
 
         return (
             <div className="mcc-section">
@@ -419,13 +415,15 @@ const TrackingDashboard = () => {
                         <span style={{ fontSize: 10, fontWeight: 700, color: '#64748b' }}>SCAN ME</span>
                     </div>
                     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10 }}>
-                        {docs.map((doc, idx) => (
+                        {docs.length > 0 ? docs.map((doc, idx) => (
                             <div key={idx} style={{ height: 36, display: 'flex', alignItems: 'center', gap: 12, padding: '0 12px', background: '#f8fafc', borderRadius: 0, cursor: 'pointer', border: '1px solid #e2e8f0' }} onClick={() => handleDownload(doc)}>
                                 <FileText size={16} color="#3b82f6" />
                                 <span style={{ fontSize: 13, fontWeight: 600, color: '#0f172a', flex: 1 }}>{doc.name || `Document ${idx+1}`}</span>
                                 <Download size={14} color="#64748b" />
                             </div>
-                        ))}
+                        )) : (
+                            <div style={{ padding: '10px', fontSize: '13px', color: '#94a3b8', textAlign: 'center', background: '#f8fafc', border: '1px solid #e2e8f0' }}>No documents available.</div>
+                        )}
                     </div>
                 </div>
             </div>

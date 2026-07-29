@@ -752,7 +752,7 @@ const getMaterialById = async (req, res) => {
         let vendorData = null;
         if (material.vendorId) {
             const v = await Vendor.findById(material.vendorId);
-            if (v) vendorData = { name: v.name, email: v.email, phone: v.phone, contactPerson: v.contactPerson };
+            if (v) vendorData = { name: v.name, email: v.email, phone: v.phone, contactPerson: v.contactPerson, rating: v.rating || 4.5 };
         }
         
         const responseData = material.toJSON ? material.toJSON() : material;

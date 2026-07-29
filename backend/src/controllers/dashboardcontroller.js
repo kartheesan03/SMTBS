@@ -63,7 +63,7 @@ const getDashboardStats = async (req, res) => {
             const purchaseCount = await Order.countDocuments({ orderType: 'purchase' });
             
             const activeOrdersCount = await Order.countDocuments({
-                status: { $nin: ["Completed", "Delivered", "Cancelled"] }
+                status: { $nin: ["Completed", "Delivered", "Workflow Completed", "Invoice Generated", "Cancelled"] }
             });
             
             stats.totalSalesOrders = salesCount;
@@ -255,7 +255,7 @@ const getDashboardStats = async (req, res) => {
             totalMaterials: stats.totalMaterials || 0,
             activeCustomers: stats.activeCustomers || 0,
             totalCustomers: stats.totalCustomers || 0,
-            openOrders: (await Order.countDocuments({ status: { $nin: ['Delivered', 'Completed', 'Cancelled'] } })) || 0,
+            openOrders: (await Order.countDocuments({ status: { $nin: ['Delivered', 'Completed', 'Workflow Completed', 'Invoice Generated', 'Cancelled'] } })) || 0,
             lowStockItems: lowStockMaterials.length,
             totalStockQuantity: totalStockQuantity,
             totalRevenue: revenue,
@@ -575,7 +575,7 @@ const getDashboardStats = async (req, res) => {
             }
             
             const totalOrderCount = await Order.countDocuments();
-            const fulfilledOrderCount = await Order.countDocuments({ status: { $in: ['Delivered', 'Completed'] } });
+            const fulfilledOrderCount = await Order.countDocuments({ status: { $in: ['Delivered', 'Completed', 'Workflow Completed', 'Invoice Generated'] } });
             const orderFulfillment = totalOrderCount > 0 ? Math.round((fulfilledOrderCount / totalOrderCount) * 100) : 0;
             
             const totalCustCount = stats.totalCustomers || 0;
