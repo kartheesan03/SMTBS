@@ -15,6 +15,9 @@ const CommunicationLog = require('./CommunicationLog');
 const AuditLog = require('./AuditLog');
 const Role = require('./Role');
 const Lead = require('./Lead');
+const AICopilotLog = require('./AICopilotLog');
+const AIChatSession = require('./AIChatSession');
+const AIChatMessage = require('./AIChatMessage');
 
 function setupAssociations() {
     // 1. Employee -> User

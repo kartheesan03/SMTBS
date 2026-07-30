@@ -6,6 +6,99 @@ import { UserPlus } from 'lucide-react';
 import StandardPageLayout from '../components/StandardPageLayout/StandardPageLayout';
 import toast from 'react-hot-toast';
 
+const RoleDropdown = ({ value, onChange }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const roles = ['Admin', 'HR', 'Manager', 'Employee', 'Sales'];
+    
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (!e.target.closest('.custom-role-dropdown')) {
+                setIsOpen(false);
+            }
+        };
+        document.addEventListener('click', handleClickOutside);
+        return () => document.removeEventListener('click', handleClickOutside);
+    }, []);
+
+    return (
+        <div className="custom-role-dropdown" style={{ position: 'relative', width: '100%' }}>
+            <div 
+                onClick={() => setIsOpen(!isOpen)}
+                style={{ 
+                    padding: '8px 12px', 
+                    border: '1px solid #cbd5e1', 
+                    borderRadius: '0px', 
+                    background: '#fff',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    minHeight: '42px'
+                }}
+            >
+                {value ? (
+                    <span style={{
+                        background: '#f1f5f9', 
+                        color: '#64748b', 
+                        padding: '4px 10px', 
+                        fontWeight: 600, 
+                        fontSize: 13,
+                        display: 'inline-block'
+                    }}>
+                        {value}
+                    </span>
+                ) : (
+                    <span style={{ color: '#94a3b8' }}>Select Role</span>
+                )}
+                <span style={{ fontSize: '10px', color: '#64748b' }}>▼</span>
+            </div>
+            {isOpen && (
+                <div style={{
+                    position: 'absolute',
+                    top: '100%',
+                    left: 0,
+                    right: 0,
+                    background: '#fff',
+                    border: '1px solid #cbd5e1',
+                    borderTop: 'none',
+                    zIndex: 10,
+                    maxHeight: '200px',
+                    overflowY: 'auto',
+                    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'
+                }}>
+                    {roles.map(role => (
+                        <div 
+                            key={role}
+                            onClick={() => {
+                                onChange(role);
+                                setIsOpen(false);
+                            }}
+                            style={{
+                                padding: '8px 12px',
+                                cursor: 'pointer',
+                                borderBottom: '1px solid #f1f5f9'
+                            }}
+                            onMouseOver={(e) => e.currentTarget.style.background = '#f8fafc'}
+                            onMouseOut={(e) => e.currentTarget.style.background = '#fff'}
+                        >
+                            <span style={{
+                                background: '#f1f5f9', 
+                                color: '#64748b', 
+                                padding: '4px 10px', 
+                                fontWeight: 600, 
+                                fontSize: 13,
+                                display: 'inline-block'
+                            }}>
+                                {role}
+                            </span>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+};
+
 const AddEmployee = ({ isEditMode = false }) => {
     const navigate = useNavigate();
     const { id } = useParams();
@@ -116,12 +209,10 @@ const AddEmployee = ({ isEditMode = false }) => {
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                             <label style={{ fontSize: '14px', fontWeight: 500, color: '#475569' }}>Role / Department *</label>
-                            <select value={formData.department} onChange={e => setFormData({...formData, department: e.target.value})} required style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '0px', background: '#fff' }}>
-                                <option value="Employee">Employee</option>
-                                <option value="HR">HR</option>
-                                <option value="Manager">Manager</option>
-                                <option value="Sales">Sales</option>
-                            </select>
+                            <RoleDropdown 
+                                value={formData.department} 
+                                onChange={(val) => setFormData({...formData, department: val})} 
+                            />
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                             <label style={{ fontSize: '14px', fontWeight: 500, color: '#475569' }}>Designation *</label>

@@ -125,10 +125,12 @@ const Vendors = () => {
         }
     ];
 
+    const userInfo = JSON.parse(localStorage.getItem('userInfo') || sessionStorage.getItem('userInfo') || '{}');
+    const isAdmin = userInfo.role === 'Admin';
+    const isEmployeeOrSales = userInfo.role && (userInfo.role.toLowerCase() === 'employee' || userInfo.role.toLowerCase() === 'sales');
+
     const actions = [
-        { label: 'View Profile', icon: Eye, onClick: (row) => navigate(`/vendors/${row._id || row.id}`) },
-        { label: 'Edit', icon: Edit, onClick: (row) => navigate(`/vendors/${row._id || row.id}/edit`) },
-        { label: 'Delete', icon: Trash2, onClick: handleDeleteVendor, color: 'danger' }
+        { label: 'View Profile', icon: Eye, onClick: (row) => navigate(`/vendors/${row._id || row.id}`) }
     ];
 
     
@@ -176,11 +178,7 @@ const Vendors = () => {
                             data={vendors}
                             actions={actions}
                             searchPlaceholder="Search by name, company, or category..."
-                            primaryAction={{
-                                label: 'Add Vendor',
-                                icon: Plus,
-                                onClick: () => navigate('/vendors/add-vendor')
-                            }}
+                            primaryAction={undefined}
                         />
                     )}
                 </motion.div>

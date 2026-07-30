@@ -1,0 +1,237 @@
+.ai-copilot-fab {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 60px;
+    height: 60px;
+    border-radius: 30px;
+    background: linear-gradient(135deg, #8b5cf6, #a855f7);
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+    cursor: pointer;
+    z-index: 9999;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.ai-copilot-fab:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(139, 92, 246, 0.5);
+}
+
+.ai-copilot-window {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 400px;
+    max-width: calc(100vw - 48px);
+    height: 600px;
+    max-height: calc(100vh - 48px);
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 9999;
+    font-family: 'Inter', sans-serif;
+    border: 1px solid #e2e8f0;
+}
+
+.ai-copilot-header {
+    background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+    padding: 16px;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: 600;
+}
+
+.ai-close-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.ai-close-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.ai-messages-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background: #f8fafc;
+}
+
+.ai-message-row {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+}
+
+.ai-row {
+    justify-content: flex-start;
+}
+
+.user-row {
+    justify-content: flex-end;
+}
+
+.ai-avatar, .user-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.ai-avatar {
+    background: #ede9fe;
+}
+
+.user-avatar {
+    background: #3b82f6;
+}
+
+.ai-message-bubble {
+    max-width: 80%;
+    padding: 12px 16px;
+    border-radius: 16px;
+    font-size: 14px;
+    line-height: 1.5;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.ai-bubble {
+    background: white;
+    color: #1e293b;
+    border-bottom-left-radius: 4px;
+    border: 1px solid #e2e8f0;
+}
+
+.user-bubble {
+    background: #3b82f6;
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+
+.ai-loading-bubble {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #64748b;
+    font-style: italic;
+}
+
+.spin-animation {
+    animation: ai-spin 1s linear infinite;
+}
+
+@keyframes ai-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.ai-input-form {
+    padding: 16px;
+    background: white;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    gap: 12px;
+}
+
+.ai-input-form input {
+    flex: 1;
+    padding: 10px 16px;
+    border: 1px solid #cbd5e1;
+    border-radius: 20px;
+    outline: none;
+    font-size: 14px;
+    transition: border-color 0.2s;
+}
+
+.ai-input-form input:focus {
+    border-color: #8b5cf6;
+}
+
+.ai-input-form button {
+    width: 40px;
+    height: 40px;
+    border-radius: 20px;
+    background: #8b5cf6;
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.ai-input-form button:hover:not(:disabled) {
+    background: #7c3aed;
+}
+
+.ai-input-form button:disabled {
+    background: #cbd5e1;
+    cursor: not-allowed;
+}
+
+.ai-data-table-wrapper {
+    margin-top: 12px;
+    overflow-x: auto;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+}
+
+.ai-data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.ai-data-table th, .ai-data-table td {
+    padding: 8px 12px;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.ai-data-table th {
+    background: #f1f5f9;
+    font-weight: 600;
+    color: #475569;
+}
+
+.ai-chart-wrapper {
+    margin-top: 12px;
+    background: #fafafa;
+    border-radius: 8px;
+    padding: 12px 12px 12px 0;
+    border: 1px solid #e2e8f0;
+}
+
+.ai-no-data {
+    margin-top: 12px;
+    padding: 12px;
+    background: #fef2f2;
+    color: #ef4444;
+    border-radius: 8px;
+    font-size: 13px;
+    text-align: center;
+}

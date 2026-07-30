@@ -56,9 +56,10 @@ const CustomerDetails = () => {
         { label: customer.customerType || 'Individual', type: 'info' }
     ];
 
-    const actions = [
-        { label: 'Edit Profile', icon: Edit, primary: true, onClick: () => navigate(`/customers/${customer._id || customer.id}/edit`) }
-    ];
+    const userInfo = JSON.parse(localStorage.getItem('userInfo') || sessionStorage.getItem('userInfo') || '{}');
+    const isEmployeeOrSales = userInfo.role && (userInfo.role.toLowerCase() === 'employee' || userInfo.role.toLowerCase() === 'sales');
+
+    const actions = [];
 
     const overviewContent = (
         <div className="ui-grid-2">

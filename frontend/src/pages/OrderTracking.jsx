@@ -21,9 +21,9 @@ const formatDateTime = (dateValue) => {
 };
 
 const formatDateOnly = (dateValue) => {
-    if (!dateValue) return "-";
+    if (!dateValue) return "TBD";
     const date = new Date(dateValue);
-    if (isNaN(date.getTime())) return "-";
+    if (isNaN(date.getTime())) return "TBD";
     return date.toLocaleDateString("en-IN", {
         day: "2-digit", month: "short", year: "numeric",
     });
@@ -207,7 +207,43 @@ const OrderTracking = () => {
     const hasIssue = currentStatus === 'Low Stock' || currentStatus === 'Out Of Stock' || (order.trackingTimeline && order.trackingTimeline.some(t => ['Low Stock', 'Out Of Stock'].includes(t.status)));
     const isPurchase = order.orderType === 'purchase' || hasIssue || (order.trackingTimeline && order.trackingTimeline.some(t => ['Purchase Request', 'Vendor Supply', 'Vendor Accepted', 'Inventory Updated'].includes(t.status)));
 
-    const workflow = order.workflow || [];
+    const generateFallbackWorkflow = (status, isPurch) => {
+        const baseStages = [
+            { stage: 'Order Created', role: 'Customer/Vendor/Admin' },
+            { stage: 'Admin/Manager Review', role: 'Admin/Manager' },
+            { stage: 'Employee Verification', role: 'Employee' },
+            { stage: 'Inventory Verified', role: 'Employee' },
+            { stage: isPurch ? 'Purchase Processing' : 'Sales Processing', role: isPurch ? 'Vendor' : 'Sales' },
+            { stage: isPurch ? 'Material Dispatch' : 'Out for Delivery', role: isPurch ? 'Vendor' : 'Sales' },
+            { stage: isPurch ? 'Material Received' : 'Delivered', role: 'Admin/Employee' },
+            { stage: 'Invoice Generated', role: 'System' }
+        ];
+
+        let activeIdx = 1;
+        const s = (status || '').toLowerCase();
+        
+        if (['approved', 'confirmed', 'employee verification', 'awaiting stock check'].some(x => s.includes(x))) activeIdx = 2;
+        else if (['inventory verified'].some(x => s.includes(x))) activeIdx = 3;
+        else if (['packing', 'sales processing', 'ready for delivery', 'processing', 'vendor accepted'].some(x => s.includes(x))) activeIdx = 4;
+        else if (['out for delivery', 'shipped', 'dispatched'].some(x => s.includes(x))) activeIdx = 5;
+        else if (['delivered', 'completed', 'material received'].some(x => s.includes(x))) activeIdx = 7;
+        else if (s === 'workflow completed') activeIdx = 8;
+
+        return baseStages.map((stage, i) => {
+            let st = 'Upcoming';
+            if (i < activeIdx) st = 'Completed';
+            else if (i === activeIdx) st = 'In Progress';
+            
+            if (['cancelled', 'rejected'].some(x => s.includes(x)) && i === activeIdx) {
+                st = 'Rejected';
+            }
+            return { ...stage, status: st };
+        });
+    };
+
+    const defaultWorkflowFallback = generateFallbackWorkflow(currentStatus, isPurchase);
+
+    const workflow = (order.workflow && order.workflow.length > 0) ? order.workflow : defaultWorkflowFallback;
     const activeIndex = workflow.findIndex(s => s.status === 'In Progress');
     const isCancelled = order.status === 'Cancelled' || order.status === 'Rejected' || workflow.some(s => s.status === 'Rejected');
     
@@ -537,7 +573,17 @@ const RoleActionPanel = ({ currentStage, loggedInRole, currentStatus, onAction, 
         return renderEmptyPanel();
     };
 
-    const timeline = order.trackingTimeline || [];
+    const timeline = (order.trackingTimeline && order.trackingTimeline.length > 0) 
+        ? order.trackingTimeline 
+        : [{
+            id: 'legacy-init',
+            status: 'Order Created',
+            location: 'System Initialization',
+            date: order.createdAt || order.orderDate || new Date().toISOString(),
+            remarks: 'Legacy order imported into tracking system',
+            updatedBy: 'System',
+            role: 'System'
+        }];
 
     return (
         <motion.div 
@@ -572,7 +618,7 @@ const RoleActionPanel = ({ currentStage, loggedInRole, currentStatus, onAction, 
                             <span className="value">#{order.orderNumber || order.id}</span>
                         </div>
                         <div className="grid-item">
-                            <span className="label">Customer / Organization</span>
+                            <span className="label">{isPurchase ? 'Vendor / Organization' : 'Customer / Organization'}</span>
                             <span className="value">{order.customer?.company || order.customer?.name || order.vendor?.company || order.vendor?.name || 'Unknown'}</span>
                         </div>
                         <div className="grid-item">

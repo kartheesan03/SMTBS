@@ -10,8 +10,13 @@ const getRolePermissions = async (roleName) => {
     try {
         const role = await Role.findOne({ name: roleName });
         let perms = role && role.permissions ? (typeof role.permissions === 'string' ? JSON.parse(role.permissions) : role.permissions) : [];
-        if (roleName && roleName.toLowerCase() === 'employee' && !perms.includes('view_materials_self')) {
-            perms.push('view_materials_self');
+        if (roleName && roleName.toLowerCase() === 'employee') {
+            const empPerms = ['view_materials_self', 'view_dashboard', 'view_tasks_self', 'view_leave_self', 'view_erp'];
+            empPerms.forEach(p => { if (!perms.includes(p)) perms.push(p); });
+        }
+        if (roleName && roleName.toLowerCase() === 'sales') {
+            const salesPerms = ['view_dashboard', 'view_crm', 'manage_crm', 'view_erp', 'manage_erp'];
+            salesPerms.forEach(p => { if (!perms.includes(p)) perms.push(p); });
         }
         if (roleName && roleName.toLowerCase() === 'hr') {
             const hrPerms = [
@@ -94,8 +99,9 @@ const registerUser = async (req, res) => {
 // @route   POST /api/auth/login
 // @access  Public
 const loginUser = async (req, res) => {
-    const { email, password, role: requestedRole } = req.body;
-    console.log(`[LOGIN] Received login request for email: ${email}, requestedRole: ${requestedRole}`);
+    try {
+        const { email, password, role: requestedRole } = req.body;
+        console.log(`[LOGIN] Received login request for email: ${email}, requestedRole: ${requestedRole}`);
 
     const user = await User.findOne({ email });
     console.log(`[LOGIN] User found in DB: ${!!user}`);
@@ -168,6 +174,10 @@ const loginUser = async (req, res) => {
             isProfileComplete: user.isProfileComplete
         }
     });
+    } catch (error) {
+        console.error('Login error:', error);
+        res.status(500).json({ message: error.message || 'Server Error' });
+    }
 };
 
 // @desc    Google Auth (Login / Signup)

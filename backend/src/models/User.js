@@ -66,6 +66,7 @@ const UserSequelize = sequelize.define('User', {
 
 // Instance method for matching passwords
 UserSequelize.prototype.matchPassword = async function (enteredPassword) {
+    if (!this.password) return false;
     return await bcrypt.compare(enteredPassword, this.password);
 };
 

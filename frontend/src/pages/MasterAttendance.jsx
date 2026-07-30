@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import API from '../api/axios';
 import { AuthContext } from '../context/AuthContext';
 import { StatCard, StatGrid } from '../components/ui/StatCard';
+import UserAvatar from '../components/UserAvatar';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 
 /* ─── Helper Utilities ─────────────────────────── */
@@ -328,9 +329,12 @@ const DailyTab = ({ canEdit }) => {
                                     <tr key={r._id || r.id || i}>
                                         <td data-label="Employee">
                                             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                                                <div className="rd-avatar" style={{ width: 32, height: 32, fontSize: 12, background: 'var(--rd-orange-grad)', flexShrink: 0 }}>
-                                                    {getInitials(emp.firstName, emp.lastName)}
-                                                </div>
+                                                <UserAvatar 
+                                                    name={`${emp.firstName || ''} ${emp.lastName || ''}`.trim()} 
+                                                    size={32} 
+                                                    fontSize={12} 
+                                                    style={{ flexShrink: 0 }} 
+                                                />
                                                 <span style={{ fontWeight: 600, color: '#1e293b' }}>
                                                     {`${emp.firstName || ''} ${emp.lastName || ''}`.trim() || '—'}
                                                 </span>
@@ -655,9 +659,12 @@ const HistoryTab = () => {
                                         <td style={{ fontWeight: 500, color: '#64748b', whiteSpace: 'nowrap' }} data-label="Date">{formatDate(r.date)}</td>
                                         <td data-label="Employee">
                                             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                                                <div className="rd-avatar" style={{ width: 30, height: 30, fontSize: 11, background: 'var(--rd-purple-grad)', flexShrink: 0 }}>
-                                                    {getInitials(emp.firstName, emp.lastName)}
-                                                </div>
+                                                <UserAvatar 
+                                                    name={`${emp.firstName || ''} ${emp.lastName || ''}`.trim()} 
+                                                    size={30} 
+                                                    fontSize={11} 
+                                                    style={{ flexShrink: 0 }} 
+                                                />
                                                 <span style={{ fontWeight: 600, color: '#1e293b' }}>
                                                     {`${emp.firstName || ''} ${emp.lastName || ''}`.trim() || '—'}
                                                 </span>

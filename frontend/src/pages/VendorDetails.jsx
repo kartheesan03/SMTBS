@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import API from '../api/axios';
 import toast from 'react-hot-toast';
-import { Mail, Phone, MapPin, Building2, Globe, FileText, CheckCircle, Package, Edit, ShoppingCart, Plus, ArrowLeft } from 'lucide-react';
+import { Mail, Phone, MapPin, Building2, Globe, FileText, Briefcase, Tag, Calendar, Activity, Edit, Users, ArrowLeft, Package, Plus, ShoppingCart } from 'lucide-react';
 import { DetailViewContainer, ProfileHeader, Tabs, KeyValueCard, Timeline, DataTable } from '../components/ui';
+import { canWrite } from '../utils/rbac';
+import { AuthContext } from '../context/AuthContext';
 import { motion } from 'framer-motion';
 import PageHeader from '../components/PageHeader';
 
@@ -14,6 +16,8 @@ const VendorDetails = () => {
     const [materials, setMaterials] = useState([]);
     const [loading, setLoading] = useState(true);
     const [timeline, setTimeline] = useState([]);
+    const { user } = React.useContext(AuthContext);
+    const writeAccess = canWrite(user);
 
     useEffect(() => {
         const fetchVendorData = async () => {
@@ -69,10 +73,9 @@ const VendorDetails = () => {
         { label: vendor.category || 'Vendor', type: 'info' }
     ];
 
-    const actions = [
-        { label: 'Raise PO', icon: ShoppingCart, primary: true, onClick: () => navigate(`/orders/create/purchase?vendorId=${vendor._id || vendor.id}`) },
-        { label: 'Edit Profile', icon: Edit, primary: false, onClick: () => navigate(`/vendors/${vendor._id || vendor.id}/edit`) }
-    ];
+    const actions = writeAccess ? [
+        { label: 'Raise PO', icon: ShoppingCart, primary: true, onClick: () => navigate(`/orders/create/purchase?vendorId=${vendor._id || vendor.id}`) }
+    ] : [];
 
     const overviewContent = (
         <div className="ui-grid-2">
@@ -122,7 +125,7 @@ const VendorDetails = () => {
             columns={materialsColumns}
             data={materials}
             actions={[{ label: 'View Material', icon: Package, onClick: (row) => navigate(`/materials/${row._id || row.id}`) }]}
-            primaryAction={{ label: 'Add Material', icon: Plus, onClick: () => navigate(`/materials/new?vendorId=${vendor._id || vendor.id}`) }}
+            primaryAction={writeAccess ? { label: 'Add Material', icon: Plus, onClick: () => navigate(`/materials/new?vendorId=${vendor._id || vendor.id}`) } : undefined}
             searchPlaceholder="Search materials..."
             variant="flat"
         />

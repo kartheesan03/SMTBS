@@ -4,12 +4,16 @@ import { Users, Search, CheckCircle, Clock, XCircle, Plus, UserCheck, Moon } fro
 import { motion } from 'framer-motion';
 import API from '../api/axios';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
+import StandardPageLayout from '../components/StandardPageLayout/StandardPageLayout';
+import UserAvatar from '../components/UserAvatar';
+import EmailCell from '../components/ui/EmailCell';
 import { StatCard, StatGrid } from '../components/ui/StatCard';
 import { AuthContext } from '../context/AuthContext';
 
 const HRMS = () => {
     const navigate = useNavigate();
     const { user } = React.useContext(AuthContext);
+    const isEmployeeOrSales = user?.role && (user.role.toLowerCase() === 'employee' || user.role.toLowerCase() === 'sales');
 
     // Real data states
     const [employees, setEmployees] = useState([]);
@@ -176,10 +180,11 @@ const HRMS = () => {
                             </select>
                         </div>
                         <div className="rd-table-actions">
-                            <button className="rd-btn-solid" onClick={() => navigate('/employees/new')}>
-                                <Plus size={16} style={{marginRight: 8, verticalAlign: 'middle'}}/>
-                                Add Employee
-                            </button>
+                            {!isEmployeeOrSales && (
+                                <button className="rd-btn-primary" onClick={() => navigate('/employees/new')}>
+                                    <Plus size={16} /> Add Employee
+                                </button>
+                            )}
                         </div>
                     </div>
                     
@@ -208,9 +213,11 @@ const HRMS = () => {
                                     <tr key={emp.id || emp._id} onClick={() => navigate(`/employees/${emp.id || emp._id}`)} style={{cursor: 'pointer'}}>
                                         <td data-label="Employee">
                                             <div style={{display: 'flex', alignItems: 'center', gap: 12}}>
-                                                <div className="rd-avatar" style={{width: 32, height: 32, fontSize: 12, background: 'var(--rd-purple-grad)'}}>
-                                                    {getInitials(emp.firstName, emp.lastName)}
-                                                </div>
+                                                <UserAvatar 
+                                                    name={`${emp.firstName || ''} ${emp.lastName || ''}`.trim()} 
+                                                    size={32} 
+                                                    fontSize={12} 
+                                                />
                                                 <div>
                                                     <div style={{fontWeight: 700, color: 'var(--rd-text-main)'}}>{`${emp.firstName || ''} ${emp.lastName || ''}`.trim()}</div>
                                                     <div style={{fontSize: 11, color: '#94a3b8', marginTop: 2}}>{emp.employeeId || `EMP-${emp.id || emp._id}`}</div>
@@ -218,7 +225,9 @@ const HRMS = () => {
                                             </div>
                                         </td>
                                         <td style={{fontWeight: 500}} data-label="Position">{emp.designation || '—'}</td>
-                                        <td style={{color: 'var(--rd-blue)'}} data-label="Email">{emp.userId?.email || emp.email || emp.contact || '—'}</td>
+                                        <td data-label="Email">
+                                            <EmailCell email={emp.userId?.email || emp.email || emp.contact || '—'} />
+                                        </td>
                                         <td style={{color: '#64748b'}} data-label="Phone">{emp.phone || (emp.contact && emp.contact.match(/^[0-9+\-\\s]+$/) ? emp.contact : '—')}</td>
                                         <td data-label="Role / Dept">
                                             <span style={{background: '#f1f5f9', color: '#64748b', padding: '4px 10px', borderRadius: 0, fontSize: 12, fontWeight: 600}}>
@@ -226,13 +235,29 @@ const HRMS = () => {
                                             </span>
                                         </td>
                                         <td data-label="Status">{getStatusBadge('Active')}</td>
-                                        <td onClick={(e) => e.stopPropagation()} style={{textAlign: 'center'}} data-label="Action">
+                                        <td onClick={(e) => e.stopPropagation()} style={{textAlign: 'center', whiteSpace: 'nowrap'}} data-label="Action">
                                             <button
                                                 className="rd-btn-compact"
-                                                onClick={() => handleDelete(emp.id || emp._id)}
-                                                style={{background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: 16}}
-                                                title="Delete"
-                                            >✕</button>
+                                                onClick={() => navigate(`/employees/${emp.id || emp._id}`)}
+                                                style={{background: 'none', border: 'none', cursor: 'pointer', color: 'var(--rd-blue)', fontSize: 16, marginRight: 8}}
+                                                title="View Details"
+                                            >👁</button>
+                                            {!isEmployeeOrSales && (
+                                                <>
+                                                    <button
+                                                        className="rd-btn-compact"
+                                                        onClick={() => navigate(`/employees/${emp.id || emp._id}/edit`)}
+                                                        style={{background: 'none', border: 'none', cursor: 'pointer', color: '#f59e0b', fontSize: 16, marginRight: 8}}
+                                                        title="Edit Employee"
+                                                    >✎</button>
+                                                    <button
+                                                        className="rd-btn-compact"
+                                                        onClick={() => handleDelete(emp.id || emp._id)}
+                                                        style={{background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: 16}}
+                                                        title="Delete Employee"
+                                                    >🗑</button>
+                                                </>
+                                            )}
                                         </td>
                                     </tr>
                                 ))

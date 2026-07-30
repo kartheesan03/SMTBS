@@ -6,9 +6,11 @@ import {
     ChevronDown, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import PageHeader from '../components/PageHeader';
+import EmailCell from '../components/ui/EmailCell';
 import './UserManagement.css';
 import toast from 'react-hot-toast';
 import { AuthContext } from '../context/AuthContext';
+import UserAvatar from '../components/UserAvatar';
 
 const UserManagement = () => {
     const { user: currentUser } = React.useContext(AuthContext);
@@ -124,12 +126,15 @@ const UserManagement = () => {
                                 <tr key={user._id}>
                                     <td>
                                         <div className="um-user-cell">
-                                            <div className="um-avatar" style={{ background: `#3b82f622`, color: '#3b82f6' }}>
-                                                {user.name ? user.name.substring(0, 2).toUpperCase() : 'U'}
-                                            </div>
-                                            <div className="um-user-info">
-                                                <span className="um-name">{user.name}</span>
-                                                <span className="um-email">{user.email}</span>
+                                            <UserAvatar 
+                                                name={user.name} 
+                                                size={40} 
+                                                fontSize={14} 
+                                                className="um-avatar" 
+                                            />
+                                            <div>
+                                                <div className="um-name">{user.name}</div>
+                                                <EmailCell email={user.email} />
                                             </div>
                                         </div>
                                     </td>

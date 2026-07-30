@@ -30,6 +30,9 @@ const EmployeeDetails = () => {
     if (loading) return <div className="flex-center" style={{minHeight:'100vh'}}><div className="loader"></div></div>;
     if (!employee) return null;
 
+    const userInfo = JSON.parse(localStorage.getItem('userInfo') || sessionStorage.getItem('userInfo') || '{}');
+    const isEmployeeOrSales = userInfo.role && (userInfo.role.toLowerCase() === 'employee' || userInfo.role.toLowerCase() === 'sales');
+
     const infoCard = (
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
@@ -48,9 +51,6 @@ const EmployeeDetails = () => {
                 <span style={{ padding: '6px 12px', background: '#dcfce7', color: '#166534', borderRadius: '0px', fontSize: '14px', fontWeight: 500 }}>
                     Active
                 </span>
-                <button onClick={() => navigate(`/employees/${employee._id}/edit`)} style={{ padding: '8px 16px', background: '#f1f5f9', color: '#3b82f6', border: '1px solid #bfdbfe', borderRadius: '0px', cursor: 'pointer', fontWeight: 600 }}>
-                    Edit Profile
-                </button>
             </div>
         </div>
     );

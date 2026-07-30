@@ -571,7 +571,7 @@ const TrackingDashboard = () => {
                         <select 
                             value={selectedMaterialId || ''} 
                             onChange={(e) => setSelectedMaterialId(e.target.value)}
-                            style={{ border: 'none', background: 'transparent', padding: '10px', fontSize: 14, fontWeight: 600, color: '#0f172a', outline: 'none', width: 200 }}
+                            style={{ border: 'none', background: 'transparent', padding: '10px', fontSize: 14, fontWeight: 600, color: '#0f172a', outline: 'none', boxShadow: 'none', width: '220px', cursor: 'pointer' }}
                         >
                             <option value="">Search material...</option>
                             {materialsList.map(m => (

@@ -22,10 +22,12 @@ const protect = async (req, res, next) => {
             const roleRecord = titleRole
                 ? (await RoleSeq.findOne({ where: { name: titleRole } }) || await RoleSeq.findOne({ where: { name: user.role } }))
                 : null;
-            req.user.permissions = roleRecord
+            let userPerms = roleRecord
                 ? (typeof roleRecord.permissions === 'string' ? JSON.parse(roleRecord.permissions) : roleRecord.permissions) || 
                   (roleRecord.dataValues?.permissions ? (typeof roleRecord.dataValues.permissions === 'string' ? JSON.parse(roleRecord.dataValues.permissions) : roleRecord.dataValues.permissions) : [])
                 : [];
+            
+            req.user.permissions = Array.isArray(userPerms) ? [...userPerms] : [];
 
             // Apply implicit permissions for HR
             if (user.role && user.role.toLowerCase() === 'hr') {
@@ -40,8 +42,17 @@ const protect = async (req, res, next) => {
                 ];
                 hrPerms.forEach(p => { if (!req.user.permissions.includes(p)) req.user.permissions.push(p); });
             }
-            if (user.role && user.role.toLowerCase() === 'employee' && !req.user.permissions.includes('view_materials_self')) {
-                req.user.permissions.push('view_materials_self');
+            if (user.role && user.role.toLowerCase() === 'sales') {
+                const salesPerms = [
+                    'view_dashboard', 'view_crm', 'manage_crm', 'view_erp', 'manage_erp'
+                ];
+                salesPerms.forEach(p => { if (!req.user.permissions.includes(p)) req.user.permissions.push(p); });
+            }
+            if (user.role && user.role.toLowerCase() === 'employee') {
+                const empPerms = [
+                    'view_materials_self', 'view_dashboard', 'view_tasks_self', 'view_leave_self', 'view_erp'
+                ];
+                empPerms.forEach(p => { if (!req.user.permissions.includes(p)) req.user.permissions.push(p); });
             }
             if (user.role && user.role.toLowerCase() === 'manager') {
                 const managerPerms = [
@@ -53,6 +64,35 @@ const protect = async (req, res, next) => {
                     'view_reports', 'view_dashboard'
                 ];
                 managerPerms.forEach(p => { if (!req.user.permissions.includes(p)) req.user.permissions.push(p); });
+            }
+
+            // --- Global RBAC Enforcement for Mutations ---
+            const reqMethod = req.method.toUpperCase();
+            if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(reqMethod)) {
+                const uRole = user.role ? user.role.toLowerCase() : '';
+                const path = req.originalUrl || req.url;
+                
+                // Admin bypass
+                if (uRole !== 'admin' && uRole !== 'super admin' && user.email !== 'admin@smtbms.com') {
+                    
+                    if (uRole === 'employee' || uRole === 'sales') {
+                        // Allow self-service actions, block all other mutations
+                        const isSelfService = path.includes('/api/attendance') || 
+                                              path.includes('/api/leaves') || 
+                                              path.includes('/api/tasks') || 
+                                              path.includes('/api/notifications') ||
+                                              path.includes('/api/communications') ||
+                                              path.includes('/api/auth') ||
+                                              path.includes('/api/employees/me');
+                                              
+                        // Allow scanner updates for both if needed (e.g. employee barcode scanning)
+                        const isScannerUpdate = path.includes('/api/materials') && reqMethod === 'PUT';
+                        
+                        if (!isSelfService && !isScannerUpdate) {
+                            return res.status(403).json({ message: `Access Denied: ${user.role} role has view-only permissions for this module.` });
+                        }
+                    }
+                }
             }
 
             return next();

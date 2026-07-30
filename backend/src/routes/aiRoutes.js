@@ -1,0 +1,9 @@
+const express = require('express');
+const { protect } = require('../middleware/authMiddleware');
+const { askCopilot } = require('../controllers/aiController');
+
+const router = express.Router();
+
+router.post('/query', protect, askCopilot);
+
+module.exports = router;

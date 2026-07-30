@@ -59,7 +59,7 @@ const Login = () => {
                 navigate('/');
             }
         } catch (err) {
-            setError(err.response?.data?.error || err.response?.data?.message || 'Login failed');
+            setError(err.response?.data?.error || err.response?.data?.message || 'Login failed. Please try again or check your connection.');
         } finally {
             setIsLoading(false);
         }

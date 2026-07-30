@@ -177,11 +177,11 @@ const Topbar = ({ onOpenModuleLauncher, onOpenCommandCenter }) => {
                 <div className="profile-container" ref={profileRef}>
                     <div className="profile-dropdown" onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}>
                         <div className="profile-avatar-custom">
-                            KR
+                            {user?.name ? (user.name.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase()) : 'US'}
                         </div>
                         <div className="profile-info-custom">
-                            <span className="name">Karthik Rajan</span>
-                            <span className="role">ADMIN <span className="status-dot"></span></span>
+                            <span className="name">{user?.name || 'User'}</span>
+                            <span className="role">{user?.role?.toUpperCase() || 'USER'} <span className="status-dot"></span></span>
                         </div>
                     </div>
 

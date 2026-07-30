@@ -10,13 +10,14 @@ import {
 } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import { canWrite } from '../utils/rbac';
 
 const MaterialDetails = ({ embeddedId }) => {
     const navigate = useNavigate();
     const { id: paramId } = useParams();
     const id = embeddedId || paramId;
     const { user } = useContext(AuthContext);
-    const currentUserRole = user?.role || 'Employee';
+    const writeAccess = canWrite(user);
 
     const [material, setMaterial] = useState(null);
     const [timeline, setTimeline] = useState([]);
@@ -94,7 +95,7 @@ const MaterialDetails = ({ embeddedId }) => {
                         <ArrowLeft size={16} /> Back to Inventory
                     </button>
                     
-                    {(currentUserRole === 'Admin' || currentUserRole === 'Manager') && (
+                    {writeAccess && (
                         <div style={{ display: 'flex', gap: 12 }}>
                             <button onClick={() => alert('Adjust Stock')} style={{ padding: '8px 16px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: 0, fontSize: 13, fontWeight: 600, color: '#0f172a', cursor: 'pointer' }}>Adjust Stock</button>
                             <button onClick={() => navigate(`/materials/${material._id || material.id}/edit`)} style={{ padding: '8px 16px', background: '#3b82f6', border: 'none', borderRadius: 0, fontSize: 13, fontWeight: 600, color: '#fff', cursor: 'pointer' }}>Edit Material</button>

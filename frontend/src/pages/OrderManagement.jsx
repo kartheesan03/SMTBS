@@ -9,6 +9,9 @@ import { StatCard, StatGrid } from '../components/ui/StatCard';
 import toast from 'react-hot-toast';
 
 const OrderManagement = () => {
+    const userInfo = JSON.parse(localStorage.getItem('userInfo') || sessionStorage.getItem('userInfo') || '{}');
+    const userRole = userInfo.role || '';
+    const writeAccess = userRole && !['employee', 'sales'].includes(userRole.toLowerCase());
     const navigate = useNavigate();
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -25,12 +28,8 @@ const OrderManagement = () => {
             else if (data && Array.isArray(data.orders)) extractedOrders = data.orders;
             else if (data && Array.isArray(data.data)) extractedOrders = data.data;
 
-            const isPurchase = window.location.pathname.includes('purchase');
-            
-            // Filter by orderType
-            setOrders(extractedOrders.filter(o => 
-                (o.orderType || '').toLowerCase() === (isPurchase ? 'purchase' : 'sales')
-            ));
+            // Load all orders for unified view
+            setOrders(extractedOrders);
         } catch (err) {
             console.error(err);
             toast.error("Failed to load orders.");
@@ -46,12 +45,15 @@ const OrderManagement = () => {
     // KPI computations
     const activeOrders = orders.filter(o => !['Delivered', 'Completed', 'Cancelled'].includes(o.status));
     const deliveredOrders = orders.filter(o => ['Delivered', 'Completed', 'Invoice Generated', 'Workflow Completed'].includes(o.status));
-    const orderRevenue = deliveredOrders.reduce((sum, o) => sum + (Number(o.totalAmount) || Number(o.grandTotal) || 0), 0);
+    
+    const salesOrders = orders.filter(o => (o.orderType || '').toLowerCase() === 'sales' || String(o.orderNumber || '').startsWith('SO-'));
+    const purchaseOrders = orders.filter(o => (o.orderType || '').toLowerCase() === 'purchase' || String(o.orderNumber || o.poNumber || '').startsWith('PO-'));
+    
+    const salesRevenue = salesOrders.reduce((sum, o) => sum + (Number(o.totalAmount) || Number(o.grandTotal) || 0), 0);
+    const purchaseCost = purchaseOrders.reduce((sum, o) => sum + (Number(o.totalAmount) || Number(o.grandTotal) || 0), 0);
+
     const currentMonth = new Date().getMonth();
     const currentYear = new Date().getFullYear();
-    const currentMonthRevenue = deliveredOrders
-        .filter(o => new Date(o.createdAt).getMonth() === currentMonth && new Date(o.createdAt).getFullYear() === currentYear)
-        .reduce((sum, o) => sum + (Number(o.totalAmount) || Number(o.grandTotal) || 0), 0);
 
     const formatCurrency = (val) => {
         if (!val || val === 0) return '₹0';
@@ -61,7 +63,7 @@ const OrderManagement = () => {
     };
 
     // Filters and Chart Data
-    const filters = ['All', 'Created', 'Manager/Admin Review', 'Employee Verification', 'Low Stock', 'Sales Processing', 'Out for Delivery', 'Delivered'];
+    const filters = ['All', 'Created', 'Pending', 'Processing', 'In Transit', 'Delivered'];
 
     const filteredOrders = orders.filter(o => {
         const status = o.status || 'Created';
@@ -76,8 +78,8 @@ const OrderManagement = () => {
 
     // Dynamic Chart Data Generation
     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    const revMap = {};
-    const delRevMap = {};
+    const salesRevMap = {};
+    const purchaseCostMap = {};
 
     let targetMonth = currentMonth;
     let targetYearForStatus = currentYear;
@@ -110,17 +112,20 @@ const OrderManagement = () => {
         if(date.getFullYear() !== targetYearForRevenue) return;
         const month = monthNames[date.getMonth()];
         const amt = (Number(o.totalAmount) || Number(o.grandTotal) || 0) / 1000;
-        revMap[month] = (revMap[month] || 0) + amt;
-        if(['Delivered', 'Completed', 'Invoice Generated', 'Workflow Completed'].includes(o.status)) {
-            delRevMap[month] = (delRevMap[month] || 0) + amt;
+        const type = (o.orderType || '').toLowerCase();
+        
+        if (type === 'sales' || String(o.orderNumber || '').startsWith('SO-')) {
+            salesRevMap[month] = (salesRevMap[month] || 0) + amt;
+        } else if (type === 'purchase' || String(o.orderNumber || o.poNumber || '').startsWith('PO-')) {
+            purchaseCostMap[month] = (purchaseCostMap[month] || 0) + amt;
         }
     });
 
     const monthsToShow = revenuePeriod === 'This Year' ? monthNames.slice(0, currentMonth + 1) : monthNames;
     const revenueChartData = monthsToShow.map(month => ({
         name: month,
-        orderRevenue: Math.round(revMap[month] || 0),
-        deliveredRevenue: Math.round(delRevMap[month] || 0)
+        salesRevenue: Math.round(salesRevMap[month] || 0),
+        purchaseCost: Math.round(purchaseCostMap[month] || 0)
     }));
 
     if (loading) return <div className="flex-center" style={{minHeight:'100vh'}}><div className="loader"></div></div>;
@@ -137,17 +142,18 @@ const OrderManagement = () => {
                 <div className="rd-module-header">
                     <div className="rd-module-info">
                         <div className="rd-module-title-row">
-                            <span className="rd-module-title">{window.location.pathname.includes('purchase') ? 'Purchase Orders' : 'Sales Orders'}</span>
-                            <span className="rd-module-badge">{window.location.pathname.includes('purchase') ? 'PROCUREMENT' : 'SALES'}</span>
+                            <span className="rd-module-title">Order Management</span>
+                            <span className="rd-module-badge">ALL ORDERS</span>
                         </div>
                         </div>
                 </div>
 
                 {/* KPI Cards */}
                 <StatGrid>
-                    <StatCard title="Total Orders" value={orders.length} colorTheme="purple" icon={Package} trendValue="+18% vs last month" trendPositive={true} />
-                    <StatCard title="Delivered" value={deliveredOrders.length} colorTheme="mint" icon={CheckCircle} trendValue="+12% vs last month" trendPositive={true} />
-                    <StatCard title="Order Revenue" value={formatCurrency(orderRevenue)} colorTheme="yellow" icon={DollarSign} trendValue="+22% vs last month" trendPositive={true} />
+                    <StatCard title="Total Orders" value={orders.length} colorTheme="purple" icon={Package} trendValue="Combined sales & purchases" trendPositive={true} />
+                    <StatCard title="Delivered" value={deliveredOrders.length} colorTheme="mint" icon={CheckCircle} trendValue="Successfully completed" trendPositive={true} />
+                    <StatCard title="Sales Revenue" value={formatCurrency(salesRevenue)} colorTheme="blue" icon={DollarSign} trendValue="Total incoming" trendPositive={true} />
+                    <StatCard title="Purchase Cost" value={formatCurrency(purchaseCost)} colorTheme="peach" icon={ShoppingCart} trendValue="Total outgoing" trendPositive={false} />
                 </StatGrid>
 
                 {/* Charts */}
@@ -214,8 +220,8 @@ const OrderManagement = () => {
                                     <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 11}} tickFormatter={v => `${v}K`} />
                                     <Tooltip formatter={(value) => `₹${value}K`} cursor={{fill: 'transparent'}} contentStyle={{borderRadius: 0, border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'}} />
                                     <Legend verticalAlign="top" height={36} iconType="circle" wrapperStyle={{fontSize: 12, fontWeight: 600, color: '#475569'}} />
-                                    <Bar dataKey="orderRevenue" name="Order Revenue" fill="#3b82f6" radius={[4,4,0,0]} />
-                                    <Bar dataKey="deliveredRevenue" name="Delivered Revenue" fill="#10b981" radius={[4,4,0,0]} />
+                                    <Bar dataKey="salesRevenue" name="Sales Revenue" fill="#3b82f6" radius={[4,4,0,0]} />
+                                    <Bar dataKey="purchaseCost" name="Purchase Cost" fill="#f97316" radius={[4,4,0,0]} />
                                 </BarChart>
                             </ResponsiveContainer>
                         </div>
@@ -231,8 +237,8 @@ const OrderManagement = () => {
                 >
                     <div className="rd-table-header" style={{borderBottom: '1px solid var(--rd-border)', flexWrap: 'wrap', gap: 16}}>
                         <div>
-                            <div className="rd-table-title">{window.location.pathname.includes('purchase') ? 'Purchase Order Register' : 'Sales Order Register'}</div>
-                            <div className="rd-table-subtitle">All {window.location.pathname.includes('purchase') ? 'vendor orders and supply tracking' : 'customer orders and delivery tracking'}</div>
+                            <div className="rd-table-title">Unified Order Register</div>
+                            <div className="rd-table-subtitle">All customer orders and vendor supply tracking</div>
                         </div>
                         <div className="rd-table-actions" style={{flexWrap: 'wrap'}}>
                             <div className="rd-search-bar" style={{minWidth: 220, flexShrink: 0, background: '#f8fafc'}}>
@@ -243,14 +249,18 @@ const OrderManagement = () => {
                                 {filters.map(f => (
                                     <button key={f} onClick={() => setActiveFilter(f)}
                                         style={{
-                                            padding: '6px 14px', borderRadius: 0, fontSize: 13, fontWeight: 600, cursor: 'pointer', border: '1px solid',
+                                            padding: '6px 14px', borderRadius: 0, fontSize: 13, fontWeight: 600, cursor: 'pointer', border: '1px solid', whiteSpace: 'nowrap',
                                             background: activeFilter === f ? '#3b82f6' : '#fff',
                                             color: activeFilter === f ? '#fff' : '#64748b',
                                             borderColor: activeFilter === f ? '#3b82f6' : '#e2e8f0'
                                         }}>{f}</button>
                                 ))}
                             </div>
-                            <button className="rd-btn-solid" onClick={() => navigate(`/orders/create/${window.location.pathname.includes('purchase') ? 'purchase' : 'sales'}`)}>+ New Order</button>
+                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                {writeAccess && (
+                                    <button className="rd-btn-solid" onClick={() => navigate(`/orders/create/${window.location.pathname.includes('purchase') ? 'purchase' : 'sales'}`)}>+ New Order</button>
+                                )}
+                            </div>
                         </div>
                     </div>
 
@@ -259,7 +269,8 @@ const OrderManagement = () => {
                             <thead>
                                 <tr>
                                     <th>ORDER ID</th>
-                                    <th>CUSTOMER</th>
+                                    <th>TYPE</th>
+                                    <th>CUSTOMER / VENDOR</th>
                                     <th style={{textAlign: 'right'}}>AMOUNT</th>
                                     <th>ORDERED</th>
                                     <th>PRIORITY</th>
@@ -270,7 +281,7 @@ const OrderManagement = () => {
                             </thead>
                         <tbody>
                             {filteredOrders.length === 0 ? (
-                                <tr><td colSpan={10} style={{textAlign: 'center', padding: 40, color: '#94a3b8'}}>No sales orders found</td></tr>
+                                <tr><td colSpan={10} style={{textAlign: 'center', padding: 40, color: '#94a3b8'}}>No orders found</td></tr>
                             ) : filteredOrders.map((o, i) => {
                                 const orderId = o.orderNumber || '—';
                                 const status = o.status || '—';
@@ -302,11 +313,18 @@ const OrderManagement = () => {
                                 };
                                 const pri = o.priority || 'Normal';
                                 const priStyle = priorityColors[pri] || priorityColors['Normal'];
+                                const type = (o.orderType || '').toLowerCase() === 'purchase' || String(orderId).startsWith('PO-') ? 'Purchase' : 'Sales';
+                                const partyName = o.customer?.company || o.customer?.name || o.vendor?.companyName || o.vendor?.name || '—';
 
                                 return (
                                     <tr key={o._id || o.id || i} style={{cursor: 'pointer'}} onClick={() => navigate(`/orders/${o._id || o.id}/tracking`)}>
                                         <td style={{fontWeight: 700, color: '#3b82f6', maxWidth: 110, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={orderId} data-label="Order ID">{orderId}</td>
-                                        <td style={{fontWeight: 700, color: 'var(--rd-text-main)', maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={o.customer?.company || o.customer?.name || '—'} data-label="Customer">{o.customer?.company || o.customer?.name || '—'}</td>
+                                        <td data-label="Type">
+                                            <span style={{padding: '4px 8px', borderRadius: 4, fontSize: 11, fontWeight: 700, background: type === 'Purchase' ? '#fff7ed' : '#f0fdf4', color: type === 'Purchase' ? '#ea580c' : '#16a34a'}}>
+                                                {type.toUpperCase()}
+                                            </span>
+                                        </td>
+                                        <td style={{fontWeight: 700, color: 'var(--rd-text-main)', maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={partyName} data-label="Customer/Vendor">{partyName}</td>
                                         <td style={{fontWeight: 700, color: 'var(--rd-text-main)', textAlign: 'right'}} data-label="Amount">₹{(Number(o.totalAmount) || Number(o.grandTotal) || 0).toLocaleString()}</td>
                                         <td style={{color: '#64748b'}} data-label="Ordered">{o.createdAt ? new Date(o.createdAt).toLocaleDateString('en-GB', {day:'2-digit', month:'2-digit', year:'2-digit'}) : '—'}</td>
                                         <td data-label="Priority">

@@ -38,6 +38,7 @@ export const ProfileHeader = ({
         {actions.length > 0 && (
             <div className="ui-detail-actions">
                 {actions.map((act, i) => (
+                    act.hidden ? null : (
                     <button 
                         key={i} 
                         className={act.primary ? 'ui-btn-primary' : 'ui-btn-outline'}
@@ -46,6 +47,7 @@ export const ProfileHeader = ({
                         {act.icon && <act.icon size={16} />}
                         {act.label}
                     </button>
+                    )
                 ))}
             </div>
         )}

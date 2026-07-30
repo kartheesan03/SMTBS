@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
+import UserAvatar from '../components/UserAvatar';
 import { Search, Briefcase, CreditCard, User, FileText, Play, CheckCircle , DollarSign} from 'lucide-react';
 import { motion } from 'framer-motion';
 import API from '../api/axios';
@@ -191,9 +193,12 @@ const Payroll = () => {
                                             <td style={{fontWeight: 600, color: 'var(--rd-text-main)'}}>{record.month}</td>
                                             <td style={{padding: '11px 12px'}}>
                                                 <div style={{display: 'flex', alignItems: 'center', gap: 12}}>
-                                                    <div className="rd-avatar" style={{width: 32, height: 32, fontSize: 12, background: 'var(--rd-blue-grad)', flexShrink: 0}}>
-                                                        {getInitials(emp.firstName, emp.lastName)}
-                                                    </div>
+                                                    <UserAvatar 
+                                                        name={`${emp.firstName || ''} ${emp.lastName || ''}`.trim()} 
+                                                        size={32} 
+                                                        fontSize={12} 
+                                                        style={{ flexShrink: 0 }} 
+                                                    />
                                                     <div>
                                                         <div style={{fontWeight: 700, color: 'var(--rd-text-main)'}}>{`${emp.firstName || ''} ${emp.lastName || ''}`.trim()}</div>
                                                         <div style={{fontSize: 11, color: '#94a3b8', marginTop: 2}}>{emp.designation || '—'}</div>

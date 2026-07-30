@@ -13,6 +13,7 @@ import PageHeader from '../components/PageHeader';
 import CommandCenter from '../components/CommandCenter';
 import { SparklineKPICard, IconQuickAction, InvRow } from './AdminDashboard';
 import { StatCard, StatGrid } from '../components/ui/StatCard';
+import WelcomeBanner from '../components/ui/WelcomeBanner';
 
 const EmployeeDashboard = () => {
     const navigate = useNavigate();
@@ -122,7 +123,7 @@ const EmployeeDashboard = () => {
                             <div className="rd-visual-card">
                                                             <div className="rd-vc-label">Performance</div>
                                                             <div className="rd-vc-value">94.5%</div>
-                                                            <div className="rd-vc-chart"></div>
+                                                            <div className="rd-vc-chart" style={{ '--progress': '94.5%' }}></div>
                                                         </div>
                                                         <div className="rd-visual-card">
                                                             <div className="rd-vc-label">Activity</div>

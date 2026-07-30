@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 import { Target, Zap, Handshake, DollarSign, Search, ArrowRight } from 'lucide-react';
-import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
+import { canWrite } from '../utils/rbac';
+import { AuthContext } from '../context/AuthContext';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 import { StatCard, StatGrid } from '../components/ui/StatCard';
 
@@ -14,6 +15,8 @@ const Leads = () => {
     const [loading, setLoading] = useState(true);
     const [activeFilter, setActiveFilter] = useState('All');
     const [searchTerm, setSearchTerm] = useState('');
+    const { user } = React.useContext(AuthContext);
+    const writeAccess = canWrite(user);
 
     const fetchLeads = async () => {
         try {
@@ -128,7 +131,9 @@ const Leads = () => {
                                 <option value="Proposal Sent">Proposal Sent</option>
                                 <option value="Negotiation">Negotiation</option>
                             </select>
-                            <button className="rd-btn-solid" onClick={() => navigate('/crm/add-customer')} style={{background: '#0ea5e9', whiteSpace: 'nowrap', flexShrink: 0}}>+ New Lead</button>
+                            {writeAccess && (
+                                <button className="rd-btn-solid" onClick={() => navigate('/crm/add-customer')} style={{background: '#0ea5e9', whiteSpace: 'nowrap', flexShrink: 0}}>+ New Lead</button>
+                            )}
                         </div>
                     </div>
 

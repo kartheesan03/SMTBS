@@ -363,8 +363,8 @@ const DataTable = ({
                                         ))}
                                         {actions.length > 0 && (
                                             <td style={{ textAlign: 'center' }}>
-                                                <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                                                    {actions.map((action, idx) => (
+                                                <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+                                                    {actions.filter(a => !a.hidden).map((action, idx) => (
                                                         <button 
                                                             key={idx} 
                                                             className="ui-action-btn"

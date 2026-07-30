@@ -11,9 +11,7 @@ export const AuthProvider = ({ children }) => {
         const fetchUser = async () => {
             const userInfo = localStorage.getItem('userInfo') || sessionStorage.getItem('userInfo');
             if (userInfo) {
-                // Initialize immediately with local or session storage
                 const parsedUser = JSON.parse(userInfo);
-                setUser(parsedUser);
                 
                 // Fetch fresh data from server in background
                 try {

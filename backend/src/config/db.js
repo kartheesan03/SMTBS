@@ -49,10 +49,6 @@ const syncAndRepairDatabase = async () => {
                     user.role = acct.role;
                     updated = true;
                 }
-                if (user.name !== acct.name) {
-                    user.name = acct.name;
-                    updated = true;
-                }
 
                 const isValidHash = user.password && user.password.startsWith('$2');
                 let passwordWorks = false;
@@ -300,10 +296,7 @@ const connectDB = async () => {
         }
 
         // 2. Safely recreate User table to apply schema changes without alter: true bugs
-        // Ensure this runs gracefully
-        await safelyRecreateTable('User');
-        await safelyRecreateTable('Notification');
-        await safelyRecreateTable('Material');
+        // (Removed to prevent SQLite foreign key reference tracking bugs on RENAME)
 
         // 3. Synchronize Sequelize schemas with database safely (without alter: true)
         await sequelize.sync();

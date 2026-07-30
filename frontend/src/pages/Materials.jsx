@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Package, AlertTriangle, XCircle, Eye, Plus, CheckCircle, MapPin, Radio } from 'lucide-react';
+import { Package, AlertTriangle, XCircle, Eye, Plus, CheckCircle, MapPin, Radio, Download } from 'lucide-react';
 import LocationTag from '../components/LocationTag';
+import { canWrite } from '../utils/rbac';
+import { AuthContext } from '../context/AuthContext';
 import API from '../api/axios';
 import { toast } from 'react-hot-toast';
 import { DataTable } from '../components/ui';
@@ -50,6 +52,8 @@ const GpsStatusBadge = ({ status }) => {
 
 const Materials = () => {
     const navigate = useNavigate();
+    const { user } = useContext(AuthContext);
+    const writeAccess = canWrite(user);
     const [materialsData, setMaterialsData] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -182,20 +186,24 @@ const Materials = () => {
             align: 'center',
             render: (_, row) => (
                 <div style={{ display: 'flex', gap: 6, justifyContent: 'center' }}>
-                    <button
-                        className="rd-btn-compact"
-                        style={{ padding: '4px 10px', fontSize: 12, fontWeight: 600, borderRadius: 0, background: '#eff6ff', color: '#3b82f6', border: '1px solid #dbeafe', cursor: 'pointer' }}
-                        onClick={(e) => { e.stopPropagation(); navigate(`/materials/${row._id || row.id}`); }}
-                    >
-                        Edit
-                    </button>
-                    <button
-                        className="rd-btn-compact"
-                        style={{ padding: '4px 10px', fontSize: 12, fontWeight: 600, borderRadius: 0, background: '#fff1f2', color: '#ef4444', border: '1px solid #fee2e2', cursor: 'pointer' }}
-                        onClick={(e) => { e.stopPropagation(); handleDelete(row); }}
-                    >
-                        Del
-                    </button>
+                    {writeAccess && (
+                        <button
+                            className="rd-btn-compact"
+                            style={{ padding: '4px 10px', fontSize: 12, fontWeight: 600, borderRadius: 0, background: '#eff6ff', color: '#3b82f6', border: '1px solid #dbeafe', cursor: 'pointer' }}
+                            onClick={(e) => { e.stopPropagation(); navigate(`/materials/${row._id || row.id}`); }}
+                        >
+                            Edit
+                        </button>
+                    )}
+                    {writeAccess && (
+                        <button
+                            className="rd-btn-compact"
+                            style={{ padding: '4px 10px', fontSize: 12, fontWeight: 600, borderRadius: 0, background: '#fff1f2', color: '#ef4444', border: '1px solid #fee2e2', cursor: 'pointer' }}
+                            onClick={(e) => { e.stopPropagation(); handleDelete(row); }}
+                        >
+                            Del
+                        </button>
+                    )}
                     <button
                         className="rd-btn-compact"
                         style={{ padding: '4px 8px', fontSize: 12, borderRadius: 0, background: '#ecfeff', color: '#06b6d4', border: '1px solid #cffafe', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}

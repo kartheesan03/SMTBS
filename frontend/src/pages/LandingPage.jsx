@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, NavLink } from 'react-router-dom';
 import { Globe, ArrowRight, Zap, Shield, Layers, Box, FileText, Truck, Cpu, BarChart3, Bell, CheckCircle, Database, Package, ChevronLeft, ChevronRight, Warehouse, Users, ShieldCheck, ShoppingCart, FileSignature, CreditCard, Receipt, Sparkles, Target, Play } from 'lucide-react';
 import './LandingPage.css';
-import ChatBot from '../components/ChatBot/ChatBot';
 
 const WORKFLOW_STEPS = [
     { label: 'Order', desc: 'Automatic PO creation.', icon: ShoppingCart },
@@ -324,7 +323,6 @@ const LandingPage = () => {
                 <div className="fx-orb fx-orb-3" />
             </div>
             <div className="fx-grid-overlay" />
-            <ChatBot />
         </div>
     );
 };

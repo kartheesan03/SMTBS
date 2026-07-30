@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
+import EmailCell from '../components/ui/EmailCell';
 import { ArrowLeft, Search, UserCheck } from 'lucide-react';
 import { motion } from 'framer-motion';
 import PageHeader from '../components/PageHeader';
@@ -140,7 +141,9 @@ const SelectCustomer = () => {
                                                 </div>
                                             </td>
                                             <td className="col-contact">{getContactPerson()}</td>
-                                            <td className="col-email">{c.email || '-'}</td>
+                                            <td className="col-email">
+                                                <EmailCell email={c.email || '-'} />
+                                            </td>
                                             <td className="col-phone">{c.phone || '-'}</td>
                                             <td className="col-address">{c.address || '-'}</td>
                                             <td className="col-status">

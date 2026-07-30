@@ -91,7 +91,7 @@ const VendorDashboard = () => {
                             <div className="rd-visual-card">
                                                             <div className="rd-vc-label">Completed</div>
                                                             <div className="rd-vc-value">{completedPOs}</div>
-                                                            <div className="rd-vc-chart"></div>
+                                                            <div className="rd-vc-chart" style={{ '--progress': orders.length > 0 ? `${Math.round((completedPOs / orders.length) * 100)}%` : '0%' }}></div>
                                                         </div>
                                                         <div className="rd-visual-card">
                                                             <div className="rd-vc-label">Revenue</div>

@@ -36,6 +36,7 @@ const trainingRoutes = require('./src/routes/trainingRoutes');
 const holidayRoutes  = require('./src/routes/holidayRoutes');
 const recruitmentRoutes = require('./src/routes/recruitmentRoutes');
 const chatRoutes = require('./src/routes/chatRoutes');
+const aiAssistantRoutes = require('./src/routes/aiAssistantRoutes');
 
 const app = express();
 
@@ -77,6 +78,7 @@ app.use('/api/training', trainingRoutes);
 app.use('/api/holidays',    holidayRoutes);
 app.use('/api/recruitment', recruitmentRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/ai', aiAssistantRoutes);
 
 // 404 Handler
 app.use((req, res, next) => {
@@ -109,6 +111,10 @@ const startServer = async () => {
             
             // Start GPS Simulation engine
             gpsSimulator.start();
+
+            // Initialize AI Service
+            const aiService = require('./src/services/aiService');
+            aiService.initializeAIService();
 
             // Start the background job for marking absentees at 6:00 PM IST
             const cron = require('node-cron');

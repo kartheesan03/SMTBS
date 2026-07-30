@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
+import UserAvatar from '../components/UserAvatar';
 import { Search, TrendingUp, Star, ThumbsUp, ThumbsDown , Award} from 'lucide-react';
 import { motion } from 'framer-motion';
 import API from '../api/axios';
@@ -258,9 +260,11 @@ const TeamPerformance = () => {
                                     <tr key={emp.id || i}>
                                         <td data-label="Employee">
                                             <div style={{display: 'flex', alignItems: 'center', gap: 12}}>
-                                                <div className="rd-avatar" style={{width: 32, height: 32, fontSize: 12, background: emp.overall >= 85 ? '#10b981' : '#3b82f6'}}>
-                                                    {getInitials(emp.name)}
-                                                </div>
+                                                <UserAvatar 
+                                                    name={emp.name} 
+                                                    size={32} 
+                                                    fontSize={12} 
+                                                />
                                                 <div>
                                                     <div style={{fontWeight: 700, color: 'var(--rd-text-main)'}}>{emp.name}</div>
                                                     <div style={{fontSize: 11, color: '#94a3b8', marginTop: 2}}>{emp.id}</div>

@@ -186,7 +186,7 @@ const ManagerDashboard = () => {
                             <div className="rd-visual-card">
                                                             <div className="rd-vc-label">Productivity</div>
                                                             <div className="rd-vc-value">{teamProductivity}%</div>
-                                                            <div className="rd-vc-chart"></div>
+                                                            <div className="rd-vc-chart" style={{ '--progress': `${teamProductivity}%` }}></div>
                                                         </div>
                                                         <div className="rd-visual-card">
                                                             <div className="rd-vc-label">Activity</div>

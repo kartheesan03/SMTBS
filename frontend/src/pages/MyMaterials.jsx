@@ -164,31 +164,9 @@ const MyMaterials = () => {
             )
         },
         { 
-            key: 'materialCategory', 
-            label: 'CATEGORY',
-            render: (_, row) => <span style={{ padding: '4px 10px', fontSize: 12, fontWeight: 600, background: '#eff6ff', color: '#3b82f6', border: '1px solid #bfdbfe', borderRadius: 0, display: 'inline-block' }}>{row.material?.category || 'General'}</span>
-        },
-        { 
-            key: 'warehouse', 
-            label: 'LOCATION',
-            render: (_, row) => <span style={{ color: '#334155', fontSize: 13 }}>{row.warehouse || 'Main Warehouse'}</span>
-        },
-        { 
             key: 'requiredQuantity', 
             label: 'QTY REQUESTED',
             render: (val, row) => <span><span style={{ fontWeight: 700, color: '#1e293b', fontSize: 14 }}>{val}</span> <span style={{ color: '#94a3b8', fontSize: 13, fontWeight: 500 }}>{row.material?.unit || 'units'}</span></span>
-        },
-        { 
-            key: 'materialQty', 
-            label: 'AVAILABLE QTY', 
-            align: 'right', 
-            render: (_, row) => <span><span style={{ fontWeight: 700, color: '#1e293b', fontSize: 14 }}>{row.material?.quantity || 0}</span> <span style={{ color: '#94a3b8', fontSize: 13, fontWeight: 500 }}>{row.material?.unit || 'units'}</span></span>
-        },
-        { 
-            key: 'materialReserved', 
-            label: 'RESERVED QTY', 
-            align: 'right', 
-            render: (_, row) => <span><span style={{ fontWeight: 700, color: '#1e293b', fontSize: 14 }}>{row.material?.reservedQuantity || 0}</span> <span style={{ color: '#94a3b8', fontSize: 13, fontWeight: 500 }}>{row.material?.unit || 'units'}</span></span>
         },
         { 
             key: 'status', 
@@ -545,64 +523,79 @@ const MyMaterials = () => {
                 </div>
 
                 {/* KPI Cards */}
-                <StatGrid>
-                    <StatCard
-                        title="Total Items" value={totalAssigned}
-                        colorTheme="blue" icon={Package}
-                        trendValue="Inventory tracking active"
-                        trendPositive={true}
-                    />
-                    <StatCard
-                        title="In Stock" value={availableQty}
-                        colorTheme="mint" icon={CheckCircle}
-                        trendValue={`${totalAssigned ? '100' : '0'}% of inventory`}
-                        trendPositive={true}
-                    />
-                    <StatCard
-                        title="Low Stock" value={lowStockItems}
-                        colorTheme="yellow" icon={AlertTriangle}
-                        trendValue={`${totalAssigned ? Math.round((lowStockItems / totalAssigned) * 100) : 0}% need attention`}
-                        trendPositive={false}
-                    />
-                    <StatCard
-                        title="Out of Stock" value={pendingRequests}
-                        colorTheme="peach" icon={AlertCircle}
-                        trendValue="0% critical"
-                        trendPositive={false}
-                    />
+                <StatGrid columns={4}>
+                    {pageMode === 'requests' ? (
+                        <>
+                            <StatCard
+                                title="Total Requests" value={requests.length}
+                                colorTheme="blue" icon={FileText}
+                                trendValue="All material requests"
+                                trendPositive={true}
+                            />
+                            <StatCard
+                                title="Pending" value={requests.filter(r => ['Pending', 'Manager Approved', 'Processing'].includes(r.status)).length}
+                                colorTheme="yellow" icon={Clock}
+                                trendValue="Awaiting action"
+                                trendPositive={false}
+                            />
+                            <StatCard
+                                title="In Transit" value={requests.filter(r => r.status === 'Dispatched').length}
+                                colorTheme="purple" icon={Activity}
+                                trendValue="Currently dispatched"
+                                trendPositive={true}
+                            />
+                            <StatCard
+                                title="Completed" value={requests.filter(r => ['Delivered', 'Completed'].includes(r.status)).length}
+                                colorTheme="mint" icon={CheckCircle}
+                                trendValue="Successfully received"
+                                trendPositive={true}
+                            />
+                        </>
+                    ) : (
+                        <>
+                            <StatCard
+                                title="Total Items" value={totalAssigned}
+                                colorTheme="blue" icon={Package}
+                                trendValue="Inventory tracking active"
+                                trendPositive={true}
+                            />
+                            <StatCard
+                                title="In Stock" value={availableQty}
+                                colorTheme="mint" icon={CheckCircle}
+                                trendValue={`${totalAssigned ? '100' : '0'}% of inventory`}
+                                trendPositive={true}
+                            />
+                            <StatCard
+                                title="Low Stock" value={lowStockItems}
+                                colorTheme="yellow" icon={AlertTriangle}
+                                trendValue={`${totalAssigned ? Math.round((lowStockItems / totalAssigned) * 100) : 0}% need attention`}
+                                trendPositive={false}
+                            />
+                            <StatCard
+                                title="Out of Stock" value={pendingRequests}
+                                colorTheme="peach" icon={AlertCircle}
+                                trendValue="0% critical"
+                                trendPositive={false}
+                            />
+                        </>
+                    )}
                 </StatGrid>
 
-                {/* Assigned Materials Section (Only in Requests View) */}
-                {pageMode === 'requests' && (
-                    <div style={{ marginBottom: '24px' }}>
-                        <DataTable 
-                            title="Inventory Register"
-                            subtitle="Comprehensive list of all materials — location, GPS status, and quantity from a single source of truth"
-                            columns={inventoryColumns}
-                            data={materialsList.map(m => {
-                                const completedRequests = requests.filter(r => 
-                                    (r.materialId === m.id || r.material?.id === m.id || r.material?._id === m.id) && 
-                                    r.status === 'Completed'
-                                );
-                                const assignedQty = completedRequests.reduce((sum, r) => sum + (r.requiredQuantity || 0), 0);
-                                return {
-                                    id: m.id || m._id,
-                                    material: m,
-                                    materialName: m.name || m.materialName || 'Unknown',
-                                    materialCategory: m.category || 'General',
-                                    materialQty: m.quantity || 0,
-                                    materialReserved: m.reservedQuantity || 0,
-                                    materialThreshold: m.lowStockThreshold || 0,
-                                    requiredQuantity: assignedQty,
-                                    warehouse: 'Main Warehouse',
-                                    updatedAt: m.updatedAt
-                                };
-                            })}
-                            loading={loading}
-                            searchPlaceholder="Search materials, category..."
-                            searchKeys={['materialName', 'materialCategory']}
-                            primaryAction={{ label: '+ Add Material', icon: null, onClick: () => setShowModal(true) }}
-                        />
+
+                {criticalItem && (
+                    <div className="erp-low-stock-alert">
+                        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                            <AlertOctagon size={24} color="#e11d48" />
+                            <div>
+                                <h4 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: 700, color: '#9f1239' }}>⚠ Low Stock Alert</h4>
+                                <p style={{ margin: 0, fontSize: '14px', color: '#be123c' }}>
+                                    <strong>{criticalItem.name}</strong> is critically low. Available: <strong>{criticalItem.quantity || 0}</strong> (Minimum: {criticalItem.lowStockThreshold || 10})
+                                </p>
+                            </div>
+                        </div>
+                        <button className="rd-btn primary" onClick={() => setShowModal(true)} style={{ background: '#e11d48', border: 'none', padding: '8px 16px', fontWeight: 600 }}>
+                            Request Restock
+                        </button>
                     </div>
                 )}
 
@@ -611,26 +604,11 @@ const MyMaterials = () => {
                     
                     {/* LEFT COLUMN: Data Table */}
                     <div className={pageMode === 'requests' ? "erp-main-column" : ""}>
-                        {criticalItem && (
-                            <div className="erp-low-stock-alert">
-                                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                                    <AlertOctagon size={24} color="#e11d48" />
-                                    <div>
-                                        <h4 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: 700, color: '#9f1239' }}>⚠ Low Stock Alert</h4>
-                                        <p style={{ margin: 0, fontSize: '14px', color: '#be123c' }}>
-                                            <strong>{criticalItem.name}</strong> is critically low. Available: <strong>{criticalItem.quantity || 0}</strong> (Minimum: {criticalItem.lowStockThreshold || 10})
-                                        </p>
-                                    </div>
-                                </div>
-                                <button className="rd-btn primary" onClick={() => setShowModal(true)} style={{ background: '#e11d48', border: 'none', padding: '8px 16px', fontWeight: 600 }}>
-                                    Request Restock
-                                </button>
-                            </div>
-                        )}
+
 
                         <DataTable 
                             title={getTableTitle()}
-                            subtitle="Comprehensive list of all materials — location, GPS status, and quantity from a single source of truth"
+                            subtitle={pageMode === 'requests' ? "Track and manage your material requests" : "Comprehensive list of all materials — location, GPS status, and quantity from a single source of truth"}
                             columns={getRenderColumns()} 
                             data={tableData} 
                             loading={loading}

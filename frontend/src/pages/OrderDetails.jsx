@@ -205,29 +205,6 @@ const OrderDetails = () => {
                     </button>
                 )}
 
-                {userRole === 'employee' && order.status === 'Awaiting Stock Check' && (
-                    <>
-                        <button onClick={() => handleEmployeeCheck('low_stock')} style={{ padding: '8px 16px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '0px', cursor: 'pointer', fontWeight: 600 }}>
-                            Low Stock Alert
-                        </button>
-                        <button onClick={() => handleEmployeeCheck('approve')} style={{ padding: '8px 16px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '0px', cursor: 'pointer', fontWeight: 600 }}>
-                            Approve & Forward to Sales
-                        </button>
-                    </>
-                )}
-
-                {userRole === 'sales' && order.status === 'Ready for Delivery' && (
-                    <button onClick={() => handleSalesAction('Out for Delivery')} style={{ padding: '8px 16px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '0px', cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <Truck size={14} /> Start {isSales ? 'Delivery' : 'Pickup'}
-                    </button>
-                )}
-
-                {userRole === 'sales' && order.status === 'Out for Delivery' && (
-                    <button onClick={() => handleSalesAction(isSales ? 'Delivered' : 'Completed')} style={{ padding: '8px 16px', background: '#10b981', color: '#fff', border: 'none', borderRadius: '0px', cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <Truck size={14} /> Mark {isSales ? 'Delivered' : 'Picked Up'}
-                    </button>
-                )}
-
                 <button onClick={() => navigate(`/orders/${order._id || order.id}/tracking`)} style={{ padding: '8px 16px', background: '#f8fafc', color: '#3b82f6', border: '1px solid #bfdbfe', borderRadius: '0px', cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <Truck size={14} /> Track Order
                 </button>

@@ -8,6 +8,9 @@ export default defineConfig({
     port: 3000,
     strictPort: true
   },
+  optimizeDeps: {
+    include: ['react-markdown', 'remark-gfm', 'rehype-highlight', 'highlight.js']
+  },
   build: {
     rollupOptions: {
       output: {

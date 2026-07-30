@@ -187,7 +187,7 @@ const AdminDashboard = () => {
                             <div className="rd-visual-card">
                                 <div className="rd-vc-label">Efficiency</div>
                                 <div className="rd-vc-value">98.2%</div>
-                                <div className="rd-vc-chart"></div>
+                                <div className="rd-vc-chart" style={{ '--progress': '98.2%' }}></div>
                             </div>
                             <div className="rd-visual-card">
                                 <div className="rd-vc-label">Activity</div>

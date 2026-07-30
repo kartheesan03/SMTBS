@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
-import { Users, UserCheck, AlertCircle, DollarSign, Plus, Eye, Edit, Trash2 } from 'lucide-react';
+import { Search, Plus, Download, Filter, User, Building2, UserCheck, AlertCircle, DollarSign, Users, ArrowUpRight, ArrowDownRight, MoreVertical, Edit, Trash2, Eye } from 'lucide-react';
+import EmailCell from '../components/ui/EmailCell';
 import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
@@ -103,7 +104,7 @@ const Customers = ({ directoryOnly }) => {
             sortable: true,
             render: (val, row) => (
                 <div>
-                    <div style={{color: '#3b82f6'}}>{val}</div>
+                    <EmailCell email={val} />
                     <div style={{fontSize: 12, color: '#64748b'}}>{row.phone || 'No phone'}</div>
                 </div>
             )
@@ -123,10 +124,10 @@ const Customers = ({ directoryOnly }) => {
         }
     ];
 
+    const isEmployeeOrSales = userInfo.role && (userInfo.role.toLowerCase() === 'employee' || userInfo.role.toLowerCase() === 'sales');
+
     const actions = [
-        { label: 'View Profile', icon: Eye, onClick: (row) => navigate(`/customers/${row._id || row.id}`) },
-        { label: 'Edit', icon: Edit, onClick: (row) => navigate(`/customers/${row._id || row.id}/edit`) },
-        { label: 'Delete', icon: Trash2, onClick: handleDelete, color: 'danger', hidden: !isAdmin }
+        { label: 'View Profile', icon: Eye, onClick: (row) => navigate(`/customers/${row._id || row.id}`) }
     ];
 
     
@@ -174,11 +175,7 @@ const Customers = ({ directoryOnly }) => {
                             data={customers}
                             actions={actions}
                             searchPlaceholder="Search by name, company, or email..."
-                            primaryAction={{
-                                label: 'Add Customer',
-                                icon: Plus,
-                                onClick: () => navigate('/customers/new')
-                            }}
+                            primaryAction={undefined}
                         />
                     )}
                 </motion.div>

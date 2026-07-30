@@ -1035,3 +1035,31 @@ body.landing-page-active *::-webkit-scrollbar {
     justify-content: center;
     align-items: center;
 }
+
+/* Global Email Column Alignment Fix (Applied to all modules) */
+td[data-label="Email"],
+th.col-email,
+td.col-email {
+  display: table-cell !important;
+  vertical-align: middle !important;
+  height: 100% !important;
+  padding: 10px 12px !important;
+  line-height: 1.5 !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+}
+
+/* Ensure mobile responsive tables maintain flex alignment for Email */
+@media (max-width: 1024px) {
+  table.rd-table-responsive td[data-label="Email"],
+  table.rd-table-responsive td.col-email,
+  .rd-table-responsive td[data-label="Email"],
+  .rd-table-responsive td.col-email {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    padding: 10px 10px 10px 40% !important;
+    height: auto !important;
+  }
+}
+

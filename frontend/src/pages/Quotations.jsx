@@ -4,6 +4,8 @@ import API from '../api/axios';
 import toast from 'react-hot-toast';
 import { FileText, Plus, Search, FileDown, CheckCircle, Clock, XCircle, ArrowRight } from 'lucide-react';
 import { PageContainer, PageHeader, DataTable } from '../components/ui';
+import { canWrite } from '../utils/rbac';
+import { AuthContext } from '../context/AuthContext';
 import { motion } from 'framer-motion';
 
 const Badge = ({ children, type = 'default' }) => (
@@ -36,6 +38,8 @@ const StatCard = ({ title, value, icon: Icon, color }) => {
 const Quotations = () => {
     const [quotations, setQuotations] = useState([]);
     const [loading, setLoading] = useState(true);
+    const { user } = React.useContext(AuthContext);
+    const writeAccess = canWrite(user);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -116,9 +120,9 @@ const Quotations = () => {
             <PageHeader 
                 title="Quotations" 
                 subtitle="Manage and track customer quotations and proposals"
-                actions={[
+                actions={writeAccess ? [
                     { label: 'Create Quote', icon: Plus, primary: true, onClick: () => navigate('/quotations/create') }
-                ]}
+                ] : []}
             />
             
             <div className="ui-grid-4" style={{ marginBottom: '24px' }}>

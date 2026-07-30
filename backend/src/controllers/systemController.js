@@ -7,12 +7,23 @@ const navigationConfig = [
         permission: 'view_dashboard'
     },
     {
+        title: 'AI Assistant',
+        icon: 'Bot',
+        path: '/ai-assistant',
+        permission: ''
+    },
+    {
         title: 'Attendance',
         icon: 'CalendarCheck',
         path: '/attendance',
         permission: ''
     },
-
+    {
+        title: 'Leave Management',
+        icon: 'CalendarDays',
+        path: '/leave-management/history',
+        permission: 'view_leave_self'
+    },
     {
         title: 'My Salary',
         icon: 'Wallet',
@@ -34,7 +45,7 @@ const navigationConfig = [
         ]
     },
     {
-        title: 'Material Tracking',
+        title: 'My Materials',
         icon: 'Box',
         permission: 'view_materials_self',
         children: [
@@ -51,7 +62,6 @@ const navigationConfig = [
         children: [
             { title: 'Employee Data', path: '/hrms' },
             { title: 'Master Attendance', path: '/attendance/master' },
-            { title: 'Leave Management', path: '/leave-management/history' },
             { title: 'All Leave Requests', path: '/leave-management' },
             { title: 'Payroll', path: '/payroll' },
             { title: 'Performance', path: '/team-performance' }
@@ -75,7 +85,8 @@ const navigationConfig = [
             { title: 'Customer Data', path: '/crm' },
             { title: 'Sales Pipeline', path: '/crm/pipeline' },
             { title: 'Leads', path: '/crm/leads' },
-            { title: 'Sales', path: '/erp/sales' }
+            { title: 'Quotations', path: '/quotations' },
+            { title: 'Sales Goals', path: '/sales/goals' }
         ]
     },
     {
@@ -131,6 +142,7 @@ const navigationConfig = [
     }
 ];
 
+
 // ─── Dedicated HR Navigation (role: 'hr' only) ────────────────────────────────
 // Mirrors the FarmakuSidebar design with full HR-specific module hierarchy.
 const hrNavigationConfig = [
@@ -138,6 +150,12 @@ const hrNavigationConfig = [
         title: 'Dashboard',
         icon: 'LayoutDashboard',
         path: '/',
+        permission: ''
+    },
+    {
+        title: 'AI Assistant',
+        icon: 'Bot',
+        path: '/ai-assistant',
         permission: ''
     },
     {
@@ -236,7 +254,7 @@ const Role = require('../models/Role');
 exports.getNavigation = async (req, res) => {
     try {
         // auth middleware already fetched & attached permissions via Role lookup
-        let userPermissions = Array.isArray(req.user.permissions) ? req.user.permissions : [];
+        let userPermissions = Array.isArray(req.user.permissions) ? [...req.user.permissions] : [];
         
         const roleName = req.user.role ? req.user.role.toLowerCase() : '';
         console.log(`[getNavigation] User Email: ${req.user.email}, Role: ${roleName}, Permissions: ${userPermissions}`);
@@ -248,7 +266,11 @@ exports.getNavigation = async (req, res) => {
 
         // Grant employee access to the self-service materials menu
         if (roleName === 'employee') {
-            userPermissions.push('view_materials_self');
+            userPermissions.push('view_materials_self', 'view_dashboard', 'view_tasks_self', 'view_leave_self', 'view_erp');
+        }
+
+        if (roleName === 'sales') {
+            userPermissions.push('view_dashboard', 'view_crm', 'manage_crm', 'view_erp', 'manage_erp');
         }
         // Grant HR access to HRMS modules if not already in DB
         if (roleName === 'hr') {
@@ -308,10 +330,10 @@ exports.getNavigation = async (req, res) => {
             return item;
         }).filter(Boolean); // Remove nulls
 
-        // Prevent duplicate "Material Tracking" for Admin/Manager who have both permissions
+        // Prevent duplicate "My Materials" for Admin/Manager who have full materials permission
         const hasFullMaterialTracking = filteredNav.some(i => i.title === 'Material Tracking' && i.permission === 'view_materials');
         if (hasFullMaterialTracking) {
-            filteredNav = filteredNav.filter(i => !(i.title === 'Material Tracking' && i.permission === 'view_materials_self'));
+            filteredNav = filteredNav.filter(i => !(i.title === 'My Materials' && i.permission === 'view_materials_self'));
         }
 
         res.json(filteredNav);

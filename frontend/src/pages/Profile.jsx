@@ -8,6 +8,7 @@ import PageHeader from '../components/PageHeader';
 
 const Profile = () => {
     const { user, updateUser } = useContext(AuthContext);
+    const isEmployeeOrSales = user?.role && (user.role.toLowerCase() === 'employee' || user.role.toLowerCase() === 'sales');
     const [employeeData, setEmployeeData] = useState(null);
     const [formData, setFormData] = useState({
         firstName: '',
@@ -304,9 +305,23 @@ const Profile = () => {
                                 </div>
                             </div>
                             
-                            <button type="submit" className="btn-save-full">
-                                <span>💾</span> Save Changes
-                            </button>
+                            <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
+                                <button type="button" className="btn-cancel-full" onClick={() => {
+                                    setFormData({
+                                        firstName: employeeData?.firstName || user?.name?.split(' ')[0] || '',
+                                        lastName: employeeData?.lastName || user?.name?.split(' ').slice(1).join(' ') || '',
+                                        email: employeeData?.contact || user?.email || '',
+                                        phone: employeeData?.phone || '',
+                                        address: employeeData?.address || ''
+                                    });
+                                    toast('Changes cancelled', { icon: '✖' });
+                                }}>
+                                    <span>✖</span> Cancel
+                                </button>
+                                <button type="submit" className="btn-save-full" style={{ marginTop: 0 }}>
+                                    <span>💾</span> Save Changes
+                                </button>
+                            </div>
                         </form>
                     </div>
                 </div>
@@ -776,6 +791,26 @@ const Profile = () => {
                 }
                 .btn-save-full:hover {
                     background: var(--primary-hover);
+                }
+                .btn-cancel-full {
+                    width: 100%;
+                    background: transparent;
+                    color: #475569;
+                    border: 1px solid #cbd5e1;
+                    padding: 12px;
+                    border-radius: var(--radius-sm);
+                    font-size: 14px;
+                    font-weight: 500;
+                    cursor: pointer;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    gap: 8px;
+                    transition: all 0.15s;
+                }
+                .btn-cancel-full:hover {
+                    background: #f1f5f9;
+                    color: #0f172a;
                 }
                 .btn-outline-purple {
                     background: transparent;

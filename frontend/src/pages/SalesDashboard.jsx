@@ -14,6 +14,7 @@ import PageHeader from '../components/PageHeader';
 import CommandCenter from '../components/CommandCenter';
 import { StatCard, StatGrid } from '../components/ui/StatCard';
 import { SparklineKPICard, IconQuickAction, MiniStatCard, InvRow } from './AdminDashboard';
+import WelcomeBanner from '../components/ui/WelcomeBanner';
 
 const SalesDashboard = () => {
     const navigate = useNavigate();
@@ -172,7 +173,7 @@ const SalesDashboard = () => {
                             <div className="rd-visual-card">
                                                             <div className="rd-vc-label">Conversion</div>
                                                             <div className="rd-vc-value">{conversionRate}%</div>
-                                                            <div className="rd-vc-chart"></div>
+                                                            <div className="rd-vc-chart" style={{ '--progress': `${conversionRate}%` }}></div>
                                                         </div>
                                                         <div className="rd-visual-card">
                                                             <div className="rd-vc-label">Activity</div>

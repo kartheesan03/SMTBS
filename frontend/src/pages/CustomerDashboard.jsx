@@ -10,6 +10,7 @@ import { motion } from 'framer-motion';
 import '../components/AdminDashboard/AdminDashboardRedesign.css';
 import { StatCard, StatGrid } from '../components/ui/StatCard';
 import { LoadingState, EmptyState } from '../components/DataStates';
+import WelcomeBanner from '../components/ui/WelcomeBanner';
 
 const CustomerDashboard = () => {
     const navigate = useNavigate();
@@ -95,7 +96,7 @@ const CustomerDashboard = () => {
                             <div className="rd-visual-card">
                                                             <div className="rd-vc-label">Completed</div>
                                                             <div className="rd-vc-value">{completedOrders}</div>
-                                                            <div className="rd-vc-chart"></div>
+                                                            <div className="rd-vc-chart" style={{ '--progress': orders.length > 0 ? `${Math.round((completedOrders / orders.length) * 100)}%` : '0%' }}></div>
                                                         </div>
                                                         <div className="rd-visual-card">
                                                             <div className="rd-vc-label">Activity</div>

@@ -290,7 +290,7 @@
     content: '';
     display: block;
     height: 100%;
-    width: 75%;
+    width: var(--progress, 0%);
     background: linear-gradient(90deg, #10b981, #34d399);
     border-radius: 3px;
     transition: width 0.6s ease;

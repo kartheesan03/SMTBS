@@ -4,7 +4,7 @@ import {
     Play, Square, Timer, TrendingUp, TrendingDown, Activity, Search, Download,
     AlertCircle, BarChart2
 } from 'lucide-react';
-import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip } from 'recharts';
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from 'recharts';
 import { toast } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -50,6 +50,22 @@ const calcHrs = (ci, co, base) => {
     if (!s || !e) return null;
     const h = (e - s) / 36e5;
     return h > 0 ? h : null;
+};
+
+/* ─────────────────────────── Custom Tooltip ─────────────────────── */
+const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+        return (
+            <div style={{ background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', padding: '12px 18px', borderRadius: '12px', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>Day {label}</div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+                    <span style={{ fontSize: 20, fontWeight: 800, color: '#ffffff' }}>{payload[0].value}</span>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: '#818cf8' }}>hrs logged</span>
+                </div>
+            </div>
+        );
+    }
+    return null;
 };
 
 /* ─────────────────────────── Status Badge ─────────────────────── */
@@ -489,18 +505,30 @@ const MonthlyTab = ({ myHistory }) => {
                 </div>
                 <div style={{ height:160 }}>
                     <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={chartData} margin={{top:4,right:8,left:-24,bottom:0}}>
+                        <BarChart data={chartData} margin={{top:20,right:10,left:-20,bottom:0}} barSize={10}>
+                            <XAxis dataKey="d" stroke="#94a3b8" fontSize={11} axisLine={false} tickLine={false} dy={10} interval={1} />
+                            <YAxis stroke="#94a3b8" fontSize={11} axisLine={false} tickLine={false} unit="h" domain={[0, 10]} ticks={[0, 2, 4, 6, 8, 10]} />
+                            <Tooltip 
+                                content={<CustomTooltip />}
+                                cursor={{fill: 'transparent'}} 
+                            />
                             <defs>
-                                <linearGradient id="hGrad" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%"  stopColor="#6366f1" stopOpacity={0.35}/>
-                                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0.02}/>
+                                <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stopColor="#818cf8" stopOpacity={1}/>
+                                    <stop offset="100%" stopColor="#4f46e5" stopOpacity={1}/>
                                 </linearGradient>
                             </defs>
-                            <XAxis dataKey="d" stroke="#94a3b8" fontSize={10} axisLine={false} tickLine={false} dy={6} interval={1} />
-                            <YAxis stroke="#94a3b8" fontSize={10} axisLine={false} tickLine={false} unit="h" />
-                            <Tooltip formatter={v=>[`${v}h`,'Hours']} contentStyle={{borderRadius: 0,border:'1px solid #e2e8f0',fontSize:12}} />
-                            <Area type="monotone" dataKey="h" stroke="#6366f1" strokeWidth={2.5} fill="url(#hGrad)" dot={{r:2.5,fill:'#6366f1'}} />
-                        </AreaChart>
+                            <Bar 
+                                dataKey="h" 
+                                radius={[10, 10, 10, 10]} 
+                                background={{ fill: '#f1f5f9', radius: 10 }}
+                                minPointSize={4}
+                            >
+                                {chartData.map((entry, index) => (
+                                    <Cell key={`cell-${index}`} fill="url(#barGrad)" />
+                                ))}
+                            </Bar>
+                        </BarChart>
                     </ResponsiveContainer>
                 </div>
             </div>

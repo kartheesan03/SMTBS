@@ -200,13 +200,33 @@ const deleteEmployee = async (req, res) => {
         const employee = await Employee.findById(req.params.id);
         if (employee) {
             const employeeName = `${employee.firstName} ${employee.lastName || ''}`.trim();
-            // Delete associated user if exists
-            if (employee.userId) {
-                const user = await User.findById(employee.userId);
-                if (user) await user.deleteOne();
-            }
-            // Optionally, we could delete associated Salaries and Leaves here, but for now just deleting the employee and user is fine
+            const userId = employee.userId;
+
+            // Delete the employee first so the foreign key from Employee to User is removed
             await employee.deleteOne();
+
+            // Delete associated user if exists, catching any FK constraint errors (e.g. from AuditLogs)
+            if (userId) {
+                try {
+                    const user = await User.findById(userId);
+                    if (user) {
+                        await user.deleteOne();
+                    }
+                } catch (userErr) {
+                    console.log(`Could not delete user for employee ${employeeName} due to constraints. Setting to inactive instead.`);
+                    try {
+                        const user = await User.findById(userId);
+                        if (user) {
+                            user.active = false;
+                            // append deleted timestamp to email to allow recreation
+                            user.email = user.email + '.deleted.' + Date.now();
+                            await user.save();
+                        }
+                    } catch (e) {
+                        console.error('Failed to deactivate user:', e);
+                    }
+                }
+            }
 
             // Audit log
             await logAudit({

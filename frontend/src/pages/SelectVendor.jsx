@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
+import EmailCell from '../components/ui/EmailCell';
 import { ArrowLeft, Search, Truck } from 'lucide-react';
 import { motion } from 'framer-motion';
 import PageHeader from '../components/PageHeader';
@@ -106,7 +107,9 @@ const SelectVendor = () => {
                                 <tr key={v.id || v._id || i}>
                                     <td className="col-company"><strong>{v.name}</strong></td>
                                     <td className="col-contact">{getContactPerson()}</td>
-                                    <td className="col-email">{v.email || '-'}</td>
+                                            <td className="col-email">
+                                                <EmailCell email={v.email || '-'} />
+                                            </td>
                                     <td className="col-phone">{v.phone || '-'}</td>
                                     <td className="col-address">
                                         <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>

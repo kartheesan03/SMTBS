@@ -140,7 +140,7 @@ const HRDashboard = () => {
                             <div className="rd-visual-card">
                                                             <div className="rd-vc-label">Attendance</div>
                                                             <div className="rd-vc-value">{hrStats.attendanceRate || '98%'}</div>
-                                                            <div className="rd-vc-chart"></div>
+                                                            <div className="rd-vc-chart" style={{ '--progress': `${hrStats.attendanceRate || 98}%` }}></div>
                                                         </div>
                                                         <div className="rd-visual-card">
                                                             <div className="rd-vc-label">Activity</div>
