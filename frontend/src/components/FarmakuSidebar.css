@@ -328,6 +328,44 @@
 .farmaku-nav-item.active .nav-icon-white,
 .farmaku-nav-item.has-active-child .nav-icon-white  { color: rgba(255,255,255,0.9) !important; }
 
+/* ── AI Mode Button ── */
+.ai-mode-btn {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(168, 85, 247, 0.05) 100%) !important;
+    border: 1px solid rgba(139, 92, 246, 0.2) !important;
+    color: #E2E8F0 !important;
+    transition: all 0.3s ease;
+}
+
+.ai-mode-btn:hover {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(168, 85, 247, 0.15) 100%) !important;
+    border-color: rgba(139, 92, 246, 0.4) !important;
+    transform: translateY(-1px);
+}
+
+.ai-mode-btn.active {
+    background: linear-gradient(135deg, #4F46E5 0%, #9333EA 100%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 4px 15px rgba(147, 51, 234, 0.3) !important;
+}
+
+.ai-mode-btn .nav-icon-blue {
+    color: #A78BFA !important;
+}
+
+.ai-mode-btn.active .nav-icon-blue {
+    color: #FFFFFF !important;
+    animation: pulseGlow 2s infinite;
+}
+
+@keyframes pulseGlow {
+    0% { filter: drop-shadow(0 0 2px rgba(255,255,255,0.2)); }
+    50% { filter: drop-shadow(0 0 8px rgba(255,255,255,0.6)); }
+    100% { filter: drop-shadow(0 0 2px rgba(255,255,255,0.2)); }
+}
+
 /* ── Logout Item ── */
 .farmaku-logout-item {
     display: flex;

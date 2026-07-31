@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageCircle, X, Send, Sparkles, Bot } from 'lucide-react';
+import API from '../../api/axios';
 import './ChatBot.css';
 
 const SUGGESTIONS = [
@@ -57,13 +58,8 @@ const ChatBot = () => {
                 .filter(m => m.id !== 'welcome')
                 .map(m => ({ role: m.role, content: m.content }));
 
-            const response = await fetch('http://localhost:5000/api/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: messageText, history }),
-            });
-
-            const data = await response.json();
+            const response = await API.post('/chat', { message: messageText, history });
+            const data = response.data;
 
             setMessages(prev => [...prev, {
                 id: Date.now() + 1,

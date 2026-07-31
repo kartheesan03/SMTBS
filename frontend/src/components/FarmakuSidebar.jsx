@@ -269,15 +269,14 @@ const FarmakuSidebar = () => {
                     </li>
 
                     {/* AI Assistant */}
-                    <li>
+                    <li style={{ marginTop: '12px', marginBottom: '8px' }}>
                         <NavLink
                             to="/ai-assistant"
                             end
-                            className={({ isActive }) => `farmaku-nav-item${isLeafActive('/ai-assistant') ? ' active' : ''}`}
+                            className={({ isActive }) => `farmaku-nav-item ai-mode-btn ${isLeafActive('/ai-assistant') ? ' active' : ''}`}
                         >
-                            <Icons.Bot size={18} className="nav-icon-blue" />
-                            <span>AI Assistant</span>
-                            <Icons.ChevronRight size={14} />
+                            <Icons.Sparkles size={18} className="nav-icon-blue" />
+                            <span style={{ fontWeight: 600, letterSpacing: '0.02em' }}>AI Assistant</span>
                         </NavLink>
                     </li>
 

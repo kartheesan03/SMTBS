@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Send, Paperclip } from 'lucide-react';
+import { Send, Paperclip, Sparkles, Mic } from 'lucide-react';
 
 const ChatInput = ({ onSendMessage, disabled }) => {
     const [text, setText] = useState('');
@@ -24,8 +24,8 @@ const ChatInput = ({ onSendMessage, disabled }) => {
         <div className="ai-chat-input-container">
             {attachment && (
                 <div className="ai-attachment-preview">
-                    Attached: {attachment.name}
-                    <button type="button" onClick={() => setAttachment(null)}>x</button>
+                    <span>📎 {attachment.name}</span>
+                    <button type="button" onClick={() => setAttachment(null)}>✕</button>
                 </div>
             )}
             <form className="ai-chat-form" onSubmit={handleSubmit}>
@@ -34,16 +34,21 @@ const ChatInput = ({ onSendMessage, disabled }) => {
                     className="ai-attach-btn"
                     onClick={() => fileInputRef.current?.click()}
                     disabled={disabled}
+                    title="Attach file"
                 >
-                    <Paperclip size={20} />
+                    <Paperclip size={18} />
                 </button>
                 <input 
                     type="file" 
                     ref={fileInputRef} 
                     style={{ display: 'none' }} 
                     onChange={handleFileChange}
-                    accept=".pdf,.png,.jpg,.jpeg,.docx"
+                    accept=".pdf,.png,.jpg,.jpeg,.docx,.csv"
                 />
+                
+                <div className="ai-input-sparkle">
+                    <Sparkles size={18} />
+                </div>
                 
                 <input 
                     type="text" 
@@ -55,11 +60,21 @@ const ChatInput = ({ onSendMessage, disabled }) => {
                 />
                 
                 <button 
+                    type="button" 
+                    className="ai-mic-btn"
+                    disabled={disabled}
+                    title="Voice input (coming soon)"
+                >
+                    <Mic size={18} />
+                </button>
+
+                <button 
                     type="submit" 
                     className="ai-send-btn"
                     disabled={disabled || (!text.trim() && !attachment)}
+                    title="Send message"
                 >
-                    <Send size={20} />
+                    <Send size={18} />
                 </button>
             </form>
             <div className="ai-footer-note">AI can make mistakes. Verify important information.</div>

@@ -73,9 +73,32 @@ const getSuggestedPrompts = (role) => {
     return prompts[role] || ['How can I help you today?'];
 };
 
-const processChatMessage = async (user, message, sessionId) => {
-    if (!isAiConfigured) throw new Error(aiStatusMessage);
+const getFallbackResponse = (message) => {
+    const msg = (message || '').toLowerCase();
+    if (msg.includes('inventory') || msg.includes('material') || msg.includes('stock')) {
+        return "SMTBMS tracks materials across all your warehouses in real-time. You can view stock levels, set reorder thresholds, and get automated alerts when inventory runs low.";
+    }
+    if (msg.includes('order') || msg.includes('purchase')) {
+        return "Orders in SMTBMS follow a structured workflow: Order → Manager Approval → Employee Verification → Inventory Check → Purchase → Delivery → Invoice.";
+    }
+    if (msg.includes('revenue') || msg.includes('business summary') || msg.includes('report')) {
+        return "To view detailed revenue reports and business summaries, please check the Reports & Analytics module. (Note: Advanced AI generation requires an API key).";
+    }
+    return "That's a great question! SMTBMS is a comprehensive system. Please note that the AI is currently in offline mode (API key not configured), but I can still answer basic questions!";
+};
 
+const aiActionHandler = require('./aiActionHandler');
+
+const detectLocalIntent = (message) => {
+    const msg = message.toLowerCase();
+    if (msg.includes('attendance') || msg.includes('hr ')) return 'ATTENDANCE';
+    if (msg.includes('payroll') || msg.includes('salary')) return 'PAYROLL';
+    if (msg.includes('sale') || msg.includes('revenue') || msg.includes('order')) return 'SALES';
+    if (msg.includes('inventory') || msg.includes('stock') || msg.includes('material')) return 'INVENTORY';
+    return 'GENERAL';
+};
+
+const processChatMessage = async (user, message, sessionId) => {
     // 1. Get or Create Session
     let session;
     if (sessionId) {
@@ -95,69 +118,35 @@ const processChatMessage = async (user, message, sessionId) => {
         content: message
     });
 
-    // 3. Process the intent using Gemini
-    const intentPrompt = `
-        You are the AI Assistant for SMTBMS. The user role is ${user.role}.
-        Analyze the following user message and output a JSON object describing the intent.
-        Possible intents: "SQL_QUERY" (needs database analytics), "WORKFLOW_ACTION" (e.g., create PO, approve leave), "GENERAL_CHAT".
-        Message: "${message}"
-        Output JSON format: { "intent": "INTENT_TYPE", "actionType": "if workflow action", "details": "any extracted entities" }
-    `;
+    const anthropicOrchestrator = require('./anthropicOrchestrator');
 
-    let intentResult;
-    let intentText = '';
+    let aiResponse = { content: "I'm not sure how to help with that.", metadata: {} };
+
     try {
-        intentResult = await model.generateContent(intentPrompt);
-        intentText = intentResult.response.text();
+        // Fetch chat history for context
+        const history = await AIChatMessage.findAll({
+            where: { sessionId: session.id },
+            order: [['createdAt', 'ASC']]
+        });
+        
+        aiResponse = await anthropicOrchestrator.orchestrateChat(user, history, session.id);
     } catch (error) {
-        handleGeminiError(error);
-    }
-    let intentData = { intent: 'GENERAL_CHAT' };
-    
-    try {
-        const jsonMatch = intentText.match(/```json\n([\s\S]*?)\n```/) || intentText.match(/({[\s\S]*})/);
-        if (jsonMatch) intentData = JSON.parse(jsonMatch[1]);
-    } catch (e) {
-        console.warn('Failed to parse intent JSON, defaulting to GENERAL_CHAT');
-    }
-
-    let assistantResponse = '';
-    let chartData = null;
-    let sqlQuery = null;
-
-    try {
-        if (intentData.intent === 'SQL_QUERY') {
-            const sqlResult = await sqlGenerator.generateAndExecuteSQL(user, message);
-            sqlQuery = sqlResult.sql;
-            assistantResponse = await businessInsights.generateInsights(message, sqlResult.data, user.role);
-            chartData = await chartGenerator.generateChartConfig(sqlResult.data);
-        } else if (intentData.intent === 'WORKFLOW_ACTION') {
-            assistantResponse = await workflowService.handleActionIntent(user, intentData);
-        } else {
-            const chatPrompt = `You are the SMTBMS AI Assistant helping a ${user.role}. Answer the following message concisely: ${message}`;
-            const chatResult = await model.generateContent(chatPrompt);
-            assistantResponse = chatResult.response.text();
-        }
-    } catch (error) {
-        if (error.name === 'SequelizeDatabaseError') {
-             throw new Error('An error occurred while running the analytics query. Please rephrase your question.');
-        }
-        handleGeminiError(error);
+        console.error('Error in Anthropic Orchestrator:', error);
+        aiResponse.content = "I encountered an error while processing your request with Claude.";
     }
 
     // 4. Save Assistant Message
-    const assistantMsg = await AIChatMessage.create({
+    await AIChatMessage.create({
         sessionId: session.id,
         role: 'assistant',
-        content: assistantResponse,
-        sqlQuery: sqlQuery,
-        chartData: chartData ? JSON.stringify(chartData) : null
+        content: aiResponse.content,
+        chartData: aiResponse.metadata ? JSON.stringify(aiResponse.metadata) : null
     });
 
     return {
         sessionId: session.id,
-        message: assistantResponse,
-        chartData: chartData
+        content: aiResponse.content,
+        metadata: aiResponse.metadata
     };
 };
 
