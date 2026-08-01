@@ -1,23 +1,29 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { aiToolsDeclarations, executeAITool } = require('../services/aiTools');
 
-const SMTBMS_SYSTEM_PROMPT = `You are SMTBMS Assistant, an AI support agent for the Smart Material Tracking & Business Management System (SMTBMS). 
+const SMTBMS_SYSTEM_PROMPT = `You are Aria, an AI support agent for the Smart Material Tracking & Business Management System (SMTBMS). 
+You help users manage and query data across the entire database.
 
-You help users understand:
-- SMTBMS Features: Inventory Management, Warehouse Management, Purchase Orders, Vendor Management, Order Workflow, AI Analytics, Notifications, Reports & Dashboards
-- How the system works: Materials are tracked across multiple warehouses. Orders go through: Order → Manager Approval → Employee Verification → Inventory Check → Purchase → Delivery → Invoice
-- Roles: Admin, Manager, Employee
-- The platform tracks 20,000+ materials across 200+ warehouses with 99.9% uptime
-- Pricing, getting started, and onboarding questions
+You have access to a universal query tool. Use it to query ANY of the following database models (always use exact case):
+- Inventory/Materials: Material, MaterialMovement, StockRequest
+- HRMS: Employee, Attendance, Leave, Salary, Recruitment, Training, Holiday
+- CRM/Sales: Customer, Lead, Quotation, Order, SalesGoal
+- Procurement: Vendor, PurchaseRequest
+- Support/Tasks: Ticket, Task, Project
+- Admin: User, Role, Notification, AuditLog, Backup
 
 Guidelines:
-- Be helpful, concise, and professional
-- Keep responses under 150 words unless more detail is specifically requested
-- If asked about something outside SMTBMS scope, politely redirect to SMTBMS topics
-- For technical support issues, suggest contacting the admin or visiting the help section
-- Always be encouraging and solution-oriented
-- Do not make up specific data (prices, exact user counts, etc.)
-
-Start each session warmly and offer to help.`;
+- ALWAYS use the 'query_database' tool to fetch real data before answering questions about records, numbers, or statuses. Never make up data.
+- If the user asks for a report, use the 'generate_report' tool with the correct modelName.
+- If the request is ambiguous (e.g., "how many units are left" but no item specified), ask a clarifying question.
+- If the request targets a domain we don't have a model for, explain your limitations clearly.
+- Render results in clean markdown tables when returning lists of data. Bold key numbers.
+- At the end of your response, you MUST provide exactly 3 relevant follow-up suggestions in a markdown list format starting with "Suggested Follow-ups:", so the frontend can extract them.
+- Example: 
+  Suggested Follow-ups:
+  - Check [Model] report
+  - Show low stock items
+  - View recent orders`;
 
 const chatWithGemini = async (req, res) => {
     try {
@@ -29,71 +35,123 @@ const chatWithGemini = async (req, res) => {
 
         const apiKey = process.env.GEMINI_API_KEY;
 
-        // Fallback for when no API key is configured
         if (!apiKey || apiKey === 'your_gemini_api_key_here') {
+            // OFFLINE MODE MOCK (Fallback logic)
+            let toolResult;
+            let replyText = "I'm currently running in offline mode without an API key, so my natural language understanding is limited. I will try my best to match your keyword to a table!";
+            let fileMetadata = null;
+            
+            const msgLower = message.toLowerCase();
+            
+            // Very rudimentary intent matching for offline testing
+            let modelNameMatch = null;
+            if (msgLower.includes('inventory') || msgLower.includes('stock') || msgLower.includes('material')) modelNameMatch = 'Material';
+            else if (msgLower.includes('vendor')) modelNameMatch = 'Vendor';
+            else if (msgLower.includes('order')) modelNameMatch = 'Order';
+            else if (msgLower.includes('employee') || msgLower.includes('staff')) modelNameMatch = 'Employee';
+            else if (msgLower.includes('attendance')) modelNameMatch = 'Attendance';
+            else if (msgLower.includes('leave')) modelNameMatch = 'Leave';
+            else if (msgLower.includes('customer')) modelNameMatch = 'Customer';
+            else if (msgLower.includes('task')) modelNameMatch = 'Task';
+            else if (msgLower.includes('user')) modelNameMatch = 'User';
+
+            if (msgLower.includes('report') && modelNameMatch) {
+                toolResult = await executeAITool({ name: 'generate_report', args: { modelName: modelNameMatch } });
+                if (toolResult && toolResult.file) {
+                    fileMetadata = toolResult.file;
+                    replyText = `I've generated the ${modelNameMatch} report for you in offline mode. You can download it below.`;
+                }
+            } else if (modelNameMatch) {
+                toolResult = await executeAITool({ name: 'query_database', args: { modelName: modelNameMatch } });
+                if (toolResult && toolResult.results && toolResult.results.length > 0) {
+                    // Generate a generic markdown table for the first 5 columns of the results
+                    const headers = Object.keys(toolResult.results[0]).slice(0, 5);
+                    let table = `| ${headers.join(' | ')} |\n|${headers.map(() => '---').join('|')}|\n`;
+                    toolResult.results.forEach(row => {
+                        table += `| ${headers.map(h => String(row[h]).substring(0, 20)).join(' | ')} |\n`;
+                    });
+                    replyText = `Here is the data for **${modelNameMatch}** (Offline Mode):\n\n${table}`;
+                } else {
+                    replyText = `I queried the **${modelNameMatch}** table, but no records were found.`;
+                }
+            }
+
             return res.json({
-                reply: getFallbackResponse(message)
+                reply: replyText,
+                file: fileMetadata
             });
         }
 
         const genAI = new GoogleGenerativeAI(apiKey);
         const model = genAI.getGenerativeModel({
             model: 'gemini-1.5-flash',
-            systemInstruction: SMTBMS_SYSTEM_PROMPT
+            systemInstruction: SMTBMS_SYSTEM_PROMPT,
+            tools: [aiToolsDeclarations]
         });
 
         // Build conversation history for multi-turn context
-        const chatHistory = history.map(msg => ({
-            role: msg.role === 'user' ? 'user' : 'model',
-            parts: [{ text: msg.content }]
-        }));
+        const chatHistory = history
+            .filter(msg => msg.role === 'user' || msg.role === 'assistant')
+            .map(msg => ({
+                role: msg.role === 'user' ? 'user' : 'model',
+                parts: [{ text: msg.content }]
+            }));
 
         const chat = model.startChat({ history: chatHistory });
-        const result = await chat.sendMessage(message);
-        const reply = result.response.text();
+        let result = await chat.sendMessage(message);
+        let response = result.response;
+        
+        let fileMetadata = null;
 
-        return res.json({ reply });
+        // Function calling loop
+        while (response.functionCalls && response.functionCalls().length > 0) {
+            const call = response.functionCalls()[0];
+            const toolResult = await executeAITool(call);
+            
+            // If the tool was generate_report, extract the file info
+            if (call.name === 'generate_report' && toolResult.file) {
+                fileMetadata = toolResult.file;
+            }
+
+            result = await chat.sendMessage([{
+                functionResponse: {
+                    name: call.name,
+                    response: toolResult
+                }
+            }]);
+            response = result.response;
+        }
+
+        let replyText = response.text();
+        
+        // Extract follow-up suggestions generated by Gemini
+        const suggestions = [];
+        const followUpRegex = /Suggested Follow-ups:([\s\S]*)/i;
+        const match = replyText.match(followUpRegex);
+        if (match) {
+            const lines = match[1].split('\n').filter(line => line.trim().startsWith('-'));
+            lines.forEach(line => {
+                const text = line.replace(/^- /, '').trim();
+                if (text) {
+                    suggestions.push({ title: text.substring(0, 20) + '...', desc: text });
+                }
+            });
+            // Remove the suggestions list from the final chat display text
+            replyText = replyText.replace(followUpRegex, '').trim();
+        }
+
+        return res.json({ 
+            reply: replyText,
+            file: fileMetadata,
+            suggestions: suggestions.length > 0 ? suggestions : null
+        });
 
     } catch (error) {
         console.error('Chat API error:', error.message);
-        
-        // Return friendly fallback on error
-        return res.json({
-            reply: "I'm having a moment of difficulty connecting. Please try again shortly, or visit our Help section for immediate support!"
+        return res.status(500).json({
+            reply: "I'm having a moment of difficulty connecting. Please try again shortly."
         });
     }
-};
-
-// Smart rule-based fallback when no API key is available
-const getFallbackResponse = (message) => {
-    const msg = message.toLowerCase();
-    
-    if (msg.includes('inventory') || msg.includes('material') || msg.includes('stock')) {
-        return "SMTBMS tracks materials across all your warehouses in real-time. You can view stock levels, set reorder thresholds, and get automated alerts when inventory runs low. Head to the Inventory section after logging in!";
-    }
-    if (msg.includes('order') || msg.includes('purchase')) {
-        return "Orders in SMTBMS follow a structured workflow: Order → Manager Approval → Employee Verification → Inventory Check → Purchase → Delivery → Invoice. Every step is tracked and auditable.";
-    }
-    if (msg.includes('vendor') || msg.includes('supplier')) {
-        return "SMTBMS maintains a complete vendor directory with performance metrics, contact details, and material catalogs. You can compare vendors and track delivery history all in one place.";
-    }
-    if (msg.includes('warehouse')) {
-        return "SMTBMS manages 200+ warehouses with real-time location tracking, bin management, and movement history. Each warehouse can have its own staff, materials, and workflows.";
-    }
-    if (msg.includes('login') || msg.includes('sign up') || msg.includes('register') || msg.includes('account')) {
-        return "You can create an account by clicking 'Sign Up' in the top navigation. For existing users, click 'Log In'. If you've forgotten your password, use the reset option on the login page.";
-    }
-    if (msg.includes('price') || msg.includes('cost') || msg.includes('plan') || msg.includes('free')) {
-        return "For pricing information, please contact our sales team or reach out through the Help section. We offer flexible plans for businesses of all sizes.";
-    }
-    if (msg.includes('ai') || msg.includes('analytics') || msg.includes('forecast')) {
-        return "SMTBMS includes AI-powered features like demand forecasting, smart search, automated reorder suggestions, inventory insights, and anomaly detection to keep your operations intelligent and proactive.";
-    }
-    if (msg.includes('hi') || msg.includes('hello') || msg.includes('hey') || msg.includes('help')) {
-        return "Hello! I'm the SMTBMS Assistant. I can help you with inventory management, warehouse operations, order workflows, vendor management, and more. What would you like to know?";
-    }
-    
-    return "That's a great question! SMTBMS is a comprehensive inventory and warehouse management system. For specific questions, I recommend exploring our Features section or contacting our support team for personalized assistance.";
 };
 
 module.exports = { chatWithGemini };

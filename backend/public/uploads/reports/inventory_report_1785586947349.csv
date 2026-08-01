@@ -1,0 +1,13 @@
+Name,SKU,Quantity,Status,Price
+"TMT Steel Bars (12mm)","TMT-001",500,"In Stock",62
+"MS Angle (50x50x6)","MSA-002",12,"Low Stock",850
+"Copper Wire (2.5 sqmm)","CW-003",2000,"In Stock",18
+"GI Pipes (1 inch)","GIP-004",150,"In Stock",420
+"Aluminum Sheet (1mm)","ALS-005",5,"Low Stock",1800
+"PVC Conduit Pipe (25mm)","PVC-006",300,"In Stock",45
+"Welding Rod (E6013)","WR-007",0,"Out of Stock",5
+"Cement (OPC 53 Grade)","CEM-008",200,"In Stock",380
+"Sand (River Sand)","SND-009",40,"In Stock",65
+"Brass Fittings (0.5 inch)","BRF-010",7,"Low Stock",120
+"SS Sheet (304 Grade)","SS-011",25,"In Stock",3500
+"MCB Switch (32A)","MCB-012",80,"In Stock",250

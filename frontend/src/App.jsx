@@ -106,6 +106,7 @@ const HolidayCalendar = React.lazy(() => import('./pages/HolidayCalendar'));
 const Recruitment = React.lazy(() => import('./pages/Recruitment'));
 const LeaveBalance = React.lazy(() => import('./pages/LeaveBalance'));
 const LandingPage = React.lazy(() => import('./pages/LandingPage'));
+const AIAssistant = React.lazy(() => import('./pages/AIAssistant'));
 const AppContent = () => {
     const { user, loading, logout } = useContext(AuthContext);
     
@@ -382,6 +383,7 @@ const AppContent = () => {
                     <Route path="/settings/attendance" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']}><AttendanceSettings /></ProtectedRoute>} />
                     <Route path="/settings/leave" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']}><LeaveSettings /></ProtectedRoute>} />
                     <Route path="/settings/payroll" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']}><PayrollSettings /></ProtectedRoute>} />
+                    <Route path="/ai-assistant" element={<ProtectedRoute><AIAssistant /></ProtectedRoute>} />
 
                     {/* Fallback */}
                     <Route path="*" element={<Navigate to="/" />} />
