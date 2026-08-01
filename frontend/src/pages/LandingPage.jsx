@@ -111,6 +111,7 @@ const LandingPage = () => {
         <div className="landing-container">
             {/* Navigation */}
             <nav className={`landing-nav ${scrolled ? 'scrolled' : ''}`}>
+                <div className="global-container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
                 <div className="nav-logo" onClick={() => scrollToSection('hero')} style={{cursor: 'pointer'}}>
                     <svg 
                         width="32" 
@@ -137,13 +138,15 @@ const LandingPage = () => {
                     <button className="btn-login" onClick={() => navigate('/login')}>Log In</button>
                     <button className="btn-signup" onClick={() => navigate('/register')}>Sign Up</button>
                 </div>
+                </div>
             </nav>
 
             {/* Hero Section */}
             <main className="hero-section" id="hero">
                 <div className="hero-glow"></div>
-                <div className="hero-content">
-                    <h1 className="hero-title">
+                <div className="global-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <div className="hero-content">
+                        <h1 className="hero-title">
                         <span className="title-light">Smart Material Tracking &amp;</span><br />
                         <span className="title-light">Business </span><span className="title-purple">Management</span><br />
                         <span className="title-purple">System.</span>
@@ -172,10 +175,12 @@ const LandingPage = () => {
                         <div className="feature-pill"><ShieldCheck size={16} /> Secure &amp; Reliable</div>
                     </div>
                 </div>
+                </div>
             </main>
 
             {/* Statistics Section */}
             <section className="landing-section statistics-section" id="stats">
+                <div className="global-container">
                 <div className="stats-grid">
                     <div className="stat-item">
                         <div className="stat-icon-wrapper">
@@ -206,10 +211,12 @@ const LandingPage = () => {
                         <span className="stat-label">Uptime SLA</span>
                     </div>
                 </div>
+                </div>
             </section>
 
             {/* Features Section */}
             <section className="landing-section features-section" id="features">
+                <div className="global-container">
                 <div className="section-header">
                     <h2>Everything you need to scale</h2>
                     <p>A complete suite of tools designed to streamline your entire supply chain lifecycle.</p>
@@ -236,10 +243,12 @@ const LandingPage = () => {
                             <p>Maintain comprehensive vendor catalogs, performance metrics, and compliance documents.</p>
                         </div>
                     </div>
+                </div>
             </section>
 
             {/* Workflow Section */}
             <section className="landing-section workflow-section" id="workflow">
+                <div className="global-container">
                 <div className="section-header">
                     <h2>Seamless End-to-End Workflow</h2>
                     <p>Experience absolute visibility from order placement to final invoice.</p>
@@ -279,10 +288,12 @@ const LandingPage = () => {
                         <p>Build custom KPI dashboards and export audit-ready reports instantly.</p>
                     </div>
                 </div>
+                </div>
             </section>
 
             {/* AI Capabilities Section */}
             <section className="landing-section ai-section" id="ai">
+                <div className="global-container">
                 <div className="section-header">
                     <h2>Driven by AI</h2>
                     <p>Let intelligent algorithms do the heavy lifting for complex logistics planning.</p>
@@ -314,6 +325,7 @@ const LandingPage = () => {
                             <p>Automatically flag unusual order volumes or sudden price spikes from vendors.</p>
                         </div>
                     </div>
+                </div>
             </section>
             
             {/* Background Decorations */}

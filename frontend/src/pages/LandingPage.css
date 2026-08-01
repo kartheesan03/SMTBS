@@ -14,6 +14,16 @@
     scroll-snap-type: y mandatory;
 }
 
+.global-container {
+    max-width: 1280px;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 24px;
+    padding-right: 24px;
+    box-sizing: border-box;
+}
+
 /* Optional: Scroll Animations */
 .fade-in-section {
     opacity: 1;
@@ -217,7 +227,7 @@ body.landing-page-active *::-webkit-scrollbar {
     gap: 20px;
     width: 100%;
     margin: 0 auto;
-    padding: 140px 48px 40px 48px;
+    padding: 140px 0 40px 0;
     position: relative;
     z-index: 10;
     min-height: 100vh;
@@ -754,6 +764,8 @@ body.landing-page-active *::-webkit-scrollbar {
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 24px;
     width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 /* Remove ::after as padding handles it now */
@@ -833,7 +845,7 @@ body.landing-page-active *::-webkit-scrollbar {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    max-width: 1400px;
+    max-width: 1200px;
     margin: 20px auto 0 auto;
     position: relative;
     gap: 16px;
@@ -1067,9 +1079,7 @@ body.landing-page-active *::-webkit-scrollbar {
     }
 }
 
-.landing-section {
-    padding-right: 100px; /* Prevent chatbot overlap */
-}
+/* Removed asymmetric padding-right for center alignment */
 
 @media (max-width: 768px) {
     .landing-section {

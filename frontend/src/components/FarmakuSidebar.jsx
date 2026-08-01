@@ -206,7 +206,7 @@ const FarmakuSidebar = () => {
                         </div>
                     ) : (
                         navigation
-                            .filter((item) => item.title !== 'Settings' && item.title !== 'AI Assistant')
+                            .filter((item) => item.title !== 'Settings')
                             .map((item, index) => renderNavItem(item, index))
                     )}
 
@@ -267,19 +267,6 @@ const FarmakuSidebar = () => {
                             <Icons.ChevronRight size={14} />
                         </NavLink>
                     </li>
-
-                    {/* AI Assistant */}
-                    <li style={{ marginTop: '12px', marginBottom: '8px' }}>
-                        <NavLink
-                            to="/ai-assistant"
-                            end
-                            className={({ isActive }) => `farmaku-nav-item ai-mode-btn ${isLeafActive('/ai-assistant') ? ' active' : ''}`}
-                        >
-                            <Icons.Sparkles size={18} className="nav-icon-blue" />
-                            <span style={{ fontWeight: 600, letterSpacing: '0.02em' }}>AI Assistant</span>
-                        </NavLink>
-                    </li>
-
 
                     {/* Settings (if available in nav) */}
                     {!loading && navigation.find((item) => item.title === 'Settings') &&

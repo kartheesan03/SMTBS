@@ -98,7 +98,6 @@ const RevenueDashboard = React.lazy(() => import('./pages/RevenueDashboard'));
 const CustomerNewOrder = React.lazy(() => import('./pages/CustomerNewOrder'));
 const UserManagement = React.lazy(() => import('./pages/UserManagement'));
 const Quotations = React.lazy(() => import('./pages/Quotations'));
-const AIAssistant = React.lazy(() => import('./pages/AIAssistant'));
 const CreateQuotation = React.lazy(() => import('./pages/CreateQuotation'));
 const QuotationDetails = React.lazy(() => import('./pages/QuotationDetails'));
 const EmployeeScanner = React.lazy(() => import('./pages/EmployeeScanner'));
@@ -205,12 +204,6 @@ const AppContent = () => {
                                 return <Dashboard />;
                             })()
                         )
-                    } />
-                    
-                    <Route path="/ai-assistant" element={
-                        <ProtectedRoute>
-                            <AIAssistant />
-                        </ProtectedRoute>
                     } />
                     
                     {/* HRMS Routes */}
