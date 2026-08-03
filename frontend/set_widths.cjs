@@ -18,14 +18,12 @@ const widthMap = {
 for (const [key, widthStr] of Object.entries(widthMap)) {
     const regex = new RegExp(`key: '${key}',\\s+label: '[^']+',\\s*(?:sortable: true,\\s*(?:align: '[a-z]+',\\s*)?)?`, 'g');
     code = code.replace(regex, (match) => {
-        if (match.includes("width: '140px'")) return match; // Will manually handle vendor
+        if (match.includes("width: '140px'")) return match;
         return `${match}\n            ${widthStr}`;
     });
 }
 
-// Manually fix vendor
 code = code.replace(/width: '140px'/g, "width: '14%'");
-// Manually fix vendor column inline width
 code = code.replace(/maxWidth: '140px'/g, "width: '100%'");
 
 fs.writeFileSync(file, code);

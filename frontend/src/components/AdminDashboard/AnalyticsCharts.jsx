@@ -6,7 +6,6 @@ import {
 import { EmptyState } from './DashboardWidgets';
 import { BarChart2 } from 'lucide-react';
 import './AdminDashboardPremium.css';
-
 const CustomTooltip = ({ active, payload, label, formatter }) => {
     if (active && payload && payload.length) {
         return (
@@ -22,11 +21,8 @@ const CustomTooltip = ({ active, payload, label, formatter }) => {
     }
     return null;
 };
-
 export const SalesAreaChart = ({ data }) => {
     if (!data || data.length === 0) return <EmptyState icon={BarChart2} title="No Sales Data" message="There is no sales data available to display at this moment." />;
-    
-    // Fix for single data point issue in AreaCharts which causes a floating dot
     let chartData = data;
     if (data.length === 1) {
         chartData = [
@@ -34,7 +30,6 @@ export const SalesAreaChart = ({ data }) => {
             ...data
         ];
     }
-    
     return (
         <div className="erp-card erp-chart-full">
             <div className="erp-premium-widget-header">
@@ -66,12 +61,9 @@ export const SalesAreaChart = ({ data }) => {
         </div>
     );
 };
-
 export const CategoryPieChart = ({ data, title }) => {
     if (!data || data.length === 0) return <div className="erp-card"><EmptyState icon={BarChart2} title="No Data" message="No category data available." /></div>;
-    
     const COLORS = ['#2563eb', '#10b981', '#f59e0b', '#8b5cf6', '#06b6d4', '#f43f5e', '#64748b'];
-
     return (
         <div className="erp-card">
             <div className="erp-premium-widget-header">
@@ -101,10 +93,8 @@ export const CategoryPieChart = ({ data, title }) => {
         </div>
     );
 };
-
 export const PerformanceBarChart = ({ data, title, dataKey = "amount" }) => {
     if (!data || data.length === 0) return <div className="erp-card"><EmptyState icon={BarChart2} title="No Data" message="No performance data available." /></div>;
-    
     return (
         <div className="erp-card">
             <div className="erp-section-header">

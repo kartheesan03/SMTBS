@@ -6,7 +6,6 @@ async function run() {
     const admin = await User.sequelizeModel.findOne({ where: { email: 'admin@smtbms.com' } });
     if (!admin) return console.log('no admin');
     
-    // Create token like authController does
     const jwt = require('jsonwebtoken');
     const token = jwt.sign({ id: admin.id, role: admin.role }, process.env.JWT_SECRET || 'fallback_secret', { expiresIn: '30d' });
     

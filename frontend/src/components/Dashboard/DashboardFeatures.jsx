@@ -10,7 +10,6 @@ import {
     Settings, 
     Bell 
 } from 'lucide-react';
-
 const DashboardFeatures = () => {
     const features = [
         {
@@ -77,7 +76,6 @@ const DashboardFeatures = () => {
             bgColor: '#eff6ff'
         }
     ];
-
     return (
         <div className="features-sidebar-card">
             <h3 className="features-sidebar-title">ADMIN DASHBOARD FEATURES</h3>
@@ -97,7 +95,6 @@ const DashboardFeatures = () => {
                     </div>
                 ))}
             </div>
-
             <style jsx="true">{`
                 .features-sidebar-card {
                     background: var(--bg-card);
@@ -163,5 +160,4 @@ const DashboardFeatures = () => {
         </div>
     );
 };
-
 export default DashboardFeatures;

@@ -6,7 +6,6 @@ const {
     createCourse, updateCourse, deleteCourse,
     enrollCourse, updateProgress
 } = require('../controllers/trainingController');
-
 router.get('/courses',          protect, getCourses);
 router.post('/courses',         protect, createCourse);
 router.put('/courses/:id',      protect, updateCourse);
@@ -15,5 +14,4 @@ router.post('/courses/:id/enroll',   protect, enrollCourse);
 router.put('/courses/:id/progress',  protect, updateProgress);
 router.get('/stats',            protect, getStats);
 router.get('/my-progress',      protect, getMyProgress);
-
 module.exports = router;

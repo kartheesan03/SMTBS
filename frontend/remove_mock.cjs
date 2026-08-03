@@ -11,7 +11,6 @@ function processDir(dir) {
             let content = fs.readFileSync(fullPath, 'utf8');
             let modified = false;
 
-            // Remove makeTrend definitions
             if (content.includes('const makeTrend =')) {
                 content = content.replace(/const makeTrend =.*?;/g, '');
                 modified = true;
@@ -31,8 +30,6 @@ function processDir(dir) {
                 modified = true;
             }
             
-            // Remove trend/trendDir if used with TrackingKPICard/HRMSKPICard/etc.
-            // (We'll just remove them globally for these KPI cards since we removed the charts)
             if (content.match(/trend="[^"]*"/)) {
                 content = content.replace(/\s*trend="[^"]*"/g, '');
                 modified = true;

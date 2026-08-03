@@ -36,7 +36,6 @@ files.forEach(file => {
     let original = content;
 
     if (file.endsWith('.jsx')) {
-        // Replace borderRadius: '50%' with borderRadius: '2px'
         content = content.replace(/borderRadius:\s*['"]50%['"]/g, "borderRadius: '2px'");
         // Replace borderRadius: 50 (number) with 2
         content = content.replace(/borderRadius:\s*50(?!%)/g, "borderRadius: 2");
@@ -47,9 +46,7 @@ files.forEach(file => {
         // We ensure we don't accidentally match 0, so [1-9][0-9]*
         content = content.replace(/borderRadius:\s*([1-9][0-9]*)(?!%)/g, "borderRadius: 0");
     } else if (file.endsWith('.css')) {
-        // Replace border-radius: 50% with 2px
         content = content.replace(/border-radius:\s*50%;/g, "border-radius: 2px;");
-        // Replace other pixel/rem border radius with 0px
         content = content.replace(/border-radius:\s*[0-9\.]+px;/g, "border-radius: 0px;");
         content = content.replace(/border-radius:\s*[0-9\.]+rem;/g, "border-radius: 0px;");
     }

@@ -18,7 +18,6 @@ db.serialize(() => {
         }
     });
     
-    // Also check if we named the table Customer or Customers
     db.run("ALTER TABLE Customer ADD COLUMN customerType VARCHAR(255) DEFAULT 'Individual'", (err) => {
         if (err) {
             console.error('Error altering table Customer:', err.message);

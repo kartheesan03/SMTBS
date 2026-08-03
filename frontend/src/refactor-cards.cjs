@@ -26,7 +26,6 @@ files.forEach(file => {
     let original = content;
     
     if (content.includes('PastelKPICard')) {
-        // 1. Replace imports (handle various relative paths)
         // e.g. import { PastelKPICard, PastelKPIGrid } from '../components/PastelKPICard';
         content = content.replace(/import\s+\{\s*PastelKPICard\s*,\s*PastelKPIGrid\s*\}\s+from\s+['"]([^'"]+PastelKPICard)['"];?/g, (match, p1) => {
             const upDirs = p1.split('components')[0];
@@ -38,7 +37,6 @@ files.forEach(file => {
             return `import { StatCard } from '${upDirs}components/ui/StatCard';`;
         });
 
-        // 2. Replace JSX tags
         content = content.replace(/<PastelKPICard/g, '<StatCard');
         content = content.replace(/<\/PastelKPICard>/g, '</StatCard>');
         

@@ -4,24 +4,18 @@ const Material = require('../models/Material').sequelizeModel;
 const Order = require('../models/Order').sequelizeModel;
 const Salary = require('../models/Salary').sequelizeModel;
 const { Op } = require('sequelize');
-
 class AIActionHandler {
-    
     async handleAttendance(user, query) {
-        // Query today's attendance
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-        
         const attendanceRecords = await Attendance.findAll({
             where: {
                 date: { [Op.gte]: today }
             },
             include: [{ model: Employee, as: 'employee' }]
         });
-
         const presentCount = attendanceRecords.filter(a => a.status === 'Present').length;
         const absentCount = attendanceRecords.filter(a => a.status === 'Absent').length;
-
         return {
             content: `I retrieved the attendance records for today. There are currently ${presentCount} employees present and ${absentCount} absent.`,
             metadata: {
@@ -53,9 +47,7 @@ class AIActionHandler {
             }
         };
     }
-
     async handlePayroll(user, query) {
-        // Generate Payroll Workflow
         return {
             content: "I am ready to initiate the payroll generation process for the current month. The system will calculate salaries, deductions, and bonuses for all active employees.",
             metadata: {
@@ -86,22 +78,17 @@ class AIActionHandler {
             }
         };
     }
-
     async handleSales(user, query) {
-        // Fetch Orders
         const currentMonth = new Date();
         currentMonth.setDate(1);
         currentMonth.setHours(0,0,0,0);
-
         const orders = await Order.findAll({
             where: {
                 createdAt: { [Op.gte]: currentMonth },
                 status: 'Completed'
             }
         });
-
         const totalRevenue = orders.reduce((sum, order) => sum + (Number(order.totalAmount) || 0), 0);
-
         return {
             content: `I analyzed the sales data for this month. The total revenue from completed orders is ₹${totalRevenue.toLocaleString()}.`,
             metadata: {
@@ -143,13 +130,9 @@ class AIActionHandler {
             }
         };
     }
-
     async handleInventory(user, query) {
-        // Fetch Materials
         const materials = await Material.findAll();
-        
         const lowStock = materials.filter(m => m.stockQuantity <= (m.reorderLevel || 10));
-
         return {
             content: `I analyzed the live inventory database. I found ${lowStock.length} materials currently at or below their reorder thresholds.`,
             metadata: {
@@ -199,5 +182,4 @@ class AIActionHandler {
         };
     }
 }
-
 module.exports = new AIActionHandler();

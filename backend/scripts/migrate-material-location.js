@@ -34,12 +34,10 @@ async function run() {
     console.log(`[migrate] Opening database at: ${DB_PATH}`);
     const db = new sqlite3.Database(DB_PATH);
 
-    // Enable WAL mode for safety
     await runQuery(db, 'PRAGMA journal_mode=WAL');
 
     const table = 'Material';
 
-    // Get existing columns
     const cols = await allQuery(db, `PRAGMA table_info(${table})`);
     const existingColumns = new Set(cols.map(c => c.name));
     console.log(`[migrate] Existing columns: ${[...existingColumns].join(', ')}`);
@@ -62,7 +60,6 @@ async function run() {
     }
 
     // Back-fill: set warehouse='Warehouse A', location='Warehouse A', gpsStatus='Stationary'
-    // only for rows where warehouse is still NULL (i.e. pre-migration rows).
     const backfill = await runQuery(db,
         `UPDATE ${table}
          SET warehouse = 'Warehouse A',
@@ -72,7 +69,6 @@ async function run() {
     );
     console.log(`[migrate] Back-filled ${backfill.changes} rows with default location/gpsStatus.`);
 
-    // Show summary
     const rows = await allQuery(db, `SELECT id, name, sku, warehouse, shelf, location, gpsStatus FROM ${table}`);
     console.log(`\n[migrate] Materials table (${rows.length} rows):`);
     rows.forEach(r => {

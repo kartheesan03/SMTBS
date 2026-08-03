@@ -1,7 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/sequelize');
 const { makeBridgedModel } = require('../config/mongoose-bridge');
-
 const StockRequestSequelize = sequelize.define('StockRequest', {
     id: {
         type: DataTypes.INTEGER,
@@ -54,6 +53,5 @@ const StockRequestSequelize = sequelize.define('StockRequest', {
 }, {
     timestamps: true
 });
-
 const StockRequest = makeBridgedModel('StockRequest', StockRequestSequelize);
 module.exports = StockRequest;

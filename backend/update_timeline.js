@@ -5,7 +5,6 @@ const controllers = ['vendor', 'customer', 'material'];
 controllers.forEach(name => {
     let content = fs.readFileSync(`c:/Users/Admin/Documents/project/backend/src/controllers/${name}Controller.js`, 'utf8');
     
-    // Add getTimeline method
     const timelineMethod = `
 const getTimeline = async (req, res) => {
     try {
@@ -47,7 +46,6 @@ const getTimeline = async (req, res) => {
         fs.writeFileSync(`c:/Users/Admin/Documents/project/backend/src/controllers/${name}Controller.js`, content);
     }
 
-    // Update routes
     let routeContent = fs.readFileSync(`c:/Users/Admin/Documents/project/backend/src/routes/${name}Routes.js`, 'utf8');
     if (!routeContent.includes('getTimeline')) {
         routeContent = routeContent.replace(

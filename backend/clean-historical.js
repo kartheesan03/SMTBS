@@ -4,7 +4,6 @@ const { Op } = require('sequelize');
 async function run() {
     const Order = sequelize.models.Order;
     if (!Order) {
-        // Need to load models
         require('./src/models/associations');
     }
     

@@ -1,5 +1,4 @@
 const AuditLog = require('../models/AuditLog');
-
 /**
  * Log an audit event.
  * @param {Object} params
@@ -27,7 +26,6 @@ const logAudit = async ({ user, action, module, targetId, description, changes, 
         console.error('Audit log error:', err.message);
     }
 };
-
 /**
  * Build a changes object by comparing old and new values.
  */
@@ -42,5 +40,4 @@ const buildChanges = (oldObj, newObj, fields) => {
     }
     return Object.keys(changes).length > 0 ? changes : null;
 };
-
 module.exports = { logAudit, buildChanges };

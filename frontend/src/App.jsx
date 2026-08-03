@@ -15,6 +15,8 @@ import Warehouses from './pages/Warehouses';
 import MaterialReports from './pages/MaterialReports';
 
 import GlobalHeader from './components/GlobalHeader';
+import { AriaProvider } from './context/AriaContext';
+import AriaSidePanel from './components/ui/AriaSidePanel';
 
 // Pages
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
@@ -401,10 +403,13 @@ const App = () => {
             <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
                 <AuthProvider>
                     <NotificationProvider>
-                        <Router>
-                            <Toaster position="top-right" />
-                            <AppContent />
-                        </Router>
+                        <AriaProvider>
+                            <Router>
+                                <Toaster position="top-right" />
+                                <AppContent />
+                                <AriaSidePanel />
+                            </Router>
+                        </AriaProvider>
                     </NotificationProvider>
                 </AuthProvider>
             </GoogleOAuthProvider>

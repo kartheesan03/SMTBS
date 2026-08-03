@@ -1,9 +1,7 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const { aiToolsDeclarations, executeAITool } = require('../services/aiTools');
-
 const SMTBMS_SYSTEM_PROMPT = `You are Aria, an AI support agent for the Smart Material Tracking & Business Management System (SMTBMS). 
 You help users manage and query data across the entire database.
-
 You have access to a universal query tool. Use it to query ANY of the following database models (always use exact case):
 - Inventory/Materials: Material, MaterialMovement, StockRequest
 - HRMS: Employee, Attendance, Leave, Salary, Recruitment, Training, Holiday
@@ -11,7 +9,6 @@ You have access to a universal query tool. Use it to query ANY of the following 
 - Procurement: Vendor, PurchaseRequest
 - Support/Tasks: Ticket, Task, Project
 - Admin: User, Role, Notification, AuditLog, Backup
-
 Guidelines:
 - ALWAYS use the 'query_database' tool to fetch real data before answering questions about records, numbers, or statuses. Never make up data.
 - If the user asks for a report, use the 'generate_report' tool with the correct modelName.
@@ -24,26 +21,18 @@ Guidelines:
   - Check [Model] report
   - Show low stock items
   - View recent orders`;
-
 const chatWithGemini = async (req, res) => {
     try {
-        const { message, history = [] } = req.body;
-
+        const { message, history = [], context = null } = req.body;
         if (!message || !message.trim()) {
             return res.status(400).json({ error: 'Message is required' });
         }
-
         const apiKey = process.env.GEMINI_API_KEY;
-
         if (!apiKey || apiKey === 'your_gemini_api_key_here') {
-            // OFFLINE MODE MOCK (Fallback logic)
             let toolResult;
             let replyText = "I'm currently running in offline mode without an API key, so my natural language understanding is limited. I will try my best to match your keyword to a table!";
             let fileMetadata = null;
-            
             const msgLower = message.toLowerCase();
-            
-            // Very rudimentary intent matching for offline testing
             let modelNameMatch = null;
             if (msgLower.includes('inventory') || msgLower.includes('stock') || msgLower.includes('material')) modelNameMatch = 'Material';
             else if (msgLower.includes('vendor')) modelNameMatch = 'Vendor';
@@ -54,7 +43,6 @@ const chatWithGemini = async (req, res) => {
             else if (msgLower.includes('customer')) modelNameMatch = 'Customer';
             else if (msgLower.includes('task')) modelNameMatch = 'Task';
             else if (msgLower.includes('user')) modelNameMatch = 'User';
-
             if (msgLower.includes('report') && modelNameMatch) {
                 toolResult = await executeAITool({ name: 'generate_report', args: { modelName: modelNameMatch } });
                 if (toolResult && toolResult.file) {
@@ -64,7 +52,6 @@ const chatWithGemini = async (req, res) => {
             } else if (modelNameMatch) {
                 toolResult = await executeAITool({ name: 'query_database', args: { modelName: modelNameMatch } });
                 if (toolResult && toolResult.results && toolResult.results.length > 0) {
-                    // Generate a generic markdown table for the first 5 columns of the results
                     const headers = Object.keys(toolResult.results[0]).slice(0, 5);
                     let table = `| ${headers.join(' | ')} |\n|${headers.map(() => '---').join('|')}|\n`;
                     toolResult.results.forEach(row => {
@@ -75,44 +62,37 @@ const chatWithGemini = async (req, res) => {
                     replyText = `I queried the **${modelNameMatch}** table, but no records were found.`;
                 }
             }
-
             return res.json({
                 reply: replyText,
                 file: fileMetadata
             });
         }
-
+        let dynamicPrompt = SMTBMS_SYSTEM_PROMPT;
+        if (context && context.type && context.name) {
+            dynamicPrompt += `\n\nCURRENT CONTEXT: The user is currently viewing the following ${context.type} entity: ${context.name} (ID: ${context.id}). Tailor your response and follow-ups to this context if relevant, without asking them to specify what they are looking at.`;
+        }
         const genAI = new GoogleGenerativeAI(apiKey);
         const model = genAI.getGenerativeModel({
             model: 'gemini-1.5-flash',
-            systemInstruction: SMTBMS_SYSTEM_PROMPT,
+            systemInstruction: dynamicPrompt,
             tools: [aiToolsDeclarations]
         });
-
-        // Build conversation history for multi-turn context
         const chatHistory = history
             .filter(msg => msg.role === 'user' || msg.role === 'assistant')
             .map(msg => ({
                 role: msg.role === 'user' ? 'user' : 'model',
                 parts: [{ text: msg.content }]
             }));
-
         const chat = model.startChat({ history: chatHistory });
         let result = await chat.sendMessage(message);
         let response = result.response;
-        
         let fileMetadata = null;
-
-        // Function calling loop
         while (response.functionCalls && response.functionCalls().length > 0) {
             const call = response.functionCalls()[0];
             const toolResult = await executeAITool(call);
-            
-            // If the tool was generate_report, extract the file info
             if (call.name === 'generate_report' && toolResult.file) {
                 fileMetadata = toolResult.file;
             }
-
             result = await chat.sendMessage([{
                 functionResponse: {
                     name: call.name,
@@ -121,10 +101,7 @@ const chatWithGemini = async (req, res) => {
             }]);
             response = result.response;
         }
-
         let replyText = response.text();
-        
-        // Extract follow-up suggestions generated by Gemini
         const suggestions = [];
         const followUpRegex = /Suggested Follow-ups:([\s\S]*)/i;
         const match = replyText.match(followUpRegex);
@@ -136,16 +113,13 @@ const chatWithGemini = async (req, res) => {
                     suggestions.push({ title: text.substring(0, 20) + '...', desc: text });
                 }
             });
-            // Remove the suggestions list from the final chat display text
             replyText = replyText.replace(followUpRegex, '').trim();
         }
-
         return res.json({ 
             reply: replyText,
             file: fileMetadata,
             suggestions: suggestions.length > 0 ? suggestions : null
         });
-
     } catch (error) {
         console.error('Chat API error:', error.message);
         return res.status(500).json({
@@ -153,5 +127,4 @@ const chatWithGemini = async (req, res) => {
         });
     }
 };
-
 module.exports = { chatWithGemini };

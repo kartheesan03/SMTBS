@@ -6,7 +6,7 @@ const User = require('./src/models/User');
 const initRoles = async () => {
     try {
         setupAssociations();
-        await Role.sequelizeModel.sync(); // This will create the Role table without altering other tables
+        await Role.sequelizeModel.sync();
 
         const defaultRoles = [
             {
@@ -90,9 +90,6 @@ const initRoles = async () => {
         }
         console.log('Roles successfully initialized.');
 
-        // Cleanup dummy users except Admin (to avoid locking ourselves out during testing)
-        // We will remove hr@, manager@, sales@, employee@ as requested: "Do not use predefined accounts such as Admin, HR, Manager, Sales, or Employee..."
-        // Wait, the prompt says "Do not use predefined accounts such as Admin, HR, Manager, Sales, or Employee...".
         // I will delete ALL predefined accounts from the DB, and just let registration happen.
         const dummyEmails = ['hr@smtbms.com', 'manager@smtbms.com', 'sales@smtbms.com', 'employee@smtbms.com'];
         for (const email of dummyEmails) {

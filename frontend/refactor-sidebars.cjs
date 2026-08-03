@@ -4,7 +4,6 @@ const path = require('path');
 const dualSidebarPath = path.join(__dirname, 'src', 'components', 'DualSidebar.jsx');
 let dsContent = fs.readFileSync(dualSidebarPath, 'utf8');
 
-// DualSidebar: Add hasPerm check
 if (!dsContent.includes('hasPerm')) {
     dsContent = dsContent.replace(
         'const { user, logout } = useContext(AuthContext);',
@@ -12,7 +11,6 @@ if (!dsContent.includes('hasPerm')) {
     );
 }
 
-// DualSidebar: Hide Primary Nav buttons conditionally
 const psNavReplacements = [
     { name: 'attendance', perm: 'view_attendance' },
     { name: 'hrms', perm: 'view_hrms' },
@@ -41,7 +39,6 @@ if (!fsContent.includes('hasPerm')) {
         'const { user, logout } = useContext(AuthContext);\n    const hasPerm = (perm) => user?.permissions?.includes(perm) || user?.permissions?.includes("all");'
     );
     
-    // AuthContext import check
     if (!fsContent.includes('const { user, logout }')) {
         fsContent = fsContent.replace(
             'const { logout }',

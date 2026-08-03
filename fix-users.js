@@ -19,7 +19,7 @@ async function run() {
             if (user) {
                 user.password = u.password;
                 user.role = u.role;
-                await user.save(); // triggers beforeSave hook which hashes the password
+                await user.save();
                 console.log('Updated user:', u.email);
             } else {
                 user = await User.sequelizeModel.create({

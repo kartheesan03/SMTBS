@@ -5,7 +5,7 @@ const connectDB = require('./src/config/db');
 
 async function test() {
     await connectDB();
-    const user = await User.findOne({ email: 'hr@smtbms.com' }); // Test as HR to see filtering
+    const user = await User.findOne({ email: 'hr@smtbms.com' });
     if (!user) {
         console.log("No user"); return;
     }
@@ -25,7 +25,7 @@ async function test() {
     if (navData.length) {
         console.log(navData.map(n => n.title));
     } else {
-        console.log(navData); // See what was returned if not array
+        console.log(navData);
     }
     process.exit(0);
 }

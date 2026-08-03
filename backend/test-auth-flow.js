@@ -7,7 +7,6 @@ const User = require('./src/models/User');
         await sequelize.authenticate();
         console.log('Connected.');
         
-        // Test the exact same findOne call the auth controller uses
         const user = await User.findOne({ email: 'admin@smtbms.com' });
         console.log('User.findOne result:', user ? JSON.stringify({ email: user.email, role: user.role, active: user.active }) : 'NULL - NOT FOUND');
         

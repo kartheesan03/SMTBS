@@ -1,7 +1,5 @@
 const Holiday = require('../models/Holiday');
 const { Op } = require('sequelize');
-
-// GET /api/holidays?year=2026
 exports.getHolidays = async (req, res) => {
     try {
         const year = req.query.year || new Date().getFullYear();
@@ -17,8 +15,6 @@ exports.getHolidays = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
-
-// POST /api/holidays
 exports.createHoliday = async (req, res) => {
     try {
         const { name, date, type, description, color, isRecurring } = req.body;
@@ -30,8 +26,6 @@ exports.createHoliday = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
-
-// PUT /api/holidays/:id
 exports.updateHoliday = async (req, res) => {
     try {
         const holiday = await Holiday.findByPk(req.params.id);
@@ -43,8 +37,6 @@ exports.updateHoliday = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
-
-// DELETE /api/holidays/:id
 exports.deleteHoliday = async (req, res) => {
     try {
         const holiday = await Holiday.findByPk(req.params.id);

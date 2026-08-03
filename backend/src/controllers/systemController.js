@@ -1,16 +1,9 @@
-// ─── Navigation for non-HR roles (Admin, Manager, Employee, Sales, etc.) ──────
 const navigationConfig = [
     {
         title: 'Dashboard',
         icon: 'LayoutDashboard',
         path: '/',
         permission: 'view_dashboard'
-    },
-    {
-        title: 'AI Assistant',
-        icon: 'Bot',
-        path: '/ai-assistant',
-        permission: ''
     },
     {
         title: 'Attendance',
@@ -141,21 +134,11 @@ const navigationConfig = [
         ]
     }
 ];
-
-
-// ─── Dedicated HR Navigation (role: 'hr' only) ────────────────────────────────
-// Mirrors the FarmakuSidebar design with full HR-specific module hierarchy.
 const hrNavigationConfig = [
     {
         title: 'Dashboard',
         icon: 'LayoutDashboard',
         path: '/',
-        permission: ''
-    },
-    {
-        title: 'AI Assistant',
-        icon: 'Bot',
-        path: '/ai-assistant',
         permission: ''
     },
     {
@@ -167,7 +150,6 @@ const hrNavigationConfig = [
             { title: 'Master Attendance',   path: '/attendance/master' }
         ]
     },
-
     {
         title: 'Employee Management',
         icon: 'Users',
@@ -248,31 +230,21 @@ const hrNavigationConfig = [
         ]
     }
 ];
-
 const Role = require('../models/Role');
-
 exports.getNavigation = async (req, res) => {
     try {
-        // auth middleware already fetched & attached permissions via Role lookup
         let userPermissions = Array.isArray(req.user.permissions) ? [...req.user.permissions] : [];
-        
         const roleName = req.user.role ? req.user.role.toLowerCase() : '';
         console.log(`[getNavigation] User Email: ${req.user.email}, Role: ${roleName}, Permissions: ${userPermissions}`);
-
-        // Super Admin / Admin get everything
         if (req.user.email === 'admin@smtbms.com' || roleName === 'admin' || roleName === 'super admin') {
             userPermissions.push('all');
         }
-
-        // Grant employee access to the self-service materials menu
         if (roleName === 'employee') {
             userPermissions.push('view_materials_self', 'view_dashboard', 'view_tasks_self', 'view_leave_self', 'view_erp');
         }
-
         if (roleName === 'sales') {
             userPermissions.push('view_dashboard', 'view_crm', 'manage_crm', 'view_erp', 'manage_erp');
         }
-        // Grant HR access to HRMS modules if not already in DB
         if (roleName === 'hr') {
             userPermissions.push(
                 'view_hrms', 'manage_hrms',
@@ -284,15 +256,11 @@ exports.getNavigation = async (req, res) => {
                 'hrms:mySalary:view'
             );
         }
-
-        // ── HR role: use the dedicated HR navigation config ───────────────────
         if (roleName === 'hr') {
             const filteredHRNav = hrNavigationConfig.map(item => {
-                // Hide parent if permission is required and user doesn't have it
                 if (item.permission && !userPermissions.includes(item.permission) && !userPermissions.includes('all')) {
                     return null;
                 }
-                // Filter children by their individual permissions
                 if (item.children) {
                     const filteredChildren = item.children.filter(child => {
                         if (!child.permission) return true;
@@ -302,24 +270,16 @@ exports.getNavigation = async (req, res) => {
                 }
                 return item;
             }).filter(Boolean);
-
             return res.json(filteredHRNav);
         }
-
-        // ── All other roles: use the standard navigation config ───────────────
         let filteredNav = navigationConfig.map(item => {
-            // First check if user can see parent
             if (item.permission) {
-                // If the item requires 'view_tasks', also allow 'view_tasks_self'
                 if (item.permission === 'view_tasks' && userPermissions.includes('view_tasks_self')) {
-                    // allow
                 }
                 else if (!userPermissions.includes(item.permission) && !userPermissions.includes('all')) {
                     return null;
                 }
             }
-            
-            // Then filter children if they exist
             if (item.children) {
                 const filteredChildren = item.children.filter(child => {
                     if (!child.permission) return true;
@@ -328,14 +288,11 @@ exports.getNavigation = async (req, res) => {
                 return { ...item, children: filteredChildren };
             }
             return item;
-        }).filter(Boolean); // Remove nulls
-
-        // Prevent duplicate "My Materials" for Admin/Manager who have full materials permission
+        }).filter(Boolean);
         const hasFullMaterialTracking = filteredNav.some(i => i.title === 'Material Tracking' && i.permission === 'view_materials');
         if (hasFullMaterialTracking) {
             filteredNav = filteredNav.filter(i => !(i.title === 'My Materials' && i.permission === 'view_materials_self'));
         }
-
         res.json(filteredNav);
     } catch (error) {
         console.error('Error fetching navigation:', error);

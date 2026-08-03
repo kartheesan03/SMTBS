@@ -1,174 +1,226 @@
-import React, { useState, useEffect } from 'react';
-import API from '../api/axios';
-import { 
-    Users, UserCheck, Shield, UserX, Search, Filter, 
-    MoreVertical, Edit2, Lock, Trash2, Clock, User as UserIcon,
-    ChevronDown, ChevronLeft, ChevronRight
-} from 'lucide-react';
-import PageHeader from '../components/PageHeader';
-import EmailCell from '../components/ui/EmailCell';
-import './UserManagement.css';
-import toast from 'react-hot-toast';
-import { AuthContext } from '../context/AuthContext';
-import UserAvatar from '../components/UserAvatar';
+import React, { useState, useEffect } from "react";
+import API from "../api/axios";
+import {
+  Users,
+  UserCheck,
+  Shield,
+  UserX,
+  Search,
+  Filter,
+  MoreVertical,
+  Edit2,
+  Lock,
+  Trash2,
+  Clock,
+  User as UserIcon,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
+import PageHeader from "../components/PageHeader";
+import EmailCell from "../components/ui/EmailCell";
+import "./UserManagement.css";
+import toast from "react-hot-toast";
+import { AuthContext } from "../context/AuthContext";
+import UserAvatar from "../components/UserAvatar";
+import { StatsCard, StatsGrid } from "../components/ui/StatsCard";
 
 const UserManagement = () => {
-    const { user: currentUser } = React.useContext(AuthContext);
-    const [users, setUsers] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState('');
-
-    const fetchUsers = async () => {
-        try {
-            setLoading(true);
-            const response = await API.get('/auth/users');
-            setUsers(response.data);
-        } catch (error) {
-            console.error('Error fetching users:', error);
-            toast.error('Failed to load users');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchUsers();
-    }, []);
-
-    const kpis = [
-        { label: 'Total Users', value: users.length, icon: <Users size={20} />, color: 'blue' },
-        { label: 'Active', value: users.filter(u => u.active !== false).length, icon: <UserCheck size={20} />, color: 'green' },
-        { label: 'Admins & Managers', value: users.filter(u => ['Super Admin', 'Admin', 'Manager'].includes(u.role)).length, icon: <Shield size={20} />, color: 'purple' },
-        { label: 'Suspended', value: users.filter(u => u.active === false).length, icon: <UserX size={20} />, color: 'red' }
-    ];
-
-    const getRoleBadge = (role) => {
-        if(!role) return 'role-badge employee';
-        const roleLower = role.toLowerCase();
-        if (roleLower.includes('admin')) return 'role-badge admin';
-        if (roleLower.includes('manager')) return 'role-badge manager';
-        if (roleLower.includes('hr')) return 'role-badge hr';
-        if (roleLower.includes('sales')) return 'role-badge sales';
-        if (roleLower.includes('vendor') || roleLower.includes('customer')) return 'role-badge external';
-        return 'role-badge employee';
-    };
-
-    const getStatusBadge = (active) => {
-        if (active !== false) return 'status-badge active';
-        return 'status-badge suspended';
-    };
-
-    const filteredUsers = users.filter(user => 
-        user.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-        user.email?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    return (
-        <div className="users-page page-container">
-            <PageHeader title="User Management" badge="ADMIN" subtitle="Manage employee access and system roles" />
-
-            {/* KPI Row */}
-            <div className="users-kpi-row">
-                {kpis.map((kpi, idx) => (
-                    <div key={idx} className={`um-kpi-card ${kpi.color}`}>
-                        <div className="um-kpi-content">
-                            <p>{kpi.label}</p>
-                            <h2>{kpi.value}</h2>
-                        </div>
-                        <div className="um-kpi-icon">
-                            {kpi.icon}
-                        </div>
-                    </div>
-                ))}
+  const { user: currentUser } = React.useContext(AuthContext);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      const response = await API.get("/auth/users");
+      setUsers(response.data);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      toast.error("Failed to load users");
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+  const kpis = [
+    {
+      label: "Total Users",
+      value: users.length,
+      icon: Users,
+      color: "blue",
+    },
+    {
+      label: "Active",
+      value: users.filter((u) => u.active !== false).length,
+      icon: UserCheck,
+      color: "green",
+    },
+    {
+      label: "Admins & Managers",
+      value: users.filter((u) =>
+        ["Super Admin", "Admin", "Manager"].includes(u.role)
+      ).length,
+      icon: Shield,
+      color: "purple",
+    },
+    {
+      label: "Suspended",
+      value: users.filter((u) => u.active === false).length,
+      icon: UserX,
+      color: "red",
+    },
+  ];
+  const getRoleBadge = (role) => {
+    if (!role) return "role-badge employee";
+    const roleLower = role.toLowerCase();
+    if (roleLower.includes("admin")) return "role-badge admin";
+    if (roleLower.includes("manager")) return "role-badge manager";
+    if (roleLower.includes("hr")) return "role-badge hr";
+    if (roleLower.includes("sales")) return "role-badge sales";
+    if (roleLower.includes("vendor") || roleLower.includes("customer"))
+      return "role-badge external";
+    return "role-badge employee";
+  };
+  const getStatusBadge = (active) => {
+    if (active !== false) return "status-badge active";
+    return "status-badge suspended";
+  };
+  const filteredUsers = users.filter(
+    (user) =>
+      user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  return (
+    <div className="users-page page-container">
+      <PageHeader
+        title="User Management"
+        badge="ADMIN"
+        subtitle="Manage employee access and system roles"
+      />
+      {/* KPI Row */}
+      <StatsGrid>
+        {kpis.map((kpi, idx) => (
+          <StatsCard
+            key={idx}
+            title={kpi.label}
+            value={kpi.value}
+            icon={kpi.icon}
+            colorTheme={kpi.color}
+          />
+        ))}
+      </StatsGrid>
+      {/* Main Table Card */}
+      <div className="um-table-card">
+        <div className="um-table-header">
+          <div>
+            <h3>User Roster</h3>
+            <p>Live roster of everyone with access to the system</p>
+          </div>
+          <div className="um-table-actions">
+            <div className="um-search">
+              <Search size={16} />
+              <input
+                type="text"
+                placeholder="Search users by name or email..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
             </div>
-
-            {/* Main Table Card */}
-            <div className="um-table-card">
-                <div className="um-table-header">
-                    <div>
-                        <h3>User Roster</h3>
-                        <p>Live roster of everyone with access to the system</p>
-                    </div>
-                    <div className="um-table-actions">
-                        <div className="um-search">
-                            <Search size={16} />
-                            <input 
-                                type="text" 
-                                placeholder="Search users by name or email..." 
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
-                        </div>
-                        <button className="um-btn-filter">
-                            <Filter size={16} /> Filters
-                        </button>
-                    </div>
-                </div>
-
-                <div className="um-table-wrapper">
-                    <table className="um-table">
-                        <thead>
-                            <tr>
-                                <th>USER <ChevronDown size={14} /></th>
-                                <th>ROLE</th>
-                                <th>PHONE</th>
-                                <th>STATUS</th>
-                                <th>JOINED</th>
-                                {currentUser?.role === 'admin' && <th>ACTIONS</th>}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {loading ? (
-                                <tr>
-                                    <td colSpan="6" className="text-center p-8">Loading users...</td>
-                                </tr>
-                            ) : filteredUsers.map(user => (
-                                <tr key={user._id}>
-                                    <td>
-                                        <div className="um-user-cell">
-                                            <UserAvatar 
-                                                name={user.name} 
-                                                size={40} 
-                                                fontSize={14} 
-                                                className="um-avatar" 
-                                            />
-                                            <div>
-                                                <div className="um-name">{user.name}</div>
-                                                <EmailCell email={user.email} />
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td><span className={getRoleBadge(user.role)}>{user.role || 'User'}</span></td>
-                                    <td className="um-dept">{user.phone || 'N/A'}</td>
-                                    <td>
-                                        <span className={getStatusBadge(user.active)}>
-                                            <span className="status-dot"></span> {user.active !== false ? 'Active' : 'Suspended'}
-                                        </span>
-                                    </td>
-                                    <td className="um-last-active">{new Date(user.createdAt).toLocaleDateString()}</td>
-                                    {currentUser?.role === 'admin' && (
-                                        <td>
-                                            <div className="um-row-actions">
-                                                <button className="um-action-icon" title="View Profile"><UserIcon size={16} /></button>
-                                                <button className="um-action-icon" title="Edit User"><Edit2 size={16} /></button>
-                                                <button className="um-action-icon danger" title="Delete"><Trash2 size={16} /></button>
-                                            </div>
-                                        </td>
-                                    )}
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-                
-                <div className="um-table-footer">
-                    <div className="um-showing">
-                        Showing <strong>{filteredUsers.length}</strong> users
-                    </div>
-                </div>
-            </div>
+            <button className="um-btn-filter">
+              <Filter size={16} /> Filters
+            </button>
+          </div>
         </div>
-    );
+        <div className="um-table-wrapper">
+          <table className="um-table">
+            <thead>
+              <tr>
+                <th>
+                  USER <ChevronDown size={14} />
+                </th>
+                <th>ROLE</th>
+                <th>PHONE</th>
+                <th>STATUS</th>
+                <th>JOINED</th>
+                {currentUser?.role === "admin" && <th>ACTIONS</th>}
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr>
+                  <td colSpan="6" className="text-center p-8">
+                    Loading users...
+                  </td>
+                </tr>
+              ) : (
+                filteredUsers.map((user) => (
+                  <tr key={user._id}>
+                    <td>
+                      <div className="um-user-cell">
+                        <UserAvatar
+                          name={user.name}
+                          size={40}
+                          fontSize={14}
+                          className="um-avatar"
+                        />
+                        <div>
+                          <div className="um-name">{user.name}</div>
+                          <EmailCell email={user.email} />
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <span className={getRoleBadge(user.role)}>
+                        {user.role || "User"}
+                      </span>
+                    </td>
+                    <td className="um-dept">{user.phone || "N/A"}</td>
+                    <td>
+                      <span className={getStatusBadge(user.active)}>
+                        <span className="status-dot"></span>{" "}
+                        {user.active !== false ? "Active" : "Suspended"}
+                      </span>
+                    </td>
+                    <td className="um-last-active">
+                      {new Date(user.createdAt).toLocaleDateString()}
+                    </td>
+                    {currentUser?.role === "admin" && (
+                      <td>
+                        <div className="um-row-actions">
+                          <button
+                            className="um-action-icon"
+                            title="View Profile"
+                          >
+                            <UserIcon size={16} />
+                          </button>
+                          <button className="um-action-icon" title="Edit User">
+                            <Edit2 size={16} />
+                          </button>
+                          <button
+                            className="um-action-icon danger"
+                            title="Delete"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </td>
+                    )}
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+        <div className="um-table-footer">
+          <div className="um-showing">
+            Showing <strong>{filteredUsers.length}</strong> users
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
-
 export default UserManagement;

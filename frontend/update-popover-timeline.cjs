@@ -3,7 +3,6 @@ const fs = require("fs");
 const cssFile = "src/pages/OrderTracking.css";
 let cssContent = fs.readFileSync(cssFile, "utf8");
 
-// Remove the vertical timeline CSS we added earlier and replace with horizontal CSS
 const startStr = "/* HORIZONTAL TIMELINE */";
 const endStr = ".erp-grid-2col {";
 
@@ -206,7 +205,6 @@ if (startIndex !== -1 && endIndex !== -1) {
 const jsxFile = "src/pages/OrderTracking.jsx";
 let jsxContent = fs.readFileSync(jsxFile, "utf8");
 
-// Add state
 if (!jsxContent.includes("activePopover")) {
     jsxContent = jsxContent.replace(
         "const [itemsVerification, setItemsVerification] = useState({});", 
@@ -214,7 +212,6 @@ if (!jsxContent.includes("activePopover")) {
     );
 }
 
-// Add useEffect for initial popover
 if (!jsxContent.includes("setActivePopover(activeIndex)")) {
     const useEffectEnd = jsxContent.indexOf("fetchData();", jsxContent.indexOf("useEffect(() => {"));
     if (useEffectEnd !== -1) {

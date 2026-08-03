@@ -4,9 +4,9 @@ dotenv.config();
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
+const path = require('path');
 const connectDB = require('./src/config/db');
 
-// Route imports
 const authRoutes = require('./src/routes/authRoutes');
 const materialRoutes = require('./src/routes/materialRoutes');
 const employeeRoutes = require('./src/routes/employeeRoutes');
@@ -36,18 +36,18 @@ const trainingRoutes = require('./src/routes/trainingRoutes');
 const holidayRoutes  = require('./src/routes/holidayRoutes');
 const recruitmentRoutes = require('./src/routes/recruitmentRoutes');
 const chatRoutes = require('./src/routes/chatRoutes');
+const ocrRoutes = require('./src/routes/ocrRoutes');
 
 const app = express();
 
-// Middleware
 app.use(cors());
 app.use(express.json());
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 if (process.env.NODE_ENV === 'development') {
     app.use(morgan('dev'));
 }
 
-// Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/materials', materialRoutes);
 app.use('/api/employees', employeeRoutes);
@@ -77,15 +77,14 @@ app.use('/api/training', trainingRoutes);
 app.use('/api/holidays',    holidayRoutes);
 app.use('/api/recruitment', recruitmentRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/ocr', ocrRoutes);
 
-// 404 Handler
 app.use((req, res, next) => {
     const error = new Error(`Not Found - ${req.originalUrl}`);
     res.status(404);
     next(error);
 });
 
-// Error Handling Middleware
 app.use((err, req, res, next) => {
     const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
     res.status(statusCode);
@@ -95,7 +94,6 @@ app.use((err, req, res, next) => {
     });
 });
 
-// Start server
 const PORT = process.env.PORT || 5000;
 
 const { autoMarkAbsent } = require('./src/controllers/attendanceController');
@@ -107,10 +105,8 @@ const startServer = async () => {
         app.listen(PORT, () => {
             console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
             
-            // Start GPS Simulation engine
             gpsSimulator.start();
 
-            // Start the background job for marking absentees at 6:00 PM IST
             const cron = require('node-cron');
             cron.schedule('0 18 * * *', () => {
                 console.log('Running autoMarkAbsent cron job');

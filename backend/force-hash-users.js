@@ -21,7 +21,6 @@ async function run() {
                 const salt = await bcrypt.genSalt(10);
                 const hashedPassword = await bcrypt.hash(u.password, salt);
                 
-                // Use .update() directly to bypass any hook weirdness and force the hashed password
                 await User.sequelizeModel.update(
                     { password: hashedPassword, role: u.role }, 
                     { where: { email: u.email } }

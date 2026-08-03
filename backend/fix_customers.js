@@ -3,9 +3,7 @@ const fs = require('fs');
 const targetPath = 'C:/Users/Admin/Documents/project/frontend/src/pages/Customers.jsx';
 let content = fs.readFileSync(targetPath, 'utf8');
 
-// I need to find the corrupted section and replace it back to the original.
 // The corrupted section starts at `errors.industry = 'Industry is required.';\n    const handleSubmit`
-// But let's just use string replacement.
 
 const fixStr = `        if (!formData.industry || formData.industry.trim().length === 0) errors.industry = 'Industry is required.';
     const handleSubmit = async (e) => {

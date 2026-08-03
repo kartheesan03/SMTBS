@@ -1,19 +1,14 @@
 import React, { createContext, useState, useEffect } from 'react';
 import API from '../api/axios';
-
 export const AuthContext = createContext();
-
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
-
     useEffect(() => {
         const fetchUser = async () => {
             const userInfo = localStorage.getItem('userInfo') || sessionStorage.getItem('userInfo');
             if (userInfo) {
                 const parsedUser = JSON.parse(userInfo);
-                
-                // Fetch fresh data from server in background
                 try {
                     const { data } = await API.get('/auth/profile');
                     if (parsedUser.loginTime) {
@@ -36,7 +31,6 @@ export const AuthProvider = ({ children }) => {
         };
         fetchUser();
     }, []);
-
     const login = (data, rememberMe = false) => {
         if (!data.loginTime) {
             data.loginTime = new Date().toISOString();
@@ -50,13 +44,11 @@ export const AuthProvider = ({ children }) => {
         }
         setUser(data);
     };
-
     const logout = () => {
         localStorage.removeItem('userInfo');
         sessionStorage.removeItem('userInfo');
         setUser(null);
     };
-
     const updateUser = (data) => {
         if (localStorage.getItem('userInfo')) {
             localStorage.setItem('userInfo', JSON.stringify(data));
@@ -65,7 +57,6 @@ export const AuthProvider = ({ children }) => {
         }
         setUser(data);
     };
-
     return (
         <AuthContext.Provider value={{ user, login, logout, updateUser, loading }}>
             {children}

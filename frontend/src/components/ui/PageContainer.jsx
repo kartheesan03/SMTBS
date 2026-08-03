@@ -1,8 +1,10 @@
 import React from 'react';
 
 export const PageContainer = ({ children, className = '', style = {} }) => (
-    <div className={`rd-page ${className}`} style={style}>
-        {children}
+    <div className={`rd-container ${className}`} style={style}>
+        <div className="rd-content">
+            {children}
+        </div>
     </div>
 );
 

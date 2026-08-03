@@ -1,6 +1,5 @@
 import React from 'react';
 import { MapPin } from 'lucide-react';
-
 const LocationTag = ({ label, className = '', showIcon = false, style = {} }) => {
     if (!label) return null;
     return (
@@ -10,5 +9,4 @@ const LocationTag = ({ label, className = '', showIcon = false, style = {} }) =>
         </span>
     );
 };
-
 export default LocationTag;

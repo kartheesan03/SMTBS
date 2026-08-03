@@ -1,487 +1,1052 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
-import { useDashboardData } from '../hooks/useDashboardData';
-import API from '../api/axios';
-import { 
-    Users, Search, Bell, CheckCircle, CheckCircle2, Calendar, DollarSign,
-    Box, Briefcase, Activity, RefreshCw, BarChart2, TrendingUp, TrendingDown, AlertTriangle, UserCheck, Moon, AlertCircle, UserPlus, FileText, Settings, Shield, Plus, Quote, LayoutGrid, ListTodo, Target, Layers, Cpu, Server, Clock, Truck, ShoppingCart, Tag
-} from 'lucide-react';
-import { AreaChart, Area, PieChart, Pie, Cell, ResponsiveContainer, XAxis, YAxis, Legend, Tooltip, CartesianGrid, LineChart, Line, BarChart, Bar } from 'recharts';
-import { motion } from 'framer-motion';
-import '../components/AdminDashboard/AdminDashboardRedesign.css';
-import PageHeader from '../components/PageHeader';
-import { StatCard, StatGrid } from '../components/ui/StatCard';
-import CommandCenter from '../components/CommandCenter';
-import { SparklineKPICard, IconQuickAction, InvRow } from './AdminDashboard';
-import WelcomeBanner from '../components/ui/WelcomeBanner';
-import { LoadingState, ErrorState, EmptyState } from '../components/DataStates';
-
+import React, { useState, useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
+import { useDashboardData } from "../hooks/useDashboardData";
+import API from "../api/axios";
+import {
+  Users,
+  Search,
+  Bell,
+  CheckCircle,
+  CheckCircle2,
+  Calendar,
+  DollarSign,
+  Box,
+  Briefcase,
+  Activity,
+  RefreshCw,
+  BarChart2,
+  TrendingUp,
+  TrendingDown,
+  AlertTriangle,
+  UserCheck,
+  Moon,
+  AlertCircle,
+  UserPlus,
+  FileText,
+  Settings,
+  Shield,
+  Plus,
+  Quote,
+  LayoutGrid,
+  ListTodo,
+  Target,
+  Layers,
+  Cpu,
+  Server,
+  Clock,
+  Truck,
+  ShoppingCart,
+  Tag,
+  LogOut,
+} from "lucide-react";
+import {
+  AreaChart,
+  Area,
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+  Legend,
+  Tooltip,
+  CartesianGrid,
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+} from "recharts";
+import { motion } from "framer-motion";
+import "../components/AdminDashboard/AdminDashboardRedesign.css";
+import PageHeader from "../components/PageHeader";
+import { StatsCard, StatsGrid } from "../components/ui/StatsCard";
+import CommandCenter from "../components/CommandCenter";
+import { IconQuickAction, InvRow } from "./AdminDashboard";
+import WelcomeBanner from "../components/ui/WelcomeBanner";
+import { LoadingState, ErrorState, EmptyState } from "../components/DataStates";
 const HRDashboard = () => {
-    const navigate = useNavigate();
-    const { user } = useContext(AuthContext);
-    const [isCommandCenterOpen, setIsCommandCenterOpen] = useState(false);
-    
-    const { data: dashboardData, loading: dashLoading, error: dashError } = useDashboardData();
-    
-    const [revenueTrendYear, setRevenueTrendYear] = useState('current');
-    const [employees, setEmployees] = useState([]);
-    const [leavesData, setLeavesData] = useState([]);
-    const [salariesData, setSalariesData] = useState([]);
-    const [upcomingEvents, setUpcomingEvents] = useState([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const fetchDashboardData = async () => {
-            try {
-                const [empRes, leavesRes, salariesRes, tasksRes] = await Promise.all([
-                    API.get('/employees').catch(e => ({ data: [] })),
-                    API.get('/leaves').catch(e => ({ data: [] })),
-                    API.get('/salaries').catch(e => ({ data: [] })),
-                    API.get('/tasks').catch(e => ({ data: [] }))
-                ]);
-                
-                setEmployees(empRes.data || []);
-                setLeavesData(leavesRes.data || []);
-                setSalariesData(salariesRes.data || []);
-                
-                // Process tasks for upcoming events
-                const now = new Date();
-                const futureTasks = (tasksRes.data || [])
-                    .filter(t => t.dueDate && new Date(t.dueDate) >= now)
-                    .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
-                    .slice(0, 3)
-                    .map(t => {
-                        const d = new Date(t.dueDate);
-                        let col = '#4f46e5'; let bg = '#e0e7ff';
-                        if (t.priority === 'High') { col = '#ef4444'; bg = '#fee2e2'; }
-                        if (t.priority === 'Low') { col = '#10b981'; bg = '#d1fae5'; }
-                        return {
-                            day: String(d.getDate()).padStart(2, '0'),
-                            month: d.toLocaleString('default', { month: 'short' }).toUpperCase(),
-                            bg,
-                            col,
-                            title: t.title,
-                            desc: `${d.getDate()} ${d.toLocaleString('default', { month: 'long' })} • ${d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`
-                        };
-                    });
-                setUpcomingEvents(futureTasks);
-            } catch (err) {
-                console.error("Failed to load dashboard data", err);
-            } finally {
-                setLoading(false);
+  const navigate = useNavigate();
+  const { user } = useContext(AuthContext);
+  const [isCommandCenterOpen, setIsCommandCenterOpen] = useState(false);
+  const {
+    data: dashboardData,
+    loading: dashLoading,
+    error: dashError,
+  } = useDashboardData();
+  const [revenueTrendYear, setRevenueTrendYear] = useState("current");
+  const [employees, setEmployees] = useState([]);
+  const [leavesData, setLeavesData] = useState([]);
+  const [salariesData, setSalariesData] = useState([]);
+  const [upcomingEvents, setUpcomingEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const [empRes, leavesRes, salariesRes, tasksRes] = await Promise.all([
+          API.get("/employees").catch((e) => ({ data: [] })),
+          API.get("/leaves").catch((e) => ({ data: [] })),
+          API.get("/salaries").catch((e) => ({ data: [] })),
+          API.get("/tasks").catch((e) => ({ data: [] })),
+        ]);
+        setEmployees(empRes.data || []);
+        setLeavesData(leavesRes.data || []);
+        setSalariesData(salariesRes.data || []);
+        const now = new Date();
+        const futureTasks = (tasksRes.data || [])
+          .filter((t) => t.dueDate && new Date(t.dueDate) >= now)
+          .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
+          .slice(0, 3)
+          .map((t) => {
+            const d = new Date(t.dueDate);
+            let col = "#4f46e5";
+            let bg = "#e0e7ff";
+            if (t.priority === "High") {
+              col = "#ef4444";
+              bg = "#fee2e2";
             }
-        };
-        fetchDashboardData();
-    }, []);
-
-    useEffect(() => {
-        const handleKeyDown = (e) => {
-            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-                e.preventDefault();
-                setIsCommandCenterOpen(true);
+            if (t.priority === "Low") {
+              col = "#10b981";
+              bg = "#d1fae5";
             }
-        };
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, []);
-
-    if (dashLoading || loading) return <LoadingState message="Loading HR overview..." height="100vh" />;
-    if (dashError) return <ErrorState message="Failed to load HR data. Please try again." height="100vh" />;
-
-    const getGreeting = () => {
-        const hour = new Date().getHours();
-        if (hour < 12) return 'Good Morning';
-        if (hour < 18) return 'Good Afternoon';
-        return 'Good Evening';
+            return {
+              day: String(d.getDate()).padStart(2, "0"),
+              month: d
+                .toLocaleString("default", { month: "short" })
+                .toUpperCase(),
+              bg,
+              col,
+              title: t.title,
+              desc: `${d.getDate()} ${d.toLocaleString("default", {
+                month: "long",
+              })} • ${d.toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}`,
+            };
+          });
+        setUpcomingEvents(futureTasks);
+      } catch (err) {
+        console.error("Failed to load dashboard data", err);
+      } finally {
+        setLoading(false);
+      }
     };
-
-    const hrStats = dashboardData?.hrStats || {};
-    const totalEmployees = employees.length || 0;
-    const presentToday = hrStats.presentToday || 0;
-    const onLeave = hrStats.onLeave || 0;
-    const absentToday = hrStats.absentToday || 0;
-    const newJoiners = employees.filter(e => e.joinDate && new Date(e.joinDate) > new Date(Date.now() - 30*24*60*60*1000)).length || hrStats.newJoiners || 0;
-    const pendingLeaves = (leavesData || []).filter(l => l.status === 'Pending').length;
-    
-    let payrollProcessed = 0;
-    if (salariesData.length > 0) {
-        const paidSalaries = salariesData.filter(s => s.status === 'Paid').length;
-        payrollProcessed = Math.round((paidSalaries / salariesData.length) * 100);
-    }
-
-    const avgTenure = employees.length > 0 
-        ? (employees.reduce((sum, emp) => {
-            if (!emp.joinDate) return sum;
-            const years = (new Date() - new Date(emp.joinDate)) / (1000 * 60 * 60 * 24 * 365);
-            return sum + years;
-        }, 0) / employees.length).toFixed(1)
-        : '0.0';
-
-    const inactiveCount = employees.filter(e => e.status === 'Inactive' || e.isActive === false).length;
-    const turnover = employees.length > 0 ? ((inactiveCount / employees.length) * 100).toFixed(1) : '0.0';
-
+    fetchDashboardData();
+  }, []);
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setIsCommandCenterOpen(true);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+  if (dashLoading || loading)
+    return <LoadingState message="Loading HR overview..." height="100vh" />;
+  if (dashError)
     return (
-        <div className="rd-container theme-hr">
-            <div className="rd-content">
-                
-
-                {/* ── 1. Hero Banner ── */}
-                <WelcomeBanner 
-                    user={user}
-                    greeting={`${getGreeting()}`}
-                    subtitle={`${new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} · Human Resources Overview`}
-                    badges={[
-                        { icon: Users, text: `${totalEmployees} Employees`, type: 'neutral' },
-                        { type: 'status', text: `${pendingLeaves} Pending Leaves` }
-                    ]}
-                    rightVisuals={
-                        <>
-                            <div className="rd-visual-card">
-                                                            <div className="rd-vc-label">Attendance</div>
-                                                            <div className="rd-vc-value">{hrStats.attendanceRate || '98%'}</div>
-                                                            <div className="rd-vc-chart" style={{ '--progress': `${hrStats.attendanceRate || 98}%` }}></div>
-                                                        </div>
-                                                        <div className="rd-visual-card">
-                                                            <div className="rd-vc-label">Activity</div>
-                                                            <div className="rd-vc-bars">
-                                                                <div className="rd-vc-bar" style={{height: '90%'}}></div>
-                                                                <div className="rd-vc-bar" style={{height: '70%'}}></div>
-                                                                <div className="rd-vc-bar" style={{height: '80%'}}></div>
-                                                                <div className="rd-vc-bar" style={{height: '100%'}}></div>
-                                                                <div className="rd-vc-bar" style={{height: '60%'}}></div>
-                                                            </div>
-                                                        </div>
-                        </>
-                    }
-                    actions={[
-                        { label: 'Apply Leave', icon: CheckCircle, variant: 'primary', onClick: () => navigate('/leave-management/history') },
-                        { label: 'Check In', icon: Clock, variant: 'secondary', onClick: () => navigate('/attendance') }
-                    ]}
-                />
-
-                {/* ── 2. KPI Row (6 columns) ── */}
-                <StatGrid columns={6}>
-                    <StatCard title="Total Employees" value={totalEmployees} colorTheme="blue" icon={Users} trendValue={`${newJoiners} new joiners`} trendPositive={true} />
-                    <StatCard title="Attendance Rate" value={hrStats.attendanceRate || '98%'} colorTheme="mint" icon={UserCheck} trendValue="vs last month" trendPositive={true} />
-                    <StatCard title="New Joiners" value={newJoiners} colorTheme="peach" icon={UserPlus} trendValue="This month" trendPositive={true} />
-                    <StatCard title="Pending Leaves" value={pendingLeaves} colorTheme="purple" icon={Calendar} trendValue="Awaiting approval" trendPositive={false} />
-                    <StatCard title="Payroll Processed" value={`${payrollProcessed}%`} colorTheme="pink" icon={DollarSign} trendValue="This month" trendPositive={true} />
-                    <StatCard title="On Leave Today" value={onLeave} colorTheme="yellow" icon={Moon} trendValue="vs average" trendPositive={true} />
-                </StatGrid>
-
-                {/* ── 3. Middle Row (Quick Actions + Mini Stats) ── */}
-                <div className="rd-middle-row">
-                    
-                    {/* Left: Quick Actions Grid */}
-                    <div className="dashboard-panel">
-                        <div className="panel-header">
-                            <div className="panel-title">Quick Actions</div>
-                        </div>
-                        <div className="qa-grid">
-                            <IconQuickAction icon={UserPlus} label="Add Employee" colorClass="bg-light-blue" onClick={() => navigate('/employees/new')} />
-                            <IconQuickAction icon={CheckCircle2} label="Attendance" colorClass="bg-light-green" onClick={() => navigate('/attendance')} />
-                            <IconQuickAction icon={Calendar} label="Apply Leave" colorClass="bg-light-orange" onClick={() => navigate('/leave-management/history')} />
-                            <IconQuickAction icon={DollarSign} label="Payroll" colorClass="bg-light-purple" onClick={() => navigate('/payroll')} />
-                            
-                            <IconQuickAction icon={FileText} label="Contracts" colorClass="bg-light-pink" onClick={() => navigate('/reports')} />
-                            <IconQuickAction icon={Users} label="Directory" colorClass="bg-light-blue" onClick={() => navigate('/employees')} />
-                            <IconQuickAction icon={Target} label="Reviews" colorClass="bg-light-teal" onClick={() => navigate('/tasks')} />
-                            <IconQuickAction icon={Settings} label="Policies" colorClass="bg-light-gray" onClick={() => navigate('/settings')} />
-                            
-                            <IconQuickAction icon={Activity} label="Wellbeing" colorClass="bg-light-orange" onClick={() => navigate('/')} />
-                            <IconQuickAction icon={Bell} label="Notifs" colorClass="bg-light-red" onClick={() => navigate('/notifications')} />
-                            <IconQuickAction icon={Briefcase} label="Hiring" colorClass="bg-light-purple" onClick={() => navigate('/')} />
-                            <IconQuickAction icon={BarChart2} label="Reports" colorClass="bg-light-green" onClick={() => navigate('/reports')} />
-                        </div>
-                    </div>
-
-                    {/* Right: HR Summary Grid */}
-                    <div className="dashboard-panel">
-                        <div className="panel-header">
-                            <div className="panel-title">HR Summary</div>
-                        </div>
-                        <div className="inv-grid">
-                            <InvRow icon={Users} iconBg="#eff6ff" iconColor="#2563EB" label="Total Staff" value={totalEmployees} caption="Active" />
-                            <InvRow icon={UserCheck} iconBg="#ecfdf5" iconColor="#059669" label="Present" value={presentToday} caption="Today" />
-                            <InvRow icon={AlertTriangle} iconBg="#fef2f2" iconColor="#DC2626" label="Absent" value={absentToday} caption="Today" isAlert={absentToday > 5} />
-                            <InvRow icon={Moon} iconBg="#fffbeb" iconColor="#D97706" label="On Leave" value={onLeave} caption="Approved" />
-                            
-                            <InvRow icon={Calendar} iconBg="#fdf2f8" iconColor="#DB2777" label="Leave Reqs" value={pendingLeaves} caption="Pending" isAlert={pendingLeaves > 0} />
-                            <InvRow icon={Clock} iconBg="#f3e8ff" iconColor="#9333ea" label="Avg Tenure" value={`${avgTenure}`} caption="Years" />
-                            <InvRow icon={UserPlus} iconBg="#f0fdfa" iconColor="#0D9488" label="New Joiners" value={newJoiners} caption="This Month" />
-                            <InvRow icon={TrendingDown} iconBg="#ecfdf5" iconColor="#059669" label="Turnover" value={`${turnover}%`} caption="All Time" />
-                        </div>
-                    </div>
-
-                </div>
-
-                {/* ── 4. Chart Row 1: Employee Growth (wide) + Attendance Today ── */}
-                <div className="rd-chart-row-wide">
-                    <div className="dashboard-panel">
-                        <div className="panel-header">
-                            <div className="panel-title">Salary Distribution</div>
-                        </div>
-                        <div style={{ height: 220, width: '100%' }}>
-                            {(!dashboardData?.hrStats?.salaryDistribution || dashboardData.hrStats.salaryDistribution.length === 0) ? (
-                                <EmptyState title="No Salary Data" message="No salary distribution data available." height={220} />
-                            ) : (
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <BarChart 
-                                        data={dashboardData.hrStats.salaryDistribution}
-                                        margin={{top:10, right:10, left:0, bottom:0}}
-                                    >
-                                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false}/>
-                                    <XAxis dataKey="range" axisLine={false} tickLine={false} tick={{fontSize: 11, fill: '#94a3b8'}} dy={8}/>
-                                    <YAxis axisLine={false} tickLine={false} tick={{fontSize: 11, fill: '#94a3b8'}} width={35} />
-                                    <Tooltip cursor={{fill: '#f8fafc'}} contentStyle={{fontSize: 12, borderRadius: 0, border: '1px solid #e2e8f0'}} />
-                                    <Bar dataKey="count" name="Employees" fill="#6366f1" radius={[4, 4, 0, 0]} barSize={40} />
-                                </BarChart>
-                            </ResponsiveContainer>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="dashboard-panel">
-                        <div className="panel-header">
-                            <div className="panel-title">Attendance Today</div>
-                            <select className="panel-dropdown" style={{ paddingRight: '24px', width: 'auto' }}>
-                                <option>Today ▾</option>
-                            </select>
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-                            <div style={{ width: '100%', height: 170 }}>
-                                {(!presentToday && !absentToday && !onLeave) ? (
-                                    <EmptyState title="No Attendance Data" message="No logs for today." height={170} />
-                                ) : (
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <PieChart>
-                                            <Pie data={[
-                                                {name: 'Present', value: presentToday}, 
-                                                {name: 'Absent', value: absentToday}, 
-                                                {name: 'Leave', value: onLeave}
-                                            ]} innerRadius={50} outerRadius={75} dataKey="value" cx="50%" cy="50%">
-                                                <Cell fill="#10b981" />
-                                                <Cell fill="#ef4444" />
-                                                <Cell fill="#f59e0b" />
-                                            </Pie>
-                                            <Tooltip contentStyle={{fontSize: 12}} />
-                                        </PieChart>
-                                    </ResponsiveContainer>
-                                )}
-                            </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 5, width: '100%' }}>
-                                {(!presentToday && !absentToday && !onLeave) ? null : [
-                                    {name: 'Present', value: presentToday}, 
-                                    {name: 'Absent', value: absentToday}, 
-                                    {name: 'Leave', value: onLeave}
-                                ].map((entry, idx) => {
-                                    const colors = ['#10b981', '#ef4444', '#f59e0b'];
-                                    return (
-                                        <div key={idx} style={{display:'flex', alignItems:'center', justifyContent:'space-between', fontSize: 11}}>
-                                            <span style={{display:'flex', alignItems:'center', gap:5, color:'#475569'}}>
-                                                <div style={{width:8,height:8,borderRadius: '0px',background:colors[idx%colors.length]}}></div>{entry.name}
-                                            </span>
-                                            <strong style={{color:'#0f172a'}}>{entry.value}</strong>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* ── 5. Activity Row: HR Activity + HR Alerts ── */}
-                <div className="rd-two-col">
-                    <div className="dashboard-panel">
-                        <div className="panel-header">
-                            <div className="panel-title">HR Activity</div>
-                            <a href="/notifications" className="panel-action">View All</a>
-                        </div>
-                        <div className="feed-list">
-                            {(dashboardData?.tables?.recentActivity || []).length > 0 ? (
-                                (dashboardData?.tables?.recentActivity || []).slice(0, 5).map((activity, idx) => (
-                                    <div className="feed-item" key={idx}>
-                                        <div className="feed-time">{new Date(activity.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
-                                        <div className="feed-icon-wrapper" style={{background: '#3b82f6'}}><CheckCircle size={12}/></div>
-                                        <div className="feed-content">
-                                            <div className="feed-title">{activity.type}</div>
-                                            <div className="feed-desc">{activity.text}</div>
-                                        </div>
-                                    </div>
-                                ))
-                            ) : (
-                                <EmptyState title="No Recent Activity" message="System activity will appear here." height={150} />
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="dashboard-panel">
-                        <div className="panel-header">
-                            <div className="panel-title">HR Alerts</div>
-                            <a href="/notifications" className="panel-action">View All</a>
-                        </div>
-                        <div className="feed-list">
-                            {(dashboardData?.hrStats?.recentEmployees || []).length > 0 ? (
-                                (dashboardData?.hrStats?.recentEmployees || []).slice(0, 5).map((emp, idx) => (
-                                    <div className="feed-item" key={idx}>
-                                        <div className="feed-icon-wrapper" style={{color: '#3b82f6', background: 'transparent'}}><UserPlus size={16}/></div>
-                                        <div className="feed-content" style={{flex: 1}}>
-                                            <div className="feed-title" style={{fontWeight: 500}}>{emp.name} joined ({emp.department})</div>
-                                        </div>
-                                        <div className="feed-time" style={{width: 'auto'}}>{new Date(emp.joinDate || Date.now()).toLocaleDateString()}</div>
-                                    </div>
-                                ))
-                            ) : (
-                                <EmptyState title="No Recent Hires" message="No new employees have joined recently." height={150} icon={UserPlus} />
-                            )}
-                        </div>
-                    </div>
-                </div>
-
-                {/* ── 6. Bottom Row: 5 panels in a 5-column grid ── */}
-                <div className="rd-five-col">
-                    
-                    {/* HR Insights */}
-                    <div className="dashboard-panel">
-                        <div className="panel-header">
-                            <div className="panel-title"><Cpu size={15} style={{display:'inline', verticalAlign:'middle', marginRight:5}} color="#3b82f6"/> HR Insights</div>
-                        </div>
-                        <div className="ai-insights-list">
-                            <div className="ai-insight-item">
-                                <div className="ai-dot"></div>
-                                <div><strong>{onLeave}</strong> employees are currently on leave.</div>
-                            </div>
-                            <div className="ai-insight-item">
-                                <div className="ai-dot"></div>
-                                <div><strong>{newJoiners}</strong> new joiners this month.</div>
-                            </div>
-                            <div className="ai-insight-item">
-                                <div className="ai-dot"></div>
-                                <div>Attendance rate is currently <strong>{dashboardData?.hrStats?.attendanceRate || 'N/A'}</strong>.</div>
-                            </div>
-                            <div className="ai-insight-item">
-                                <div className="ai-dot"></div>
-                                <div><strong>{pendingLeaves}</strong> leave requests pending.</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Headcount by Dept */}
-                    <div className="dashboard-panel">
-                        <div className="panel-header">
-                            <div className="panel-title">Headcount</div>
-                            <select className="panel-dropdown"><option>Current ▾</option></select>
-                        </div>
-                        <div style={{ height: 180 }}>
-                            {(!dashboardData?.hrStats?.employeeDistribution || dashboardData.hrStats.employeeDistribution.length === 0) ? (
-                                <EmptyState title="No Headcount Data" message="No department data available." height={180} />
-                            ) : (
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <BarChart layout="vertical" data={dashboardData.hrStats.employeeDistribution} margin={{top:0, right:20, left:0, bottom:0}}>
-                                        <XAxis type="number" hide />
-                                        <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{fontSize: 11, fill: '#475569'}} width={80} />
-                                        <Tooltip contentStyle={{fontSize: 11}} cursor={{fill: '#f8fafc'}} />
-                                        <Bar dataKey="value" fill="#8b5cf6" radius={[0,4,4,0]} barSize={10} />
-                                    </BarChart>
-                                </ResponsiveContainer>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Diversity Ratio */}
-                    <div className="dashboard-panel">
-                        <div className="panel-header">
-                            <div className="panel-title">Diversity</div>
-                            <select className="panel-dropdown"><option>All ▾</option></select>
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-                            <div style={{ width: '100%', height: 130 }}>
-                                {(!dashboardData?.charts?.hrmsDonut || dashboardData.charts.hrmsDonut.length === 0) ? (
-                                    <EmptyState title="No Diversity Data" message="Data unavailable." height={130} />
-                                ) : (
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <PieChart>
-                                            <Pie data={dashboardData.charts.hrmsDonut} innerRadius={38} outerRadius={56} dataKey="value" cx="50%" cy="50%">
-                                                {dashboardData.charts.hrmsDonut.map((entry, index) => {
-                                                    const colors = ['#3b82f6', '#ec4899', '#f59e0b'];
-                                                    return <Cell key={`cell-${index}`} fill={entry.color || colors[index % colors.length]} />;
-                                                })}
-                                            </Pie>
-                                            <Tooltip contentStyle={{fontSize: 11}} />
-                                        </PieChart>
-                                    </ResponsiveContainer>
-                                )}
-                            </div>
-                            <div style={{ width: '100%', fontSize: 10, display:'grid', gridTemplateColumns:'1fr 1fr', gap:4 }}>
-                                {(!dashboardData?.charts?.hrmsDonut || dashboardData.charts.hrmsDonut.length === 0) ? null : dashboardData.charts.hrmsDonut.map((entry, idx) => {
-                                    const colors = ['#3b82f6', '#ec4899', '#f59e0b'];
-                                    return (
-                                        <div key={idx} style={{display:'flex', alignItems:'center', gap:4}}>
-                                            <div style={{width:8,height:8,borderRadius: '0px',background:entry.color || colors[idx % colors.length]}}></div> 
-                                            <span><b>{entry.value}</b> {entry.name}</span>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Hiring Trend */}
-                    <div className="dashboard-panel">
-                        <div className="panel-header">
-                            <div className="panel-title">Hiring Trend</div>
-                            <select className="panel-dropdown"><option>This Year ▾</option></select>
-                        </div>
-                        <div style={{ padding: '5px 0' }}>
-                            <div style={{fontSize: 20, fontWeight: 800, color: '#0f172a'}}>{newJoiners} Hires</div>
-                            <div style={{fontSize: 11, color: '#10b981', fontWeight: 600}}>This Month</div>
-                        </div>
-                        <div style={{height: 100, width: '100%'}}>
-                            {(!dashboardData?.charts?.monthlyStats || dashboardData.charts.monthlyStats.length === 0) ? (
-                                <EmptyState title="No Trend Data" message="No data." height={100} />
-                            ) : (
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <LineChart data={dashboardData.charts.monthlyStats}>
-                                        <Line type="monotone" dataKey="sales" stroke="#10b981" strokeWidth={2} dot={{r: 3, fill: '#10b981'}} />
-                                        <Tooltip contentStyle={{fontSize: 11}} />
-                                    </LineChart>
-                                </ResponsiveContainer>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Upcoming HR Events */}
-                    <div className="dashboard-panel">
-                        <div className="panel-header">
-                            <div className="panel-title">HR Events</div>
-                            <span onClick={() => navigate('/tasks/calendar')} className="panel-action" style={{cursor: 'pointer'}}>View All</span>
-                        </div>
-                        <div className="feed-list" style={{gap: 12, marginTop: 8}}>
-                            {upcomingEvents.length > 0 ? upcomingEvents.map((ev, i) => (
-                                <div className="event-item" key={i}>
-                                    <div className="event-date-badge" style={{ background: ev.bg, color: ev.col }}>
-                                        <div className="event-month">{ev.month}</div>
-                                        <div className="event-day">{ev.day}</div>
-                                    </div>
-                                    <div className="feed-content">
-                                        <div className="event-title">{ev.title}</div>
-                                        <div className="event-desc">{ev.desc}</div>
-                                    </div>
-                                </div>
-                            )) : (
-                                <EmptyState title="No Upcoming Events" message="Your schedule is clear." height={150} icon={Calendar} />
-                            )}
-                        </div>
-                    </div>
-
-                </div>
-
-
-            </div>
-            <CommandCenter isOpen={isCommandCenterOpen} onClose={() => setIsCommandCenterOpen(false)} />
-        </div>
+      <ErrorState
+        message="Failed to load HR data. Please try again."
+        height="100vh"
+      />
     );
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good Morning";
+    if (hour < 18) return "Good Afternoon";
+    return "Good Evening";
+  };
+  const hrStats = dashboardData?.hrStats || {};
+  const totalEmployees = employees.length || 0;
+  const presentToday = hrStats.presentToday || 0;
+  const onLeave = hrStats.onLeave || 0;
+  const absentToday = hrStats.absentToday || 0;
+  const newJoiners =
+    employees.filter(
+      (e) =>
+        e.joinDate &&
+        new Date(e.joinDate) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+    ).length ||
+    hrStats.newJoiners ||
+    0;
+  const pendingLeaves = (leavesData || []).filter(
+    (l) => l.status === "Pending"
+  ).length;
+  let payrollProcessed = 0;
+  if (salariesData.length > 0) {
+    const paidSalaries = salariesData.filter((s) => s.status === "Paid").length;
+    payrollProcessed = Math.round((paidSalaries / salariesData.length) * 100);
+  }
+  const avgTenure =
+    employees.length > 0
+      ? (
+          employees.reduce((sum, emp) => {
+            if (!emp.joinDate) return sum;
+            const years =
+              (new Date() - new Date(emp.joinDate)) /
+              (1000 * 60 * 60 * 24 * 365);
+            return sum + years;
+          }, 0) / employees.length
+        ).toFixed(1)
+      : "0.0";
+  const inactiveCount = employees.filter(
+    (e) => e.status === "Inactive" || e.isActive === false
+  ).length;
+  const turnover =
+    employees.length > 0
+      ? ((inactiveCount / employees.length) * 100).toFixed(1)
+      : "0.0";
+  return (
+    <div className="rd-container theme-hr">
+      <div className="rd-content">
+        {/* ── 1. Hero Banner ── */}
+        <WelcomeBanner
+          user={user}
+          greeting={`${getGreeting()}`}
+          subtitle={`${new Date().toLocaleDateString("en-IN", {
+            weekday: "long",
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          })} · Human Resources Overview`}
+          badges={[
+            {
+              icon: Users,
+              text: `${totalEmployees} Employees`,
+              type: "neutral",
+            },
+            { type: "status", text: `${pendingLeaves} Pending Leaves` },
+          ]}
+          rightVisuals={
+            <>
+              <div className="rd-visual-card">
+                <div className="rd-vc-label">Attendance</div>
+                <div className="rd-vc-value">
+                  {hrStats.attendanceRate || "98%"}
+                </div>
+                <div
+                  className="rd-vc-chart"
+                  style={{ "--progress": `${hrStats.attendanceRate || 98}%` }}
+                ></div>
+              </div>
+              <div className="rd-visual-card">
+                <div className="rd-vc-label">Activity</div>
+                <div className="rd-vc-bars">
+                  <div className="rd-vc-bar" style={{ height: "90%" }}></div>
+                  <div className="rd-vc-bar" style={{ height: "70%" }}></div>
+                  <div className="rd-vc-bar" style={{ height: "80%" }}></div>
+                  <div className="rd-vc-bar" style={{ height: "100%" }}></div>
+                  <div className="rd-vc-bar" style={{ height: "60%" }}></div>
+                </div>
+              </div>
+            </>
+          }
+          actions={[
+            {
+              label: "Apply Leave",
+              icon: CheckCircle,
+              variant: "primary",
+              onClick: () => navigate("/leave-management/history"),
+            },
+            {
+              label: "Check In",
+              icon: Clock,
+              variant: "secondary",
+              onClick: () => navigate("/attendance"),
+            },
+          ]}
+        />
+        {/* ── 2. KPI Row (6 columns) ── */}
+        <StatsGrid columns={6}>
+          <StatsCard
+            title="Total Employees"
+            value={totalEmployees}
+            colorTheme="blue"
+            icon={Users}
+            trendValue={`${newJoiners} new joiners`}
+            trendPositive={true}
+          />
+          <StatsCard
+            title="Attendance Rate"
+            value={hrStats.attendanceRate || "98%"}
+            colorTheme="mint"
+            icon={UserCheck}
+            trendValue="vs last month"
+            trendPositive={true}
+          />
+          <StatsCard
+            title="New Joiners"
+            value={newJoiners}
+            colorTheme="peach"
+            icon={UserPlus}
+            trendValue="This month"
+            trendPositive={true}
+          />
+          <StatsCard
+            title="Pending Leaves"
+            value={pendingLeaves}
+            colorTheme="purple"
+            icon={Calendar}
+            trendValue="Awaiting approval"
+            trendPositive={false}
+          />
+          <StatsCard
+            title="Payroll Processed"
+            value={`${payrollProcessed}%`}
+            colorTheme="pink"
+            icon={DollarSign}
+            trendValue="This month"
+            trendPositive={true}
+          />
+          <StatsCard
+            title="On Leave Today"
+            value={onLeave}
+            colorTheme="yellow"
+            icon={Moon}
+            trendValue="vs average"
+            trendPositive={true}
+          />
+        </StatsGrid>
+        {/* ── 3. Middle Row (Quick Actions + Mini Stats) ── */}
+        <div className="rd-middle-row">
+          {/* Left: Quick Actions Grid */}
+          <div className="dashboard-panel type-glass">
+            <div className="panel-header">
+              <div className="panel-title">Quick Actions</div>
+            </div>
+            <div className="qa-grid">
+              <IconQuickAction
+                icon={UserPlus}
+                label="Add Employee"
+                colorClass="bg-light-blue"
+                onClick={() => navigate("/employees/new")}
+              />
+              <IconQuickAction
+                icon={CheckCircle2}
+                label="Attendance"
+                colorClass="bg-light-green"
+                onClick={() => navigate("/attendance")}
+              />
+              <IconQuickAction
+                icon={Calendar}
+                label="Apply Leave"
+                colorClass="bg-light-orange"
+                onClick={() => navigate("/leave-management/history")}
+              />
+              <IconQuickAction
+                icon={DollarSign}
+                label="Payroll"
+                colorClass="bg-light-purple"
+                onClick={() => navigate("/payroll")}
+              />
+              <IconQuickAction
+                icon={FileText}
+                label="Contracts"
+                colorClass="bg-light-pink"
+                onClick={() => navigate("/hr-reports")}
+              />
+              <IconQuickAction
+                icon={Users}
+                label="Directory"
+                colorClass="bg-light-blue"
+                onClick={() => navigate("/hrms")}
+              />
+              <IconQuickAction
+                icon={Target}
+                label="Reviews"
+                colorClass="bg-light-teal"
+                onClick={() => navigate("/tasks")}
+              />
+              <IconQuickAction
+                icon={Settings}
+                label="Policies"
+                colorClass="bg-light-gray"
+                onClick={() => navigate("/settings")}
+              />
+              <IconQuickAction
+                icon={Activity}
+                label="Wellbeing"
+                colorClass="bg-light-orange"
+                onClick={() => navigate("/")}
+              />
+              <IconQuickAction
+                icon={Bell}
+                label="Notifs"
+                colorClass="bg-light-red"
+                onClick={() => navigate("/notifications")}
+              />
+              <IconQuickAction
+                icon={Briefcase}
+                label="Hiring"
+                colorClass="bg-light-purple"
+                onClick={() => navigate("/coming-soon/recruitment")}
+              />
+              <IconQuickAction
+                icon={BarChart2}
+                label="Reports"
+                colorClass="bg-light-green"
+                onClick={() => navigate("/hr-reports")}
+              />
+            </div>
+          </div>
+          <div className="dashboard-panel type-gradient" style={{ height: "100%", padding: 0, overflow: 'hidden' }}>
+            <div className="panel-header" style={{ padding: '20px 24px', borderBottom: '1px solid #f1f5f9', margin: 0 }}>
+              <div className="panel-title">Attendance &amp; Staffing</div>
+            </div>
+            
+            <style>{`
+              .kpi-list-container {
+                display: flex;
+                flex-direction: column;
+              }
+              .kpi-list-item {
+                display: flex;
+                align-items: center;
+                padding: 16px 24px;
+                border-bottom: 1px solid #f1f5f9;
+                transition: background-color 0.2s ease;
+              }
+              .kpi-list-item:hover {
+                background-color: #f8fafc;
+              }
+              .kpi-list-item:last-child {
+                border-bottom: none;
+              }
+              .kpi-list-icon {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                background-color: #f1f5f9;
+                color: #475569;
+                margin-right: 16px;
+                flex-shrink: 0;
+              }
+              .kpi-list-content {
+                flex: 1;
+                min-width: 0;
+              }
+              .kpi-list-title {
+                font-size: 14px;
+                font-weight: 500;
+                color: #1e293b;
+                margin-bottom: 2px;
+              }
+              .kpi-list-desc {
+                font-size: 13px;
+                color: #64748b;
+              }
+              .kpi-list-value {
+                font-size: 20px;
+                font-weight: 700;
+                color: #0f172a;
+                font-family: 'Inter', sans-serif;
+                margin-left: 16px;
+              }
+            `}</style>
+            
+            <div className="kpi-list-container">
+              <div className="kpi-list-item">
+                <div className="kpi-list-icon"><Users size={18} /></div>
+                <div className="kpi-list-content">
+                  <div className="kpi-list-title">Total Staff</div>
+                  <div className="kpi-list-desc">Active</div>
+                </div>
+                <div className="kpi-list-value">{totalEmployees}</div>
+              </div>
+              <div className="kpi-list-item">
+                <div className="kpi-list-icon"><UserCheck size={18} /></div>
+                <div className="kpi-list-content">
+                  <div className="kpi-list-title">Present</div>
+                  <div className="kpi-list-desc">Today</div>
+                </div>
+                <div className="kpi-list-value">{presentToday}</div>
+              </div>
+              <div className="kpi-list-item">
+                <div className="kpi-list-icon"><AlertTriangle size={18} /></div>
+                <div className="kpi-list-content">
+                  <div className="kpi-list-title">Absent</div>
+                  <div className="kpi-list-desc">Today</div>
+                </div>
+                <div className="kpi-list-value">{absentToday}</div>
+              </div>
+              <div className="kpi-list-item">
+                <div className="kpi-list-icon"><Moon size={18} /></div>
+                <div className="kpi-list-content">
+                  <div className="kpi-list-title">On Leave</div>
+                  <div className="kpi-list-desc">Approved</div>
+                </div>
+                <div className="kpi-list-value">{onLeave}</div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="dashboard-panel type-glass" style={{ height: "100%", padding: 0, overflow: 'hidden' }}>
+            <div className="panel-header" style={{ padding: '20px 24px', borderBottom: '1px solid #f1f5f9', margin: 0 }}>
+              <div className="panel-title">HR Operations</div>
+            </div>
+            
+            <div className="kpi-list-container">
+              <div className="kpi-list-item">
+                <div className="kpi-list-icon"><Calendar size={18} /></div>
+                <div className="kpi-list-content">
+                  <div className="kpi-list-title">Leave Reqs</div>
+                  <div className="kpi-list-desc">Pending</div>
+                </div>
+                <div className="kpi-list-value">{pendingLeaves}</div>
+              </div>
+              <div className="kpi-list-item">
+                <div className="kpi-list-icon"><Clock size={18} /></div>
+                <div className="kpi-list-content">
+                  <div className="kpi-list-title">Avg Tenure</div>
+                  <div className="kpi-list-desc">Years</div>
+                </div>
+                <div className="kpi-list-value">{avgTenure}</div>
+              </div>
+              <div className="kpi-list-item">
+                <div className="kpi-list-icon"><UserPlus size={18} /></div>
+                <div className="kpi-list-content">
+                  <div className="kpi-list-title">New Joiners</div>
+                  <div className="kpi-list-desc">30 days</div>
+                </div>
+                <div className="kpi-list-value">{newJoiners}</div>
+              </div>
+              <div className="kpi-list-item">
+                <div className="kpi-list-icon"><LogOut size={18} /></div>
+                <div className="kpi-list-content">
+                  <div className="kpi-list-title">Turnover</div>
+                  <div className="kpi-list-desc">Rate</div>
+                </div>
+                <div className="kpi-list-value">{turnover}%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* ── 4. Chart Row 1: Employee Growth (wide) + Attendance Today ── */}
+        <div className="rd-chart-row-wide">
+          <div className="dashboard-panel">
+            <div className="panel-header">
+              <div className="panel-title">Salary Distribution</div>
+            </div>
+            <div style={{ height: 220, width: "100%" }}>
+              {!dashboardData?.hrStats?.salaryDistribution ||
+              dashboardData.hrStats.salaryDistribution.length === 0 ? (
+                <EmptyState
+                  title="No Salary Data"
+                  message="No salary distribution data available."
+                  height={220}
+                />
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={dashboardData.hrStats.salaryDistribution}
+                    margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+                  >
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="#f1f5f9"
+                      vertical={false}
+                    />
+                    <XAxis
+                      dataKey="range"
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 11, fill: "#94a3b8" }}
+                      dy={8}
+                    />
+                    <YAxis
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 11, fill: "#94a3b8" }}
+                      width={35}
+                    />
+                    <Tooltip
+                      cursor={{ fill: "#f8fafc" }}
+                      contentStyle={{
+                        fontSize: 12,
+                        borderRadius: 0,
+                        border: "1px solid #e2e8f0",
+                      }}
+                    />
+                    <Bar
+                      dataKey="count"
+                      name="Employees"
+                      fill="#6366f1"
+                      radius={[4, 4, 0, 0]}
+                      barSize={40}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+          </div>
+          <div className="dashboard-panel">
+            <div className="panel-header">
+              <div className="panel-title">Attendance Today</div>
+              <select
+                className="panel-dropdown"
+                style={{ paddingRight: "24px", width: "auto" }}
+              >
+                <option>Today ▾</option>
+              </select>
+            </div>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 8,
+              }}
+            >
+              <div style={{ width: "100%", height: 170 }}>
+                {!presentToday && !absentToday && !onLeave ? (
+                  <EmptyState
+                    title="No Attendance Data"
+                    message="No logs for today."
+                    height={170}
+                  />
+                ) : (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={[
+                          { name: "Present", value: presentToday },
+                          { name: "Absent", value: absentToday },
+                          { name: "Leave", value: onLeave },
+                        ]}
+                        innerRadius={50}
+                        outerRadius={75}
+                        dataKey="value"
+                        cx="50%"
+                        cy="50%"
+                      >
+                        <Cell fill="#10b981" />
+                        <Cell fill="#ef4444" />
+                        <Cell fill="#f59e0b" />
+                      </Pie>
+                      <Tooltip contentStyle={{ fontSize: 12 }} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                )}
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 5,
+                  width: "100%",
+                }}
+              >
+                {!presentToday && !absentToday && !onLeave
+                  ? null
+                  : [
+                      { name: "Present", value: presentToday },
+                      { name: "Absent", value: absentToday },
+                      { name: "Leave", value: onLeave },
+                    ].map((entry, idx) => {
+                      const colors = ["#10b981", "#ef4444", "#f59e0b"];
+                      return (
+                        <div
+                          key={idx}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            fontSize: 11,
+                          }}
+                        >
+                          <span
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 5,
+                              color: "#475569",
+                            }}
+                          >
+                            <div
+                              style={{
+                                width: 8,
+                                height: 8,
+                                borderRadius: "0px",
+                                background: colors[idx % colors.length],
+                              }}
+                            ></div>
+                            {entry.name}
+                          </span>
+                          <strong style={{ color: "#0f172a" }}>
+                            {entry.value}
+                          </strong>
+                        </div>
+                      );
+                    })}
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* ── 5. Activity Row: HR Activity + HR Alerts ── */}
+        <div className="rd-two-col">
+          <div className="dashboard-panel">
+            <div className="panel-header">
+              <div className="panel-title">HR Activity</div>
+              <a href="/notifications" className="panel-action">
+                View All
+              </a>
+            </div>
+            <div className="feed-list">
+              {(dashboardData?.tables?.recentActivity || []).length > 0 ? (
+                (dashboardData?.tables?.recentActivity || [])
+                  .slice(0, 5)
+                  .map((activity, idx) => (
+                    <div className="feed-item" key={idx}>
+                      <div className="feed-time">
+                        {new Date(activity.time).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </div>
+                      <div
+                        className="feed-icon-wrapper"
+                        style={{ background: "#3b82f6" }}
+                      >
+                        <CheckCircle size={12} />
+                      </div>
+                      <div className="feed-content">
+                        <div className="feed-title">{activity.type}</div>
+                        <div className="feed-desc">{activity.text}</div>
+                      </div>
+                    </div>
+                  ))
+              ) : (
+                <EmptyState
+                  title="No Recent Activity"
+                  message="System activity will appear here."
+                  height={150}
+                />
+              )}
+            </div>
+          </div>
+          <div className="dashboard-panel">
+            <div className="panel-header">
+              <div className="panel-title">HR Alerts</div>
+              <a href="/notifications" className="panel-action">
+                View All
+              </a>
+            </div>
+            <div className="feed-list">
+              {(dashboardData?.hrStats?.recentEmployees || []).length > 0 ? (
+                (dashboardData?.hrStats?.recentEmployees || [])
+                  .slice(0, 5)
+                  .map((emp, idx) => (
+                    <div className="feed-item" key={idx}>
+                      <div
+                        className="feed-icon-wrapper"
+                        style={{ color: "#3b82f6", background: "transparent" }}
+                      >
+                        <UserPlus size={16} />
+                      </div>
+                      <div className="feed-content" style={{ flex: 1 }}>
+                        <div className="feed-title" style={{ fontWeight: 500 }}>
+                          {emp.name} joined ({emp.department})
+                        </div>
+                      </div>
+                      <div className="feed-time" style={{ width: "auto" }}>
+                        {new Date(
+                          emp.joinDate || Date.now()
+                        ).toLocaleDateString()}
+                      </div>
+                    </div>
+                  ))
+              ) : (
+                <EmptyState
+                  title="No Recent Hires"
+                  message="No new employees have joined recently."
+                  height={150}
+                  icon={UserPlus}
+                />
+              )}
+            </div>
+          </div>
+        </div>
+        {/* ── 6. Bottom Row: 5 panels in a 5-column grid ── */}
+        <div className="rd-five-col">
+          {/* HR Insights */}
+          <div className="dashboard-panel">
+            <div className="panel-header">
+              <div className="panel-title">
+                <Cpu
+                  size={15}
+                  style={{
+                    display: "inline",
+                    verticalAlign: "middle",
+                    marginRight: 5,
+                  }}
+                  color="#3b82f6"
+                />{" "}
+                HR Insights
+              </div>
+            </div>
+            <div className="ai-insights-list">
+              <div className="ai-insight-item">
+                <div className="ai-dot"></div>
+                <div>
+                  <strong>{onLeave}</strong> employees are currently on leave.
+                </div>
+              </div>
+              <div className="ai-insight-item">
+                <div className="ai-dot"></div>
+                <div>
+                  <strong>{newJoiners}</strong> new joiners this month.
+                </div>
+              </div>
+              <div className="ai-insight-item">
+                <div className="ai-dot"></div>
+                <div>
+                  Attendance rate is currently{" "}
+                  <strong>
+                    {dashboardData?.hrStats?.attendanceRate || "N/A"}
+                  </strong>
+                  .
+                </div>
+              </div>
+              <div className="ai-insight-item">
+                <div className="ai-dot"></div>
+                <div>
+                  <strong>{pendingLeaves}</strong> leave requests pending.
+                </div>
+              </div>
+            </div>
+          </div>
+          {/* Headcount by Dept */}
+          <div className="dashboard-panel">
+            <div className="panel-header">
+              <div className="panel-title">Headcount</div>
+              <select className="panel-dropdown">
+                <option>Current ▾</option>
+              </select>
+            </div>
+            <div style={{ height: 180 }}>
+              {!dashboardData?.hrStats?.employeeDistribution ||
+              dashboardData.hrStats.employeeDistribution.length === 0 ? (
+                <EmptyState
+                  title="No Headcount Data"
+                  message="No department data available."
+                  height={180}
+                />
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    layout="vertical"
+                    data={dashboardData.hrStats.employeeDistribution}
+                    margin={{ top: 0, right: 20, left: 0, bottom: 0 }}
+                  >
+                    <XAxis type="number" hide />
+                    <YAxis
+                      dataKey="name"
+                      type="category"
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 11, fill: "#475569" }}
+                      width={80}
+                    />
+                    <Tooltip
+                      contentStyle={{ fontSize: 11 }}
+                      cursor={{ fill: "#f8fafc" }}
+                    />
+                    <Bar
+                      dataKey="value"
+                      fill="#8b5cf6"
+                      radius={[0, 4, 4, 0]}
+                      barSize={10}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+          </div>
+          {/* Diversity Ratio */}
+          <div className="dashboard-panel">
+            <div className="panel-header">
+              <div className="panel-title">Diversity</div>
+              <select className="panel-dropdown">
+                <option>All ▾</option>
+              </select>
+            </div>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 8,
+              }}
+            >
+              <div style={{ width: "100%", height: 130 }}>
+                {!dashboardData?.charts?.hrmsDonut ||
+                dashboardData.charts.hrmsDonut.length === 0 ? (
+                  <EmptyState
+                    title="No Diversity Data"
+                    message="Data unavailable."
+                    height={130}
+                  />
+                ) : (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={dashboardData.charts.hrmsDonut}
+                        innerRadius={38}
+                        outerRadius={56}
+                        dataKey="value"
+                        cx="50%"
+                        cy="50%"
+                      >
+                        {dashboardData.charts.hrmsDonut.map((entry, index) => {
+                          const colors = ["#3b82f6", "#ec4899", "#f59e0b"];
+                          return (
+                            <Cell
+                              key={`cell-${index}`}
+                              fill={
+                                entry.color || colors[index % colors.length]
+                              }
+                            />
+                          );
+                        })}
+                      </Pie>
+                      <Tooltip contentStyle={{ fontSize: 11 }} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                )}
+              </div>
+              <div
+                style={{
+                  width: "100%",
+                  fontSize: 10,
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: 4,
+                }}
+              >
+                {!dashboardData?.charts?.hrmsDonut ||
+                dashboardData.charts.hrmsDonut.length === 0
+                  ? null
+                  : dashboardData.charts.hrmsDonut.map((entry, idx) => {
+                      const colors = ["#3b82f6", "#ec4899", "#f59e0b"];
+                      return (
+                        <div
+                          key={idx}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 4,
+                          }}
+                        >
+                          <div
+                            style={{
+                              width: 8,
+                              height: 8,
+                              borderRadius: "0px",
+                              background:
+                                entry.color || colors[idx % colors.length],
+                            }}
+                          ></div>
+                          <span>
+                            <b>{entry.value}</b> {entry.name}
+                          </span>
+                        </div>
+                      );
+                    })}
+              </div>
+            </div>
+          </div>
+          {/* Hiring Trend */}
+          <div className="dashboard-panel">
+            <div className="panel-header">
+              <div className="panel-title">Hiring Trend</div>
+              <select className="panel-dropdown">
+                <option>This Year ▾</option>
+              </select>
+            </div>
+            <div style={{ padding: "5px 0" }}>
+              <div style={{ fontSize: 20, fontWeight: 800, color: "#0f172a" }}>
+                {newJoiners} Hires
+              </div>
+              <div style={{ fontSize: 11, color: "#10b981", fontWeight: 600 }}>
+                This Month
+              </div>
+            </div>
+            <div style={{ height: 100, width: "100%" }}>
+              {!dashboardData?.charts?.monthlyStats ||
+              dashboardData.charts.monthlyStats.length === 0 ? (
+                <EmptyState
+                  title="No Trend Data"
+                  message="No data."
+                  height={100}
+                />
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={dashboardData.charts.monthlyStats}>
+                    <Line
+                      type="monotone"
+                      dataKey="sales"
+                      stroke="#10b981"
+                      strokeWidth={2}
+                      dot={{ r: 3, fill: "#10b981" }}
+                    />
+                    <Tooltip contentStyle={{ fontSize: 11 }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+          </div>
+          {/* Upcoming HR Events */}
+          <div className="dashboard-panel">
+            <div className="panel-header">
+              <div className="panel-title">HR Events</div>
+              <span
+                onClick={() => navigate("/tasks/calendar")}
+                className="panel-action"
+                style={{ cursor: "pointer" }}
+              >
+                View All
+              </span>
+            </div>
+            <div className="feed-list" style={{ gap: 12, marginTop: 8 }}>
+              {upcomingEvents.length > 0 ? (
+                upcomingEvents.map((ev, i) => (
+                  <div className="event-item" key={i}>
+                    <div
+                      className="event-date-badge"
+                      style={{ background: ev.bg, color: ev.col }}
+                    >
+                      <div className="event-month">{ev.month}</div>
+                      <div className="event-day">{ev.day}</div>
+                    </div>
+                    <div className="feed-content">
+                      <div className="event-title">{ev.title}</div>
+                      <div className="event-desc">{ev.desc}</div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <EmptyState
+                  title="No Upcoming Events"
+                  message="Your schedule is clear."
+                  height={150}
+                  icon={Calendar}
+                />
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+      <CommandCenter
+        isOpen={isCommandCenterOpen}
+        onClose={() => setIsCommandCenterOpen(false)}
+      />
+    </div>
+  );
 };
-
 export default HRDashboard;

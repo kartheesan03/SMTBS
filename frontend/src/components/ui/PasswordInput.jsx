@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
-
 const PasswordInput = ({ className, style, ...props }) => {
     const [showPassword, setShowPassword] = useState(false);
-
     return (
         <div style={{ position: 'relative', display: 'flex', alignItems: 'center', width: '100%' }}>
             <input
@@ -34,5 +32,4 @@ const PasswordInput = ({ className, style, ...props }) => {
         </div>
     );
 };
-
 export default PasswordInput;

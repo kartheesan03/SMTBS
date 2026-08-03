@@ -37,12 +37,10 @@ async function run() {
         console.log('✅ Database connected.\n');
 
         // ============================================================
-        // STEP 1: Remove duplicate Employee records
         // ============================================================
         console.log('=== STEP 1: Remove duplicate Employee records ===');
         const [allEmps] = await sequelize.query("SELECT id, employeeId, firstName, lastName, contact, userIdField FROM Employee ORDER BY id;");
         
-        // Group by contact email - keep lowest id
         const seenContacts = {};
         const dupeIds = [];
         for (const emp of allEmps) {
@@ -63,7 +61,6 @@ async function run() {
         }
 
         // ============================================================
-        // STEP 2: Fix Karthikeyan Rajan - give unique email
         // ============================================================
         console.log('\n=== STEP 2: Fix Employee using admin email ===');
         const [empWithAdmin] = await sequelize.query(
@@ -74,32 +71,27 @@ async function run() {
             const newEmail = `${emp.firstName.toLowerCase()}.${(emp.lastName || 'user').toLowerCase()}@smtbms.com`;
             console.log(`  🔧 Reassigning ${emp.firstName} ${emp.lastName||''} from admin@smtbms.com -> ${newEmail}`);
             
-            // Check if user with new email exists
             const [existingUser] = await sequelize.query(`SELECT id FROM User WHERE email='${newEmail}';`);
             let userId;
             
             if (existingUser.length > 0) {
                 userId = existingUser[0].id;
             } else {
-                // Create a new user for this employee
                 const salt = await bcrypt.genSalt(10);
                 const hashed = await bcrypt.hash('password123', salt);
                 const [result] = await sequelize.query(
                     `INSERT INTO User (name, email, password, role, active, isProfileComplete, provider, createdAt, updatedAt) 
                      VALUES ('${emp.firstName} ${emp.lastName||''}', '${newEmail}', '${hashed}', 'Employee', 1, 1, 'local', datetime('now'), datetime('now'));`
                 );
-                // Get the newly created user id
                 const [newUser] = await sequelize.query(`SELECT id FROM User WHERE email='${newEmail}';`);
                 userId = newUser[0].id;
                 console.log(`  ✅ Created new user account: ${newEmail} (id=${userId})`);
             }
             
-            // Update the employee record
             await sequelize.query(`UPDATE Employee SET contact='${newEmail}', userIdField=${userId} WHERE id=${emp.id};`);
             console.log(`  ✅ Updated employee ${emp.firstName} to use ${newEmail}`);
         }
 
-        // Also fix employees using other system emails that shouldn't
         const systemEmailEmployees = [
             { sysEmail: 'employee@smtbms.com', sysName: 'System Employee' },
             { sysEmail: 'hr@smtbms.com', sysName: 'HR Manager' },
@@ -134,7 +126,6 @@ async function run() {
         }
 
         // ============================================================
-        // STEP 3: Restore all default system accounts
         // ============================================================
         console.log('\n=== STEP 3: Restore default system accounts ===');
         for (const acct of defaultAccounts) {
@@ -162,7 +153,6 @@ async function run() {
                     needsUpdate = true;
                 }
 
-                // Check password
                 const isValidHash = user.password && user.password.startsWith('$2');
                 let passwordWorks = false;
                 if (isValidHash) {
@@ -185,7 +175,6 @@ async function run() {
         }
 
         // ============================================================
-        // STEP 4: Re-link remaining employees
         // ============================================================
         console.log('\n=== STEP 4: Link employees to users ===');
         const [remaining] = await sequelize.query("SELECT id, firstName, lastName, contact, userIdField FROM Employee;");
@@ -200,7 +189,6 @@ async function run() {
         }
 
         // ============================================================
-        // STEP 5: Verify
         // ============================================================
         console.log('\n=== STEP 5: Verification ===');
         for (const acct of defaultAccounts) {
@@ -214,7 +202,6 @@ async function run() {
             console.log(`  ${match ? '✅' : '❌'} ${acct.email} / ${acct.password} -> role=${user.role} name=${user.name} login=${match ? 'PASS' : 'FAIL'}`);
         }
 
-        // Show final state
         console.log('\n=== FINAL STATE ===');
         const [finalUsers] = await sequelize.query("SELECT id, email, role, name FROM User ORDER BY id;");
         console.log('Users:');

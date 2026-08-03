@@ -1,7 +1,6 @@
 const fs = require('fs');
 let css = fs.readFileSync('c:/Users/Admin/Documents/project/frontend/src/index.css', 'utf8');
 
-// Update app-layout for Dual Tier
 css = css.replace(
   /\.app-layout\s*\{[^}]*\}/,
   `.app-layout {
@@ -13,7 +12,6 @@ css = css.replace(
 }`
 );
 
-// Update app-main for Dual Tier
 css = css.replace(
   /\.app-main\s*\{[^}]*\}/,
   `.app-main {

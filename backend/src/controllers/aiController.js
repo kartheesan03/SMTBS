@@ -1,28 +1,20 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const sequelize = require('../config/sequelize');
 const AICopilotLog = require('../models/AICopilotLog');
-
-// Initialize Gemini
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || 'dummy_key_to_prevent_crash_if_not_set');
-
-// The schemas mapping defines what tables each role can query.
-// It also provides the table DDL or description for the LLM to understand the schema.
 const rolePermissions = {
     Admin: {
         allowedTables: ['users', 'employees', 'attendance', 'leaves', 'salaries', 'materials', 'sales_goals', 'customers', 'vendors', 'orders', 'projects', 'tasks'],
-        rls: (user) => '' // Admin can see everything
+        rls: (user) => ''
     },
     HR: {
         allowedTables: ['users', 'employees', 'attendance', 'leaves', 'salaries', 'recruitments'],
-        rls: (user) => '' // HR can see all HR data
+        rls: (user) => ''
     },
     Manager: {
         allowedTables: ['employees', 'attendance', 'leaves', 'tasks', 'projects', 'orders'],
         rls: (user) => {
-            // Must have a departmentId. In this fake schema, we'll assume they can only see their department.
-            // But we need to define how department filtering works. 
-            // We'll enforce a strict WHERE clause.
-            if (!user.department) return 'WHERE 1=0'; // Cannot see anything if no department
+            if (!user.department) return 'WHERE 1=0';
             return `/* MANDATORY: MUST filter by department = '${user.department}' for employees/attendance/leaves */`;
         }
     },
@@ -34,10 +26,10 @@ const rolePermissions = {
     },
     Sales: {
         allowedTables: ['customers', 'leads', 'orders', 'sales_goals'],
-        rls: (user) => '' // Sales can see all sales data
+        rls: (user) => ''
     },
     Vendor: {
-        allowedTables: ['orders', 'material_movements'], // Assuming orders here means purchase orders
+        allowedTables: ['orders', 'material_movements'],
         rls: (user) => {
             return `/* MANDATORY: MUST strictly filter by vendorId = ${user.vendorId || user.id} in WHERE clauses */`;
         }
@@ -49,10 +41,7 @@ const rolePermissions = {
         }
     }
 };
-
 const getDatabaseSchema = (allowedTables) => {
-    // In a real production system, this would dynamically fetch SHOW CREATE TABLE for the allowed tables.
-    // We'll provide a static dictionary for the LLM based on SMTBMS models.
     const schemas = {
         users: `CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT, email TEXT, role TEXT, active BOOLEAN, createdAt DATETIME);`,
         employees: `CREATE TABLE employees (id INTEGER PRIMARY KEY, userId INTEGER, firstName TEXT, lastName TEXT, department TEXT, designation TEXT, baseSalary REAL, joinDate DATETIME);`,
@@ -65,45 +54,35 @@ const getDatabaseSchema = (allowedTables) => {
         orders: `CREATE TABLE orders (id INTEGER PRIMARY KEY, customerId INTEGER, vendorId INTEGER, type TEXT, status TEXT, totalAmount REAL, orderDate DATETIME);`,
         sales_goals: `CREATE TABLE sales_goals (id INTEGER PRIMARY KEY, target REAL, achieved REAL, month TEXT, year INTEGER);`
     };
-
     let schemaText = "";
     allowedTables.forEach(t => {
         if (schemas[t]) schemaText += schemas[t] + "\n";
     });
     return schemaText;
 };
-
 exports.askCopilot = async (req, res) => {
     const startTime = Date.now();
     const { question } = req.body;
     const user = req.user;
-
     if (!question) {
         return res.status(400).json({ message: "Question is required." });
     }
-
     if (!user || !user.role) {
         return res.status(403).json({ message: "Unauthorized. Role is missing." });
     }
-
     const roleData = rolePermissions[user.role];
     if (!roleData) {
         return res.status(403).json({ message: `Role ${user.role} is not supported by AI Copilot.` });
     }
-
     const allowedSchema = getDatabaseSchema(roleData.allowedTables);
     const rlsRule = roleData.rls(user);
-
     const systemPrompt = `You are an enterprise AI Database Copilot for an SQLite database.
 You translate natural language questions into valid SQL queries based ONLY on the provided schema.
-
 ROLE: ${user.role}
 ALLOWED TABLES:
 ${allowedSchema}
-
 MANDATORY ROW-LEVEL SECURITY (RLS) RULE:
 ${rlsRule}
-
 SECURITY RULES:
 1. ONLY generate SELECT queries. Never generate INSERT, UPDATE, DELETE, DROP, ALTER, PRAGMA.
 2. If the user asks for data outside their allowed tables, return a JSON explaining they don't have permission, with an empty SQL string.
@@ -115,52 +94,39 @@ SECURITY RULES:
     "type": "table|chart|text",
     "explanation": "Brief business insight explaining the data..."
 }
-
 If the question is conversational or unanswerable, set "sql": "" and provide the answer in "explanation".
 `;
-
     let generatedSql = "";
     let success = false;
     let errorMessage = null;
-
     try {
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
         const result = await model.generateContent([
             { text: systemPrompt },
             { text: `Question: ${question}` }
         ]);
-
         let responseText = result.response.text().trim();
         if (responseText.startsWith('```json')) responseText = responseText.substring(7);
         if (responseText.startsWith('```')) responseText = responseText.substring(3);
         if (responseText.endsWith('```')) responseText = responseText.slice(0, -3);
         responseText = responseText.trim();
-
         let aiResponse;
         try {
             aiResponse = JSON.parse(responseText);
         } catch (e) {
             throw new Error("AI returned malformed JSON: " + responseText);
         }
-
         generatedSql = aiResponse.sql || "";
-        
         let data = [];
         if (generatedSql) {
-            // Security check against mutating SQL
             const upperSql = generatedSql.toUpperCase();
             if (upperSql.includes('INSERT ') || upperSql.includes('UPDATE ') || upperSql.includes('DELETE ') || upperSql.includes('DROP ') || upperSql.includes('ALTER ')) {
                 throw new Error("Malicious SQL detected and blocked.");
             }
-            
-            // Execute the read-only query
             const [results] = await sequelize.query(generatedSql);
             data = results;
         }
-
         success = true;
-        
-        // Log successful transaction
         await AICopilotLog.create({
             userId: user.id,
             role: user.role,
@@ -169,20 +135,16 @@ If the question is conversational or unanswerable, set "sql": "" and provide the
             executionTimeMs: Date.now() - startTime,
             success: true
         }).catch(err => console.error("Failed to log AI Copilot request:", err));
-
         return res.json({
             success: true,
             type: aiResponse.type || 'text',
             explanation: aiResponse.explanation,
             data: data,
-            sql: generatedSql // Optional: Return SQL for debugging, but maybe hide in production
+            sql: generatedSql
         });
-
     } catch (error) {
         errorMessage = error.message;
         console.error("AI Copilot Error:", error);
-        
-        // Log failed transaction
         await AICopilotLog.create({
             userId: user.id,
             role: user.role,
@@ -192,7 +154,6 @@ If the question is conversational or unanswerable, set "sql": "" and provide the
             success: false,
             errorMessage: errorMessage
         }).catch(err => console.error("Failed to log AI Copilot request:", err));
-
         return res.status(500).json({ 
             success: false, 
             message: "AI Copilot failed to process your request.",

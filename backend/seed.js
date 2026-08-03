@@ -1,7 +1,6 @@
 const dotenv = require('dotenv');
 const connectDB = require('./src/config/db');
 
-// Import all models
 const User = require('./src/models/User');
 const Material = require('./src/models/Material');
 const Employee = require('./src/models/Employee');
@@ -41,7 +40,6 @@ const seedData = async () => {
         lastMonthDate.setMonth(today.getMonth() - 1);
         const lastMonthName = `${monthNames[lastMonthDate.getMonth()]} ${lastMonthDate.getFullYear()}`;
 
-        // 1. Clear all existing collections
         const sequelize = require('./src/config/sequelize');
         await sequelize.query('PRAGMA foreign_keys = OFF');
         await sequelize.drop();
@@ -50,7 +48,6 @@ const seedData = async () => {
         console.log('Dropped and recreated all database tables.');
 
         // ===================================================================
-        // 2. USERS — Tamil Nadu based names
         // ===================================================================
         const userDocs = [
             { name: 'Karthikeyan Rajan', email: 'admin@smtbms.com', password: 'admin123', role: 'Admin' },
@@ -87,7 +84,6 @@ const seedData = async () => {
         const empUser4 = createdUsers.find(u => u.email === 'employee4@smtbms.com');
 
         // ===================================================================
-        // 3. EMPLOYEES — Tamil Nadu cities and departments
         // ===================================================================
         const employeeDocs = [
             { userId: adminUser._id, employeeId: 'EMP001', firstName: 'System', lastName: 'Admin', department: 'Admin', designation: 'Administrator', salary: 75000, contact: '9876543200', address: '1, Admin Block, Coimbatore, Tamil Nadu 641001', joinDate: getPastDate(12, 1) },
@@ -101,7 +97,6 @@ const seedData = async () => {
         console.log(`Seeded ${createdEmployees.length} Employees.`);
 
         // ===================================================================
-        // 4. MATERIALS — Industrial materials with INR pricing
         // ===================================================================
         const materialDocs = [
             { name: 'TMT Steel Bars (12mm)', sku: 'TMT-001', category: 'Construction Steel', quantity: 500, lowStockThreshold: 100, unit: 'kg', price: 62, status: 'In Stock', warehouse: 'Warehouse A', shelf: 'Shelf 1', location: 'Warehouse A / Shelf 1' },
@@ -122,7 +117,6 @@ const seedData = async () => {
         console.log(`Seeded ${createdMaterials.length} Materials.`);
 
         // ===================================================================
-        // 5. VENDORS — Tamil Nadu based suppliers
         // ===================================================================
         const vendorDocs = [
             { name: 'Sri Lakshmi Steel Traders', contactPerson: 'Ravi Shankar', email: 'ravi@srilakshmisteel.in', phone: '9865432100', address: 'SIDCO Industrial Estate, Coimbatore, Tamil Nadu 641021', category: 'Steel & Metals' },
@@ -137,7 +131,6 @@ const seedData = async () => {
         console.log(`Seeded ${createdVendors.length} Vendors.`);
 
         // ===================================================================
-        // 6. CUSTOMERS — Tamil Nadu based companies
         // ===================================================================
         const customerDocs = [
             { name: 'Kovai Builders Pvt Ltd', email: 'info@kovaibuilders.in', phone: '9843210001', company: 'Kovai Builders Pvt Ltd', address: 'Race Course Road, Coimbatore, Tamil Nadu 641018', industry: 'Real Estate', website: 'kovaibuilders.in', status: 'Active', createdBy: salesUser._id },
@@ -152,18 +145,16 @@ const seedData = async () => {
 
         const createdCustomers = await Customer.insertMany(customerDocs);
         console.log(`Seeded ${createdCustomers.length} Customers.`);
-        // Removed Lead seeding
 
         // ===================================================================
-        // 8. ORDERS — Sales & Purchase Orders with INR amounts
         // ===================================================================
         const orderDocs = [
             {
                 orderNumber: `SO-${today.getFullYear()}-001`,
-                customer: createdCustomers[0]._id, // Kovai Builders
+                customer: createdCustomers[0]._id,
                 items: [
-                    { material: createdMaterials[0]._id, quantity: 200, price: 62 },  // TMT Steel Bars
-                    { material: createdMaterials[7]._id, quantity: 100, price: 380 }  // Cement
+                    { material: createdMaterials[0]._id, quantity: 200, price: 62 },
+                    { material: createdMaterials[7]._id, quantity: 100, price: 380 }
                 ],
                 totalAmount: (200 * 62) + (100 * 380),
                 status: 'Confirmed',
@@ -173,10 +164,10 @@ const seedData = async () => {
             },
             {
                 orderNumber: `SO-${today.getFullYear()}-002`,
-                customer: createdCustomers[1]._id, // Madurai Mfg
+                customer: createdCustomers[1]._id,
                 items: [
-                    { material: createdMaterials[10]._id, quantity: 10, price: 3500 }, // SS Sheet
-                    { material: createdMaterials[2]._id, quantity: 500, price: 18 }    // Copper Wire
+                    { material: createdMaterials[10]._id, quantity: 10, price: 3500 },
+                    { material: createdMaterials[2]._id, quantity: 500, price: 18 }
                 ],
                 totalAmount: (10 * 3500) + (500 * 18),
                 status: 'Shipped',
@@ -186,9 +177,9 @@ const seedData = async () => {
             },
             {
                 orderNumber: `SO-${today.getFullYear()}-003`,
-                customer: createdCustomers[2]._id, // Trichy Engineering
+                customer: createdCustomers[2]._id,
                 items: [
-                    { material: createdMaterials[1]._id, quantity: 30, price: 850 }  // MS Angle
+                    { material: createdMaterials[1]._id, quantity: 30, price: 850 }
                 ],
                 totalAmount: (30 * 850),
                 status: 'Pending',
@@ -198,10 +189,10 @@ const seedData = async () => {
             },
             {
                 orderNumber: `SO-${today.getFullYear()}-004`,
-                customer: createdCustomers[3]._id, // Salem Steel
+                customer: createdCustomers[3]._id,
                 items: [
-                    { material: createdMaterials[0]._id, quantity: 100, price: 62 },  // TMT Steel
-                    { material: createdMaterials[6]._id, quantity: 200, price: 5 }    // Welding Rod
+                    { material: createdMaterials[0]._id, quantity: 100, price: 62 },
+                    { material: createdMaterials[6]._id, quantity: 200, price: 5 }
                 ],
                 totalAmount: (100 * 62) + (200 * 5),
                 status: 'Confirmed',
@@ -211,10 +202,10 @@ const seedData = async () => {
             },
             {
                 orderNumber: `SO-${today.getFullYear()}-005`,
-                customer: createdCustomers[4]._id, // Tirupur Textiles
+                customer: createdCustomers[4]._id,
                 items: [
-                    { material: createdMaterials[3]._id, quantity: 50, price: 420 },  // GI Pipes
-                    { material: createdMaterials[5]._id, quantity: 100, price: 45 }   // PVC Conduit
+                    { material: createdMaterials[3]._id, quantity: 50, price: 420 },
+                    { material: createdMaterials[5]._id, quantity: 100, price: 45 }
                 ],
                 totalAmount: (50 * 420) + (100 * 45),
                 status: 'Delivered',
@@ -224,10 +215,10 @@ const seedData = async () => {
             },
             {
                 orderNumber: `PO-${today.getFullYear()}-001`,
-                vendor: createdVendors[0]._id, // Sri Lakshmi Steel
+                vendor: createdVendors[0]._id,
                 items: [
-                    { material: createdMaterials[0]._id, quantity: 500, price: 55 },  // TMT Steel wholesale
-                    { material: createdMaterials[1]._id, quantity: 50, price: 720 }   // MS Angle wholesale
+                    { material: createdMaterials[0]._id, quantity: 500, price: 55 },
+                    { material: createdMaterials[1]._id, quantity: 50, price: 720 }
                 ],
                 totalAmount: (500 * 55) + (50 * 720),
                 status: 'Delivered',
@@ -237,10 +228,10 @@ const seedData = async () => {
             },
             {
                 orderNumber: `PO-${today.getFullYear()}-002`,
-                vendor: createdVendors[1]._id, // Kumaran Electricals
+                vendor: createdVendors[1]._id,
                 items: [
-                    { material: createdMaterials[2]._id, quantity: 1000, price: 15 }, // Copper Wire
-                    { material: createdMaterials[11]._id, quantity: 50, price: 200 }  // MCB Switch
+                    { material: createdMaterials[2]._id, quantity: 1000, price: 15 },
+                    { material: createdMaterials[11]._id, quantity: 50, price: 200 }
                 ],
                 totalAmount: (1000 * 15) + (50 * 200),
                 status: 'Confirmed',
@@ -250,9 +241,9 @@ const seedData = async () => {
             },
             {
                 orderNumber: `PO-${today.getFullYear()}-003`,
-                vendor: createdVendors[3]._id, // Madurai Cement
+                vendor: createdVendors[3]._id,
                 items: [
-                    { material: createdMaterials[7]._id, quantity: 200, price: 340 }  // Cement bulk
+                    { material: createdMaterials[7]._id, quantity: 200, price: 340 }
                 ],
                 totalAmount: (200 * 340),
                 status: 'Awaiting Approval',
@@ -262,9 +253,9 @@ const seedData = async () => {
             },
             {
                 orderNumber: `PO-${today.getFullYear()}-004`,
-                vendor: createdVendors[5]._id, // Erode Welding
+                vendor: createdVendors[5]._id,
                 items: [
-                    { material: createdMaterials[6]._id, quantity: 500, price: 3.5 }  // Welding Rod
+                    { material: createdMaterials[6]._id, quantity: 500, price: 3.5 }
                 ],
                 totalAmount: (500 * 3.5),
                 status: 'Approved',
@@ -278,7 +269,6 @@ const seedData = async () => {
         console.log(`Seeded ${createdOrders.length} Sales & Purchase Orders.`);
 
         // ===================================================================
-        // 9. ATTENDANCE — Last 10 working days
         // ===================================================================
         const attendanceDocs = [];
         for (let i = 0; i < 14; i++) {
@@ -286,11 +276,9 @@ const seedData = async () => {
             date.setDate(today.getDate() - i);
             date.setHours(0, 0, 0, 0);
 
-            // Skip weekends
             if (date.getDay() === 0 || date.getDay() === 6) continue;
 
             for (const emp of createdEmployees) {
-                // Simulate some realistic variations
                 if (emp.firstName === 'Murugan' && i === 3) {
                     attendanceDocs.push({ userId: emp.userId || emp.userIdField, employee: emp._id, date, status: 'Leave' });
                     continue;
@@ -324,11 +312,10 @@ const seedData = async () => {
         console.log(`Seeded ${seededAttendance.length} Attendance log entries.`);
 
         // ===================================================================
-        // 10. LEAVES
         // ===================================================================
         const leaveDocs = [
             {
-                employee: createdEmployees[0]._id, // Admin
+                employee: createdEmployees[0]._id,
                 type: 'Sick',
                 startDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() - 4),
                 endDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() - 3),
@@ -338,7 +325,7 @@ const seedData = async () => {
                 reviewNote: 'Approved. Medical certificate received.'
             },
             {
-                employee: createdEmployees[1]._id, // HR
+                employee: createdEmployees[1]._id,
                 type: 'Casual',
                 startDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() - 8),
                 endDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7),
@@ -348,7 +335,7 @@ const seedData = async () => {
                 reviewNote: 'Permitted.'
             },
             {
-                employee: createdEmployees[2]._id, // Manager
+                employee: createdEmployees[2]._id,
                 type: 'Annual',
                 startDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 5),
                 endDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 12),
@@ -356,7 +343,7 @@ const seedData = async () => {
                 status: 'Pending'
             },
             {
-                employee: createdEmployees[3]._id, // Employee
+                employee: createdEmployees[3]._id,
                 type: 'Sick',
                 startDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() - 2),
                 endDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() - 2),
@@ -366,7 +353,7 @@ const seedData = async () => {
                 reviewNote: 'Half-day approved.'
             },
             {
-                employee: createdEmployees[4]._id, // Sales
+                employee: createdEmployees[4]._id,
                 type: 'Casual',
                 startDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 2),
                 endDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 2),
@@ -374,7 +361,7 @@ const seedData = async () => {
                 status: 'Pending'
             },
             {
-                employee: createdEmployees[0]._id, // Admin
+                employee: createdEmployees[0]._id,
                 type: 'Unpaid',
                 startDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 15),
                 endDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 20),
@@ -387,15 +374,12 @@ const seedData = async () => {
         console.log(`Seeded ${createdLeaves.length} Leave requests.`);
 
         // ===================================================================
-        // 11. SALARIES — Indian payroll with INR amounts
         // ===================================================================
         const salaryDocs = [];
-        // Last month salaries — realistic mix of statuses
         for (let i = 0; i < createdEmployees.length; i++) {
             const emp = createdEmployees[i];
-            const isPaid = i < 6;       // First 6 employees were paid last month
-            const isApproved = i >= 6 && i < 8;  // Next 2 are approved but not yet paid
-            // Remaining (9-10) are still awaiting approval
+            const isPaid = i < 6;
+            const isApproved = i >= 6 && i < 8;
 
             salaryDocs.push({
                 employee: emp._id,
@@ -409,7 +393,6 @@ const seedData = async () => {
                 transactionId: isPaid ? `TXN-${monthNames[lastMonthDate.getMonth()].toUpperCase()}-${emp.employeeId}` : null
             });
         }
-        // This month — all awaiting approval (payroll not yet processed)
         for (let i = 0; i < createdEmployees.length; i++) {
             const emp = createdEmployees[i];
             salaryDocs.push({
@@ -427,7 +410,6 @@ const seedData = async () => {
         console.log(`Seeded ${createdSalaries.length} Salary payroll slips.`);
 
         // ===================================================================
-        // 12. TASKS
         // ===================================================================
         const taskDocs = [
             {
@@ -527,7 +509,6 @@ const seedData = async () => {
         console.log(`Seeded ${createdTasks.length} Operations Tasks.`);
 
         // ===================================================================
-        // 13. NOTIFICATIONS
         // ===================================================================
         const notificationDocs = [
             {
@@ -606,10 +587,8 @@ const seedData = async () => {
         const seededNotifications = await Notification.insertMany(notificationDocs);
         console.log(`Seeded ${seededNotifications.length} System Notifications.`);
 
-        // Removed FollowUp
 
         // ===================================================================
-        // 15. CUSTOMER SUPPORT TICKETS
         // ===================================================================
         const ticketDocs = [
             { ticketNumber: 'TIC-203512', customer: createdCustomers[0]._id, subject: 'Delayed cement delivery', description: 'Order SO-2026-001 has cement bags which have not arrived at Coimbatore warehouse yet.', priority: 'High', status: 'Open', assignedTo: adminUser._id },
@@ -620,7 +599,6 @@ const seedData = async () => {
         console.log(`Seeded ${seededTickets.length} Customer Support Tickets.`);
 
         // ===================================================================
-        // 16. COMMUNICATION LOGS
         // ===================================================================
         const commDocs = [
             { customerId: createdCustomers[0]._id, userId: salesUser._id, type: 'Call', direction: 'Outbound', status: 'Completed', subject: 'Requirement Gathering', notes: 'Discussed monthly requirement of TMT bars.', date: new Date() },
@@ -630,7 +608,6 @@ const seedData = async () => {
         console.log(`Seeded ${seededComms.length} Communication Logs.`);
 
         // ===================================================================
-        // 17. MATERIAL MOVEMENTS
         // ===================================================================
         const movementDocs = [
             { materialId: createdMaterials[0]._id, type: 'In', quantity: 50, previousQuantity: 200, newQuantity: 250, reason: 'Initial Stock Audit', performedBy: adminUser._id },
@@ -640,7 +617,6 @@ const seedData = async () => {
         console.log(`Seeded ${seededMovements.length} Material Movements.`);
 
         // ===================================================================
-        // 18. AUDIT LOGS
         // ===================================================================
         const auditDocs = [
             { user: adminUser._id, action: 'CREATE', module: 'System', targetId: adminUser._id, description: 'System initialized and seeded data.', ipAddress: '127.0.0.1' }

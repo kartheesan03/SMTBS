@@ -2,9 +2,6 @@ const mongoose = require("mongoose");
 const Order = require("./src/models/Order");
 require('dotenv').config();
 
-// Need to connect DB? The models might connect automatically if imported. 
-// Wait, `require('./src/models/Order')` uses Sequelize and mongoose-bridge, but we need to ensure the DB connection is established.
-// Let's just require the server setup or use the raw models.
 
 async function fixOrders() {
     try {

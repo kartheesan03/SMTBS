@@ -17,7 +17,6 @@ for (const file of files) {
     
     content = content.replace(badgeRegex, '$1>');
 
-    // Just in case it spans multiple lines:
     const badgeRegexMultiline = /(<span\s+className="rd-module-badge")[\s\S]*?(>)/g;
     content = content.replace(badgeRegexMultiline, (match, p1, p2) => {
         return p1 + p2;

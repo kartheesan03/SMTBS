@@ -11,11 +11,9 @@ function processDir(dir) {
             let content = fs.readFileSync(fullPath, 'utf8');
             let modified = false;
 
-            // Simple regex to match KPI card components and remove the trend/chart part.
             // We can search for <ResponsiveContainer...> inside the KPI components.
             
             // This is complex to do with Regex. Let's just remove anything from <div style={{display: 'flex', alignItems: 'flex-end' to </ResponsiveContainer></div></div>
-            // Wait, the KPI cards all have a standard structure.
             
             // Let's remove the <ResponsiveContainer> block manually using string replacement
             const startMarker = "<div style={{display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: 16}}>";
@@ -26,13 +24,11 @@ function processDir(dir) {
                 modified = true;
             }
 
-            // For HRMSShared.jsx (HRMSKPICard)
             if (content.includes('HRMSKPICard')) {
                 content = content.replace(/trend(Dir)?,\s*/g, '');
                 content = content.replace(/data,\s*/g, '');
             }
 
-            // Remove destructured props: trend, trendDir, data
             content = content.replace(/trend, trendDir, color, data/g, 'color');
             content = content.replace(/trend, trendDir, data, color/g, 'color');
             content = content.replace(/trend, color, data/g, 'color');

@@ -1,7 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/sequelize');
 const { makeBridgedModel } = require('../config/mongoose-bridge');
-
 const MaterialMovementSequelize = sequelize.define('MaterialMovement', {
     id: {
         type: DataTypes.INTEGER,
@@ -41,6 +40,5 @@ const MaterialMovementSequelize = sequelize.define('MaterialMovement', {
         allowNull: true
     }
 });
-
 const MaterialMovement = makeBridgedModel('MaterialMovement', MaterialMovementSequelize);
 module.exports = MaterialMovement;

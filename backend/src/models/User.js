@@ -2,7 +2,6 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/sequelize');
 const bcrypt = require('bcryptjs');
 const { makeBridgedModel } = require('../config/mongoose-bridge');
-
 const UserSequelize = sequelize.define('User', {
     id: {
         type: DataTypes.INTEGER,
@@ -20,7 +19,7 @@ const UserSequelize = sequelize.define('User', {
     },
     password: {
         type: DataTypes.STRING,
-        allowNull: true // Allow null for Google signups
+        allowNull: true
     },
     phone: {
         type: DataTypes.STRING,
@@ -63,12 +62,9 @@ const UserSequelize = sequelize.define('User', {
         }
     }
 });
-
-// Instance method for matching passwords
 UserSequelize.prototype.matchPassword = async function (enteredPassword) {
     if (!this.password) return false;
     return await bcrypt.compare(enteredPassword, this.password);
 };
-
 const User = makeBridgedModel('User', UserSequelize);
 module.exports = User;

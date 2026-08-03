@@ -38,37 +38,6 @@
     z-index: 0;
 }
 
-/* Avatar offset */
-.wb-avatar-wrapper {
-    position: absolute;
-    top: -20px;
-    left: 30px;
-    z-index: 2;
-    display: inline-flex;
-}
-
-.wb-avatar {
-    width: 68px;
-    height: 68px;
-    border-radius: 50%;
-    border: 4px solid #0f172a;
-    object-fit: cover;
-    background: rgba(255, 255, 255, 0.1);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    box-sizing: border-box;
-}
-
-.wb-status-dot {
-    position: absolute;
-    bottom: 2px;
-    right: 2px;
-    width: 14px;
-    height: 14px;
-    background: #10b981;
-    border-radius: 50%;
-    border: 3px solid #0f172a;
-    box-sizing: content-box;
-}
 
 /* Content layout */
 .wb-hero-content {
@@ -78,7 +47,7 @@
     width: 100%;
     justify-content: space-between;
     align-items: flex-end; /* actions at bottom right */
-    margin-top: 24px; /* space for avatar */
+    align-items: flex-end; /* actions at bottom right */
 }
 
 .wb-text-block {
@@ -361,10 +330,7 @@
         font-size: 20px;
     }
 
-    .wb-avatar {
-        width: 50px;
-        height: 50px;
-    }
+
 }
 
 /* Phone: buttons stack vertically */

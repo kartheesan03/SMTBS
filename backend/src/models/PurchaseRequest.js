@@ -1,7 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/sequelize');
 const { makeBridgedModel } = require('../config/mongoose-bridge');
-
 const PurchaseRequestSequelize = sequelize.define('PurchaseRequest', {
     id: {
         type: DataTypes.INTEGER,
@@ -42,6 +41,5 @@ const PurchaseRequestSequelize = sequelize.define('PurchaseRequest', {
         allowNull: true
     }
 });
-
 const PurchaseRequest = makeBridgedModel('PurchaseRequest', PurchaseRequestSequelize);
 module.exports = PurchaseRequest;

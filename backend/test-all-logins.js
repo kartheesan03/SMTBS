@@ -1,6 +1,4 @@
-// Test all API endpoints to verify the system is working end-to-end
 (async () => {
-    // 1. Login as admin
     console.log('=== Testing Login & Employee API ===\n');
     
     const loginRes = await fetch('http://localhost:5000/api/auth/login', {
@@ -12,7 +10,6 @@
     console.log('Admin Login:', loginRes.ok ? '✅' : '❌', 'role=' + loginData.role);
     const token = loginData.token;
 
-    // 2. Get employees
     const empRes = await fetch('http://localhost:5000/api/employees', {
         headers: { 'Authorization': 'Bearer ' + token }
     });
@@ -25,7 +22,6 @@
             ' userId=' + (userId ? (userId.id || userId) : 'null'));
     });
 
-    // 3. Test all 5 logins
     console.log('\n=== All Logins ===');
     const accounts = [
         { email: 'admin@smtbms.com', password: 'admin123' },
@@ -44,7 +40,6 @@
         console.log(`  ${res.ok ? '✅' : '❌'} ${acct.email.padEnd(25)} role=${(data.role || 'FAIL').padEnd(12)} name=${data.name || data.message}`);
     }
 
-    // 4. Verify admin user details
     console.log('\n=== Admin User Verification ===');
     const adminRes = await fetch('http://localhost:5000/api/auth/login', {
         method: 'POST',

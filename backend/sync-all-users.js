@@ -15,7 +15,6 @@ const UserModel = require('./src/models/User').sequelizeModel;
 const EmployeeModel = require('./src/models/Employee').sequelizeModel;
 const bcrypt = require('bcryptjs');
 
-// Default system accounts that MUST exist
 const defaultAccounts = [
     { email: 'admin@smtbms.com',    password: 'admin123',    role: 'Admin',    name: 'System Admin' },
     { email: 'hr@smtbms.com',       password: 'hr123',       role: 'HR',       name: 'HR Manager' },
@@ -32,18 +31,16 @@ async function run() {
         let totalFixed = 0;
 
         // ============================================================
-        // STEP 1: Ensure all default accounts exist with valid passwords
         // ============================================================
         console.log('=== STEP 1: Checking default system accounts ===');
         for (const acct of defaultAccounts) {
             let user = await UserModel.findOne({ where: { email: acct.email } });
 
             if (!user) {
-                // Create missing user
                 user = await UserModel.create({
                     name: acct.name,
                     email: acct.email,
-                    password: acct.password, // Let beforeSave hook handle hashing
+                    password: acct.password,
                     role: acct.role,
                     active: true,
                     isProfileComplete: true
@@ -51,7 +48,6 @@ async function run() {
                 console.log(`  ✅ CREATED missing account: ${acct.email} (${acct.role})`);
                 totalFixed++;
             } else {
-                // Verify the password is a valid bcrypt hash AND matches the expected password
                 const isValidHash = user.password && user.password.startsWith('$2');
                 let passwordWorks = false;
                 if (isValidHash) {
@@ -59,7 +55,6 @@ async function run() {
                 }
 
                 if (!passwordWorks) {
-                    // Re-hash the password directly (bypass hooks to avoid double-hashing)
                     const salt = await bcrypt.genSalt(10);
                     const hashed = await bcrypt.hash(acct.password, salt);
                     await UserModel.update(
@@ -75,18 +70,15 @@ async function run() {
         }
 
         // ============================================================
-        // STEP 2: Check ALL User passwords are valid bcrypt hashes
         // ============================================================
         console.log('\n=== STEP 2: Checking all User passwords are valid bcrypt hashes ===');
         const allUsers = await UserModel.findAll();
         for (const user of allUsers) {
             if (!user.password) {
-                // Google-only users may not have a password - skip
                 if (user.provider === 'google' || user.googleId) {
                     console.log(`  ✓ SKIP (Google user): ${user.email}`);
                     continue;
                 }
-                // Non-google user with no password - set a default
                 const salt = await bcrypt.genSalt(10);
                 const hashed = await bcrypt.hash('password123', salt);
                 await UserModel.update(
@@ -100,7 +92,6 @@ async function run() {
 
             const isValidHash = user.password.startsWith('$2');
             if (!isValidHash) {
-                // Password is stored as plain text - hash it
                 const salt = await bcrypt.genSalt(10);
                 const hashed = await bcrypt.hash(user.password, salt);
                 await UserModel.update(
@@ -115,7 +106,6 @@ async function run() {
         }
 
         // ============================================================
-        // STEP 3: Link every Employee to a User account
         // ============================================================
         console.log('\n=== STEP 3: Linking Employee records to User accounts ===');
         const allEmployees = await EmployeeModel.findAll();
@@ -123,7 +113,6 @@ async function run() {
             const empName = `${emp.firstName} ${emp.lastName || ''}`.trim();
             let user = null;
 
-            // Check if already linked
             if (emp.userIdField) {
                 user = await UserModel.findByPk(emp.userIdField);
                 if (user) {
@@ -134,14 +123,11 @@ async function run() {
                 }
             }
 
-            // Not linked - find or create a User
             let email = null;
             if (emp.contact && emp.contact.includes('@')) {
                 email = emp.contact;
             } else {
-                // Contact is a phone number, not an email. Generate one.
                 email = `${emp.firstName.toLowerCase()}${emp.lastName ? '.' + emp.lastName.toLowerCase() : ''}@smtbms.com`;
-                // Move phone number out of contact field
                 if (emp.contact && !emp.phone) {
                     await EmployeeModel.update(
                         { phone: emp.contact },
@@ -150,10 +136,8 @@ async function run() {
                 }
             }
 
-            // Find existing user by email
             user = await UserModel.findOne({ where: { email: email } });
             if (!user) {
-                // Create a new user account
                 const salt = await bcrypt.genSalt(10);
                 const hashed = await bcrypt.hash('password123', salt);
                 user = await UserModel.create({
@@ -170,7 +154,6 @@ async function run() {
                 console.log(`  🔗 Found existing user for ${empName}: ${email}`);
             }
 
-            // Link employee to user
             await EmployeeModel.update(
                 { userIdField: user.id, contact: email },
                 { where: { id: emp.id } }
@@ -180,7 +163,6 @@ async function run() {
         }
 
         // ============================================================
-        // STEP 4: Final Verification - Test all logins
         // ============================================================
         console.log('\n=== STEP 4: Verification - Testing all default logins ===');
         for (const acct of defaultAccounts) {
@@ -198,7 +180,6 @@ async function run() {
         }
 
         // ============================================================
-        // Summary
         // ============================================================
         console.log(`\n${'='.repeat(50)}`);
         console.log(`SYNC COMPLETE. Total fixes applied: ${totalFixed}`);

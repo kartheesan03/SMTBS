@@ -1,14 +1,11 @@
 import React, { createContext, useState, useEffect, useCallback, useContext } from 'react';
 import API from '../api/axios';
 import { AuthContext } from './AuthContext';
-
 export const NotificationContext = createContext();
-
 export const NotificationProvider = ({ children }) => {
     const { user } = useContext(AuthContext);
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
-
     const fetchNotifications = useCallback(async () => {
         if (!user) return;
         try {
@@ -19,18 +16,16 @@ export const NotificationProvider = ({ children }) => {
             console.error('Error fetching notifications:', err);
         }
     }, [user]);
-
     useEffect(() => {
         if (user) {
             fetchNotifications();
-            const intervalId = setInterval(fetchNotifications, 60000); // 1-minute polling
+            const intervalId = setInterval(fetchNotifications, 60000);
             return () => clearInterval(intervalId);
         } else {
             setNotifications([]);
             setUnreadCount(0);
         }
     }, [user, fetchNotifications]);
-
     const markAsRead = async (id) => {
         try {
             await API.patch(`/notifications/${id}/read`);
@@ -40,7 +35,6 @@ export const NotificationProvider = ({ children }) => {
             console.error('Error marking notification as read:', err);
         }
     };
-
     const markAllAsRead = async () => {
         try {
             await API.patch('/notifications/mark-all-read');
@@ -50,7 +44,6 @@ export const NotificationProvider = ({ children }) => {
             console.error('Error marking all notifications as read:', err);
         }
     };
-
     const deleteNotification = async (id) => {
         try {
             await API.delete(`/notifications/${id}`);
@@ -65,7 +58,6 @@ export const NotificationProvider = ({ children }) => {
             console.error('Error deleting notification:', err);
         }
     };
-
     return (
         <NotificationContext.Provider value={{
             notifications,

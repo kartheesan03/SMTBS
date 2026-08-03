@@ -8,7 +8,6 @@ const syncMaterials = async () => {
         await sequelize.authenticate();
         console.log('Connected to DB');
 
-        // Execute ALTER TABLE to add vendorId in case Sequelize doesn't do it automatically
         try {
             await sequelize.query('ALTER TABLE Material ADD COLUMN vendorId INTEGER;');
             console.log('Added vendorId column to Material table');
@@ -28,7 +27,6 @@ const syncMaterials = async () => {
         const vendors = await Vendor.find({});
         
         for (const [vendorName, materialsList] of Object.entries(mappings)) {
-            // Find vendor
             let vendor = vendors.find(v => v.name.toLowerCase() === vendorName.toLowerCase());
             if (!vendor) {
                 console.log(`Vendor not found, creating: ${vendorName}`);
@@ -42,7 +40,6 @@ const syncMaterials = async () => {
                 });
             }
 
-            // Update materials
             const allMaterials = await Material.find({});
             for (const matName of materialsList) {
                 let material = allMaterials.find(m => m.name.toLowerCase().includes(matName.toLowerCase()));

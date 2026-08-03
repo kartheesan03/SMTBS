@@ -24,7 +24,6 @@ const files = walkSync(pagesDir);
 
 let updatedFiles = 0;
 
-// Mapping of filename keywords to the desired featured metric
 const getFeaturedMetric = (filename) => {
     const name = filename.toLowerCase();
     if (name.includes('admindashboard') || name.includes('revenuedashboard')) return 'Revenue YTD';
@@ -34,7 +33,7 @@ const getFeaturedMetric = (filename) => {
     if (name.includes('employee')) return 'Total Tasks';
     if (name.includes('sales')) return 'Total Revenue';
     if (name.includes('hr') || name.includes('attendance')) return 'Present Today';
-    return ''; // Default to the first item
+    return '';
 };
 
 files.forEach(file => {
@@ -44,18 +43,15 @@ files.forEach(file => {
     const featured = getFeaturedMetric(path.basename(file));
     
     // Update imports: change { StatGrid } or { StatCard, StatGrid } to BentoStatGrid
-    // We already export BentoStatGrid from StatCard.jsx
     if (content.includes('StatGrid')) {
         content = content.replace(/import\s+\{\s*([^}]*?)\bStatGrid\b([^}]*?)\s*\}\s+from\s+['"]([^'"]+)['"]/g, (match, before, after, source) => {
             let newImport = `import { ${before}BentoStatGrid${after} } from '${source}'`;
-            // Cleanup double commas if any
             newImport = newImport.replace(/,\s*,/g, ',').replace(/\{\s*,/g, '{').replace(/,\s*\}/g, '}');
             return newImport;
         });
 
         // Some files might have import StatGrid from ... directly, but it's usually { StatGrid }
         
-        // Update tags
         if (featured) {
             content = content.replace(/<StatGrid([^>]*?)>/g, `<BentoStatGrid featuredMetric="${featured}"$1>`);
         } else {

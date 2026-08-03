@@ -2,11 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import API from '../../api/axios';
 import { Calendar, Search, Filter, Download, CheckCircle, XCircle, Clock, Loader } from 'lucide-react';
 import ExcelJS from 'exceljs';
-
 const AttendanceHistoryTable = ({ isEmployeeView = false, hideHeader = false }) => {
     const [logs, setLogs] = useState([]);
     const [loading, setLoading] = useState(true);
-    
     const [filters, setFilters] = useState({
         fromDate: new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().split('T')[0],
         toDate: new Date().toISOString().split('T')[0],
@@ -14,9 +12,7 @@ const AttendanceHistoryTable = ({ isEmployeeView = false, hideHeader = false }) 
         department: 'All',
         status: 'All'
     });
-
     const [departments, setDepartments] = useState(['All']);
-
     const fetchHistory = useCallback(async () => {
         try {
             setLoading(true);
@@ -29,10 +25,8 @@ const AttendanceHistoryTable = ({ isEmployeeView = false, hideHeader = false }) 
                 params.employeeName = filters.employeeName;
                 params.department = filters.department;
             }
-
             const { data } = await API.get('/attendance/history', { params });
             setLogs(data);
-
             if (!isEmployeeView) {
                 const depts = new Set(data.map(l => l.employee?.department).filter(Boolean));
                 setDepartments(['All', ...depts]);
@@ -43,32 +37,24 @@ const AttendanceHistoryTable = ({ isEmployeeView = false, hideHeader = false }) 
             setLoading(false);
         }
     }, [filters, isEmployeeView]);
-
     useEffect(() => {
         fetchHistory();
     }, [fetchHistory]);
-
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
         setFilters(prev => ({ ...prev, [name]: value }));
     };
-
     const handleExport = async () => {
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('Attendance History');
-
         const headers = ['Date'];
         if (!isEmployeeView) {
             headers.push('Employee Name', 'Employee ID', 'Department');
         }
         headers.push('Check In', 'Check Out', 'Total Hours', 'Status');
-
         worksheet.addRow(headers);
-        
-        // Format header row
         worksheet.getRow(1).font = { bold: true };
         worksheet.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE2E8F0' } };
-
         logs.forEach(log => {
             const date = new Date(log.date).toLocaleDateString();
             const row = [date];
@@ -87,10 +73,8 @@ const AttendanceHistoryTable = ({ isEmployeeView = false, hideHeader = false }) 
             );
             worksheet.addRow(row);
         });
-
         const buffer = await workbook.xlsx.writeBuffer();
         const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-        
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -100,7 +84,6 @@ const AttendanceHistoryTable = ({ isEmployeeView = false, hideHeader = false }) 
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
     };
-
     const parseDateTime = (timeStr, baseDateStr) => {
         if (!timeStr) return null;
         if (timeStr.includes('T') || (timeStr.includes('-') && timeStr.includes(':') && timeStr.length > 10)) {
@@ -111,7 +94,6 @@ const AttendanceHistoryTable = ({ isEmployeeView = false, hideHeader = false }) 
         const combined = `${datePart} ${timeStr}`;
         const d = new Date(combined);
         if (!isNaN(d.getTime())) return d;
-        
         const match = timeStr.match(/^(\d+):(\d+)\s*(AM|PM)$/i);
         if (match) {
             let [_, hours, minutes, ampm] = match;
@@ -123,18 +105,15 @@ const AttendanceHistoryTable = ({ isEmployeeView = false, hideHeader = false }) 
             d.setHours(hours, minutes, 0, 0);
             return d;
         }
-        
         const fallback = new Date(timeStr);
         return isNaN(fallback.getTime()) ? null : fallback;
     };
-
     const formatTime = (timeStr, baseDateStr) => {
         if (!timeStr) return '-';
         const d = parseDateTime(timeStr, baseDateStr);
         if (!d) return '-';
         return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     };
-
     const calculateDuration = (checkIn, checkOut, baseDateStr) => {
         if (!checkIn || !checkOut) return '-';
         const start = parseDateTime(checkIn, baseDateStr);
@@ -146,7 +125,6 @@ const AttendanceHistoryTable = ({ isEmployeeView = false, hideHeader = false }) 
         const minutes = Math.floor((diff % 3600000) / 60000);
         return `${hours}h ${minutes}m`;
     };
-
     return (
         <div className={`attendance-history-card ${hideHeader ? '' : 'glass-card'}`}>
             {!hideHeader && (
@@ -157,7 +135,6 @@ const AttendanceHistoryTable = ({ isEmployeeView = false, hideHeader = false }) 
                             <Download size={16} /> Export
                         </button>
                     </div>
-                    
                     <div className="ah-filters">
                         <div className="filter-group">
                             <Calendar size={16} className="filter-icon" />
@@ -165,7 +142,6 @@ const AttendanceHistoryTable = ({ isEmployeeView = false, hideHeader = false }) 
                             <span style={{ color: 'var(--text-muted)' }}>-</span>
                             <input type="date" name="toDate" value={filters.toDate} onChange={handleFilterChange} title="To Date" />
                         </div>
-
                         {!isEmployeeView && (
                             <>
                                 <div className="filter-group search-group">
@@ -180,7 +156,6 @@ const AttendanceHistoryTable = ({ isEmployeeView = false, hideHeader = false }) 
                                 </div>
                             </>
                         )}
-
                         <div className="filter-group">
                             <Filter size={16} className="filter-icon" />
                             <select name="status" value={filters.status} onChange={handleFilterChange}>
@@ -194,7 +169,6 @@ const AttendanceHistoryTable = ({ isEmployeeView = false, hideHeader = false }) 
                     </div>
                 </>
             )}
-
             <div className="ah-body">
                 {loading ? (
                     <div className="flex-center p-30"><Loader size={24} className="spin-icon" /></div>
@@ -249,7 +223,6 @@ const AttendanceHistoryTable = ({ isEmployeeView = false, hideHeader = false }) 
                     </div>
                 )}
             </div>
-
             <style jsx="true">{`
                 .attendance-history-card {
                     margin-top: 30px;
@@ -340,7 +313,6 @@ const AttendanceHistoryTable = ({ isEmployeeView = false, hideHeader = false }) 
                 .status-pill-flex.late { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
                 .status-pill-flex.absent { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
                 .status-pill-flex.on-leave { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
-                
                 .empty-state {
                     padding: 40px;
                     text-align: center;
@@ -353,5 +325,4 @@ const AttendanceHistoryTable = ({ isEmployeeView = false, hideHeader = false }) 
         </div>
     );
 };
-
 export default AttendanceHistoryTable;

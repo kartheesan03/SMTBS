@@ -1,5 +1,4 @@
 import React from 'react';
-
 const GoogleButton = ({ text, onClick }) => {
     return (
         <div className="google-btn-wrapper">
@@ -15,7 +14,6 @@ const GoogleButton = ({ text, onClick }) => {
                     width: 100%;
                     margin: 4px 0;
                 }
-
                 .google-auth-btn {
                     display: flex;
                     align-items: center;
@@ -36,12 +34,10 @@ const GoogleButton = ({ text, onClick }) => {
                     transition: all 0.2s ease;
                     box-sizing: border-box;
                 }
-
                 .google-auth-btn:hover {
                     background: #F8F9FA;
                     box-shadow: 0 1px 2px 0 rgba(60,64,67,0.30), 0 1px 3px 1px rgba(60,64,67,0.15);
                 }
-
                 .google-icon {
                     width: 20px;
                     height: 20px;
@@ -50,5 +46,4 @@ const GoogleButton = ({ text, onClick }) => {
         </div>
     );
 };
-
 export default GoogleButton;

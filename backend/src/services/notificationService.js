@@ -1,7 +1,6 @@
 const Notification = require('../models/Notification');
 const User = require('../models/User');
 const emailService = require('./emailService');
-
 /**
  * Broadcast a notification to relevant users or roles based on the action module.
  * @param {Object} params
@@ -20,37 +19,27 @@ const broadcast = async ({ module = 'System', referenceId = null, title, message
     try {
         const notificationsToCreate = [];
         const notifiedUserIds = new Set();
-        
-        // Always coerce referenceId to string
         const refIdStr = referenceId ? String(referenceId) : null;
-
         if (!targetOnly) {
             let rolesToNotify = new Set(Array.isArray(targetRoles) ? targetRoles : [targetRoles]);
-            
             if (!exactRoles) {
-                rolesToNotify.add('Admin'); // Admin gets everything
+                rolesToNotify.add('Admin');
             }
-
             if (isCritical) {
                 rolesToNotify.add('Manager');
                 if (!exactRoles) {
                     rolesToNotify.add('Admin');
                 }
             }
-
             const rolesArray = Array.from(rolesToNotify);
-
-            // Find users matching roles
             const users = await User.find({ role: { $in: rolesArray }, active: true });
-            
-            // Create for target roles individually
             for (const user of users) {
                 const uId = String(user._id || user.id);
                 if (!notifiedUserIds.has(uId)) {
                     notificationsToCreate.push({
                         module,
                         referenceId: refIdStr,
-                        userId: user._id || user.id, // Keep original numeric type
+                        userId: user._id || user.id,
                         role: user.role,
                         title,
                         message,
@@ -58,8 +47,6 @@ const broadcast = async ({ module = 'System', referenceId = null, title, message
                         status: 'unread'
                     });
                     notifiedUserIds.add(uId);
-                    
-                    // Dispatch email if user has an email address
                     if (user.email) {
                         emailService.sendEmail({
                             to: user.email,
@@ -77,24 +64,20 @@ const broadcast = async ({ module = 'System', referenceId = null, title, message
                 }
             }
         }
-
-        // Add specific target user if not already included
         if (targetUserId) {
             const tId = String(targetUserId);
             if (!notifiedUserIds.has(tId)) {
                 notificationsToCreate.push({
                     module,
                     referenceId: refIdStr,
-                    userId: targetUserId, // Keep original type
-                    role: null, // Specific user targets might have multiple roles, or we just rely on userId
+                    userId: targetUserId,
+                    role: null,
                     title,
                     message,
                     type,
                     status: 'unread'
                 });
                 notifiedUserIds.add(tId);
-
-                // Fetch user to get email address
                 User.findById(targetUserId).then(u => {
                     if (u && u.email) {
                         emailService.sendEmail({
@@ -113,7 +96,6 @@ const broadcast = async ({ module = 'System', referenceId = null, title, message
                 }).catch(console.error);
             }
         }
-
         if (notificationsToCreate.length > 0) {
             await Notification.insertMany(notificationsToCreate);
         }
@@ -121,13 +103,10 @@ const broadcast = async ({ module = 'System', referenceId = null, title, message
         console.error('Broadcast notification error:', err);
     }
 };
-
-// Domain-specific helpers
 const notifyHR = (params) => broadcast({ ...params, targetRoles: ['HR'], module: params.module || 'System' });
 const notifySales = (params) => broadcast({ ...params, targetRoles: ['Sales'], module: params.module || 'System' });
 const notifyManager = (params) => broadcast({ ...params, targetRoles: ['Manager'], module: params.module || 'System' });
 const notifyCritical = (params) => broadcast({ ...params, isCritical: true, type: params.type || 'warning' });
-
 module.exports = { 
     broadcast,
     notifyHR,

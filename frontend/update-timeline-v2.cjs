@@ -4,7 +4,6 @@ const path = require("path");
 const cssFile = "src/pages/OrderTracking.css";
 let cssContent = fs.readFileSync(cssFile, "utf8");
 
-// We need to replace the entire .workflow-stepper to .workflow-step.error section
 const startStr = ".workflow-stepper {";
 const endStr = ".erp-grid-2col {";
 

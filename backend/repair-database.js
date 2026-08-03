@@ -34,7 +34,6 @@ async function run() {
         let passwordsReHashed = 0;
 
         // ============================================================
-        // STEP 1: Recover all default login accounts (Req 1 & 13)
         // ============================================================
         console.log('=== STEP 1: Recovering Default Login Accounts ===');
         for (const acct of defaultAccounts) {
@@ -64,7 +63,6 @@ async function run() {
                     updated = true;
                 }
 
-                // Verify and reset password if incorrect or not hashed
                 const isValidHash = user.password && user.password.startsWith('$2');
                 let passwordWorks = false;
                 if (isValidHash) {
@@ -91,18 +89,17 @@ async function run() {
         }
 
         // ============================================================
-        // STEP 2: Harmonize User Roles (Req 9)
         // ============================================================
         console.log('\n=== STEP 2: Harmonizing User Roles ===');
         const allowedRoles = ['Admin', 'HR', 'Manager', 'Employee', 'Sales'];
         const allUsers = await UserModel.findAll();
         for (const user of allUsers) {
             if (user.role === 'Customer' || user.role === 'Vendor') {
-                continue; // Preserve customer and vendor roles
+                continue;
             }
             if (!allowedRoles.includes(user.role)) {
                 console.log(`  [WARN] User ${user.email} has legacy/invalid role '${user.role}'`);
-                user.role = 'Employee'; // Default to Employee role
+                user.role = 'Employee';
                 await UserModel.update({ role: 'Employee' }, { where: { id: user.id }, hooks: false });
                 console.log(`  [REPAIRED] Set role to 'Employee' for: ${user.email}`);
                 usersRepaired++;
@@ -110,32 +107,27 @@ async function run() {
         }
 
         // ============================================================
-        // STEP 3: Link & Synchronize Employee and User Records (Req 3, 4, 8)
         // ============================================================
         console.log('\n=== STEP 3: Synchronizing Employee and User Links ===');
         const allEmployees = await EmployeeModel.findAll();
         for (const emp of allEmployees) {
             let user = null;
 
-            // Find matching user by contact email
             if (emp.contact && emp.contact.includes('@')) {
                 user = await UserModel.findOne({ where: { email: emp.contact } });
             }
 
             if (!user && emp.userIdField) {
-                // If not found by email, try finding by userIdField
                 user = await UserModel.findByPk(emp.userIdField);
             }
 
             if (user) {
-                // Found User -> update Employee's userIdField if mismatched
                 if (emp.userIdField !== user.id) {
                     await EmployeeModel.update({ userIdField: user.id }, { where: { id: emp.id } });
                     console.log(`  [LINKED] Employee ${emp.firstName} ${emp.lastName || ''} -> User ${user.email}`);
                     employeesRepaired++;
                 }
 
-                // Synchronize attributes User ↔ Employee
                 let userUpdated = false;
                 const empFullName = `${emp.firstName} ${emp.lastName || ''}`.trim();
                 
@@ -152,7 +144,6 @@ async function run() {
                         user.role = emp.department;
                         userUpdated = true;
                     } else {
-                        // Reset mismatched/invalid department to Employee
                         await EmployeeModel.update({ department: 'Employee' }, { where: { id: emp.id } });
                         employeesRepaired++;
                         user.role = 'Employee';
@@ -169,7 +160,6 @@ async function run() {
                     usersRepaired++;
                 }
             } else {
-                // No User exists -> Recreate User (Req 8)
                 const salt = await bcrypt.genSalt(10);
                 const hashed = await bcrypt.hash('password123', salt);
                 const finalEmail = emp.contact && emp.contact.includes('@') 
@@ -198,7 +188,6 @@ async function run() {
         }
 
         // ============================================================
-        // STEP 4: Recreate Missing Employees (Req 7)
         // ============================================================
         console.log('\n=== STEP 4: Recreating Missing Employees ===');
         const updatedUsers = await UserModel.findAll();
@@ -209,7 +198,6 @@ async function run() {
 
             const emp = await EmployeeModel.findOne({ where: { userIdField: user.id } });
             if (!emp) {
-                // Employee record is missing -> Recreate it
                 const empId = await generateUniqueEmployeeId();
                 const nameParts = user.name.split(' ');
                 const firstName = nameParts[0] || 'System';
@@ -234,7 +222,6 @@ async function run() {
         }
 
         // ============================================================
-        // STEP 5: Validate and Ensure Hashed Passwords (Req 2)
         // ============================================================
         console.log('\n=== STEP 5: Ensuring All Passwords Are Securely Hashed ===');
         const checkUsers = await UserModel.findAll();
@@ -250,7 +237,6 @@ async function run() {
         }
 
         // ============================================================
-        // STEP 6: Final Verification - Test Logins (Req 10)
         // ============================================================
         console.log('\n=== STEP 6: Verification - Testing Login for Default Accounts ===');
         const loginStatus = {};

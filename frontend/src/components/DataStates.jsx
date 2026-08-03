@@ -1,14 +1,12 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Database, AlertCircle } from 'lucide-react';
-
 export const LoadingState = ({ message = "Loading data...", height = 200 }) => (
     <div style={{ height, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#94a3b8' }}>
         <div className="loader" style={{ marginBottom: 10 }}></div>
         <div style={{ fontSize: '13px' }}>{message}</div>
     </div>
 );
-
 export const EmptyState = ({ icon: Icon = Database, title = "No Data Available", message = "There is currently no data to display here.", height = 200, actionButton }) => (
     <motion.div 
         initial={{ opacity: 0 }} 
@@ -23,7 +21,6 @@ export const EmptyState = ({ icon: Icon = Database, title = "No Data Available",
         {actionButton && <div>{actionButton}</div>}
     </motion.div>
 );
-
 export const ErrorState = ({ message = "Failed to load data", onRetry, height = 200 }) => (
     <div style={{ height, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px', textAlign: 'center' }}>
         <div style={{ width: 48, height: 48, borderRadius: '0px', background: '#fef2f2', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12, color: '#ef4444' }}>

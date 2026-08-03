@@ -1,7 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/sequelize');
 const { makeBridgedModel } = require('../config/mongoose-bridge');
-
 const NotificationSequelize = sequelize.define('Notification', {
     id: {
         type: DataTypes.INTEGER,
@@ -41,6 +40,5 @@ const NotificationSequelize = sequelize.define('Notification', {
         defaultValue: 'unread'
     }
 });
-
 const Notification = makeBridgedModel('Notification', NotificationSequelize);
 module.exports = Notification;

@@ -1,7 +1,5 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-
-// Common Panel Wrapper
 const Panel = ({ children, style }) => (
     <div style={{
         background: '#fff',
@@ -16,14 +14,11 @@ const Panel = ({ children, style }) => (
         {children}
     </div>
 );
-
-// 1. Employee Overview -> Roster Strip
 export const EmployeeRosterStrip = ({ total, active, onLeave, inactive }) => {
     const totalVal = total || 1;
     const activePct = (active / totalVal) * 100;
     const leavePct = (onLeave / totalVal) * 100;
     const inactivePct = (inactive / totalVal) * 100;
-
     return (
         <Panel>
             <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '32px' }}>
@@ -65,14 +60,11 @@ export const EmployeeRosterStrip = ({ total, active, onLeave, inactive }) => {
         </Panel>
     );
 };
-
-// 2. Attendance Today -> Radial Dials
 const RadialDial = ({ label, count, total, color, subCaption }) => {
     const pct = total > 0 ? (count / total) * 100 : 0;
     const radius = 36;
     const circumference = 2 * Math.PI * radius;
     const strokeDashoffset = circumference - (pct / 100) * circumference;
-
     return (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, minWidth: '120px' }}>
             <div style={{ position: 'relative', width: '80px', height: '80px', marginBottom: '12px' }}>
@@ -91,7 +83,6 @@ const RadialDial = ({ label, count, total, color, subCaption }) => {
         </div>
     );
 };
-
 export const AttendanceRadialDials = ({ present, notCheckedIn, absent, onLeave, total }) => {
     return (
         <Panel>
@@ -104,8 +95,6 @@ export const AttendanceRadialDials = ({ present, notCheckedIn, absent, onLeave, 
         </Panel>
     );
 };
-
-// 3. Leave Requests -> Premium KPI Cards
 const PremiumKPICard = ({ icon: Icon, label, desc, count, statusText, color }) => {
     const [isHovered, setIsHovered] = React.useState(false);
     return (
@@ -136,11 +125,9 @@ const PremiumKPICard = ({ icon: Icon, label, desc, count, statusText, color }) =
                     <div style={{ fontSize: '12px', color: '#94a3b8' }}>{desc}</div>
                 </div>
             </div>
-            
             <div style={{ fontSize: '32px', fontWeight: 800, color: '#0f172a', fontVariantNumeric: 'tabular-nums', flex: 1, display: 'flex', alignItems: 'center' }}>
                 {count}
             </div>
-            
             <div style={{ 
                 backgroundColor: `${color}15`, 
                 color: color, 
@@ -161,9 +148,7 @@ const PremiumKPICard = ({ icon: Icon, label, desc, count, statusText, color }) =
         </div>
     );
 };
-
 import { FileText, Clock, CheckCircle, XCircle } from 'lucide-react';
-
 export const LeaveQueueList = ({ total, pending, approved, rejected, approvalRate }) => {
     return (
         <div style={{ 
@@ -179,8 +164,6 @@ export const LeaveQueueList = ({ total, pending, approved, rejected, approvalRat
         </div>
     );
 };
-
-// 4. Payroll -> Waterfall Bars
 const WaterfallRow = ({ label, valStr, caption, pct, color }) => (
     <div style={{ display: 'flex', alignItems: 'center', padding: '12px 0', gap: '16px', flexWrap: 'wrap' }}>
         <div style={{ width: '160px', fontWeight: 600, color: '#334155', fontSize: '14px' }}>{label}</div>
@@ -193,7 +176,6 @@ const WaterfallRow = ({ label, valStr, caption, pct, color }) => (
         </div>
     </div>
 );
-
 export const PayrollWaterfallBars = ({ grossStr, netStr, pfStr, taxStr, gross, net, pf, tax }) => {
     const max = gross || 1;
     return (
@@ -207,14 +189,11 @@ export const PayrollWaterfallBars = ({ grossStr, netStr, pfStr, taxStr, gross, n
         </Panel>
     );
 };
-
-// 5. Performance -> Distribution Track
 export const PerformanceDistributionTrack = ({ teamAvg, excellent, good, belowAvg }) => {
     const total = excellent + good + belowAvg || 1;
     const excPct = (excellent / total) * 100;
     const goodPct = (good / total) * 100;
     const belowPct = (belowAvg / total) * 100;
-
     return (
         <Panel>
             <div style={{ marginBottom: '24px' }}>
@@ -260,4 +239,4 @@ export const PerformanceDistributionTrack = ({ teamAvg, excellent, good, belowAv
             </div>
         </Panel>
     );
-};
+};

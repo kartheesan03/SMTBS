@@ -11,18 +11,14 @@ import {
 import SmtbmsLogo from './SmtbmsLogo';
 import UserAvatar from './UserAvatar';
 import './DualSidebar.css';
-
 const DualSidebar = () => {
     const { user, logout } = useContext(AuthContext);
     const hasPerm = (perm) => user?.permissions?.includes(perm) || user?.permissions?.includes("all");
     const navigate = useNavigate();
     const location = useLocation();
-    
     const [isExpanded, setIsExpanded] = useState(true);
     const [activePrimaryTab, setActivePrimaryTab] = useState('dashboard');
     const [darkMode, setDarkMode] = useState(false);
-
-    // Determine active primary tab based on current path
     useEffect(() => {
         const path = location.pathname;
         if (path.startsWith('/attendance')) {
@@ -51,12 +47,10 @@ const DualSidebar = () => {
             setActivePrimaryTab('dashboard');
         }
     }, [location]);
-
     const handleConfirmLogout = () => {
         logout();
         navigate('/login');
     };
-
     const navigationConfig = {
         dashboard: {
             title: 'Dashboard',
@@ -208,9 +202,7 @@ const DualSidebar = () => {
             ]
         }
     };
-
     const currentNav = navigationConfig[activePrimaryTab];
-
     return (
         <div className={`dual-sidebar-container ${isExpanded ? 'expanded' : 'collapsed'}`}>
             <div className="primary-sidebar" style={{overflowY: 'auto', msOverflowStyle: 'none', scrollbarWidth: 'none'}}>
@@ -219,7 +211,6 @@ const DualSidebar = () => {
                         <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
                     </svg>
                 </div>
-                
                 <div className="ps-nav" style={{flex: 1}}>
                     <button className={`ps-nav-item ${activePrimaryTab === 'dashboard' ? 'active' : ''}`} onClick={() => { setActivePrimaryTab('dashboard'); setIsExpanded(true); }} title="Dashboard">
                         <LayoutDashboard size={24} />
@@ -258,14 +249,12 @@ const DualSidebar = () => {
                         <SettingsIcon size={24} />
                     </button>
                 </div>
-
                 <div className="ps-bottom">
                     <button className="ps-toggle-btn" onClick={() => setIsExpanded(!isExpanded)}>
                         {isExpanded ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
                     </button>
                 </div>
             </div>
-
             <div className="secondary-sidebar">
                 <div className="ss-header">
                     <SmtbmsLogo size={26} />
@@ -273,7 +262,6 @@ const DualSidebar = () => {
                         <ChevronLeft size={20} />
                     </button>
                 </div>
-
                 <div className="ss-content">
                     {currentNav.sections.map((section, idx) => (
                         <div key={idx} className="ss-section">
@@ -291,7 +279,6 @@ const DualSidebar = () => {
                         </div>
                     ))}
                 </div>
-
                 <div className="ss-profile">
                     <div className="ss-toggle-row">
                         <div className="ss-toggle-label">
@@ -303,7 +290,6 @@ const DualSidebar = () => {
                             <span className="slider"></span>
                         </label>
                     </div>
-
                     <div className="ss-profile-info">
                         <UserAvatar
                             src={user?.picture || user?.avatar}
@@ -315,7 +301,6 @@ const DualSidebar = () => {
                             <span className="ss-profile-role">{user?.role ? (user.role.charAt(0).toUpperCase() + user.role.slice(1)) : 'Admin'}</span>
                         </div>
                     </div>
-
                     <button className="ss-logout-btn" onClick={handleConfirmLogout}>
                         <LogOut size={16} /> Log out
                     </button>
@@ -324,5 +309,4 @@ const DualSidebar = () => {
         </div>
     );
 };
-
 export default DualSidebar;

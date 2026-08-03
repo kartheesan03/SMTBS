@@ -1,7 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/sequelize');
 const AIChatSession = require('./AIChatSession');
-
 const AIChatMessage = sequelize.define('AIChatMessage', {
     id: {
         type: DataTypes.INTEGER,
@@ -34,14 +33,12 @@ const AIChatMessage = sequelize.define('AIChatMessage', {
     },
     chartData: {
         type: DataTypes.TEXT,
-        allowNull: true // Store JSON stringified chart data if applicable
+        allowNull: true
     }
 }, {
     timestamps: true,
     tableName: 'AIChatMessages'
 });
-
 AIChatSession.hasMany(AIChatMessage, { foreignKey: 'sessionId', as: 'messages' });
 AIChatMessage.belongsTo(AIChatSession, { foreignKey: 'sessionId', as: 'session' });
-
 module.exports = AIChatMessage;

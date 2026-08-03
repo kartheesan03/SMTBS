@@ -29,14 +29,12 @@ files.forEach(file => {
     let original = content;
 
     if (content.includes('BentoStatGrid')) {
-        // Fix imports
         content = content.replace(/import\s+\{\s*([^}]*?)\bBentoStatGrid\b([^}]*?)\s*\}\s+from\s+['"]([^'"]+)['"]/g, (match, before, after, source) => {
             let newImport = `import { ${before}StatGrid${after} } from '${source}'`;
             newImport = newImport.replace(/,\s*,/g, ',').replace(/\{\s*,/g, '{').replace(/,\s*\}/g, '}');
             return newImport;
         });
         
-        // Remove featuredMetric prop and rename tags
         content = content.replace(/<BentoStatGrid\s+featuredMetric="[^"]*"([^>]*)>/g, '<StatGrid$1>');
         content = content.replace(/<BentoStatGrid([^>]*)>/g, '<StatGrid$1>');
         content = content.replace(/<\/BentoStatGrid>/g, '</StatGrid>');

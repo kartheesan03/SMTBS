@@ -1,5 +1,4 @@
 const Role = require('../models/Role');
-
 exports.getRoles = async (req, res) => {
     try {
         const roles = await Role.find();
@@ -9,11 +8,9 @@ exports.getRoles = async (req, res) => {
         res.status(500).json({ message: 'Server Error' });
     }
 };
-
 exports.createRole = async (req, res) => {
     try {
         let { name, description, permissions } = req.body;
-        
         if (permissions) {
             if (typeof permissions === 'string') {
                 try {
@@ -28,12 +25,10 @@ exports.createRole = async (req, res) => {
         } else {
             permissions = [];
         }
-        
         const roleExists = await Role.findOne({ name });
         if (roleExists) {
             return res.status(400).json({ message: 'Role already exists' });
         }
-
         const role = await Role.create({ name, description, permissions });
         res.status(201).json(role);
     } catch (error) {
@@ -41,16 +36,13 @@ exports.createRole = async (req, res) => {
         res.status(500).json({ message: 'Server Error' });
     }
 };
-
 exports.updateRole = async (req, res) => {
     try {
         let { name, description, permissions } = req.body;
         const role = await Role.findById(req.params.id);
-
         if (!role) {
             return res.status(404).json({ message: 'Role not found' });
         }
-
         if (permissions) {
             if (typeof permissions === 'string') {
                 try {
@@ -63,13 +55,11 @@ exports.updateRole = async (req, res) => {
                 return res.status(400).json({ message: 'Permissions must be an array' });
             }
         }
-
         role.name = name || role.name;
         role.description = description || role.description;
         if (permissions) {
             role.permissions = permissions;
         }
-
         const updatedRole = await role.save();
         res.json(updatedRole);
     } catch (error) {
@@ -77,19 +67,15 @@ exports.updateRole = async (req, res) => {
         res.status(500).json({ message: 'Server Error' });
     }
 };
-
 exports.deleteRole = async (req, res) => {
     try {
         const role = await Role.findById(req.params.id);
-
         if (!role) {
             return res.status(404).json({ message: 'Role not found' });
         }
-
         if (['Super Admin', 'Admin', 'Employee', 'Customer', 'Vendor', 'HR', 'Manager', 'Sales'].includes(role.name)) {
             return res.status(400).json({ message: 'Cannot delete system-protected role' });
         }
-
         await Role.findByIdAndDelete(req.params.id);
         res.json({ message: 'Role removed' });
     } catch (error) {
@@ -97,8 +83,6 @@ exports.deleteRole = async (req, res) => {
         res.status(500).json({ message: 'Server Error' });
     }
 };
-
-// Return a list of all possible permissions for the UI to display checkboxes
 exports.getPermissions = async (req, res) => {
     try {
         const permissions = [

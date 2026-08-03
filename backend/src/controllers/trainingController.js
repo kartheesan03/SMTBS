@@ -1,26 +1,20 @@
 const { TrainingCourseSequelize, TrainingEnrollmentSequelize } = require('../models/Training');
 const User = require('../models/User');
-
-// ── Sync tables ───────────────────────────────────────────────────────────────
 const syncTables = async () => {
     await TrainingCourseSequelize.sync({ alter: true });
     await TrainingEnrollmentSequelize.sync({ alter: true });
 };
 syncTables().catch(console.error);
-
-// GET /api/training/courses
 exports.getCourses = async (req, res) => {
     try {
         const { category } = req.query;
         const where = {};
         if (category && category !== 'all') where.category = category;
-
         const courses = await TrainingCourseSequelize.findAll({
             where,
             include: [{ model: TrainingEnrollmentSequelize, as: 'enrollments', attributes: ['id', 'userId', 'progress', 'status'] }],
             order: [['createdAt', 'DESC']],
         });
-
         const userId = req.user?.id;
         const result = courses.map(c => {
             const plain = c.toJSON();
@@ -33,39 +27,29 @@ exports.getCourses = async (req, res) => {
                 enrollments: undefined,
             };
         });
-
         res.json(result);
     } catch (err) {
         console.error('getCourses error:', err);
         res.status(500).json({ message: 'Server error' });
     }
 };
-
-// GET /api/training/stats
 exports.getStats = async (req, res) => {
     try {
         const totalCourses = await TrainingCourseSequelize.count();
         const totalEnrollments = await TrainingEnrollmentSequelize.count();
-
         const completedEnrollments = await TrainingEnrollmentSequelize.count({ where: { status: 'Completed' } });
         const avgCompletion = totalEnrollments > 0
             ? Math.round((completedEnrollments / totalEnrollments) * 100)
             : 0;
-
         const certifications = await TrainingEnrollmentSequelize.count({ where: { status: 'Completed' } });
-
-        // Unique enrolled users
         const enrolledRows = await TrainingEnrollmentSequelize.findAll({ attributes: ['userId'] });
         const uniqueUsers = new Set(enrolledRows.map(r => r.userId)).size;
-
         res.json({ totalCourses, enrolledEmployees: uniqueUsers, avgCompletion, certifications });
     } catch (err) {
         console.error('getStats error:', err);
         res.status(500).json({ message: 'Server error' });
     }
 };
-
-// GET /api/training/my-progress
 exports.getMyProgress = async (req, res) => {
     try {
         const userId = req.user?.id;
@@ -73,8 +57,6 @@ exports.getMyProgress = async (req, res) => {
         const total      = enrollments.length;
         const completed  = enrollments.filter(e => e.status === 'Completed').length;
         const inProgress = enrollments.filter(e => e.status === 'In Progress').length;
-
-        // Hours: sum all enrolled course durations
         const courses = await TrainingCourseSequelize.findAll({ where: { id: enrollments.map(e => e.courseId) }, attributes: ['id', 'duration'] });
         let totalHours = 0;
         courses.forEach(c => {
@@ -82,7 +64,6 @@ exports.getMyProgress = async (req, res) => {
             if (match) totalHours += parseFloat(match[1]);
         });
         const learnedHours = Math.round(totalHours * (completed / Math.max(total, 1)));
-
         res.json({
             coursesCompleted: completed,
             totalCourses: total,
@@ -96,8 +77,6 @@ exports.getMyProgress = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
-
-// POST /api/training/courses — create a course
 exports.createCourse = async (req, res) => {
     try {
         const { title, description, category, instructor, duration, capacity, status, badge, rating, color, dueDate } = req.body;
@@ -114,8 +93,6 @@ exports.createCourse = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
-
-// PUT /api/training/courses/:id — update
 exports.updateCourse = async (req, res) => {
     try {
         const course = await TrainingCourseSequelize.findByPk(req.params.id);
@@ -127,8 +104,6 @@ exports.updateCourse = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
-
-// DELETE /api/training/courses/:id
 exports.deleteCourse = async (req, res) => {
     try {
         const course = await TrainingCourseSequelize.findByPk(req.params.id);
@@ -140,8 +115,6 @@ exports.deleteCourse = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
-
-// POST /api/training/courses/:id/enroll — enroll current user
 exports.enrollCourse = async (req, res) => {
     try {
         const userId = req.user?.id;
@@ -159,8 +132,6 @@ exports.enrollCourse = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
-
-// PUT /api/training/courses/:id/progress — update progress
 exports.updateProgress = async (req, res) => {
     try {
         const userId = req.user?.id;

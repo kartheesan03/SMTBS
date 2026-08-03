@@ -1,5 +1,4 @@
 import React from 'react';
-
 const TableCellEmail = ({ email, className = '' }) => {
     return (
         <td 
@@ -28,5 +27,4 @@ const TableCellEmail = ({ email, className = '' }) => {
         </td>
     );
 };
-
 export default TableCellEmail;

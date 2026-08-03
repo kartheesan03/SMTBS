@@ -1,7 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/sequelize');
 const { makeBridgedModel } = require('../config/mongoose-bridge');
-
 const RestoreLogSequelize = sequelize.define('RestoreLog', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     backupIdField: { type: DataTypes.INTEGER, allowNull: false },
@@ -9,5 +8,4 @@ const RestoreLogSequelize = sequelize.define('RestoreLog', {
     status: { type: DataTypes.STRING, defaultValue: 'Success' },
     remarks: { type: DataTypes.STRING }
 }, { timestamps: true });
-
 module.exports = makeBridgedModel('RestoreLog', RestoreLogSequelize);

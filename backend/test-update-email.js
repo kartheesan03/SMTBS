@@ -17,14 +17,13 @@ const User = require('./src/models/User');
         if (employee.userIdField) {
             user = await User.findById(employee.userIdField);
             console.log('User found by userIdField:', { id: user.id, email: user.email });
-        } else if (employee.userId) { // Fallback for some reason?
+        } else if (employee.userId) {
             user = await User.findById(employee.userId);
             console.log('User found by userId:', { id: user.id, email: user.email });
         } else {
              console.log('No userId on employee');
         }
 
-        // Logic from controller:
         if (!user && contact && contact.includes('@')) {
             console.log('User not found by id, searching by email');
             const existingUser = await User.findOne({ email: contact });
@@ -49,7 +48,6 @@ const User = require('./src/models/User');
             console.log('Condition 2:', (empEmailExists && String(empEmailExists.id) !== String(employee.id)));
         }
 
-        // Check employee contact logic
         console.log(`Checking if contact (${contact}) !== employee.contact (${employee.contact})`);
         if (contact && contact !== employee.contact) {
             const empEmailExists = await Employee.findOne({ contact });

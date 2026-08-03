@@ -1,5 +1,4 @@
 const Lead = require('../models/Lead');
-
 exports.getLeads = async (req, res) => {
     try {
         const leads = await Lead.find({});
@@ -8,7 +7,6 @@ exports.getLeads = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
-
 exports.createLead = async (req, res) => {
     try {
         const lead = await Lead.create(req.body);
@@ -17,7 +15,6 @@ exports.createLead = async (req, res) => {
         res.status(400).json({ message: error.message });
     }
 };
-
 exports.updateLead = async (req, res) => {
     try {
         const lead = await Lead.findByIdAndUpdate(req.params.id, req.body, { new: true });
@@ -27,7 +24,6 @@ exports.updateLead = async (req, res) => {
         res.status(400).json({ message: error.message });
     }
 };
-
 exports.deleteLead = async (req, res) => {
     try {
         const lead = await Lead.findByIdAndDelete(req.params.id);

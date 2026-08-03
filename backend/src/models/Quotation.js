@@ -1,7 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/sequelize');
 const { makeBridgedModel } = require('../config/mongoose-bridge');
-
 const QuotationSequelize = sequelize.define('Quotation', {
     id: {
         type: DataTypes.INTEGER,
@@ -72,21 +71,17 @@ const QuotationSequelize = sequelize.define('Quotation', {
             if (typeof items === 'string') {
                 items = JSON.parse(items);
             }
-            
             let subTotal = 0;
             items.forEach(item => {
                 const priceAfterDiscount = item.unitPrice * (1 - ((item.discountPercent || 0) / 100));
                 item.total = item.quantity * priceAfterDiscount;
                 subTotal += item.total;
             });
-            
             instance.items = items; 
             instance.subTotal = subTotal;
             instance.grandTotal = subTotal + (instance.taxAmount || 0);
         }
     }
 });
-
 const Quotation = makeBridgedModel('Quotation', QuotationSequelize);
-
 module.exports = Quotation;

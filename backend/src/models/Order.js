@@ -1,7 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/sequelize');
 const { makeBridgedModel } = require('../config/mongoose-bridge');
-
 const OrderSequelize = sequelize.define('Order', {
     id: {
         type: DataTypes.INTEGER,
@@ -168,7 +167,6 @@ const OrderSequelize = sequelize.define('Order', {
 }, {
     hooks: {
         beforeValidate: (order) => {
-            // Polymorphic resolution before save
             if (order.customer) {
                 if (order.customerModel === 'Customer') {
                     order.customerId = order.customer;
@@ -181,6 +179,5 @@ const OrderSequelize = sequelize.define('Order', {
         }
     }
 });
-
 const Order = makeBridgedModel('Order', OrderSequelize);
 module.exports = Order;

@@ -30,7 +30,6 @@ files.forEach(file => {
     let content = fs.readFileSync(file, 'utf8');
     let original = content;
 
-    // Layout wrappers
     content = content.replace(/className=['"]module-container['"]/g, 'className="page-container"');
     content = content.replace(/className=['"]module-actions-section['"]/g, 'className="page-header"');
     content = content.replace(/className=['"]module-title-block['"]/g, 'className="header-content"');

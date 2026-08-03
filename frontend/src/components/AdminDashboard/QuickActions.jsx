@@ -2,10 +2,8 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserPlus, PlusCircle, ShoppingCart, FileText, CheckCircle, Package } from 'lucide-react';
 import './AdminDashboardPremium.css';
-
 export const QuickActions = () => {
     const navigate = useNavigate();
-
     const actions = [
         { title: 'Add Employee', icon: UserPlus, path: '/employees/add' },
         { title: 'Add Material', icon: PlusCircle, path: '/materials' },
@@ -15,7 +13,6 @@ export const QuickActions = () => {
         { title: 'Approve Leave', icon: CheckCircle, path: '/leave' },
         { title: 'Update Stock', icon: Package, path: '/materials' },
     ];
-
     return (
         <div className="erp-card erp-chart-full">
             <div className="erp-section-header">

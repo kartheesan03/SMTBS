@@ -11,16 +11,14 @@ const User = require('./src/models/User');
         const rawPassword = 'admin123';
         const role = 'Admin';
         
-        // Find existing user
         let user = await User.findOne({ email });
 
         if (!user) {
             console.log(`Admin user not found. Creating default admin...`);
-            // Create user
             user = await User.create({
                 name: 'System Admin',
                 email: email,
-                password: rawPassword, // The User model beforeSave hook handles bcrypt hashing
+                password: rawPassword,
                 role: role,
                 active: true,
                 isProfileComplete: true
@@ -29,17 +27,13 @@ const User = require('./src/models/User');
         } else {
             console.log(`Admin user found. Verifying password and role...`);
             
-            // Ensure role
             if (user.role !== 'Admin' && user.role !== 'Super Admin') {
                 user.role = 'Admin';
             }
 
-            // Verify password using bcrypt compare
             const isMatch = user.password ? await bcrypt.compare(rawPassword, user.password) : false;
             if (!isMatch) {
                 console.log('Password is wrong or not hashed properly. Resetting password...');
-                // Hash manually and use direct update to BYPASS the beforeSave hook
-                // (otherwise the hook double-hashes the already-hashed value)
                 const salt = await bcrypt.genSalt(10);
                 const hashed = await bcrypt.hash(rawPassword, salt);
                 await User.sequelizeModel.update(
@@ -49,7 +43,6 @@ const User = require('./src/models/User');
                 console.log('Password reset to admin123 (hashed). Used hooks:false to prevent double-hashing.');
             } else {
                 console.log('Password is correct.');
-                // Still save role fix if needed
                 if (user.role !== 'Admin' && user.role !== 'Super Admin') {
                     await User.sequelizeModel.update(
                         { role: 'Admin' },

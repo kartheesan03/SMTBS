@@ -9,7 +9,6 @@ async function test() {
 
         const req = { user: { _id: user._id || user.id }, body: { name: "Name updated from API test" } };
         
-        // Mock updateUserProfile
         const userToUpdate = await User.findById(req.user._id);
         if (userToUpdate) {
             userToUpdate.name = req.body.name || userToUpdate.name;

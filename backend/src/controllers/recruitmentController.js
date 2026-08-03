@@ -1,8 +1,4 @@
 const { JobPosting, Candidate } = require('../models/Recruitment');
-
-// ── Job Postings ──────────────────────────────────────────────────────────────
-
-// GET /api/recruitment/jobs
 exports.getJobs = async (req, res) => {
     try {
         const jobs = await JobPosting.findAll({
@@ -24,8 +20,6 @@ exports.getJobs = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
-
-// POST /api/recruitment/jobs
 exports.createJob = async (req, res) => {
     try {
         const { title, department, location, type, status, description, requirements, salaryMin, salaryMax, deadline, openings } = req.body;
@@ -37,8 +31,6 @@ exports.createJob = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
-
-// PUT /api/recruitment/jobs/:id
 exports.updateJob = async (req, res) => {
     try {
         const job = await JobPosting.findByPk(req.params.id);
@@ -50,8 +42,6 @@ exports.updateJob = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
-
-// DELETE /api/recruitment/jobs/:id
 exports.deleteJob = async (req, res) => {
     try {
         const job = await JobPosting.findByPk(req.params.id);
@@ -63,10 +53,6 @@ exports.deleteJob = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
-
-// ── Candidates ────────────────────────────────────────────────────────────────
-
-// GET /api/recruitment/candidates?jobId=
 exports.getCandidates = async (req, res) => {
     try {
         const where = {};
@@ -82,8 +68,6 @@ exports.getCandidates = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
-
-// POST /api/recruitment/candidates
 exports.addCandidate = async (req, res) => {
     try {
         const { jobId, name, email, phone, stage, source, notes, rating } = req.body;
@@ -95,8 +79,6 @@ exports.addCandidate = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
-
-// PUT /api/recruitment/candidates/:id
 exports.updateCandidate = async (req, res) => {
     try {
         const c = await Candidate.findByPk(req.params.id);
@@ -108,8 +90,6 @@ exports.updateCandidate = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
-
-// DELETE /api/recruitment/candidates/:id
 exports.deleteCandidate = async (req, res) => {
     try {
         const c = await Candidate.findByPk(req.params.id);
@@ -121,8 +101,6 @@ exports.deleteCandidate = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
-
-// GET /api/recruitment/stats
 exports.getStats = async (req, res) => {
     try {
         const openJobs     = await JobPosting.count({ where: { status: 'Open' } });

@@ -11,15 +11,12 @@ const runCleanup = async () => {
         await connectDB();
         console.log('Connected to DB for cleanup');
 
-        // Note: Lead is a bridged model, but we can access underlying mongoose methods via Lead.mongooseModel or just Lead since mongoose-bridge usually exposes standard mongoose methods.
-        // Let's just use standard mongoose query syntax which bridged models support.
         
         const leads = await Lead.find({});
         for (let lead of leads) {
             let updated = false;
             let currentStatus = lead.status || '';
 
-            // If it's a vendor-related status, migrate it
             if (currentStatus.toUpperCase().includes('VENDOR')) {
                 lead.status = 'Converted To Customer';
                 updated = true;
@@ -30,7 +27,6 @@ const runCleanup = async () => {
                 updated = true;
             }
 
-            // If it's New Lead or Lost, migrate to Initial Contact
             if (['New Lead', 'Lost', 'NEW LEAD', 'LOST'].includes(currentStatus)) {
                 lead.status = 'Initial Contact';
                 updated = true;

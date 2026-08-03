@@ -1,19 +1,17 @@
 import React, { useState } from 'react';
 import './DetailView.css';
-
 export const DetailViewContainer = ({ children }) => (
     <div className="ui-detail-container">
         {children}
     </div>
 );
-
 export const ProfileHeader = ({ 
     title, 
     subtitle, 
     avatarUrl, 
     avatarText,
-    badges = [], // [{ label, type: 'success' | 'warning' | 'danger' | 'info' | 'default' }]
-    actions = [] // [{ label, icon: Icon, onClick, primary: boolean }]
+    badges = [],
+    actions = []
 }) => (
     <div className="ui-detail-header">
         <div className="ui-detail-profile">
@@ -34,7 +32,6 @@ export const ProfileHeader = ({
                 )}
             </div>
         </div>
-        
         {actions.length > 0 && (
             <div className="ui-detail-actions">
                 {actions.map((act, i) => (
@@ -53,13 +50,9 @@ export const ProfileHeader = ({
         )}
     </div>
 );
-
 export const Tabs = ({ tabs = [] }) => {
-    // tabs: [{ id, label, icon: Icon, content: ReactNode }]
     const [activeTab, setActiveTab] = useState(tabs[0]?.id);
-
     const currentTab = tabs.find(t => t.id === activeTab);
-
     return (
         <div className="ui-tabs-container">
             <div className="ui-tabs-header">
@@ -80,9 +73,7 @@ export const Tabs = ({ tabs = [] }) => {
         </div>
     );
 };
-
 export const Timeline = ({ items = [] }) => {
-    // items: [{ id, time, title, description, color }]
     return (
         <div className="ui-timeline">
             {items.map((item, i) => (
@@ -99,9 +90,7 @@ export const Timeline = ({ items = [] }) => {
         </div>
     );
 };
-
 export const KeyValueCard = ({ title, items = [] }) => {
-    // items: [{ label, value }]
     return (
         <div className="ui-kv-card">
             {title && <h4>{title}</h4>}

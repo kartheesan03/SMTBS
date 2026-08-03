@@ -209,7 +209,6 @@ const ERP = () => {
         const invoiceNum = order.invoiceNumber || `INV-${order.orderNumber}`;
         const customerName = order.orderType === 'purchase' ? (order.vendor?.name || 'Walk-in Vendor') : (order.customer?.name || 'Walk-in Customer');
 
-        // Header
         doc.setFontSize(20);
         doc.text('INVOICE', 14, 22);
         doc.setFontSize(10);
@@ -219,13 +218,11 @@ const ERP = () => {
         doc.text(`Due Date: ${order.invoiceDueDate ? new Date(order.invoiceDueDate).toLocaleDateString() : 'N/A'}`, 14, 50);
         doc.text(`Status: ${order.paymentStatus || 'Pending'}`, 14, 56);
 
-        // Bill To
         doc.setFontSize(12);
         doc.text('Bill To:', 14, 71);
         doc.setFontSize(10);
         doc.text(customerName, 14, 78);
 
-        // Items Table
         const tableColumn = ["Item", "Quantity", "Price", "Total"];
         const tableRows = [];
         let grandTotal = 0;
@@ -294,7 +291,6 @@ const ERP = () => {
     const hasPurchase = filteredOrders.some(o => o.orderType === 'purchase');
     const customerVendorHeader = (hasSales && hasPurchase) ? 'Customer / Vendor' : (hasPurchase ? 'Vendor' : 'Customer');
 
-    // Purchase Order summary donut data from API
     const poSummaryData = erpStats.orderSummary && erpStats.orderSummary.length > 0 ? erpStats.orderSummary : [
         { name: 'Draft', value: 0, percentage: '0%', color: '#2563eb' },
         { name: 'Approved', value: 0, percentage: '0%', color: '#10b981' },
@@ -327,7 +323,6 @@ const ERP = () => {
 
     const completedDeliveriesCount = orders.filter(o => ['Delivered', 'Completed'].includes(o.status)).length;
 
-    // --- LOCAL KPI CALCULATION ---
     const activeTotalOrders = orders.filter(o => !['Delivered', 'Completed', 'Cancelled'].includes(o.status)).length;
     
     const normalizeOrderType = (type) => {

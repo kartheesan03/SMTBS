@@ -3,10 +3,6 @@ const Order = require('../models/Order');
 const Ticket = require('../models/Ticket');
 const { notifySales } = require('../services/notificationService');
 const { logAudit } = require('../services/auditService');
-
-// @desc    Get all customers
-// @route   GET /api/customers
-// @access  Private
 const getCustomers = async (req, res) => {
     try {
         const customers = await Customer.find({}).populate('createdBy', 'name email');
@@ -16,10 +12,6 @@ const getCustomers = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
-
-// @desc    Get a single customer by ID
-// @route   GET /api/customers/:id
-// @access  Private
 const getCustomerById = async (req, res) => {
     try {
         const customer = await Customer.findById(req.params.id);
@@ -31,10 +23,6 @@ const getCustomerById = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
-
-// @desc    Get orders for a specific customer
-// @route   GET /api/customers/:id/orders
-// @access  Private
 const getCustomerOrders = async (req, res) => {
     try {
         const orders = await Order.find({ customerId: req.params.id })
@@ -46,10 +34,6 @@ const getCustomerOrders = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
-
-// @desc    Get support tickets for a specific customer
-// @route   GET /api/customers/:id/tickets
-// @access  Private
 const getCustomerTickets = async (req, res) => {
     try {
         const tickets = await Ticket.find({ customerId: req.params.id })
@@ -60,26 +44,18 @@ const getCustomerTickets = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
-
-// @desc    Create a customer
-// @route   POST /api/customers
-// @access  Private/Admin/Sales
 const createCustomer = async (req, res) => {
     try {
         const { role, _id } = req.user;
         const customerData = { ...req.body, createdBy: _id };
-
         if (!customerData.company || customerData.company.trim() === '') {
             customerData.company = 'Individual Customer';
         }
-
         if (role === 'Sales') {
             customerData.status = 'Pending Review';
         }
-
         const customer = new Customer(customerData);
         const createdCustomer = await customer.save();
-
         await logAudit({
             user: req.user,
             action: 'CREATE',
@@ -88,7 +64,6 @@ const createCustomer = async (req, res) => {
             description: `Customer created: ${customerData.name}`,
             ipAddress: req.ip
         });
-
         await notifySales({
             module: 'Customers',
             referenceId: createdCustomer._id || createdCustomer.id,
@@ -96,23 +71,17 @@ const createCustomer = async (req, res) => {
             message: `${customerData.name} has been added as a customer.`,
             type: 'info'
         });
-
         res.status(201).json(createdCustomer);
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
 };
-
-// @desc    Approve a customer
-// @route   PUT /api/customers/:id/approve
-// @access  Private/Admin
 const approveCustomer = async (req, res) => {
     try {
         const customer = await Customer.findById(req.params.id);
         if (customer) {
             customer.status = 'Active';
             const updatedCustomer = await customer.save();
-
             await logAudit({
                 user: req.user,
                 action: 'APPROVE',
@@ -121,7 +90,6 @@ const approveCustomer = async (req, res) => {
                 description: `Customer approved: ${updatedCustomer.name}`,
                 ipAddress: req.ip
             });
-
             await notifySales({
                 module: 'Customers',
                 referenceId: updatedCustomer._id || updatedCustomer.id,
@@ -129,7 +97,6 @@ const approveCustomer = async (req, res) => {
                 message: `${updatedCustomer.name} has been approved.`,
                 type: 'success'
             });
-
             res.json(updatedCustomer);
         } else {
             res.status(404).json({ message: 'Customer not found' });
@@ -138,10 +105,6 @@ const approveCustomer = async (req, res) => {
         res.status(400).json({ message: error.message });
     }
 };
-
-// @desc    Update a customer
-// @route   PUT /api/customers/:id
-// @access  Private/Admin/Sales
 const updateCustomer = async (req, res) => {
     try {
         const customer = await Customer.findById(req.params.id);
@@ -152,8 +115,6 @@ const updateCustomer = async (req, res) => {
             }
             Object.assign(customer, updateData);
             const updatedCustomer = await customer.save();
-
-            // Synchronize with User account if linked
             const User = require('../models/User');
             let user = null;
             if (customer.userId) {
@@ -166,7 +127,6 @@ const updateCustomer = async (req, res) => {
                     await customer.save();
                 }
             }
-
             if (user) {
                 let userModified = false;
                 if (updateData.name && user.name !== updateData.name) {
@@ -185,7 +145,6 @@ const updateCustomer = async (req, res) => {
                     await user.save();
                 }
             }
-
             await logAudit({
                 user: req.user,
                 action: 'UPDATE',
@@ -194,7 +153,6 @@ const updateCustomer = async (req, res) => {
                 description: `Customer updated and synchronized: ${updatedCustomer.name}`,
                 ipAddress: req.ip
             });
-
             await notifySales({
                 module: 'Customers',
                 referenceId: updatedCustomer._id || updatedCustomer.id,
@@ -202,7 +160,6 @@ const updateCustomer = async (req, res) => {
                 message: `Details for customer ${updatedCustomer.name} have been updated and synchronized.`,
                 type: 'info'
             });
-
             res.json(updatedCustomer);
         } else {
             res.status(404).json({ message: 'Customer not found' });
@@ -211,17 +168,12 @@ const updateCustomer = async (req, res) => {
         res.status(400).json({ message: error.message });
     }
 };
-
-// @desc    Delete a customer
-// @route   DELETE /api/customers/:id
-// @access  Private/Admin
 const deleteCustomer = async (req, res) => {
     try {
         const customer = await Customer.findById(req.params.id);
         if (customer) {
             const customerName = customer.name;
             await customer.deleteOne();
-
             await logAudit({
                 user: req.user,
                 action: 'DELETE',
@@ -230,7 +182,6 @@ const deleteCustomer = async (req, res) => {
                 description: `Customer deleted: ${customerName}`,
                 ipAddress: req.ip
             });
-
             res.json({ message: 'Customer removed' });
         } else {
             res.status(404).json({ message: 'Customer not found' });
@@ -239,10 +190,6 @@ const deleteCustomer = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
-
-// @desc    Get current user's customer profile
-// @route   GET /api/customers/my-profile
-// @access  Private/Customer
 const getMyCustomerProfile = async (req, res) => {
     try {
         const customer = await Customer.findOne({ userId: req.user._id });
@@ -254,30 +201,21 @@ const getMyCustomerProfile = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
-
-// @desc    Create self-service customer profile
-// @route   POST /api/customers/profile
-// @access  Private/Customer
 const createCustomerProfile = async (req, res) => {
     try {
         const { _id } = req.user;
         const customerData = { ...req.body, userId: _id, createdBy: _id, status: 'Active' };
-
         if (!customerData.company || customerData.company.trim() === '') {
             customerData.company = 'Individual Customer';
         }
-
         const customer = new Customer(customerData);
         const createdCustomer = await customer.save();
-
-        // Update User profile status
         const User = require('../models/User');
         const user = await User.findById(_id);
         if (user) {
             user.isProfileComplete = true;
             await user.save();
         }
-
         await logAudit({
             user: req.user,
             action: 'CREATE',
@@ -286,32 +224,21 @@ const createCustomerProfile = async (req, res) => {
             description: `Self-registered customer created: ${customerData.name}`,
             ipAddress: req.ip
         });
-
         res.status(201).json(createdCustomer);
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
 };
-
-// @desc    Update self-service customer profile
-// @route   PUT /api/customers/profile
-// @access  Private/Customer
 const updateMyCustomerProfile = async (req, res) => {
     try {
         let customer = await Customer.findOne({ userId: req.user._id });
-        
-        // Match CRM customer record using userId first, email as fallback
         if (!customer) {
             customer = await Customer.findOne({ email: req.user.email });
         }
-
         const updateData = { ...req.body };
-        // Don't allow changing restricted fields via this endpoint
         delete updateData.userId;
         delete updateData.createdBy;
-
         if (!customer) {
-            // If CRM customer record does not exist: Create one automatically.
             customer = new Customer({
                 userId: req.user._id,
                 createdBy: req.user._id,
@@ -320,17 +247,12 @@ const updateMyCustomerProfile = async (req, res) => {
                 ...updateData
             });
         } else {
-            // Update existing customer record
             Object.assign(customer, updateData);
-            // Ensure userId is linked if it matched by email fallback
             if (!customer.userId) {
                 customer.userId = req.user._id;
             }
         }
-
         const updatedCustomer = await customer.save();
-
-        // Update User table
         const User = require('../models/User');
         const user = await User.findById(req.user._id);
         if (user) {
@@ -343,17 +265,14 @@ const updateMyCustomerProfile = async (req, res) => {
                 user.phone = updateData.phone;
                 userModified = true;
             }
-            // Only sync email if it's explicitly provided and valid
             if (updateData.email && user.email !== updateData.email) {
                 user.email = updateData.email;
                 userModified = true;
             }
-            
             if (userModified) {
                 await user.save();
             }
         }
-
         await logAudit({
             user: req.user,
             action: 'UPDATE',
@@ -362,21 +281,16 @@ const updateMyCustomerProfile = async (req, res) => {
             description: `Self-registered customer updated profile: ${updatedCustomer.name}`,
             ipAddress: req.ip
         });
-
         res.json(updatedCustomer);
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
 };
-
-
 const getTimeline = async (req, res) => {
     try {
         const id = req.params.id;
         const AuditLog = require('../models/AuditLog');
         const logs = await AuditLog.find({ module: 'Customer', targetId: id }).sort({ createdAt: -1 });
-        
-        // Map to timeline format
         const timeline = logs.map(log => ({
             id: log.id,
             action: log.action,
@@ -385,8 +299,6 @@ const getTimeline = async (req, res) => {
             date: log.createdAt,
             time: new Date(log.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
         }));
-        
-        // If empty, return a fallback so it doesn't look broken
         if (timeline.length === 0) {
             timeline.push({
                 id: 'init',
@@ -397,12 +309,10 @@ const getTimeline = async (req, res) => {
                 time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
             });
         }
-        
         res.json(timeline);
     } catch (err) {
         res.status(500).json({ message: 'Error fetching timeline' });
     }
 };
-
 module.exports = {
     getTimeline, getCustomers, getCustomerById, createCustomer, updateCustomer, deleteCustomer, approveCustomer, getCustomerOrders, getCustomerTickets, getMyCustomerProfile, createCustomerProfile, updateMyCustomerProfile };

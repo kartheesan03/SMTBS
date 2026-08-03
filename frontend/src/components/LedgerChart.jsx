@@ -8,7 +8,6 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-
 const SAMPLE_DATA = [
   { month: 'Jan', revenue: 45000, expenses: 32000, netProfit: 13000 },
   { month: 'Feb', revenue: 52000, expenses: 34000, netProfit: 18000 },
@@ -18,19 +17,16 @@ const SAMPLE_DATA = [
   { month: 'Jun', revenue: 67000, expenses: 41000, netProfit: 26000 },
   { month: 'Jul', revenue: 72000, expenses: 43000, netProfit: 29000 },
 ];
-
 const COLORS = {
-  netProfit: '#0F6F5C', // teal
-  revenue: '#B8862B',   // gold
-  expenses: '#B24C29',  // rust
+  netProfit: '#0F6F5C',
+  revenue: '#B8862B',
+  expenses: '#B24C29',
   bg: '#FBFAF7',
   border: '#E6E2D8',
   text: '#1B2430',
 };
-
 const formatCurrency = (val, sym) =>
   `${sym}${val.toLocaleString(undefined, { minimumFractionDigits: 0 })}`;
-
 const CustomTooltip = ({ active, payload, label, currencySymbol }) => {
   if (active && payload && payload.length) {
     return (
@@ -93,7 +89,6 @@ const CustomTooltip = ({ active, payload, label, currencySymbol }) => {
   }
   return null;
 };
-
 const StatCard = ({ title, value, color, active, onClick, currencySymbol, compact }) => {
   return (
     <div
@@ -153,23 +148,21 @@ const StatCard = ({ title, value, color, active, onClick, currencySymbol, compac
     </div>
   );
 };
-
 export default function LedgerChart({
   data = SAMPLE_DATA,
   currencySymbol = '$',
   periodLabel = 'FY 2026',
   compact = false,
+  hideHeader = false,
 }) {
   const [activeSeries, setActiveSeries] = useState({
     netProfit: true,
     revenue: true,
     expenses: true,
   });
-
   const toggleSeries = (key) => {
     setActiveSeries((prev) => ({ ...prev, [key]: !prev[key] }));
   };
-
   const totals = data.reduce(
     (acc, row) => ({
       revenue: acc.revenue + (row.revenue || 0),
@@ -178,7 +171,6 @@ export default function LedgerChart({
     }),
     { revenue: 0, expenses: 0, netProfit: 0 }
   );
-
   return (
     <div
       style={{
@@ -194,41 +186,40 @@ export default function LedgerChart({
       <style>
         {`
           @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;400;600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap');
-          
           .ledger-chart-wrapper * {
             box-sizing: border-box;
           }
         `}
       </style>
-
-      <div className="ledger-chart-wrapper" style={{ width: '100%', maxWidth: '1000px', margin: '0 auto' }}>
-        <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-          <div>
-            <h2
-              style={{
-                fontFamily: "'Fraunces', serif",
-                fontSize: compact ? '20px' : '36px',
-                fontWeight: 300,
-                margin: '0 0 8px 0',
-                letterSpacing: '-0.5px',
-              }}
-            >
-              Financial Ledger
-            </h2>
-            <div
-              style={{
-                fontFamily: "'Inter', sans-serif",
-                fontSize: compact ? '12px' : '14px',
-                textTransform: 'uppercase',
-                letterSpacing: '2px',
-                opacity: 0.6,
-              }}
-            >
-              {periodLabel}
+      <div className="ledger-chart-wrapper" style={{ width: '100%', maxWidth: '1000px', margin: '0 auto', display: 'flex', flexDirection: 'column', height: '100%' }}>
+        {!hideHeader && (
+          <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+            <div>
+              <h2
+                style={{
+                  fontFamily: "'Fraunces', serif",
+                  fontSize: compact ? '20px' : '36px',
+                  fontWeight: 300,
+                  margin: '0 0 8px 0',
+                  letterSpacing: '-0.5px',
+                }}
+              >
+                Financial Ledger
+              </h2>
+              <div
+                style={{
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: compact ? '12px' : '14px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '2px',
+                  opacity: 0.6,
+                }}
+              >
+                {periodLabel}
+              </div>
             </div>
           </div>
-        </div>
-
+        )}
         {/* Legend / Stat Cards */}
         <div style={{ display: 'flex', gap: compact ? '8px' : '16px', marginBottom: compact ? '16px' : '40px' }}>
           <StatCard
@@ -259,7 +250,6 @@ export default function LedgerChart({
             compact={compact}
           />
         </div>
-
         {/* Area Chart */}
         <div style={{ height: compact ? '150px' : '400px', width: '100%', minHeight: compact ? '150px' : '200px' }}>
           <ResponsiveContainer width="100%" height="100%">
@@ -278,7 +268,6 @@ export default function LedgerChart({
                   <stop offset="95%" stopColor={COLORS.expenses} stopOpacity={0} />
                 </linearGradient>
               </defs>
-
               <CartesianGrid
                 strokeDasharray="4 4"
                 vertical={false}
@@ -314,7 +303,6 @@ export default function LedgerChart({
                 content={<CustomTooltip currencySymbol={currencySymbol} />}
                 cursor={{ stroke: COLORS.border, strokeWidth: 1, strokeDasharray: '4 4' }}
               />
-
               {activeSeries.expenses && (
                 <Area
                   type="monotone"

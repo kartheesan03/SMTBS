@@ -1,7 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/sequelize');
 const { makeBridgedModel } = require('../config/mongoose-bridge');
-
 const BackupScheduleSequelize = sequelize.define('BackupSchedule', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     frequency: { type: DataTypes.STRING, defaultValue: 'Daily' },
@@ -10,5 +9,4 @@ const BackupScheduleSequelize = sequelize.define('BackupSchedule', {
     enabled: { type: DataTypes.BOOLEAN, defaultValue: true },
     keepLast: { type: DataTypes.STRING, defaultValue: '30 Backups' }
 }, { timestamps: true });
-
 module.exports = makeBridgedModel('BackupSchedule', BackupScheduleSequelize);

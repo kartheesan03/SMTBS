@@ -1,6 +1,5 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/sequelize');
-
 const Holiday = sequelize.define('Holiday', {
     id:          { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     name:        { type: DataTypes.STRING,  allowNull: false },
@@ -11,7 +10,5 @@ const Holiday = sequelize.define('Holiday', {
     isRecurring: { type: DataTypes.BOOLEAN, defaultValue: false },
     createdBy:   { type: DataTypes.INTEGER, allowNull: true },
 });
-
 Holiday.sync({ alter: true }).catch(console.error);
-
 module.exports = Holiday;

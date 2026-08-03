@@ -1,7 +1,6 @@
 const fs = require('fs');
 let css = fs.readFileSync('c:/Users/Admin/Documents/project/frontend/src/index.css', 'utf8');
 
-// Update app-layout
 css = css.replace(
   /\.app-layout\s*\{[^}]*\}/,
   `.app-layout {
@@ -21,7 +20,6 @@ css = css.replace(
 }`
 );
 
-// Update app-main
 css = css.replace(
   /\.app-main\s*\{[^}]*\}/,
   `.app-main {
@@ -37,7 +35,6 @@ css = css.replace(
 }`
 );
 
-// Update topbar inside main
 css = css.replace(
   /\.app-topbar\s*\{[^}]*\}/,
   `.app-topbar {

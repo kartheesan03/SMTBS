@@ -1,5 +1,4 @@
 import React from 'react';
-
 /**
  * UserAvatar — Local initials-based avatar component.
  * Replaces all external ui-avatars.com API calls throughout the app.
@@ -15,23 +14,20 @@ import React from 'react';
  *  - className: extra CSS class (optional)
  *  - colorIndex: 0–5 to pick a specific gradient (optional, auto from name)
  */
-
 const AVATAR_GRADIENTS = [
-    ['#3b82f6', '#6366f1'],   // blue → indigo
-    ['#8b5cf6', '#ec4899'],   // purple → pink
-    ['#10b981', '#3b82f6'],   // emerald → blue
-    ['#f59e0b', '#ef4444'],   // amber → red
-    ['#06b6d4', '#6366f1'],   // cyan → indigo
-    ['#14b8a6', '#10b981'],   // teal → emerald
+    ['#3b82f6', '#6366f1'],
+    ['#8b5cf6', '#ec4899'],
+    ['#10b981', '#3b82f6'],
+    ['#f59e0b', '#ef4444'],
+    ['#06b6d4', '#6366f1'],
+    ['#14b8a6', '#10b981'],
 ];
-
 const getInitials = (name) => {
     if (!name) return 'U';
     const parts = name.trim().split(/\s+/);
     if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
     return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
 };
-
 const getColorIndex = (name) => {
     if (!name) return 0;
     let hash = 0;
@@ -40,7 +36,6 @@ const getColorIndex = (name) => {
     }
     return Math.abs(hash) % AVATAR_GRADIENTS.length;
 };
-
 const UserAvatar = ({
     src,
     name,
@@ -52,13 +47,11 @@ const UserAvatar = ({
     alt,
 }) => {
     const [imgError, setImgError] = React.useState(false);
-
     const initials = getInitials(name);
     const gradIndex = colorIndex !== undefined ? colorIndex : getColorIndex(name);
     const [color1, color2] = AVATAR_GRADIENTS[gradIndex % AVATAR_GRADIENTS.length];
     const calculatedFontSize = fontSize || Math.max(10, Math.round(size * 0.38));
     const showImage = src && !imgError;
-
     const baseStyle = {
         width: size,
         height: size,
@@ -70,7 +63,6 @@ const UserAvatar = ({
         overflow: 'hidden',
         ...style,
     };
-
     if (showImage) {
         return (
             <div style={baseStyle} className={className}>
@@ -83,7 +75,6 @@ const UserAvatar = ({
             </div>
         );
     }
-
     return (
         <div
             style={{
@@ -108,5 +99,4 @@ const UserAvatar = ({
         </div>
     );
 };
-
 export default UserAvatar;

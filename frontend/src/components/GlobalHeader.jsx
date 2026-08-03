@@ -4,34 +4,27 @@ import { AuthContext } from '../context/AuthContext';
 import { NotificationContext } from '../context/NotificationContext';
 import { Search, Bell, Calendar, RefreshCw, Grid, LogOut, User } from 'lucide-react';
 import './GlobalHeader.css';
-
 const GlobalHeader = ({ onRefresh, onOpenModuleLauncher, onOpenCommandCenter }) => {
     const { user, logout } = useContext(AuthContext);
     const { unreadCount } = useContext(NotificationContext);
     const navigate = useNavigate();
-    
     const [currentTime, setCurrentTime] = useState(new Date());
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
     const [dateFormat, setDateFormat] = useState(localStorage.getItem('dateFormat') || 'DD/MM/YYYY');
     const [timezone, setTimezone] = useState(localStorage.getItem('timezone') || 'Asia/Kolkata');
     const profileRef = useRef(null);
-
     useEffect(() => {
         const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-        
         const handleSettingsUpdate = () => {
             setDateFormat(localStorage.getItem('dateFormat') || 'DD/MM/YYYY');
             setTimezone(localStorage.getItem('timezone') || 'Asia/Kolkata');
         };
         window.addEventListener('settingsUpdated', handleSettingsUpdate);
-        
         return () => {
             clearInterval(timer);
             window.removeEventListener('settingsUpdated', handleSettingsUpdate);
         };
     }, []);
-
-    // Close profile menu if clicked outside
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (profileRef.current && !profileRef.current.contains(event.target)) {
@@ -41,12 +34,9 @@ const GlobalHeader = ({ onRefresh, onOpenModuleLauncher, onOpenCommandCenter }) 
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
-
     const initials = user?.name ? user.name.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase() : 'AU';
     const isSales = user?.role?.toLowerCase() === 'sales';
     const role = user?.role ? (user.role.charAt(0).toUpperCase() + user.role.slice(1)) : 'Admin';
-
-    // Deterministic gradient based on name so avatar always has a rich color
     const AVATAR_GRADIENTS = [
         'linear-gradient(135deg, #6366f1, #8b5cf6)',
         'linear-gradient(135deg, #3b82f6, #06b6d4)',
@@ -57,7 +47,6 @@ const GlobalHeader = ({ onRefresh, onOpenModuleLauncher, onOpenCommandCenter }) 
         'linear-gradient(135deg, #f97316, #ef4444)',
     ];
     const avatarGradient = AVATAR_GRADIENTS[(initials.charCodeAt(0) || 0) % AVATAR_GRADIENTS.length];
-
     const handleRefresh = () => {
         if (onRefresh) {
             onRefresh();
@@ -65,12 +54,10 @@ const GlobalHeader = ({ onRefresh, onOpenModuleLauncher, onOpenCommandCenter }) 
             window.location.reload();
         }
     };
-
     const handleLogout = () => {
         logout();
         navigate('/login');
     };
-
     const formatCurrentDate = () => {
         if (dateFormat === 'YYYY-MM-DD') {
             return new Intl.DateTimeFormat('en-CA', { timeZone: timezone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(currentTime);
@@ -83,7 +70,6 @@ const GlobalHeader = ({ onRefresh, onOpenModuleLauncher, onOpenCommandCenter }) 
         }
         return currentTime.toLocaleDateString('en-US', { timeZone: timezone, weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
     };
-
     return (
         <header className="rd-header" style={{ position: 'sticky', top: 0, zIndex: 100, background: '#fff', borderBottom: '1px solid #e2e8f0', margin: 0, width: '100%', boxSizing: 'border-box' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -100,7 +86,6 @@ const GlobalHeader = ({ onRefresh, onOpenModuleLauncher, onOpenCommandCenter }) 
                     <input type="text" className="rd-search-input" placeholder="Search..." />
                 </div>
             </div>
-            
             <div className="rd-header-actions">
                 <div className="rd-datetime-pill">
                     <Calendar size={16} />
@@ -108,16 +93,13 @@ const GlobalHeader = ({ onRefresh, onOpenModuleLauncher, onOpenCommandCenter }) 
                     <span style={{ color: '#fda4af', margin: '0 4px' }}>·</span>
                     {currentTime.toLocaleTimeString('en-US', { timeZone: timezone, hour: 'numeric', minute: '2-digit', hour12: true })}
                 </div>
-                
                 <button className="rd-icon-btn" onClick={handleRefresh} title="Refresh">
                     <RefreshCw size={18} />
                 </button>
-                
                 <button className="rd-icon-btn" onClick={() => navigate('/notifications')} title="Notifications">
                     <Bell size={18} />
                     {unreadCount > 0 && <span className="rd-badge">{unreadCount}</span>}
                 </button>
-                
                 <div className="rd-profile-menu-container" ref={profileRef} style={{ position: 'relative' }}>
                     <div className="rd-profile-menu" onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)} style={{ cursor: 'pointer' }}>
                         <div className="rd-avatar" style={{ background: avatarGradient }}>{initials}</div>
@@ -129,7 +111,6 @@ const GlobalHeader = ({ onRefresh, onOpenModuleLauncher, onOpenCommandCenter }) 
                         </div>
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight: 4}}><polyline points="6 9 12 15 18 9"></polyline></svg>
                     </div>
-
                     {isProfileMenuOpen && (
                         <div style={{ 
                             position: 'absolute', 
@@ -176,5 +157,4 @@ const GlobalHeader = ({ onRefresh, onOpenModuleLauncher, onOpenCommandCenter }) 
         </header>
     );
 };
-
 export default GlobalHeader;

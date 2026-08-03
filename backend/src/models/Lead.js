@@ -1,7 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/sequelize');
 const { makeBridgedModel } = require('../config/mongoose-bridge');
-
 const LeadSequelize = sequelize.define('Lead', {
     id: {
         type: DataTypes.INTEGER,
@@ -41,6 +40,5 @@ const LeadSequelize = sequelize.define('Lead', {
         allowNull: true
     }
 });
-
 const Lead = makeBridgedModel('Lead', LeadSequelize);
 module.exports = Lead;

@@ -24,7 +24,6 @@ const req = http.request(options, (res) => {
         return;
     }
     
-    // Now get stats
     const opt2 = {
         hostname: 'localhost',
         port: 5000,

@@ -2,7 +2,6 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import './PageHeader.css';
-
 /**
  * PageHeader — standardized page title + module badge + optional subtitle.
  * Matches the Attendance Tracker reference style across the entire app.
@@ -15,7 +14,6 @@ import './PageHeader.css';
  */
 const PageHeader = ({ title, badge, subtitle, showBack = false, hasInsights = false, backPath = null, onBack = null }) => {
     const navigate = useNavigate();
-
     const handleBack = () => {
         if (onBack) {
             onBack();
@@ -25,7 +23,6 @@ const PageHeader = ({ title, badge, subtitle, showBack = false, hasInsights = fa
             navigate(-1);
         }
     };
-
     return (
         <div className="rd-module-header">
             <div className="rd-module-info">
@@ -73,7 +70,6 @@ const PageHeader = ({ title, badge, subtitle, showBack = false, hasInsights = fa
                     {badge && (
                         <span className="rd-module-badge">{badge}</span>
                     )}
-
                     {hasInsights && (
                         <div style={{
                             width: 8,
@@ -94,5 +90,4 @@ const PageHeader = ({ title, badge, subtitle, showBack = false, hasInsights = fa
         </div>
     );
 };
-
 export default PageHeader;

@@ -13,8 +13,6 @@ async function fixOrders() {
         for (const order of orders) {
             const workflow = order.workflow || [];
             
-            // If the order is "Sales Processing", the active stage should be "Sales Processing"
-            // If the active stage is "Inventory Verified", we need to advance it.
             let activeStageIndex = workflow.findIndex(w => w.status === "In Progress");
             
             if (activeStageIndex !== -1) {
@@ -34,7 +32,6 @@ async function fixOrders() {
                     updatedCount++;
                     console.log(`Fixed order ${order.orderNumber} to Sales Processing`);
                 } else if (order.status === "Inventory Verified" && currentStageName === "Employee Verification") {
-                    // For any orders still stuck in Employee Verification but overall status is Inventory Verified
                     workflow[activeStageIndex].status = "Completed";
                     workflow[activeStageIndex].remarks = "Inventory Physical Check Complete (auto-fixed)";
                     workflow[activeStageIndex].completedAt = new Date();

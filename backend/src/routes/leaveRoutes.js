@@ -5,16 +5,11 @@ const {
     getAllLeaves, reviewLeave, getLeaveBalance
 } = require('../controllers/leavecontroller');
 const { protect, authorize } = require('../middleware/authMiddleware');
-
 router.use(protect);
-
-router.get('/balance',     getLeaveBalance);                           // GET  /api/leaves/balance
-router.get('/my',          getMyLeaves);                               // GET  /api/leaves/my
-router.post('/',           applyLeave);                                // POST /api/leaves
-router.put('/:id/cancel',  cancelLeave);                              // PUT  /api/leaves/:id/cancel
-
-// Admin / HR only
-router.get('/',            authorize('view_hrms', 'manage_hrms', 'hrms:leave:view'), getAllLeaves);    // GET  /api/leaves
-router.put('/:id/review',  authorize('manage_hrms', 'hrms:leave:manage'), reviewLeave);    // PUT  /api/leaves/:id/review
-
+router.get('/balance',     getLeaveBalance);
+router.get('/my',          getMyLeaves);
+router.post('/',           applyLeave);
+router.put('/:id/cancel',  cancelLeave);
+router.get('/',            authorize('view_hrms', 'manage_hrms', 'hrms:leave:view'), getAllLeaves);
+router.put('/:id/review',  authorize('manage_hrms', 'hrms:leave:manage'), reviewLeave);
 module.exports = router;

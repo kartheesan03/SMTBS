@@ -3,7 +3,7 @@ const dotenv = require('dotenv');
 const Notification = require('../src/models/Notification');
 const Order = require('../src/models/Order');
 
-dotenv.config({ path: '.env' }); // Load env variables
+dotenv.config({ path: '.env' });
 
 const cleanNotifications = async () => {
     try {
@@ -16,7 +16,6 @@ const cleanNotifications = async () => {
         await sequelize.models.Notification.sync({ alter: true });
         console.log('Sequelize Connected & Synced');
 
-        // Fetch all order notifications
         const notifications = await Notification.find({ category: 'order' });
         console.log(`Found ${notifications.length} order notifications.`);
 
@@ -24,18 +23,16 @@ const cleanNotifications = async () => {
         for (const notif of notifications) {
             let shouldDelete = false;
 
-            // Delete if no payload or no order_id in payload
             if (!notif.payload || !notif.payload.order_id) {
                 shouldDelete = true;
             } else {
-                // Delete if the order no longer exists in DB
                 try {
                     const orderExists = await Order.findById(notif.payload.order_id);
                     if (!orderExists) {
                         shouldDelete = true;
                     }
                 } catch (e) {
-                    shouldDelete = true; // Invalid order ID format
+                    shouldDelete = true;
                 }
             }
 

@@ -1,7 +1,6 @@
 const dotenv = require('dotenv');
 const connectDB = require('./src/config/db');
 
-// Import all models
 const User = require('./src/models/User');
 const Material = require('./src/models/Material');
 const Employee = require('./src/models/Employee');
@@ -55,7 +54,6 @@ const testFetchAll = async () => {
                 const records = await item.model.find({});
                 console.log(`✓ ${item.name.padEnd(15)}: Found ${records.length} records.`);
                 if (records.length > 0) {
-                    // Show a sample key set or first record
                     const sample = records[0];
                     console.log(`   Sample keys: ${Object.keys(sample._doc || sample).join(', ')}`);
                 }
@@ -65,7 +63,6 @@ const testFetchAll = async () => {
             console.log('---------------------------------------------------');
         }
 
-        // Test populate logic specifically on Tickets
         console.log('\n===================================================');
         console.log('    TESTING POPULATE ON TICKETS                    ');
         console.log('===================================================\n');

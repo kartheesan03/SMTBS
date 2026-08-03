@@ -18,88 +18,54 @@ const Lead = require('./Lead');
 const AICopilotLog = require('./AICopilotLog');
 const AIChatSession = require('./AIChatSession');
 const AIChatMessage = require('./AIChatMessage');
-
 function setupAssociations() {
-    // 1. Employee -> User
     Employee.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'userIdField', as: 'userId' });
     User.sequelizeModel.hasOne(Employee.sequelizeModel, { foreignKey: 'userIdField', as: 'employee' });
-
-
-    // 3. Customer -> User
     Customer.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'createdByField', as: 'createdBy' });
     Customer.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'userId', as: 'user' });
     User.sequelizeModel.hasOne(Customer.sequelizeModel, { foreignKey: 'userId', as: 'customerProfile' });
-
-    // 4. Attendance -> Employee
     Attendance.sequelizeModel.belongsTo(Employee.sequelizeModel, { foreignKey: 'employeeId', as: 'employee' });
-
-    // 5. Leave -> Employee & User
     Leave.sequelizeModel.belongsTo(Employee.sequelizeModel, { foreignKey: 'employeeId', as: 'employee' });
     Leave.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'reviewedById', as: 'reviewedBy' });
-
-    // 6. Salary -> Employee
     Salary.sequelizeModel.belongsTo(Employee.sequelizeModel, { foreignKey: 'employeeId', as: 'employee' });
-
-    // 7. Order -> Customer, Vendor, Users
     Order.sequelizeModel.belongsTo(Customer.sequelizeModel, { foreignKey: 'customerId', as: 'Customer' });
     Order.sequelizeModel.belongsTo(Lead.sequelizeModel, { foreignKey: 'leadId', as: 'Lead' });
     Order.sequelizeModel.belongsTo(Vendor.sequelizeModel, { foreignKey: 'vendorId', as: 'vendor' });
     Order.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'createdById', as: 'createdBy' });
     Order.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'updatedById', as: 'updatedBy' });
-
-    // 8. Task -> User
     Task.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'assignedById', as: 'assignedBy' });
-
-
-    // 10. Ticket -> Customer, User
     Ticket.sequelizeModel.belongsTo(Customer.sequelizeModel, { foreignKey: 'customerId', as: 'Customer' });
     Ticket.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'assignedToId', as: 'assignedTo' });
-
-    // 11. Notification -> User
     Notification.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'userId', as: 'user' });
-
-    // 12. Material -> Vendor
     Material.sequelizeModel.belongsTo(Vendor.sequelizeModel, { foreignKey: 'vendorId', as: 'vendor' });
     Vendor.sequelizeModel.hasMany(Material.sequelizeModel, { foreignKey: 'vendorId', as: 'materials' });
-    
-    // Vendor -> User
     Vendor.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'userId', as: 'user' });
     User.sequelizeModel.hasOne(Vendor.sequelizeModel, { foreignKey: 'userId', as: 'vendorProfile' });
-
-    // 13. MaterialMovement -> Material, User, Order
     MaterialMovement.sequelizeModel.belongsTo(Material.sequelizeModel, { foreignKey: 'materialId', as: 'material' });
     MaterialMovement.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'performedById', as: 'performedBy' });
     MaterialMovement.sequelizeModel.belongsTo(Order.sequelizeModel, { foreignKey: 'referenceOrderId', as: 'referenceOrder' });
     Material.sequelizeModel.hasMany(MaterialMovement.sequelizeModel, { foreignKey: 'materialId', as: 'movements' });
-
-    // 14. CommunicationLog -> Customer, User
     CommunicationLog.sequelizeModel.belongsTo(Customer.sequelizeModel, { foreignKey: 'customerId', as: 'customer' });
     CommunicationLog.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'createdById', as: 'createdBy' });
     Customer.sequelizeModel.hasMany(CommunicationLog.sequelizeModel, { foreignKey: 'customerId', as: 'communications' });
-
-    // 15. AuditLog -> User
     AuditLog.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'userId', as: 'user' });
-
-    // 16. StockRequest associations
     const StockRequest = require('./StockRequest');
     StockRequest.sequelizeModel.belongsTo(Material.sequelizeModel, { foreignKey: 'materialId', as: 'material' });
     StockRequest.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'employeeId', as: 'employee' });
     StockRequest.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'managerId', as: 'manager' });
     StockRequest.sequelizeModel.belongsTo(Order.sequelizeModel, { foreignKey: 'orderId', as: 'order' });
-
-    // 17. Backup and RestoreLog
     const Backup = require('./Backup');
     const RestoreLog = require('./RestoreLog');
     Backup.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'createdById', as: 'createdBy' });
     RestoreLog.sequelizeModel.belongsTo(Backup.sequelizeModel, { foreignKey: 'backupIdField', as: 'backup' });
     RestoreLog.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'restoredById', as: 'restoredBy' });
-
-    // 18. PurchaseRequest associations
     const PurchaseRequest = require('./PurchaseRequest');
     PurchaseRequest.sequelizeModel.belongsTo(Order.sequelizeModel, { foreignKey: 'orderId', as: 'order' });
     Order.sequelizeModel.hasMany(PurchaseRequest.sequelizeModel, { foreignKey: 'orderId', as: 'purchaseRequests' });
     PurchaseRequest.sequelizeModel.belongsTo(Vendor.sequelizeModel, { foreignKey: 'vendorId', as: 'vendor' });
     PurchaseRequest.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'requestedById', as: 'requestedBy' });
+    
+    const Quotation = require('./Quotation');
+    Quotation.sequelizeModel.belongsTo(Customer.sequelizeModel, { foreignKey: 'customer', as: 'Customer' });
 }
-
 module.exports = setupAssociations;

@@ -1,7 +1,6 @@
 const fs = require('fs');
 let css = fs.readFileSync('c:/Users/Admin/Documents/project/frontend/src/index.css', 'utf8');
 
-// Update .nav-link.active style
 css = css.replace(
   /\.nav-link\.active\s*\{[^}]*\}/g,
   `.nav-link.active {
@@ -11,7 +10,6 @@ css = css.replace(
 }`
 );
 
-// Restore the before pseudo element
 css = css.replace(
   /\.nav-link\.active::before\s*\{[^}]*\}/g,
   `.nav-link.active::before {
@@ -28,7 +26,6 @@ css = css.replace(
 }`
 );
 
-// Tweak hover state to be less pill-like
 css = css.replace(
   /\.nav-link:hover\s*\{[^}]*\}/g,
   `.nav-link:hover {

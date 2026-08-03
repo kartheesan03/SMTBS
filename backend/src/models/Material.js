@@ -1,7 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/sequelize');
 const { makeBridgedModel } = require('../config/mongoose-bridge');
-
 const MaterialSequelize = sequelize.define('Material', {
     id: {
         type: DataTypes.INTEGER,
@@ -61,7 +60,6 @@ const MaterialSequelize = sequelize.define('Material', {
         type: DataTypes.BOOLEAN,
         defaultValue: true
     },
-    // ── Additional Details ────────────────────────────────────────────────────
     condition: {
         type: DataTypes.STRING,
         allowNull: true,
@@ -91,7 +89,6 @@ const MaterialSequelize = sequelize.define('Material', {
         allowNull: true,
         defaultValue: []
     },
-    // ── Unified location fields (single source of truth) ──────────────────────
     warehouse: {
         type: DataTypes.STRING,
         allowNull: true,
@@ -107,26 +104,20 @@ const MaterialSequelize = sequelize.define('Material', {
         allowNull: true,
         defaultValue: null
     },
-
     location: {
-        // Derived display string: warehouse + ' / ' + shelf, or just warehouse.
-        // Stored so all modules read the same value without re-deriving.
         type: DataTypes.STRING,
         allowNull: true,
         defaultValue: null
     },
     gpsStatus: {
-        // Real-time GPS/movement status for delivery lifecycle.
         type: DataTypes.ENUM('At Warehouse', 'In Transit', 'Delivered', 'Signal Lost'),
         defaultValue: 'At Warehouse'
     },
     locationUpdatedAt: {
-        // Timestamp of last location or gpsStatus change — used for "Last Updated" display.
         type: DataTypes.DATE,
         allowNull: true,
         defaultValue: null
     },
-    // ── Delivery Lifecycle Fields ─────────────────────────────────────────────
     deliveryDestination: {
         type: DataTypes.STRING,
         allowNull: true,
@@ -148,6 +139,5 @@ const MaterialSequelize = sequelize.define('Material', {
         defaultValue: null
     }
 });
-
 const Material = makeBridgedModel('Material', MaterialSequelize);
 module.exports = Material;

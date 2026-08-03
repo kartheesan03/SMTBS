@@ -2,7 +2,6 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Save, FileText } from 'lucide-react';
 import './StandardPageLayout.css';
-
 const StandardPageLayout = ({ 
     title, 
     subtitle, 
@@ -17,7 +16,6 @@ const StandardPageLayout = ({
     backPath = null
 }) => {
     const navigate = useNavigate();
-
     const handleBack = () => {
         if (onCancel) {
             onCancel();
@@ -25,7 +23,6 @@ const StandardPageLayout = ({
             backPath ? navigate(backPath) : navigate(-1);
         }
     };
-
     return (
         <div className="standard-page-container">
             <div className="standard-page-header-wrapper">
@@ -53,7 +50,6 @@ const StandardPageLayout = ({
                     </div>
                 </div>
             </div>
-
             <div className="standard-page-body">
                 <div className="standard-page-main">
                     {infoCard && (
@@ -61,19 +57,16 @@ const StandardPageLayout = ({
                             {infoCard}
                         </div>
                     )}
-                    
                     <div className="standard-sections-wrapper">
                         {children}
                     </div>
                 </div>
-                
                 {sidebarContent && (
                     <div className="standard-page-sidebar">
                         {sidebarContent}
                     </div>
                 )}
             </div>
-
             <div className="standard-page-footer">
                 <div className="footer-actions-left">
                     <button type="button" className="btn-cancel" onClick={handleBack}>
@@ -96,5 +89,4 @@ const StandardPageLayout = ({
         </div>
     );
 };
-
 export default StandardPageLayout;

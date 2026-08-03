@@ -2,7 +2,6 @@ const fs = require('fs');
 const path = 'c:/Users/Admin/Documents/project/frontend/src/pages/OrderTracking.jsx';
 let content = fs.readFileSync(path, 'utf8');
 
-// 1. Add formatters
 content = content.replace('    return (', `    const formatDateTime = (isoString) => {
         if (!isoString) return '';
         const d = new Date(isoString);
@@ -23,7 +22,6 @@ content = content.replace('    return (', `    const formatDateTime = (isoString
 
     return (`);
 
-// 2. Replace Summary items
 content = content.replace(`<div className="summary-item">
                             <span className="label">Delivery Date</span>
                             <span className="value">{order.expectedDeliveryDate ? new Date(order.expectedDeliveryDate).toLocaleDateString() : 'Pending'}</span>
@@ -49,15 +47,12 @@ content = content.replace(`<div className="summary-item">
                             <span className="value">{formatDateTime(order.updatedAt || new Date())}</span>
                         </div>`);
 
-// 3. Replace Last updated
 content = content.replace(`<p>Last updated: {timeline.length > 0 ? new Date(timeline[timeline.length - 1].date).toLocaleString() : 'Just now'}</p>`,
 `<p>Last updated: {timeline.length > 0 ? formatDateTime(timeline[timeline.length - 1].date) : 'Just now'}</p>`);
 
-// 4. Replace timeline time
 content = content.replace(`<Clock size={12} /> {new Date(update.date).toLocaleString()}`,
 `<Clock size={12} /> {formatDateTime(update.date)}`);
 
-// 5. Update CSS grid
 content = content.replace(`display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;`,
 `display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px;`);
 

@@ -49,8 +49,6 @@ const recalculate = async () => {
 
             const expectedStatus = checkInDate > lateThreshold ? 'Late' : 'Present';
 
-            // Only update if current status is different and was meant to be a present/late status
-            // e.g. avoid changing Leave or Absent unless it was recorded as Late/Present incorrectly.
             if (['Late', 'Present'].includes(record.status) && record.status !== expectedStatus) {
                 console.log(`Updating record ${record.id}: checkIn ${record.checkIn} | old ${record.status} -> new ${expectedStatus}`);
                 record.status = expectedStatus;

@@ -10,12 +10,10 @@ async function updateEmails() {
         ];
 
         for (const update of updates) {
-            // Delete the placeholder user taking up the email (Ignore errors if already deleted)
             try {
                 await sequelize.query(`DELETE FROM User WHERE id = ${update.genericId}`);
             } catch(e) {}
             
-            // Update User table
             await sequelize.query(`
                 UPDATE User 
                 SET email = '${update.email}'
@@ -25,7 +23,6 @@ async function updateEmails() {
                 )
             `);
             
-            // Update Employee table (only contact column exists)
             await sequelize.query(`
                 UPDATE Employee 
                 SET contact = '${update.email}'

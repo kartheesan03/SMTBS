@@ -1,7 +1,6 @@
 import React from 'react';
 import { TrendingUp, BarChart3 } from 'lucide-react';
 import './WelcomeBanner.css';
-
 export const WelcomeBanner = ({
     user,
     greeting,
@@ -17,11 +16,8 @@ export const WelcomeBanner = ({
         if (h < 18) return 'Good Afternoon';
         return 'Good Evening';
     };
-
     const displayGreeting = getGreeting();
     const displaySubtitle = subtitle || `${new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} · Here's your overview`;
-
-    // Extract stat cards from rightVisuals if they are React elements
     const statCards = [];
     if (rightVisuals) {
         React.Children.forEach(rightVisuals.props?.children || rightVisuals, (child) => {
@@ -30,24 +26,12 @@ export const WelcomeBanner = ({
             }
         });
     }
-
     return (
         <div className="wb-grid">
             {/* ── Card 1: Hero Greeting (spans 2 columns) ── */}
             <div className="wb-hero-card">
                 {/* Diagonal Background Layer */}
                 <div className="wb-diagonal-bg"></div>
-
-                {/* Offset Avatar Breaking out of the container bounds */}
-                <div className="wb-avatar-wrapper">
-                    <img
-                        src={user?.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'User')}&background=0f172a&color=fff`}
-                        alt="Profile"
-                        className="wb-avatar"
-                    />
-                    <div className="wb-status-dot"></div>
-                </div>
-
                 <div className="wb-hero-content">
                     <div className="wb-text-block">
                         <div className="wb-greeting">
@@ -66,7 +50,6 @@ export const WelcomeBanner = ({
                             </div>
                         )}
                     </div>
-
                     {actions.length > 0 && (
                         <div className="wb-hero-actions">
                             {actions.map((action, idx) => (
@@ -83,7 +66,6 @@ export const WelcomeBanner = ({
                     )}
                 </div>
             </div>
-
             {/* ── Card 2 & 3: Stat Cards ── */}
             {statCards.length > 0 ? (
                 statCards.map((card, idx) => (
@@ -105,5 +87,4 @@ export const WelcomeBanner = ({
         </div>
     );
 };
-
 export default WelcomeBanner;

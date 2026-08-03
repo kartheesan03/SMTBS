@@ -15,11 +15,9 @@ async function run() {
         console.log('DB connected.');
 
         for (const u of defaultUsers) {
-            // Delete old wrong users to be safe
             await User.sequelizeModel.destroy({ where: { email: u.email } });
             console.log(`Deleted old user: ${u.email}`);
 
-            // Recreate users so beforeSave hooks properly bcrypt hash the password
             const user = await User.sequelizeModel.create({
                 name: u.name,
                 email: u.email,

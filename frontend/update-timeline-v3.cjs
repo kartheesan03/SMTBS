@@ -3,7 +3,6 @@ const fs = require("fs");
 const cssFile = "src/pages/OrderTracking.css";
 let cssContent = fs.readFileSync(cssFile, "utf8");
 
-// Remove the vertical timeline CSS we added earlier and replace with horizontal CSS
 const startStr = ".workflow-stepper {";
 const endStr = ".erp-grid-2col {";
 

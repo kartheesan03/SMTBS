@@ -6,7 +6,6 @@ async function migrate() {
         await sequelize.authenticate();
         console.log('Connection has been established successfully.');
         
-        // This will add missing columns to existing tables
         await sequelize.sync({ alter: true });
         console.log('All models were synchronized successfully.');
         process.exit(0);

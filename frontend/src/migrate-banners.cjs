@@ -7,11 +7,9 @@ const files = glob.sync('C:/Users/Admin/Documents/project/frontend/src/pages/*Da
 files.forEach(file => {
     let content = fs.readFileSync(file, 'utf8');
     
-    // Check if it has rd-hero
     if (content.includes('className="rd-hero"')) {
         console.log('Migrating: ' + path.basename(file));
         
-        // Add import
         if (!content.includes('WelcomeBanner')) {
             content = content.replace(
                 "import { LoadingState, ErrorState, EmptyState } from '../components/DataStates';", 
@@ -19,10 +17,8 @@ files.forEach(file => {
             );
         }
 
-        // We will just do a simple string extraction
         const heroStart = content.indexOf('<div className="rd-hero">');
         
-        // Find the matching end div for rd-hero
         let openDivs = 0;
         let pos = heroStart;
         while (pos < content.length) {
@@ -35,11 +31,9 @@ files.forEach(file => {
         
         const heroContent = content.substring(heroStart, heroEnd);
         
-        // Extract pieces using regex
         const subtitleMatch = heroContent.match(/&nbsp;·&nbsp;\s*([^<]+)<\/div>/);
         const subtitle = subtitleMatch ? subtitleMatch[1].trim() : "Here's your overview";
         
-        // Extract badges
         const badges = [];
         const neutralMatch = heroContent.match(/<span className="rd-hero-badge badge-neutral">([\s\S]*?)<\/span>/);
         if (neutralMatch) {
@@ -53,11 +47,9 @@ files.forEach(file => {
             badges.push(`{ type: 'status', text: \`${textMatch.replace('{', '${')}\` }`);
         }
 
-        // Extract right visual
         const visualMatch = heroContent.match(/<div className="rd-hero-visual">([\s\S]*?)<\/div>\s*<div className="rd-hero-actions-col">/);
         const visualContent = visualMatch ? visualMatch[1].trim() : '';
 
-        // Extract actions
         const actions = [];
         const btn1Match = heroContent.match(/<button className="hero-action-btn primary" onClick=\{([^}]+)\}>([\s\S]*?)<\/button>/);
         if (btn1Match) {

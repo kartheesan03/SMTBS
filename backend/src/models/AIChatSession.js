@@ -1,6 +1,5 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/sequelize');
-
 const AIChatSession = sequelize.define('AIChatSession', {
     id: {
         type: DataTypes.INTEGER,
@@ -20,5 +19,4 @@ const AIChatSession = sequelize.define('AIChatSession', {
     timestamps: true,
     tableName: 'AIChatSessions'
 });
-
 module.exports = AIChatSession;

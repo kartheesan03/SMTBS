@@ -34,13 +34,11 @@ const defaultUsers = [
                 
                 let changed = false;
                 
-                // Ensure role
                 if (user.role !== userData.role && !(userData.role === 'Admin' && user.role === 'Super Admin')) {
                     user.role = userData.role;
                     changed = true;
                 }
 
-                // Verify password using bcrypt compare
                 const isMatch = await bcrypt.compare(userData.password, user.password);
                 if (!isMatch) {
                     console.log(`Password for ${userData.email} is wrong or not hashed properly. Resetting...`);

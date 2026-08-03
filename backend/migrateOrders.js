@@ -5,7 +5,6 @@ async function migrateOrders() {
         await sequelize.authenticate();
         console.log('Connection has been established successfully.');
         
-        // Add columns manually
         const queries = [
             'ALTER TABLE "Order" ADD COLUMN invoiceNumber VARCHAR(255);',
             'ALTER TABLE "Order" ADD COLUMN invoiceDate DATETIME;',

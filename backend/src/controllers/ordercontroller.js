@@ -7,9 +7,6 @@ const Customer = require('../models/Customer');
 const AuditLog = require('../models/AuditLog');
 const { broadcast, notifyCritical, notifySales, notifyManager } = require('../services/notificationService');
 const { logAudit } = require('../services/auditService');
-
-// @access  Private
-
 const getOrderPayload = (order, reqUser) => {
     let name = 'Walk-in';
     if (order.orderType === 'purchase' && order.vendor) {
@@ -27,14 +24,11 @@ const getOrderPayload = (order, reqUser) => {
         created_at: new Date()
     };
 };
-
 const getOrders = async (req, res) => {
     try {
         let query = {};
         const role = req.user?.role?.toLowerCase();
-        
         if (role === 'admin' || role === 'super admin' || role === 'manager' || role === 'hr' || role === 'employee') {
-            // Full access to view orders (frontend restricts actions for Employee)
         } else if (role === 'sales') {
             query.orderType = 'sales';
         } else if (role === 'vendor') {
@@ -52,25 +46,20 @@ const getOrders = async (req, res) => {
         } else {
             return res.status(403).json({ message: 'Access Denied. Unauthorized role.' });
         }
-
         const orders = await Order.find(query)
             .populate('customer', 'name email phone company address')
             .populate('vendor', 'name email phone address contactPerson')
             .populate('items.material', 'name price quantity')
             .sort({ createdAt: -1 });
-
-        // Collect unique user IDs for approvers and creators
         const userIds = new Set();
         orders.forEach(ord => {
             if (ord.createdById) userIds.add(String(ord.createdById));
             if (ord.approvedById) userIds.add(String(ord.approvedById));
             if (ord.employeeId) userIds.add(String(ord.employeeId));
         });
-
         const users = await User.find({ _id: { $in: Array.from(userIds) } }).select('name email role');
         const userMap = {};
         users.forEach(u => userMap[String(u._id)] = { name: u.name, email: u.email, role: u.role });
-
         const enrichedOrders = orders.map(ord => {
             const orderObj = ord.toJSON ? ord.toJSON() : (ord.toObject ? ord.toObject() : ord);
             return {
@@ -82,7 +71,6 @@ const getOrders = async (req, res) => {
                 }
             };
         });
-
         console.log(`[API /orders] Fetched ${orders.length} orders.`);
         res.json(enrichedOrders);
     } catch (error) {
@@ -90,21 +78,13 @@ const getOrders = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
-
-
-
-// @desc    Create an order
-// @route   POST /api/orders
-// @access  Private
 const createOrder = async (req, res) => {
     try {
         const allowedRoles = ['admin', 'super admin', 'manager', 'hr', 'customer'];
         if (!req.user || !allowedRoles.includes(req.user.role?.toLowerCase())) {
             return res.status(403).json({ message: 'Access Denied. You do not have permission to create orders.' });
         }
-
         const { customer, customerModel, vendor, items, totalAmount, status, orderNumber, orderType, orderDate, expectedDeliveryDate, notes } = req.body;
-        
         const defaultWorkflow = [
             { stage: 'Order Created', status: 'Completed', role: 'Customer/Vendor/Admin' },
             { stage: 'Admin/Manager Review', status: 'In Progress', role: 'Admin/Manager' },
@@ -115,19 +95,13 @@ const createOrder = async (req, res) => {
             { stage: 'Delivered', status: 'Upcoming', role: 'Sales/Admin' },
             { stage: 'Invoice Generated', status: 'Upcoming', role: 'System' }
         ];
-
         if ((!customer && !vendor) || !items || items.length === 0) {
             return res.status(400).json({ message: 'Please provide customer/vendor and items' });
         }
-
-        // Determine initial status based on role and type
         const isSales = orderType === 'sales' || !!customer;
-        
         let initialStatus = 'Order Created';
         let initialApprovalStatus = 'Pending';
         let initialDeliveryStatus = 'Not Started';
-
-        // Verify customer exists if it's a Sales order
         if (isSales) {
             if (!customer) {
                 return res.status(400).json({ message: 'Invalid customer or material selected.' });
@@ -143,8 +117,6 @@ const createOrder = async (req, res) => {
                 return res.status(400).json({ message: 'Invalid customer or material selected.' });
             }
         }
-
-        // Verify materials exist
         for (const item of items) {
             if (!item.material) {
                 return res.status(400).json({ message: 'Invalid customer or material selected.' });
@@ -157,7 +129,6 @@ const createOrder = async (req, res) => {
                 return res.status(400).json({ message: 'Invalid quantity.' });
             }
         }
-
         const createdOrder = await Order.create({
             orderNumber: orderNumber || `ORD-${Date.now().toString().slice(-6)}`,
             customer: customer || null,
@@ -188,18 +159,13 @@ const createOrder = async (req, res) => {
             }],
             workflow: defaultWorkflow
         });
-
-        // If it's already approved, update stock
         if (initialStatus === 'Approved') {
             await updateStock(items);
         }
-
         const populatedOrder = await Order.findById(createdOrder._id)
             .populate('customer', 'name')
             .populate('vendor', 'name');
-
         const payload = getOrderPayload(populatedOrder, req.user);
-
         if (initialStatus === 'Awaiting Stock Check') {
             await broadcast({
                 module: 'Orders',
@@ -219,8 +185,6 @@ const createOrder = async (req, res) => {
                 targetRoles: isSales ? ['Sales', 'Manager'] : ['Manager']
             });
         }
-
-        // Audit log
         await logAudit({
             user: req.user,
             action: 'CREATE',
@@ -229,14 +193,11 @@ const createOrder = async (req, res) => {
             description: `Order created: ${createdOrder.orderNumber} (${orderType || 'sales'})`,
             ipAddress: req.ip
         });
-
         res.status(201).json(createdOrder);
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
 };
-
-// Helper to update stock (Purchase flow and legacy)
 const updateStock = async (items, updateOrderType = 'sales', orderId = null, userId = null) => {
     for (const item of items) {
         const material = await Material.findById(item.material);
@@ -249,8 +210,6 @@ const updateStock = async (items, updateOrderType = 'sales', orderId = null, use
                 material.quantity += item.quantity;
             }
             await material.save();
-
-            // Log material movement
             await MaterialMovement.create({
                 materialId: material._id,
                 type: updateOrderType === 'purchase' ? 'In' : 'Out',
@@ -264,10 +223,6 @@ const updateStock = async (items, updateOrderType = 'sales', orderId = null, use
         }
     }
 };
-
-// @desc    Update order status
-// @route   PUT /api/orders/:id/status
-// @access  Private
 const updateOrderStatus = async (req, res) => {
     try {
         const { status } = req.body;
@@ -275,18 +230,13 @@ const updateOrderStatus = async (req, res) => {
             .populate('customer')
             .populate('vendor')
             .populate('items.material');
-
         if (!order) {
             return res.status(404).json({ message: 'Order not found' });
         }
-
         const prevStatus = order.status;
-        
-        // --- Recommended Order Workflow Logic ---
         if (order.orderType === 'sales' || order.orderType === 'purchase') {
             const userRole = req.user?.role?.toLowerCase();
             const isAdmin = userRole === 'admin' || userRole === 'super admin';
-
             if (status === 'Admin / Manager Review') {
                 await broadcast({
                     module: 'Orders', referenceId: order._id || order.id,
@@ -297,7 +247,6 @@ const updateOrderStatus = async (req, res) => {
             }
             else if (status === 'Approved') {
                 if (!isAdmin && userRole !== 'manager') return res.status(403).json({ message: 'Only Manager or Admin can approve orders.' });
-                
                 await broadcast({
                     module: 'Orders', referenceId: order._id || order.id,
                     title: `Order Approved`,
@@ -310,9 +259,7 @@ const updateOrderStatus = async (req, res) => {
             }
             else if (status === 'Low Stock' || status === 'Out Of Stock') {
                 if (!isAdmin && userRole !== 'employee') return res.status(403).json({ message: 'Only Employee or Admin can report stock issues.' });
-                
                 order.holdReason = req.body.reason || `Reported ${status} by employee`;
-                
                 await broadcast({
                     module: 'Orders', referenceId: order._id || order.id,
                     title: `${status} Alert`,
@@ -330,7 +277,6 @@ const updateOrderStatus = async (req, res) => {
             }
             else if (status === 'Inventory Updated' || status === 'Vendor Supply') {
                 if (!isAdmin && userRole !== 'manager' && userRole !== 'vendor') return res.status(403).json({ message: 'Only Manager, Admin, or Vendor can supply materials.' });
-                
                 await broadcast({
                     module: 'Orders', referenceId: order._id || order.id,
                     title: `Materials Received`,
@@ -348,9 +294,7 @@ const updateOrderStatus = async (req, res) => {
             }
             else if (status === 'Employee Final Verification' || status === 'Employee Final Approval') {
                 if (!isAdmin && userRole !== 'employee') return res.status(403).json({ message: 'Only Employee can verify inventory.' });
-                
                 if (status === 'Employee Final Approval') {
-                    // Reserve Stock
                     for (const item of order.items) {
                         const material = await Material.findById(item.material);
                         if (material) {
@@ -371,7 +315,6 @@ const updateOrderStatus = async (req, res) => {
             }
             else if (status === 'Packing Completed') {
                 if (!isAdmin && userRole !== 'sales') return res.status(403).json({ message: 'Only Sales or Admin can pack orders.' });
-                
                 await broadcast({
                     module: 'Orders', referenceId: order._id || order.id,
                     title: `Order Packing Completed`,
@@ -384,19 +327,16 @@ const updateOrderStatus = async (req, res) => {
             }
             else if (status === 'Out For Delivery') {
                 if (!isAdmin && userRole !== 'sales') return res.status(403).json({ message: 'Only Sales or Admin can dispatch orders.' });
-                
                 await broadcast({
                     module: 'Orders', referenceId: order._id || order.id,
                     title: `Order Shipped`,
                     message: `Order ${order.orderNumber} is Out for Delivery.`,
-                    type: 'info', targetRoles: ['Customer', 'Manager', 'Admin'] // Assuming customer gets web notification if they use portal
+                    type: 'info', targetRoles: ['Customer', 'Manager', 'Admin']
                 });
             }
             else if (status === 'Delivered') {
                 if (!isAdmin && userRole !== 'sales') return res.status(403).json({ message: 'Only Sales or Admin can mark delivered.' });
-                
                 if (prevStatus !== 'Delivered') {
-                    // Deduct physical inventory & remove reservation
                     for (const item of order.items) {
                         const material = await Material.findById(item.material);
                         if (material) {
@@ -408,9 +348,7 @@ const updateOrderStatus = async (req, res) => {
                         }
                     }
                 }
-                
                 order.deliveredAt = new Date();
-                
                 await broadcast({
                     module: 'Orders', referenceId: order._id || order.id,
                     title: `Order Delivered`,
@@ -422,13 +360,11 @@ const updateOrderStatus = async (req, res) => {
                 if (prevStatus !== 'Delivered') {
                     return res.status(400).json({ message: 'Invoice can only be generated after successful delivery.' });
                 }
-                
                 order.invoiceNumber = `INV-${Date.now().toString().slice(-6)}`;
                 order.invoiceDate = new Date();
                 let invDueDate = new Date();
                 invDueDate.setDate(invDueDate.getDate() + 30);
                 order.invoiceDueDate = invDueDate;
-
                 await broadcast({
                     module: 'Orders', referenceId: order._id || order.id,
                     title: `Invoice Ready`,
@@ -445,15 +381,11 @@ const updateOrderStatus = async (req, res) => {
                 });
             }
         }
-
         if (order.orderType === 'purchase' && status === 'Approved') {
             order.managerApproval = 'Approved';
         }
-
         order.status = status;
         order.updatedBy = req.user._id;
-
-        // Ensure order status and tracking history are synced
         if (status !== prevStatus) {
             const currentTimeline = order.trackingTimeline || [];
             order.trackingTimeline = [
@@ -468,7 +400,6 @@ const updateOrderStatus = async (req, res) => {
                     updatedById: req.user.id
                 }
             ];
-
             await AuditLog.create({
                 userId: req.user.id,
                 userName: req.user.name,
@@ -479,16 +410,11 @@ const updateOrderStatus = async (req, res) => {
                 changes: { oldStatus: prevStatus, newStatus: status, role: req.user.role || 'user', remarks: `Updated via ${status} action` }
             }).catch(e => console.error('Failed to write AuditLog', e));
         }
-
         const updatedOrder = await order.save();
-
-        // 1. Stock deduction/addition trigger for Purchase
         const purchaseFinalStates = ['Delivered', 'Received', 'Completed'];
         if (order.orderType === 'purchase' && purchaseFinalStates.includes(status) && !purchaseFinalStates.includes(prevStatus)) {
             await updateStock(order.items, 'purchase', order._id, req.user?._id);
         }
-
-        // 1.5 Update Vendor Status if applicable
         if (order.orderType === 'purchase' && order.vendor) {
             try {
                 const Vendor = require('../models/Vendor');
@@ -500,7 +426,6 @@ const updateOrderStatus = async (req, res) => {
                     else if (status === 'Shipped') vendorStatus = 'In Transit';
                     else if (status === 'Delivered' || status === 'Received') vendorStatus = 'Delivered';
                     else if (status === 'Completed') vendorStatus = 'Completed';
-                    
                     if (vendorObj.status !== vendorStatus) {
                         vendorObj.status = vendorStatus;
                         await vendorObj.save();
@@ -510,12 +435,8 @@ const updateOrderStatus = async (req, res) => {
                 console.error('Error updating vendor status:', err);
             }
         }
-
-        // 2. Notification dispatching
         try {
             const payload = getOrderPayload(updatedOrder, req.user);
-
-            // Sales specific new notifications
             if (order.orderType === 'sales') {
                 if (status === 'Confirmed') {
                     await broadcast({
@@ -547,7 +468,6 @@ const updateOrderStatus = async (req, res) => {
                     });
                 }
             } else {
-                // A. Employee confirms stock -> Notify Sales
                 if (status === 'Ready for Delivery') {
                     await broadcast({
                         module: 'Orders', referenceId: order._id || order.id,
@@ -557,7 +477,6 @@ const updateOrderStatus = async (req, res) => {
                         targetRoles: ['Sales', 'Manager']
                     });
                 }
-                // B. Employee alerts low stock -> Notify Admin & Manager
                 else if (status === 'Low Stock Alert') {
                     await notifyCritical({
                         module: 'Orders', referenceId: order._id || order.id,
@@ -566,7 +485,6 @@ const updateOrderStatus = async (req, res) => {
                         type: 'warning'
                     });
                 }
-                // C. Sales delivers order -> Notify ALL relevant users
                 else if (status === 'Delivered') {
                     await broadcast({
                         module: 'Orders', referenceId: order._id || order.id,
@@ -576,7 +494,6 @@ const updateOrderStatus = async (req, res) => {
                         targetRoles: ['Sales', 'Manager', 'HR']
                     });
                 }
-                // D. Other updates
                 else {
                     await broadcast({
                         module: 'Orders', referenceId: order._id || order.id,
@@ -590,8 +507,6 @@ const updateOrderStatus = async (req, res) => {
         } catch (err) {
             console.error('Error dispatching update notifications:', err);
         }
-
-        // Audit log
         await logAudit({
             user: req.user,
             action: 'UPDATE',
@@ -601,41 +516,31 @@ const updateOrderStatus = async (req, res) => {
             changes: { status: { from: prevStatus, to: status } },
             ipAddress: req.ip
         });
-
         res.json(updatedOrder);
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
 };
-
 const advanceWorkflow = async (req, res) => {
     try {
         const { action, nextStatus, remarks, stockStatus } = req.body;
         const order = await Order.findById(req.params.id);
-
         if (!order) {
             return res.status(404).json({ message: 'Order not found' });
         }
-
         const workflow = order.workflow || [];
         const activeStageIndex = workflow.findIndex(w => w.status === 'In Progress');
-
         if (activeStageIndex === -1) {
             return res.status(400).json({ message: 'No active stage found in workflow.' });
         }
-
         const currentStage = workflow[activeStageIndex];
         const updatedBy = req.user.name;
-
-        // Process action
         if (action === 'REJECT') {
             currentStage.status = 'Rejected';
             currentStage.remarks = remarks || 'Order rejected';
             currentStage.updatedBy = updatedBy;
             currentStage.completedAt = new Date();
             order.status = 'Rejected';
-            
-            // Cancel remaining stages
             for (let i = activeStageIndex + 1; i < workflow.length; i++) {
                 workflow[i].status = 'Rejected';
             }
@@ -646,7 +551,6 @@ const advanceWorkflow = async (req, res) => {
             currentStage.updatedBy = updatedBy;
             order.status = stockStatus;
             order.holdReason = currentStage.remarks;
-
             if (activeStageIndex + 1 < workflow.length && workflow[activeStageIndex + 1].stage !== 'Purchase Required') {
                 workflow.splice(activeStageIndex + 1, 0, {
                     stage: 'Purchase Required',
@@ -662,10 +566,8 @@ const advanceWorkflow = async (req, res) => {
             currentStage.remarks = remarks || 'Action completed';
             currentStage.updatedBy = updatedBy;
             currentStage.completedAt = new Date();
-            
             if (action === 'DISPATCH') order.status = 'Material Received';
             if (action === 'ACCEPT') order.status = 'Vendor Accepted';
-
             if (activeStageIndex + 1 < workflow.length) {
                 workflow[activeStageIndex + 1].status = 'In Progress';
             }
@@ -675,21 +577,14 @@ const advanceWorkflow = async (req, res) => {
             currentStage.remarks = remarks || 'Action completed';
             currentStage.updatedBy = updatedBy;
             currentStage.completedAt = new Date();
-            
             if (nextStatus) {
                 order.status = nextStatus;
             }
-
             if (activeStageIndex + 1 < workflow.length) {
                 workflow[activeStageIndex + 1].status = 'In Progress';
-                
-
             }
         }
-
         order.workflow = [...workflow];
-        
-        // Audit log
         const currentTimeline = order.trackingTimeline || [];
         order.trackingTimeline = [...currentTimeline, {
             id: Date.now().toString(),
@@ -700,28 +595,22 @@ const advanceWorkflow = async (req, res) => {
             updatedBy: updatedBy,
             updatedById: req.user.id
         }];
-
         if (typeof order.changed === 'function') {
             order.changed('workflow', true);
             order.changed('trackingTimeline', true);
         }
-
         await order.save();
-        
         res.status(200).json(order);
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
 };
-
 const updatePaymentStatus = async (req, res) => {
     try {
         const { id } = req.params;
         const { paymentStatus } = req.body;
-
         const order = await Order.findById(id);
         if (!order) return res.status(404).json({ message: 'Order not found' });
-
         order.paymentStatus = paymentStatus;
         await order.save();
         res.json({ message: `Payment status updated to ${paymentStatus}`, order });
@@ -729,17 +618,14 @@ const updatePaymentStatus = async (req, res) => {
         res.status(500).json({ message: 'Server error updating payment status' });
     }
 };
-
 const updateTrackingStatus = async (req, res) => {
     try {
         const { id } = req.params;
         const { status, location, date, remarks } = req.body;
-
         const order = await Order.findById(id);
         if (!order) {
             return res.status(404).json({ message: 'Order not found' });
         }
-
         const newTrackingUpdate = {
             id: Date.now().toString(),
             status,
@@ -749,27 +635,21 @@ const updateTrackingStatus = async (req, res) => {
             updatedBy: req.user.name,
             updatedById: req.user.id
         };
-
         const currentTimeline = order.trackingTimeline || [];
         order.trackingTimeline = [...currentTimeline, newTrackingUpdate];
-
         order.status = status;
         order.deliveryStatus = status;
-
         if (status === 'Delivered') {
             order.deliveryDate = new Date(newTrackingUpdate.date);
             order.deliveredAt = new Date(newTrackingUpdate.date);
         }
-
         await order.save();
-
         res.json({ message: 'Tracking status updated successfully', order });
     } catch (error) {
         console.error('Update Tracking Status Error:', error);
         res.status(500).json({ message: 'Server error updating tracking status' });
     }
 };
-
 const getMyCustomerOrders = async (req, res) => {
     try {
         const customer = await Customer.findOne({ userId: req.user._id });
@@ -780,13 +660,10 @@ const getMyCustomerOrders = async (req, res) => {
             .populate('vendor', 'name email category contactPerson')
             .populate('createdBy', 'name role')
             .sort({ createdAt: -1 });
-
-        // Manually populate material details for JSON field
         const Material = require('../models/Material');
         const allMaterials = await Material.find({});
         const matMap = {};
         allMaterials.forEach(m => matMap[String(m._id || m.id)] = m);
-
         const enrichedOrders = orders.map(ord => {
             const orderObj = ord.toJSON ? ord.toJSON() : (ord.toObject ? ord.toObject() : { ...ord });
             if (orderObj.items && Array.isArray(orderObj.items)) {
@@ -811,41 +688,31 @@ const getMyCustomerOrders = async (req, res) => {
             }
             return orderObj;
         });
-
         res.json(enrichedOrders);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
-
 const createCustomerOrder = async (req, res) => {
     try {
         const customerProfile = await Customer.findOne({ userId: req.user._id });
         if (!customerProfile) {
             return res.status(400).json({ message: 'Please complete your customer profile first.' });
         }
-
         req.body.customer = customerProfile._id || customerProfile.id;
         req.body.customerModel = 'Customer';
         req.body.orderType = 'sales';
-        
         await createOrder(req, res);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
-
-// @desc    Delete an order
-// @route   DELETE /api/orders/:id
-// @access  Private (Admin/Manager)
 const deleteOrder = async (req, res) => {
     try {
         const order = await Order.findById(req.params.id);
         if (!order) {
             return res.status(404).json({ message: 'Order not found' });
         }
-
-        // Audit log before deletion
         await logAudit({
             user: req.user,
             action: 'DELETE',
@@ -854,37 +721,29 @@ const deleteOrder = async (req, res) => {
             description: `Order deleted: ${order.orderNumber} (${order.orderType || 'sales'})`,
             ipAddress: req.ip
         });
-
-        await order.remove(); // or Order.findByIdAndDelete depending on mongoose vs sequelize
+        await order.remove();
         res.json({ message: 'Order removed successfully' });
     } catch (error) {
         console.error('[API DELETE /orders/:id] Error:', error);
         res.status(500).json({ message: error.message });
     }
 };
-
 const employeeApprovePurchaseOrder = async (req, res) => {
     try {
         const { id } = req.params;
-        const { action } = req.body; // 'Approve' or 'Reject'
-        
+        const { action } = req.body;
         const order = await Order.findById(id).populate('vendor', 'name');
         if (!order) return res.status(404).json({ message: 'Order not found' });
-        
         if (order.orderType !== 'purchase') {
             return res.status(400).json({ message: 'Only purchase orders can be approved by this endpoint' });
         }
-        
         if (order.managerApproval !== 'Approved') {
             return res.status(400).json({ message: 'Manager must approve this purchase order first' });
         }
-        
         const vendorName = order.vendor ? (order.vendor.name || 'Vendor') : 'Vendor';
-        
         if (action === 'Approve') {
             order.employeeApproval = 'Approved';
-            order.status = 'Confirmed'; // finalStatus updates correctly
-            
+            order.status = 'Confirmed';
             await broadcast({
                 module: 'Orders',
                 referenceId: order._id || order.id,
@@ -895,8 +754,7 @@ const employeeApprovePurchaseOrder = async (req, res) => {
             });
         } else if (action === 'Reject') {
             order.employeeApproval = 'Rejected';
-            order.status = 'Rejected'; // finalStatus updates correctly
-            
+            order.status = 'Rejected';
             await broadcast({
                 module: 'Orders',
                 referenceId: order._id || order.id,
@@ -908,10 +766,7 @@ const employeeApprovePurchaseOrder = async (req, res) => {
         } else {
             return res.status(400).json({ message: 'Invalid action. Use Approve or Reject.' });
         }
-        
         order.updatedBy = req.user._id;
-        
-        // Log action in tracking timeline
         const currentTimeline = order.trackingTimeline || [];
         order.trackingTimeline = [
             ...currentTimeline,
@@ -925,10 +780,7 @@ const employeeApprovePurchaseOrder = async (req, res) => {
                 updatedById: req.user.id
             }
         ];
-        
         await order.save();
-        
-        // Audit log
         await logAudit({
             user: req.user,
             action: 'UPDATE',
@@ -937,44 +789,32 @@ const employeeApprovePurchaseOrder = async (req, res) => {
             description: `Employee ${action.toLowerCase()}ed purchase order ${order.orderNumber}`,
             ipAddress: req.ip
         });
-        
         res.json(order);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
-
-// @desc    Cancel a customer order
-// @route   PUT /api/orders/:id/cancel
-// @access  Private (Customer)
 const cancelCustomerOrder = async (req, res) => {
     try {
         const order = await Order.findById(req.params.id);
         if (!order) {
             return res.status(404).json({ message: 'Order not found' });
         }
-        
-        // Verify customer
         const Customer = require('../models/Customer');
         const customerProfile = await Customer.findOne({ userId: req.user._id });
         if (!customerProfile) {
             return res.status(403).json({ message: 'Customer profile not found' });
         }
-        
         const customerId = String(customerProfile._id || customerProfile.id);
         const orderCustomerId = String(order.customerId || order.customer);
-        
         if (orderCustomerId !== customerId) {
             return res.status(403).json({ message: 'Not authorized to cancel this order' });
         }
-        
         const nonCancellableStatuses = ['Processing', 'Shipped', 'Delivered', 'Cancelled', 'Rejected'];
         if (nonCancellableStatuses.includes(order.status)) {
             return res.status(400).json({ message: `Cannot cancel order with status: ${order.status}` });
         }
-        
         order.status = 'Cancelled';
-        
         const currentTimeline = order.trackingTimeline || [];
         order.trackingTimeline = [
             ...currentTimeline,
@@ -988,17 +828,12 @@ const cancelCustomerOrder = async (req, res) => {
                 updatedById: req.user.id
             }
         ];
-        
         await order.save();
         res.json({ message: 'Order cancelled successfully', order });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
-
-// @desc    Get live GPS location for an order
-// @route   GET /api/orders/:id/location
-// @access  Private
 const getLiveLocation = async (req, res) => {
     try {
         const order = await Order.findById(req.params.id).select('liveLocation routePath trackingStatus distanceRemaining deliveryETA status');
@@ -1008,22 +843,14 @@ const getLiveLocation = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
-
-// @desc    Manually flag an order delivery as delayed
-// @route   PUT /api/orders/:id/delay
-// @access  Private (Sales/Employee)
 const flagAsDelayed = async (req, res) => {
     try {
         const { reason } = req.body;
         const order = await Order.findById(req.params.id);
-        
         if (!order) return res.status(404).json({ message: 'Order not found' });
-        
         order.trackingStatus = 'Delayed';
         order.holdReason = reason || 'Traffic or customer unavailable';
         await order.save();
-        
-        // Notify Manager
         const Notification = require('../models/Notification');
         await Notification.create({
             title: `Delivery Delayed: ${order.orderNumber}`,
@@ -1031,25 +858,18 @@ const flagAsDelayed = async (req, res) => {
             type: 'alert',
             role: 'Manager'
         });
-
         res.json(order);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
-
-// @desc    Manager approves the order and sets it to Awaiting Stock Check
-// @route   PUT /api/orders/:id/manager-approve
-// @access  Private (Manager/Admin)
 const managerApproveOrder = async (req, res) => {
     try {
         const order = await Order.findById(req.params.id);
         if (!order) return res.status(404).json({ message: 'Order not found' });
-        
         order.status = 'Awaiting Stock Check';
         order.approvalStatus = 'Approved';
         await order.save();
-
         await AuditLog.create({
             userId: req.user.id,
             userName: req.user.name,
@@ -1059,7 +879,6 @@ const managerApproveOrder = async (req, res) => {
             description: `Manager approved Order ${order.orderNumber}`,
             changes: { oldStatus: 'Created', newStatus: 'Awaiting Stock Check', role: req.user.role, remarks: 'Manager approved the order' }
         }).catch(e => console.error('Failed to write AuditLog', e));
-        
         await broadcast({
             module: 'Orders',
             referenceId: order._id || order.id,
@@ -1068,27 +887,20 @@ const managerApproveOrder = async (req, res) => {
             type: 'alert',
             targetRoles: ['Employee']
         });
-
         res.json(order);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
-
-// @desc    Employee checks order stock and forwards to Sales, or flags Low Stock
-// @route   PUT /api/orders/:id/employee-check
-// @access  Private (Employee)
 const employeeCheckOrder = async (req, res) => {
     try {
         const { action } = req.body;
         const order = await Order.findById(req.params.id);
         if (!order) return res.status(404).json({ message: 'Order not found' });
-        
         if (action === 'low_stock') {
             order.status = 'Low Stock Hold';
             order.holdReason = 'Insufficient stock detected by Employee';
             await order.save();
-            
             await AuditLog.create({
                 userId: req.user.id,
                 userName: req.user.name,
@@ -1098,7 +910,6 @@ const employeeCheckOrder = async (req, res) => {
                 description: `Employee flagged Low Stock for Order ${order.orderNumber}`,
                 changes: { oldStatus: 'Awaiting Stock Check', newStatus: 'Low Stock Hold', role: req.user.role, remarks: 'Employee reported insufficient stock' }
             }).catch(e => console.error('Failed to write AuditLog', e));
-
             await broadcast({
                 module: 'Orders',
                 referenceId: order._id || order.id,
@@ -1110,7 +921,6 @@ const employeeCheckOrder = async (req, res) => {
         } else {
             order.status = 'Ready for Delivery';
             await order.save();
-            
             await AuditLog.create({
                 userId: req.user.id,
                 userName: req.user.name,
@@ -1120,7 +930,6 @@ const employeeCheckOrder = async (req, res) => {
                 description: `Employee verified stock for Order ${order.orderNumber}`,
                 changes: { oldStatus: 'Awaiting Stock Check', newStatus: 'Ready for Delivery', role: req.user.role, remarks: 'Employee verified stock and forwarded to Sales' }
             }).catch(e => console.error('Failed to write AuditLog', e));
-
             await broadcast({
                 module: 'Orders',
                 referenceId: order._id || order.id,
@@ -1130,16 +939,11 @@ const employeeCheckOrder = async (req, res) => {
                 targetRoles: ['Sales', 'Manager']
             });
         }
-
         res.json(order);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
-
-// @desc    Get orders for a specific customer by Admin
-// @route   GET /api/orders/customer/:id
-// @access  Private
 const getCustomerOrdersById = async (req, res) => {
     try {
         const orders = await Order.find({ customerId: req.params.id, orderType: 'sales' })
@@ -1151,42 +955,29 @@ const getCustomerOrdersById = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
-
-// @desc    Inventory Verification (Employee)
-// @route   POST /api/orders/:id/inventory-verification
-// @access  Private
 const verifyInventory = async (req, res) => {
     try {
         const order = await Order.findById(req.params.id);
         if (!order) return res.status(404).json({ message: 'Order not found' });
-        
         const { itemsVerification } = req.body; // array of { materialId, status, remarks }
         if (!itemsVerification) return res.status(400).json({ message: 'Missing itemsVerification data' });
-
         let hasLowStock = false;
         let hasOutStock = false;
-
         const PurchaseRequest = require('../models/PurchaseRequest');
-
         for (const verify of itemsVerification) {
             if (verify.status === 'Low Stock') hasLowStock = true;
             if (verify.status === 'Out of Stock') hasOutStock = true;
         }
-
         let newStatus = 'Inventory Verified';
         let actionMessage = 'Inventory verified successfully';
-        
         if (hasOutStock) {
             newStatus = 'Out Of Stock';
             actionMessage = 'Marked Out of Stock - Purchase Request Generated';
-            
-            // Auto generate PR
             const prItems = order.items.map(i => ({
                 materialId: i.materialId || (i.material ? i.material.id : i.material),
                 name: i.name,
                 quantity: i.quantity
             }));
-            
             await PurchaseRequest.create({
                 purchaseRequestId: 'PR-' + Date.now(),
                 orderId: order.id || order._id,
@@ -1195,14 +986,12 @@ const verifyInventory = async (req, res) => {
                 priority: 'Urgent',
                 requestedById: req.user.id || req.user._id
             });
-
             await notifyManager({
                 title: 'Out of Stock - Purchase Request Created',
                 message: `Order ${order.orderNumber} is out of stock. A PR has been auto-generated.`,
                 referenceId: order.id || order._id,
                 module: 'Order'
             });
-
         } else if (hasLowStock) {
             newStatus = 'Low Stock';
             actionMessage = 'Marked Low Stock - Waiting for Manager';
@@ -1213,11 +1002,7 @@ const verifyInventory = async (req, res) => {
                 module: 'Order'
             });
         }
-
-        
         order.status = newStatus;
-
-        // Advance workflow if all items are in stock
         if (newStatus === "Inventory Verified" && order.workflow && Array.isArray(order.workflow)) {
             const activeStageIndex = order.workflow.findIndex(w => w.status === "In Progress");
             if (activeStageIndex !== -1) {
@@ -1225,19 +1010,13 @@ const verifyInventory = async (req, res) => {
                 order.workflow[activeStageIndex].remarks = "Inventory Physical Check Complete";
                 order.workflow[activeStageIndex].updatedBy = req.user.name;
                 order.workflow[activeStageIndex].completedAt = new Date();
-                
-                // Advance to next stage
                 if (activeStageIndex + 1 < order.workflow.length) {
                     order.workflow[activeStageIndex + 1].status = "In Progress";
                 }
-                
                 order.changed("workflow", true);
             }
         }
-        
         await order.save();
-
-
         await AuditLog.create({
             userId: req.user.id || req.user._id,
             userName: req.user.name,
@@ -1247,29 +1026,20 @@ const verifyInventory = async (req, res) => {
             description: actionMessage,
             changes: { verificationDetails: itemsVerification, newStatus }
         });
-
         res.json(order);
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: error.message });
     }
 };
-
-// @desc    Manager Resolution for Stock
-// @route   POST /api/orders/:id/manager-resolution
-// @access  Private
 const managerResolveStock = async (req, res) => {
     try {
         const order = await Order.findById(req.params.id);
         if (!order) return res.status(404).json({ message: 'Order not found' });
-        
         const { resolution, remarks } = req.body;
-        // resolution can be 'Allocate', 'Approve Purchase', 'Reject'
-
-        order.status = 'Inventory Verification'; // Send back to employee
+        order.status = 'Inventory Verification';
         order.notes = (order.notes ? order.notes + '\n' : '') + 'Manager Resolution: ' + resolution + ' - ' + remarks;
         await order.save();
-
         await AuditLog.create({
             userId: req.user.id || req.user._id,
             userName: req.user.name,
@@ -1278,7 +1048,6 @@ const managerResolveStock = async (req, res) => {
             targetId: order.id || order._id,
             description: `Manager resolved stock issue: ${resolution}`
         });
-
         await broadcast({
             module: 'Order',
             referenceId: order.id || order._id,
@@ -1287,25 +1056,17 @@ const managerResolveStock = async (req, res) => {
             type: 'info',
             targetRoles: ['Employee']
         });
-
         res.json(order);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
-
-// @desc    Employee Final Approval
-// @route   POST /api/orders/:id/employee-final-approval
-// @access  Private
 const employeeFinalApproval = async (req, res) => {
     try {
         const order = await Order.findById(req.params.id);
         if (!order) return res.status(404).json({ message: 'Order not found' });
-        
-        
         order.status = 'Sales Processing';
         order.employeeApproval = 'Approved';
-        
         if (order.workflow && Array.isArray(order.workflow)) {
             const activeStageIndex = order.workflow.findIndex(w => w.status === 'In Progress');
             if (activeStageIndex !== -1) {
@@ -1313,19 +1074,13 @@ const employeeFinalApproval = async (req, res) => {
                 order.workflow[activeStageIndex].remarks = 'Employee Final Approval Complete';
                 order.workflow[activeStageIndex].updatedBy = req.user.name;
                 order.workflow[activeStageIndex].completedAt = new Date();
-                
-                // Advance to Sales Processing
                 if (activeStageIndex + 1 < order.workflow.length) {
                     order.workflow[activeStageIndex + 1].status = 'In Progress';
                 }
-                
                 order.changed('workflow', true);
             }
         }
-        
         await order.save();
-
-
         await AuditLog.create({
             userId: req.user.id || req.user._id,
             userName: req.user.name,
@@ -1334,20 +1089,17 @@ const employeeFinalApproval = async (req, res) => {
             targetId: order.id || order._id,
             description: 'Employee completed final approval.'
         });
-
         await notifySales({
             title: 'Order Ready for Processing',
             message: `Order ${order.orderNumber} has been verified by the warehouse.`,
             referenceId: order.id || order._id,
             module: 'Order'
         });
-
         res.json(order);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
-
 module.exports = {
     getOrders,
     createOrder,

@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown, Search, UploadCloud, X, FileText, CheckCircle, AlertCircle } from 'lucide-react';
 import './FormElements.css';
-
 export const FormGroup = ({ label, required, error, children }) => (
     <div className="ui-form-group">
         {label && (
@@ -17,7 +16,6 @@ export const FormGroup = ({ label, required, error, children }) => (
         )}
     </div>
 );
-
 export const Input = ({ icon: Icon, error, className = '', ...props }) => (
     <div className="ui-input-wrapper">
         {Icon && <Icon size={18} className="ui-icon-left" />}
@@ -27,7 +25,6 @@ export const Input = ({ icon: Icon, error, className = '', ...props }) => (
         />
     </div>
 );
-
 export const Select = ({ options = [], error, ...props }) => (
     <select className={`ui-input ${error ? 'error' : ''}`} {...props}>
         <option value="" disabled hidden>Select an option</option>
@@ -36,12 +33,10 @@ export const Select = ({ options = [], error, ...props }) => (
         ))}
     </select>
 );
-
 export const SearchableSelect = ({ options = [], value, onChange, placeholder = 'Search...', error }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [search, setSearch] = useState('');
     const ref = useRef(null);
-
     useEffect(() => {
         const handleClickOutside = (e) => {
             if (ref.current && !ref.current.contains(e.target)) {
@@ -51,15 +46,12 @@ export const SearchableSelect = ({ options = [], value, onChange, placeholder = 
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
-
     const filteredOptions = options.filter(opt => {
         const label = String(opt.label || opt).toLowerCase();
         return label.includes(search.toLowerCase());
     });
-
     const selectedOption = options.find(opt => (opt.value || opt) === value);
     const displayValue = selectedOption ? (selectedOption.label || selectedOption) : placeholder;
-
     return (
         <div className="ui-select-container" ref={ref}>
             <div 
@@ -69,7 +61,6 @@ export const SearchableSelect = ({ options = [], value, onChange, placeholder = 
                 <span className="ui-select-value" style={{ color: selectedOption ? 'inherit' : '#94a3b8' }}>{displayValue}</span>
                 <ChevronDown size={16} color="#64748b" style={{ flexShrink: 0 }} />
             </div>
-            
             {isOpen && (
                 <div className="ui-select-dropdown">
                     <div className="ui-select-search">
@@ -109,12 +100,10 @@ export const SearchableSelect = ({ options = [], value, onChange, placeholder = 
         </div>
     );
 };
-
 export const FileUpload = ({ onFileSelect, accept, maxSize = 5 * 1024 * 1024, error }) => {
     const [dragActive, setDragActive] = useState(false);
     const [selectedFile, setSelectedFile] = useState(null);
     const inputRef = useRef(null);
-
     const handleDrag = (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -124,7 +113,6 @@ export const FileUpload = ({ onFileSelect, accept, maxSize = 5 * 1024 * 1024, er
             setDragActive(false);
         }
     };
-
     const handleDrop = (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -133,14 +121,12 @@ export const FileUpload = ({ onFileSelect, accept, maxSize = 5 * 1024 * 1024, er
             processFile(e.dataTransfer.files[0]);
         }
     };
-
     const handleChange = (e) => {
         e.preventDefault();
         if (e.target.files && e.target.files[0]) {
             processFile(e.target.files[0]);
         }
     };
-
     const processFile = (file) => {
         if (file.size > maxSize) {
             alert(`File size exceeds ${(maxSize / (1024 * 1024)).toFixed(1)}MB limit.`);
@@ -149,14 +135,12 @@ export const FileUpload = ({ onFileSelect, accept, maxSize = 5 * 1024 * 1024, er
         setSelectedFile(file);
         if (onFileSelect) onFileSelect(file);
     };
-
     const removeFile = (e) => {
         e.stopPropagation();
         setSelectedFile(null);
         if (inputRef.current) inputRef.current.value = "";
         if (onFileSelect) onFileSelect(null);
     };
-
     return (
         <div>
             <div 
@@ -179,7 +163,6 @@ export const FileUpload = ({ onFileSelect, accept, maxSize = 5 * 1024 * 1024, er
                 <p className="ui-file-upload-text">Click or drag file to this area to upload</p>
                 <p className="ui-file-upload-hint">Support for a single or bulk upload. Max size: {(maxSize / (1024 * 1024)).toFixed(1)}MB.</p>
             </div>
-            
             {selectedFile && (
                 <div className="ui-file-preview">
                     <FileText size={24} color="#3b82f6" />
@@ -195,7 +178,6 @@ export const FileUpload = ({ onFileSelect, accept, maxSize = 5 * 1024 * 1024, er
         </div>
     );
 };
-
 export const FormSection = ({ title, children }) => (
     <div className="ui-form-section">
         {title && <h3 className="ui-form-section-title">{title}</h3>}

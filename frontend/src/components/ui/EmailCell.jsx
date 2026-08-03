@@ -1,5 +1,4 @@
 import React from 'react';
-
 const EmailCell = ({ email, className = '' }) => {
     return (
         <div 
@@ -22,5 +21,4 @@ const EmailCell = ({ email, className = '' }) => {
         </div>
     );
 };
-
 export default EmailCell;

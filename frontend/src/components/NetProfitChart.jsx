@@ -9,22 +9,18 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-
 const CURRENT_YEAR_MOCK = [];
 const LAST_YEAR_MOCK = [];
-
 const COLORS = {
-  bg: '#FFFFFF',       // Clean white background
-  border: '#E2E8F0',   // Light gray border
-  muted: '#64748B',    // Muted text
-  text: '#0F172A',     // Slate very dark
-  accent: '#2563EB',   // Professional Enterprise Blue
-  secondary: '#94A3B8' // Slate gray
+  bg: '#FFFFFF',
+  border: '#E2E8F0',
+  muted: '#64748B',
+  text: '#0F172A',
+  accent: '#2563EB',
+  secondary: '#94A3B8'
 };
-
 const formatCurrency = (val, sym) =>
   `${sym}${val.toLocaleString(undefined, { minimumFractionDigits: 0 })}`;
-
 const CustomTooltip = ({ active, payload, label, currencySymbol }) => {
   if (active && payload && payload.length) {
     return (
@@ -94,7 +90,6 @@ const CustomTooltip = ({ active, payload, label, currencySymbol }) => {
   }
   return null;
 };
-
 const StatBlock = ({ title, value, color, isCurrent, active, onClick, currencySymbol }) => {
   return (
     <div
@@ -154,7 +149,6 @@ const StatBlock = ({ title, value, color, isCurrent, active, onClick, currencySy
     </div>
   );
 };
-
 export default function NetProfitChart({
   currentYearData = CURRENT_YEAR_MOCK,
   lastYearData = LAST_YEAR_MOCK,
@@ -164,11 +158,9 @@ export default function NetProfitChart({
     current: true,
     last: true,
   });
-
   const toggleSeries = (key) => {
     setActiveSeries((prev) => ({ ...prev, [key]: !prev[key] }));
   };
-
   const chartData = useMemo(() => {
     return currentYearData.map((curr, idx) => {
       const last = lastYearData[idx] || { netProfit: 0 };
@@ -179,10 +171,8 @@ export default function NetProfitChart({
       };
     });
   }, [currentYearData, lastYearData]);
-
   const currentTotal = currentYearData.reduce((acc, curr) => acc + (curr.netProfit || 0), 0);
   const lastTotal = lastYearData.reduce((acc, curr) => acc + (curr.netProfit || 0), 0);
-
   return (
     <div
       style={{
@@ -201,15 +191,12 @@ export default function NetProfitChart({
       <style>
         {`
           @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-          
           .net-profit-chart * {
             box-sizing: border-box;
           }
         `}
       </style>
-
       <div className="net-profit-chart" style={{ width: '100%', margin: '0 auto' }}>
-        
         {/* Header Stat Blocks (Legend) */}
         <div style={{ display: 'flex', gap: '20px', marginBottom: '40px', flexWrap: 'wrap' }}>
           <StatBlock
@@ -231,7 +218,6 @@ export default function NetProfitChart({
             currencySymbol={currencySymbol}
           />
         </div>
-
         {/* Chart */}
         <div style={{ height: '380px', width: '100%' }}>
           <ResponsiveContainer width="100%" height="100%">
@@ -242,7 +228,6 @@ export default function NetProfitChart({
                   <stop offset="100%" stopColor={COLORS.accent} stopOpacity={0} />
                 </linearGradient>
               </defs>
-
               <CartesianGrid
                 strokeDasharray="3 3"
                 vertical={false}
@@ -274,7 +259,6 @@ export default function NetProfitChart({
                 content={<CustomTooltip currencySymbol={currencySymbol} />}
                 cursor={{ stroke: COLORS.border, strokeWidth: 1 }}
               />
-
               {activeSeries.last && (
                 <Line
                   type="monotone"

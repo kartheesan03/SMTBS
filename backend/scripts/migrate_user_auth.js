@@ -13,7 +13,6 @@ const db = new sqlite3.Database(dbPath, (err) => {
 });
 
 db.serialize(() => {
-    // Check if phone column exists
     db.all("PRAGMA table_info(User)", (err, rows) => {
         if (err) {
             console.error(err.message);
@@ -41,10 +40,6 @@ db.serialize(() => {
             console.log("'googleId' column already exists in User table.");
         }
 
-        // We need to allow nulls for password since Google logins might not have one. 
-        // SQLite doesn't support ALTER COLUMN to drop NOT NULL directly, 
-        // so we'll rely on Sequelize's runtime behavior or a recreate if needed.
-        // For now, adding the columns is sufficient.
     });
 });
 

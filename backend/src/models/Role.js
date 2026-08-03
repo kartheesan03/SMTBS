@@ -1,7 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/sequelize');
 const { makeBridgedModel } = require('../config/mongoose-bridge');
-
 const RoleSequelize = sequelize.define('Role', {
     id: {
         type: DataTypes.INTEGER,
@@ -26,6 +25,5 @@ const RoleSequelize = sequelize.define('Role', {
     timestamps: true,
     freezeTableName: true
 });
-
 const Role = makeBridgedModel('Role', RoleSequelize);
 module.exports = Role;

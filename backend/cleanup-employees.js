@@ -18,10 +18,8 @@ async function run() {
     await sequelize.authenticate();
     console.log('✅ Connected.\n');
 
-    // Disable FK constraints for cleanup
     await sequelize.query("PRAGMA foreign_keys = OFF;");
 
-    // Get employees to remove
     const [allEmps] = await sequelize.query("SELECT id, employeeId, firstName, lastName, contact, userIdField FROM Employee ORDER BY id;");
     
     const removeEmpIds = [];
@@ -37,7 +35,6 @@ async function run() {
         }
     }
 
-    // Protect system users + Google/Customer/Vendor users
     const [keepUsers] = await sequelize.query(`SELECT id FROM User WHERE email IN (${keepEmails.map(e => `'${e}'`).join(',')});`);
     const protectedUserIds = new Set(keepUsers.map(u => u.id));
     const [otherProtected] = await sequelize.query("SELECT id FROM User WHERE role IN ('Customer', 'Vendor') OR provider='google';");
@@ -49,7 +46,6 @@ async function run() {
     console.log(`Removing: ${removeEmpIds.length} employees + ${finalRemoveUserIds.length} users\n`);
 
     if (removeEmpIds.length > 0) {
-        // Clean up all FK references
         const tables = ['Attendance', 'Leave', 'Salary'];
         for (const t of tables) {
             await sequelize.query(`DELETE FROM ${t} WHERE employeeId IN (${removeEmpIds.join(',')});`).catch(() => {});
@@ -59,7 +55,6 @@ async function run() {
     }
 
     if (finalRemoveUserIds.length > 0) {
-        // Clean up all tables referencing userId
         const userFkTables = [
             { table: 'Notification', col: 'userId' },
             { table: 'Task', col: 'assignedById' },
@@ -78,10 +73,8 @@ async function run() {
         console.log(`✅ Deleted ${finalRemoveUserIds.length} user accounts.`);
     }
 
-    // Re-enable FK constraints
     await sequelize.query("PRAGMA foreign_keys = ON;");
 
-    // Final state
     const [emps] = await sequelize.query("SELECT employeeId, firstName, lastName, department, contact FROM Employee ORDER BY id;");
     const [users] = await sequelize.query("SELECT id, email, role, name FROM User ORDER BY id;");
     

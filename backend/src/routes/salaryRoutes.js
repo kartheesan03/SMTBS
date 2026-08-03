@@ -13,7 +13,6 @@ const {
     calculatePayrollDeductions
 } = require('../controllers/salarycontroller');
 const { protect, authorize } = require('../middleware/authMiddleware');
-
 router.get('/my', protect, getMySalaryHistory);
 router.get('/summary', protect, getMySalarySummary);
 router.get('/', protect, getAllSalaries);
@@ -24,5 +23,4 @@ router.put('/:id/approve', protect, authorize('manage_hrms', 'hrms:payroll:manag
 router.put('/:id/pay', protect, authorize('manage_hrms', 'hrms:payroll:manage'), paySalaryRecord);
 router.put('/:id', protect, authorize('manage_hrms', 'hrms:payroll:manage'), updateSalaryRecord);
 router.delete('/:id', protect, authorize('manage_hrms', 'hrms:payroll:manage'), deleteSalaryRecord);
-
 module.exports = router;

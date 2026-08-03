@@ -56,7 +56,6 @@ async function run() {
         }
     }
 
-    // Convert 'Stationary' to 'At Warehouse'
     const backfill = await runQuery(db,
         `UPDATE ${table}
          SET gpsStatus = 'At Warehouse'

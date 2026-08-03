@@ -1,6 +1,5 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/sequelize');
-
 const AICopilotLog = sequelize.define('AICopilotLog', {
     id: {
         type: DataTypes.INTEGER,
@@ -37,7 +36,6 @@ const AICopilotLog = sequelize.define('AICopilotLog', {
     }
 }, {
     tableName: 'ai_copilot_logs',
-    timestamps: true, // Automatically adds createdAt and updatedAt
+    timestamps: true,
 });
-
 module.exports = AICopilotLog;

@@ -9,7 +9,6 @@ async function run() {
         await sequelize.authenticate();
         associations();
         
-        // Use an existing user (e.g., admin)
         let user = await User.findOne({ where: { role: 'Admin' } });
         if (!user) {
             user = await User.create({ name: 'Admin Test', email: 'admin@test.com', role: 'Admin' });

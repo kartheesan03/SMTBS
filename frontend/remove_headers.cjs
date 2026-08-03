@@ -11,7 +11,6 @@ for (const file of files) {
     const filePath = path.join(pagesDir, file);
     let content = fs.readFileSync(filePath, 'utf8');
 
-    // Check if it has rd-module-header
     if (!content.includes('className="rd-module-header"')) {
         continue;
     }

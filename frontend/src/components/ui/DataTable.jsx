@@ -9,20 +9,19 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { motion, AnimatePresence } from 'framer-motion';
 import './DataTable.css';
-
 const DataTable = ({ 
     columns = [], 
     data = [], 
     title = 'Data Table', 
     subtitle = 'Manage your records',
-    actions = [], // row actions: [{ label, icon: Icon, onClick, color }]
-    bulkActions = [], // [{ label, icon: Icon, onClick, color }]
+    actions = [],
+    bulkActions = [],
     searchPlaceholder = 'Search records...',
     primaryAction = null, // { label, icon: Icon, onClick }
     pageSize = 10,
     loading = false,
     expandableRowRender = null, // (row) => ReactNode
-    variant = 'default', // 'default' | 'flat'
+    variant = 'default',
     dense = false,
     compactControls = false
 }) => {
@@ -34,8 +33,6 @@ const DataTable = ({
     const [visibleColumns, setVisibleColumns] = useState(() => 
         columns.reduce((acc, col) => ({ ...acc, [col.key]: true }), {})
     );
-
-    // Sync visibleColumns when columns prop changes (e.g. during HMR or dynamic column updates)
     useEffect(() => {
         setVisibleColumns(prev => {
             let changed = false;
@@ -51,10 +48,7 @@ const DataTable = ({
     }, [columns]);
     const [showColumnDropdown, setShowColumnDropdown] = useState(false);
     const [showExportDropdown, setShowExportDropdown] = useState(false);
-
     const dropdownRef = useRef(null);
-
-    // Click outside handler for dropdowns
     useEffect(() => {
         const handleClickOutside = (e) => {
             if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -65,8 +59,6 @@ const DataTable = ({
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
-
-    // Filter data
     const filteredData = useMemo(() => {
         if (!search) return data;
         return data.filter(item => {
@@ -77,8 +69,6 @@ const DataTable = ({
             });
         });
     }, [data, search, columns]);
-
-    // Sort data
     const sortedData = useMemo(() => {
         let sortableItems = [...filteredData];
         if (sortConfig.key !== null) {
@@ -92,11 +82,8 @@ const DataTable = ({
         }
         return sortableItems;
     }, [filteredData, sortConfig]);
-
-    // Pagination
     const totalPages = Math.ceil(sortedData.length / pageSize) || 1;
     const currentData = sortedData.slice((currentPage - 1) * pageSize, currentPage * pageSize);
-
     const handleSort = (key) => {
         let direction = 'asc';
         if (sortConfig.key === key && sortConfig.direction === 'asc') {
@@ -104,14 +91,12 @@ const DataTable = ({
         }
         setSortConfig({ key, direction });
     };
-
     const toggleRowSelect = (id) => {
         const newSelected = new Set(selectedRows);
         if (newSelected.has(id)) newSelected.delete(id);
         else newSelected.add(id);
         setSelectedRows(newSelected);
     };
-
     const toggleRowExpand = (id, e) => {
         if (e) e.stopPropagation();
         const newExpanded = new Set(expandedRows);
@@ -119,7 +104,6 @@ const DataTable = ({
         else newExpanded.add(id);
         setExpandedRows(newExpanded);
     };
-
     const toggleAllSelect = () => {
         if (selectedRows.size === currentData.length && currentData.length > 0) {
             setSelectedRows(new Set());
@@ -127,12 +111,9 @@ const DataTable = ({
             setSelectedRows(new Set(currentData.map(r => r._id || r.id)));
         }
     };
-
     const toggleColumnVisibility = (key) => {
         setVisibleColumns(prev => ({ ...prev, [key]: !prev[key] }));
     };
-
-    // Export functions
     const exportCSV = (e) => {
         if (e) e.preventDefault();
         try {
@@ -144,7 +125,6 @@ const DataTable = ({
                     return `"${val}"`;
                 }).join(',')
             ).join('\n');
-            
             const csvContent = `data:text/csv;charset=utf-8,${headers}\n${rows}`;
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement('a');
@@ -160,25 +140,20 @@ const DataTable = ({
         }
         setShowExportDropdown(false);
     };
-
     const exportExcel = async (e) => {
         if (e) e.preventDefault();
         try {
             const ExcelJSConstructor = ExcelJS.default || ExcelJS.Workbook ? ExcelJS : window.ExcelJS;
             const workbook = ExcelJSConstructor.Workbook ? new ExcelJSConstructor.Workbook() : new ExcelJS.Workbook();
             const worksheet = workbook.addWorksheet(title);
-            
             const exportCols = columns.filter(c => visibleColumns[c.key]);
             worksheet.columns = exportCols.map(c => ({ header: c.label, key: c.key, width: 20 }));
-
             sortedData.forEach(row => {
                 const rowData = {};
                 exportCols.forEach(c => rowData[c.key] = row[c.key]);
                 worksheet.addRow(rowData);
             });
-
             worksheet.getRow(1).font = { bold: true };
-            
             const buffer = await workbook.xlsx.writeBuffer();
             const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
             const link = document.createElement('a');
@@ -194,7 +169,6 @@ const DataTable = ({
         }
         setShowExportDropdown(false);
     };
-
     const exportPDF = (e) => {
         if (e) e.preventDefault();
         try {
@@ -202,7 +176,6 @@ const DataTable = ({
             const exportCols = columns.filter(c => visibleColumns[c.key]);
             const head = [exportCols.map(c => typeof c.label === 'string' ? c.label : c.key)];
             const body = sortedData.map(row => exportCols.map(c => String(row[c.key] || '')));
-            
             doc.text(title, 14, 15);
             autoTable(doc, {
                 startY: 20,
@@ -211,7 +184,6 @@ const DataTable = ({
                 theme: 'grid',
                 headStyles: { fillColor: [59, 130, 246] }
             });
-            
             doc.save(`${title.replace(/\\s+/g, '_')}_Export.pdf`);
             toast.success('PDF exported successfully');
         } catch (err) {
@@ -220,13 +192,11 @@ const DataTable = ({
         }
         setShowExportDropdown(false);
     };
-
     const printTable = (e) => {
         if (e) e.preventDefault();
         window.print();
         setShowExportDropdown(false);
     };
-
     return (
         <div className={`ui-datatable-container ${variant === 'flat' ? 'ui-datatable-flat' : ''} ${dense ? 'rd-table-dense' : ''}`} ref={dropdownRef}>
             <div className={`ui-datatable-header ${compactControls ? 'rd-controls-compact' : ''}`}>
@@ -247,7 +217,6 @@ const DataTable = ({
                             }}
                         />
                     </div>
-                    
                     {/* Column Visibility */}
                     <div style={{ position: 'relative' }}>
                         <button className="ui-btn-outline" onClick={() => setShowColumnDropdown(!showColumnDropdown)}>
@@ -271,7 +240,6 @@ const DataTable = ({
                             </div>
                         )}
                     </div>
-
                     {/* Export */}
                     <div style={{ position: 'relative' }}>
                         <button className="ui-btn-outline" onClick={() => setShowExportDropdown(!showExportDropdown)}>
@@ -286,7 +254,6 @@ const DataTable = ({
                             </div>
                         )}
                     </div>
-
                     {primaryAction && (
                         <button className="ui-btn-primary" onClick={primaryAction.onClick}>
                             {primaryAction.icon && <primaryAction.icon size={16} />}
@@ -295,7 +262,6 @@ const DataTable = ({
                     )}
                 </div>
             </div>
-
             {/* Bulk Actions */}
             {selectedRows.size > 0 && bulkActions.length > 0 && (
                 <div className="ui-bulk-actions">
@@ -314,7 +280,6 @@ const DataTable = ({
                     </div>
                 </div>
             )}
-
             <div className="ui-datatable-wrapper">
                 <table className="ui-datatable">
                     <thead>
@@ -430,7 +395,6 @@ const DataTable = ({
                     </tbody>
                 </table>
             </div>
-
             {/* Pagination */}
             {totalPages > 1 && (
                 <div className="ui-datatable-footer">
@@ -445,7 +409,6 @@ const DataTable = ({
                         >
                             <ChevronDown size={16} style={{ transform: 'rotate(90deg)' }} />
                         </button>
-                        
                         {[...Array(totalPages)].map((_, idx) => {
                             const p = idx + 1;
                             // Show first, last, current, and adjacent pages
@@ -464,7 +427,6 @@ const DataTable = ({
                             }
                             return null;
                         })}
-
                         <button 
                             className="ui-page-btn" 
                             disabled={currentPage === totalPages}
@@ -478,5 +440,4 @@ const DataTable = ({
         </div>
     );
 };
-
 export default DataTable;
