@@ -807,3 +807,86 @@
         box-shadow: 9984px 0 0 0 #8b5cf6, 9999px 0 0 0 #8b5cf6, 10014px 0 0 0 #8b5cf6;
     }
 }
+
+/* Delete Chat Modal */
+.aria-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.2);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.aria-modal-content {
+    background-color: white;
+    border-radius: 12px;
+    padding: 20px 24px;
+    width: 400px;
+    max-width: 90vw;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.aria-modal-content h2 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 16px;
+    color: #111827;
+}
+
+.aria-modal-content p {
+    font-size: 0.95rem;
+    color: #374151;
+    margin-top: 0;
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+.aria-modal-muted {
+    font-size: 0.85rem !important;
+    color: #6b7280 !important;
+    margin-bottom: 24px !important;
+}
+
+.aria-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.aria-btn-cancel {
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid #d1d5db;
+    background-color: white;
+    color: #374151;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.aria-btn-cancel:hover {
+    background-color: #f3f4f6;
+}
+
+.aria-btn-delete {
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: none;
+    background-color: #f01e2c; /* ChatGPT red */
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.aria-btn-delete:hover {
+    background-color: #d11a25;
+}

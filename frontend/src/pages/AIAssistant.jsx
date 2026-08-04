@@ -317,27 +317,39 @@ const AIAssistant = () => {
     },
   ];
   const handleDeleteSession = (id, e) => {
-    e.stopPropagation();
+    if (e) e.stopPropagation();
 
-    // Ensure immediate removal from localStorage
-    const currentStored = JSON.parse(
-      localStorage.getItem("aria_sessions") || "[]"
-    );
-    const updatedStored = currentStored.filter((s) => s.id !== id);
-    localStorage.setItem("aria_sessions", JSON.stringify(updatedStored));
+    let nextSession = null;
+    let shouldCreateNew = false;
 
-    const updatedSessions = sessions.filter((s) => s.id !== id);
-    setSessions(updatedSessions);
+    setSessions((prev) => {
+      const updated = prev.filter((s) => s.id !== id);
+      
+      // Update local storage immediately with the freshest state
+      localStorage.setItem("aria_sessions", JSON.stringify(updated));
+
+      if (currentSessionId === id) {
+        if (updated.length > 0) {
+          nextSession = updated[0];
+        } else {
+          shouldCreateNew = true;
+        }
+      }
+      return updated;
+    });
+
+    if (nextSession) {
+      setCurrentSessionId(nextSession.id);
+      sessionIdRef.current = nextSession.id;
+      setMessages(nextSession.messages);
+      setIsLoading(false);
+      setIsStreaming(false);
+    } else if (shouldCreateNew) {
+      createNewSession();
+    }
+
     setOpenMenuId(null);
     setConfirmDeleteId(null);
-
-    if (currentSessionId === id) {
-      if (updatedSessions.length > 0) {
-        switchSession(updatedSessions[0].id);
-      } else {
-        createNewSession();
-      }
-    }
   };
   const handleRenameSubmit = (id, e) => {
     if (e) {
@@ -410,54 +422,28 @@ const AIAssistant = () => {
                         className="aria-history-dropdown"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        {confirmDeleteId === s.id ? (
-                          <div className="aria-history-confirm">
-                            <div className="aria-confirm-msg">
-                              Delete this chat?
-                            </div>
-                            <div className="aria-confirm-btns">
-                              <button onClick={() => setConfirmDeleteId(null)}>
-                                Cancel
-                              </button>
-                              <button
-                                className="delete"
-                                onClick={(e) => handleDeleteSession(s.id, e)}
-                              >
-                                Delete
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                console.log(
-                                  "[DEBUG] Rename clicked for:",
-                                  s.id
-                                );
-                                setEditingSessionId(s.id);
-                                setRenameValue(s.title);
-                                setOpenMenuId(null);
-                              }}
-                            >
-                              <Edit2 size={14} /> Rename
-                            </button>
-                            <button
-                              className="delete"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                console.log(
-                                  "[DEBUG] Delete clicked for:",
-                                  s.id
-                                );
-                                setConfirmDeleteId(s.id);
-                              }}
-                            >
-                              <Trash2 size={14} /> Delete
-                            </button>
-                          </>
-                        )}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            console.log("[DEBUG] Rename clicked for:", s.id);
+                            setEditingSessionId(s.id);
+                            setRenameValue(s.title);
+                            setOpenMenuId(null);
+                          }}
+                        >
+                          <Edit2 size={14} /> Rename
+                        </button>
+                        <button
+                          className="delete"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            console.log("[DEBUG] Delete clicked for:", s.id);
+                            setConfirmDeleteId(s.id);
+                            setOpenMenuId(null);
+                          }}
+                        >
+                          <Trash2 size={14} /> Delete
+                        </button>
                       </div>
                     )}
                   </div>
@@ -678,6 +664,25 @@ const AIAssistant = () => {
           </div>
         </div>
       </div>
+
+      {/* Delete Chat Modal */}
+      {confirmDeleteId && (
+        <div className="aria-modal-overlay" onClick={() => setConfirmDeleteId(null)}>
+          <div className="aria-modal-content" onClick={(e) => e.stopPropagation()}>
+            <h2>Delete chat?</h2>
+            <p>
+              This will delete <strong>{sessions.find((s) => s.id === confirmDeleteId)?.title || "this chat"}</strong>.
+            </p>
+            <p className="aria-modal-muted">
+              Visit settings to delete any memories saved during this chat.
+            </p>
+            <div className="aria-modal-actions">
+              <button className="aria-btn-cancel" onClick={() => setConfirmDeleteId(null)}>Cancel</button>
+              <button className="aria-btn-delete" onClick={(e) => { handleDeleteSession(confirmDeleteId, e); setConfirmDeleteId(null); }}>Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
