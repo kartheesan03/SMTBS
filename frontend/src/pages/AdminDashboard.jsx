@@ -392,7 +392,7 @@ const AdminDashboard = () => {
                 icon={ListTodo}
                 label="Tasks"
                 colorClass="bg-light-orange"
-                onClick={() => navigate("/tasks")}
+                onClick={() => navigate("/my-tasks")}
               />{" "}
             </div>{" "}
           </div>{" "}

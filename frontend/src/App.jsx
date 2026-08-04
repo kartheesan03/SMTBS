@@ -109,6 +109,7 @@ const Recruitment = React.lazy(() => import('./pages/Recruitment'));
 const LeaveBalance = React.lazy(() => import('./pages/LeaveBalance'));
 const LandingPage = React.lazy(() => import('./pages/LandingPage'));
 const AIAssistant = React.lazy(() => import('./pages/AIAssistant'));
+const AuthMicrosoftCallback = React.lazy(() => import('./pages/AuthMicrosoftCallback'));
 const AppContent = () => {
     const { user, loading, logout } = useContext(AuthContext);
     
@@ -184,6 +185,7 @@ const AppContent = () => {
                     {/* Public Routes */}
                     <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
                     <Route path="/register" element={!user ? <Register /> : <Navigate to="/" />} />
+                    <Route path="/auth/microsoft/callback" element={<AuthMicrosoftCallback />} />
                     <Route path="/features" element={<PublicPlaceholder title="Features" />} />
                     <Route path="/pricing" element={<PublicPlaceholder title="Pricing" />} />
                     <Route path="/faq" element={<PublicPlaceholder title="FAQ" />} />
@@ -314,6 +316,7 @@ const AppContent = () => {
                     <Route path="/coming-soon/recruitment" element={<ProtectedRoute><Recruitment /></ProtectedRoute>} />
                     <Route path="/coming-soon/training" element={<ProtectedRoute><TrainingDevelopment /></ProtectedRoute>} />
                     <Route path="/coming-soon/holiday-calendar" element={<ProtectedRoute><HolidayCalendar /></ProtectedRoute>} />
+                    <Route path="/coming-soon/:feature" element={<ProtectedRoute><ComingSoonPage title="Coming Soon" subtitle="This feature is currently under development." /></ProtectedRoute>} />
 
                     <Route path="/complete-customer-profile" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']} requiredPermission="view_crm"><CompleteCustomerProfile /></ProtectedRoute>} />
                     <Route path="/complete-vendor-profile" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']} requiredPermission="view_erp"><CompleteVendorProfile /></ProtectedRoute>} />

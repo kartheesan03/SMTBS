@@ -343,7 +343,7 @@ const ManagerDashboard = () => {
                 icon={CheckSquare}
                 label="Assign Task"
                 colorClass="bg-light-blue"
-                onClick={() => navigate("/tasks")}
+                onClick={() => navigate("/my-tasks")}
               />
               <IconQuickAction
                 icon={Briefcase}

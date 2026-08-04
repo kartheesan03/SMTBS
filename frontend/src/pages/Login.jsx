@@ -4,6 +4,7 @@ import { useNavigate, Link, NavLink } from "react-router-dom";
 import API from "../api/axios";
 import { AuthContext } from "../context/AuthContext";
 import { useGoogleLogin } from "@react-oauth/google";
+import { useMicrosoftLogin } from "../hooks/useMicrosoftLogin";
 import {
   Shield,
   Users,
@@ -123,6 +124,41 @@ const Login = () => {
     },
     onError: () => setError("Google Sign-In failed. Please try again."),
     prompt: "select_account login",
+  });
+  const handleMicrosoftLogin = useMicrosoftLogin({
+    mode: "login",
+    role: selectedRole,
+    onSuccess: async ({ access_token }) => {
+      setIsLoading(true);
+      setError("");
+      try {
+        const { data } = await API.post("/auth/microsoft", {
+          access_token,
+          mode: "login",
+          role: selectedRole,
+        });
+        login(data, rememberMe);
+        if (
+          data.isProfileComplete === false &&
+          (data.role === "Customer" || data.role === "Vendor")
+        ) {
+          navigate(
+            data.role === "Customer"
+              ? "/complete-customer-profile"
+              : "/complete-vendor-profile"
+          );
+        } else {
+          navigate("/");
+        }
+      } catch (err) {
+        setError(
+          err.response?.data?.message || err.message || "Microsoft Sign-In failed"
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    onError: (err) => setError(err.message || "Microsoft Sign-In failed. Please try again."),
   });
   return (
     <div className="fx-login-shell">
@@ -329,7 +365,7 @@ const Login = () => {
                 </svg>
                 Google
               </button>
-              <button type="button" className="fx-social-btn">
+              <button type="button" className="fx-social-btn" onClick={handleMicrosoftLogin}>
                 <svg viewBox="0 0 21 21" width="18" height="18">
                   <rect x="1" y="1" width="9" height="9" fill="#F25022" />
                   <rect x="11" y="1" width="9" height="9" fill="#7FBA00" />

@@ -358,7 +358,7 @@ const HRDashboard = () => {
                 icon={Target}
                 label="Reviews"
                 colorClass="bg-light-teal"
-                onClick={() => navigate("/tasks")}
+                onClick={() => navigate("/my-tasks")}
               />
               <IconQuickAction
                 icon={Settings}

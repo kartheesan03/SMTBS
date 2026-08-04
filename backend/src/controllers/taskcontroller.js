@@ -59,6 +59,14 @@ const getMyTasks = async (req, res) => {
             }
             if (!Array.isArray(assigned)) assigned = [];
             return assigned.some(id => String(id) === userId);
+        }).map(task => {
+            let t = task.toJSON ? task.toJSON() : (task.get ? task.get({ plain: true }) : task);
+            let comps = t.completions;
+            if (typeof comps === 'string') try { comps = JSON.parse(comps); } catch(e) { comps = []; }
+            if (!Array.isArray(comps)) comps = [];
+            let myComp = comps.find(c => String(c.user?.id || c.user?._id || c.user) === userId);
+            t.status = myComp ? myComp.status : 'Pending';
+            return t;
         });
         res.json(myTasks);
     } catch (error) {
@@ -70,7 +78,16 @@ const getAllTasks = async (req, res) => {
         const tasks = await Task.find({})
             .populate('assignedBy', 'name')
             .sort({ createdAt: -1 });
-        res.json(tasks);
+        const mapped = tasks.map(task => {
+            let t = task.toJSON ? task.toJSON() : (task.get ? task.get({ plain: true }) : task);
+            let comps = t.completions;
+            if (typeof comps === 'string') try { comps = JSON.parse(comps); } catch(e) { comps = []; }
+            if (!Array.isArray(comps)) comps = [];
+            let completedCount = comps.filter(c => c.status === 'Completed' || c.status === 'Done').length;
+            t.status = (comps.length > 0 && completedCount === comps.length) ? 'Completed' : 'Pending';
+            return t;
+        });
+        res.json(mapped);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

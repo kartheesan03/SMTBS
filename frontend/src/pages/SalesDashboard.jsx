@@ -29,8 +29,11 @@ import {
   AlertTriangle,
   AlertCircle,
   CheckCircle,
+  CheckCircle2,
   FileText,
   Calendar,
+  Package,
+  UserCheck,
 } from "lucide-react";
 import {
   AreaChart,
@@ -191,41 +194,46 @@ const SalesDashboard = () => {
     return `₹${val}`;
   };
   const buildSalesTrendData = () => {
+    // Prefer backend-computed salesTrend (set for Sales/Admin roles)
     const apiData = dashboardData?.analytics?.salesTrend;
-    if (apiData && apiData.length > 0) return apiData;
+    if (apiData && apiData.length > 0 && apiData.some(d => d.newLeads > 0 || d.dealsClosed > 0 || d.meetings > 0)) {
+      return apiData;
+    }
+    // Local fallback: compute from fetched leads + ordersData over last 6 months
     const months = [];
     const now = new Date();
     for (let i = 5; i >= 0; i--) {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const dEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 0, 23, 59, 59, 999);
       const name = d.toLocaleString("default", { month: "short" });
-      const monthLeads = leads.filter((l) => {
-        if (!l.createdAt) return false;
-        const ld = new Date(l.createdAt);
-        return (
-          ld.getFullYear() === d.getFullYear() && ld.getMonth() === d.getMonth()
-        );
-      });
+      const inMonth = (dateStr) => {
+        if (!dateStr) return false;
+        const ld = new Date(dateStr);
+        return ld >= d && ld <= dEnd;
+      };
+      const monthLeads = leads.filter((l) => inMonth(l.createdAt));
+      const monthDealsClosed =
+        leads.filter((l) => (l.status === "Converted" || l.status === "Won") && inMonth(l.updatedAt || l.createdAt)).length +
+        (ordersData || []).filter((o) => ["Delivered", "Workflow Completed"].includes(o.status) && inMonth(o.updatedAt || o.createdAt)).length;
       const monthMeetings = tasksData.filter((t) => {
-        if (!t.createdAt) return false;
-        const td = new Date(t.createdAt);
         const isMeeting =
           t.title?.toLowerCase().includes("meeting") ||
           t.title?.toLowerCase().includes("call");
-        return (
-          isMeeting &&
-          td.getFullYear() === d.getFullYear() &&
-          td.getMonth() === d.getMonth()
-        );
+        return isMeeting && inMonth(t.createdAt);
       });
       months.push({
         name,
         newLeads: monthLeads.length,
         meetings: monthMeetings.length,
-        dealsClosed: monthLeads.filter((l) => l.status === "Converted").length,
+        dealsClosed: monthDealsClosed,
+        lastNewLeads: 0,
+        lastMeetings: 0,
+        lastDealsClosed: 0,
       });
     }
     return months;
   };
+
   const salesTrendData = buildSalesTrendData();
   const topProspects = [...leads]
     .filter((l) => l.status !== "Converted" && l.status !== "Lost")
@@ -360,7 +368,7 @@ const SalesDashboard = () => {
                 icon={FileText}
                 label="Create Quote"
                 colorClass="bg-light-purple"
-                onClick={() => navigate("/coming-soon/quotes")}
+                onClick={() => navigate("/quotations/create")}
               />
               <IconQuickAction
                 icon={ShoppingCart}
@@ -372,13 +380,13 @@ const SalesDashboard = () => {
                 icon={Users}
                 label="Customers"
                 colorClass="bg-light-orange"
-                onClick={() => navigate("/customers")}
+                onClick={() => navigate("/crm/customers")}
               />
               <IconQuickAction
                 icon={PhoneCall}
                 label="Calls"
                 colorClass="bg-light-pink"
-                onClick={() => navigate("/tasks")}
+                onClick={() => navigate("/my-tasks")}
               />
               <IconQuickAction
                 icon={Target}
@@ -575,25 +583,11 @@ const SalesDashboard = () => {
               </select>
             </div>
             <div style={{ height: 220, width: "100%" }}>
-              {salesTrendData.length === 0 ? (
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    height: "100%",
-                    color: "#94a3b8",
-                    fontSize: 13,
-                  }}
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart
+                  data={salesTrendData}
+                  margin={{ top: 4, right: 10, left: 0, bottom: 0 }}
                 >
-                  No trend data available.
-                </div>
-              ) : (
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart
-                    data={salesTrendData}
-                    margin={{ top: 4, right: 10, left: 0, bottom: 0 }}
-                  >
                     <defs>
                       <linearGradient
                         id="gradNewLeads"
@@ -729,7 +723,6 @@ const SalesDashboard = () => {
                     />
                   </AreaChart>
                 </ResponsiveContainer>
-              )}
             </div>
           </div>
           <div className="dashboard-panel">
@@ -821,7 +814,7 @@ const SalesDashboard = () => {
         <div className="rd-two-col">
           <div className="dashboard-panel">
             <div className="panel-header">
-              <div className="panel-title">Recent Activity</div>
+              <div className="panel-title">Recent Sales Activity</div>
               <a href="/notifications" className="panel-action">
                 View All
               </a>
@@ -829,52 +822,56 @@ const SalesDashboard = () => {
             <div className="feed-list">
               {(dashboardData?.tables?.recentActivity || []).length > 0 ? (
                 (dashboardData?.tables?.recentActivity || [])
-                  .slice(0, 5)
-                  .map((activity, idx) => (
-                    <div className="feed-item" key={idx}>
-                      <div className="feed-time">
-                        {new Date(activity.time).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </div>
-                      {(() => {
-                        let IconComp = DollarSign;
-                        let iconColor = "#2563EB";
-                        let iconBg = "#eff6ff";
-                        const textLower = (activity.text || "").toLowerCase();
-                        if (textLower.includes("logged in")) { IconComp = CheckCircle; iconColor = "#3b82f6"; iconBg = "#eff6ff"; }
-                        else if (activity.type === "success" || textLower.includes("created")) { IconComp = ShoppingCart; iconColor = "#10b981"; iconBg = "#d1fae5"; }
-                        else if (activity.type === "warning") { IconComp = AlertTriangle; iconColor = "#f59e0b"; iconBg = "#fef3c7"; }
-                        
-                        return (
-                          <div
-                            className="feed-icon-wrapper"
-                            style={{
-                              background: iconBg,
-                              color: iconColor,
-                            }}
-                          >
-                            <IconComp size={12} />
+                  .slice(0, 8)
+                  .map((activity, idx) => {
+                    // Role-specific icon mapping from backend iconType
+                    let IconComp = Activity;
+                    let iconColor = "#6366f1";
+                    let iconBg = "#eef2ff";
+                    const iType = activity.iconType || "";
+                    if (iType === "lead_new")         { IconComp = UserPlus;       iconColor = "#3b82f6"; iconBg = "#eff6ff"; }
+                    else if (iType === "lead_updated"){ IconComp = Users;          iconColor = "#4f46e5"; iconBg = "#e0e7ff"; }
+                    else if (iType === "order_created"){ IconComp = ShoppingCart;  iconColor = "#10b981"; iconBg = "#d1fae5"; }
+                    else if (iType === "order_dispatched"){ IconComp = Package;   iconColor = "#f59e0b"; iconBg = "#fef3c7"; }
+                    else if (iType === "deal_won")    { IconComp = CheckCircle2;   iconColor = "#10b981"; iconBg = "#d1fae5"; }
+                    else if (iType === "quotation")   { IconComp = FileText;       iconColor = "#8b5cf6"; iconBg = "#f3e8ff"; }
+                    else if (iType === "system")      { IconComp = Activity;       iconColor = "#64748b"; iconBg = "#f1f5f9"; }
+                    else if (activity.type === "warning") { IconComp = AlertTriangle; iconColor = "#f59e0b"; iconBg = "#fef3c7"; }
+                    // Format timestamp: show time if today, date if older
+                    const actDate = new Date(activity.time);
+                    const isToday = new Date().toDateString() === actDate.toDateString();
+                    const timeLabel = isToday
+                      ? actDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+                      : actDate.toLocaleDateString("en-IN", { day: "2-digit", month: "short" });
+                    return (
+                      <div className="feed-item" key={activity.id || idx} style={{ alignItems: "flex-start" }}>
+                        <div className="feed-time" style={{ paddingTop: 2 }}>{timeLabel}</div>
+                        <div
+                          className="feed-icon-wrapper"
+                          style={{ background: iconBg, color: iconColor, flexShrink: 0 }}
+                        >
+                          <IconComp size={12} />
+                        </div>
+                        <div className="feed-content">
+                          <div className="feed-title" style={{ fontWeight: 600, color: "#1e293b" }}>
+                            {activity.title || activity.type}
                           </div>
-                        );
-                      })()}
-                      <div className="feed-content">
-                        <div className="feed-title">{activity.type}</div>
-                        <div className="feed-desc">{activity.text}</div>
+                          <div className="feed-desc" style={{ marginTop: 2 }}>{activity.text}</div>
+                        </div>
                       </div>
-                    </div>
-                  ))
+                    );
+                  })
               ) : (
                 <div
                   style={{
-                    padding: "20px",
-                    fontSize: "13px",
-                    color: "#94a3b8",
+                    padding: "28px 16px",
                     textAlign: "center",
+                    color: "#94a3b8",
                   }}
                 >
-                  No recent activity.
+                  <Briefcase size={28} style={{ marginBottom: 8, opacity: 0.4, display: "block", margin: "0 auto 8px" }} />
+                  <div style={{ fontSize: "13px", fontWeight: 600 }}>No recent sales activities</div>
+                  <div style={{ fontSize: "12px", marginTop: 4, color: "#cbd5e1" }}>Leads, orders & quotations will appear here</div>
                 </div>
               )}
             </div>
