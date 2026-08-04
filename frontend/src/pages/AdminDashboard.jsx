@@ -744,18 +744,28 @@ const AdminDashboard = () => {
                           minute: "2-digit",
                         })}
                       </div>{" "}
-                      <div
-                        className="feed-icon-wrapper"
-                        style={{
-                          background:
-                            activity.type === "warning" ? "#fef3c7" : "#eff6ff",
-                          color:
-                            activity.type === "warning" ? "#D97706" : "#2563EB",
-                        }}
-                      >
-                        {" "}
-                        <Activity size={12} />{" "}
-                      </div>{" "}
+                      {(() => {
+                        let IconComp = Activity;
+                        let iconColor = "#2563EB";
+                        let iconBg = "#eff6ff";
+                        const textLower = (activity.text || "").toLowerCase();
+                        if (textLower.includes("logged in")) { IconComp = UserCheck; iconColor = "#3b82f6"; iconBg = "#eff6ff"; }
+                        else if (activity.type === "success" || textLower.includes("created")) { IconComp = Plus; iconColor = "#10b981"; iconBg = "#d1fae5"; }
+                        else if (activity.type === "warning" || textLower.includes("delete")) { IconComp = AlertTriangle; iconColor = "#f59e0b"; iconBg = "#fef3c7"; }
+                        
+                        return (
+                          <div
+                            className="feed-icon-wrapper"
+                            style={{
+                              background: iconBg,
+                              color: iconColor,
+                            }}
+                          >
+                            {" "}
+                            <IconComp size={12} />{" "}
+                          </div>
+                        );
+                      })()}{" "}
                       <div className="feed-content">
                         {" "}
                         <div
@@ -794,17 +804,29 @@ const AdminDashboard = () => {
                   .map((notif, idx) => (
                     <div className="feed-item" key={idx}>
                       {" "}
-                      <div
-                        className="feed-icon-wrapper"
-                        style={{
-                          background: "#f5f3ff",
-                          color: "#7c3aed",
-                          flexShrink: 0,
-                        }}
-                      >
-                        {" "}
-                        <Bell size={14} />{" "}
-                      </div>{" "}
+                      {(() => {
+                        let IconComp = Bell;
+                        let iconColor = "#7c3aed";
+                        let iconBg = "#f5f3ff";
+                        const textLower = (notif.text || "").toLowerCase();
+                        if (textLower.includes("out of stock") || textLower.includes("critical")) { IconComp = AlertTriangle; iconColor = "#ef4444"; iconBg = "#fee2e2"; }
+                        else if (textLower.includes("order") && textLower.includes("confirmed")) { IconComp = ShoppingCart; iconColor = "#10b981"; iconBg = "#d1fae5"; }
+                        else if (textLower.includes("order")) { IconComp = Package; iconColor = "#3b82f6"; iconBg = "#eff6ff"; }
+
+                        return (
+                          <div
+                            className="feed-icon-wrapper"
+                            style={{
+                              background: iconBg,
+                              color: iconColor,
+                              flexShrink: 0,
+                            }}
+                          >
+                            {" "}
+                            <IconComp size={14} />{" "}
+                          </div>
+                        );
+                      })()}{" "}
                       <div className="feed-content" style={{ flex: 1 }}>
                         {" "}
                         <div

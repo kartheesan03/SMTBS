@@ -709,12 +709,27 @@ const HRDashboard = () => {
                           minute: "2-digit",
                         })}
                       </div>
-                      <div
-                        className="feed-icon-wrapper"
-                        style={{ background: "#3b82f6" }}
-                      >
-                        <CheckCircle size={12} />
-                      </div>
+                      {(() => {
+                        let IconComp = CheckCircle;
+                        let iconColor = "#2563EB";
+                        let iconBg = "#eff6ff";
+                        const textLower = (activity.text || "").toLowerCase();
+                        if (textLower.includes("logged in")) { IconComp = UserPlus; iconColor = "#3b82f6"; iconBg = "#eff6ff"; }
+                        else if (activity.type === "success" || textLower.includes("created")) { IconComp = CheckCircle; iconColor = "#10b981"; iconBg = "#d1fae5"; }
+                        else if (activity.type === "warning") { iconColor = "#f59e0b"; iconBg = "#fef3c7"; }
+                        
+                        return (
+                          <div
+                            className="feed-icon-wrapper"
+                            style={{
+                              background: iconBg,
+                              color: iconColor,
+                            }}
+                          >
+                            <IconComp size={12} />
+                          </div>
+                        );
+                      })()}
                       <div className="feed-content">
                         <div className="feed-title">{activity.type}</div>
                         <div className="feed-desc">{activity.text}</div>

@@ -208,26 +208,6 @@ const ManagerDashboard = () => {
         m.overdueProjects++;
       else m.pendingProjects++;
     });
-    const totalC = months.reduce((s, m) => s + m.completedProjects, 0);
-    const totalP = months.reduce((s, m) => s + m.pendingProjects, 0);
-    const totalO = months.reduce((s, m) => s + m.overdueProjects, 0);
-    const seedWeights = [0.08, 0.12, 0.14, 0.18, 0.2, 0.28];
-    months.forEach((m, i) => {
-      if (totalC === 0 && totalP === 0) {
-        const base = [3, 5, 4, 7, 6, 8];
-        m.completedProjects = base[i];
-        m.pendingProjects = Math.max(1, base[i] - 2);
-        m.overdueProjects = i % 2;
-      } else if (
-        m.completedProjects === 0 &&
-        m.pendingProjects === 0 &&
-        m.overdueProjects === 0
-      ) {
-        m.completedProjects = Math.round((totalC || 4) * seedWeights[i]);
-        m.pendingProjects = Math.round((totalP || 3) * seedWeights[i]);
-        m.overdueProjects = Math.round((totalO || 1) * seedWeights[i]);
-      }
-    });
     return months;
   };
   const managerTrend =
@@ -902,12 +882,23 @@ const ManagerDashboard = () => {
                           minute: "2-digit",
                         })}
                       </div>
-                      <div
-                        className="feed-icon-wrapper"
-                        style={{ background: "#3b82f6" }}
-                      >
-                        <CheckCircle size={12} />
-                      </div>
+                      {(() => {
+                        let IconComp = CheckCircle;
+                        let iconColor = "#2563EB";
+                        let iconBg = "#eff6ff";
+                        const textLower = (activity.text || "").toLowerCase();
+                        if (textLower.includes("logged in")) { IconComp = Users; iconColor = "#3b82f6"; iconBg = "#eff6ff"; }
+                        else if (activity.type === "success" || textLower.includes("created")) { IconComp = CheckCircle; iconColor = "#10b981"; iconBg = "#d1fae5"; }
+                        else if (activity.type === "warning" || textLower.includes("overdue")) { IconComp = AlertTriangle; iconColor = "#f59e0b"; iconBg = "#fef3c7"; }
+                        return (
+                          <div
+                            className="feed-icon-wrapper"
+                            style={{ background: iconBg, color: iconColor }}
+                          >
+                            <IconComp size={12} />
+                          </div>
+                        );
+                      })()}
                       <div className="feed-content">
                         <div className="feed-title">{activity.type}</div>
                         <div className="feed-desc">{activity.text}</div>

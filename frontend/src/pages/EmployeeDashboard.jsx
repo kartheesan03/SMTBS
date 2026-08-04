@@ -154,10 +154,10 @@ const EmployeeDashboard = () => {
     (t) => t.status !== "Completed" && t.status !== "Done"
   ).length;
   const employeeStats = dashboardData?.employeeStats || {};
-  const attendanceRate = attendanceStats?.attendanceRate || 98;
-  const leaveBalance = attendanceStats?.leaveBalance || 14;
-  const currentStreak = attendanceStats?.currentStreak || 12;
-  const leaveTaken = attendanceStats?.leaveTaken || 4;
+  const attendanceRate = attendanceStats?.attendanceRate ?? dashboardData?.hrStats?.attendanceRate ?? "N/A";
+  const leaveBalance = attendanceStats?.leaveBalance ?? "N/A";
+  const currentStreak = attendanceStats?.currentStreak ?? 0;
+  const leaveTaken = attendanceStats?.leaveTaken ?? 0;
   const pendingLeaves = employeeStats.myPendingLeaves || 0;
   const attendanceToday = employeeStats.attendanceToday || "-";
   return (
@@ -185,10 +185,10 @@ const EmployeeDashboard = () => {
             <>
               <div className="rd-visual-card">
                 <div className="rd-vc-label">Performance</div>
-                <div className="rd-vc-value">94.5%</div>
+                <div className="rd-vc-value">{typeof attendanceRate === 'number' ? `${attendanceRate}%` : attendanceRate}</div>
                 <div
                   className="rd-vc-chart"
-                  style={{ "--progress": "94.5%" }}
+                  style={{ "--progress": `${typeof attendanceRate === 'number' ? attendanceRate : 0}%` }}
                 ></div>
               </div>
               <div className="rd-visual-card">
@@ -465,7 +465,7 @@ const EmployeeDashboard = () => {
                   <div className="kpi-list-title">Kudos</div>
                   <div className="kpi-list-desc">Received</div>
                 </div>
-                <div className="kpi-list-value">12</div>
+                <div className="kpi-list-value">{dashboardData?.employeeStats?.kudos ?? "N/A"}</div>
               </div>
               <div className="kpi-list-item">
                 <div className="kpi-list-icon"><Book size={18} /></div>
@@ -473,7 +473,7 @@ const EmployeeDashboard = () => {
                   <div className="kpi-list-title">Training</div>
                   <div className="kpi-list-desc">Completed</div>
                 </div>
-                <div className="kpi-list-value">85%</div>
+                <div className="kpi-list-value">{dashboardData?.employeeStats?.trainingCompletion != null ? `${dashboardData.employeeStats.trainingCompletion}%` : "N/A"}</div>
               </div>
               <div className="kpi-list-item">
                 <div className="kpi-list-icon"><Activity size={18} /></div>
@@ -481,7 +481,7 @@ const EmployeeDashboard = () => {
                   <div className="kpi-list-title">Perf Score</div>
                   <div className="kpi-list-desc">/ 5.0</div>
                 </div>
-                <div className="kpi-list-value">4.8</div>
+                <div className="kpi-list-value">{dashboardData?.employeeStats?.performanceScore ?? "N/A"}</div>
               </div>
             </div>
           </div>
@@ -687,58 +687,57 @@ const EmployeeDashboard = () => {
               </a>
             </div>
             <div className="feed-list">
-              {(dashboardData?.tables?.recentActivity?.length > 0
-                ? dashboardData.tables.recentActivity
-                : [
-                    {
-                      type: "Task Completed",
-                      text: "Submitted the weekly sales report",
-                      time: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
-                    },
-                    {
-                      type: "Attendance",
-                      text: "Checked in at 09:00 AM",
-                      time: new Date(
-                        Date.now() - 1000 * 60 * 60 * 4
-                      ).toISOString(),
-                    },
-                    {
-                      type: "Document",
-                      text: "Uploaded expenses receipt for July",
-                      time: new Date(
-                        Date.now() - 1000 * 60 * 60 * 24
-                      ).toISOString(),
-                    },
-                    {
-                      type: "Meeting",
-                      text: "Attended the All-Hands meeting",
-                      time: new Date(
-                        Date.now() - 1000 * 60 * 60 * 48
-                      ).toISOString(),
-                    },
-                  ]
-              )
-                .slice(0, 5)
-                .map((activity, idx) => (
-                  <div className="feed-item" key={idx}>
-                    <div className="feed-time">
-                      {new Date(activity.time).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
+              {(dashboardData?.tables?.recentActivity || []).length > 0 ? (
+                (dashboardData?.tables?.recentActivity || [])
+                  .slice(0, 5)
+                  .map((activity, idx) => (
+                    <div className="feed-item" key={idx}>
+                      <div className="feed-time">
+                        {new Date(activity.time).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </div>
+                      {(() => {
+                        let IconComp = CheckCircle2;
+                        let iconColor = "#2563EB";
+                        let iconBg = "#eff6ff";
+                        const textLower = (activity.text || "").toLowerCase();
+                        if (textLower.includes("logged in") || textLower.includes("attendance")) { IconComp = Clock; iconColor = "#3b82f6"; iconBg = "#eff6ff"; }
+                        else if (activity.type === "success" || textLower.includes("completed")) { IconComp = CheckCircle2; iconColor = "#10b981"; iconBg = "#d1fae5"; }
+                        else if (textLower.includes("document")) { IconComp = FileText; iconColor = "#8b5cf6"; iconBg = "#f3e8ff"; }
+                        else if (activity.type === "warning") { iconColor = "#f59e0b"; iconBg = "#fef3c7"; }
+                        
+                        return (
+                          <div
+                            className="feed-icon-wrapper"
+                            style={{
+                              background: iconBg,
+                              color: iconColor,
+                            }}
+                          >
+                            <IconComp size={12} />
+                          </div>
+                        );
+                      })()}
+                      <div className="feed-content">
+                        <div className="feed-title">{activity.type}</div>
+                        <div className="feed-desc">{activity.text}</div>
+                      </div>
                     </div>
-                    <div
-                      className="feed-icon-wrapper"
-                      style={{ background: "#3b82f6" }}
-                    >
-                      <CheckCircle2 size={12} />
-                    </div>
-                    <div className="feed-content">
-                      <div className="feed-title">{activity.type}</div>
-                      <div className="feed-desc">{activity.text}</div>
-                    </div>
-                  </div>
-                ))}
+                  ))
+              ) : (
+                <div
+                  style={{
+                    padding: "20px",
+                    fontSize: "13px",
+                    color: "#94a3b8",
+                    textAlign: "center",
+                  }}
+                >
+                  No recent activity.
+                </div>
+              )}
             </div>
           </div>
           <div className="dashboard-panel">
