@@ -58,6 +58,14 @@ const Support = () => {
       },
     });
   };
+
+  const handleSubmitTicket = (e) => {
+    e.preventDefault();
+    const loadingToast = toast.loading("Submitting your ticket...");
+    setTimeout(() => {
+      toast.success("Ticket submitted successfully! Our support team will get back to you shortly.", { id: loadingToast });
+    }, 1200);
+  };
   return (
     <motion.div
       initial={{ opacity: 0, y: 15 }}
@@ -226,7 +234,7 @@ const Support = () => {
                 className="form-textarea"
               ></textarea>
             </div>
-            <button className="btn-submit-ticket" onClick={handleGuideClick}>
+            <button className="btn-submit-ticket" onClick={handleSubmitTicket}>
               <Send size={18} />
               Submit Ticket
             </button>
