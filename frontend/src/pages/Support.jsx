@@ -80,7 +80,7 @@ const Support = () => {
           subtitle="Find answers, browse guides, or reach the SMTBMS support team directly."
         />
         <div className="support-header-actions" style={{ marginTop: "0" }}>
-          <button className="btn-live-chat">
+          <button className="btn-live-chat" onClick={handleGuideClick}>
             <MessageSquare size={18} />
             Live Chat
           </button>
@@ -226,7 +226,7 @@ const Support = () => {
                 className="form-textarea"
               ></textarea>
             </div>
-            <button className="btn-submit-ticket">
+            <button className="btn-submit-ticket" onClick={handleGuideClick}>
               <Send size={18} />
               Submit Ticket
             </button>

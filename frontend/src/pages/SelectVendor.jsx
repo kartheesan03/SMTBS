@@ -177,7 +177,7 @@ const SelectVendor = () => {
                         >
                           {(v.materialsSupplied &&
                           v.materialsSupplied.length > 0
-                            ? v.materialsSupplied
+                            ? (Array.isArray(v.materialsSupplied) ? v.materialsSupplied : JSON.parse(v.materialsSupplied || '[]'))
                             : ["Steel", "PVC Pipes", "Cement"].slice(
                                 0,
                                 ((v.id || v._id || 1) % 3) + 1

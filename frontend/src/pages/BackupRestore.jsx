@@ -107,7 +107,7 @@ const BackupRestore = () => {
         API.get("/backup/statistics"),
         new Promise((resolve) => setTimeout(resolve, 600)),
       ]);
-      setHistoryData(listRes.data || []);
+      setHistoryData(Array.isArray(listRes.data) ? listRes.data : []);
       setStats(
         statsRes.data || {
           totalBackups: 0,

@@ -566,7 +566,7 @@ input:-webkit-autofill:active{
     border-color: #8b5cf6;
 }
 .fx-checkbox.checked::after {
-    content: 'âœ“';
+    content: '\2713';
     font-size: 11px;
     color: #FFFFFF;
     font-weight: 700;

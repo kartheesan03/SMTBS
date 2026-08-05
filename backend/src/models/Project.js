@@ -39,5 +39,5 @@ const ProjectSequelize = sequelize.define('Project', {
     tableName: 'projects',
     timestamps: true
 });
-const Project = makeBridgedModel(ProjectSequelize);
+const Project = makeBridgedModel('Project', ProjectSequelize);
 module.exports = Project;
