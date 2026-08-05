@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getCustomers, getCustomerById, createCustomer, updateCustomer, deleteCustomer, approveCustomer, getCustomerOrders, getCustomerTickets, getMyCustomerProfile, createCustomerProfile, updateMyCustomerProfile } = require('../controllers/customerController');
+const { getCustomers, getCustomerById, createCustomer, updateCustomer, deleteCustomer, approveCustomer, getCustomerOrders, getCustomerTickets, getMyCustomerProfile, createCustomerProfile, updateMyCustomerProfile } = require('../controllers/customercontroller');
 const { protect, authorize } = require('../middleware/authMiddleware');
 router.route('/')
     .get(protect, getCustomers)
