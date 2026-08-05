@@ -108,7 +108,7 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5000;
 
-const { autoMarkAbsent } = require('./src/controllers/attendanceController');
+const { autoMarkAbsent } = require('./src/controllers/attendancecontroller');
 
 const startServer = async () => {
     try {
