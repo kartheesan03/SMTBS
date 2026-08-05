@@ -735,26 +735,43 @@ const CandidateModal = ({ jobs, candidate, onClose, onSave }) => {
             >
               Rating (1-5)
             </label>
-            <div style={{ display: "flex", gap: 6 }}>
-              {[1, 2, 3, 4, 5].map((n) => (
-                <button
-                  key={n}
-                  type="button"
-                  onClick={() => setForm((f) => ({ ...f, rating: n }))}
-                  style={{
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    padding: 2,
-                  }}
-                >
-                  <Star
-                    size={20}
-                    fill={form.rating >= n ? "#f59e0b" : "none"}
-                    color={form.rating >= n ? "#f59e0b" : "#e2e8f0"}
-                  />
-                </button>
-              ))}
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div style={{ display: "flex", gap: 4 }}>
+                {[1, 2, 3, 4, 5].map((n) => (
+                  <button
+                    key={n}
+                    type="button"
+                    onClick={() => setForm((f) => ({ ...f, rating: n }))}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      padding: 4,
+                      borderRadius: 4,
+                      transition: "transform 0.15s ease",
+                      transform: form.rating >= n ? "scale(1.15)" : "scale(1)",
+                    }}
+                    title={`Rate ${n} out of 5`}
+                  >
+                    <Star
+                      size={24}
+                      fill={form.rating >= n ? "#f59e0b" : "none"}
+                      color={form.rating >= n ? "#f59e0b" : "#cbd5e1"}
+                      strokeWidth={1.5}
+                    />
+                  </button>
+                ))}
+              </div>
+              <span
+                style={{
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: form.rating > 0 ? "#f59e0b" : "#94a3b8",
+                  minWidth: 28,
+                }}
+              >
+                {form.rating > 0 ? `${form.rating}/5` : "—"}
+              </span>
             </div>
           </div>
           <button
