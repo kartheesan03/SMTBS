@@ -1,9 +1,10 @@
 -- ============================================================
 -- SMTBS MySQL Export
--- Generated: 2026-08-06T13:01:55.366Z
+-- Generated: 2026-08-06T13:07:28.306Z
 -- Source: local SQLite database
 -- ============================================================
 
+SET sql_mode = '';
 SET FOREIGN_KEY_CHECKS = 0;
 SET NAMES 'utf8mb4';
 SET CHARACTER SET utf8mb4;
