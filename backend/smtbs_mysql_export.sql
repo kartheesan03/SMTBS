@@ -1,3 +1,5 @@
+SET sql_mode = \ ;
+SET FOREIGN_KEY_CHECKS = 0;
 -- ============================================================
 -- SMTBS MySQL Export
 -- Generated: 2026-08-06T07:04:17.529Z
@@ -56,56 +58,56 @@ CREATE TABLE `Attendance` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `Attendance` (`id`, `userId`, `employeeId`, `role`, `date`, `status`, `shift`, `checkInTime`, `checkOutTime`, `totalHours`, `location`, `createdAt`, `updatedAt`) VALUES
-  (1, 1, 1, NULL, '2026-08-06', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, '', ''),
-  (2, 3, 2, NULL, '2026-08-06', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, '', ''),
-  (3, 5, 3, NULL, '2026-08-06', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, '', ''),
-  (4, 9, 4, NULL, '2026-08-06', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, '', ''),
-  (5, 7, 5, NULL, '2026-08-06', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, '', ''),
-  (6, 1, 1, NULL, '2026-08-05', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, '', ''),
-  (7, 3, 2, NULL, '2026-08-05', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, '', ''),
-  (8, 5, 3, NULL, '2026-08-05', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, '', ''),
-  (9, 9, 4, NULL, '2026-08-05', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, '', ''),
-  (10, 7, 5, NULL, '2026-08-05', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, '', ''),
-  (11, 1, 1, NULL, '2026-08-04', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, '', ''),
-  (12, 3, 2, NULL, '2026-08-04', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, '', ''),
-  (13, 5, 3, NULL, '2026-08-04', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, '', ''),
-  (14, 9, 4, NULL, '2026-08-04', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, '', ''),
-  (15, 7, 5, NULL, '2026-08-04', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, '', ''),
-  (16, 1, 1, NULL, '2026-08-03', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, '', ''),
-  (17, 3, 2, NULL, '2026-08-03', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, '', ''),
-  (18, 5, 3, NULL, '2026-08-03', 'Leave', 'Day', NULL, NULL, NULL, NULL, '', ''),
-  (19, 9, 4, NULL, '2026-08-03', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, '', ''),
-  (20, 7, 5, NULL, '2026-08-03', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, '', ''),
-  (21, 1, 1, NULL, '2026-07-31', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, '', ''),
-  (22, 3, 2, NULL, '2026-07-31', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, '', ''),
-  (23, 5, 3, NULL, '2026-07-31', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, '', ''),
-  (24, 9, 4, NULL, '2026-07-31', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, '', ''),
-  (25, 7, 5, NULL, '2026-07-31', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, '', ''),
-  (26, 1, 1, NULL, '2026-07-30', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, '', ''),
-  (27, 3, 2, NULL, '2026-07-30', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, '', ''),
-  (28, 5, 3, NULL, '2026-07-30', 'Late', 'Day', '10:15 AM', '06:00 PM', NULL, NULL, '', ''),
-  (29, 9, 4, NULL, '2026-07-30', 'Leave', 'Day', NULL, NULL, NULL, NULL, '', ''),
-  (30, 7, 5, NULL, '2026-07-30', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, '', ''),
-  (31, 1, 1, NULL, '2026-07-29', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, '', ''),
-  (32, 3, 2, NULL, '2026-07-29', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, '', ''),
-  (33, 5, 3, NULL, '2026-07-29', 'Late', 'Day', '10:15 AM', '06:00 PM', NULL, NULL, '', ''),
-  (34, 9, 4, NULL, '2026-07-29', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, '', ''),
-  (35, 7, 5, NULL, '2026-07-29', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, '', ''),
-  (36, 1, 1, NULL, '2026-07-28', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, '', ''),
-  (37, 3, 2, NULL, '2026-07-28', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, '', ''),
-  (38, 5, 3, NULL, '2026-07-28', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, '', ''),
-  (39, 9, 4, NULL, '2026-07-28', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, '', ''),
-  (40, 7, 5, NULL, '2026-07-28', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, '', ''),
-  (41, 1, 1, NULL, '2026-07-27', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, '', ''),
-  (42, 3, 2, NULL, '2026-07-27', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, '', ''),
-  (43, 5, 3, NULL, '2026-07-27', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, '', ''),
-  (44, 9, 4, NULL, '2026-07-27', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, '', ''),
-  (45, 7, 5, NULL, '2026-07-27', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, '', ''),
-  (46, 1, 1, NULL, '2026-07-24', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, '', ''),
-  (47, 3, 2, NULL, '2026-07-24', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, '', ''),
-  (48, 5, 3, NULL, '2026-07-24', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, '', ''),
-  (49, 9, 4, NULL, '2026-07-24', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, '', ''),
-  (50, 7, 5, NULL, '2026-07-24', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, '', '');
+  (1, 1, 1, NULL, '2026-08-06', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, NULL, ''),
+  (2, 3, 2, NULL, '2026-08-06', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, NULL, ''),
+  (3, 5, 3, NULL, '2026-08-06', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, NULL, ''),
+  (4, 9, 4, NULL, '2026-08-06', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, NULL, ''),
+  (5, 7, 5, NULL, '2026-08-06', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, NULL, ''),
+  (6, 1, 1, NULL, '2026-08-05', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, NULL, ''),
+  (7, 3, 2, NULL, '2026-08-05', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, NULL, ''),
+  (8, 5, 3, NULL, '2026-08-05', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, NULL, ''),
+  (9, 9, 4, NULL, '2026-08-05', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, NULL, ''),
+  (10, 7, 5, NULL, '2026-08-05', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, NULL, ''),
+  (11, 1, 1, NULL, '2026-08-04', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, NULL, ''),
+  (12, 3, 2, NULL, '2026-08-04', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, NULL, ''),
+  (13, 5, 3, NULL, '2026-08-04', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, NULL, ''),
+  (14, 9, 4, NULL, '2026-08-04', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, NULL, ''),
+  (15, 7, 5, NULL, '2026-08-04', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, NULL, ''),
+  (16, 1, 1, NULL, '2026-08-03', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, NULL, ''),
+  (17, 3, 2, NULL, '2026-08-03', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, NULL, ''),
+  (18, 5, 3, NULL, '2026-08-03', 'Leave', 'Day', NULL, NULL, NULL, NULL, NULL, ''),
+  (19, 9, 4, NULL, '2026-08-03', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, NULL, ''),
+  (20, 7, 5, NULL, '2026-08-03', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, NULL, ''),
+  (21, 1, 1, NULL, '2026-07-31', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, NULL, ''),
+  (22, 3, 2, NULL, '2026-07-31', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, NULL, ''),
+  (23, 5, 3, NULL, '2026-07-31', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, NULL, ''),
+  (24, 9, 4, NULL, '2026-07-31', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, NULL, ''),
+  (25, 7, 5, NULL, '2026-07-31', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, NULL, ''),
+  (26, 1, 1, NULL, '2026-07-30', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, NULL, ''),
+  (27, 3, 2, NULL, '2026-07-30', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, NULL, ''),
+  (28, 5, 3, NULL, '2026-07-30', 'Late', 'Day', '10:15 AM', '06:00 PM', NULL, NULL, NULL, ''),
+  (29, 9, 4, NULL, '2026-07-30', 'Leave', 'Day', NULL, NULL, NULL, NULL, NULL, ''),
+  (30, 7, 5, NULL, '2026-07-30', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, NULL, ''),
+  (31, 1, 1, NULL, '2026-07-29', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, NULL, ''),
+  (32, 3, 2, NULL, '2026-07-29', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, NULL, ''),
+  (33, 5, 3, NULL, '2026-07-29', 'Late', 'Day', '10:15 AM', '06:00 PM', NULL, NULL, NULL, ''),
+  (34, 9, 4, NULL, '2026-07-29', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, NULL, ''),
+  (35, 7, 5, NULL, '2026-07-29', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, NULL, ''),
+  (36, 1, 1, NULL, '2026-07-28', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, NULL, ''),
+  (37, 3, 2, NULL, '2026-07-28', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, NULL, ''),
+  (38, 5, 3, NULL, '2026-07-28', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, NULL, ''),
+  (39, 9, 4, NULL, '2026-07-28', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, NULL, ''),
+  (40, 7, 5, NULL, '2026-07-28', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, NULL, ''),
+  (41, 1, 1, NULL, '2026-07-27', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, NULL, ''),
+  (42, 3, 2, NULL, '2026-07-27', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, NULL, ''),
+  (43, 5, 3, NULL, '2026-07-27', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, NULL, ''),
+  (44, 9, 4, NULL, '2026-07-27', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, NULL, ''),
+  (45, 7, 5, NULL, '2026-07-27', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, NULL, ''),
+  (46, 1, 1, NULL, '2026-07-24', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, NULL, ''),
+  (47, 3, 2, NULL, '2026-07-24', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, NULL, ''),
+  (48, 5, 3, NULL, '2026-07-24', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, NULL, ''),
+  (49, 9, 4, NULL, '2026-07-24', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, NULL, ''),
+  (50, 7, 5, NULL, '2026-07-24', 'Present', 'Day', '09:00 AM', '06:00 PM', NULL, NULL, NULL, '');
 
 -- Table: AuditLog
 DROP TABLE IF EXISTS `AuditLog`;
@@ -125,7 +127,7 @@ CREATE TABLE `AuditLog` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `AuditLog` (`id`, `userId`, `userName`, `action`, `module`, `targetId`, `description`, `changes`, `ipAddress`, `createdAt`, `updatedAt`) VALUES
-  (1, 1, NULL, 'CREATE', 'System', 1, 'System initialized and seeded data.', NULL, '127.0.0.1', '', '');
+  (1, 1, NULL, 'CREATE', 'System', 1, 'System initialized and seeded data.', NULL, '127.0.0.1', NULL, '');
 
 -- Table: Backup
 DROP TABLE IF EXISTS `Backup`;
@@ -193,8 +195,8 @@ CREATE TABLE `CommunicationLog` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `CommunicationLog` (`id`, `customerId`, `type`, `subject`, `notes`, `contactDate`, `createdById`, `createdAt`, `updatedAt`) VALUES
-  (1, 1, 'Call', 'Requirement Gathering', 'Discussed monthly requirement of TMT bars.', '', NULL, '', ''),
-  (2, 2, 'Email', 'Invoice Followup', 'Sent invoice for the recent order.', '', NULL, '', '');
+  (1, 1, 'Call', 'Requirement Gathering', 'Discussed monthly requirement of TMT bars.', NULL, NULL, NULL, ''),
+  (2, 2, 'Email', 'Invoice Followup', 'Sent invoice for the recent order.', NULL, NULL, NULL, '');
 
 -- Table: Customer
 DROP TABLE IF EXISTS `Customer`;
@@ -219,14 +221,14 @@ CREATE TABLE `Customer` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `Customer` (`id`, `name`, `userId`, `email`, `phone`, `company`, `customerType`, `address`, `industry`, `website`, `notes`, `status`, `gstNumber`, `createdAt`, `updatedAt`, `createdByField`) VALUES
-  (1, 'Kovai Builders Pvt Ltd', NULL, 'info@kovaibuilders.in', '9843210001', 'Kovai Builders Pvt Ltd', 'Individual', 'Race Course Road, Coimbatore, Tamil Nadu 641018', 'Real Estate', 'kovaibuilders.in', NULL, 'Active', NULL, '', '', 7),
-  (2, 'Madurai Manufacturing Corp', NULL, 'orders@maduraimfg.co.in', '9843210002', 'Madurai Manufacturing Corp', 'Individual', '45, Industrial Area, Kappalur, Madurai, Tamil Nadu 625008', 'Manufacturing', 'maduraimfg.co.in', NULL, 'Active', NULL, '', '', 7),
-  (3, 'Trichy Engineering Works', NULL, 'contact@trichyengg.in', '9843210003', 'Trichy Engineering Works', 'Individual', '12, BHEL Township, Tiruchirappalli, Tamil Nadu 620014', 'Heavy Engineering', 'trichyengg.in', NULL, 'Active', NULL, '', '', 7),
-  (4, 'Salem Steel Fabricators', NULL, 'admin@salemsteel.in', '9843210004', 'Salem Steel Fabricators', 'Individual', '88, Five Roads, Salem, Tamil Nadu 636004', 'Steel Fabrication', 'salemsteel.in', NULL, 'Active', NULL, '', '', 8),
-  (5, 'Tirupur Textiles & Infra', NULL, 'info@tirupurtextiles.in', '9843210005', 'Tirupur Textiles & Infra', 'Individual', 'Kangeyam Road, Tirupur, Tamil Nadu 641604', 'Textile & Construction', 'tirupurtextiles.in', NULL, 'Active', NULL, '', '', 8),
-  (6, 'Nellai Construction Company', NULL, 'nellai@nellaicc.in', '9843210006', 'Nellai Construction Co', 'Individual', '34, South Bypass, Tirunelveli, Tamil Nadu 627001', 'Construction', 'nellaicc.in', NULL, 'Pending Review', NULL, '', '', 7),
-  (7, 'Thanjavur Heritage Builders', NULL, 'heritage@thanjavurbuild.in', '9843210007', 'Thanjavur Heritage Builders', 'Individual', '5, Temple Street, Thanjavur, Tamil Nadu 613001', 'Heritage Construction', 'thanjavurbuild.in', NULL, 'Active', NULL, '', '', 8),
-  (8, 'Vellore Tech Solutions', NULL, 'tech@velloretech.in', '9843210008', 'Vellore Tech Solutions', 'Individual', '22, Katpadi Road, Vellore, Tamil Nadu 632007', 'IT Infrastructure', 'velloretech.in', NULL, 'Active', NULL, '', '', 7);
+  (1, 'Kovai Builders Pvt Ltd', NULL, 'info@kovaibuilders.in', '9843210001', 'Kovai Builders Pvt Ltd', 'Individual', 'Race Course Road, Coimbatore, Tamil Nadu 641018', 'Real Estate', 'kovaibuilders.in', NULL, 'Active', NULL, NULL, '', 7),
+  (2, 'Madurai Manufacturing Corp', NULL, 'orders@maduraimfg.co.in', '9843210002', 'Madurai Manufacturing Corp', 'Individual', '45, Industrial Area, Kappalur, Madurai, Tamil Nadu 625008', 'Manufacturing', 'maduraimfg.co.in', NULL, 'Active', NULL, NULL, '', 7),
+  (3, 'Trichy Engineering Works', NULL, 'contact@trichyengg.in', '9843210003', 'Trichy Engineering Works', 'Individual', '12, BHEL Township, Tiruchirappalli, Tamil Nadu 620014', 'Heavy Engineering', 'trichyengg.in', NULL, 'Active', NULL, NULL, '', 7),
+  (4, 'Salem Steel Fabricators', NULL, 'admin@salemsteel.in', '9843210004', 'Salem Steel Fabricators', 'Individual', '88, Five Roads, Salem, Tamil Nadu 636004', 'Steel Fabrication', 'salemsteel.in', NULL, 'Active', NULL, NULL, '', 8),
+  (5, 'Tirupur Textiles & Infra', NULL, 'info@tirupurtextiles.in', '9843210005', 'Tirupur Textiles & Infra', 'Individual', 'Kangeyam Road, Tirupur, Tamil Nadu 641604', 'Textile & Construction', 'tirupurtextiles.in', NULL, 'Active', NULL, NULL, '', 8),
+  (6, 'Nellai Construction Company', NULL, 'nellai@nellaicc.in', '9843210006', 'Nellai Construction Co', 'Individual', '34, South Bypass, Tirunelveli, Tamil Nadu 627001', 'Construction', 'nellaicc.in', NULL, 'Pending Review', NULL, NULL, '', 7),
+  (7, 'Thanjavur Heritage Builders', NULL, 'heritage@thanjavurbuild.in', '9843210007', 'Thanjavur Heritage Builders', 'Individual', '5, Temple Street, Thanjavur, Tamil Nadu 613001', 'Heritage Construction', 'thanjavurbuild.in', NULL, 'Active', NULL, NULL, '', 8),
+  (8, 'Vellore Tech Solutions', NULL, 'tech@velloretech.in', '9843210008', 'Vellore Tech Solutions', 'Individual', '22, Katpadi Road, Vellore, Tamil Nadu 632007', 'IT Infrastructure', 'velloretech.in', NULL, 'Active', NULL, NULL, '', 7);
 
 -- Table: Employee
 DROP TABLE IF EXISTS `Employee`;
@@ -249,18 +251,18 @@ CREATE TABLE `Employee` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `Employee` (`id`, `employeeId`, `userIdField`, `firstName`, `lastName`, `department`, `designation`, `salary`, `joinDate`, `contact`, `phone`, `address`, `createdAt`, `updatedAt`) VALUES
-  (1, 'EMP001', 1, 'System', 'Admin', 'Admin', 'Administrator', 75000, '', '9876543200', NULL, '1, Admin Block, Coimbatore, Tamil Nadu 641001', '', ''),
-  (2, 'EMP002', 3, 'Priya', 'Devi', 'HR', 'HR Manager', 48000, '', '9876543214', NULL, '56, RS Puram, Coimbatore, Tamil Nadu 641002', '', ''),
-  (3, 'EMP003', 5, 'Murugan', 'Selvam', 'Manager', 'Operations Manager', 55000, '', '9876543210', NULL, '12, Anna Nagar, Coimbatore, Tamil Nadu 641001', '', ''),
-  (4, 'EMP004', 9, 'Rajesh', 'Kannan', 'Employee', 'Staff', 28000, '', '9876543216', NULL, '34, Singanallur, Coimbatore, Tamil Nadu 641005', '', ''),
-  (5, 'EMP005', 7, 'Senthil', 'Kumar', 'Sales', 'Senior Sales Executive', 42000, '', '9876543212', NULL, '78, T. Nagar, Chennai, Tamil Nadu 600017', '', ''),
-  (6, 'EMP006', 2, 'Meena', 'Sundar', 'Admin', 'Admin Staff', NULL, '', 'admin2@smtbms.com', '0000000000', 'Office HQ', '', ''),
-  (7, 'EMP007', 4, 'Lakshmi', 'Narayanan', 'HR', 'HR Staff', NULL, '', 'hr2@smtbms.com', '0000000000', 'Office HQ', '', ''),
-  (8, 'EMP008', 6, 'Anitha', 'Bala', 'Manager', 'Manager Staff', NULL, '', 'manager2@smtbms.com', '0000000000', 'Office HQ', '', ''),
-  (9, 'EMP009', 8, 'Kavitha', 'Ramesh', 'Sales', 'Sales Staff', NULL, '', 'sales2@smtbms.com', '0000000000', 'Office HQ', '', ''),
-  (10, 'EMP010', 10, 'Divya', 'Prakash', 'Employee', 'Employee Staff', NULL, '', 'employee2@smtbms.com', '0000000000', 'Office HQ', '', ''),
-  (11, 'EMP011', 11, 'Venkatesh', 'Iyer', 'Employee', 'Employee Staff', NULL, '', 'employee3@smtbms.com', '0000000000', 'Office HQ', '', ''),
-  (12, 'EMP012', 12, 'Saranya', 'Mohan', 'Employee', 'Employee Staff', NULL, '', 'employee4@smtbms.com', '0000000000', 'Office HQ', '', '');
+  (1, 'EMP001', 1, 'System', 'Admin', 'Admin', 'Administrator', 75000, NULL, '9876543200', NULL, '1, Admin Block, Coimbatore, Tamil Nadu 641001', NULL, ''),
+  (2, 'EMP002', 3, 'Priya', 'Devi', 'HR', 'HR Manager', 48000, NULL, '9876543214', NULL, '56, RS Puram, Coimbatore, Tamil Nadu 641002', NULL, ''),
+  (3, 'EMP003', 5, 'Murugan', 'Selvam', 'Manager', 'Operations Manager', 55000, NULL, '9876543210', NULL, '12, Anna Nagar, Coimbatore, Tamil Nadu 641001', NULL, ''),
+  (4, 'EMP004', 9, 'Rajesh', 'Kannan', 'Employee', 'Staff', 28000, NULL, '9876543216', NULL, '34, Singanallur, Coimbatore, Tamil Nadu 641005', NULL, ''),
+  (5, 'EMP005', 7, 'Senthil', 'Kumar', 'Sales', 'Senior Sales Executive', 42000, NULL, '9876543212', NULL, '78, T. Nagar, Chennai, Tamil Nadu 600017', NULL, ''),
+  (6, 'EMP006', 2, 'Meena', 'Sundar', 'Admin', 'Admin Staff', NULL, NULL, 'admin2@smtbms.com', '0000000000', 'Office HQ', NULL, ''),
+  (7, 'EMP007', 4, 'Lakshmi', 'Narayanan', 'HR', 'HR Staff', NULL, NULL, 'hr2@smtbms.com', '0000000000', 'Office HQ', NULL, ''),
+  (8, 'EMP008', 6, 'Anitha', 'Bala', 'Manager', 'Manager Staff', NULL, NULL, 'manager2@smtbms.com', '0000000000', 'Office HQ', NULL, ''),
+  (9, 'EMP009', 8, 'Kavitha', 'Ramesh', 'Sales', 'Sales Staff', NULL, NULL, 'sales2@smtbms.com', '0000000000', 'Office HQ', NULL, ''),
+  (10, 'EMP010', 10, 'Divya', 'Prakash', 'Employee', 'Employee Staff', NULL, NULL, 'employee2@smtbms.com', '0000000000', 'Office HQ', NULL, ''),
+  (11, 'EMP011', 11, 'Venkatesh', 'Iyer', 'Employee', 'Employee Staff', NULL, NULL, 'employee3@smtbms.com', '0000000000', 'Office HQ', NULL, ''),
+  (12, 'EMP012', 12, 'Saranya', 'Mohan', 'Employee', 'Employee Staff', NULL, NULL, 'employee4@smtbms.com', '0000000000', 'Office HQ', NULL, '');
 
 -- Table: Holiday
 DROP TABLE IF EXISTS `Holiday`;
@@ -337,12 +339,12 @@ CREATE TABLE `Leave` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `Leave` (`id`, `employeeId`, `type`, `startDate`, `endDate`, `reason`, `status`, `reviewedById`, `reviewNote`, `createdAt`, `updatedAt`) VALUES
-  (1, 1, 'Sick', '', '', 'Fever and body pain', 'Approved', 3, 'Approved. Medical certificate received.', '', ''),
-  (2, 2, 'Casual', '', '', 'Family function at Thanjavur', 'Approved', 3, 'Permitted.', '', ''),
-  (3, 3, 'Annual', '', '', 'Family vacation to Kerala', 'Pending', NULL, '', '', ''),
-  (4, 4, 'Sick', '', '', 'Dental appointment at KG Hospital, Coimbatore', 'Approved', 1, 'Half-day approved.', '', ''),
-  (5, 5, 'Casual', '', '', 'Personal work - vehicle registration at RTO', 'Pending', NULL, '', '', ''),
-  (6, 1, 'Unpaid', '', '', 'Village temple festival at Kumbakonam', 'Pending', NULL, '', '', '');
+  (1, 1, 'Sick', NULL, '', 'Fever and body pain', 'Approved', 3, 'Approved. Medical certificate received.', NULL, ''),
+  (2, 2, 'Casual', NULL, '', 'Family function at Thanjavur', 'Approved', 3, 'Permitted.', NULL, ''),
+  (3, 3, 'Annual', NULL, '', 'Family vacation to Kerala', 'Pending', NULL, NULL, '', NULL),
+  (4, 4, 'Sick', NULL, '', 'Dental appointment at KG Hospital, Coimbatore', 'Approved', 1, 'Half-day approved.', NULL, ''),
+  (5, 5, 'Casual', NULL, '', 'Personal work - vehicle registration at RTO', 'Pending', NULL, NULL, '', NULL),
+  (6, 1, 'Unpaid', NULL, '', 'Village temple festival at Kumbakonam', 'Pending', NULL, NULL, '', NULL);
 
 -- Table: Material
 DROP TABLE IF EXISTS `Material`;
@@ -383,18 +385,18 @@ CREATE TABLE `Material` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `Material` (`id`, `name`, `sku`, `category`, `quantity`, `reservedQuantity`, `lowStockThreshold`, `unit`, `price`, `status`, `vendorId`, `latitude`, `longitude`, `isActive`, `condition`, `source`, `certifications`, `used_in`, `specs`, `images`, `warehouse`, `rack`, `shelf`, `location`, `gpsStatus`, `locationUpdatedAt`, `deliveryDestination`, `deliveryEta`, `deliveryDispatchedAt`, `deliveryCompletedAt`, `createdAt`, `updatedAt`) VALUES
-  (1, 'TMT Steel Bars (12mm)', 'TMT-001', 'Construction Steel', 500, 0, 100, 'kg', 62, 'In Stock', NULL, NULL, NULL, 1, 'New', NULL, '[]', '[]', '{}', '[]', 'Warehouse A', NULL, 'Shelf 1', 'Warehouse A / Shelf 1', 'At Warehouse', NULL, NULL, NULL, NULL, NULL, '', ''),
-  (2, 'MS Angle (50x50x6)', 'MSA-002', 'Structural Steel', 12, 0, 20, 'pcs', 850, 'Low Stock', NULL, NULL, NULL, 1, 'New', NULL, '[]', '[]', '{}', '[]', 'Warehouse A', NULL, 'Shelf 2', 'Warehouse A / Shelf 2', 'At Warehouse', NULL, NULL, NULL, NULL, NULL, '', ''),
-  (3, 'Copper Wire (2.5 sqmm)', 'CW-003', 'Electrical', 2000, 0, 500, 'm', 18, 'In Stock', NULL, NULL, NULL, 1, 'New', NULL, '[]', '[]', '{}', '[]', 'Warehouse A', NULL, 'Shelf 3', 'Warehouse A / Shelf 3', 'At Warehouse', NULL, NULL, NULL, NULL, NULL, '', ''),
-  (4, 'GI Pipes (1 inch)', 'GIP-004', 'Plumbing', 150, 0, 30, 'pcs', 420, 'In Stock', NULL, NULL, NULL, 1, 'New', NULL, '[]', '[]', '{}', '[]', 'Warehouse A', NULL, 'Shelf 4', 'Warehouse A / Shelf 4', 'At Warehouse', NULL, NULL, NULL, NULL, NULL, '', ''),
-  (5, 'Aluminum Sheet (1mm)', 'ALS-005', 'Sheet Metal', 5, 0, 10, 'pcs', 1800, 'Low Stock', NULL, NULL, NULL, 1, 'New', NULL, '[]', '[]', '{}', '[]', 'Warehouse A', NULL, 'Shelf 5', 'Warehouse A / Shelf 5', 'At Warehouse', NULL, NULL, NULL, NULL, NULL, '', ''),
-  (6, 'PVC Conduit Pipe (25mm)', 'PVC-006', 'Electrical', 300, 0, 50, 'pcs', 45, 'In Stock', NULL, NULL, NULL, 1, 'New', NULL, '[]', '[]', '{}', '[]', 'Warehouse B', NULL, 'Shelf 1', 'Warehouse B / Shelf 1', 'At Warehouse', NULL, NULL, NULL, NULL, NULL, '', ''),
-  (7, 'Welding Rod (E6013)', 'WR-007', 'Consumables', 0, 0, 50, 'pcs', 5, 'Out of Stock', NULL, NULL, NULL, 1, 'New', NULL, '[]', '[]', '{}', '[]', 'Warehouse B', NULL, 'Shelf 2', 'Warehouse B / Shelf 2', 'At Warehouse', NULL, NULL, NULL, NULL, NULL, '', ''),
-  (8, 'Cement (OPC 53 Grade)', 'CEM-008', 'Construction', 200, 0, 50, 'bags', 380, 'In Stock', NULL, NULL, NULL, 1, 'New', NULL, '[]', '[]', '{}', '[]', 'Warehouse B', NULL, 'Shelf 3', 'Warehouse B / Shelf 3', 'At Warehouse', NULL, NULL, NULL, NULL, NULL, '', ''),
-  (9, 'Sand (River Sand)', 'SND-009', 'Construction', 40, 0, 20, 'cubic ft', 65, 'In Stock', NULL, NULL, NULL, 1, 'New', NULL, '[]', '[]', '{}', '[]', 'Warehouse B', NULL, 'Shelf 4', 'Warehouse B / Shelf 4', 'At Warehouse', NULL, NULL, NULL, NULL, NULL, '', ''),
-  (10, 'Brass Fittings (0.5 inch)', 'BRF-010', 'Plumbing', 7, 0, 15, 'pcs', 120, 'Low Stock', NULL, NULL, NULL, 1, 'New', NULL, '[]', '[]', '{}', '[]', 'Warehouse B', NULL, 'Shelf 5', 'Warehouse B / Shelf 5', 'At Warehouse', NULL, NULL, NULL, NULL, NULL, '', ''),
-  (11, 'SS Sheet (304 Grade)', 'SS-011', 'Sheet Metal', 25, 0, 5, 'pcs', 3500, 'In Stock', NULL, NULL, NULL, 1, 'New', NULL, '[]', '[]', '{}', '[]', 'Warehouse A', NULL, 'Shelf 1', 'Warehouse A / Shelf 1', 'At Warehouse', NULL, NULL, NULL, NULL, NULL, '', ''),
-  (12, 'MCB Switch (32A)', 'MCB-012', 'Electrical', 80, 0, 20, 'pcs', 250, 'In Stock', NULL, NULL, NULL, 1, 'New', NULL, '[]', '[]', '{}', '[]', 'Warehouse A', NULL, 'Shelf 2', 'Warehouse A / Shelf 2', 'At Warehouse', NULL, NULL, NULL, NULL, NULL, '', '');
+  (1, 'TMT Steel Bars (12mm)', 'TMT-001', 'Construction Steel', 500, 0, 100, 'kg', 62, 'In Stock', NULL, NULL, NULL, 1, 'New', NULL, '[]', '[]', '{}', '[]', 'Warehouse A', NULL, 'Shelf 1', 'Warehouse A / Shelf 1', 'At Warehouse', NULL, NULL, NULL, NULL, NULL, NULL, ''),
+  (2, 'MS Angle (50x50x6)', 'MSA-002', 'Structural Steel', 12, 0, 20, 'pcs', 850, 'Low Stock', NULL, NULL, NULL, 1, 'New', NULL, '[]', '[]', '{}', '[]', 'Warehouse A', NULL, 'Shelf 2', 'Warehouse A / Shelf 2', 'At Warehouse', NULL, NULL, NULL, NULL, NULL, NULL, ''),
+  (3, 'Copper Wire (2.5 sqmm)', 'CW-003', 'Electrical', 2000, 0, 500, 'm', 18, 'In Stock', NULL, NULL, NULL, 1, 'New', NULL, '[]', '[]', '{}', '[]', 'Warehouse A', NULL, 'Shelf 3', 'Warehouse A / Shelf 3', 'At Warehouse', NULL, NULL, NULL, NULL, NULL, NULL, ''),
+  (4, 'GI Pipes (1 inch)', 'GIP-004', 'Plumbing', 150, 0, 30, 'pcs', 420, 'In Stock', NULL, NULL, NULL, 1, 'New', NULL, '[]', '[]', '{}', '[]', 'Warehouse A', NULL, 'Shelf 4', 'Warehouse A / Shelf 4', 'At Warehouse', NULL, NULL, NULL, NULL, NULL, NULL, ''),
+  (5, 'Aluminum Sheet (1mm)', 'ALS-005', 'Sheet Metal', 5, 0, 10, 'pcs', 1800, 'Low Stock', NULL, NULL, NULL, 1, 'New', NULL, '[]', '[]', '{}', '[]', 'Warehouse A', NULL, 'Shelf 5', 'Warehouse A / Shelf 5', 'At Warehouse', NULL, NULL, NULL, NULL, NULL, NULL, ''),
+  (6, 'PVC Conduit Pipe (25mm)', 'PVC-006', 'Electrical', 300, 0, 50, 'pcs', 45, 'In Stock', NULL, NULL, NULL, 1, 'New', NULL, '[]', '[]', '{}', '[]', 'Warehouse B', NULL, 'Shelf 1', 'Warehouse B / Shelf 1', 'At Warehouse', NULL, NULL, NULL, NULL, NULL, NULL, ''),
+  (7, 'Welding Rod (E6013)', 'WR-007', 'Consumables', 0, 0, 50, 'pcs', 5, 'Out of Stock', NULL, NULL, NULL, 1, 'New', NULL, '[]', '[]', '{}', '[]', 'Warehouse B', NULL, 'Shelf 2', 'Warehouse B / Shelf 2', 'At Warehouse', NULL, NULL, NULL, NULL, NULL, NULL, ''),
+  (8, 'Cement (OPC 53 Grade)', 'CEM-008', 'Construction', 200, 0, 50, 'bags', 380, 'In Stock', NULL, NULL, NULL, 1, 'New', NULL, '[]', '[]', '{}', '[]', 'Warehouse B', NULL, 'Shelf 3', 'Warehouse B / Shelf 3', 'At Warehouse', NULL, NULL, NULL, NULL, NULL, NULL, ''),
+  (9, 'Sand (River Sand)', 'SND-009', 'Construction', 40, 0, 20, 'cubic ft', 65, 'In Stock', NULL, NULL, NULL, 1, 'New', NULL, '[]', '[]', '{}', '[]', 'Warehouse B', NULL, 'Shelf 4', 'Warehouse B / Shelf 4', 'At Warehouse', NULL, NULL, NULL, NULL, NULL, NULL, ''),
+  (10, 'Brass Fittings (0.5 inch)', 'BRF-010', 'Plumbing', 7, 0, 15, 'pcs', 120, 'Low Stock', NULL, NULL, NULL, 1, 'New', NULL, '[]', '[]', '{}', '[]', 'Warehouse B', NULL, 'Shelf 5', 'Warehouse B / Shelf 5', 'At Warehouse', NULL, NULL, NULL, NULL, NULL, NULL, ''),
+  (11, 'SS Sheet (304 Grade)', 'SS-011', 'Sheet Metal', 25, 0, 5, 'pcs', 3500, 'In Stock', NULL, NULL, NULL, 1, 'New', NULL, '[]', '[]', '{}', '[]', 'Warehouse A', NULL, 'Shelf 1', 'Warehouse A / Shelf 1', 'At Warehouse', NULL, NULL, NULL, NULL, NULL, NULL, ''),
+  (12, 'MCB Switch (32A)', 'MCB-012', 'Electrical', 80, 0, 20, 'pcs', 250, 'In Stock', NULL, NULL, NULL, 1, 'New', NULL, '[]', '[]', '{}', '[]', 'Warehouse A', NULL, 'Shelf 2', 'Warehouse A / Shelf 2', 'At Warehouse', NULL, NULL, NULL, NULL, NULL, NULL, '');
 
 -- Table: MaterialMovement
 DROP TABLE IF EXISTS `MaterialMovement`;
@@ -414,8 +416,8 @@ CREATE TABLE `MaterialMovement` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `MaterialMovement` (`id`, `materialId`, `type`, `quantity`, `previousQuantity`, `newQuantity`, `reason`, `referenceOrderId`, `performedById`, `createdAt`, `updatedAt`) VALUES
-  (1, 1, 'In', 50, 200, 250, 'Initial Stock Audit', NULL, 1, '', ''),
-  (2, 2, 'Out', 10, 100, 90, 'Sales Order SO-2026-001', NULL, 7, '', '');
+  (1, 1, 'In', 50, 200, 250, 'Initial Stock Audit', NULL, 1, NULL, ''),
+  (2, 2, 'Out', 10, 100, 90, 'Sales Order SO-2026-001', NULL, 7, NULL, '');
 
 -- Table: Notification
 DROP TABLE IF EXISTS `Notification`;
@@ -435,14 +437,14 @@ CREATE TABLE `Notification` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `Notification` (`id`, `module`, `referenceId`, `userId`, `role`, `title`, `message`, `type`, `status`, `createdAt`, `updatedAt`) VALUES
-  (1, 'stock', NULL, NULL, NULL, 'Low Stock Alert - MS Angle', 'MS Angle (50x50x6) stock is at 12 pcs, below the threshold of 20. Place a purchase order immediately.', 'warning', 'unread', '', ''),
-  (2, 'stock', NULL, NULL, NULL, 'Out of Stock - Welding Rod', 'Welding Rod (E6013) is completely out of stock. Production line may be affected.', 'error', 'unread', '', ''),
-  (3, 'stock', NULL, NULL, NULL, 'Low Stock Alert - Aluminum Sheet', 'Aluminum Sheet (1mm) stock is at 5 pcs, below the threshold of 10.', 'warning', 'unread', '', ''),
-  (4, 'hr', NULL, 1, NULL, 'Leave Request Pending', 'Divya Prakash has requested 7 days of annual leave starting next week. Review required.', 'info', 'unread', '', ''),
-  (5, 'hr', NULL, 1, NULL, 'Aug 2026 Payroll Ready for Approval', '10 salary slips for Aug 2026 have been generated and are pending admin approval.', 'info', 'unread', '', ''),
-  (6, 'order', NULL, 5, NULL, 'Purchase Order Delivered', 'PO-2026-001 from Sri Lakshmi Steel Traders has been delivered and verified. 500 kg TMT Steel added to inventory.', 'success', 'unread', '', ''),
-  (7, 'general', NULL, 7, NULL, 'New Lead Assigned', 'New lead "Ramanathapuram Fisheries" has been assigned to you. Estimated deal value: Rs.4,10,000.', 'info', 'unread', '', ''),
-  (8, 'system', NULL, NULL, NULL, 'System Maintenance Notice', 'SMTBMS will undergo scheduled maintenance on Sunday 12:00 AM - 4:00 AM IST. Plan your work accordingly.', 'info', 'unread', '', '');
+  (1, 'stock', NULL, NULL, NULL, 'Low Stock Alert - MS Angle', 'MS Angle (50x50x6) stock is at 12 pcs, below the threshold of 20. Place a purchase order immediately.', 'warning', 'unread', NULL, ''),
+  (2, 'stock', NULL, NULL, NULL, 'Out of Stock - Welding Rod', 'Welding Rod (E6013) is completely out of stock. Production line may be affected.', 'error', 'unread', NULL, ''),
+  (3, 'stock', NULL, NULL, NULL, 'Low Stock Alert - Aluminum Sheet', 'Aluminum Sheet (1mm) stock is at 5 pcs, below the threshold of 10.', 'warning', 'unread', NULL, ''),
+  (4, 'hr', NULL, 1, NULL, 'Leave Request Pending', 'Divya Prakash has requested 7 days of annual leave starting next week. Review required.', 'info', 'unread', NULL, ''),
+  (5, 'hr', NULL, 1, NULL, 'Aug 2026 Payroll Ready for Approval', '10 salary slips for Aug 2026 have been generated and are pending admin approval.', 'info', 'unread', NULL, ''),
+  (6, 'order', NULL, 5, NULL, 'Purchase Order Delivered', 'PO-2026-001 from Sri Lakshmi Steel Traders has been delivered and verified. 500 kg TMT Steel added to inventory.', 'success', 'unread', NULL, ''),
+  (7, 'general', NULL, 7, NULL, 'New Lead Assigned', 'New lead "Ramanathapuram Fisheries" has been assigned to you. Estimated deal value: Rs.4,10,000.', 'info', 'unread', NULL, ''),
+  (8, 'system', NULL, NULL, NULL, 'System Maintenance Notice', 'SMTBMS will undergo scheduled maintenance on Sunday 12:00 AM - 4:00 AM IST. Plan your work accordingly.', 'info', 'unread', NULL, '');
 
 -- Table: Order
 DROP TABLE IF EXISTS `Order`;
@@ -493,15 +495,15 @@ CREATE TABLE `Order` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `Order` (`id`, `orderNumber`, `customerId`, `leadId`, `customerModel`, `vendorId`, `items`, `totalAmount`, `status`, `approvalStatus`, `managerApproval`, `employeeApproval`, `deliveryStatus`, `employeeId`, `liveLocation`, `routePath`, `deliveryETA`, `distanceRemaining`, `trackingStatus`, `sourcedLocation`, `deliveryNotes`, `holdReason`, `approvedById`, `approvedDate`, `deliveryDate`, `deliveredAt`, `orderDate`, `expectedDeliveryDate`, `invoiceNumber`, `invoiceDate`, `invoiceDueDate`, `paymentStatus`, `invoiceGenerated`, `orderType`, `createdById`, `updatedById`, `notes`, `grandTotal`, `trackingTimeline`, `workflow`, `createdAt`, `updatedAt`) VALUES
-  (1, 'SO-2026-001', 1, NULL, 'Customer', NULL, '[{"material":1,"quantity":200,"price":62},{"material":8,"quantity":100,"price":380}]', 50400, 'Confirmed', 'Pending', 'Pending', 'Not Started', 'Pending', NULL, NULL, NULL, NULL, NULL, 'Not Started', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Pending', 0, 'sales', 7, NULL, NULL, 0, NULL, NULL, '', ''),
-  (2, 'SO-2026-002', 2, NULL, 'Customer', NULL, '[{"material":11,"quantity":10,"price":3500},{"material":3,"quantity":500,"price":18}]', 44000, 'Shipped', 'Pending', 'Pending', 'Not Started', 'Pending', NULL, NULL, NULL, NULL, NULL, 'Not Started', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Pending', 0, 'sales', 7, NULL, NULL, 0, NULL, NULL, '', ''),
-  (3, 'SO-2026-003', 3, NULL, 'Customer', NULL, '[{"material":2,"quantity":30,"price":850}]', 25500, 'Pending', 'Pending', 'Pending', 'Not Started', 'Pending', NULL, NULL, NULL, NULL, NULL, 'Not Started', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Pending', 0, 'sales', 8, NULL, NULL, 0, NULL, NULL, '', ''),
-  (4, 'SO-2026-004', 4, NULL, 'Customer', NULL, '[{"material":1,"quantity":100,"price":62},{"material":7,"quantity":200,"price":5}]', 7200, 'Confirmed', 'Pending', 'Pending', 'Not Started', 'Pending', NULL, NULL, NULL, NULL, NULL, 'Not Started', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Pending', 0, 'sales', 8, NULL, NULL, 0, NULL, NULL, '', ''),
-  (5, 'SO-2026-005', 5, NULL, 'Customer', NULL, '[{"material":4,"quantity":50,"price":420},{"material":6,"quantity":100,"price":45}]', 25500, 'Delivered', 'Pending', 'Pending', 'Not Started', 'Pending', NULL, NULL, NULL, NULL, NULL, 'Not Started', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Pending', 0, 'sales', 7, NULL, NULL, 0, NULL, NULL, '', ''),
-  (6, 'PO-2026-001', NULL, NULL, 'Customer', 1, '[{"material":1,"quantity":500,"price":55},{"material":2,"quantity":50,"price":720}]', 63500, 'Delivered', 'Pending', 'Pending', 'Not Started', 'Pending', NULL, NULL, NULL, NULL, NULL, 'Not Started', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Pending', 0, 'purchase', 5, NULL, NULL, 0, NULL, NULL, '', ''),
-  (7, 'PO-2026-002', NULL, NULL, 'Customer', 2, '[{"material":3,"quantity":1000,"price":15},{"material":12,"quantity":50,"price":200}]', 25000, 'Confirmed', 'Pending', 'Pending', 'Not Started', 'Pending', NULL, NULL, NULL, NULL, NULL, 'Not Started', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Pending', 0, 'purchase', 5, NULL, NULL, 0, NULL, NULL, '', ''),
-  (8, 'PO-2026-003', NULL, NULL, 'Customer', 4, '[{"material":8,"quantity":200,"price":340}]', 68000, 'Awaiting Approval', 'Pending', 'Pending', 'Not Started', 'Pending', NULL, NULL, NULL, NULL, NULL, 'Not Started', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Pending', 0, 'purchase', 6, NULL, NULL, 0, NULL, NULL, '', ''),
-  (9, 'PO-2026-004', NULL, NULL, 'Customer', 6, '[{"material":7,"quantity":500,"price":3.5}]', 1750, 'Approved', 'Pending', 'Pending', 'Not Started', 'Pending', NULL, NULL, NULL, NULL, NULL, 'Not Started', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Pending', 0, 'purchase', 5, NULL, NULL, 0, NULL, NULL, '', '');
+  (1, 'SO-2026-001', 1, NULL, 'Customer', NULL, '[{"material":1,"quantity":200,"price":62},{"material":8,"quantity":100,"price":380}]', 50400, 'Confirmed', 'Pending', 'Pending', 'Not Started', 'Pending', NULL, NULL, NULL, NULL, NULL, 'Not Started', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Pending', 0, 'sales', 7, NULL, NULL, 0, NULL, NULL, NULL, ''),
+  (2, 'SO-2026-002', 2, NULL, 'Customer', NULL, '[{"material":11,"quantity":10,"price":3500},{"material":3,"quantity":500,"price":18}]', 44000, 'Shipped', 'Pending', 'Pending', 'Not Started', 'Pending', NULL, NULL, NULL, NULL, NULL, 'Not Started', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Pending', 0, 'sales', 7, NULL, NULL, 0, NULL, NULL, NULL, ''),
+  (3, 'SO-2026-003', 3, NULL, 'Customer', NULL, '[{"material":2,"quantity":30,"price":850}]', 25500, 'Pending', 'Pending', 'Pending', 'Not Started', 'Pending', NULL, NULL, NULL, NULL, NULL, 'Not Started', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Pending', 0, 'sales', 8, NULL, NULL, 0, NULL, NULL, NULL, ''),
+  (4, 'SO-2026-004', 4, NULL, 'Customer', NULL, '[{"material":1,"quantity":100,"price":62},{"material":7,"quantity":200,"price":5}]', 7200, 'Confirmed', 'Pending', 'Pending', 'Not Started', 'Pending', NULL, NULL, NULL, NULL, NULL, 'Not Started', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Pending', 0, 'sales', 8, NULL, NULL, 0, NULL, NULL, NULL, ''),
+  (5, 'SO-2026-005', 5, NULL, 'Customer', NULL, '[{"material":4,"quantity":50,"price":420},{"material":6,"quantity":100,"price":45}]', 25500, 'Delivered', 'Pending', 'Pending', 'Not Started', 'Pending', NULL, NULL, NULL, NULL, NULL, 'Not Started', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Pending', 0, 'sales', 7, NULL, NULL, 0, NULL, NULL, NULL, ''),
+  (6, 'PO-2026-001', NULL, NULL, 'Customer', 1, '[{"material":1,"quantity":500,"price":55},{"material":2,"quantity":50,"price":720}]', 63500, 'Delivered', 'Pending', 'Pending', 'Not Started', 'Pending', NULL, NULL, NULL, NULL, NULL, 'Not Started', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Pending', 0, 'purchase', 5, NULL, NULL, 0, NULL, NULL, NULL, ''),
+  (7, 'PO-2026-002', NULL, NULL, 'Customer', 2, '[{"material":3,"quantity":1000,"price":15},{"material":12,"quantity":50,"price":200}]', 25000, 'Confirmed', 'Pending', 'Pending', 'Not Started', 'Pending', NULL, NULL, NULL, NULL, NULL, 'Not Started', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Pending', 0, 'purchase', 5, NULL, NULL, 0, NULL, NULL, NULL, ''),
+  (8, 'PO-2026-003', NULL, NULL, 'Customer', 4, '[{"material":8,"quantity":200,"price":340}]', 68000, 'Awaiting Approval', 'Pending', 'Pending', 'Not Started', 'Pending', NULL, NULL, NULL, NULL, NULL, 'Not Started', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Pending', 0, 'purchase', 6, NULL, NULL, 0, NULL, NULL, NULL, ''),
+  (9, 'PO-2026-004', NULL, NULL, 'Customer', 6, '[{"material":7,"quantity":500,"price":3.5}]', 1750, 'Approved', 'Pending', 'Pending', 'Not Started', 'Pending', NULL, NULL, NULL, NULL, NULL, 'Not Started', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Pending', 0, 'purchase', 5, NULL, NULL, 0, NULL, NULL, NULL, '');
 
 -- Table: PurchaseRequest
 DROP TABLE IF EXISTS `PurchaseRequest`;
@@ -595,16 +597,16 @@ CREATE TABLE `Salary` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `Salary` (`id`, `employeeId`, `month`, `basicSalary`, `allowances`, `deductions`, `netSalary`, `status`, `paymentDate`, `transactionId`, `paidBy`, `paymentMethod`, `paymentDetails`, `createdAt`, `updatedAt`) VALUES
-  (1, 1, 'Jul 2026', 75000, 11250, 3750, 82500, 'Paid', '', 'TXN-JUL-EMP001', NULL, NULL, NULL, '', ''),
-  (2, 2, 'Jul 2026', 48000, 7200, 2400, 52800, 'Paid', '', 'TXN-JUL-EMP002', NULL, NULL, NULL, '', ''),
-  (3, 3, 'Jul 2026', 55000, 8250, 2750, 60500, 'Paid', '', 'TXN-JUL-EMP003', NULL, NULL, NULL, '', ''),
-  (4, 4, 'Jul 2026', 28000, 4200, 1400, 30800, 'Paid', '', 'TXN-JUL-EMP004', NULL, NULL, NULL, '', ''),
-  (5, 5, 'Jul 2026', 42000, 6300, 2100, 46200, 'Paid', '', 'TXN-JUL-EMP005', NULL, NULL, NULL, '', ''),
-  (6, 1, 'Aug 2026', 75000, 11250, 3000, 83250, 'Awaiting Approval', NULL, NULL, NULL, NULL, NULL, '', ''),
-  (7, 2, 'Aug 2026', 48000, 7200, 1920, 53280, 'Awaiting Approval', NULL, NULL, NULL, NULL, NULL, '', ''),
-  (8, 3, 'Aug 2026', 55000, 8250, 2200, 61050, 'Awaiting Approval', NULL, NULL, NULL, NULL, NULL, '', ''),
-  (9, 4, 'Aug 2026', 28000, 4200, 1120, 31080, 'Awaiting Approval', NULL, NULL, NULL, NULL, NULL, '', ''),
-  (10, 5, 'Aug 2026', 42000, 6300, 1680, 46620, 'Awaiting Approval', NULL, NULL, NULL, NULL, NULL, '', '');
+  (1, 1, 'Jul 2026', 75000, 11250, 3750, 82500, 'Paid', NULL, 'TXN-JUL-EMP001', NULL, NULL, NULL, NULL, ''),
+  (2, 2, 'Jul 2026', 48000, 7200, 2400, 52800, 'Paid', NULL, 'TXN-JUL-EMP002', NULL, NULL, NULL, NULL, ''),
+  (3, 3, 'Jul 2026', 55000, 8250, 2750, 60500, 'Paid', NULL, 'TXN-JUL-EMP003', NULL, NULL, NULL, NULL, ''),
+  (4, 4, 'Jul 2026', 28000, 4200, 1400, 30800, 'Paid', NULL, 'TXN-JUL-EMP004', NULL, NULL, NULL, NULL, ''),
+  (5, 5, 'Jul 2026', 42000, 6300, 2100, 46200, 'Paid', NULL, 'TXN-JUL-EMP005', NULL, NULL, NULL, NULL, ''),
+  (6, 1, 'Aug 2026', 75000, 11250, 3000, 83250, 'Awaiting Approval', NULL, NULL, NULL, NULL, NULL, NULL, ''),
+  (7, 2, 'Aug 2026', 48000, 7200, 1920, 53280, 'Awaiting Approval', NULL, NULL, NULL, NULL, NULL, NULL, ''),
+  (8, 3, 'Aug 2026', 55000, 8250, 2200, 61050, 'Awaiting Approval', NULL, NULL, NULL, NULL, NULL, NULL, ''),
+  (9, 4, 'Aug 2026', 28000, 4200, 1120, 31080, 'Awaiting Approval', NULL, NULL, NULL, NULL, NULL, NULL, ''),
+  (10, 5, 'Aug 2026', 42000, 6300, 1680, 46620, 'Awaiting Approval', NULL, NULL, NULL, NULL, NULL, NULL, '');
 
 -- Table: SalesGoal
 DROP TABLE IF EXISTS `SalesGoal`;
@@ -661,14 +663,14 @@ CREATE TABLE `Task` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `Task` (`id`, `title`, `description`, `assignedTo`, `assignedById`, `completions`, `priority`, `dueDate`, `isBroadcast`, `createdAt`, `updatedAt`) VALUES
-  (1, 'Organize Warehouse for TMT Steel Delivery', 'Clear section B in the Singanallur warehouse to accommodate 500 kg TMT steel rods arriving from Sri Lakshmi Steel Traders.', '[9]', 5, '[{"user":9,"status":"In Progress"}]', 'High', '', 0, '', ''),
-  (2, 'Follow up with Hosur Auto Components', 'Hosur Auto requested revised quotation for SS Sheets and Copper Wires. Prepare and send updated pricing.', '[7]', 5, '[{"user":7,"status":"Pending"}]', 'High', '', 0, '', ''),
-  (3, 'Conduct Monthly Safety Drill - Coimbatore Factory', 'All factory employees must participate in the fire safety drill at 10:00 AM on Monday at the Singanallur factory premises.', '[5,6,9,10,11,12]', 1, '[{"user":5,"status":"Completed"},{"user":6,"status":"Completed"},{"user":9,"status":"Completed"},{"user":10,"status":"Completed"},{"user":11,"status":"Completed"},{"user":12,"status":"Completed"}]', 'Medium', '', 1, '', ''),
-  (4, 'Physical Stock Audit - Low Stock Items', 'Conduct physical count verification for MS Angle, Aluminum Sheet, and Brass Fittings which are below threshold.', '[9,10]', 5, '[{"user":9,"status":"Completed"},{"user":10,"status":"In Progress"}]', 'High', '', 0, '', ''),
-  (5, 'Submit Aug 2026 Departmental Reports', 'All department heads must submit monthly performance summaries to the admin office by end of this week.', '[5,6,3,7]', 1, '[{"user":5,"status":"Pending"},{"user":6,"status":"In Progress"},{"user":3,"status":"Completed"},{"user":7,"status":"Pending"}]', 'Medium', '', 0, '', ''),
-  (6, 'Prepare Quotation for Nellai Construction', 'Nellai Construction Company has requested bulk quotation for TMT bars, cement, and sand. Prepare and send within 2 days.', '[8]', 5, '[{"user":8,"status":"Pending"}]', 'Medium', '', 0, '', ''),
-  (7, 'Update Employee Contact Records', 'Verify and update all employee phone numbers and emergency contacts in the HRMS system.', '[3,4]', 1, '[{"user":3,"status":"In Progress"},{"user":4,"status":"Pending"}]', 'Low', '', 0, '', ''),
-  (8, 'Dispatch Coordination - Salem Steel Order', 'Coordinate with logistics partner for SO-2026-004 delivery to Salem Steel Fabricators. Confirm dispatch date and tracking.', '[11]', 6, '[{"user":11,"status":"In Progress"}]', 'High', '', 0, '', '');
+  (1, 'Organize Warehouse for TMT Steel Delivery', 'Clear section B in the Singanallur warehouse to accommodate 500 kg TMT steel rods arriving from Sri Lakshmi Steel Traders.', '[9]', 5, '[{"user":9,"status":"In Progress"}]', 'High', NULL, 0, NULL, ''),
+  (2, 'Follow up with Hosur Auto Components', 'Hosur Auto requested revised quotation for SS Sheets and Copper Wires. Prepare and send updated pricing.', '[7]', 5, '[{"user":7,"status":"Pending"}]', 'High', NULL, 0, NULL, ''),
+  (3, 'Conduct Monthly Safety Drill - Coimbatore Factory', 'All factory employees must participate in the fire safety drill at 10:00 AM on Monday at the Singanallur factory premises.', '[5,6,9,10,11,12]', 1, '[{"user":5,"status":"Completed"},{"user":6,"status":"Completed"},{"user":9,"status":"Completed"},{"user":10,"status":"Completed"},{"user":11,"status":"Completed"},{"user":12,"status":"Completed"}]', 'Medium', NULL, 1, NULL, ''),
+  (4, 'Physical Stock Audit - Low Stock Items', 'Conduct physical count verification for MS Angle, Aluminum Sheet, and Brass Fittings which are below threshold.', '[9,10]', 5, '[{"user":9,"status":"Completed"},{"user":10,"status":"In Progress"}]', 'High', NULL, 0, NULL, ''),
+  (5, 'Submit Aug 2026 Departmental Reports', 'All department heads must submit monthly performance summaries to the admin office by end of this week.', '[5,6,3,7]', 1, '[{"user":5,"status":"Pending"},{"user":6,"status":"In Progress"},{"user":3,"status":"Completed"},{"user":7,"status":"Pending"}]', 'Medium', NULL, 0, NULL, ''),
+  (6, 'Prepare Quotation for Nellai Construction', 'Nellai Construction Company has requested bulk quotation for TMT bars, cement, and sand. Prepare and send within 2 days.', '[8]', 5, '[{"user":8,"status":"Pending"}]', 'Medium', NULL, 0, NULL, ''),
+  (7, 'Update Employee Contact Records', 'Verify and update all employee phone numbers and emergency contacts in the HRMS system.', '[3,4]', 1, '[{"user":3,"status":"In Progress"},{"user":4,"status":"Pending"}]', 'Low', NULL, 0, NULL, ''),
+  (8, 'Dispatch Coordination - Salem Steel Order', 'Coordinate with logistics partner for SO-2026-004 delivery to Salem Steel Fabricators. Confirm dispatch date and tracking.', '[11]', 6, '[{"user":11,"status":"In Progress"}]', 'High', NULL, 0, NULL, '');
 
 -- Table: Test
 DROP TABLE IF EXISTS `Test`;
@@ -681,7 +683,7 @@ CREATE TABLE `Test` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `Test` (`id`, `name`, `createdAt`, `updatedAt`) VALUES
-  (1, 'Hello', '', '');
+  (1, 'Hello', NULL, '');
 
 -- Table: Ticket
 DROP TABLE IF EXISTS `Ticket`;
@@ -703,9 +705,9 @@ CREATE TABLE `Ticket` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `Ticket` (`id`, `ticketNumber`, `customerId`, `leadId`, `customerModel`, `subject`, `description`, `priority`, `status`, `category`, `assignedToId`, `createdAt`, `updatedAt`) VALUES
-  (1, 'TIC-203512', 1, NULL, 'Customer', 'Delayed cement delivery', 'Order SO-2026-001 has cement bags which have not arrived at Coimbatore warehouse yet.', 'High', 'Open', 'General', 1, '', ''),
-  (2, 'TIC-948123', 2, NULL, 'Customer', 'Wrong SKU invoice quantity', 'Invoice total counts 12 SS Sheets, but only 10 were delivered. Adjust credit ledger.', 'Medium', 'In Progress', 'General', 5, '', ''),
-  (3, 'TIC-731054', 3, NULL, 'Customer', 'Assistance with vendor details', 'Require complete contact person portfolio for Sri Lakshmi Steel Traders.', 'Low', 'Resolved', 'General', 3, '', '');
+  (1, 'TIC-203512', 1, NULL, 'Customer', 'Delayed cement delivery', 'Order SO-2026-001 has cement bags which have not arrived at Coimbatore warehouse yet.', 'High', 'Open', 'General', 1, NULL, ''),
+  (2, 'TIC-948123', 2, NULL, 'Customer', 'Wrong SKU invoice quantity', 'Invoice total counts 12 SS Sheets, but only 10 were delivered. Adjust credit ledger.', 'Medium', 'In Progress', 'General', 5, NULL, ''),
+  (3, 'TIC-731054', 3, NULL, 'Customer', 'Assistance with vendor details', 'Require complete contact person portfolio for Sri Lakshmi Steel Traders.', 'Low', 'Resolved', 'General', 3, NULL, '');
 
 -- Table: TrainingCourse
 DROP TABLE IF EXISTS `TrainingCourse`;
@@ -764,18 +766,18 @@ CREATE TABLE `User` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `User` (`id`, `name`, `email`, `password`, `phone`, `googleId`, `picture`, `role`, `active`, `isProfileComplete`, `provider`, `createdAt`, `updatedAt`) VALUES
-  (1, 'Karthikeyan Rajan', 'admin@smtbms.com', '$2b$10$z/RRsNAyBEx3mfMzkAlq/uVSUWJC3.wDIEbqSr/zYfM6waDtCwLv.', NULL, NULL, NULL, 'Admin', 1, 0, 'local', '', ''),
-  (2, 'Meena Sundar', 'admin2@smtbms.com', '$2b$10$ifB8TpVBfRte9ZV9Uw/kOeS.gRQYGVTD/XqjiuFHbR98vk0cOU46m', NULL, NULL, NULL, 'Admin', 1, 0, 'local', '', ''),
-  (3, 'Priya Devi', 'hr@smtbms.com', '$2b$10$6lTipiL7jMtCDBLd4geBDOGV32PyltTR43TbM1GFVD8PQIAaEJdJG', NULL, NULL, NULL, 'HR', 1, 0, 'local', '', ''),
-  (4, 'Lakshmi Narayanan', 'hr2@smtbms.com', '$2b$10$aQzWkhgHaP8eWzwHiBLP0ueG4ofS5YPQKVKFLkM71yLT/cGKC1mNO', NULL, NULL, NULL, 'HR', 1, 0, 'local', '', ''),
-  (5, 'Murugan Selvam', 'manager@smtbms.com', '$2b$10$58LLPETI5CNEJ.IzAutJkOZVFyAgknpE6hpu5sK9D7ZynIpPZ19Uu', NULL, NULL, NULL, 'Manager', 1, 0, 'local', '', ''),
-  (6, 'Anitha Bala', 'manager2@smtbms.com', '$2b$10$kclOrzjrok8bmfjqOvVpsudYlATZ5buW4kpRpmcNVq2uvN37rxs2S', NULL, NULL, NULL, 'Manager', 1, 0, 'local', '', ''),
-  (7, 'Senthil Kumar', 'sales@smtbms.com', '$2b$10$stp4DCjH9SpXhlLqkDROW.nPesgymzTDlQtaBd9sLp1H/g6QqaokK', NULL, NULL, NULL, 'Sales', 1, 0, 'local', '', ''),
-  (8, 'Kavitha Ramesh', 'sales2@smtbms.com', '$2b$10$zBTZ/qJMk/68XA3R0.txser67XcVEqJZ81pQu/EXYMetH7XlplzX2', NULL, NULL, NULL, 'Sales', 1, 0, 'local', '', ''),
-  (9, 'Rajesh Kannan', 'employee@smtbms.com', '$2b$10$0IarMGAh5Z67/AW3tN0VIesl4iKQanXWmVq8gMb2IbD4CkJJJuoDK', NULL, NULL, NULL, 'Employee', 1, 0, 'local', '', ''),
-  (10, 'Divya Prakash', 'employee2@smtbms.com', '$2b$10$iXkouS2I0WhH3mRBlCyooeQx.ihBpAqK6vJh9OpKrJDet6pxP3hvG', NULL, NULL, NULL, 'Employee', 1, 0, 'local', '', ''),
-  (11, 'Venkatesh Iyer', 'employee3@smtbms.com', '$2b$10$03sG2TDSmGNH5zeX7Beykumb/j/5T0r95Z84yfDpvpOtrDsoIc5my', NULL, NULL, NULL, 'Employee', 1, 0, 'local', '', ''),
-  (12, 'Saranya Mohan', 'employee4@smtbms.com', '$2b$10$TH41Dz91ZHTuGul9uQJWXuTVxdhQCecIESguAEJJaH1XKbHYNSIPe', NULL, NULL, NULL, 'Employee', 1, 0, 'local', '', '');
+  (1, 'Karthikeyan Rajan', 'admin@smtbms.com', '$2b$10$z/RRsNAyBEx3mfMzkAlq/uVSUWJC3.wDIEbqSr/zYfM6waDtCwLv.', NULL, NULL, NULL, 'Admin', 1, 0, 'local', NULL, ''),
+  (2, 'Meena Sundar', 'admin2@smtbms.com', '$2b$10$ifB8TpVBfRte9ZV9Uw/kOeS.gRQYGVTD/XqjiuFHbR98vk0cOU46m', NULL, NULL, NULL, 'Admin', 1, 0, 'local', NULL, ''),
+  (3, 'Priya Devi', 'hr@smtbms.com', '$2b$10$6lTipiL7jMtCDBLd4geBDOGV32PyltTR43TbM1GFVD8PQIAaEJdJG', NULL, NULL, NULL, 'HR', 1, 0, 'local', NULL, ''),
+  (4, 'Lakshmi Narayanan', 'hr2@smtbms.com', '$2b$10$aQzWkhgHaP8eWzwHiBLP0ueG4ofS5YPQKVKFLkM71yLT/cGKC1mNO', NULL, NULL, NULL, 'HR', 1, 0, 'local', NULL, ''),
+  (5, 'Murugan Selvam', 'manager@smtbms.com', '$2b$10$58LLPETI5CNEJ.IzAutJkOZVFyAgknpE6hpu5sK9D7ZynIpPZ19Uu', NULL, NULL, NULL, 'Manager', 1, 0, 'local', NULL, ''),
+  (6, 'Anitha Bala', 'manager2@smtbms.com', '$2b$10$kclOrzjrok8bmfjqOvVpsudYlATZ5buW4kpRpmcNVq2uvN37rxs2S', NULL, NULL, NULL, 'Manager', 1, 0, 'local', NULL, ''),
+  (7, 'Senthil Kumar', 'sales@smtbms.com', '$2b$10$stp4DCjH9SpXhlLqkDROW.nPesgymzTDlQtaBd9sLp1H/g6QqaokK', NULL, NULL, NULL, 'Sales', 1, 0, 'local', NULL, ''),
+  (8, 'Kavitha Ramesh', 'sales2@smtbms.com', '$2b$10$zBTZ/qJMk/68XA3R0.txser67XcVEqJZ81pQu/EXYMetH7XlplzX2', NULL, NULL, NULL, 'Sales', 1, 0, 'local', NULL, ''),
+  (9, 'Rajesh Kannan', 'employee@smtbms.com', '$2b$10$0IarMGAh5Z67/AW3tN0VIesl4iKQanXWmVq8gMb2IbD4CkJJJuoDK', NULL, NULL, NULL, 'Employee', 1, 0, 'local', NULL, ''),
+  (10, 'Divya Prakash', 'employee2@smtbms.com', '$2b$10$iXkouS2I0WhH3mRBlCyooeQx.ihBpAqK6vJh9OpKrJDet6pxP3hvG', NULL, NULL, NULL, 'Employee', 1, 0, 'local', NULL, ''),
+  (11, 'Venkatesh Iyer', 'employee3@smtbms.com', '$2b$10$03sG2TDSmGNH5zeX7Beykumb/j/5T0r95Z84yfDpvpOtrDsoIc5my', NULL, NULL, NULL, 'Employee', 1, 0, 'local', NULL, ''),
+  (12, 'Saranya Mohan', 'employee4@smtbms.com', '$2b$10$TH41Dz91ZHTuGul9uQJWXuTVxdhQCecIESguAEJJaH1XKbHYNSIPe', NULL, NULL, NULL, 'Employee', 1, 0, 'local', NULL, '');
 
 -- Table: Vendor
 DROP TABLE IF EXISTS `Vendor`;
@@ -799,12 +801,12 @@ CREATE TABLE `Vendor` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `Vendor` (`id`, `name`, `userId`, `contactPerson`, `email`, `phone`, `address`, `category`, `gstNumber`, `website`, `status`, `materialsSupplied`, `rating`, `createdAt`, `updatedAt`) VALUES
-  (1, 'Sri Lakshmi Steel Traders', NULL, 'Ravi Shankar', 'ravi@srilakshmisteel.in', '9865432100', 'SIDCO Industrial Estate, Coimbatore, Tamil Nadu 641021', 'Steel & Metals', NULL, NULL, 'Vendor Created', NULL, 0, '', ''),
-  (2, 'Kumaran Electricals', NULL, 'Kumaran M', 'kumaran@kumaranelec.in', '9865432101', '32, Mettupalayam Road, Coimbatore, Tamil Nadu 641043', 'Electrical', NULL, NULL, 'Vendor Created', NULL, 0, '', ''),
-  (3, 'Thirumurugan Pipes & Fittings', NULL, 'Thirumurugan P', 'info@tmpipes.co.in', '9865432102', '15, Avinashi Road, Tirupur, Tamil Nadu 641602', 'Plumbing', NULL, NULL, 'Vendor Created', NULL, 0, '', ''),
-  (4, 'Madurai Cement Depot', NULL, 'Pandian S', 'pandian@maduraicement.in', '9865432103', '78, Bypass Road, Madurai, Tamil Nadu 625016', 'Construction', NULL, NULL, 'Vendor Created', NULL, 0, '', ''),
-  (5, 'Coimbatore Sheet Metal Works', NULL, 'Balamurugan K', 'bala@cbesheetmetal.in', '9865432104', '5, Ganapathy, Coimbatore, Tamil Nadu 641006', 'Sheet Metal', NULL, NULL, 'Vendor Created', NULL, 0, '', ''),
-  (6, 'Erode Welding Supplies', NULL, 'Saravanan R', 'saravanan@erodeweld.in', '9865432105', '21, Perundurai Road, Erode, Tamil Nadu 638052', 'Consumables', NULL, NULL, 'Vendor Created', NULL, 0, '', '');
+  (1, 'Sri Lakshmi Steel Traders', NULL, 'Ravi Shankar', 'ravi@srilakshmisteel.in', '9865432100', 'SIDCO Industrial Estate, Coimbatore, Tamil Nadu 641021', 'Steel & Metals', NULL, NULL, 'Vendor Created', NULL, 0, NULL, ''),
+  (2, 'Kumaran Electricals', NULL, 'Kumaran M', 'kumaran@kumaranelec.in', '9865432101', '32, Mettupalayam Road, Coimbatore, Tamil Nadu 641043', 'Electrical', NULL, NULL, 'Vendor Created', NULL, 0, NULL, ''),
+  (3, 'Thirumurugan Pipes & Fittings', NULL, 'Thirumurugan P', 'info@tmpipes.co.in', '9865432102', '15, Avinashi Road, Tirupur, Tamil Nadu 641602', 'Plumbing', NULL, NULL, 'Vendor Created', NULL, 0, NULL, ''),
+  (4, 'Madurai Cement Depot', NULL, 'Pandian S', 'pandian@maduraicement.in', '9865432103', '78, Bypass Road, Madurai, Tamil Nadu 625016', 'Construction', NULL, NULL, 'Vendor Created', NULL, 0, NULL, ''),
+  (5, 'Coimbatore Sheet Metal Works', NULL, 'Balamurugan K', 'bala@cbesheetmetal.in', '9865432104', '5, Ganapathy, Coimbatore, Tamil Nadu 641006', 'Sheet Metal', NULL, NULL, 'Vendor Created', NULL, 0, NULL, ''),
+  (6, 'Erode Welding Supplies', NULL, 'Saravanan R', 'saravanan@erodeweld.in', '9865432105', '21, Perundurai Road, Erode, Tamil Nadu 638052', 'Consumables', NULL, NULL, 'Vendor Created', NULL, 0, NULL, '');
 
 -- Table: ai_copilot_logs
 DROP TABLE IF EXISTS `ai_copilot_logs`;
