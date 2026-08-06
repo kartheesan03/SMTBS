@@ -5,10 +5,10 @@ export const canWrite = (user) => {
     }
     if (!user.role) return false;
     const role = user.role.toLowerCase();
-    if (role === 'employee' || role === 'sales') {
+    if (role === 'employee') {
         return false;
     }
-    if (['admin', 'super admin', 'hr', 'manager'].includes(role)) {
+    if (['admin', 'super admin', 'hr', 'manager', 'sales'].includes(role)) {
         return true;
     }
     return false;

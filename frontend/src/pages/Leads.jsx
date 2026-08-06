@@ -76,6 +76,34 @@ const Leads = () => {
     if (val >= 1000) return `₹${Math.round(val / 1000)}K`;
     return `₹${val.toLocaleString()}`;
   };
+  const advanceLead = async (lead) => {
+    if (!writeAccess) {
+      toast.error("You do not have permission to modify leads.");
+      return;
+    }
+    const stages = ["New", "Contacted", "Qualified", "Proposal Sent", "Negotiation"];
+    const currentIndex = stages.indexOf(lead.stage);
+    if (currentIndex >= 0 && currentIndex < stages.length - 1) {
+      const nextStage = stages[currentIndex + 1];
+      const statusMap = {
+        "New": "lead",
+        "Contacted": "contacted",
+        "Qualified": "active",
+        "Proposal Sent": "proposal",
+        "Negotiation": "negotiation"
+      };
+      try {
+        const id = lead._id || lead.id || lead.customerId;
+        await API.put(`/customers/${id}`, { status: statusMap[nextStage] });
+        toast.success(`Lead advanced to ${nextStage}`);
+        fetchLeads();
+      } catch (err) {
+        toast.error("Failed to advance lead.");
+      }
+    } else {
+      toast.info("Lead is already at the final stage.");
+    }
+  };
   if (loading)
     return (
       <div className="flex-center" style={{ minHeight: "100vh" }}>
@@ -410,6 +438,7 @@ const Leads = () => {
                               color: "#fff",
                               border: "none",
                             }}
+                            onClick={() => advanceLead(l)}
                           >
                             {" "}
                             Advance →{" "}

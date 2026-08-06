@@ -55,7 +55,7 @@ const getGoalProgress = async (req, res) => {
         const goals = await SalesGoal.find(query).populate('assignedTo', 'firstName lastName');
         const progressData = await Promise.all(goals.map(async (goal) => {
             const orders = await Order.find({
-                'createdBy': goal.assignedTo._id,
+                'createdBy': goal.assignedTo ? goal.assignedTo._id : null,
                 'status': 'Delivered',
                 'createdAt': { $gte: goal.startDate, $lte: goal.endDate }
             });

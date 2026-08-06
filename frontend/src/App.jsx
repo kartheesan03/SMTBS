@@ -276,17 +276,17 @@ const AppContent = () => {
                     <Route path="/erp" element={<ProtectedRoute requiredPermission="view_erp"><ERP /></ProtectedRoute>} />
                     <Route path="/orders" element={<ProtectedRoute requiredPermission="view_erp"><OrderManagement /></ProtectedRoute>} />
                     <Route path="/orders/purchase" element={<ProtectedRoute requiredPermission="view_erp"><OrderManagement /></ProtectedRoute>} />
-                    <Route path="/orders/select-type" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']}><OrderCreationRoute><SelectOrderType /></OrderCreationRoute></ProtectedRoute>} />
-                    <Route path="/erp/customers/select" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']}><OrderCreationRoute><SelectCustomer /></OrderCreationRoute></ProtectedRoute>} />
-                    <Route path="/erp/vendors/select" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']}><OrderCreationRoute><SelectVendor /></OrderCreationRoute></ProtectedRoute>} />
-                    <Route path="/orders/create/:orderType" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']}><OrderCreationRoute><CreateOrder /></OrderCreationRoute></ProtectedRoute>} />
+                    <Route path="/orders/select-type" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr', 'sales']}><OrderCreationRoute><SelectOrderType /></OrderCreationRoute></ProtectedRoute>} />
+                    <Route path="/erp/customers/select" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr', 'sales']}><OrderCreationRoute><SelectCustomer /></OrderCreationRoute></ProtectedRoute>} />
+                    <Route path="/erp/vendors/select" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr', 'sales']}><OrderCreationRoute><SelectVendor /></OrderCreationRoute></ProtectedRoute>} />
+                    <Route path="/orders/create/:orderType" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr', 'sales']}><OrderCreationRoute><CreateOrder /></OrderCreationRoute></ProtectedRoute>} />
                     <Route path="/orders/:orderId/tracking" element={<ProtectedRoute requiredPermission="view_erp"><OrderTracking /></ProtectedRoute>} />
                     <Route path="/customer/orders/:orderId/tracking" element={<ProtectedRoute><OrderTracking /></ProtectedRoute>} />
                     <Route path="/vendor/orders/:orderId/tracking" element={<ProtectedRoute><OrderTracking /></ProtectedRoute>} />
                     <Route path="/order-kanban" element={<ProtectedRoute><OrderKanban /></ProtectedRoute>} />
                     <Route path="/tracking-overview" element={<ProtectedRoute><TrackingDashboard /></ProtectedRoute>} />
                     <Route path="/crm" element={<ProtectedRoute requiredPermission="view_crm"><Customers /></ProtectedRoute>} />
-                    <Route path="/crm/add-customer" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']} requiredPermission="view_crm"><AddCustomer /></ProtectedRoute>} />
+                    <Route path="/crm/add-customer" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr', 'sales']} requiredPermission="view_crm"><AddCustomer /></ProtectedRoute>} />
                     
                     {/* Sales Dashboard Quick Action Routes */}
                     <Route path="/crm/leads" element={<ProtectedRoute requiredPermission="view_crm"><Leads /></ProtectedRoute>} />
@@ -296,7 +296,7 @@ const AppContent = () => {
                     <Route path="/sales/revenue" element={<ProtectedRoute requiredPermission="view_crm"><RevenueDashboard /></ProtectedRoute>} />
                     <Route path="/sales/goals" element={<ProtectedRoute requiredPermission="view_crm"><SalesGoals /></ProtectedRoute>} />
                     <Route path="/quotations" element={<ProtectedRoute requiredPermission="view_crm"><Quotations /></ProtectedRoute>} />
-                    <Route path="/quotations/create" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']} requiredPermission="view_crm"><CreateQuotation /></ProtectedRoute>} />
+                    <Route path="/quotations/create" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr', 'sales']} requiredPermission="view_crm"><CreateQuotation /></ProtectedRoute>} />
                     <Route path="/quotations/:id" element={<ProtectedRoute requiredPermission="view_crm"><QuotationDetails /></ProtectedRoute>} />
                     
                     <Route path="/vendors" element={<ProtectedRoute requiredPermission="view_erp"><Vendors /></ProtectedRoute>} />

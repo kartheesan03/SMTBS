@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Package,
@@ -11,6 +11,7 @@ import { AreaChart, Area, ResponsiveContainer, XAxis, Tooltip } from "recharts";
 import API from "../api/axios";
 import { StatsCard, StatsGrid } from "../components/ui/StatsCard";
 import "../components/AdminDashboard/AdminDashboardRedesign.css";
+import { AuthContext } from "../context/AuthContext";
 const ArcGauge = ({ pct }) => {
   const R = 72;
   const cx = 100;
@@ -441,6 +442,9 @@ const StockHealthPanel = ({
 };
 const StockRequests = () => {
   const navigate = useNavigate();
+  const { user } = useContext(AuthContext);
+  const userRole = (user?.role || "").toLowerCase();
+  const isEmployee = userRole === "employee";
   const [materials, setMaterials] = useState([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
@@ -717,18 +721,29 @@ const StockRequests = () => {
                       </td>
                       <td style={{ textAlign: "center" }} data-label="Action">
                         <div style={{ display: "inline-flex", gap: 6 }}>
-                          <button
-                            className="rd-btn-compact primary"
-                            onClick={() => navigate("/erp/vendors/select")}
-                          >
-                            Raise PO
-                          </button>
-                          <button
-                            className="rd-btn-compact outline"
-                            onClick={() => navigate(`/materials/${item.matId}`)}
-                          >
-                            Inv.
-                          </button>
+                          {isEmployee ? (
+                            <button
+                              className="rd-btn-compact primary"
+                              onClick={() => navigate("/my-materials")}
+                            >
+                              Request Restock
+                            </button>
+                          ) : (
+                            <>
+                              <button
+                                className="rd-btn-compact primary"
+                                onClick={() => navigate("/erp/vendors/select")}
+                              >
+                                Raise PO
+                              </button>
+                              <button
+                                className="rd-btn-compact outline"
+                                onClick={() => navigate(`/materials/${item.matId}`)}
+                              >
+                                Inv.
+                              </button>
+                            </>
+                          )}
                         </div>
                       </td>
                     </tr>
