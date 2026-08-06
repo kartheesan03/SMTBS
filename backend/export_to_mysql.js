@@ -84,6 +84,7 @@ async function main() {
     lines.push('-- Source: local SQLite database');
     lines.push('-- ============================================================');
     lines.push('');
+    lines.push('SET sql_mode = \\'\\';');
     lines.push('SET FOREIGN_KEY_CHECKS = 0;');
     lines.push("SET NAMES 'utf8mb4';");
     lines.push('SET CHARACTER SET utf8mb4;');
