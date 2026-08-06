@@ -20,7 +20,7 @@ const AuditLogSequelize = sequelize.define('AuditLog', {
         allowNull: false
     },
     module: {
-        type: DataTypes.ENUM('Material', 'Order', 'Customer', 'Employee', 'Vendor', 'Attendance', 'Leave', 'Salary', 'Task', 'Ticket', 'System'),
+        type: DataTypes.ENUM('Material', 'Order', 'Customer', 'Employee', 'Vendor', 'Attendance', 'Leave', 'Salary', 'Task', 'Ticket', 'System', 'Auth'),
         allowNull: false
     },
     targetId: {
