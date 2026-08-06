@@ -112,9 +112,12 @@ async function main() {
             if (c.notnull) def += ' NOT NULL';
             if (c.dflt_value !== null && c.dflt_value !== undefined) {
                 // Skip complex defaults that MySQL won't understand
-                const dv = String(c.dflt_value);
-                if (!dv.includes('(') && !dv.includes("'now'")) {
-                    def += ` DEFAULT ${dv}`;
+                // MySQL also doesn't allow DEFAULT on TEXT or BLOB columns
+                if (!mysqlType.includes('TEXT') && !mysqlType.includes('BLOB')) {
+                    const dv = String(c.dflt_value);
+                    if (!dv.includes('(') && !dv.includes("'now'")) {
+                        def += ` DEFAULT ${dv}`;
+                    }
                 }
             }
             return def;
