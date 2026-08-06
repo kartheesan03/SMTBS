@@ -1,4 +1,4 @@
-SET sql_mode = \ ;
+SET sql_mode = '';
 SET FOREIGN_KEY_CHECKS = 0;
 -- ============================================================
 -- SMTBS MySQL Export
