@@ -20,17 +20,28 @@ import AriaSidePanel from './components/ui/AriaSidePanel';
 
 // Retry wrapper for lazy imports — handles stale chunks after Vercel redeploys
 const lazyRetry = (importFn) => {
+  // Use the import function string as a stable key so each chunk tracks its own retry
+  const key = 'chunk_reload_' + btoa(importFn.toString().slice(0, 80)).replace(/[^a-z0-9]/gi, '');
   return React.lazy(() =>
-    importFn().catch(() => {
-      // If chunk load fails, force a full page reload (once)
-      const hasReloaded = sessionStorage.getItem('chunk_reload');
-      if (!hasReloaded) {
-        sessionStorage.setItem('chunk_reload', 'true');
-        window.location.reload();
-        return { default: () => null };
+    importFn().catch((err) => {
+      const isChunkError =
+        (err?.message || '').includes('Failed to fetch dynamically imported module') ||
+        (err?.message || '').includes('Loading chunk') ||
+        err?.name === 'ChunkLoadError';
+
+      if (isChunkError) {
+        const alreadyRetried = sessionStorage.getItem(key);
+        if (!alreadyRetried) {
+          sessionStorage.setItem(key, 'true');
+          window.location.reload();
+          // Never resolve — keep React in Suspense until the page reloads
+          return new Promise(() => {});
+        }
+        // Second failure: clear flag and fall through to throw
+        sessionStorage.removeItem(key);
       }
-      sessionStorage.removeItem('chunk_reload');
-      return importFn();
+      // Non-chunk error or second attempt failed — surface it
+      throw err;
     })
   );
 };
