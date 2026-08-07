@@ -18,7 +18,7 @@ import {
 } from "../components/ui";
 import { motion } from "framer-motion";
 import jsPDF from "jspdf";
-import "jspdf-autotable";
+import autoTable from "jspdf-autotable";
 const Badge = ({ children, type = "default" }) => (
   <span className={`ui-badge ${type}`}>{children}</span>
 );
@@ -91,7 +91,7 @@ const QuotationDetails = () => {
       ];
       tableRows.push(rowData);
     });
-    doc.autoTable({
+    autoTable(doc, {
       startY: 85,
       head: [tableColumn],
       body: tableRows,
