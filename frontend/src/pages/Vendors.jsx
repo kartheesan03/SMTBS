@@ -187,6 +187,14 @@ const Vendors = () => {
       onClick: (row) => navigate(`/vendors/${row._id || row.id}`),
     },
   ];
+
+  if (canAddVendor) {
+    actions.push({
+      label: "Edit Vendor",
+      icon: Edit,
+      onClick: (row) => navigate(`/vendors/${row._id || row.id}/edit`),
+    });
+  }
   return (
     <motion.div
       initial={{ opacity: 0, y: 15 }}

@@ -62,6 +62,11 @@ const VendorSequelize = sequelize.define('Vendor', {
         type: DataTypes.FLOAT,
         allowNull: true,
         defaultValue: 0
+    },
+    outstanding: {
+        type: DataTypes.FLOAT,
+        allowNull: true,
+        defaultValue: 0
     }
 });
 const Vendor = makeBridgedModel('Vendor', VendorSequelize);

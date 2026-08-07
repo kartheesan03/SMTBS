@@ -155,6 +155,11 @@ const VendorDetails = () => {
   ];
   if (writeAccess) {
     actions.push({
+      label: "Edit Vendor",
+      icon: Edit,
+      onClick: () => navigate(`/vendors/${vendor._id || vendor.id}/edit`),
+    });
+    actions.push({
       label: "Raise PO",
       icon: ShoppingCart,
       primary: true,
