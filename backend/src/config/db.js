@@ -300,7 +300,6 @@ const connectDB = async () => {
             console.log('Error cleaning up stale tables:', e.message);
         }
         await sequelize.sync();
-        const dbName = sequelize.getDialect() === 'sqlite' ? 'SQLite' : sequelize.getDialect() === 'postgres' ? 'PostgreSQL' : 'MySQL';
         console.log(`${dbName} Database tables synchronized.`);
         await syncAndRepairDatabase();
         return true;
