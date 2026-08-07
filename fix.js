@@ -1,0 +1,1 @@
+const fs = require('fs'); let sql = fs.readFileSync('backend/smtbs_mysql_export.sql', 'utf8'); sql = 'SET sql_mode = \\ ;\nSET FOREIGN_KEY_CHECKS = 0;\n' + sql; fs.writeFileSync('backend/smtbs_mysql_export.sql', sql);

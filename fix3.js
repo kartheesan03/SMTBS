@@ -1,0 +1,1 @@
+const fs = require('fs'); let sql = fs.readFileSync('backend/smtbs_mysql_export.sql', 'utf8'); sql = sql.replace(/, NULL/g, ', \'2024-01-01 00:00:00\''); fs.writeFileSync('backend/smtbs_mysql_export.sql', sql);
