@@ -179,8 +179,8 @@ const CreateGoalModal = ({ onClose, onSuccess }) => {
               {" "}
               <option value="">Select User...</option>{" "}
               {users.map((u) => (
-                <option key={u._id} value={u._id}>
-                  {u.firstName} {u.lastName}
+                <option key={u.id || u._id} value={u.id || u._id}>
+                  {u.name}
                 </option>
               ))}{" "}
             </select>{" "}
@@ -467,7 +467,7 @@ const SalesGoals = () => {
                       }}
                     >
                       {" "}
-                      {goal.assignedTo?.firstName} {goal.assignedTo?.lastName}{" "}
+                      {goal.assignedTo?.name || "Unassigned"}{" "}
                     </h3>{" "}
                     <div
                       style={{
