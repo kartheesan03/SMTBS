@@ -189,11 +189,40 @@ const safelyRecreateTable = async (modelName) => {
     const tempTableName = `${tableName}_temp_migration`;
     try {
         console.log(`Safely recreating table ${tableName}...`);
-        await sequelize.query('PRAGMA foreign_keys = OFF;');
-        const [tableExists] = await sequelize.query(`SELECT name FROM sqlite_master WHERE type='table' AND name='${tableName}';`);
-        if (tableExists.length > 0) {
-            const [columns] = await sequelize.query(`PRAGMA table_info('${tableName}');`);
-            const currentCols = columns.map(c => c.name);
+        const dialect = sequelize.getDialect();
+        
+        if (dialect === 'sqlite') {
+            await sequelize.query('PRAGMA foreign_keys = OFF;');
+        } else if (dialect === 'postgres') {
+            await sequelize.query('SET session_replication_role = replica;');
+        } else {
+            await sequelize.query('SET FOREIGN_KEY_CHECKS = 0;');
+        }
+
+        let tableExists = false;
+        if (dialect === 'sqlite') {
+            const [rows] = await sequelize.query(`SELECT name FROM sqlite_master WHERE type='table' AND name='${tableName}';`);
+            tableExists = rows.length > 0;
+        } else if (dialect === 'postgres') {
+            const [rows] = await sequelize.query(`SELECT tablename FROM pg_tables WHERE schemaname='public' AND tablename='${tableName}';`);
+            tableExists = rows.length > 0;
+        } else {
+            const [rows] = await sequelize.query(`SHOW TABLES LIKE '${tableName}';`);
+            tableExists = rows.length > 0;
+        }
+
+        if (tableExists) {
+            let currentCols = [];
+            if (dialect === 'sqlite') {
+                const [columns] = await sequelize.query(`PRAGMA table_info('${tableName}');`);
+                currentCols = columns.map(c => c.name);
+            } else if (dialect === 'postgres') {
+                const [columns] = await sequelize.query(`SELECT column_name FROM information_schema.columns WHERE table_name='${tableName}';`);
+                currentCols = columns.map(c => c.column_name);
+            } else {
+                const [columns] = await sequelize.query(`SHOW COLUMNS FROM "${tableName}";`);
+                currentCols = columns.map(c => c.Field);
+            }
             const modelCols = Object.keys(Model.getAttributes());
             const commonCols = currentCols.filter(c => modelCols.includes(c));
             await sequelize.query(`ALTER TABLE "${tableName}" RENAME TO "${tempTableName}";`);
@@ -212,11 +241,25 @@ const safelyRecreateTable = async (modelName) => {
         } else {
             await Model.sync();
         }
-        await sequelize.query('PRAGMA foreign_keys = ON;');
+        
+        if (dialect === 'sqlite') {
+            await sequelize.query('PRAGMA foreign_keys = ON;');
+        } else if (dialect === 'postgres') {
+            await sequelize.query('SET session_replication_role = DEFAULT;');
+        } else {
+            await sequelize.query('SET FOREIGN_KEY_CHECKS = 1;');
+        }
         console.log(`Successfully recreated table ${tableName} with latest schema.`);
     } catch (error) {
         console.error(`Failed to recreate table ${tableName}:`, error.message);
-        await sequelize.query('PRAGMA foreign_keys = ON;');
+        const dialect = sequelize.getDialect();
+        if (dialect === 'sqlite') {
+            await sequelize.query('PRAGMA foreign_keys = ON;');
+        } else if (dialect === 'postgres') {
+            await sequelize.query('SET session_replication_role = DEFAULT;');
+        } else {
+            await sequelize.query('SET FOREIGN_KEY_CHECKS = 1;');
+        }
     }
 };
 const connectDB = async () => {
@@ -226,10 +269,28 @@ const connectDB = async () => {
         console.log('SQLite Connection established successfully via Sequelize.');
         setupAssociations();
         try {
-            const [tables] = await sequelize.query("SELECT name FROM sqlite_master WHERE type='table' AND (name LIKE '%_backup' OR name LIKE '%_temp_migration');");
-            for (let row of tables) {
-                await sequelize.query(`DROP TABLE IF EXISTS "${row.name}";`);
-                console.log(`Dropped stale table: ${row.name}`);
+            const dialect = sequelize.getDialect();
+            if (dialect === 'sqlite') {
+                const [tables] = await sequelize.query("SELECT name FROM sqlite_master WHERE type='table' AND (name LIKE '%_backup' OR name LIKE '%_temp_migration');");
+                for (let row of tables) {
+                    await sequelize.query(`DROP TABLE IF EXISTS "${row.name}";`);
+                    console.log(`Dropped stale table: ${row.name}`);
+                }
+            } else if (dialect === 'postgres') {
+                const [tables] = await sequelize.query("SELECT tablename FROM pg_tables WHERE schemaname='public' AND (tablename LIKE '%_backup' OR tablename LIKE '%_temp_migration');");
+                for (let row of tables) {
+                    await sequelize.query(`DROP TABLE IF EXISTS "${row.tablename}";`);
+                    console.log(`Dropped stale table: ${row.tablename}`);
+                }
+            } else {
+                const [tables] = await sequelize.query("SHOW TABLES;");
+                for (let row of tables) {
+                    const tableName = Object.values(row)[0];
+                    if (tableName.includes('_backup') || tableName.includes('_temp_migration')) {
+                        await sequelize.query(`DROP TABLE IF EXISTS "${tableName}";`);
+                        console.log(`Dropped stale table: ${tableName}`);
+                    }
+                }
             }
         } catch (e) {
             console.log('Error cleaning up stale tables:', e.message);
