@@ -67,5 +67,9 @@ function setupAssociations() {
     
     const Quotation = require('./Quotation');
     Quotation.sequelizeModel.belongsTo(Customer.sequelizeModel, { foreignKey: 'customer', as: 'Customer' });
+    
+    const SalesGoal = require('./SalesGoal');
+    SalesGoal.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'assignedTo', as: 'assignedUser' });
+    SalesGoal.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'createdBy', as: 'createdUser' });
 }
 module.exports = setupAssociations;

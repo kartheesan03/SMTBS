@@ -8,9 +8,18 @@ const getSalesGoals = async (req, res) => {
             query.assignedTo = req.user._id;
         }
         const goals = await SalesGoal.find(query)
-            .populate('assignedTo', 'firstName lastName email')
+            .populate('assignedUser', 'name email')
             .sort({ startDate: -1 });
-        res.status(200).json(goals);
+        
+        const mappedGoals = goals.map(g => {
+            const obj = g.toObject ? g.toObject() : g;
+            if (obj.assignedUser) {
+                obj.assignedTo = obj.assignedUser;
+                delete obj.assignedUser;
+            }
+            return obj;
+        });
+        res.status(200).json(mappedGoals);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -52,10 +61,18 @@ const getGoalProgress = async (req, res) => {
         if (!req.user.permissions.includes('all') && !req.user.permissions.includes('manage_crm')) {
             query.assignedTo = req.user._id;
         }
-        const goals = await SalesGoal.find(query).populate('assignedTo', 'firstName lastName');
+        const goals = await SalesGoal.find(query).populate('assignedUser', 'name');
         const progressData = await Promise.all(goals.map(async (goal) => {
+            const goalObj = goal.toObject ? goal.toObject() : goal;
+            if (goalObj.assignedUser) {
+                goalObj.assignedTo = goalObj.assignedUser;
+                delete goalObj.assignedUser;
+            }
+
+            const assignedToId = goalObj.assignedTo && goalObj.assignedTo._id ? goalObj.assignedTo._id : goal.assignedTo;
+
             const orders = await Order.find({
-                'createdBy': goal.assignedTo ? goal.assignedTo._id : null,
+                'createdBy': assignedToId,
                 'status': 'Delivered',
                 'createdAt': { $gte: goal.startDate, $lte: goal.endDate }
             });
@@ -70,7 +87,7 @@ const getGoalProgress = async (req, res) => {
             else if (timeElapsed > progressPct + 15 && timeElapsed < 100) status = 'At Risk';
             else if (timeElapsed > 100 && progressPct < 100) status = 'Failed';
             return {
-                ...goal.toObject(),
+                ...goalObj,
                 currentAmount,
                 currentOrders,
                 progressPct: Math.min(100, Math.round(progressPct)),
