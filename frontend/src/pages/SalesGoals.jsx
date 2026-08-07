@@ -228,13 +228,13 @@ const CreateGoalModal = ({ onClose, onSuccess }) => {
                   fontWeight: 600,
                 }}
               >
-                Target Revenue ($)
+                Target Revenue (₹)
               </label>{" "}
               <input
                 type="number"
                 required
                 className="ui-input"
-                placeholder="50000"
+                placeholder="e.g. 50000"
                 value={formData.targetAmount}
                 onChange={(e) =>
                   setFormData({ ...formData, targetAmount: e.target.value })
