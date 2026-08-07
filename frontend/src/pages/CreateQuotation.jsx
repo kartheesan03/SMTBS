@@ -216,9 +216,9 @@ const CreateQuotation = () => {
                   <thead>
                     <tr>
                       <th>Material</th>
-                      <th style={{ width: "100px" }}>Quantity</th>
-                      <th style={{ width: "150px" }}>Unit Price (₹)</th>
-                      <th style={{ width: "100px" }}>Discount (%)</th>
+                      <th style={{ width: "120px" }}>Quantity</th>
+                      <th style={{ width: "160px" }}>Unit Price (₹)</th>
+                      <th style={{ width: "120px" }}>Discount (%)</th>
                       <th style={{ width: "150px" }}>Line Total (₹)</th>
                       <th style={{ width: "60px" }}></th>
                     </tr>
@@ -280,8 +280,26 @@ const CreateQuotation = () => {
                               }}
                             />
                           </td>
-                          <td style={{ fontWeight: "500", color: "#475569" }}>
-                            {Number(item.unitPrice || 0).toFixed(2)}
+                          <td>
+                            <input
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              value={item.unitPrice}
+                              onChange={(e) =>
+                                handleItemChange(
+                                  index,
+                                  "unitPrice",
+                                  e.target.value
+                                )
+                              }
+                              style={{
+                                width: "100%",
+                                padding: "8px",
+                                borderRadius: "0px",
+                                border: "1px solid #D1D5DB",
+                              }}
+                            />
                           </td>
                           <td>
                             <input
