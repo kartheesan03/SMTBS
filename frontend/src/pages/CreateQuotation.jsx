@@ -60,7 +60,7 @@ const CreateQuotation = () => {
     newItems[index][field] = value;
     if (field === "material") {
       const selectedMat = materials.find(
-        (m) => m._id === value || m.id === value
+        (m) => String(m._id || m.id) === String(value)
       );
       if (selectedMat) {
         newItems[index].materialName = selectedMat.name;
@@ -95,11 +95,11 @@ const CreateQuotation = () => {
     setLoading(true);
     try {
       const customerObj = customers.find(
-        (c) => c._id === formData.customer || c.id === formData.customer
+        (c) => String(c._id || c.id) === String(formData.customer)
       );
       const payload = {
         ...formData,
-        customerName: customerObj?.name || "Unknown Customer",
+        customerName: customerObj?.company || customerObj?.name || "Unknown Customer",
         subTotal,
         grandTotal,
       };
