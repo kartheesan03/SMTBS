@@ -450,6 +450,12 @@ class MongooseQuery {
     then(onFulfilled, onRejected) {
         return this.exec().then(onFulfilled, onRejected);
     }
+    catch(onRejected) {
+        return this.exec().catch(onRejected);
+    }
+    finally(onFinally) {
+        return this.exec().finally(onFinally);
+    }
 }
 function preprocessData(data, model) {
     if (!data) return data;
