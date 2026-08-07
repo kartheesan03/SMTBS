@@ -3,17 +3,14 @@ const Material = require('../models/Material');
 const Order = require('../models/Order');
 const getNotifications = async (req, res) => {
     try {
-        let query = {};
-        if (req.user.role !== 'Admin') {
-            query = {
-                $or: [
-                    { userId: null, role: null },
-                    { userId: req.user._id },
-                    { userId: req.user.id },
-                    { role: req.user.role }
-                ]
-            };
-        }
+        let query = {
+            $or: [
+                { userId: null, role: null },
+                { userId: req.user._id },
+                { userId: req.user.id },
+                { role: req.user.role, userId: null }
+            ]
+        };
         let notifications = await Notification.find(query).sort({ createdAt: -1 });
         const orderNotifications = notifications.filter(n => n.module === 'Orders' && n.referenceId);
         if (orderNotifications.length > 0) {
@@ -36,15 +33,15 @@ const getNotifications = async (req, res) => {
 };
 const getUnreadCount = async (req, res) => {
     try {
-        let query = { status: 'unread' };
-        if (req.user.role !== 'Admin') {
-            query.$or = [
+        let query = { 
+            status: 'unread',
+            $or: [
                 { userId: null, role: null },
                 { userId: req.user._id },
                 { userId: req.user.id },
-                { role: req.user.role }
-            ];
-        }
+                { role: req.user.role, userId: null }
+            ]
+        };
         const count = await Notification.countDocuments(query);
         res.json({ unreadCount: count });
     } catch (error) {
@@ -66,15 +63,15 @@ const markAsRead = async (req, res) => {
 };
 const markAllAsRead = async (req, res) => {
     try {
-        let query = { status: 'unread' };
-        if (req.user.role !== 'Admin') {
-            query.$or = [
+        let query = { 
+            status: 'unread',
+            $or: [
                 { userId: null, role: null },
                 { userId: req.user._id },
                 { userId: req.user.id },
-                { role: req.user.role }
-            ];
-        }
+                { role: req.user.role, userId: null }
+            ]
+        };
         await Notification.updateMany(
             query,
             { $set: { status: 'read' } }
