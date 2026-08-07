@@ -212,32 +212,34 @@ const safelyRecreateTable = async (modelName) => {
         }
 
         if (tableExists) {
+            const qi = sequelize.getQueryInterface();
+            const quote = qi.quoteIdentifier.bind(qi);
+            
             let currentCols = [];
             if (dialect === 'sqlite') {
-                const [columns] = await sequelize.query(`PRAGMA table_info('${tableName}');`);
+                const [columns] = await sequelize.query(`PRAGMA table_info(${quote(tableName)});`);
                 currentCols = columns.map(c => c.name);
             } else if (dialect === 'postgres') {
                 const [columns] = await sequelize.query(`SELECT column_name FROM information_schema.columns WHERE table_name='${tableName}';`);
                 currentCols = columns.map(c => c.column_name);
             } else {
-                const [columns] = await sequelize.query(`SHOW COLUMNS FROM "${tableName}";`);
+                const [columns] = await sequelize.query(`SHOW COLUMNS FROM ${quote(tableName)};`);
                 currentCols = columns.map(c => c.Field);
             }
             const modelCols = Object.keys(Model.getAttributes());
             const commonCols = currentCols.filter(c => modelCols.includes(c));
-            const q = dialect === 'mysql' ? '`' : '"';
-            await sequelize.query(`ALTER TABLE ${q}${tableName}${q} RENAME TO ${q}${tempTableName}${q};`);
+            await sequelize.query(`ALTER TABLE ${quote(tableName)} RENAME TO ${quote(tempTableName)};`);
             await Model.sync();
             try {
                 if (commonCols.length > 0) {
-                    const colsStr = commonCols.map(c => `${q}${c}${q}`).join(', ');
-                    await sequelize.query(`INSERT INTO ${q}${tableName}${q} (${colsStr}) SELECT ${colsStr} FROM ${q}${tempTableName}${q};`);
+                    const colsStr = commonCols.map(c => quote(c)).join(', ');
+                    await sequelize.query(`INSERT INTO ${quote(tableName)} (${colsStr}) SELECT ${colsStr} FROM ${quote(tempTableName)};`);
                 }
-                await sequelize.query(`DROP TABLE ${q}${tempTableName}${q};`);
+                await sequelize.query(`DROP TABLE ${quote(tempTableName)};`);
             } catch (copyError) {
                 console.error(`Failed to copy data for ${tableName}, restoring original table. Error:`, copyError.message);
-                await sequelize.query(`DROP TABLE ${q}${tableName}${q};`);
-                await sequelize.query(`ALTER TABLE ${q}${tempTableName}${q} RENAME TO ${q}${tableName}${q};`);
+                await sequelize.query(`DROP TABLE ${quote(tableName)};`);
+                await sequelize.query(`ALTER TABLE ${quote(tempTableName)} RENAME TO ${quote(tableName)};`);
             }
         } else {
             await Model.sync();
@@ -274,16 +276,19 @@ const connectDB = async () => {
         setupAssociations();
         try {
             const dialect = sequelize.getDialect();
+            const qi = sequelize.getQueryInterface();
+            const quote = qi.quoteIdentifier.bind(qi);
+            
             if (dialect === 'sqlite') {
                 const [tables] = await sequelize.query("SELECT name FROM sqlite_master WHERE type='table' AND (name LIKE '%_backup' OR name LIKE '%_temp_migration');");
                 for (let row of tables) {
-                    await sequelize.query(`DROP TABLE IF EXISTS "${row.name}";`);
+                    await sequelize.query(`DROP TABLE IF EXISTS ${quote(row.name)};`);
                     console.log(`Dropped stale table: ${row.name}`);
                 }
             } else if (dialect === 'postgres') {
                 const [tables] = await sequelize.query("SELECT tablename FROM pg_tables WHERE schemaname='public' AND (tablename LIKE '%_backup' OR tablename LIKE '%_temp_migration');");
                 for (let row of tables) {
-                    await sequelize.query(`DROP TABLE IF EXISTS "${row.tablename}";`);
+                    await sequelize.query(`DROP TABLE IF EXISTS ${quote(row.tablename)};`);
                     console.log(`Dropped stale table: ${row.tablename}`);
                 }
             } else {
@@ -291,7 +296,7 @@ const connectDB = async () => {
                 for (let row of tables) {
                     const tableName = Object.values(row)[0];
                     if (tableName.includes('_backup') || tableName.includes('_temp_migration')) {
-                        await sequelize.query(`DROP TABLE IF EXISTS "${tableName}";`);
+                        await sequelize.query(`DROP TABLE IF EXISTS ${quote(tableName)};`);
                         console.log(`Dropped stale table: ${tableName}`);
                     }
                 }
