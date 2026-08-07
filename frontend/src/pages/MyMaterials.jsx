@@ -749,13 +749,19 @@ const MyMaterials = () => {
       };
     });
     const totalAssigned = materialsList.length;
-    const availableQty = inventoryData.reduce(
-      (acc, row) => acc + (row.materialQty || 0),
-      0
-    );
-    const lowStockItems = inventoryData.filter(
-      (row) => (row.materialQty || 0) <= (row.materialThreshold || 10)
+    
+    const outOfStockItems = inventoryData.filter(
+      (row) => (row.materialQty || 0) === 0
     ).length;
+    
+    const lowStockItems = inventoryData.filter(
+      (row) => (row.materialQty || 0) > 0 && (row.materialQty || 0) <= (row.materialThreshold || 10)
+    ).length;
+    
+    const inStockItems = inventoryData.filter(
+      (row) => (row.materialQty || 0) > (row.materialThreshold || 10)
+    ).length;
+    
     const pendingRequests = requests.filter((r) =>
       ["Pending", "Manager Approved", "Processing"].includes(r.status)
     ).length;
@@ -795,13 +801,7 @@ const MyMaterials = () => {
               />
               <StatsCard
                 title="Pending"
-                value={
-                  requests.filter((r) =>
-                    ["Pending", "Manager Approved", "Processing"].includes(
-                      r.status
-                    )
-                  ).length
-                }
+                value={pendingRequests}
                 colorTheme="yellow"
                 icon={Clock}
                 trendValue="Awaiting action"
@@ -840,10 +840,10 @@ const MyMaterials = () => {
               />
               <StatsCard
                 title="In Stock"
-                value={availableQty}
+                value={inStockItems}
                 colorTheme="mint"
                 icon={CheckCircle}
-                trendValue={`${totalAssigned ? "100" : "0"}% of inventory`}
+                trendValue={`${totalAssigned ? Math.round((inStockItems / totalAssigned) * 100) : 0}% of inventory`}
                 trendPositive={true}
               />
               <StatsCard
@@ -860,10 +860,14 @@ const MyMaterials = () => {
               />
               <StatsCard
                 title="Out of Stock"
-                value={pendingRequests}
+                value={outOfStockItems}
                 colorTheme="peach"
                 icon={AlertCircle}
-                trendValue="0% critical"
+                trendValue={`${
+                  totalAssigned
+                    ? Math.round((outOfStockItems / totalAssigned) * 100)
+                    : 0
+                }% critical`}
                 trendPositive={false}
               />
             </>
