@@ -341,13 +341,14 @@ const SalesGoals = () => {
     fetchGoals();
   }, []);
   const formatCurrency = (val) =>
-    new Intl.NumberFormat("en-US", {
+    new Intl.NumberFormat("en-IN", {
       style: "currency",
-      currency: "USD",
+      currency: "INR",
+      maximumFractionDigits: 0,
     }).format(val);
+
   return (
     <PageContainer>
-      {" "}
       <PageHeader
         title="Sales Goals & Targets"
         subtitle="Track individual and team performance against revenue targets."
@@ -359,13 +360,10 @@ const SalesGoals = () => {
             onClick: () => setShowModal(true),
           },
         ]}
-      />{" "}
+      />
       <DetailViewContainer>
-        {" "}
         {loading ? (
-          <div
-            style={{ padding: "40px", textAlign: "center", color: "#94a3b8" }}
-          >
+          <div style={{ padding: "40px", textAlign: "center", color: "#94a3b8" }}>
             Loading goals...
           </div>
         ) : goals.length === 0 ? (
@@ -374,233 +372,148 @@ const SalesGoals = () => {
               padding: "60px 20px",
               textAlign: "center",
               background: "#fff",
-              borderRadius: "0px",
+              borderRadius: "16px",
               border: "1px dashed #cbd5e1",
             }}
           >
-            {" "}
-            <Target
-              size={48}
-              color="#94a3b8"
-              style={{ marginBottom: "16px" }}
-            />{" "}
-            <h3
-              style={{
-                margin: "0 0 8px 0",
-                fontSize: "18px",
-                color: "#0f172a",
-              }}
-            >
+            <Target size={48} color="#94a3b8" style={{ marginBottom: "16px" }} />
+            <h3 style={{ margin: "0 0 8px 0", fontSize: "18px", color: "#0f172a" }}>
               No active goals
-            </h3>{" "}
+            </h3>
             <p style={{ margin: 0, color: "#64748b" }}>
               Get started by creating a new sales target for your team.
-            </p>{" "}
+            </p>
             <button
               className="ui-btn-primary"
               style={{ marginTop: "24px" }}
               onClick={() => setShowModal(true)}
             >
-              {" "}
-              Create First Goal{" "}
-            </button>{" "}
+              Create First Goal
+            </button>
           </div>
         ) : (
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))",
+              gridTemplateColumns: "repeat(auto-fill, minmax(350px, 1fr))",
               gap: "24px",
             }}
           >
-            {" "}
-            {goals.map((goal) => (
-              <motion.div
-                key={goal._id}
-                className="ui-card"
-                style={{
-                  padding: "24px",
-                  position: "relative",
-                  overflow: "hidden",
-                }}
-                whileHover={{
-                  y: -4,
-                  boxShadow: "0 12px 30px rgba(0,0,0,0.08)",
-                }}
-              >
-                {" "}
-                {/* Status Indicator Line */}{" "}
-                <div
+            {goals.map((goal) => {
+              const statusColors = {
+                "Achieved": { bg: "linear-gradient(135deg, #10b981 0%, #059669 100%)", text: "#065f46", lightBg: "#d1fae5" },
+                "At Risk": { bg: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)", text: "#92400e", lightBg: "#fef3c7" },
+                "Failed": { bg: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)", text: "#991b1b", lightBg: "#fee2e2" },
+                "On Track": { bg: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)", text: "#1e40af", lightBg: "#dbeafe" }
+              };
+              const colors = statusColors[goal.status] || statusColors["On Track"];
+
+              return (
+                <motion.div
+                  key={goal._id}
                   style={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    height: "4px",
-                    background:
-                      goal.status === "Achieved"
-                        ? "#10b981"
-                        : goal.status === "At Risk"
-                        ? "#f59e0b"
-                        : goal.status === "Failed"
-                        ? "#ef4444"
-                        : "#3b82f6",
-                  }}
-                />{" "}
-                <div
-                  style={{
+                    background: "#ffffff",
+                    borderRadius: "20px",
+                    padding: "24px",
+                    boxShadow: "0 10px 40px -10px rgba(0,0,0,0.08)",
+                    border: "1px solid #f1f5f9",
+                    position: "relative",
+                    overflow: "hidden",
                     display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "flex-start",
-                    marginBottom: "16px",
+                    flexDirection: "column",
                   }}
+                  whileHover={{ y: -5, boxShadow: "0 20px 40px -10px rgba(0,0,0,0.12)" }}
                 >
-                  {" "}
-                  <div>
-                    {" "}
-                    <h3
-                      style={{
-                        margin: "0 0 4px 0",
-                        fontSize: "18px",
-                        fontWeight: 700,
-                        color: "#0f172a",
-                      }}
-                    >
-                      {" "}
-                      {goal.assignedTo?.name || "Unassigned"}{" "}
-                    </h3>{" "}
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                        color: "#64748b",
-                        fontSize: "13px",
-                      }}
-                    >
-                      {" "}
-                      <Calendar size={14} />{" "}
-                      {new Date(goal.startDate).toLocaleDateString()} -{" "}
-                      {new Date(goal.endDate).toLocaleDateString()}{" "}
-                    </div>{" "}
-                  </div>{" "}
-                  <span
+                  <div
                     style={{
-                      padding: "4px 10px",
-                      borderRadius: "0px",
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      height: "6px",
+                      background: colors.bg,
+                    }}
+                  />
+                  
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "20px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                      <img 
+                        src={`https://ui-avatars.com/api/?name=${encodeURIComponent(goal.assignedTo?.name || 'User')}&background=f1f5f9&color=475569&bold=true&rounded=true`}
+                        alt="avatar"
+                        style={{ width: "42px", height: "42px", borderRadius: "50%" }}
+                      />
+                      <div>
+                        <h3 style={{ margin: "0 0 2px 0", fontSize: "16px", fontWeight: 700, color: "#1e293b" }}>
+                          {goal.assignedTo?.name || "Unassigned"}
+                        </h3>
+                        <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#64748b", fontSize: "12px", fontWeight: 500 }}>
+                          <Calendar size={12} />
+                          {new Date(goal.startDate).toLocaleDateString()} - {new Date(goal.endDate).toLocaleDateString()}
+                        </div>
+                      </div>
+                    </div>
+                    <span style={{
+                      padding: "6px 12px",
+                      borderRadius: "20px",
                       fontSize: "11px",
                       fontWeight: 700,
                       textTransform: "uppercase",
-                      background:
-                        goal.status === "Achieved"
-                          ? "#d1fae5"
-                          : goal.status === "At Risk"
-                          ? "#fef3c7"
-                          : goal.status === "Failed"
-                          ? "#fee2e2"
-                          : "#dbeafe",
-                      color:
-                        goal.status === "Achieved"
-                          ? "#065f46"
-                          : goal.status === "At Risk"
-                          ? "#92400e"
-                          : goal.status === "Failed"
-                          ? "#991b1b"
-                          : "#1e40af",
-                    }}
-                  >
-                    {" "}
-                    {goal.status}{" "}
-                  </span>{" "}
-                </div>{" "}
-                <div
-                  style={{
-                    background: "#f8fafc",
-                    padding: "16px",
-                    borderRadius: "0px",
-                    border: "1px solid #e2e8f0",
-                    marginBottom: "16px",
-                  }}
-                >
-                  {" "}
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "baseline",
-                      marginBottom: "4px",
-                    }}
-                  >
-                    {" "}
-                    <span
-                      style={{
-                        fontSize: "13px",
-                        color: "#64748b",
-                        fontWeight: 600,
-                      }}
-                    >
-                      Revenue Target
-                    </span>{" "}
-                    <span
-                      style={{
-                        fontSize: "15px",
-                        color: "#0f172a",
-                        fontWeight: 700,
-                      }}
-                    >
-                      {formatCurrency(goal.targetAmount)}
-                    </span>{" "}
-                  </div>{" "}
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "baseline",
-                    }}
-                  >
-                    {" "}
-                    <span
-                      style={{
-                        fontSize: "13px",
-                        color: "#64748b",
-                        fontWeight: 600,
-                      }}
-                    >
-                      Achieved
-                    </span>{" "}
-                    <span
-                      style={{
-                        fontSize: "20px",
-                        color: "#10b981",
-                        fontWeight: 800,
-                      }}
-                    >
-                      {formatCurrency(goal.currentAmount)}
-                    </span>{" "}
-                  </div>{" "}
-                </div>{" "}
-                <ProgressBar
-                  pct={goal.progressPct}
-                  label="Progress"
-                  status={goal.status}
-                />{" "}
-                {goal.targetOrders > 0 && (
-                  <div
-                    style={{
-                      marginTop: "16px",
-                      fontSize: "13px",
-                      color: "#64748b",
-                      display: "flex",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    {" "}
-                    <span>Deal Target: {goal.targetOrders}</span>{" "}
-                    <span>Closed: {goal.currentOrders}</span>{" "}
+                      background: colors.lightBg,
+                      color: colors.text,
+                      letterSpacing: "0.5px"
+                    }}>
+                      {goal.status}
+                    </span>
                   </div>
-                )}{" "}
-              </motion.div>
-            ))}{" "}
+
+                  <div style={{ 
+                    background: "linear-gradient(145deg, #f8fafc 0%, #f1f5f9 100%)", 
+                    borderRadius: "16px", 
+                    padding: "20px", 
+                    marginBottom: "20px" 
+                  }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+                      <span style={{ fontSize: "13px", color: "#64748b", fontWeight: 600, display: "flex", alignItems: "center", gap: "6px" }}>
+                        <Target size={14} /> Revenue Target
+                      </span>
+                      <span style={{ fontSize: "16px", color: "#0f172a", fontWeight: 700 }}>
+                        {formatCurrency(goal.targetAmount)}
+                      </span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <span style={{ fontSize: "13px", color: "#64748b", fontWeight: 600, display: "flex", alignItems: "center", gap: "6px" }}>
+                        <TrendingUp size={14} /> Achieved
+                      </span>
+                      <span style={{ fontSize: "24px", background: colors.bg, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", fontWeight: 800 }}>
+                        {formatCurrency(goal.currentAmount)}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div style={{ marginTop: "auto" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px", fontSize: "13px", fontWeight: 700 }}>
+                      <span style={{ color: "#475569" }}>Progress</span>
+                      <span style={{ color: colors.text }}>{goal.progressPct}%</span>
+                    </div>
+                    <div style={{ width: "100%", height: "8px", background: "#e2e8f0", borderRadius: "8px", overflow: "hidden" }}>
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${goal.progressPct}%` }}
+                        transition={{ duration: 1.2, ease: "easeOut" }}
+                        style={{ height: "100%", background: colors.bg, borderRadius: "8px" }}
+                      />
+                    </div>
+                  </div>
+
+                  {goal.targetOrders > 0 && (
+                    <div style={{ marginTop: "16px", paddingTop: "16px", borderTop: "1px dashed #e2e8f0", display: "flex", justifyContent: "space-between", fontSize: "12px", fontWeight: 600, color: "#64748b" }}>
+                      <span>Deal Target: <strong style={{color:"#0f172a"}}>{goal.targetOrders}</strong></span>
+                      <span>Deals Closed: <strong style={{color:"#0f172a"}}>{goal.currentOrders}</strong></span>
+                    </div>
+                  )}
+                </motion.div>
+              );
+            })}
           </div>
         )}{" "}
       </DetailViewContainer>{" "}
