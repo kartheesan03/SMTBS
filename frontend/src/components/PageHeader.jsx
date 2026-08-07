@@ -12,7 +12,7 @@ import './PageHeader.css';
  * @param {boolean} showBack - Whether to show a back arrow — optional
  * @param {boolean} hasInsights - Whether to show an attention dot (e.g. for pending actions)
  */
-const PageHeader = ({ title, badge, subtitle, showBack = false, hasInsights = false, backPath = null, onBack = null }) => {
+const PageHeader = ({ title, badge, subtitle, showBack = false, hasInsights = false, backPath = null, onBack = null, actions = [] }) => {
     const navigate = useNavigate();
     const handleBack = () => {
         if (onBack) {
@@ -87,6 +87,34 @@ const PageHeader = ({ title, badge, subtitle, showBack = false, hasInsights = fa
                     </p>
                 )}
             </div>
+            
+            {actions && actions.length > 0 && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    {actions.map((action, idx) => {
+                        const Icon = action.icon;
+                        return (
+                            <button
+                                key={idx}
+                                onClick={action.onClick}
+                                className={action.primary ? "ui-btn-primary" : "ui-btn-outline"}
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '8px',
+                                    padding: '8px 16px',
+                                    borderRadius: '8px',
+                                    fontWeight: 600,
+                                    fontSize: '14px',
+                                    ...action.style
+                                }}
+                            >
+                                {Icon && <Icon size={16} />}
+                                {action.label}
+                            </button>
+                        );
+                    })}
+                </div>
+            )}
         </div>
     );
 };
