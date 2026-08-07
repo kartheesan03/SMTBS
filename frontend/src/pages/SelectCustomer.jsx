@@ -119,28 +119,13 @@ const SelectCustomer = () => {
               </thead>
               <tbody>
                 {filteredCustomers.map((c, i) => {
-                  const fallbackNames = [
-                    "Senthil Kumar",
-                    "Ramesh",
-                    "Suresh Babu",
-                    "Priya",
-                    "Arun",
-                    "Venkatesh",
-                    "Meena",
-                    "Pradeep",
-                  ];
                   const getContactPerson = () => {
                     if (c.name && c.name !== "Individual Customer") {
                       const n1 = c.name.toLowerCase().split(" ")[0];
                       const c1 = (c.company || "").toLowerCase().split(" ")[0];
                       if (n1 && n1 !== c1) return c.name;
                     }
-                    const idx =
-                      Array.from(c.company || c.name || "A").reduce(
-                        (acc, char) => acc + char.charCodeAt(0),
-                        0
-                      ) % fallbackNames.length;
-                    return fallbackNames[idx];
+                    return "No Contact Person";
                   };
                   return (
                     <motion.tr

@@ -105,24 +105,9 @@ const Vendors = () => {
       label: "Vendor Name",
       sortable: true,
       render: (val, row) => {
-        const fallbackNames = [
-          "Ramesh",
-          "Senthil Kumar",
-          "Venkatesh",
-          "Karthik",
-          "Suresh",
-          "Priya",
-          "Meena",
-          "Arun",
-        ];
         let contact = row.contactPerson || row.email;
         if (!contact || contact === val) {
-          const idx =
-            Array.from(val || "A").reduce(
-              (acc, char) => acc + char.charCodeAt(0),
-              0
-            ) % fallbackNames.length;
-          contact = fallbackNames[idx];
+          contact = "No Contact Person";
         }
         return (
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>

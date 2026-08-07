@@ -108,32 +108,13 @@ const Customers = ({ directoryOnly }) => {
       label: "Customer / Company",
       sortable: true,
       render: (val, row) => {
-        const fallbackNames = [
-          "Senthil Kumar",
-          "Ramesh",
-          "Suresh Babu",
-          "Priya",
-          "Arun",
-          "Venkatesh",
-          "Meena",
-          "Pradeep",
-        ];
         let contact = row.contactPerson || val;
-        let isCompanyDuplicate = false;
-        if (contact === row.company || contact === "Individual Customer") {
-          isCompanyDuplicate = true;
-        } else if (contact && row.company) {
+        if (!contact || contact === row.company || contact === "Individual Customer") {
+          contact = "No Contact Person";
+        } else if (row.company) {
           const n1 = contact.toLowerCase().split(" ")[0];
           const c1 = row.company.toLowerCase().split(" ")[0];
-          if (n1 === c1) isCompanyDuplicate = true;
-        }
-        if (isCompanyDuplicate) {
-          const idx =
-            Array.from(row.company || contact || "A").reduce(
-              (acc, char) => acc + char.charCodeAt(0),
-              0
-            ) % fallbackNames.length;
-          contact = fallbackNames[idx];
+          if (n1 === c1) contact = "No Contact Person";
         }
         return (
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>

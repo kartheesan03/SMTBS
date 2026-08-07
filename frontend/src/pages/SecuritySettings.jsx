@@ -20,38 +20,7 @@ import { StatsCard, StatsGrid } from "../components/ui/StatsCard";
 
 const SecuritySettings = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const auditLogs = [
-    {
-      id: 1,
-      user: "Admin User",
-      action: "Login",
-      actionColor: "green",
-      module: "Authentication",
-      detail: "Signed in from Chrome on Windows",
-      time: "23 Jun 2026, 23:31",
-      icon: <LogIn size={16} color="#10b981" />,
-    },
-    {
-      id: 2,
-      user: "Priya Nair",
-      action: "Update",
-      actionColor: "orange",
-      module: "Material Tracking",
-      detail: "Updated stock count for SKU-4471 (Copper Wire 2mm)",
-      time: "23 Jun 2026, 22:54",
-      icon: <Edit size={16} color="#f59e0b" />,
-    },
-    {
-      id: 3,
-      user: "System",
-      action: "Delete",
-      actionColor: "red",
-      module: "User Management",
-      detail: "Removed inactive user account (ID: 1042)",
-      time: "23 Jun 2026, 21:15",
-      icon: <Trash2 size={16} color="#ef4444" />,
-    },
-  ];
+  const auditLogs = [];
 
   return (
     <div className="sec-container">
@@ -81,7 +50,7 @@ const SecuritySettings = () => {
       <StatsGrid>
         <StatsCard
           title="TOTAL EVENTS (24H)"
-          value="12"
+          value="0"
           trendValue="Across all modules"
           icon={Target}
           colorTheme="purple"
@@ -89,7 +58,7 @@ const SecuritySettings = () => {
         />
         <StatsCard
           title="TOTAL LOGINS"
-          value="4"
+          value="0"
           trendValue="System access events"
           icon={Users}
           colorTheme="mint"
@@ -97,7 +66,7 @@ const SecuritySettings = () => {
         />
         <StatsCard
           title="RECORDS UPDATED"
-          value="5"
+          value="0"
           trendValue="Modified recently"
           icon={FileText}
           colorTheme="purple"
@@ -105,7 +74,7 @@ const SecuritySettings = () => {
         />
         <StatsCard
           title="RECORDS CREATED"
-          value="2"
+          value="0"
           trendValue="New entries added"
           icon={Target}
           colorTheme="blue"
@@ -113,7 +82,7 @@ const SecuritySettings = () => {
         />
         <StatsCard
           title="RECORDS DELETED"
-          value="1"
+          value="0"
           trendValue="Removed by admins"
           icon={Shield}
           colorTheme="peach"
@@ -141,7 +110,7 @@ const SecuritySettings = () => {
               <option>Delete</option>
             </select>
           </div>
-          <div className="sec-logs-count">12 events</div>
+          <div className="sec-logs-count">0 events</div>
         </div>
         <div className="sec-logs-list">
           {auditLogs.map((log) => (

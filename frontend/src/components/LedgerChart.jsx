@@ -8,15 +8,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-const SAMPLE_DATA = [
-  { month: 'Jan', revenue: 45000, expenses: 32000, netProfit: 13000 },
-  { month: 'Feb', revenue: 52000, expenses: 34000, netProfit: 18000 },
-  { month: 'Mar', revenue: 48000, expenses: 31000, netProfit: 17000 },
-  { month: 'Apr', revenue: 61000, expenses: 38000, netProfit: 23000 },
-  { month: 'May', revenue: 59000, expenses: 36000, netProfit: 23000 },
-  { month: 'Jun', revenue: 67000, expenses: 41000, netProfit: 26000 },
-  { month: 'Jul', revenue: 72000, expenses: 43000, netProfit: 29000 },
-];
+const SAMPLE_DATA = [];
 const COLORS = {
   netProfit: '#0F6F5C',
   revenue: '#B8862B',

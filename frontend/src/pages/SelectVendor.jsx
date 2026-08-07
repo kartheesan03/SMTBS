@@ -137,25 +137,10 @@ const SelectVendor = () => {
               </thead>
               <tbody>
                 {filteredVendors.map((v, i) => {
-                  const fallbackNames = [
-                    "Ramesh",
-                    "Senthil Kumar",
-                    "Venkatesh",
-                    "Karthik",
-                    "Suresh",
-                    "Priya",
-                    "Meena",
-                    "Arun",
-                  ];
                   const getContactPerson = () => {
                     if (v.contactPerson && v.contactPerson !== v.name)
                       return v.contactPerson;
-                    const idx =
-                      Array.from(v.name || "A").reduce(
-                        (acc, char) => acc + char.charCodeAt(0),
-                        0
-                      ) % fallbackNames.length;
-                    return fallbackNames[idx];
+                    return "No Contact Person";
                   };
                   return (
                     <tr key={v.id || v._id || i}>
