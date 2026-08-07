@@ -225,18 +225,19 @@ const safelyRecreateTable = async (modelName) => {
             }
             const modelCols = Object.keys(Model.getAttributes());
             const commonCols = currentCols.filter(c => modelCols.includes(c));
-            await sequelize.query(`ALTER TABLE "${tableName}" RENAME TO "${tempTableName}";`);
+            const q = dialect === 'mysql' ? '`' : '"';
+            await sequelize.query(`ALTER TABLE ${q}${tableName}${q} RENAME TO ${q}${tempTableName}${q};`);
             await Model.sync();
             try {
                 if (commonCols.length > 0) {
-                    const colsStr = commonCols.map(c => `"${c}"`).join(', ');
-                    await sequelize.query(`INSERT INTO "${tableName}" (${colsStr}) SELECT ${colsStr} FROM "${tempTableName}";`);
+                    const colsStr = commonCols.map(c => `${q}${c}${q}`).join(', ');
+                    await sequelize.query(`INSERT INTO ${q}${tableName}${q} (${colsStr}) SELECT ${colsStr} FROM ${q}${tempTableName}${q};`);
                 }
-                await sequelize.query(`DROP TABLE "${tempTableName}";`);
+                await sequelize.query(`DROP TABLE ${q}${tempTableName}${q};`);
             } catch (copyError) {
                 console.error(`Failed to copy data for ${tableName}, restoring original table. Error:`, copyError.message);
-                await sequelize.query(`DROP TABLE "${tableName}";`);
-                await sequelize.query(`ALTER TABLE "${tempTableName}" RENAME TO "${tableName}";`);
+                await sequelize.query(`DROP TABLE ${q}${tableName}${q};`);
+                await sequelize.query(`ALTER TABLE ${q}${tempTableName}${q} RENAME TO ${q}${tableName}${q};`);
             }
         } else {
             await Model.sync();
@@ -264,9 +265,12 @@ const safelyRecreateTable = async (modelName) => {
 };
 const connectDB = async () => {
     try {
-        console.log('Target SQLite database verified/created.');
+        const dialect = sequelize.getDialect();
+        const dbName = dialect === 'sqlite' ? 'SQLite' : dialect === 'postgres' ? 'PostgreSQL' : 'MySQL';
+        
+        console.log(`Target ${dbName} database verified/created.`);
         await sequelize.authenticate();
-        console.log('SQLite Connection established successfully via Sequelize.');
+        console.log(`${dbName} Connection established successfully via Sequelize.`);
         setupAssociations();
         try {
             const dialect = sequelize.getDialect();
@@ -296,7 +300,8 @@ const connectDB = async () => {
             console.log('Error cleaning up stale tables:', e.message);
         }
         await sequelize.sync();
-        console.log('SQLite Database tables synchronized.');
+        const dbName = sequelize.getDialect() === 'sqlite' ? 'SQLite' : sequelize.getDialect() === 'postgres' ? 'PostgreSQL' : 'MySQL';
+        console.log(`${dbName} Database tables synchronized.`);
         await syncAndRepairDatabase();
         return true;
     } catch (error) {
