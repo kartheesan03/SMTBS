@@ -116,12 +116,14 @@ const QuotationDetails = () => {
       doc.text("Notes:", 14, finalY + 10);
       doc.text(doc.splitTextToSize(quotation.notes, 100), 14, finalY + 15);
     }
-    doc.text("Terms & Conditions:", 14, finalY + 40);
-    doc.text(
-      doc.splitTextToSize(quotation.termsAndConditions, 180),
-      14,
-      finalY + 45
-    );
+    if (quotation.termsAndConditions) {
+      doc.text("Terms & Conditions:", 14, finalY + 40);
+      doc.text(
+        doc.splitTextToSize(quotation.termsAndConditions, 180),
+        14,
+        finalY + 45
+      );
+    }
     doc.save(`${quotation.quotationNumber}.pdf`);
   };
   if (loading)
