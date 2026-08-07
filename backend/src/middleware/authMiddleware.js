@@ -72,7 +72,8 @@ const protect = async (req, res, next) => {
                                               path.includes('/api/communications') ||
                                               path.includes('/api/auth') ||
                                               path.includes('/api/employees/me') ||
-                                              path.includes('/api/stock-requests');
+                                              path.includes('/api/stock-requests') ||
+                                              (path.includes('/api/orders') && (path.includes('employee-check') || path.includes('inventory-verification') || path.includes('employee-final-approval')));
                         const isScannerUpdate = path.includes('/api/materials') && reqMethod === 'PUT';
                         if (!isSelfService && !isScannerUpdate) {
                             return res.status(403).json({ message: `Access Denied: ${user.role} role has view-only permissions for this module.` });
