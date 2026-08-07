@@ -85,9 +85,9 @@ const QuotationDetails = () => {
       const rowData = [
         item.materialName,
         item.quantity,
-        `Rs. ${item.unitPrice.toFixed(2)}`,
+        `Rs. ${Number(item.unitPrice || 0).toFixed(2)}`,
         `${item.discountPercent}%`,
-        `Rs. ${item.total.toFixed(2)}`,
+        `Rs. ${Number(item.total || 0).toFixed(2)}`,
       ];
       tableRows.push(rowData);
     });
@@ -100,14 +100,14 @@ const QuotationDetails = () => {
     });
     const finalY = doc.lastAutoTable.finalY || 85;
     doc.text(
-      `Subtotal: Rs. ${quotation.subTotal.toFixed(2)}`,
+      `Subtotal: Rs. ${Number(quotation.subTotal || 0).toFixed(2)}`,
       140,
       finalY + 10
     );
-    doc.text(`Tax: Rs. ${quotation.taxAmount.toFixed(2)}`, 140, finalY + 17);
+    doc.text(`Tax: Rs. ${Number(quotation.taxAmount || 0).toFixed(2)}`, 140, finalY + 17);
     doc.setFontSize(12);
     doc.text(
-      `Grand Total: Rs. ${quotation.grandTotal.toFixed(2)}`,
+      `Grand Total: Rs. ${Number(quotation.grandTotal || 0).toFixed(2)}`,
       140,
       finalY + 25
     );
@@ -181,10 +181,10 @@ const QuotationDetails = () => {
                 label: "Valid Until",
                 value: new Date(quotation.validUntil).toLocaleDateString(),
               },
-              { label: "Subtotal", value: `₹${quotation.subTotal.toFixed(2)}` },
+              { label: "Subtotal", value: `₹${Number(quotation.subTotal || 0).toFixed(2)}` },
               {
                 label: "Grand Total",
-                value: `₹${quotation.grandTotal.toFixed(2)}`,
+                value: `₹${Number(quotation.grandTotal || 0).toFixed(2)}`,
               },
             ]}
           />
@@ -214,9 +214,9 @@ const QuotationDetails = () => {
                     <tr key={i}>
                       <td>{item.materialName}</td>
                       <td>{item.quantity}</td>
-                      <td>₹{item.unitPrice.toFixed(2)}</td>
+                      <td>₹{Number(item.unitPrice || 0).toFixed(2)}</td>
                       <td style={{ fontWeight: "500" }}>
-                        ₹{item.total.toFixed(2)}
+                        ₹{Number(item.total || 0).toFixed(2)}
                       </td>
                     </tr>
                   ))}
