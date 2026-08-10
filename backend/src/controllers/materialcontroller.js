@@ -114,7 +114,7 @@ const createMaterial = async (req, res) => {
         });
         if (Number(quantity) > 0) {
             await MaterialMovement.create({
-                materialId: createdMaterial._id,
+                materialId: createdMaterial.id || createdMaterial._id,
                 type: 'In',
                 quantity: Number(quantity),
                 previousQuantity: 0,
