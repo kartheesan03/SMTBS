@@ -20,24 +20,24 @@
 }
 
 .cp-modal {
-    background: #1e1e2d; /* Matching dark purple/slate theme */
+    background: #ffffff;
     width: 100%;
     max-width: 600px;
     border-radius: 12px;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-    border: 1px solid #334155;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    border: 1px solid #e2e8f0;
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    color: #f8fafc;
+    color: #1e293b;
 }
 
 .cp-header {
     display: flex;
     align-items: center;
     padding: 16px;
-    border-bottom: 1px solid #334155;
-    background: #1e1e2d;
+    border-bottom: 1px solid #e2e8f0;
+    background: #ffffff;
 }
 
 .cp-search-icon {
@@ -50,7 +50,7 @@
     background: transparent;
     border: none;
     outline: none;
-    color: #f8fafc;
+    color: #1e293b;
     font-size: 16px;
     font-weight: 500;
 }
@@ -60,8 +60,8 @@
 }
 
 .cp-esc-badge {
-    background: #334155;
-    color: #cbd5e1;
+    background: #f1f5f9;
+    color: #64748b;
     font-size: 11px;
     padding: 2px 6px;
     border-radius: 4px;
@@ -79,7 +79,7 @@
     width: 6px;
 }
 .cp-body::-webkit-scrollbar-thumb {
-    background: #334155;
+    background: #cbd5e1;
     border-radius: 4px;
 }
 
@@ -93,7 +93,7 @@
 .cp-group-title {
     font-size: 12px;
     font-weight: 600;
-    color: #64748b;
+    color: #94a3b8;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     padding: 4px 12px;
@@ -110,7 +110,7 @@
 }
 
 .cp-item.selected {
-    background: #334155;
+    background: #f1f5f9;
 }
 
 .cp-item-icon-wrapper {
@@ -120,12 +120,12 @@
     width: 32px;
     height: 32px;
     border-radius: 6px;
-    background: #0f172a;
+    background: #f1f5f9;
     margin-right: 12px;
 }
 
 .cp-item-icon {
-    color: #94a3b8;
+    color: #64748b;
 }
 
 .cp-item-icon.material { color: #6366f1; }
@@ -142,24 +142,24 @@
 .cp-item-title {
     font-size: 14px;
     font-weight: 500;
-    color: #f8fafc;
+    color: #0f172a;
 }
 
 .cp-item-subtitle {
     font-size: 12px;
-    color: #94a3b8;
+    color: #64748b;
     margin-top: 2px;
 }
 
 .cp-item-action {
     font-size: 12px;
-    color: #cbd5e1;
+    color: #94a3b8;
     opacity: 0.7;
 }
 
 .cp-loading, .cp-empty {
     padding: 32px;
     text-align: center;
-    color: #94a3b8;
+    color: #64748b;
     font-size: 14px;
 }
