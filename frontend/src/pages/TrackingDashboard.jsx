@@ -1171,8 +1171,9 @@ const TrackingDashboard = () => {
     const filteredMovements = movements.filter((m) => {
       const matName = String(m.materialName || "").toLowerCase();
       const matSku = String(m.materialSku || "").toLowerCase();
+      const matRef = String(m.reference || m.referenceOrderNumber || m.note || "").toLowerCase();
       const sTerm = searchTerm.toLowerCase();
-      const matchesSearch = !searchTerm || matName.includes(sTerm) || matSku.includes(sTerm);
+      const matchesSearch = !searchTerm || matName.includes(sTerm) || matSku.includes(sTerm) || matRef.includes(sTerm);
       const matchesType = !filterType || String(m.type).toLowerCase() === filterType.toLowerCase();
       const matchesLoc = !filterLocation || String(m.materialLocation || "").toLowerCase().includes(filterLocation.toLowerCase());
       return matchesSearch && matchesType && matchesLoc;
@@ -1182,16 +1183,22 @@ const TrackingDashboard = () => {
       <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
         {renderGlobalKPICards()}
         <div className="mcc-section">
-          <div style={{ display: "flex", gap: 16, marginBottom: 20 }}>
-            <div style={{ flex: 1, display: "flex", background: "#f8fafc", border: "1px solid #e2e8f0", padding: "8px 16px", alignItems: "center" }}>
-              <Search size={16} color="#94a3b8" style={{ marginRight: 8 }} />
-              <input type="text" placeholder="Search movements by material name or SKU..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} style={{ border: "none", background: "transparent", outline: "none", width: "100%" }} />
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 16, marginBottom: 20, alignItems: "center" }}>
+            <div style={{ flex: "1 1 250px", minWidth: "250px", position: "relative" }}>
+              <Search size={16} color="#94a3b8" style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)" }} />
+              <input 
+                type="text" 
+                placeholder="Search movements..." 
+                value={searchTerm} 
+                onChange={(e) => setSearchTerm(e.target.value)} 
+                style={{ width: "100%", padding: "10px 16px 10px 36px", border: "1px solid #e2e8f0", background: "#f8fafc", outline: "none", fontSize: "14px", borderRadius: "4px", boxSizing: "border-box" }} 
+              />
             </div>
             
             {(() => {
               const uniqueTypes = [...new Set(movements.map(m => m.type).filter(Boolean))].sort();
               return (
-                <select value={filterType} onChange={(e) => setFilterType(e.target.value)} style={{ padding: "8px 16px", border: "1px solid #e2e8f0", background: "#f8fafc", outline: "none", textTransform: 'capitalize' }}>
+                <select value={filterType} onChange={(e) => setFilterType(e.target.value)} style={{ padding: "10px 16px", border: "1px solid #e2e8f0", background: "#f8fafc", outline: "none", textTransform: 'capitalize', borderRadius: "4px", fontSize: "14px" }}>
                   <option value="">All Movement Types</option>
                   {uniqueTypes.map(t => (
                     <option key={t} value={t.toLowerCase()}>{t}</option>
@@ -1203,7 +1210,7 @@ const TrackingDashboard = () => {
             {(() => {
               const uniqueLocations = [...new Set(movements.map(m => m.materialLocation).filter(Boolean))].sort();
               return (
-                <select value={filterLocation} onChange={(e) => setFilterLocation(e.target.value)} style={{ padding: "8px 16px", border: "1px solid #e2e8f0", background: "#f8fafc", outline: "none" }}>
+                <select value={filterLocation} onChange={(e) => setFilterLocation(e.target.value)} style={{ padding: "10px 16px", border: "1px solid #e2e8f0", background: "#f8fafc", outline: "none", borderRadius: "4px", fontSize: "14px" }}>
                   <option value="">All Locations</option>
                   {uniqueLocations.map(loc => (
                     <option key={loc} value={loc.toLowerCase()}>{loc}</option>
