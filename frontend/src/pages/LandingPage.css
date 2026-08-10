@@ -327,41 +327,46 @@ body.landing-page-active *::-webkit-scrollbar {
 .btn-get-started {
     display: inline-flex;
     align-items: center;
-    background: linear-gradient(135deg, #7c3aed 0%, #6366f1 50%, #3b82f6 100%);
+    background: linear-gradient(90deg, #7c3aed 0%, #3b82f6 100%);
     color: #fff;
     border: none;
-    padding: 16px 42px;
-    border-radius: 50px;
-    font-size: 17px;
+    padding: 12px 28px;
+    border-radius: 9999px;
+    font-size: 16px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.25s ease;
-    box-shadow: 0 0 20px rgba(124, 58, 237, 0.4);
-    letter-spacing: 0.01em;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 16px rgba(124, 58, 237, 0.35);
+    gap: 8px;
+}
+.btn-get-started svg {
+    transition: transform 0.3s ease;
 }
 .btn-get-started:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 0 32px rgba(124, 58, 237, 0.6);
-    filter: brightness(1.1);
+    background: linear-gradient(90deg, #8b5cf6 0%, #60a5fa 100%);
+}
+.btn-get-started:hover svg {
+    transform: translateX(4px);
 }
 
 .btn-play-link {
     display: inline-flex;
     align-items: center;
     background: transparent;
-    border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 50px;
-    color: #f8fafc;
+    border: 1.5px solid rgba(167, 139, 250, 0.4);
+    border-radius: 9999px;
+    color: #fff;
     cursor: pointer;
     font-size: 16px;
     font-weight: 600;
-    gap: 12px;
-    padding: 12px 32px 12px 20px;
-    transition: all 0.2s ease;
+    gap: 8px;
+    padding: 12px 28px;
+    transition: all 0.3s ease;
 }
 
 .btn-play-link:hover {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(167, 139, 250, 0.05);
+    border-color: rgba(167, 139, 250, 0.8);
 }
 
 .play-icon-circle {
@@ -1114,3 +1119,15 @@ body.landing-page-active *::-webkit-scrollbar {
     .section-header h2 { font-size: 28px; }
     .carousel-arrow { display: none; }
 }
+ 
+ @ m e d i a   ( m a x - w i d t h :   6 4 0 p x )   {  
+         . h e r o - c t a - g r o u p   {  
+                 f l e x - d i r e c t i o n :   c o l u m n ;  
+                 w i d t h :   1 0 0 % ;  
+         }  
+         . h e r o - c t a - g r o u p   >   b u t t o n   {  
+                 w i d t h :   1 0 0 % ;  
+                 j u s t i f y - c o n t e n t :   c e n t e r ;  
+         }  
+ }  
+ 
