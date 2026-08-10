@@ -26,6 +26,21 @@ const DataTable = ({
     compactControls = false
 }) => {
     const [search, setSearch] = useState('');
+    const searchInputRef = useRef(null);
+
+    // Global keyboard shortcut to focus search when pressing 's'
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            // Ignore if user is already typing in an input
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            if (e.key === 's' || e.key === 'S') {
+                e.preventDefault();
+                searchInputRef.current?.focus();
+            }
+        };
+        document.addEventListener('keydown', handleKeyDown);
+        return () => document.removeEventListener('keydown', handleKeyDown);
+    }, []);
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
     const [currentPage, setCurrentPage] = useState(1);
     const [selectedRows, setSelectedRows] = useState(new Set());
@@ -208,6 +223,7 @@ const DataTable = ({
                     <div className="ui-search-box">
                         <Search size={16} color="#94a3b8" />
                         <input 
+                            ref={searchInputRef}
                             type="text" 
                             placeholder={searchPlaceholder} 
                             value={search} 
@@ -216,6 +232,7 @@ const DataTable = ({
                                 setCurrentPage(1);
                             }}
                         />
+                        {!search && <div className="ui-search-shortcut">S</div>}
                     </div>
                     {/* Column Visibility */}
                     <div style={{ position: 'relative' }}>
