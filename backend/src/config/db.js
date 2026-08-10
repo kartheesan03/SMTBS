@@ -274,36 +274,7 @@ const connectDB = async () => {
         await sequelize.authenticate();
         console.log(`${dbName} Connection established successfully via Sequelize.`);
         setupAssociations();
-        try {
-            const dialect = sequelize.getDialect();
-            const qi = sequelize.getQueryInterface();
-            const quote = qi.quoteIdentifier.bind(qi);
-            
-            if (dialect === 'sqlite') {
-                const [tables] = await sequelize.query("SELECT name FROM sqlite_master WHERE type='table' AND (name LIKE '%_backup' OR name LIKE '%_temp_migration');");
-                for (let row of tables) {
-                    await sequelize.query(`DROP TABLE IF EXISTS ${quote(row.name)};`);
-                    console.log(`Dropped stale table: ${row.name}`);
-                }
-            } else if (dialect === 'postgres') {
-                const [tables] = await sequelize.query("SELECT tablename FROM pg_tables WHERE schemaname='public' AND (tablename LIKE '%_backup' OR tablename LIKE '%_temp_migration');");
-                for (let row of tables) {
-                    await sequelize.query(`DROP TABLE IF EXISTS ${quote(row.tablename)};`);
-                    console.log(`Dropped stale table: ${row.tablename}`);
-                }
-            } else {
-                const [tables] = await sequelize.query("SHOW TABLES;");
-                for (let row of tables) {
-                    const tableName = Object.values(row)[0];
-                    if (tableName.includes('_backup') || tableName.includes('_temp_migration')) {
-                        await sequelize.query(`DROP TABLE IF EXISTS ${quote(tableName)};`);
-                        console.log(`Dropped stale table: ${tableName}`);
-                    }
-                }
-            }
-        } catch (e) {
-            console.log('Error cleaning up stale tables:', e.message);
-        }
+            // Removed stale table cleanup code to prevent foreign key errors on startup
 
         await sequelize.sync();
         console.log(`${dbName} Database tables synchronized.`);
