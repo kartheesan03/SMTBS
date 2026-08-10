@@ -1119,15 +1119,14 @@ body.landing-page-active *::-webkit-scrollbar {
     .section-header h2 { font-size: 28px; }
     .carousel-arrow { display: none; }
 }
- 
- @ m e d i a   ( m a x - w i d t h :   6 4 0 p x )   {  
-         . h e r o - c t a - g r o u p   {  
-                 f l e x - d i r e c t i o n :   c o l u m n ;  
-                 w i d t h :   1 0 0 % ;  
-         }  
-         . h e r o - c t a - g r o u p   >   b u t t o n   {  
-                 w i d t h :   1 0 0 % ;  
-                 j u s t i f y - c o n t e n t :   c e n t e r ;  
-         }  
- }  
- 
+
+@media (max-width: 640px) {
+    .hero-cta-group {
+        flex-direction: column;
+        width: 100%;
+    }
+    .hero-cta-group > button {
+        width: 100%;
+        justify-content: center;
+    }
+}
