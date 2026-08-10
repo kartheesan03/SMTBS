@@ -119,6 +119,7 @@ function wrapInstance(instance, modelName) {
                     }
                     if (modelName === 'Order' || modelName === 'Ticket' || modelName === 'Quotation') {
                         plain.customer = plain.Customer || plain.Lead || null;
+                        plain.vendor = plain.vendor || plain.Vendor || null;
                     }
                     return plain;
                 };
