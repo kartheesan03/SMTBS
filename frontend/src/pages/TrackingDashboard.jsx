@@ -1248,7 +1248,7 @@ const TrackingDashboard = () => {
                     </td>
                     <td style={{ padding: 12 }}>
                       {m.referenceOrderNumber ? (
-                        <span style={{ color: "#3b82f6", cursor: "pointer", fontWeight: 500 }} onClick={(e) => { e.stopPropagation(); alert(\`Order details for \${m.referenceOrderNumber} would open here\`); }}>
+                        <span style={{ color: "#3b82f6", cursor: "pointer", fontWeight: 500 }} onClick={(e) => { e.stopPropagation(); alert(`Order details for ${m.referenceOrderNumber} would open here`); }}>
                           Order #{m.referenceOrderNumber}
                         </span>
                       ) : (
