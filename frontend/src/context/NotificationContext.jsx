@@ -1,9 +1,13 @@
 import React, { createContext, useState, useEffect, useCallback, useContext } from 'react';
 import API from '../api/axios';
 import { AuthContext } from './AuthContext';
+
+console.log("AuthContext in NotificationContext:", AuthContext);
 export const NotificationContext = createContext();
 export const NotificationProvider = ({ children }) => {
-    const { user } = useContext(AuthContext);
+    const authContextValue = useContext(AuthContext);
+    console.log("authContextValue in NotificationProvider:", authContextValue);
+    const { user } = authContextValue || {};
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const fetchNotifications = useCallback(async () => {

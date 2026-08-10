@@ -305,15 +305,9 @@ const connectDB = async () => {
             console.log('Error cleaning up stale tables:', e.message);
         }
 
-        // The tables imported from SQL don't have AUTO_INCREMENT. 
-        // We must recreate them safely before syncing.
-        for (const modelName of Object.keys(sequelize.models)) {
-            await safelyRecreateTable(modelName);
-        }
-
         await sequelize.sync();
         console.log(`${dbName} Database tables synchronized.`);
-        await syncAndRepairDatabase();
+        // await syncAndRepairDatabase();
         return true;
     } catch (error) {
         console.error('\n******************************************************************************');

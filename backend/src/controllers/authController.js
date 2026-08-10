@@ -57,7 +57,13 @@ const registerUser = async (req, res) => {
         if (userExists) {
             return res.status(400).json({ message: 'User already exists' });
         }
-        const user = await User.create({ name, email, password, phone, role });
+        const internalRoles = ['admin', 'super admin', 'hr', 'manager', 'employee', 'sales'];
+        let safeRole = role;
+        if (internalRoles.includes(String(role || '').trim().toLowerCase())) {
+            safeRole = 'Customer';
+        }
+
+        const user = await User.create({ name, email, password, phone, role: safeRole, isProfileComplete: false });
         if (!user) {
             return res.status(400).json({ message: 'Invalid user data' });
         }
@@ -99,16 +105,18 @@ const loginUser = async (req, res) => {
     let role = user.role;
     if (requestedRole) {
         let isRoleValid = false;
-        const dbRole = (role || '').toLowerCase();
-        const reqRole = (requestedRole || '').toLowerCase();
+        const dbRole = String(role || '').trim().toLowerCase();
+        const reqRole = String(requestedRole || '').trim().toLowerCase();
+        
         if (reqRole === dbRole) {
             isRoleValid = true;
         } else if (reqRole === 'admin' && dbRole === 'super admin') {
             isRoleValid = true;
         }
+        
         if (!isRoleValid) {
             console.error(`[LOGIN] Login failed for email: ${email} - Role mismatch. Expected ${role}, got ${requestedRole}`);
-            return res.status(403).json({ message: `Role mismatch. This account is registered as ${role}.` });
+            return res.status(403).json({ message: `Invalid role. This account is registered as ${role}, not ${requestedRole}.` });
         }
     }
     let actualName = user.name;
@@ -244,12 +252,20 @@ const googleAuth = async (req, res) => {
             });
         } else {
             const crypto = require('crypto');
+            // STRICT SECURITY: Prevent creating internal staff roles via SSO.
+            // If they try to sign up as Admin, HR, etc., force them to Customer.
+            let safeRole = selectedRole;
+            const internalRoles = ['admin', 'super admin', 'hr', 'manager', 'employee', 'sales'];
+            if (internalRoles.includes(String(selectedRole || '').toLowerCase())) {
+                safeRole = 'Customer';
+            }
+
             const dummyPassword = crypto.randomBytes(32).toString('hex');
             user = await User.create({
                 name,
                 email,
                 googleId,
-                role: selectedRole,
+                role: safeRole,
                 password: dummyPassword,
                 provider: 'google',
                 active: true,
@@ -410,19 +426,27 @@ const microsoftAuth = async (req, res) => {
         } else {
             // Register new user via Microsoft SSO
             const crypto = require('crypto');
+            // STRICT SECURITY: Prevent creating internal staff roles via SSO.
+            let safeRole = selectedRole;
+            const internalRoles = ['admin', 'super admin', 'hr', 'manager', 'employee', 'sales'];
+            if (internalRoles.includes(String(selectedRole || '').toLowerCase())) {
+                safeRole = 'Customer';
+            }
+
             const dummyPassword = crypto.randomBytes(32).toString('hex');
             user = await User.create({
                 name,
                 email,
                 microsoftId,
-                role: selectedRole,
+                role: safeRole,
                 password: dummyPassword,
                 provider: 'microsoft',
                 active: true,
-                isProfileComplete: false,
+                isProfileComplete: false
             });
 
-            if (selectedRole === 'Vendor') {
+            if (safeRole === 'Vendor') {
+                const Vendor = require('../models/Vendor');
                 await Vendor.create({
                     name: user.name,
                     email: user.email,
@@ -433,6 +457,7 @@ const microsoftAuth = async (req, res) => {
                     userId: user.id || user._id
                 });
             } else {
+                const Customer = require('../models/Customer');
                 await Customer.create({
                     name: user.name,
                     email: user.email,

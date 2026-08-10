@@ -1,10 +1,6 @@
 const { TrainingCourseSequelize, TrainingEnrollmentSequelize } = require('../models/Training');
 const User = require('../models/User');
-const syncTables = async () => {
-    await TrainingCourseSequelize.sync({ alter: true });
-    await TrainingEnrollmentSequelize.sync({ alter: true });
-};
-syncTables().catch(console.error);
+// syncTables removed
 exports.getCourses = async (req, res) => {
     try {
         const { category } = req.query;

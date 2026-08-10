@@ -29,9 +29,5 @@ const Candidate = sequelize.define('Candidate', {
 });
 JobPosting.hasMany(Candidate, { foreignKey: 'jobId', as: 'candidates' });
 Candidate.belongsTo(JobPosting, { foreignKey: 'jobId', as: 'job' });
-const syncTables = async () => {
-    await JobPosting.sync({ alter: true });
-    await Candidate.sync({ alter: true });
-};
-syncTables().catch(console.error);
+// syncTables removed to prevent race conditions with db.js
 module.exports = { JobPosting, Candidate };

@@ -10,5 +10,5 @@ const Holiday = sequelize.define('Holiday', {
     isRecurring: { type: DataTypes.BOOLEAN, defaultValue: false },
     createdBy:   { type: DataTypes.INTEGER, allowNull: true },
 });
-Holiday.sync({ alter: true }).catch(console.error);
+// sync removed
 module.exports = Holiday;

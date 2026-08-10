@@ -6,10 +6,43 @@ const Vendor = require("../models/Vendor");
 const Salary = require("../models/Salary");
 const Attendance = require("../models/Attendance");
 const Leave = require("../models/Leave");
-const getDashboardStats = async (req, res) => {
+const computeDashboardStats = async (req, res) => {
   try {
     const role = req.user.role;
-    let stats = {};
+    
+        const [
+            _allMats, _allEmps, _allOrds, _allCusts, _allVends,
+            _allLeaves, _allSals, _allAtts, _allTasks, _allLeads, _allQuotes,
+            _allNotifs, _allAudits
+        ] = await Promise.all([
+            Material.find({}).lean().catch(()=>[]), Employee.find({}).lean().catch(()=>[]), Order.find({}).lean().catch(()=>[]), Customer.find({}).lean().catch(()=>[]), Vendor.find({}).lean().catch(()=>[]),
+            Leave.find({}).lean().catch(()=>[]), Salary.find({}).lean().catch(()=>[]), Attendance.find({}).lean().catch(()=>[]), require('../models/Task').find({}).lean().catch(()=>[]),
+            require('../models/Lead').find({}).lean().catch(()=>[]), require('../models/Quotation').find({}).lean().catch(()=>[]),
+            require('../models/Notification').find({}).lean().catch(()=>[]), require('../models/AuditLog').find({}).lean().catch(()=>[])
+        ]);
+
+        const _filter = (arr, condition) => {
+            if (!arr) return [];
+            return arr.filter(item => {
+                for (let key in condition) {
+                    if (condition[key] && condition[key].$in) {
+                        if (!condition[key].$in.includes(item[key])) return false;
+                    } else if (condition[key] && condition[key].$nin) {
+                        if (condition[key].$nin.includes(item[key])) return false;
+                    } else if (condition[key] && condition[key].$ne) {
+                        if (item[key] === condition[key].$ne) return false;
+                    } else if (condition[key] && condition[key].$gte !== undefined) {
+                        const val = new Date(item[key]);
+                        if (condition[key].$gte && val < condition[key].$gte) return false;
+                        if (condition[key].$lte && val > condition[key].$lte) return false;
+                    } else {
+                        if (item[key] !== condition[key]) return false;
+                    }
+                }
+                return true;
+            });
+        };
+let stats = {};
     try {
       const materials = await Material.find({});
       const activeMaterialsCount = materials.filter(
@@ -78,21 +111,9 @@ const getDashboardStats = async (req, res) => {
         purchaseResult && purchaseResult.length > 0
           ? purchaseResult[0].total
           : 0;
-      const salesCount = await Order.countDocuments({ orderType: "sales" });
-      const purchaseCount = await Order.countDocuments({
-        orderType: "purchase",
-      });
-      const activeOrdersCount = await Order.countDocuments({
-        status: {
-          $nin: [
-            "Completed",
-            "Delivered",
-            "Workflow Completed",
-            "Invoice Generated",
-            "Cancelled",
-          ],
-        },
-      });
+      const salesCount = (_filter(_allOrds, { orderType: 'sales' }).length);
+      const purchaseCount = (_filter(_allOrds, { orderType: 'purchase' }).length);
+      const activeOrdersCount = (_filter(_allOrds, { status: { $nin: ['Completed', 'Delivered', 'Workflow Completed', 'Invoice Generated', 'Cancelled'] } }).length);
       stats.totalSalesOrders = salesCount;
       stats.totalPurchaseOrders = purchaseCount;
       stats.activeOrdersCount = activeOrdersCount;
@@ -105,7 +126,7 @@ const getDashboardStats = async (req, res) => {
     let outOfStockCount = 0;
     let allMaterialsRaw = [];
     try {
-      allMaterialsRaw = await Material.find();
+      allMaterialsRaw = (_allMats);
       const allMaterials = allMaterialsRaw.filter((m) => m.isActive !== false);
       allMaterials.forEach((m) => {
         totalStockQuantity += m.quantity || 0;
@@ -116,10 +137,7 @@ const getDashboardStats = async (req, res) => {
           outOfStockCount++;
         }
       });
-      const purchaseOrders = await Order.find({
-        orderType: "purchase",
-        status: { $in: ["Pending", "Awaiting Approval", "Approved"] },
-      });
+      const purchaseOrders = (_filter(_allOrds, { orderType: 'purchase', status: { $in: ['Pending', 'Awaiting Approval', 'Approved'] } }));
       purchaseOrders.forEach((po) => {
         if (po.items && po.items.length > 0) {
           po.items.forEach((item) => {
@@ -132,7 +150,7 @@ const getDashboardStats = async (req, res) => {
     }
     let categoryData = [];
     try {
-      const materialsList = await Material.find();
+      const materialsList = (_allMats);
       const activeMats = materialsList.filter((m) => m.isActive !== false);
       const catCounts = {};
       activeMats.forEach((m) => {
@@ -212,10 +230,7 @@ const getDashboardStats = async (req, res) => {
     let topSellingMaterials = [];
     let salesCategoryData = [];
     try {
-      const salesOrders = await Order.find({
-        orderType: "sales",
-        status: { $ne: "Cancelled" },
-      });
+      const salesOrders = (_filter(_allOrds, { orderType: 'sales', status: { $ne: 'Cancelled' } }));
       const matNameMap = {};
       const matCatMap = {};
       allMaterialsRaw.forEach((m) => {
@@ -470,7 +485,7 @@ const getDashboardStats = async (req, res) => {
           });
 
           // Sales Order events
-          const salesOrders = await Order.find({ orderType: "sales" })
+          const salesOrders = (_filter(_allOrds, { orderType: 'sales' }))
             .sort({ updatedAt: -1 })
             .limit(5)
             .catch(() => []);
@@ -639,7 +654,7 @@ const getDashboardStats = async (req, res) => {
           },
           {
             name: "Pending",
-            value: await Customer.countDocuments({ status: "Pending Review" }),
+            value: (_filter(_allCusts, { status: 'Pending Review' }).length),
             color: "#f59e0b",
           },
           {
@@ -661,7 +676,7 @@ const getDashboardStats = async (req, res) => {
           },
           {
             name: "Pending",
-            value: await Order.countDocuments({ status: "Awaiting Approval" }),
+            value: (_filter(_allOrds, { status: 'Awaiting Approval' }).length),
             color: "#f59e0b",
           },
         ],
@@ -676,7 +691,7 @@ const getDashboardStats = async (req, res) => {
       },
     };
     try {
-      const allVendors = await Vendor.find({});
+      const allVendors = (_allVends);
       const vendorsByCategory = {};
       allVendors.forEach((v) => {
         const cat = v.category || "Other";
@@ -735,7 +750,7 @@ const getDashboardStats = async (req, res) => {
           percentage: `${((d.value / activeEmployeesCount) * 100).toFixed(1)}%`,
           color: COLORS[index % COLORS.length],
         }));
-        const recentEmployees = await Employee.find()
+        const recentEmployees = (_allEmps)
           .sort({ createdAt: -1 })
           .limit(4);
         const recentEmployeesFormatted = recentEmployees.map((emp) => ({
@@ -752,10 +767,7 @@ const getDashboardStats = async (req, res) => {
           d.setHours(0, 0, 0, 0);
           const dEnd = new Date(d);
           dEnd.setHours(23, 59, 59, 999);
-          const count = await Attendance.countDocuments({
-            date: { $gte: d, $lte: dEnd },
-            status: { $in: ["Present", "Late"] },
-          });
+          const count = (_filter(_allAtts, { date: { $gte: d, $lte: dEnd }, status: { $in: ['Present', 'Late'] } }).length);
           const dayName = d.toLocaleDateString("en-US", { weekday: "short" });
           attendanceHistory.push({ name: dayName, employees: count });
         }
@@ -799,7 +811,7 @@ const getDashboardStats = async (req, res) => {
           startDate: { $lte: todayEnd },
           endDate: { $gte: todayStart },
         });
-        const pendingLeaves = await Leave.countDocuments({ status: "Pending" });
+        const pendingLeaves = (_filter(_allLeaves, { status: 'Pending' }).length);
         let salaryBrackets = {
           "< ₹30k": 0,
           "₹30k - 50k": 0,
@@ -883,7 +895,7 @@ const getDashboardStats = async (req, res) => {
         const currentYear3 = new Date().getFullYear();
         const currentMonth3 = new Date().getMonth();
         const allLeads = await Lead.find({}).catch(() => []);
-        const allOrders3 = await Order.find({ orderType: "sales" }).catch(
+        const allOrders3 = (_filter(_allOrds, { orderType: 'sales' })).catch(
           () => []
         );
         const allQuotes = await Quotation.find({}).catch(() => []);
@@ -972,8 +984,8 @@ const getDashboardStats = async (req, res) => {
             },
           }),
           pendingApprovals:
-            (await Order.countDocuments({ status: "Awaiting Approval" })) +
-            (await Leave.countDocuments({ status: "Pending" })),
+            ((_filter(_allOrds, { status: 'Awaiting Approval' }).length)) +
+            ((_filter(_allLeaves, { status: 'Pending' }).length)),
           teamProductivity: 0,
         };
       } catch (e) {
@@ -1018,10 +1030,7 @@ const getDashboardStats = async (req, res) => {
           }
           data.employeeStats = {
             attendanceToday: att ? att.status : "-",
-            myPendingLeaves: await Leave.countDocuments({
-              employeeId: empRecord._id,
-              status: "Pending",
-            }),
+            myPendingLeaves: (_filter(_allLeaves, { employeeId: empRecord._id, status: 'Pending' }).length),
             trainingCompletion,
             kudos,
             performanceScore,
@@ -1032,14 +1041,8 @@ const getDashboardStats = async (req, res) => {
       }
     }
     try {
-      const completedSalesOrders = await Order.find({
-        orderType: "sales",
-        status: { $ne: "Cancelled" },
-      });
-      const completedPurchaseOrders = await Order.find({
-        orderType: "purchase",
-        status: { $ne: "Cancelled" },
-      });
+      const completedSalesOrders = (_filter(_allOrds, { orderType: 'sales', status: { $ne: 'Cancelled' } }));
+      const completedPurchaseOrders = (_filter(_allOrds, { orderType: 'purchase', status: { $ne: 'Cancelled' } }));
       const totalAnalyticsRevenue = completedSalesOrders.reduce(
         (sum, o) => sum + (Number(o.totalAmount) || Number(o.grandTotal) || 0),
         0
@@ -1187,7 +1190,7 @@ const getDashboardStats = async (req, res) => {
           ((data.hrStats.presentToday || 0) / data.hrStats.totalEmployees) * 100
         );
       }
-      const totalOrderCount = await Order.countDocuments();
+      const totalOrderCount = (_allOrds?_allOrds.length:0);
       const fulfilledOrderCount = await Order.countDocuments({
         status: {
           $in: [
@@ -1421,4 +1424,62 @@ const getDashboardStats = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-module.exports = { getDashboardStats };
+
+
+// --- CACHE LAYER ---
+const cache = new Map();
+
+const getDashboardStats = async (req, res) => {
+  const userId = req.user.id;
+  
+  if (cache.has(userId)) {
+    const cachedData = cache.get(userId);
+    // If cache is less than 60 seconds old, return it instantly
+    if (Date.now() - cachedData.timestamp < 60000) {
+      return res.json(cachedData.data);
+    }
+  }
+
+  // If cache is missing or expired, we compute it. 
+  // To prevent the 10-second timeout on the frontend, if there is a STALE cache, we return the stale cache IMMEDIATELY and compute in background!
+  if (cache.has(userId)) {
+    // Return stale data immediately
+    res.json(cache.get(userId).data);
+    
+    // Compute in background
+    const dummyRes = {
+      json: (data) => {
+        cache.set(userId, { data, timestamp: Date.now() });
+      },
+      status: () => dummyRes
+    };
+    computeDashboardStats(req, dummyRes).catch(console.error);
+    return;
+  }
+
+  // If there is NO cache at all (very first load), we MUST wait for it.
+  // But wait, the user will time out in 10s. So we will start computing, and if it takes more than 8s, we return a partial/empty stats object, but keep computing!
+  // Actually, we'll just wait for it. The frontend might time out, but the cache will populate.
+  
+  const dummyRes = {
+    json: (data) => {
+      cache.set(userId, { data, timestamp: Date.now() });
+      if (!res.headersSent) {
+        res.json(data);
+      }
+    },
+    status: (code) => {
+      if (!res.headersSent) res.status(code);
+      return dummyRes;
+    }
+  };
+
+  computeDashboardStats(req, dummyRes).catch(err => {
+    console.error(err);
+    if (!res.headersSent) res.status(500).json({ message: "Server error" });
+  });
+};
+
+module.exports = {
+  getDashboardStats,
+};
