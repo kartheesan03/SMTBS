@@ -1118,9 +1118,6 @@ body.landing-page-active *::-webkit-scrollbar {
     .ai-section { padding-left: 20px; padding-right: 20px; }
     .section-header h2 { font-size: 28px; }
     .carousel-arrow { display: none; }
-}
-
-@media (max-width: 640px) {
     .hero-cta-group {
         flex-direction: column;
         width: 100%;
