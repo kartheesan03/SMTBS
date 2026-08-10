@@ -64,6 +64,26 @@ const registerUser = async (req, res) => {
         }
 
         const user = await User.create({ name, email, password, phone, role: safeRole, isProfileComplete: false });
+        
+        // Ensure every internal role also gets a corresponding Employee record automatically
+        if (['Admin', 'HR', 'Manager', 'Employee', 'Sales'].includes(safeRole)) {
+            const Employee = require('../models/Employee');
+            const parts = (name || '').split(' ');
+            const firstName = parts[0] || 'Unknown';
+            const lastName = parts.slice(1).join(' ') || '';
+            const employeeId = 'EMP' + Math.floor(Math.random() * 900000 + 100000);
+            
+            await Employee.create({
+                userIdField: user.id || user._id,
+                employeeId,
+                firstName,
+                lastName,
+                department: safeRole,
+                designation: safeRole,
+                contact: email,
+                joinDate: new Date()
+            }).catch(e => console.error('Auto-creating employee failed:', e));
+        }
         if (!user) {
             return res.status(400).json({ message: 'Invalid user data' });
         }
