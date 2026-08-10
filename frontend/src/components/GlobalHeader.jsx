@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { NotificationContext } from '../context/NotificationContext';
 import { Search, Bell, Calendar, RefreshCw, Grid, LogOut, User } from 'lucide-react';
+import CommandPalette from './CommandPalette';
 import './GlobalHeader.css';
 const GlobalHeader = ({ onRefresh, onOpenModuleLauncher, onOpenCommandCenter }) => {
     const { user, logout } = useContext(AuthContext);
@@ -10,6 +11,7 @@ const GlobalHeader = ({ onRefresh, onOpenModuleLauncher, onOpenCommandCenter }) 
     const navigate = useNavigate();
     const [currentTime, setCurrentTime] = useState(new Date());
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+    const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
     const [dateFormat, setDateFormat] = useState(localStorage.getItem('dateFormat') || 'DD/MM/YYYY');
     const [timezone, setTimezone] = useState(localStorage.getItem('timezone') || 'Asia/Kolkata');
     const profileRef = useRef(null);
@@ -31,8 +33,15 @@ const GlobalHeader = ({ onRefresh, onOpenModuleLauncher, onOpenCommandCenter }) 
                 setIsProfileMenuOpen(false);
             }
         };
+        const handleOpenPalette = () => {
+            setIsCommandPaletteOpen(true);
+        };
         document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
+        document.addEventListener('open-command-palette', handleOpenPalette);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener('open-command-palette', handleOpenPalette);
+        };
     }, []);
     const initials = user?.name ? user.name.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase() : 'AU';
     const isSales = user?.role?.toLowerCase() === 'sales';
@@ -81,9 +90,9 @@ const GlobalHeader = ({ onRefresh, onOpenModuleLauncher, onOpenCommandCenter }) 
                 >
                     <Grid size={18} color="#64748b" />
                 </button>
-                <div className="rd-search-bar">
+                <div className="rd-search-bar" onClick={() => setIsCommandPaletteOpen(true)} style={{ cursor: 'pointer' }}>
                     <Search size={16} color="#94a3b8" />
-                    <input type="text" className="rd-search-input" placeholder="Search..." />
+                    <span style={{ color: '#94a3b8', fontSize: '14px', marginLeft: '8px' }}>Search... (Ctrl+K)</span>
                 </div>
             </div>
             <div className="rd-header-actions">
@@ -154,6 +163,7 @@ const GlobalHeader = ({ onRefresh, onOpenModuleLauncher, onOpenCommandCenter }) 
                     )}
                 </div>
             </div>
+            <CommandPalette isOpen={isCommandPaletteOpen} onClose={() => setIsCommandPaletteOpen(false)} />
         </header>
     );
 };
