@@ -1183,8 +1183,8 @@ const TrackingDashboard = () => {
       <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
         {renderGlobalKPICards()}
         <div className="mcc-section">
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 16, marginBottom: 20, alignItems: "center" }}>
-            <div style={{ flex: "1 1 250px", minWidth: "250px", position: "relative" }}>
+          <div style={{ display: "flex", flexWrap: "nowrap", gap: 16, marginBottom: 20, alignItems: "center", overflowX: "auto", paddingBottom: "4px" }}>
+            <div style={{ flex: "2 1 300px", minWidth: "250px", position: "relative" }}>
               <Search size={16} color="#94a3b8" style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)" }} />
               <input 
                 type="text" 
@@ -1198,7 +1198,7 @@ const TrackingDashboard = () => {
             {(() => {
               const uniqueTypes = [...new Set(movements.map(m => m.type).filter(Boolean))].sort();
               return (
-                <select value={filterType} onChange={(e) => setFilterType(e.target.value)} style={{ padding: "10px 16px", border: "1px solid #e2e8f0", background: "#f8fafc", outline: "none", textTransform: 'capitalize', borderRadius: "4px", fontSize: "14px" }}>
+                <select value={filterType} onChange={(e) => setFilterType(e.target.value)} style={{ flex: "1 1 150px", minWidth: "150px", padding: "10px 16px", border: "1px solid #e2e8f0", background: "#f8fafc", outline: "none", textTransform: 'capitalize', borderRadius: "4px", fontSize: "14px" }}>
                   <option value="">All Movement Types</option>
                   {uniqueTypes.map(t => (
                     <option key={t} value={t.toLowerCase()}>{t}</option>
@@ -1210,7 +1210,7 @@ const TrackingDashboard = () => {
             {(() => {
               const uniqueLocations = [...new Set(movements.map(m => m.materialLocation).filter(Boolean))].sort();
               return (
-                <select value={filterLocation} onChange={(e) => setFilterLocation(e.target.value)} style={{ padding: "10px 16px", border: "1px solid #e2e8f0", background: "#f8fafc", outline: "none", borderRadius: "4px", fontSize: "14px" }}>
+                <select value={filterLocation} onChange={(e) => setFilterLocation(e.target.value)} style={{ flex: "1 1 150px", minWidth: "150px", padding: "10px 16px", border: "1px solid #e2e8f0", background: "#f8fafc", outline: "none", borderRadius: "4px", fontSize: "14px" }}>
                   <option value="">All Locations</option>
                   {uniqueLocations.map(loc => (
                     <option key={loc} value={loc.toLowerCase()}>{loc}</option>
