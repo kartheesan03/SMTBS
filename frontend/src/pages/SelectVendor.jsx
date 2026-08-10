@@ -178,7 +178,7 @@ const SelectVendor = () => {
                                 color: "#475569",
                               }}
                             >
-                              {m}
+                              {typeof m === 'object' ? (m.name || m.materialName || 'Unknown') : m}
                             </span>
                           ))}
                         </div>
