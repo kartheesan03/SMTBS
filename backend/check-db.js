@@ -1,11 +1,28 @@
 require('dotenv').config();
-const connectDB = require('./src/config/db');
-const User = require('./src/models/User');
+const { Sequelize, DataTypes } = require('sequelize');
 
-async function check() {
-  await connectDB();
-  const users = await User.find({});
-  console.log(users.map(u => ({ email: u.email, role: u.role })));
-  process.exit(0);
+const sequelize = new Sequelize(process.env.MYSQL_URL, {
+    dialect: 'mysql',
+    logging: false,
+    dialectOptions: { connectTimeout: 60000 },
+    define: { freezeTableName: true }
+});
+
+const User = sequelize.define('User', {
+    name: { type: DataTypes.STRING },
+    email: { type: DataTypes.STRING },
+    role: { type: DataTypes.STRING }
+});
+
+async function run() {
+    try {
+        await sequelize.authenticate();
+        console.log("Connected to DB.");
+        const user = await User.findOne({ where: { email: 'admin@smtbms.com' }});
+        console.log("User:", user ? user.toJSON() : null);
+    } catch (err) {
+        console.error(err);
+    }
+    process.exit(0);
 }
-check();
+run();

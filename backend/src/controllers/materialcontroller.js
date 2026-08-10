@@ -437,10 +437,23 @@ const getAllMovements = async (req, res) => {
             const key = String(v.id || v._id);
             vendorMap[key] = v;
         });
+        
+        const Order = require('../models/Order');
+        const refOrderIds = [...new Set(movements.map(m => m.referenceOrderId).filter(id => id != null))];
+        let orders = [];
+        if (refOrderIds.length > 0) {
+            orders = await Order.find({ id: { $in: refOrderIds } });
+        }
+        const orderMap = {};
+        orders.forEach(o => {
+            orderMap[String(o.id || o._id)] = o;
+        });
+
         const enrichedMovements = movements.map(m => {
             const mObj = m.toJSON ? m.toJSON() : m;
             const mat = matMap[String(mObj.materialId)];
             const vendorName = mat && mat.vendorId && vendorMap[String(mat.vendorId)] ? vendorMap[String(mat.vendorId)].name : 'Supplier';
+            const orderInfo = mObj.referenceOrderId ? orderMap[String(mObj.referenceOrderId)] : null;
             return {
                 ...mObj,
                 materialName:      mat ? mat.name        : 'Unknown',
@@ -449,7 +462,9 @@ const getAllMovements = async (req, res) => {
                 materialGpsStatus: mat ? (mat.gpsStatus || 'Stationary') : null,
                 materialQuantity:  mat ? mat.quantity    : 0,
                 materialVendorName: vendorName,
-                materialId:        mObj.materialId
+                materialId:        mObj.materialId,
+                referenceOrderNumber: orderInfo ? orderInfo.orderNumber : null,
+                referenceOrderType: orderInfo ? orderInfo.orderType : null
             };
         });
         res.json(enrichedMovements);

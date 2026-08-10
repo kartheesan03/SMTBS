@@ -159,8 +159,14 @@ const createOrder = async (req, res) => {
             }],
             workflow: defaultWorkflow
         });
-        if (initialStatus === 'Approved') {
-            await updateStock(items);
+        const salesFinalStates = ['Shipped', 'Completed'];
+        const purchaseFinalStates = ['Delivered', 'Received', 'Completed'];
+        if (orderType === 'sales' && salesFinalStates.includes(initialStatus)) {
+            await updateStock(items, 'sales', createdOrder.id || createdOrder._id, req.user?._id);
+        } else if (orderType === 'purchase' && purchaseFinalStates.includes(initialStatus)) {
+            await updateStock(items, 'purchase', createdOrder.id || createdOrder._id, req.user?._id);
+        } else if (initialStatus === 'Approved') {
+            await updateStock(items, 'sales', createdOrder.id || createdOrder._id, req.user?._id);
         }
         const populatedOrder = await Order.findById(createdOrder._id)
             .populate('customer', 'name')
@@ -413,7 +419,12 @@ const updateOrderStatus = async (req, res) => {
         const updatedOrder = await order.save();
         const purchaseFinalStates = ['Delivered', 'Received', 'Completed'];
         if (order.orderType === 'purchase' && purchaseFinalStates.includes(status) && !purchaseFinalStates.includes(prevStatus)) {
-            await updateStock(order.items, 'purchase', order._id, req.user?._id);
+            await updateStock(order.items, 'purchase', order.id || order._id, req.user?._id);
+        }
+        
+        const salesFinalStates = ['Shipped', 'Completed'];
+        if (order.orderType === 'sales' && salesFinalStates.includes(status) && !salesFinalStates.includes(prevStatus)) {
+            await updateStock(order.items, 'sales', order.id || order._id, req.user?._id);
         }
         if (order.orderType === 'purchase' && order.vendor) {
             try {

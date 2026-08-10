@@ -1226,6 +1226,7 @@ const TrackingDashboard = () => {
                   <th style={{ padding: 12 }}>Type</th>
                   <th style={{ padding: 12 }}>Qty Changed</th>
                   <th style={{ padding: 12 }}>Location</th>
+                  <th style={{ padding: 12 }}>Reference</th>
                   <th style={{ padding: 12 }}>Status</th>
                 </tr>
               </thead>
@@ -1245,10 +1246,19 @@ const TrackingDashboard = () => {
                     <td style={{ padding: 12 }}>
                       {m.materialLocation || "Unassigned"}
                     </td>
+                    <td style={{ padding: 12 }}>
+                      {m.referenceOrderNumber ? (
+                        <span style={{ color: "#3b82f6", cursor: "pointer", fontWeight: 500 }} onClick={(e) => { e.stopPropagation(); alert(\`Order details for \${m.referenceOrderNumber} would open here\`); }}>
+                          Order #{m.referenceOrderNumber}
+                        </span>
+                      ) : (
+                        <span style={{ color: "#94a3b8" }}>Manual / Initial</span>
+                      )}
+                    </td>
                     <td style={{ padding: 12 }}>{m.status || "Completed"}</td>
                   </tr>
                 ))}
-                {filteredMovements.length === 0 && <tr><td colSpan="6" style={{ padding: 24, textAlign: "center", color: "#94a3b8" }}>No movements found for these filters.</td></tr>}
+                {filteredMovements.length === 0 && <tr><td colSpan="7" style={{ padding: 24, textAlign: "center", color: "#94a3b8" }}>No movements found for these filters.</td></tr>}
               </tbody>
             </table>
           </div>

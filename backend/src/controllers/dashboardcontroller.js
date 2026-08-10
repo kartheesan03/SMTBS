@@ -750,9 +750,9 @@ let stats = {};
           percentage: `${((d.value / activeEmployeesCount) * 100).toFixed(1)}%`,
           color: COLORS[index % COLORS.length],
         }));
-        const recentEmployees = (_allEmps)
-          .sort({ createdAt: -1 })
-          .limit(4);
+        const recentEmployees = [...(_allEmps || [])]
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+          .slice(0, 4);
         const recentEmployeesFormatted = recentEmployees.map((emp) => ({
           name: `${emp.firstName} ${emp.lastName || ""}`.trim(),
           role: emp.designation || "Staff",
@@ -895,9 +895,7 @@ let stats = {};
         const currentYear3 = new Date().getFullYear();
         const currentMonth3 = new Date().getMonth();
         const allLeads = await Lead.find({}).catch(() => []);
-        const allOrders3 = (_filter(_allOrds, { orderType: 'sales' })).catch(
-          () => []
-        );
+        const allOrders3 = (_allOrds || []).filter(o => o.orderType === 'sales');
         const allQuotes = await Quotation.find({}).catch(() => []);
         const salesTrend = [];
         for (let i = 5; i >= 0; i--) {
