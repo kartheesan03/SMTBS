@@ -94,7 +94,7 @@ const LiveChatWidget = ({ isOpen, onClose }) => {
                 const res = await api.post('/tickets', {
                     subject: 'Live Chat Support',
                     category: 'Live Chat',
-                    priority: 'Normal',
+                    priority: 'Medium',
                     description: newMessage
                 });
                 setChatTicket(res.data);

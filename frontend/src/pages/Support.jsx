@@ -18,7 +18,7 @@ const Support = () => {
   // Form State
   const [subject, setSubject] = useState("");
   const [category, setCategory] = useState("General Query");
-  const [priority, setPriority] = useState("Normal");
+  const [priority, setPriority] = useState("Medium");
   const [description, setDescription] = useState("");
   const [attachment, setAttachment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -154,7 +154,7 @@ const Support = () => {
       setDescription("");
       setAttachment("");
       setCategory("General Query");
-      setPriority("Normal");
+      setPriority("Medium");
       
       // Refresh stats
       fetchTickets();
@@ -348,7 +348,7 @@ const Support = () => {
             <div className="form-group">
                <label>Priority</label>
                <div className="priority-selector">
-                  {["Low", "Normal", "High", "Critical"].map(p => (
+                  {["Low", "Medium", "High", "Critical"].map(p => (
                      <button type="button" key={p} className={`btn-priority ${priority === p ? 'active' : ''}`} onClick={() => setPriority(p)}>
                         {p}
                      </button>
