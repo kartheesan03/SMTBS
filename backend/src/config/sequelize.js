@@ -4,22 +4,7 @@ const path = require('path');
 let sequelize;
 
 // Use PostgreSQL if DATABASE_URL is set (e.g., Railway PostgreSQL)
-if (process.env.DATABASE_URL) {
-    sequelize = new Sequelize(process.env.DATABASE_URL, {
-        dialect: 'postgres',
-        logging: false,
-        dialectOptions: {
-            ssl: process.env.NODE_ENV === 'production' ? {
-                require: true,
-                rejectUnauthorized: false
-            } : false
-        },
-        define: {
-            timestamps: true,
-            freezeTableName: true
-        }
-    });
-} else if (process.env.MYSQL_URL) {
+if (process.env.MYSQL_URL) {
     sequelize = new Sequelize(process.env.MYSQL_URL, {
         dialect: 'mysql',
         logging: false,
@@ -34,6 +19,21 @@ if (process.env.DATABASE_URL) {
         port: process.env.MYSQL_PORT || 3306,
         dialect: 'mysql',
         logging: false,
+        define: {
+            timestamps: true,
+            freezeTableName: true
+        }
+    });
+} else if (process.env.DATABASE_URL) {
+    sequelize = new Sequelize(process.env.DATABASE_URL, {
+        dialect: 'postgres',
+        logging: false,
+        dialectOptions: {
+            ssl: process.env.NODE_ENV === 'production' ? {
+                require: true,
+                rejectUnauthorized: false
+            } : false
+        },
         define: {
             timestamps: true,
             freezeTableName: true
