@@ -1,0 +1,308 @@
+.admin-tickets-container {
+    padding: 24px;
+    height: calc(100vh - 70px);
+    display: flex;
+    flex-direction: column;
+}
+
+.ticket-stats-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.stat-card {
+    background: var(--surface-light);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 16px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.sc-label {
+    color: var(--text-muted);
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.sc-value {
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.tickets-layout {
+    display: flex;
+    gap: 24px;
+    flex: 1;
+    min-height: 0; /* Important for scroll */
+}
+
+/* Left List */
+.tickets-list-section {
+    width: 350px;
+    background: var(--surface-light);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.tickets-filters {
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.search-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-box .search-icon {
+    position: absolute;
+    left: 12px;
+    color: var(--text-muted);
+}
+
+.search-box input {
+    width: 100%;
+    padding: 10px 10px 10px 36px;
+    background: rgba(0,0,0,0.1);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: white;
+}
+
+.tickets-scroll-area {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.ticket-card {
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.ticket-card:hover {
+    background: rgba(255,255,255,0.03);
+}
+
+.ticket-card.active {
+    background: rgba(99, 102, 241, 0.1);
+    border-left: 3px solid var(--primary-color);
+}
+
+.tc-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+
+.tc-id {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.tc-date {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.tc-subject {
+    font-size: 14px;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.tc-user {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.tc-footer {
+    display: flex;
+    gap: 8px;
+}
+
+/* Badges */
+.ticket-badge {
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    background: rgba(255,255,255,0.1);
+}
+.badge-warning { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+.badge-info { background: rgba(56, 189, 248, 0.2); color: #38bdf8; }
+.badge-success { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+.badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+.badge-alert { background: rgba(168, 85, 247, 0.2); color: #c084fc; }
+
+/* Right Section */
+.ticket-details-section {
+    flex: 1;
+    background: var(--surface-light);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.td-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--text-muted);
+}
+.td-empty h3 { margin: 16px 0 8px; color: white; }
+
+.td-header {
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+.admin-td-header {
+    align-items: center;
+}
+.td-header h2 { margin-bottom: 4px; }
+.td-meta { font-size: 13px; color: var(--text-muted); }
+.td-user { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+
+.status-select, .priority-select {
+    padding: 6px 12px;
+    background: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    color: white;
+    border-radius: 4px;
+    margin-left: 8px;
+}
+
+.td-messages {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.message-bubble {
+    padding: 16px;
+    border-radius: 8px;
+    max-width: 85%;
+}
+
+.message-user {
+    background: rgba(255,255,255,0.05);
+    align-self: flex-start;
+}
+
+.message-admin {
+    background: rgba(99, 102, 241, 0.1);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    align-self: flex-end;
+}
+
+.message-internal {
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px dashed rgba(245, 158, 11, 0.4);
+    align-self: flex-end;
+}
+
+.msg-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 13px;
+}
+
+.msg-header span { color: var(--text-muted); }
+.internal-badge { font-size: 10px; background: #f59e0b; color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px; font-weight: 700; }
+
+.msg-body {
+    font-size: 14px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+}
+
+.msg-attachment {
+    margin-top: 12px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.msg-attachment a { color: var(--primary-color); text-decoration: none; }
+.msg-attachment a:hover { text-decoration: underline; }
+
+.td-reply-box {
+    padding: 20px;
+    border-top: 1px solid var(--border-color);
+    background: rgba(0,0,0,0.2);
+}
+
+.reply-options {
+    margin-bottom: 12px;
+}
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-muted);
+    cursor: pointer;
+}
+
+.td-reply-box textarea {
+    width: 100%;
+    height: 100px;
+    background: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 12px;
+    color: white;
+    resize: none;
+    margin-bottom: 12px;
+}
+.td-reply-box textarea.internal-textarea {
+    background: rgba(245, 158, 11, 0.05);
+    border-color: rgba(245, 158, 11, 0.4);
+}
+
+.reply-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.btn-send {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+.btn-send:hover { background: var(--primary-hover); }
+.btn-send-internal { background: #d97706; }
+.btn-send-internal:hover { background: #b45309; }

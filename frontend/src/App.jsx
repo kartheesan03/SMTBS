@@ -94,6 +94,8 @@ const Customers = lazyRetry(() => import('./pages/Customers'));
 const AddCustomer = lazyRetry(() => import('./pages/AddCustomer'));
 const AddVendor = lazyRetry(() => import('./pages/AddVendor'));
 const Support = lazyRetry(() => import('./pages/Support'));
+const MyTickets = lazyRetry(() => import('./pages/MyTickets'));
+const AdminTickets = lazyRetry(() => import('./pages/AdminTickets'));
 const StockRequests = lazyRetry(() => import('./pages/StockRequests'));
 const CreateOrder = lazyRetry(() => import('./pages/CreateOrder'));
 const SelectOrderType = lazyRetry(() => import('./pages/SelectOrderType'));
@@ -397,6 +399,8 @@ const AppContent = () => {
                     <Route path="/projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
                     
                     <Route path="/support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
+                    <Route path="/support/tickets" element={<ProtectedRoute><MyTickets /></ProtectedRoute>} />
+                    <Route path="/support/admin" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']}><AdminTickets /></ProtectedRoute>} />
                     <Route path="/support/history" element={<ProtectedRoute><Support /></ProtectedRoute>} />
                     <Route path="/support/kb" element={<ProtectedRoute><Support /></ProtectedRoute>} />
                     

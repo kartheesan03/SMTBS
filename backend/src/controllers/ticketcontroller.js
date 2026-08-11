@@ -1,82 +1,200 @@
 const Ticket = require('../models/Ticket');
+const TicketMessage = require('../models/TicketMessage');
+const User = require('../models/User');
 const { broadcast } = require('../services/notificationService');
+
 const getTickets = async (req, res) => {
     try {
-        const tickets = await Ticket.find({})
-            .populate('customer', 'name email company')
-            .populate('assignedTo', 'name role')
-            .sort({ createdAt: -1 });
-        if (['Admin', 'HR', 'Manager'].includes(req.user.role)) {
-            return res.json(tickets);
+        const isAdminOrManager = ['Admin', 'Manager', 'HR'].includes(req.user.role);
+        
+        // If admin/manager, fetch all, otherwise fetch only those submitted by the user
+        let query = {};
+        if (!isAdminOrManager) {
+            query.submittedById = req.user.id;
         }
-        const userIdStr = String(req.user._id);
-        const filtered = tickets.filter(t => t.assignedTo && String(t.assignedTo._id) === userIdStr);
-        res.json(filtered);
+
+        const tickets = await Ticket.find(query)
+            .populate('customer', 'name email company') // Legacy fallback
+            .populate('submittedBy', 'name email role picture')
+            .populate('assignedTo', 'name role picture')
+            .sort({ createdAt: -1 });
+            
+        res.json(tickets);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
+
+const getTicketById = async (req, res) => {
+    try {
+        const ticket = await Ticket.findById(req.params.id)
+            .populate('customer', 'name email company') // Legacy fallback
+            .populate('submittedBy', 'name email role picture')
+            .populate('assignedTo', 'name role picture');
+
+        if (!ticket) {
+            return res.status(404).json({ message: 'Ticket not found' });
+        }
+
+        // Verify permissions
+        const isAdminOrManager = ['Admin', 'Manager', 'HR'].includes(req.user.role);
+        if (!isAdminOrManager && String(ticket.submittedById) !== String(req.user.id)) {
+            return res.status(403).json({ message: 'Access denied' });
+        }
+
+        const messages = await TicketMessage.find({ ticketId: ticket._id || ticket.id })
+            .populate('sender', 'name email role picture')
+            .sort({ createdAt: 1 });
+
+        res.json({ ticket, messages });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 const createTicket = async (req, res) => {
     try {
-        const { customer, customerModel, subject, description, priority, category, assignedTo } = req.body;
-        if (!customer || !subject || !description) {
-            return res.status(400).json({ message: 'Customer, subject, and description are required.' });
+        const { subject, description, priority, category, attachment, customer, customerModel } = req.body;
+        
+        if (!subject || !description) {
+            return res.status(400).json({ message: 'Subject and description are required.' });
         }
-        const ticketNumber = `TIC-${Math.floor(100000 + Math.random() * 900000)}`;
+
+        const ticketNumber = `SUP-${Math.floor(1000 + Math.random() * 9000)}`;
+        
         const ticket = new Ticket({
             ticketNumber,
-            customer,
-            customerModel: customerModel || 'Customer',
+            submittedById: req.user.id,
             subject,
             description,
             priority: priority || 'Medium',
-            category: category || 'General',
+            category: category || 'General Query',
             status: 'Open',
-            assignedTo: assignedTo || req.user._id
+            attachment: attachment || null,
+            customer: customer || null, // For legacy compatibility if provided
+            customerModel: customerModel || 'Customer'
         });
+
         const createdTicket = await ticket.save();
-        const populatedTicket = await Ticket.findById(createdTicket._id)
-            .populate('customer', 'name email company')
-            .populate('assignedTo', 'name role');
+        
+        const populatedTicket = await Ticket.findById(createdTicket._id || createdTicket.id)
+            .populate('submittedBy', 'name email role picture');
+
         await broadcast({
             module: 'Tickets',
-            referenceId: ticket._id || ticket.id,
-            targetUserId: ticket.assignedTo,
-            targetRoles: ['Manager'],
-            title: `New Ticket Created: ${ticket.ticketNumber}`,
-            message: `A new support ticket "${ticket.subject}" has been created and assigned.`,
-            type: ticket.priority === 'High' ? 'warning' : 'info'
+            referenceId: createdTicket._id || createdTicket.id,
+            targetRoles: ['Admin', 'Manager'],
+            title: `New Support Ticket: ${createdTicket.ticketNumber}`,
+            message: `${req.user.name} submitted a new ticket: "${createdTicket.subject}"`,
+            type: createdTicket.priority === 'High' || createdTicket.priority === 'Critical' ? 'warning' : 'info'
         });
+
         res.status(201).json(populatedTicket);
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
 };
+
 const updateTicketStatus = async (req, res) => {
     try {
-        const { status } = req.body;
+        const { status, priority, assignedToId } = req.body;
         const ticket = await Ticket.findById(req.params.id);
-        if (ticket) {
-            ticket.status = status || ticket.status;
-            await ticket.save();
-            const populatedTicket = await Ticket.findById(ticket._id)
-                .populate('customer', 'name email company')
-                .populate('assignedTo', 'name role');
+        
+        if (!ticket) {
+            return res.status(404).json({ message: 'Ticket not found' });
+        }
+
+        if (status) ticket.status = status;
+        if (priority) ticket.priority = priority;
+        if (assignedToId) ticket.assignedToId = assignedToId;
+
+        await ticket.save();
+        
+        const populatedTicket = await Ticket.findById(ticket._id || ticket.id)
+            .populate('submittedBy', 'name email role picture')
+            .populate('assignedTo', 'name role picture');
+
+        // Notify user if admin changed status
+        if (ticket.submittedById && String(ticket.submittedById) !== String(req.user.id)) {
             await broadcast({
                 module: 'Tickets',
                 referenceId: ticket._id || ticket.id,
-                targetUserId: ticket.assignedTo?._id || ticket.assignedTo,
-                targetRoles: ['Manager'],
-                title: `Ticket Status Updated: ${ticket.ticketNumber}`,
-                message: `Ticket "${ticket.subject}" status changed to ${ticket.status}.`,
-                type: ticket.status === 'Resolved' || ticket.status === 'Closed' ? 'success' : 'info'
+                targetUserId: ticket.submittedById,
+                title: `Ticket Updated: ${ticket.ticketNumber}`,
+                message: `Your ticket status was changed to ${ticket.status}.`,
+                type: 'info'
             });
-            res.json(populatedTicket);
-        } else {
-            res.status(404).json({ message: 'Ticket not found' });
         }
+
+        res.json(populatedTicket);
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
 };
-module.exports = { getTickets, createTicket, updateTicketStatus };
+
+const addMessage = async (req, res) => {
+    try {
+        const { message, attachment, isInternal } = req.body;
+        const ticket = await Ticket.findById(req.params.id);
+
+        if (!ticket) {
+            return res.status(404).json({ message: 'Ticket not found' });
+        }
+
+        const ticketMessage = new TicketMessage({
+            ticketId: ticket._id || ticket.id,
+            senderId: req.user.id,
+            message,
+            attachment: attachment || null,
+            isInternal: isInternal || false
+        });
+
+        await ticketMessage.save();
+
+        const populatedMessage = await TicketMessage.findById(ticketMessage._id || ticketMessage.id)
+            .populate('sender', 'name email role picture');
+
+        // Notification logic
+        const isAdmin = ['Admin', 'Manager', 'HR'].includes(req.user.role);
+        
+        // If an admin replies, notify the ticket submitter
+        if (isAdmin && !isInternal && ticket.submittedById && String(ticket.submittedById) !== String(req.user.id)) {
+            await broadcast({
+                module: 'Tickets',
+                referenceId: ticket._id || ticket.id,
+                targetUserId: ticket.submittedById,
+                title: `New Reply on Ticket ${ticket.ticketNumber}`,
+                message: `Support replied: "${message.substring(0, 40)}..."`,
+                type: 'info'
+            });
+        }
+        
+        // If the user replies, notify admins/assignee
+        if (!isAdmin) {
+            const targetRoles = ticket.assignedToId ? [] : ['Admin', 'Manager'];
+            const targetUserId = ticket.assignedToId || null;
+            
+            await broadcast({
+                module: 'Tickets',
+                referenceId: ticket._id || ticket.id,
+                targetUserId: targetUserId,
+                targetRoles: targetRoles.length > 0 ? targetRoles : undefined,
+                title: `User Replied to ${ticket.ticketNumber}`,
+                message: `${req.user.name} added a new message to their ticket.`,
+                type: 'info'
+            });
+            
+            // Auto update status to Open if it was waiting for user
+            if (ticket.status === 'Waiting for User') {
+                ticket.status = 'Open';
+                await ticket.save();
+            }
+        }
+
+        res.status(201).json(populatedMessage);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+};
+
+module.exports = { getTickets, getTicketById, createTicket, updateTicketStatus, addMessage };

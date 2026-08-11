@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMTBMS - Help Center</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <div class="brand">SMTBMS</div>
+            <div class="status-chip">
+                <span class="status-dot"></span> All systems operational
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="user-avatar">AD</div>
+        </div>
+    </header>
+
+    <!-- Command Band -->
+    <div class="command-band-wrapper">
+        <div class="command-band">
+            <div class="search-container">
+                <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" class="search-input" placeholder="Search across every module, guide, and release note...">
+                <div class="keyboard-hint"><span class="kbd">⌘</span><span class="kbd">K</span></div>
+            </div>
+            <div class="quick-jump-chips">
+                <button class="chip">ERP</button>
+                <button class="chip">CRM</button>
+                <button class="chip">Support Management</button>
+                <button class="chip">Tasks & Projects</button>
+                <button class="chip">Financial Operations</button>
+                <button class="chip">Reports & Analytics</button>
+                <button class="chip">Notifications</button>
+                <button class="chip">Audit Logs</button>
+                <button class="chip">OCR Tool</button>
+                <button class="chip">AI Assistant</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Left Column: Browse Directory -->
+        <div class="directory-column">
+            <h2 class="section-title">Browse by module</h2>
+            <div class="module-list">
+                
+                <div class="module-item expanded">
+                    <div class="module-header" onclick="toggleModule(this)">
+                        <div class="module-info">
+                            <div class="module-icon-wrap">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                            </div>
+                            <div class="module-text">
+                                <h3>ERP</h3>
+                                <p>Manage enterprise resources, inventory, and supply chain logistics.</p>
+                            </div>
+                        </div>
+                        <div class="module-meta">
+                            <span class="article-count">24 articles</span>
+                            <svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </div>
+                    </div>
+                    <div class="module-content">
+                        <ul class="article-list">
+                            <li><a href="#">Setting up multi-warehouse inventory structures</a></li>
+                            <li><a href="#">Automated reorder point configuration based on velocity</a></li>
+                            <li><a href="#">Exporting supplier performance metrics to PDF</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="module-item">
+                    <div class="module-header" onclick="toggleModule(this)">
+                        <div class="module-info">
+                            <div class="module-icon-wrap">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                            </div>
+                            <div class="module-text">
+                                <h3>CRM</h3>
+                                <p>Track customer relationships, sales pipelines, and account health.</p>
+                            </div>
+                        </div>
+                        <div class="module-meta">
+                            <span class="article-count">18 articles</span>
+                            <svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </div>
+                    </div>
+                    <div class="module-content">
+                        <ul class="article-list">
+                            <li><a href="#">Importing lead data via CSV mapping</a></li>
+                            <li><a href="#">Configuring custom sales stages and probabilities</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="module-item">
+                    <div class="module-header" onclick="toggleModule(this)">
+                        <div class="module-info">
+                            <div class="module-icon-wrap">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                            </div>
+                            <div class="module-text">
+                                <h3>Support Management</h3>
+                                <p>Handle incoming support requests and manage agent assignments.</p>
+                            </div>
+                        </div>
+                        <div class="module-meta">
+                            <span class="article-count">32 articles</span>
+                            <svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </div>
+                    </div>
+                    <div class="module-content">
+                        <ul class="article-list">
+                            <li><a href="#">Configuring SLA breach alerts</a></li>
+                            <li><a href="#">Routing rules based on ticket urgency</a></li>
+                            <li><a href="#">Creating canned responses for agents</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="module-item">
+                    <div class="module-header" onclick="toggleModule(this)">
+                        <div class="module-info">
+                            <div class="module-icon-wrap">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                            </div>
+                            <div class="module-text">
+                                <h3>Tasks & Projects</h3>
+                                <p>Coordinate team tasks, project milestones, and resource allocation.</p>
+                            </div>
+                        </div>
+                        <div class="module-meta">
+                            <span class="article-count">14 articles</span>
+                            <svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </div>
+                    </div>
+                    <div class="module-content">
+                        <ul class="article-list">
+                            <li><a href="#">Setting up sprint boards</a></li>
+                            <li><a href="#">Tracking billable vs non-billable hours</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="module-item">
+                    <div class="module-header" onclick="toggleModule(this)">
+                        <div class="module-info">
+                            <div class="module-icon-wrap">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                            </div>
+                            <div class="module-text">
+                                <h3>Financial Operations</h3>
+                                <p>Manage ledgers, invoicing, expense tracking, and payroll data.</p>
+                            </div>
+                        </div>
+                        <div class="module-meta">
+                            <span class="article-count">29 articles</span>
+                            <svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </div>
+                    </div>
+                    <div class="module-content">
+                        <ul class="article-list">
+                            <li><a href="#">End of month reconciliation process</a></li>
+                            <li><a href="#">Connecting external bank feeds securely</a></li>
+                            <li><a href="#">Generating tax compliance reports</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="module-item">
+                    <div class="module-header" onclick="toggleModule(this)">
+                        <div class="module-info">
+                            <div class="module-icon-wrap">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                            </div>
+                            <div class="module-text">
+                                <h3>Reports & Analytics</h3>
+                                <p>Build custom dashboards and export deep-dive analytical views.</p>
+                            </div>
+                        </div>
+                        <div class="module-meta">
+                            <span class="article-count">11 articles</span>
+                            <svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </div>
+                    </div>
+                    <div class="module-content">
+                        <ul class="article-list">
+                            <li><a href="#">Using the drag-and-drop dashboard builder</a></li>
+                            <li><a href="#">Scheduling automated email reports</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="module-item">
+                    <div class="module-header" onclick="toggleModule(this)">
+                        <div class="module-info">
+                            <div class="module-icon-wrap">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                            </div>
+                            <div class="module-text">
+                                <h3>Notifications</h3>
+                                <p>Manage platform-wide alerts, push notifications, and email triggers.</p>
+                            </div>
+                        </div>
+                        <div class="module-meta">
+                            <span class="article-count">8 articles</span>
+                            <svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </div>
+                    </div>
+                    <div class="module-content">
+                        <ul class="article-list">
+                            <li><a href="#">Configuring global notification preferences</a></li>
+                            <li><a href="#">Webhooks for external alerting systems</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="module-item">
+                    <div class="module-header" onclick="toggleModule(this)">
+                        <div class="module-info">
+                            <div class="module-icon-wrap">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                            </div>
+                            <div class="module-text">
+                                <h3>Audit Logs</h3>
+                                <p>Review detailed system activities, access logs, and security events.</p>
+                            </div>
+                        </div>
+                        <div class="module-meta">
+                            <span class="article-count">12 articles</span>
+                            <svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </div>
+                    </div>
+                    <div class="module-content">
+                        <ul class="article-list">
+                            <li><a href="#">Filtering logs by user and IP address</a></li>
+                            <li><a href="#">Exporting logs for compliance audits</a></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="module-item">
+                    <div class="module-header" onclick="toggleModule(this)">
+                        <div class="module-info">
+                            <div class="module-icon-wrap">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+                            </div>
+                            <div class="module-text">
+                                <h3>OCR Tool</h3>
+                                <p>Automate document scanning, invoice processing, and text extraction.</p>
+                            </div>
+                        </div>
+                        <div class="module-meta">
+                            <span class="article-count">7 articles</span>
+                            <svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </div>
+                    </div>
+                    <div class="module-content">
+                        <ul class="article-list">
+                            <li><a href="#">Setting up custom invoice parsing templates</a></li>
+                            <li><a href="#">Supported languages and character sets</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="module-item">
+                    <div class="module-header" onclick="toggleModule(this)">
+                        <div class="module-info">
+                            <div class="module-icon-wrap">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
+                            </div>
+                            <div class="module-text">
+                                <h3>AI Assistant</h3>
+                                <p>Configure AI behavior, custom prompts, and data access scopes.</p>
+                            </div>
+                        </div>
+                        <div class="module-meta">
+                            <span class="article-count">15 articles</span>
+                            <svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </div>
+                    </div>
+                    <div class="module-content">
+                        <ul class="article-list">
+                            <li><a href="#">Managing AI data indexing per module</a></li>
+                            <li><a href="#">Restricting AI assistant by user role</a></li>
+                            <li><a href="#">Troubleshooting inaccurate AI responses</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Right Column: Sticky Support Sidebar -->
+        <div class="support-column">
+            
+            <div class="card ticket-tracker">
+                <div class="card-header">
+                    <span class="card-title">Live support ticket</span>
+                    <span class="ticket-id">#TKT-8942</span>
+                </div>
+                <h4 class="ticket-subject">API sync failure in Financial Operations</h4>
+                
+                <div class="stepper-wrapper">
+                    <div class="stepper">
+                        <div class="step completed">
+                            <div class="step-indicator">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            </div>
+                            <span class="step-label">Submitted</span>
+                        </div>
+                        <div class="step-connector completed"></div>
+                        <div class="step completed">
+                            <div class="step-indicator">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            </div>
+                            <span class="step-label">Assigned</span>
+                        </div>
+                        <div class="step-connector active"></div>
+                        <div class="step active">
+                            <div class="step-indicator">
+                                <div class="pulse-dot"></div>
+                            </div>
+                            <span class="step-label">In Progress</span>
+                        </div>
+                        <div class="step-connector"></div>
+                        <div class="step">
+                            <div class="step-indicator"></div>
+                            <span class="step-label">Resolved</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ticket-update">
+                    <span class="timestamp">2026-08-11 08:32:15 UTC</span>
+                    <p class="update-text">Engineer investigating diagnostic logs related to the 500 error on the sync endpoint. Escalated to Tier 3.</p>
+                </div>
+            </div>
+
+            <div class="card platform-status">
+                <div class="card-header">
+                    <span class="card-title">Platform Status</span>
+                    <a href="#" class="status-link">Full report →</a>
+                </div>
+                <div class="status-list">
+                    <div class="status-item">
+                        <span class="status-name">ERP Core Services</span>
+                        <span class="status-badge operational">Operational</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-name">Financial DB Cluster</span>
+                        <span class="status-badge operational">Operational</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-name">Background Jobs Queue</span>
+                        <span class="status-badge delayed">Delayed</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card contact-cta">
+                <h3 class="cta-title">Need human intervention?</h3>
+                <p class="cta-desc">Our technical support engineers are online to assist platform administrators with critical operational issues.</p>
+                <div class="cta-buttons">
+                    <button class="btn btn-primary">Start live chat</button>
+                    <button class="btn btn-secondary">Raise a new ticket</button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

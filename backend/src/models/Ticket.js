@@ -12,17 +12,21 @@ const TicketSequelize = sequelize.define('Ticket', {
         allowNull: false,
         unique: true
     },
-    customerId: {
+    customerId: { // kept for legacy
         type: DataTypes.INTEGER,
         allowNull: true
     },
-    leadId: {
+    leadId: { // kept for legacy
         type: DataTypes.INTEGER,
         allowNull: true
     },
-    customerModel: {
+    customerModel: { // kept for legacy
         type: DataTypes.ENUM('Customer', 'Lead'),
         defaultValue: 'Customer'
+    },
+    submittedById: {
+        type: DataTypes.INTEGER,
+        allowNull: true
     },
     subject: {
         type: DataTypes.STRING,
@@ -32,17 +36,21 @@ const TicketSequelize = sequelize.define('Ticket', {
         type: DataTypes.TEXT,
         allowNull: false
     },
+    attachment: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
     priority: {
-        type: DataTypes.ENUM('Low', 'Medium', 'High'),
+        type: DataTypes.ENUM('Low', 'Medium', 'High', 'Critical'),
         defaultValue: 'Medium'
     },
     status: {
-        type: DataTypes.ENUM('Open', 'In Progress', 'Resolved', 'Closed'),
+        type: DataTypes.ENUM('Open', 'In Progress', 'Waiting for User', 'Resolved', 'Closed'),
         defaultValue: 'Open'
     },
     category: {
-        type: DataTypes.ENUM('General', 'Technical', 'Billing', 'Other'),
-        defaultValue: 'General'
+        type: DataTypes.STRING,
+        defaultValue: 'General Query'
     },
     assignedToId: {
         type: DataTypes.INTEGER,

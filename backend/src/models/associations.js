@@ -34,8 +34,17 @@ function setupAssociations() {
     Order.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'createdById', as: 'createdBy' });
     Order.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'updatedById', as: 'updatedBy' });
     Task.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'assignedById', as: 'assignedBy' });
+    
+    // Ticket Associations
     Ticket.sequelizeModel.belongsTo(Customer.sequelizeModel, { foreignKey: 'customerId', as: 'Customer' });
     Ticket.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'assignedToId', as: 'assignedTo' });
+    Ticket.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'submittedById', as: 'submittedBy' });
+    
+    const TicketMessage = require('./TicketMessage');
+    Ticket.sequelizeModel.hasMany(TicketMessage.sequelizeModel, { foreignKey: 'ticketId', as: 'messages' });
+    TicketMessage.sequelizeModel.belongsTo(Ticket.sequelizeModel, { foreignKey: 'ticketId', as: 'ticket' });
+    TicketMessage.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'senderId', as: 'sender' });
+
     Notification.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'userId', as: 'user' });
     Material.sequelizeModel.belongsTo(Vendor.sequelizeModel, { foreignKey: 'vendorId', as: 'vendor' });
     Vendor.sequelizeModel.hasMany(Material.sequelizeModel, { foreignKey: 'vendorId', as: 'materials' });
