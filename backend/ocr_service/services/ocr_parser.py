@@ -49,6 +49,88 @@ def group_into_lines(elements: List[Dict], y_tolerance: int = 15) -> List[List[D
         
     return lines
 
+
+def detect_all_tables(lines: List[List[Dict]]) -> List[Tuple[List[Dict], int, int]]:
+    header_indicators = [
+        "NAME", "ITEM", "DESCRIPTION", "PRODUCT", "PARTICULARS", "SKU", "CODE", 
+        "CATEGORY", "STOCK", "STATUS", "QTY", "QUANTITY", "NO.", "UNIT", "UOM",
+        "RATE", "PRICE", "AMOUNT", "TOTAL", "TAX", "GST", "DISCOUNT", "HSN", "VALUE",
+        "EMPLOYEE", "DEPARTMENT", "ATTENDANCE", "LEAVE", "START DATE", "END DATE",
+        "DAYS", "BASIC SALARY", "ALLOWANCES", "DEDUCTIONS", "NET SALARY", "CUSTOMER",
+        "LEAD", "COMPANY", "CONTACT", "SOURCE", "VENDOR", "PROJECT", "TASK", "DEADLINE",
+        "REPORT CATEGORY", "FORMAT", "DATE RANGE", "SIGNATURE"
+    ]
+    
+    tables = []
+    current_search_start = 0
+    
+    while current_search_start < len(lines):
+        table_start_idx = -1
+        columns = []
+        
+        for i in range(current_search_start, len(lines)):
+            line = lines[i]
+            match_count = 0
+            for el in line:
+                el_text = el["text"].upper()
+                if any(kw in el_text for kw in header_indicators):
+                    match_count += 1
+                    
+            if match_count >= 2 and len(line) >= 2:
+                table_start_idx = i
+                seen_keys = {}
+                for el in line:
+                    key = el["text"].strip()
+                    key_upper = key.upper()
+                    if key_upper in ["START", "END"]:
+                        continue
+                    if "DATE RANGE" in key_upper:
+                        if "DATE RANGE" not in seen_keys:
+                            key = "Start Date"
+                            seen_keys["DATE RANGE"] = 1
+                        else:
+                            key = "End Date"
+                    elif "PAY HEAD" in key_upper:
+                        if "PAY HEAD" not in seen_keys:
+                            seen_keys["PAY HEAD"] = 1
+                            key = "Pay Head"
+                        else:
+                            key = "Deduction Head"
+                    elif "AMOUNT" in key_upper:
+                        if "AMOUNT" not in seen_keys:
+                            seen_keys["AMOUNT"] = 1
+                            key = "Amount (Rs.)"
+                        else:
+                            key = "Deduction Amount (Rs.)"
+                    else:
+                        if key in seen_keys:
+                            seen_keys[key] += 1
+                            key = f"{key} ({seen_keys[key]})"
+                        else:
+                            seen_keys[key] = 1
+                        
+                    columns.append({
+                        "key": key,
+                        "x0": el["x0"],
+                        "x1": el["x1"]
+                    })
+                break
+                
+        if table_start_idx == -1:
+            break
+            
+        table_end_idx = len(lines)
+        for i in range(table_start_idx + 1, len(lines)):
+            line_text = " ".join([e["text"].upper() for e in lines[i]])
+            if any(k in line_text for k in ["SUBTOTAL", "SUB TOTAL", "GRAND TOTAL", "TAXABLE", "TOTAL AMOUNT", "NET PAYABLE", "IN WORDS"]):
+                table_end_idx = i
+                break
+                
+        tables.append((columns, table_start_idx, table_end_idx))
+        current_search_start = table_end_idx
+        
+    return tables
+
 def detect_table(lines: List[List[Dict]]) -> Tuple[List[Dict], int, int]:
     header_indicators = [
         "NAME", "ITEM", "DESCRIPTION", "PRODUCT", "PARTICULARS", "SKU", "CODE", 
@@ -686,18 +768,25 @@ def process_document(elements: List[Dict]) -> Dict:
     is_related, module_name, doc_type, base_class_conf = detect_document_class(lines)
     raw_text = extract_unstructured_text(lines)
     
-    # 3. Detect formal tables
-    columns, start_idx, end_idx = detect_table(lines)
+    # 3. Detect ALL formal tables
+    detected_tables = detect_all_tables(lines)
     
-    items = []
-    table_detected = False
+    is_structured = len(detected_tables) > 0
+    table_detected = is_structured
     
-    if start_idx != -1 and columns:
-        table_detected = True
-        table_lines = lines[start_idx+1:end_idx]
-        items = extract_table_rows(table_lines, columns)
-        
-    is_structured = table_detected
+    tables = []
+    end_idx = len(lines)
+    
+    if is_structured:
+        for idx, (columns, t_start_idx, t_end_idx) in enumerate(detected_tables):
+            table_lines = lines[t_start_idx+1:t_end_idx]
+            items = extract_table_rows(table_lines, columns)
+            tables.append({
+                "title": f"Extracted Table {idx + 1}" if len(detected_tables) > 1 else "Extracted Table",
+                "columns": [col["key"] for col in columns],
+                "rows": items
+            })
+        end_idx = detected_tables[-1][2] # Footer lines will start after the last table
     
     # Calculate overall confidence
     all_char_conf = [e["confidence"] for e in elements if "confidence" in e]
@@ -712,15 +801,7 @@ def process_document(elements: List[Dict]) -> Dict:
     if not is_related:
         final_confidence = char_conf # for general docs, just use char confidence
         
-    tables = []
-    
-    if is_structured:
-        tables.append({
-            "title": "Extracted Table",
-            "columns": [col["key"] for col in columns],
-            "rows": items
-        })
-    else:
+    if not is_structured:
         # Fallback: parse key-value pairs from the raw text
         kv = extract_kv_table(lines)
         if kv["rows"]:

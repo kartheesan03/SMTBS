@@ -339,16 +339,28 @@ const OCR = () => {
     setOcrData({ ...ocrData, tables: newTables });
   };
 
-  const handleSaveInvoice = async (type) => {
+  const handleSaveDocument = async () => {
       if (!ocrData) return;
-      const savingToast = toast.loading(`Saving ${type}...`);
+      const savingToast = toast.loading(`Saving document...`);
       try {
-          // Flatten back to old API format for invoices if needed, or pass full data
-          await API.post('/invoices/from-ocr', { type, data: ocrData });
-          toast.success(`${type} saved successfully!`, { id: savingToast });
-          handleClear(); 
+          // Prepare generic document data format for the universal OCR store
+          const payload = {
+              fileName: file.name,
+              module: ocrData.document?.module || 'General',
+              documentType: ocrData.document?.type || 'General Document',
+              tables: ocrData.tables,
+              details: ocrData.document?.details || {},
+              rawText: ocrData.rawText || '',
+              confidence: ocrData.document?.confidence || 0,
+              status: 'Validated'
+          };
+          
+          await API.post('/ocr-documents', payload);
+          toast.success(`Document saved successfully!`, { id: savingToast });
+          // Optionally, don't clear immediately, let user keep viewing it or clear manually
+          // handleClear(); 
       } catch (err) {
-          toast.error(err.response?.data?.message || 'Failed to save invoice.', { id: savingToast });
+          toast.error(err.response?.data?.message || 'Failed to save document.', { id: savingToast });
       }
   };
 
@@ -767,11 +779,8 @@ const OCR = () => {
 
             {/* ACTIONS */}
             <div className="ocr-bottom-actions">
-              {canEdit && ocrData.document?.module === 'Finance / Procurement / Sales' && (
-                <>
-                    <button className="btn-action primary" disabled={!ocrData.tables?.[0]?.rows?.length} onClick={() => handleSaveInvoice('Purchase Invoice')} style={{opacity: (!ocrData.tables?.[0]?.rows?.length) ? 0.5 : 1}}><Save size={18}/> Save as Purchase</button>
-                    <button className="btn-action primary" disabled={!ocrData.tables?.[0]?.rows?.length} onClick={() => handleSaveInvoice('Sales Invoice')} style={{opacity: (!ocrData.tables?.[0]?.rows?.length) ? 0.5 : 1}}><Save size={18}/> Save as Sales</button>
-                </>
+              {canEdit && (
+                <button className="btn-action primary" disabled={!ocrData.tables?.[0]?.rows?.length} onClick={handleSaveDocument} style={{opacity: (!ocrData.tables?.[0]?.rows?.length) ? 0.5 : 1}}><Save size={18}/> Save Document</button>
               )}
               
               {canEdit && (
