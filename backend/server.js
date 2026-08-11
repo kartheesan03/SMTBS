@@ -37,6 +37,7 @@ const holidayRoutes  = require('./src/routes/holidayRoutes');
 const recruitmentRoutes = require('./src/routes/recruitmentRoutes');
 const chatRoutes = require('./src/routes/chatRoutes');
 const ocrRoutes = require('./src/routes/ocrRoutes');
+const invoiceRoutes = require('./src/routes/invoiceRoutes');
 const searchRoutes = require('./src/routes/searchRoutes');
 
 const app = express();
@@ -91,6 +92,7 @@ app.use('/api/holidays',    holidayRoutes);
 app.use('/api/recruitment', recruitmentRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/ocr', ocrRoutes);
+app.use('/api/invoices', invoiceRoutes);
 app.use('/api/search', searchRoutes);
 
 app.use((req, res, next) => {

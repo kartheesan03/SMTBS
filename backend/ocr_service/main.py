@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routes.ocr import router as ocr_router
+from routes.export_routes import router as export_router
 
 app = FastAPI(title="SMTBMS OCR Service")
 
@@ -13,6 +14,7 @@ app.add_middleware(
 )
 
 app.include_router(ocr_router)
+app.include_router(export_router, prefix="/export")
 
 if __name__ == "__main__":
     import uvicorn

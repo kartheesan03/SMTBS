@@ -3,7 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 const os = require('os');
-const { extractText } = require('../controllers/ocrController');
+const { extractText, exportDocx, exportTxt, exportPdf } = require('../controllers/ocrController');
 
 // Store uploads in the OS temp directory so we never leave files on disk
 const upload = multer({
@@ -14,6 +14,8 @@ const upload = multer({
             'image/jpeg', 'image/jpg', 'image/png', 'image/bmp',
             'image/webp', 'image/tiff', 'image/gif',
             'application/pdf',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'application/msword',
         ];
         if (allowed.includes(file.mimetype)) {
             cb(null, true);
@@ -23,7 +25,16 @@ const upload = multer({
     },
 });
 
-// POST /api/ocr
-router.post('/', upload.single('file'), extractText);
+// POST /api/ocr/extract
+router.post('/extract', upload.single('file'), extractText);
+
+// POST /api/ocr/export/docx
+router.post('/export/docx', exportDocx);
+
+// POST /api/ocr/export/txt
+router.post('/export/txt', exportTxt);
+
+// POST /api/ocr/export/pdf
+router.post('/export/pdf', exportPdf);
 
 module.exports = router;

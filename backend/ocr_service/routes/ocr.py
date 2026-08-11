@@ -9,7 +9,7 @@ UPLOAD_DIR = "uploads"
 MAX_FILE_SIZE = 50 * 1024 * 1024  # 50 MB
 
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".bmp", ".webp", ".tiff", ".tif", ".gif"}
-ALLOWED_EXTENSIONS = IMAGE_EXTENSIONS | {".pdf"}
+ALLOWED_EXTENSIONS = IMAGE_EXTENSIONS | {".pdf", ".docx", ".doc"}
 
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
@@ -47,8 +47,8 @@ async def ocr_endpoint(file: UploadFile = File(...)):
         with open(file_path, "wb") as buffer:
             buffer.write(file_bytes)
 
-        text = extract_text(file_path, ext)
-        return JSONResponse(content={"success": True, "text": text})
+        structured_data = extract_text(file_path, ext)
+        return JSONResponse(content=structured_data)
     except Exception as e:
         return JSONResponse(
             status_code=500,

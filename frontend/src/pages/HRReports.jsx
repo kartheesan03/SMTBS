@@ -314,8 +314,8 @@ const HRReports = () => {
       const headers = [
         "Report Category",
         "Configured Format",
-        "Date Range Start",
-        "Date Range End",
+        "Start Date",
+        "End Date",
         "Generated At",
         "Auditor Signature",
       ];
