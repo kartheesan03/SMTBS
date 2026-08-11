@@ -12,7 +12,7 @@ const upload = multer({
     fileFilter: (_req, file, cb) => {
         const allowed = [
             'image/jpeg', 'image/jpg', 'image/png', 'image/bmp',
-            'image/webp', 'image/tiff', 'image/gif',
+            'image/webp', 'image/tiff', 'image/gif', 'image/jfif',
             'application/pdf',
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
             'application/msword',

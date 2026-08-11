@@ -94,7 +94,7 @@ const Customers = lazyRetry(() => import('./pages/Customers'));
 const AddCustomer = lazyRetry(() => import('./pages/AddCustomer'));
 const AddVendor = lazyRetry(() => import('./pages/AddVendor'));
 const Support = lazyRetry(() => import('./pages/Support'));
-const MyTickets = lazyRetry(() => import('./pages/MyTickets'));
+
 const AdminTickets = lazyRetry(() => import('./pages/AdminTickets'));
 const StockRequests = lazyRetry(() => import('./pages/StockRequests'));
 const CreateOrder = lazyRetry(() => import('./pages/CreateOrder'));

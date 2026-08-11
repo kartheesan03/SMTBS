@@ -46,7 +46,7 @@ async def export_docx(data: OcrExportRequest):
     doc_type = data.document.type if data.document and data.document.type else 'DOCUMENT'
     is_structured = data.document.isStructured if data.document else False
     
-    title = doc.add_heading(f"SMTBMS OCR Result - {str(doc_type).upper()}", 0)
+    title = doc.add_heading(f"SMTBMS OCR Result - {doc_type.upper()}", 0)
     title.alignment = WD_ALIGN_PARAGRAPH.CENTER
     
     if data.document and data.document.module:
@@ -147,11 +147,11 @@ async def export_txt(data: OcrExportRequest, filename: Optional[str] = None):
     )
 
 try:
-    from reportlab.lib import colors
-    from reportlab.lib.pagesizes import letter, landscape
-    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-    from reportlab.lib.enums import TA_CENTER
+    from reportlab.lib import colors # type: ignore
+    from reportlab.lib.pagesizes import letter, landscape # type: ignore
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle # type: ignore
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle # type: ignore
+    from reportlab.lib.enums import TA_CENTER # type: ignore
 except ImportError:
     pass
 
@@ -181,7 +181,7 @@ async def export_pdf(data: OcrExportRequest, filename: Optional[str] = None):
         spaceAfter=20
     )
     
-    elements.append(Paragraph(f"SMTBMS OCR Result - {str(doc_type).upper()}", title_style))
+    elements.append(Paragraph(f"SMTBMS OCR Result - {doc_type.upper()}", title_style))
     
     if data.document and data.document.module:
         elements.append(Paragraph(f"<b>Module:</b> {data.document.module}", styles['Normal']))

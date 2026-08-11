@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: smtbms-backend
+    env: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: smtbms-db
+          property: connectionString
+      - key: CLIENT_URL
+        sync: false
+      - key: OCR_SERVICE_URL
+        sync: false
+
+databases:
+  - name: smtbms-db
+    databaseName: smtbms
+    user: smtbms_user

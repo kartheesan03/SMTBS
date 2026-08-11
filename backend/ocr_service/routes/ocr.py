@@ -8,7 +8,7 @@ router = APIRouter()
 UPLOAD_DIR = "uploads"
 MAX_FILE_SIZE = 50 * 1024 * 1024  # 50 MB
 
-IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".bmp", ".webp", ".tiff", ".tif", ".gif"}
+IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".bmp", ".webp", ".tiff", ".tif", ".gif", ".jfif"}
 ALLOWED_EXTENSIONS = IMAGE_EXTENSIONS | {".pdf", ".docx", ".doc"}
 
 os.makedirs(UPLOAD_DIR, exist_ok=True)

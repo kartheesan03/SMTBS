@@ -6,3 +6,4 @@ pillow
 python-multipart
 python-docx
 reportlab
+google-generativeai
