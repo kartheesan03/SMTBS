@@ -399,7 +399,6 @@ const AppContent = () => {
                     <Route path="/projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
                     
                     <Route path="/support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
-                    <Route path="/support/tickets" element={<ProtectedRoute><MyTickets /></ProtectedRoute>} />
                     <Route path="/support/admin" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']}><AdminTickets /></ProtectedRoute>} />
                     <Route path="/support/history" element={<ProtectedRoute><Support /></ProtectedRoute>} />
                     <Route path="/support/kb" element={<ProtectedRoute><Support /></ProtectedRoute>} />
