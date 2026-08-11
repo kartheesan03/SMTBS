@@ -278,7 +278,7 @@ const connectDB = async () => {
 
         await sequelize.sync();
         console.log(`${dbName} Database tables synchronized.`);
-        // await syncAndRepairDatabase();
+        await syncAndRepairDatabase();
         return true;
     } catch (error) {
         console.error('\n******************************************************************************');
