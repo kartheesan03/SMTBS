@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useContext } from "react";
 import { 
-  Upload, FileText, AlertTriangle, CheckCircle2, 
-  File, Search, Download, FileCheck, Loader2
+  Upload, AlertTriangle, CheckCircle2, 
+  File, Search, Download, Loader2, Save
 } from "lucide-react";
 import toast from "react-hot-toast";
 import API from "../api/axios";
@@ -16,40 +16,44 @@ const DocumentIntelligence = () => {
   const { user } = useContext(AuthContext);
   const canEdit = ['Admin', 'Manager'].includes(user?.role);
   
-  const [stats, setStats] = useState({ processed: 0, needsReview: 0, approved: 0, failed: 0 });
-  const [recentDocs, setRecentDocs] = useState([]);
-  const [activeDoc, setActiveDoc] = useState(null); // The currently viewed/processed document
-
+  const [historicalDocs, setHistoricalDocs] = useState([]);
+  const [filteredDocs, setFilteredDocs] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  
+  const [activeDoc, setActiveDoc] = useState(null); 
   const [file, setFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   
-  // Workflow states: 'idle', 'uploading', 'analyzing', 'extracting', 'reviewing', 'approved', 'failed'
+  // Workflow states: 'idle', 'processing', 'extracted', 'failed'
   const [workflowState, setWorkflowState] = useState('idle');
   const [extractionData, setExtractionData] = useState(null);
+  const [errorDetails, setErrorDetails] = useState('');
   
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
-    fetchSummary();
-    fetchRecentDocs();
+    fetchHistoricalDocs();
   }, []);
 
-  const fetchSummary = async () => {
-    try {
-      const res = await API.get('/ocr-documents/summary');
-      setStats(res.data);
-    } catch (err) {
-      console.error("Failed to fetch summary", err);
+  useEffect(() => {
+    if (searchTerm) {
+      setFilteredDocs(historicalDocs.filter(d => 
+        (d.fileName && d.fileName.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (d.documentType && d.documentType.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (d.status && d.status.toLowerCase().includes(searchTerm.toLowerCase()))
+      ));
+    } else {
+      setFilteredDocs(historicalDocs);
     }
-  };
+  }, [searchTerm, historicalDocs]);
 
-  const fetchRecentDocs = async () => {
+  const fetchHistoricalDocs = async () => {
     try {
       const res = await API.get('/ocr-documents');
-      setRecentDocs(res.data);
+      setHistoricalDocs(res.data);
     } catch (err) {
-      console.error("Failed to fetch recent docs", err);
+      console.error("Failed to fetch documents", err);
     }
   };
 
@@ -79,7 +83,8 @@ const DocumentIntelligence = () => {
     setFile(selectedFile);
     setExtractionData(null);
     setActiveDoc(null);
-    setWorkflowState('uploading');
+    setWorkflowState('processing');
+    setErrorDetails('');
     
     if (IMAGE_TYPES.includes(selectedFile.type) || selectedFile.type === "application/pdf") {
       setPreviewUrl(URL.createObjectURL(selectedFile));
@@ -87,15 +92,12 @@ const DocumentIntelligence = () => {
       setPreviewUrl(null);
     }
     
-    // Simulate upload and analyze steps for better UX
-    setTimeout(() => setWorkflowState('analyzing'), 1500);
-    setTimeout(() => {
-      setWorkflowState('extracting');
-      performExtraction(selectedFile);
-    }, 3000);
+    performExtraction(selectedFile);
   };
 
   const performExtraction = async (fileToProcess) => {
+    setWorkflowState('processing');
+    setErrorDetails('');
     const formData = new FormData();
     formData.append("file", fileToProcess);
     
@@ -106,61 +108,71 @@ const DocumentIntelligence = () => {
       });
       if (response.data && response.data.success !== false) {
         setExtractionData(response.data);
-        setWorkflowState('reviewing');
+        setWorkflowState('extracted');
         toast.success(`Document extracted successfully`);
-        
-        // Auto-save as 'Extracted'
-        saveDocumentState(fileToProcess.name, response.data, 'Extracted');
       } else {
         throw new Error(response.data.error || "OCR failed.");
       }
     } catch (err) {
       setWorkflowState('failed');
-      toast.error("Extraction failed. See diagnostic for details.");
+      setErrorDetails(err.response?.data?.error || err.message || "Failed to extract data.");
+      toast.error("Extraction failed.");
     }
   };
 
-  const saveDocumentState = async (fileName, data, status) => {
+  const saveDocumentState = async () => {
+    if (!canEdit) return;
     try {
+      let statusToSave = activeDoc ? activeDoc.status : 'Needs Review';
       const payload = {
-          fileName: fileName,
-          module: data.document?.module || 'General',
-          documentType: data.document?.type || 'General Document',
-          tables: data.tables,
-          details: data.document?.details || {},
-          rawText: data.rawText || '',
-          confidence: data.document?.confidence || 0,
-          status: status
+          fileName: file?.name || activeDoc?.fileName || 'document',
+          module: extractionData.document?.module || 'General',
+          documentType: extractionData.document?.type || 'General Document',
+          tables: extractionData.tables,
+          details: extractionData.document?.details || {},
+          rawText: extractionData.rawText || '',
+          confidence: extractionData.document?.confidence || 0,
+          status: statusToSave
       };
-      const res = await API.post('/ocr-documents', payload);
+
+      let res;
+      if (activeDoc) {
+        res = await API.put(`/ocr-documents/${activeDoc.id}`, payload);
+      } else {
+        res = await API.post('/ocr-documents', payload);
+      }
+      
       setActiveDoc(res.data.document);
-      fetchSummary();
-      fetchRecentDocs();
+      toast.success("Changes saved successfully");
+      fetchHistoricalDocs();
     } catch (err) {
-      console.error("Failed to auto-save document", err);
+      toast.error("Failed to save changes");
     }
   };
 
-  const updateDocumentStatus = async (status, rejectReason = null) => {
-    if (!activeDoc) return;
+  const updateDocumentStatus = async (status) => {
+    if (!canEdit) return;
     try {
-      const payload = {
-        tables: extractionData.tables,
-        details: extractionData.document?.details,
-        status,
-        rejectReason
-      };
-      await API.put(`/ocr-documents/${activeDoc.id}`, payload);
+      if (!activeDoc) {
+        // If not saved yet, save first
+        await saveDocumentState();
+      }
+      // Re-fetch or use active doc (saveDocumentState updates activeDoc, but setState is async. 
+      // Safe to just do a PUT if we know activeDoc id or use a direct call if we implemented proper chaining.
+      // For simplicity, we assume save is done or we just do a direct PUT if activeDoc exists.)
+      
+      const targetId = activeDoc ? activeDoc.id : null;
+      if (!targetId) {
+          toast.error("Please save the document first before changing status.");
+          return;
+      }
+
+      await API.put(`/ocr-documents/${targetId}`, { status });
       toast.success(`Document marked as ${status}`);
-      
-      setActiveDoc({ ...activeDoc, status, rejectReason });
-      
-      if (status === 'Approved') setWorkflowState('approved');
-      
-      fetchSummary();
-      fetchRecentDocs();
+      setActiveDoc(prev => ({ ...prev, status }));
+      fetchHistoricalDocs();
     } catch (err) {
-      toast.error("Failed to update document status");
+      toast.error("Failed to update status");
     }
   };
 
@@ -185,6 +197,21 @@ const DocumentIntelligence = () => {
     }
   };
 
+  const handleDownloadOriginal = () => {
+    if (file) {
+      const url = URL.createObjectURL(file);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', file.name);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } else {
+      toast.error("Original file is not available for historical documents.");
+    }
+  };
+
+  // Structural Edits
   const handleDataChange = (tableIdx, rowIdx, col, val) => {
     if (!canEdit) return;
     const newData = { ...extractionData };
@@ -192,142 +219,176 @@ const DocumentIntelligence = () => {
     setExtractionData(newData);
   };
 
+  const addRow = (tableIdx) => {
+    if (!canEdit) return;
+    const newData = { ...extractionData };
+    const cols = newData.tables[tableIdx].columns || [];
+    const newRow = {};
+    cols.forEach(c => newRow[c] = '');
+    newData.tables[tableIdx].rows.push(newRow);
+    setExtractionData(newData);
+  };
+
+  const deleteRow = (tableIdx, rowIdx) => {
+    if (!canEdit) return;
+    const newData = { ...extractionData };
+    newData.tables[tableIdx].rows.splice(rowIdx, 1);
+    setExtractionData(newData);
+  };
+
+  const addColumn = (tableIdx) => {
+    if (!canEdit) return;
+    const colName = window.prompt("Enter new column name:");
+    if (!colName) return;
+    const newData = { ...extractionData };
+    if (!newData.tables[tableIdx].columns.includes(colName)) {
+      newData.tables[tableIdx].columns.push(colName);
+      newData.tables[tableIdx].rows.forEach(r => r[colName] = '');
+      setExtractionData(newData);
+    } else {
+      toast.error("Column already exists");
+    }
+  };
+
+  const deleteColumn = (tableIdx, colName) => {
+    if (!canEdit) return;
+    if (window.confirm(`Delete column ${colName}?`)) {
+        const newData = { ...extractionData };
+        newData.tables[tableIdx].columns = newData.tables[tableIdx].columns.filter(c => c !== colName);
+        newData.tables[tableIdx].rows.forEach(r => delete r[colName]);
+        setExtractionData(newData);
+    }
+  };
+
+  const handleKvChange = (key, val) => {
+    if (!canEdit) return;
+    const newData = { ...extractionData };
+    if (!newData.document) newData.document = {};
+    if (!newData.document.details) newData.document.details = {};
+    newData.document.details[key] = val;
+    setExtractionData(newData);
+  };
+
   const viewHistoricalDoc = (doc) => {
-    setFile(null); // Clear active file upload
+    setFile(null); 
     setPreviewUrl(null);
     setActiveDoc(doc);
     setExtractionData({
       document: { type: doc.documentType, module: doc.module, confidence: doc.confidence, details: doc.details },
-      tables: doc.tables,
+      tables: doc.tables || [],
       rawText: doc.rawText
     });
-    setWorkflowState(doc.status === 'Approved' ? 'approved' : 'reviewing');
-  };
-
-  const renderWorkflowSteps = () => {
-    const steps = [
-      { id: 'uploading', label: 'Upload' },
-      { id: 'analyzing', label: 'Analyze' },
-      { id: 'extracting', label: 'Extract' },
-      { id: 'reviewing', label: 'Review' },
-      { id: 'approved', label: 'Export' }
-    ];
-    
-    let currentIndex = steps.findIndex(s => s.id === workflowState);
-    if (workflowState === 'idle') currentIndex = -1;
-    if (workflowState === 'failed') currentIndex = steps.findIndex(s => s.id === 'extracting');
-
-    return (
-      <div className="workflow-progress">
-        {steps.map((step, idx) => {
-          let stateClass = "pending";
-          if (idx < currentIndex) stateClass = "completed";
-          if (idx === currentIndex) stateClass = "active";
-          if (workflowState === 'failed' && step.id === 'extracting') stateClass = "failed";
-
-          return (
-            <React.Fragment key={step.id}>
-              <div className={`workflow-step ${stateClass}`}>
-                {stateClass === 'completed' ? <CheckCircle2 size={16} /> : 
-                 stateClass === 'active' ? <Loader2 size={16} className="animate-spin" /> : 
-                 <div style={{width: 16, height: 16, border: '2px solid currentColor', borderRadius: '50%'}}></div>}
-                {step.label}
-              </div>
-              {idx < steps.length - 1 && <span className="workflow-divider">→</span>}
-            </React.Fragment>
-          );
-        })}
-      </div>
-    );
+    setWorkflowState('extracted');
   };
 
   return (
     <div className="doc-intel-workspace">
+      
       <div className="doc-intel-header">
-        <h1>Document Intelligence</h1>
-        <p>Convert documents into structured, editable business data.</p>
-        
-        <div className="doc-stats-grid">
-          <div className="doc-stat-card"><span className="stat-label">Documents Processed</span><span className="stat-value">{stats.processed}</span></div>
-          <div className="doc-stat-card"><span className="stat-label">Needs Review</span><span className="stat-value" style={{color: 'var(--amber)'}}>{stats.needsReview}</span></div>
-          <div className="doc-stat-card"><span className="stat-label">Pending Approval</span><span className="stat-value" style={{color: 'var(--teal)'}}>{stats.pendingApproval}</span></div>
-          <div className="doc-stat-card"><span className="stat-label">Approved</span><span className="stat-value" style={{color: '#166534'}}>{stats.approved}</span></div>
+        <div className="doc-intel-header-left">
+            <h1>Document OCR</h1>
+            <p>Upload any supported document and convert it into structured, editable data.</p>
         </div>
+        
+        {workflowState === 'idle' && (
+            <div className="search-bar">
+                <Search size={16} color="var(--ink-soft)" />
+                <input 
+                    type="text" 
+                    placeholder="Search documents..." 
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+        )}
       </div>
 
-      {workflowState !== 'idle' && renderWorkflowSteps()}
-
       <div className="doc-intel-main">
-        
-        {/* SIDEBAR: Recent Documents */}
-        <div className="doc-intel-sidebar">
-          <div className="sidebar-header">
-            <h3>Recent Documents</h3>
-          </div>
-          <div className="recent-docs-list">
-            {recentDocs.map(doc => (
-              <div key={doc.id} className={`recent-doc-item ${activeDoc?.id === doc.id ? 'active' : ''}`} onClick={() => viewHistoricalDoc(doc)}>
-                <div className="recent-doc-title" title={doc.fileName}><FileText size={14} style={{display:'inline', marginRight: 6, verticalAlign:'text-bottom'}}/>{doc.fileName}</div>
-                <div className="recent-doc-meta">
-                  <span>{doc.documentType}</span>
-                  <span className={`status-badge status-${doc.status.toLowerCase().replace(' ', '-')}`}>{doc.status}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* WORKSPACE CENTER */}
-        <div className="doc-intel-workspace-center">
           
-          {workflowState === 'idle' && (
-            <div className="empty-state" onDrop={handleDrop} onDragOver={handleDragOver} onDragLeave={handleDragLeave}>
-              <Upload size={48} color={isDragging ? "var(--teal)" : "var(--ink-soft)"} />
-              <h2>Drop your document here</h2>
-              <p>Upload PDF, PNG, JPG, JPEG, DOCX, and supported document formats</p>
-              <input ref={fileInputRef} type="file" style={{ display: "none" }} onChange={handleFileChange} />
-              <button className="btn btn-primary" onClick={() => fileInputRef.current?.click()}>Browse Files</button>
-            </div>
-          )}
+        {workflowState === 'idle' && (
+            <>
+                {/* UPLOAD SECTION */}
+                <div 
+                    className={`doc-intel-workspace-center ${isDragging ? 'dragging' : ''}`}
+                    onDrop={handleDrop} 
+                    onDragOver={handleDragOver} 
+                    onDragLeave={handleDragLeave}
+                >
+                    <div className="empty-state">
+                        <Upload size={48} color={isDragging ? "var(--teal)" : "var(--ink-soft)"} />
+                        <h2>Drag & Drop your document here</h2>
+                        <p>PDF • PNG • JPG • JPEG • DOCX • supported formats</p>
+                        <input ref={fileInputRef} type="file" style={{ display: "none" }} onChange={handleFileChange} />
+                        <button className="btn btn-outline" onClick={() => fileInputRef.current?.click()}>Browse Files</button>
+                    </div>
+                </div>
 
-          {['uploading', 'analyzing', 'extracting'].includes(workflowState) && (
-            <div className="processing-overlay">
-               <h3>Processing Document</h3>
-               <div className={`process-step ${workflowState !== 'uploading' ? 'completed' : 'active'}`}>
-                 {workflowState !== 'uploading' ? <CheckCircle2 size={18}/> : <Loader2 size={18} className="animate-spin"/>} File uploaded
-               </div>
-               <div className={`process-step ${workflowState === 'extracting' ? 'completed' : workflowState === 'analyzing' ? 'active' : 'pending'}`}>
-                 {workflowState === 'extracting' ? <CheckCircle2 size={18}/> : workflowState === 'analyzing' ? <Loader2 size={18} className="animate-spin"/> : <div style={{width: 18, height: 18, border: '2px solid currentColor', borderRadius: '50%'}}></div>} Analyzing document type
-               </div>
-               <div className={`process-step ${workflowState === 'extracting' ? 'active' : 'pending'}`}>
-                 {workflowState === 'extracting' ? <Loader2 size={18} className="animate-spin"/> : <div style={{width: 18, height: 18, border: '2px solid currentColor', borderRadius: '50%'}}></div>} Extracting structured information
-               </div>
-            </div>
-          )}
+                {/* HISTORICAL LIBRARY */}
+                <div className="doc-library">
+                    <div className="doc-library-header">
+                        Historical Documents
+                    </div>
+                    <table className="doc-library-table">
+                        <thead>
+                            <tr>
+                                <th>Document Name</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {filteredDocs.map(doc => (
+                                <tr key={doc.id} onClick={() => viewHistoricalDoc(doc)}>
+                                    <td><File size={14} style={{display:'inline', marginRight: 8, verticalAlign:'text-bottom'}}/>{doc.fileName}</td>
+                                    <td>{doc.documentType}</td>
+                                    <td><span className={`status-badge status-${doc.status.toLowerCase().replace(' ', '-')}`}>{doc.status}</span></td>
+                                    <td>{new Date(doc.createdAt).toLocaleDateString()}</td>
+                                </tr>
+                            ))}
+                            {filteredDocs.length === 0 && (
+                                <tr>
+                                    <td colSpan="4" style={{textAlign: 'center', color: 'var(--ink-soft)', padding: 24}}>No documents found</td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </>
+        )}
 
-          {workflowState === 'failed' && (
-            <div className="processing-overlay" style={{ textAlign: 'center' }}>
-              <AlertTriangle size={48} color="var(--red)" style={{margin: '0 auto'}}/>
-              <h3 style={{color: 'var(--red)'}}>Document Processing Interrupted</h3>
-              <p>We couldn't connect to the document extraction service. Your uploaded document is safe.</p>
-              <div style={{background: 'var(--canvas)', padding: 16, borderRadius: 8, textAlign: 'left', fontSize: 13}}>
-                <strong>Possible causes:</strong>
-                <ul style={{margin: '8px 0 0', paddingLeft: 20}}>
-                  <li>OCR service is unavailable</li>
-                  <li>Backend connection was interrupted</li>
-                  <li>Request timed out</li>
-                </ul>
-              </div>
-              <button className="btn btn-outline" onClick={() => setWorkflowState('idle')}>Remove Document</button>
+        {workflowState === 'processing' && (
+            <div className="upload-status">
+                <div className="upload-meta">
+                    <div className="meta-item"><span>Document Name</span><span>{file?.name}</span></div>
+                    <div className="meta-item"><span>File Type</span><span>{file?.type || 'Unknown'}</span></div>
+                    <div className="meta-item"><span>File Size</span><span>{(file?.size / 1024 / 1024).toFixed(2)} MB</span></div>
+                    <div className="meta-item"><span>Upload Status</span><span>Complete</span></div>
+                </div>
+                <Loader2 size={32} className="animate-spin" color="var(--teal)" style={{marginBottom: 16}}/>
+                <h3>Extracting Document</h3>
+                <p style={{color: 'var(--ink-soft)'}}>Please wait while we structure your data...</p>
             </div>
-          )}
+        )}
 
-          {(workflowState === 'reviewing' || workflowState === 'approved') && extractionData && (
+        {workflowState === 'failed' && (
+            <div className="error-container">
+              <AlertTriangle size={48} />
+              <h3>Extraction Failed</h3>
+              <p>{errorDetails}</p>
+              <button className="btn btn-outline" onClick={() => performExtraction(file)}>Retry Extraction</button>
+            </div>
+        )}
+
+        {workflowState === 'extracted' && extractionData && (
             <div className="split-workspace">
               
               {/* LEFT: Preview */}
               <div className="preview-pane">
-                <div className="pane-header">Document Preview</div>
+                <div className="pane-header">
+                    <span className="pane-header-title">Document: {file?.name || activeDoc?.fileName}</span>
+                    <button className="btn btn-outline" style={{padding: '4px 8px'}} onClick={() => setWorkflowState('idle')}>Back</button>
+                </div>
                 <div className="pane-content">
                   {previewUrl ? (
                     file?.type === "application/pdf" ? (
@@ -349,107 +410,129 @@ const DocumentIntelligence = () => {
               {/* RIGHT: Data */}
               <div className="data-pane">
                 <div className="pane-header">
-                  <span>Extracted Data</span>
-                  <span className="status-badge" style={{background: 'var(--teal-mist)', color: 'var(--teal-dark)'}}>{extractionData.document?.type}</span>
-                </div>
-                
-                <div className="validation-panel">
-                   <span>
-                     <strong>Confidence:</strong> {(extractionData.document?.confidence * 100).toFixed(0)}%
-                   </span>
-                   {extractionData.document?.confidence < 0.85 && (
-                     <span style={{color: 'var(--amber)', fontWeight: 600}}>⚠ Review required</span>
-                   )}
+                  <span className="pane-header-title">Extracted Data</span>
+                  <div style={{display: 'flex', gap: 8, alignItems: 'center'}}>
+                      <span className={`status-badge status-${activeDoc?.status ? activeDoc.status.toLowerCase().replace(' ', '-') : 'extracted'}`}>
+                          {activeDoc?.status || 'EXTRACTED'}
+                      </span>
+                      {canEdit ? (
+                          <span className="role-badge">Editing Enabled</span>
+                      ) : (
+                          <span className="role-badge view-only">View Only</span>
+                      )}
+                  </div>
                 </div>
 
                 <div className="pane-content extracted-table-container">
-                  {extractionData.tables?.map((table, tIdx) => (
-                    <div key={tIdx} style={{marginBottom: 24}}>
-                      <h4 style={{marginBottom: 12, padding: '0 16px'}}>{table.title || 'Table Data'}</h4>
-                      <table className="ext-table">
-                        <thead>
-                          <tr>
-                            {table.columns?.map((col, cIdx) => (
-                              <th key={cIdx}>{col}</th>
-                            ))}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {table.rows?.map((row, rIdx) => (
-                            <tr key={rIdx}>
-                              {table.columns?.map((col, cIdx) => {
-                                const conf = row.confidence || 1.0;
-                                let confClass = '';
-                                if (conf < 0.7) confClass = 'conf-low';
-                                else if (conf < 0.9) confClass = 'conf-med';
-                                else confClass = 'conf-high';
-                                
-                                return (
-                                  <td key={cIdx} className={confClass}>
-                                    {canEdit ? (
-                                      <input 
-                                        type="text" 
-                                        value={row[col] || ''} 
-                                        onChange={(e) => handleDataChange(tIdx, rIdx, col, e.target.value)}
-                                      />
-                                    ) : (
-                                      <span>{row[col] || ''}</span>
-                                    )}
-                                  </td>
-                                );
-                              })}
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  ))}
-
-                  {/* Non-tabular details if any */}
+                    
+                  {/* Dynamic Fields / Key Value */}
                   {extractionData.document?.details && Object.keys(extractionData.document.details).length > 0 && (
-                     <div style={{padding: 16}}>
-                       <h4 style={{marginBottom: 12}}>Document Details</h4>
-                       <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16}}>
+                     <div style={{padding: 24}}>
+                       <div className="kv-grid">
                          {Object.entries(extractionData.document.details).map(([key, val], idx) => (
-                           <div key={idx}>
-                             <div style={{fontSize: 12, color: 'var(--ink-soft)'}}>{key}</div>
-                             <div style={{fontSize: 14, fontWeight: 500}}>{val}</div>
+                           <div className="kv-item" key={idx}>
+                             <div className="kv-item-label">{key}</div>
+                             <div className="kv-item-value">
+                                 <input 
+                                     type="text" 
+                                     value={val} 
+                                     onChange={(e) => handleKvChange(key, e.target.value)}
+                                     disabled={!canEdit}
+                                 />
+                             </div>
                            </div>
                          ))}
                        </div>
                      </div>
                   )}
+
+                  {/* Dynamic Tables */}
+                  <div style={{padding: '0 24px'}}>
+                      {extractionData.tables?.map((table, tIdx) => (
+                        <div key={tIdx} style={{marginBottom: 32}}>
+                          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12}}>
+                            <h4 style={{margin: 0}}>{table.title || 'Table Data'}</h4>
+                            {canEdit && (
+                              <div style={{display: 'flex', gap: 8}}>
+                                <button className="btn btn-outline" style={{padding: '4px 8px', fontSize: 12}} onClick={() => addColumn(tIdx)}>+ Column</button>
+                                <button className="btn btn-outline" style={{padding: '4px 8px', fontSize: 12}} onClick={() => addRow(tIdx)}>+ Row</button>
+                              </div>
+                            )}
+                          </div>
+                          <div className="table-wrapper">
+                              <table className="ext-table">
+                                <thead>
+                                  <tr>
+                                    {table.columns?.map((col, cIdx) => (
+                                      <th key={cIdx}>
+                                        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                                          {col}
+                                          {canEdit && <button onClick={() => deleteColumn(tIdx, col)} style={{background: 'transparent', border: 'none', color: 'var(--red)', cursor: 'pointer', padding: '0 4px', fontSize: '16px', lineHeight: 1}} title="Delete Column">×</button>}
+                                        </div>
+                                      </th>
+                                    ))}
+                                    {canEdit && <th style={{width: 40}}></th>}
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {table.rows?.map((row, rIdx) => (
+                                    <tr key={rIdx}>
+                                      {table.columns?.map((col, cIdx) => (
+                                          <td key={cIdx}>
+                                            {canEdit ? (
+                                              <input 
+                                                type="text" 
+                                                value={row[col] || ''} 
+                                                onChange={(e) => handleDataChange(tIdx, rIdx, col, e.target.value)}
+                                              />
+                                            ) : (
+                                              <span>{row[col] || ''}</span>
+                                            )}
+                                          </td>
+                                      ))}
+                                      {canEdit && (
+                                        <td style={{textAlign: 'center'}}>
+                                          <button onClick={() => deleteRow(tIdx, rIdx)} style={{background: 'transparent', border: 'none', color: 'var(--red)', cursor: 'pointer', padding: '4px', fontSize: '16px', lineHeight: 1}} title="Delete Row">×</button>
+                                        </td>
+                                      )}
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                  
                 </div>
 
                 {/* Actions Panel */}
                 <div className="workspace-actions">
-                  {canEdit && workflowState !== 'approved' && (
-                    <>
-                      <button className="btn btn-outline" onClick={() => updateDocumentStatus('Needs Review')}>Needs Review</button>
-                      <button className="btn btn-primary" onClick={() => updateDocumentStatus('Pending Approval')}>Submit for Approval</button>
-                    </>
-                  )}
-                  {canEdit && activeDoc?.status === 'Pending Approval' && (
-                    <>
-                      <button className="btn btn-danger" onClick={() => {
-                        const reason = window.prompt("Reason for rejection:");
-                        if (reason) updateDocumentStatus('Rejected', reason);
-                      }}>Reject</button>
-                      <button className="btn btn-primary" onClick={() => updateDocumentStatus('Approved')}>Approve</button>
-                    </>
-                  )}
-                  {workflowState === 'approved' && (
-                    <>
-                      <button className="btn btn-outline" onClick={() => handleExport('docx')}><Download size={16}/> Word</button>
-                      <button className="btn btn-outline" onClick={() => handleExport('pdf')}><Download size={16}/> PDF</button>
-                    </>
-                  )}
+                  <div className="workspace-actions-left">
+                      {canEdit && (
+                          <button className="btn btn-outline" onClick={saveDocumentState}>
+                              <Save size={16}/> Save Changes
+                          </button>
+                      )}
+                      {canEdit && (activeDoc?.status === 'Needs Review' || !activeDoc) && (
+                          <button className="btn btn-primary" onClick={() => updateDocumentStatus('Approved')}>Approve</button>
+                      )}
+                      {canEdit && (activeDoc?.status === 'Needs Review' || !activeDoc) && (
+                          <button className="btn btn-danger" onClick={() => updateDocumentStatus('Rejected')}>Reject</button>
+                      )}
+                  </div>
+                  
+                  <div style={{display: 'flex', gap: 12}}>
+                      <button className="btn btn-outline" onClick={handleDownloadOriginal} disabled={!file}><Download size={16}/> Download Original</button>
+                      <button className="btn btn-outline" onClick={() => handleExport('docx')}><Download size={16}/> Download Word</button>
+                      <button className="btn btn-outline" onClick={() => handleExport('pdf')}><Download size={16}/> Download PDF</button>
+                  </div>
                 </div>
-              </div>
 
+              </div>
             </div>
-          )}
-        </div>
+        )}
+
       </div>
     </div>
   );

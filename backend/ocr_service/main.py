@@ -16,6 +16,10 @@ app.add_middleware(
 app.include_router(ocr_router)
 app.include_router(export_router, prefix="/export")
 
+@app.get("/health")
+def health_check():
+    return {"status": "ok", "service": "ocr_engine"}
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)

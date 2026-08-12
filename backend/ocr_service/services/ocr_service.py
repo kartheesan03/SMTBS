@@ -1,4 +1,4 @@
-﻿import sys
+import sys
 import io
 import os
 import uuid
@@ -185,29 +185,17 @@ def extract_text(file_path: str, ext: Optional[str] = None) -> dict:
 
         doc.close()
 
-    # ÔöÇÔöÇ DOCX: Extract text directly ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    # ── DOCX: Extract paragraphs AND native tables ──────────────────────────────
     elif ext in [".docx", ".doc"]:
         try:
-            import docx
+            import docx as _docx
         except ImportError:
             raise RuntimeError("python-docx is not installed. Run: pip install python-docx")
-        
-        doc = docx.Document(file_path)
-        y_pos = 0
-        for para in doc.paragraphs:
-            text = para.text.strip()
-            if text:
-                all_elements.append({
-                    "text": text,
-                    "confidence": 1.0,
-                    "x0": 0,
-                    "y0": y_pos,
-                    "x1": 500,
-                    "y1": y_pos + 15,
-                    "page": 1
-                })
-                y_pos += 20
+
+        from services.ocr_parser import process_docx_document
+        result = process_docx_document(file_path)
         logger.info(f"[TIMING] DOCX extraction done in {time.time()-t_start:.2f}s")
+        return result
         
     # ÔöÇÔöÇ Images: pass directly to EasyOCR ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
     else:
