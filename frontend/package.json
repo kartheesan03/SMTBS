@@ -38,6 +38,10 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
-    "kill-port": "^2.0.1"
+    "@tailwindcss/vite": "^4.3.3",
+    "autoprefixer": "^10.5.4",
+    "kill-port": "^2.0.1",
+    "postcss": "^8.5.26",
+    "tailwindcss": "^4.3.3"
   }
 }

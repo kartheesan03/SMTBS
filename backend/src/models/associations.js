@@ -39,6 +39,7 @@ function setupAssociations() {
     
     // Ticket Associations
     Ticket.sequelizeModel.belongsTo(Customer.sequelizeModel, { foreignKey: 'customerId', as: 'Customer' });
+    Ticket.sequelizeModel.belongsTo(Lead.sequelizeModel, { foreignKey: 'leadId', as: 'Lead' });
     Ticket.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'assignedToId', as: 'assignedTo' });
     Ticket.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'submittedById', as: 'submittedBy' });
     

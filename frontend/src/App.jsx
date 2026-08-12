@@ -96,6 +96,7 @@ const AddVendor = lazyRetry(() => import('./pages/AddVendor'));
 const Support = lazyRetry(() => import('./pages/Support'));
 
 const AdminTickets = lazyRetry(() => import('./pages/AdminTickets'));
+const SaaSAdminDashboard = lazyRetry(() => import('./components/SaaSAdminDashboard'));
 const StockRequests = lazyRetry(() => import('./pages/StockRequests'));
 const CreateOrder = lazyRetry(() => import('./pages/CreateOrder'));
 const SelectOrderType = lazyRetry(() => import('./pages/SelectOrderType'));
@@ -138,6 +139,16 @@ const HolidayCalendar = lazyRetry(() => import('./pages/HolidayCalendar'));
 const Recruitment = lazyRetry(() => import('./pages/Recruitment'));
 const LeaveBalance = lazyRetry(() => import('./pages/LeaveBalance'));
 const LandingPage = lazyRetry(() => import('./pages/LandingPage'));
+
+const SupportWrapper = () => {
+    const { user } = React.useContext(AuthContext);
+    const role = (user?.role || '').toLowerCase();
+    if (['admin', 'manager', 'hr'].includes(role)) {
+        return <AdminTickets />;
+    }
+    return <Support />;
+};
+
 const AIAssistant = lazyRetry(() => import('./pages/AIAssistant'));
 const AuthMicrosoftCallback = lazyRetry(() => import('./pages/AuthMicrosoftCallback'));
 const AppContent = () => {
@@ -332,6 +343,7 @@ const AppContent = () => {
 
 
                     <Route path="/support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
+                    <Route path="/admin-tickets-new" element={<ProtectedRoute><SaaSAdminDashboard /></ProtectedRoute>} />
                     <Route path="/ocr" element={<ProtectedRoute><OCR /></ProtectedRoute>} />
                     <Route path="/users" element={<ProtectedRoute requiredPermission="view_settings"><UserManagement /></ProtectedRoute>} />
                     <Route path="/my-tasks" element={<ProtectedRoute><MyTasks /></ProtectedRoute>} />
@@ -398,7 +410,7 @@ const AppContent = () => {
                     <Route path="/tasks/calendar" element={<ProtectedRoute><TaskCalendar /></ProtectedRoute>} />
                     <Route path="/projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
                     
-                    <Route path="/support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
+                    <Route path="/support" element={<ProtectedRoute><SupportWrapper /></ProtectedRoute>} />
                     <Route path="/support/admin" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']}><AdminTickets /></ProtectedRoute>} />
                     <Route path="/support/history" element={<ProtectedRoute><Support /></ProtectedRoute>} />
                     <Route path="/support/kb" element={<ProtectedRoute><Support /></ProtectedRoute>} />

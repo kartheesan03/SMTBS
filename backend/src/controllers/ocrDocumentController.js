@@ -3,9 +3,7 @@ const AuditLog = require('../models/AuditLog');
 
 const getOcrDocuments = async (req, res) => {
     try {
-        const documents = await OcrDocument.findAll({
-            order: [['createdAt', 'DESC']]
-        });
+        const documents = await OcrDocument.find({}).sort({ createdAt: -1 });
         res.json(documents);
     } catch (error) {
         console.error('Error fetching OCR documents:', error);
@@ -15,7 +13,7 @@ const getOcrDocuments = async (req, res) => {
 
 const getOcrDocumentById = async (req, res) => {
     try {
-        const doc = await OcrDocument.findByPk(req.params.id);
+        const doc = await OcrDocument.findById(req.params.id);
         if (!doc) {
             return res.status(404).json({ message: 'Document not found' });
         }
@@ -72,19 +70,20 @@ const updateOcrDocument = async (req, res) => {
         }
         
         const docId = req.params.id;
-        const doc = await OcrDocument.findByPk(docId);
+        const doc = await OcrDocument.findById(docId);
         
         if (!doc) {
             return res.status(404).json({ message: 'Document not found' });
         }
         
-        const { tables, details, status } = req.body;
+        const { tables, details, status, rejectReason } = req.body;
         
         const oldTables = doc.tables;
         
         doc.tables = tables !== undefined ? tables : doc.tables;
         doc.details = details !== undefined ? details : doc.details;
         doc.status = status !== undefined ? status : doc.status;
+        doc.rejectReason = rejectReason !== undefined ? rejectReason : doc.rejectReason;
         
         await doc.save();
 
@@ -110,9 +109,31 @@ const updateOcrDocument = async (req, res) => {
     }
 };
 
+const getOcrSummary = async (req, res) => {
+    try {
+        const totalProcessed = await OcrDocument.countDocuments({});
+        const needsReview = await OcrDocument.countDocuments({ status: 'Needs Review' });
+        const approved = await OcrDocument.countDocuments({ status: 'Approved' });
+        const failed = await OcrDocument.countDocuments({ status: 'Failed' });
+        const pendingApproval = await OcrDocument.countDocuments({ status: 'Pending Approval' });
+
+        res.json({
+            processed: totalProcessed,
+            needsReview,
+            approved,
+            failed,
+            pendingApproval
+        });
+    } catch (error) {
+        console.error('Error fetching OCR summary:', error);
+        res.status(500).json({ message: 'Failed to fetch OCR summary', error: error.message });
+    }
+};
+
 module.exports = {
     getOcrDocuments,
     getOcrDocumentById,
     createOcrDocument,
-    updateOcrDocument
+    updateOcrDocument,
+    getOcrSummary
 };

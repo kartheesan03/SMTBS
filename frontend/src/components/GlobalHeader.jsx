@@ -102,6 +102,9 @@ const GlobalHeader = ({ onRefresh, onOpenModuleLauncher, onOpenCommandCenter }) 
                     <span style={{ color: '#fda4af', margin: '0 4px' }}>·</span>
                     {currentTime.toLocaleTimeString('en-US', { timeZone: timezone, hour: 'numeric', minute: '2-digit', hour12: true })}
                 </div>
+                
+                <div className="rd-divider"></div>
+                
                 <button className="rd-icon-btn" onClick={handleRefresh} title="Refresh">
                     <RefreshCw size={18} />
                 </button>
@@ -109,6 +112,9 @@ const GlobalHeader = ({ onRefresh, onOpenModuleLauncher, onOpenCommandCenter }) 
                     <Bell size={18} />
                     {unreadCount > 0 && <span className="rd-badge">{unreadCount}</span>}
                 </button>
+                
+                <div className="rd-divider"></div>
+
                 <div className="rd-profile-menu-container" ref={profileRef} style={{ position: 'relative' }}>
                     <div className="rd-profile-menu" onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)} style={{ cursor: 'pointer' }}>
                         <div className="rd-avatar" style={{ background: avatarGradient }}>{initials}</div>

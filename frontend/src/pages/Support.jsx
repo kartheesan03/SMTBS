@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Search, Plus, Filter, AlertCircle, Clock, CheckCircle2, Activity, ChevronLeft, ChevronRight, FileText } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 import { motion } from "framer-motion";
 import api from "../api/axios";
 import PageHeader from "../components/PageHeader";
@@ -8,6 +10,15 @@ import TicketDetailView from "../components/TicketDetailView";
 import "./Support.css";
 
 const Support = () => {
+    const { user } = useContext(AuthContext);
+    const navigate = useNavigate();
+    
+    useEffect(() => {
+        if (user && ['admin', 'manager', 'hr'].includes((user.role || '').toLowerCase())) {
+            navigate('/support/admin', { replace: true });
+        }
+    }, [user, navigate]);
+
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedTicketId, setSelectedTicketId] = useState(null);

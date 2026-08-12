@@ -545,7 +545,7 @@ const AIAssistant = () => {
                                 </span>
                               </div>
                               <a
-                                href={`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${msg.file.url}`}
+                                href={`${import.meta.env.VITE_API_URL || ''}${msg.file.url}`}
                                 download
                                 className="aria-file-download"
                               >

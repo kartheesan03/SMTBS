@@ -43,8 +43,12 @@ const OcrDocumentSequelize = sequelize.define('OcrDocument', {
         allowNull: true
     },
     status: {
-        type: DataTypes.ENUM('Extracted', 'Validated'),
+        type: DataTypes.ENUM('Processing', 'Extracted', 'Needs Review', 'Pending Approval', 'Approved', 'Rejected', 'Failed'),
         defaultValue: 'Extracted'
+    },
+    rejectReason: {
+        type: DataTypes.STRING,
+        allowNull: true
     }
 });
 

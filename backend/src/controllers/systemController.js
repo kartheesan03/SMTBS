@@ -85,7 +85,7 @@ const navigationConfig = [
     {
         title: 'Support Management',
         icon: 'LifeBuoy',
-        path: '/support',
+        path: '/support/admin',
         permission: 'view_crm'
     },
     {

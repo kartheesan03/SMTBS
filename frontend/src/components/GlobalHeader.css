@@ -69,17 +69,24 @@
     gap: 12px;
 }
 
+.rd-divider {
+    width: 1px;
+    height: 24px;
+    background-color: #e5e7eb;
+    margin: 0 4px;
+}
+
 .rd-datetime-pill {
     display: flex;
     align-items: center;
     gap: 8px;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
     padding: 6px 14px;
-    border-radius: 0px;
+    border-radius: 999px;
     font-size: 13px;
-    font-weight: 600;
-    color: #475569;
+    font-weight: 500;
+    color: #4b5563;
 }
 
 .rd-badge {
@@ -90,9 +97,9 @@
     color: white;
     font-size: 10px;
     font-weight: 700;
-    min-width: 16px;
-    height: 16px;
-    border-radius: 0px;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -104,26 +111,28 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 4px 8px 4px 4px;
-    border-radius: 0px;
+    padding: 6px 12px 6px 6px;
+    border-radius: 999px;
     transition: all 0.2s;
+    border: 1px solid transparent;
 }
 
 .rd-profile-menu:hover {
-    background: #f1f5f9;
+    background: #f9fafb;
+    border-color: #e5e7eb;
 }
 
 .rd-avatar {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     background: #ef4444;
     color: #ffffff;
-    border-radius: 0px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 700;
-    font-size: 14px;
+    font-weight: 600;
+    font-size: 13px;
 }
 
 .rd-profile-info {
@@ -132,16 +141,16 @@
 }
 
 .rd-profile-name {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
-    color: #1e293b;
+    color: #111827;
     line-height: 1.2;
 }
 
 .rd-profile-role {
     font-size: 11px;
-    font-weight: 700;
-    color: #64748b;
+    font-weight: 600;
+    color: #6b7280;
     display: flex;
     align-items: center;
     gap: 6px;
@@ -152,7 +161,6 @@
     width: 6px;
     height: 6px;
     background: #10b981;
-    border-radius: 0px;
+    border-radius: 50%;
 }
-
 

@@ -112,33 +112,33 @@
 .farmaku-nav-item {
     display: flex;
     align-items: center;
-    gap: 11px;
-    padding: 12px 16px;
-    border-radius: 0px;
-    color: rgba(255, 255, 255, 0.55);
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.6);
     text-decoration: none;
     font-size: 13.5px;
     font-weight: 500;
-    transition: all 0.18s ease;
+    transition: all 0.2s ease;
     cursor: pointer;
     position: relative;
+    margin: 2px 8px;
 }
 
 .farmaku-nav-item:hover:not(.active) {
-    background: rgba(255,255,255,0.07);
+    background: rgba(255,255,255,0.05);
     color: rgba(255,255,255,0.9);
 }
 
 .farmaku-nav-item.expanded {
-    background: rgba(0, 0, 0, 0.15); /* subtle dark background */
-    color: rgba(255, 255, 255, 0.85);
+    background: rgba(0, 0, 0, 0.2);
+    color: rgba(255, 255, 255, 0.9);
 }
 
 .farmaku-nav-item.active {
-    background: #3B82F6;
-    color: #FFFFFF;
+    background: rgba(59, 130, 246, 0.15);
+    color: #60A5FA;
     font-weight: 600;
-    box-shadow: 0 4px 14px rgba(59,130,246,0.4);
 }
 
 /* Parent with an active child should look highlighted but WITHOUT the solid blue active background */
