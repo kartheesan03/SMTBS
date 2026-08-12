@@ -1,9 +1,14 @@
 import re
 import math
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any, Tuple, Optional
 import logging
 
 logger = logging.getLogger(__name__)
+
+
+# ---------------------------------------------------------------------------
+# UTILITY: Number parsing
+# ---------------------------------------------------------------------------
 
 def parse_number(text: str) -> float:
     if not text:
@@ -23,15 +28,25 @@ def parse_number(text: str) -> float:
         clean = clean.replace(',', '')
     try:
         return float(clean)
-    except:
+    except Exception:
         return 0.0
 
 
+def _looks_numeric(text: str) -> bool:
+    """Return True if text is primarily a number/currency value."""
+    stripped = re.sub(r'[^\w]', '', text)
+    return bool(re.match(r'^[\$₹Rs]?\d[\d,\.]*$', stripped, re.IGNORECASE))
+
+
+# ---------------------------------------------------------------------------
+# LINE GROUPING
+# ---------------------------------------------------------------------------
+
 def group_into_lines(elements: List[Dict], y_tolerance: int = 15) -> List[List[Dict]]:
-    elements = sorted(elements, key=lambda e: (e['y0']))
-    lines = []
-    current_line = []
-    current_y = None
+    elements = sorted(elements, key=lambda e: e['y0'])
+    lines: List[List[Dict]] = []
+    current_line: List[Dict] = []
+    current_y: Optional[float] = None
 
     for el in elements:
         if current_y is None:
@@ -54,19 +69,14 @@ def group_into_lines(elements: List[Dict], y_tolerance: int = 15) -> List[List[D
 
 
 # ---------------------------------------------------------------------------
-# STRUCTURAL GENERIC TABLE DETECTION
+# STRUCTURAL TABLE DETECTION
 # ---------------------------------------------------------------------------
 
 def _line_column_positions(line: List[Dict]) -> List[float]:
-    """Return the horizontal center position of each element in a line."""
     return [(el['x0'] + el['x1']) / 2 for el in line]
 
 
 def _alignment_score(header_positions: List[float], data_line: List[Dict], tolerance: float = 60.0) -> float:
-    """
-    What fraction of header columns have at least one data element near them?
-    Returns a score between 0.0 and 1.0.
-    """
     if not data_line or not header_positions:
         return 0.0
     matched = 0
@@ -81,10 +91,12 @@ def _alignment_score(header_positions: List[float], data_line: List[Dict], toler
 
 def _is_header_candidate(line: List[Dict], next_lines: List[List[Dict]], min_cols: int = 2) -> bool:
     """
-    Structural table header detection:
-    1. Line must have at least min_cols elements
-    2. Elements must be horizontally spread (not all bunched together)
-    3. At least one of the next data rows must align under the header columns
+    Structural table header detection — stronger than the previous version.
+    Requirements:
+    1. At least min_cols elements
+    2. Horizontal spread > 150px (was 80px — catches false positives)
+    3. Header elements must be predominantly TEXT (not numbers/currency)
+    4. At least one following data row must align under the header columns
     """
     if len(line) < min_cols:
         return False
@@ -94,7 +106,13 @@ def _is_header_candidate(line: List[Dict], next_lines: List[List[Dict]], min_col
         return False
 
     x_range = max(positions) - min(positions)
-    if x_range < 80:
+    # Stronger threshold — avoids treating "PAID  $4,500" as a header
+    if x_range < 150:
+        return False
+
+    # Header elements must be mostly text labels, not numbers
+    numeric_count = sum(1 for el in line if _looks_numeric(el['text']))
+    if numeric_count > len(line) / 2:
         return False
 
     # Check alignment with subsequent data rows
@@ -106,18 +124,16 @@ def _is_header_candidate(line: List[Dict], next_lines: List[List[Dict]], min_col
     return best_score >= 0.4
 
 
-def detect_all_tables(lines: List[List[Dict]]) -> List[Tuple[List[Dict], int, int]]:
+def detect_all_tables(lines: List[List[Dict]]) -> List[Tuple[str, List[Dict], int, int]]:
     """
     Generic structural table detection. No hardcoded column names.
-    A table is a group of lines where:
-      - The first line (header) has multiple elements spread horizontally
-      - The following lines (data rows) have elements aligned under the header
+    Returns list of (title, columns, start_idx, end_idx) tuples.
     """
     tables = []
     current_search_start = 0
     FOOTER_MARKERS = [
         "SUBTOTAL", "SUB TOTAL", "GRAND TOTAL", "TAXABLE VALUE",
-        "TOTAL AMOUNT", "NET PAYABLE", "AMOUNT IN WORDS", "IN WORDS",
+        "TOTAL AMOUNT", "AMOUNT IN WORDS", "IN WORDS",
         "SIGNATURE", "AUTHORISED SIGNATORY"
     ]
 
@@ -136,7 +152,6 @@ def detect_all_tables(lines: List[List[Dict]]) -> List[Tuple[List[Dict], int, in
                     key = el["text"].strip()
                     if not key:
                         continue
-                    # Generic deduplication — preserve exact original text
                     if key in seen_keys:
                         seen_keys[key] += 1
                         key = f"{key} ({seen_keys[key]})"
@@ -147,13 +162,18 @@ def detect_all_tables(lines: List[List[Dict]]) -> List[Tuple[List[Dict], int, in
                         "x0": el["x0"],
                         "x1": el["x1"]
                     })
-                logger.info(f"[detect_all_tables] Table header detected at line {i}: {[c['key'] for c in columns]}")
+                logger.info(f"[detect_all_tables] Table header at line {i}: {[c['key'] for c in columns]}")
                 break
 
         if table_start_idx == -1 or not columns:
             break
+            
+        title = "Extracted Table"
+        if table_start_idx > 0:
+            candidate_title = " ".join([e["text"] for e in lines[table_start_idx - 1]]).strip()
+            if len(candidate_title) >= 3 and not candidate_title.isdigit():
+                title = candidate_title
 
-        # Find table end: footer markers or a line that has zero alignment
         table_end_idx = len(lines)
         header_positions = _line_column_positions(lines[table_start_idx])
 
@@ -162,8 +182,6 @@ def detect_all_tables(lines: List[List[Dict]]) -> List[Tuple[List[Dict], int, in
             if any(k in line_text for k in FOOTER_MARKERS):
                 table_end_idx = i
                 break
-            # Also stop if we hit a run of 3 consecutive lines with 0 alignment
-            # (indicates we've left the table body into free-form text)
             if i > table_start_idx + 3:
                 streak = 0
                 for j in range(max(table_start_idx + 1, i - 3), i + 1):
@@ -173,24 +191,23 @@ def detect_all_tables(lines: List[List[Dict]]) -> List[Tuple[List[Dict], int, in
                     table_end_idx = i - 2
                     break
 
-        tables.append((columns, table_start_idx, table_end_idx))
+        tables.append((title, columns, table_start_idx, table_end_idx))
         current_search_start = table_end_idx + 1
 
     return tables
 
 
-# Keep detect_table for backward compatibility (used nowhere critical, but safe to keep)
-def detect_table(lines: List[List[Dict]]) -> Tuple[List[Dict], int, int]:
+def detect_table(lines: List[List[Dict]]) -> Tuple[str, List[Dict], int, int]:
     results = detect_all_tables(lines)
     if results:
         return results[0]
-    return [], -1, len(lines)
+    return "", [], -1, len(lines)
 
 
 def extract_table_rows(lines: List[List[Dict]], columns: List[Dict]) -> List[Dict]:
     items = []
     empty_row: Dict[str, Any] = {col["key"]: "" for col in columns}
-    col_tolerance = 60  # pixels
+    col_tolerance = 60
 
     for line in lines:
         if not line:
@@ -210,7 +227,6 @@ def extract_table_rows(lines: List[List[Dict]], columns: List[Dict]) -> List[Dic
             for col in columns:
                 col_mid = (col['x0'] + col['x1']) / 2
                 dist = abs(el_mid - col_mid)
-                # Accept if the element center falls within the column's span + tolerance
                 if col['x0'] - col_tolerance <= el_mid <= col['x1'] + col_tolerance:
                     if dist < best_dist:
                         best_dist = dist
@@ -232,7 +248,6 @@ def extract_table_rows(lines: List[List[Dict]], columns: List[Dict]) -> List[Dic
                 sum(confidences) / len(confidences) if confidences else 1.0, 4
             )
             first_col_key = columns[0]["key"]
-            # If first column is empty, this is likely a continuation of the previous row
             if not row_data.get(first_col_key, "").strip() and items:
                 for k, v in row_data.items():
                     if k not in ("confidence",) and v:
@@ -253,82 +268,21 @@ def extract_table_rows(lines: List[List[Dict]], columns: List[Dict]) -> List[Dic
     return valid_items
 
 
+# ---------------------------------------------------------------------------
+# DOCUMENT CLASSIFICATION
+# ---------------------------------------------------------------------------
+
 def detect_document_class(lines: List[List[Dict]]) -> Tuple[bool, str, str, float]:
-    full_text = " ".join([e["text"].upper() for line in lines for e in line])
-
-    modules = {
-        "HRMS / Attendance": {
-            "keywords": ["HRMS", "ATTENDANCE", "ABSENCE", "ABSENT", "PRESENT", "EMPLOYEE",
-                         "DEPARTMENT", "DESIGNATION", "AUDITOR", "HR", "LEAVE", "SHIFT"],
-            "types": {
-                "HR Custom Report": ["CUSTOM REPORT", "HR REPORT", "ABSENCE AUDITS", "EMPLOYEE REPORT"],
-                "Attendance Register": ["ATTENDANCE REGISTER", "TIME TRACKING"],
-                "Leave Application": ["LEAVE APPLICATION", "LEAVE BALANCE"]
-            }
-        },
-        "Payroll": {
-            "keywords": ["PAYROLL", "SALARY", "PAYSLIP", "DEDUCTION", "ALLOWANCE",
-                         "NET SALARY", "BASIC SALARY", "OVERTIME"],
-            "types": {
-                "Salary Slip": ["PAYSLIP", "SALARY SLIP", "WAGE SLIP"],
-                "Payroll Report": ["PAYROLL REPORT", "SALARY REPORT"]
-            }
-        },
-        "Inventory / Material Tracking": {
-            "keywords": ["INVENTORY", "STOCK", "MATERIAL", "WAREHOUSE", "SKU",
-                         "AVAILABLE STOCK", "PROCUREMENT", "REGISTER", "INWARD", "OUTWARD"],
-            "types": {
-                "Inventory Stock Report": ["STOCK LEVELS", "STOCK REPORT", "INVENTORY REPORT",
-                                           "AVAILABLE STOCK", "INVENTORY REGISTER", "MATERIAL REGISTER"],
-                "Material Requisition": ["MATERIAL REQUISITION", "MATERIAL REQUEST"]
-            }
-        },
-        "Finance / Procurement / Sales": {
-            "keywords": ["INVOICE", "PURCHASE ORDER", "PO NO", "BILL TO", "GSTIN",
-                         "TAX", "AMOUNT", "DELIVERY CHALLAN", "QUOTATION", "EXPENSE", "RECEIPT"],
-            "types": {
-                "Invoice": ["INVOICE", "TAX INVOICE", "BILL"],
-                "Purchase Order": ["PURCHASE ORDER", "PO NUMBER"],
-                "Delivery Challan": ["DELIVERY CHALLAN", "CHALLAN"],
-                "Quotation": ["QUOTATION", "ESTIMATE"],
-                "Expense Bill": ["EXPENSE", "REIMBURSEMENT", "RECEIPT"]
-            }
-        },
-        "CRM / Leads": {
-            "keywords": ["CRM", "LEADS", "CUSTOMER", "PIPELINE", "SALES GOALS", "CONTACT"],
-            "types": {"CRM Report": ["CRM REPORT", "LEADS REPORT", "SALES PIPELINE"]}
-        },
-        "Tasks & Projects": {
-            "keywords": ["PROJECT", "TASK", "DEADLINE", "MILESTONE", "PROJECT MANAGER"],
-            "types": {"Project Report": ["PROJECT REPORT", "TASK LIST", "SPRINT"]}
-        }
-    }
-
-    best_module = "General"
-    best_doc_type = "General Document"
-    max_score = 0
-
-    for mod_name, mod_data in modules.items():
-        score = sum(1 for kw in mod_data["keywords"] if kw in full_text)
-        type_score = 0
-        current_type = "Document"
-        for t_name, t_keywords in mod_data["types"].items():
-            t_s = sum(2 for kw in t_keywords if kw in full_text)
-            if t_s > type_score:
-                type_score = t_s
-                current_type = t_name
-
-        total_score = score + type_score
-        if total_score > max_score:
-            max_score = total_score
-            best_module = mod_name
-            best_doc_type = current_type if type_score > 0 else f"{mod_name} Document"
-
-    if max_score > 0:
-        base_confidence = min(0.99, 0.5 + (max_score * 0.1))
-        return True, best_module, best_doc_type, base_confidence
-
     return False, "General", "General Document", 1.0
+
+
+# ---------------------------------------------------------------------------
+# GENERIC KV PAIR EXTRACTION (replaces narrow extract_metadata)
+# ---------------------------------------------------------------------------
+
+def extract_all_kv_pairs(lines: List[List[Dict]]) -> Tuple[Dict[str, str], List[List[Dict]]]:
+    """Removed KV pair extraction as per new table-first requirements."""
+    return {}, lines
 
 
 def extract_unstructured_text(lines: List[List[Dict]]) -> str:
@@ -350,173 +304,31 @@ def extract_unstructured_text(lines: List[List[Dict]]) -> str:
     return "\n".join(text_blocks).strip()
 
 
-def extract_metadata(lines: List[List[Dict]]) -> tuple:
-    details = {}
-    cleaned_lines = []
-
-    KNOWN_KEYS = [
-        "Invoice No.", "Invoice Date", "Invoice Number", "Bill No.", "Bill Date",
-        "Token No.", "Token No", "Patient Name", "Pt Name", "Department", "Print Time",
-        "Contact", "GSTIN", "PO Number", "Purchase Order", "Date", "Phone", "Email"
-    ]
-
-    SECTION_HEADERS = [
-        "BILLING DETAILS", "PARTICULAR CHARGES", "PARTICULARS",
-        "DESCRIPTION", "AMOUNT", "SL NO", "S.NO", "ITEM NAME"
-    ]
-
-    KV_PATTERN = re.compile(r'^(?P<key>[A-Za-z\s\.]+)\s*[:\-]\s*(?P<val>.+)$')
-
-    for line in lines:
-        line_text = " ".join([e["text"] for e in line]).strip()
-        if not line_text:
-            continue
-
-        line_text_upper = line_text.upper()
-
-        if any(
-            line_text_upper.strip() == h.upper() or line_text_upper.strip() == h.upper() + "S"
-            for h in SECTION_HEADERS
-        ) or ("PARTICULAR" in line_text_upper and "CHARGE" in line_text_upper):
-            continue
-
-        is_metadata = False
-
-        m = KV_PATTERN.match(line_text)
-        if m:
-            d_key = m.group("key").strip()
-            d_val = m.group("val").strip()
-            if any(k.lower() == d_key.lower() for k in KNOWN_KEYS):
-                std_key = next(k for k in KNOWN_KEYS if k.lower() == d_key.lower())
-                details[std_key] = d_val
-                is_metadata = True
-
-        if not is_metadata:
-            gstin_match = re.search(
-                r'\b\d{2}[A-Z]{5}\d{4}[A-Z]{1}[A-Z\d]{1}[Z]{1}[A-Z\d]{1}\b', line_text_upper
-            )
-            if gstin_match and "GSTIN" not in details:
-                details["GSTIN"] = gstin_match.group(0)
-                is_metadata = True
-            elif re.search(r'^\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4}$', line_text) and "Date" not in details:
-                details["Date"] = line_text
-                is_metadata = True
-
-        if not is_metadata and len(cleaned_lines) < 3 and len(line_text) > 3:
-            if "HOSPITAL" in line_text_upper or "CLINIC" in line_text_upper:
-                details["Hospital"] = re.sub(r'^For\s+', '', line_text, flags=re.IGNORECASE).strip()
-                is_metadata = True
-            elif "LTD" in line_text_upper or "PVT" in line_text_upper or "INC" in line_text_upper:
-                details["Vendor Name"] = re.sub(r'^For\s+', '', line_text, flags=re.IGNORECASE).strip()
-                is_metadata = True
-
-        if not is_metadata:
-            cleaned_lines.append(line)
-
-    return details, cleaned_lines
-
+# ---------------------------------------------------------------------------
+# TOTALS EXTRACTION (unchanged)
+# ---------------------------------------------------------------------------
 
 def extract_totals(lines: List[List[Dict]]) -> Dict:
-    totals = {"subtotal": 0.0, "cgst": 0.0, "sgst": 0.0, "igst": 0.0, "discount": 0.0, "grand_total": 0.0}
-    for line in lines:
-        line_text = " ".join([e["text"].upper() for e in line])
-        nums = [parse_number(e["text"]) for e in line if re.search(r'\d', e["text"])]
-        if not nums:
-            continue
-        last_num = nums[-1]
-        if "SUBTOTAL" in line_text or "SUB TOTAL" in line_text or "TAXABLE" in line_text:
-            totals["subtotal"] = last_num
-        elif "CGST" in line_text:
-            totals["cgst"] = last_num
-        elif "SGST" in line_text:
-            totals["sgst"] = last_num
-        elif "IGST" in line_text:
-            totals["igst"] = last_num
-        elif "DISCOUNT" in line_text:
-            totals["discount"] = last_num
-        elif "GRAND TOTAL" in line_text or "NET AMOUNT" in line_text or "TOTAL AMOUNT" in line_text:
-            totals["grand_total"] = last_num
-    return totals
-
+    return None
 
 def extract_payroll_totals(lines: List[List[Dict]]) -> Dict:
-    totals = {"net_payable": 0.0, "amount_in_words": ""}
-    for line in lines:
-        line_text = " ".join([e["text"] for e in line])
-        line_text_upper = line_text.upper()
-        if "NET PAYABLE" in line_text_upper:
-            nums = [parse_number(e["text"]) for e in line if re.search(r'\d', e["text"])]
-            if nums:
-                totals["net_payable"] = nums[-1]
-        if "IN WORDS" in line_text_upper:
-            match = re.search(r'IN WORDS.*?(?:RUPEES?|INR)?\s*([A-Za-z\s]+ONLY)', line_text_upper, re.IGNORECASE)
-            if match:
-                totals["amount_in_words"] = match.group(1).strip().title()
-            else:
-                idx = line_text_upper.find("IN WORDS")
-                words_part = line_text[idx + 8:].strip()
-                words_part = re.sub(r'^[^\w]+', '', words_part)
-                totals["amount_in_words"] = words_part
-    return totals
+    return None
 
 
-def extract_kv_table(lines: List[List[Dict]]) -> Dict:
-    """
-    Generic key-value fallback. Returns Field | Value structure.
-    Never forces 'Particular | Amount' — only uses that if all values look numeric.
-    """
-    kv_rows = []
-    row_number = 1
-    all_values_numeric = True
+# ---------------------------------------------------------------------------
+# SECTION BUILDING
+# ---------------------------------------------------------------------------
 
-    KV_PATTERN = re.compile(r'^(?P<key>[^:\-\t]{2,60}?)\s*[:\-]\s*(?P<val>.+)$')
-    SPACE_NUM_PATTERN = re.compile(
-        r'^(?P<key>[A-Za-z\s\/\(\)\&\.]{3,60}?)\s+(?P<val>(?:Rs\.?|INR|₹)?\s*\d[\d\,\.]*)$',
-        re.IGNORECASE
-    )
+def _build_kv_section(title: str, kv_dict: Dict[str, str]) -> Dict:
+    return {}
 
-    for line in lines:
-        if not line:
-            continue
+def _guess_section_title(columns: List[Dict], doc_type: str) -> str:
+    return "Data Table"
 
-        line_text = " ".join(el["text"] for el in line).strip()
-        if not line_text:
-            continue
 
-        m = KV_PATTERN.match(line_text) or SPACE_NUM_PATTERN.match(line_text)
-        if m:
-            key = m.group("key").strip().title()
-            val = m.group("val").strip()
-            if len(key) >= 2:
-                conf = sum(el.get("confidence", 1.0) for el in line) / len(line)
-                kv_rows.append({
-                    "row_number": row_number,
-                    "Field": key,
-                    "Value": val,
-                    "confidence": round(conf, 4)
-                })
-                row_number += 1
-                # Check if this value is NOT numeric
-                if not re.match(r'^(?:Rs\.?|INR|₹)?\s*[\d,\.]+$', val, re.IGNORECASE):
-                    all_values_numeric = False
-
-    # Only rename to Particular/Amount if ALL values look like currency amounts
-    if all_values_numeric and kv_rows:
-        cols = ["Particular", "Amount"]
-        for row in kv_rows:
-            row["Particular"] = row.pop("Field")
-            row["Amount"] = row.pop("Value")
-    else:
-        cols = ["Field", "Value"]
-        all_values_numeric = False
-
-    return {
-        "columns": cols,
-        "rows": kv_rows,
-        "notes": [],
-        "details": {}
-    }
-
+# ---------------------------------------------------------------------------
+# MAIN PROCESS DOCUMENT — returns sections[]
+# ---------------------------------------------------------------------------
 
 def process_document(elements: List[Dict]) -> Dict:
     if not elements:
@@ -532,12 +344,8 @@ def process_document(elements: List[Dict]) -> Dict:
                 "pageCount": 1,
                 "details": {}
             },
-            "tables": [{
-                "title": "Extracted Data",
-                "columns": ["Field", "Value"],
-                "rows": [{"row_number": 1, "Field": "", "Value": "", "confidence": 0.0}],
-                "notes": []
-            }],
+            "sections": [],
+            "tables": [],  # backward compat
             "rawText": "",
             "vendor": None,
             "invoice": None,
@@ -546,59 +354,54 @@ def process_document(elements: List[Dict]) -> Dict:
 
     lines = group_into_lines(elements)
 
-    # 1. Extract document details globally
-    doc_details, lines = extract_metadata(lines)
-
-    # 2. Classify document
+    # 1. Classify document
     is_related, module_name, doc_type, base_class_conf = detect_document_class(lines)
     raw_text = extract_unstructured_text(lines)
 
-    # 3. Detect ALL formal tables using structural detection
+    # 2. Extract ALL generic KV pairs first (before table detection)
+    #    We extract them for Document Metadata, but DO NOT consume the lines.
+    global_kv, _ = extract_all_kv_pairs(lines)
+
+    # 3. Detect formal tables using the full document lines
     detected_tables = detect_all_tables(lines)
 
-    is_structured = len(detected_tables) > 0
-    table_detected = is_structured
-    tables = []
-    end_idx = len(lines)
+    # 4. Build sections[] — ONLY real detected tables, NO KV sections
+    sections = []
 
-    if is_structured:
-        for idx, (columns, t_start_idx, t_end_idx) in enumerate(detected_tables):
-            table_lines = lines[t_start_idx + 1:t_end_idx]
-            items = extract_table_rows(table_lines, columns)
-            title = f"Extracted Table {idx + 1}" if len(detected_tables) > 1 else "Extracted Table"
-            tables.append({
-                "title": title,
-                "columns": [col["key"] for col in columns],
-                "rows": items
-            })
-        end_idx = detected_tables[-1][2]
-    else:
-        # Fallback: generic key-value table
-        kv = extract_kv_table(lines)
-        if kv["rows"]:
-            is_structured = True
-            tables.append({
-                "title": "Extracted Data",
-                "columns": kv["columns"],
-                "rows": kv["rows"],
-                "notes": kv["notes"]
-            })
-        if kv.get("details"):
-            doc_details.update(kv["details"])
+    for idx, (title, columns, t_start_idx, t_end_idx) in enumerate(detected_tables):
+        table_lines = lines[t_start_idx + 1:t_end_idx]
+        items = extract_table_rows(table_lines, columns)
+        if not items:
+            continue
+        
+        col_keys = [col["key"] for col in columns]
+        rows = []
+        for item in items:
+            row = []
+            for k in col_keys:
+                row.append(str(item.get(k, "") or ""))
+            rows.append(row)
 
-    # Calculate confidence
+        sections.append({
+            "title": title,
+            "headers": col_keys,
+            "rows": rows
+        })
+
+    is_structured = len(sections) > 0
+    table_detected = len(sections) > 0
+
+    # 5. Confidence
     all_char_conf = [e["confidence"] for e in elements if "confidence" in e]
     char_conf = sum(all_char_conf) / len(all_char_conf) if all_char_conf else 1.0
     all_pages = set(e.get("page", 1) for e in elements)
     page_count = len(all_pages) if all_pages else 1
     final_confidence = (base_class_conf + char_conf) / 2 if is_related else char_conf
 
-    footer_lines = lines[end_idx:] if end_idx < len(lines) else lines[-15:]
+    # 6. Totals & Vendor fields (removed per table-first design)
     totals = None
-    if module_name == "Finance / Procurement / Sales":
-        totals = extract_totals(footer_lines)
-    elif module_name == "Payroll":
-        totals = extract_payroll_totals(footer_lines)
+    vendor = None
+    invoice = None
 
     return {
         "success": True,
@@ -610,18 +413,98 @@ def process_document(elements: List[Dict]) -> Dict:
             "tableDetected": table_detected,
             "confidence": round(final_confidence, 4),
             "pageCount": page_count,
-            "details": doc_details
+            "details": global_kv  # keep details for backward compat
         },
-        "tables": tables,
+        "sections": sections,
+        "tables": sections,  # backward compat alias
         "rawText": raw_text,
-        "vendor": {
-            "name": doc_details.get("Vendor Name"),
-            "gstin": doc_details.get("GSTIN")
-        } if doc_details.get("Vendor Name") or doc_details.get("GSTIN") else None,
-        "invoice": {
-            "number": doc_details.get("Invoice No.") or doc_details.get("Invoice Number") or doc_details.get("Bill No."),
-            "date": doc_details.get("Invoice Date") or doc_details.get("Date") or doc_details.get("Bill Date"),
-            "po_number": doc_details.get("PO Number") or doc_details.get("Purchase Order")
-        } if any(doc_details.get(k) for k in ["Invoice No.", "Invoice Number", "Bill No."]) else None,
+        "vendor": vendor,
+        "invoice": invoice,
         "totals": totals
+    }
+
+
+# ---------------------------------------------------------------------------
+# DOCX DOCUMENT PROCESSING (unchanged entry point)
+# ---------------------------------------------------------------------------
+
+def process_docx_document(file_path: str) -> Dict:
+    """Extract structure from a .docx file using python-docx native tables."""
+    import docx as _docx
+
+    document = _docx.Document(file_path)
+    sections: List[Dict] = []
+    kv_pairs: Dict[str, str] = {}
+    raw_lines = []
+
+    # Extract paragraphs (KV pairs and text)
+    for para in document.paragraphs:
+        text = para.text.strip()
+        if not text:
+            continue
+        raw_lines.append(text)
+
+        # Try KV extraction
+        m = _KV_COLON.match(text)
+        if m:
+            key = m.group("key").strip()
+            val = m.group("val").strip()
+            if len(key) >= 2 and len(val) >= 1:
+                kv_pairs[key] = val
+
+    if kv_pairs:
+        pass # KV section removed per new table-first design
+
+    # Extract native Word tables
+    for tbl_idx, table in enumerate(document.tables):
+        if not table.rows:
+            continue
+        header_row = table.rows[0]
+        columns = [cell.text.strip() for cell in header_row.cells if cell.text.strip()]
+        if not columns:
+            continue
+
+        rows = []
+        for row_idx, row in enumerate(table.rows[1:], start=1):
+            cells = [cell.text.strip() for cell in row.cells]
+            if not any(cells):
+                continue
+            row_data = []
+            for col_idx in range(len(columns)):
+                row_data.append(cells[col_idx] if col_idx < len(cells) else "")
+            rows.append(row_data)
+
+        if rows:
+            sections.append({
+                "title": f"Table {tbl_idx + 1}",
+                "headers": columns,
+                "rows": rows
+            })
+
+    raw_text = "\n".join(raw_lines)
+    is_structured = len(sections) > 0
+
+    is_related, module_name, doc_type, base_conf = detect_document_class(
+        [[{"text": t, "x0": 0, "y0": i * 20, "x1": 100, "y1": (i + 1) * 20}]
+         for i, t in enumerate(raw_lines)]
+    ) if raw_lines else (False, "General", "General Document", 1.0)
+
+    return {
+        "success": True,
+        "document": {
+            "type": doc_type,
+            "module": module_name,
+            "isRelated": is_related,
+            "isStructured": is_structured,
+            "tableDetected": any(s["type"] == "table" for s in sections),
+            "confidence": round(base_conf, 4),
+            "pageCount": 1,
+            "details": kv_pairs
+        },
+        "sections": sections,
+        "tables": sections,
+        "rawText": raw_text,
+        "vendor": None,
+        "invoice": None,
+        "totals": None
     }

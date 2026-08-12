@@ -19,6 +19,6 @@ print("Lines detected:", len(lines))
 for i, line in enumerate(lines):
     print(f"  Line {i}: {[el['text'] for el in line]}")
 
-columns, start_idx, end_idx = detect_table(lines)
+title, columns, start_idx, end_idx = detect_table(lines)
 print("Start idx:", start_idx)
 print("Column keys:", [c['key'] for c in columns])

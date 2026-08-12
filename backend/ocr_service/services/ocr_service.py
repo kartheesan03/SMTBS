@@ -110,7 +110,7 @@ def extract_text(file_path: str, ext: Optional[str] = None) -> dict:
     # ÔöÇÔöÇ PDF: Extract text directly or fallback to OCR ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
     if ext == ".pdf":
         try:
-            import fitz  # PyMuPDF
+            import pymupdf as fitz  # PyMuPDF (replaces deprecated `import fitz`)
         except ImportError:
             raise RuntimeError("PyMuPDF is not installed. Run: pip install pymupdf")
 

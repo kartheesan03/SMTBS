@@ -242,6 +242,15 @@ body.landing-page-active *::-webkit-scrollbar {
     background-position: center;
 }
 
+.hero-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(5, 5, 15, 0.55);
+    z-index: 0;
+    pointer-events: none;
+}
+
 .hero-glow {
     display: none;
 }
@@ -596,6 +605,38 @@ body.landing-page-active *::-webkit-scrollbar {
     scroll-snap-align: start;
     scroll-margin-top: 80px;
     box-sizing: border-box;
+    background-color: #08010f;
+}
+
+/* Dark overlay for all landing sections */
+.landing-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(8, 1, 15, 0.70);
+    z-index: 0;
+    pointer-events: none;
+}
+
+.landing-section > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* Features section — supply chain node bg */
+.features-section {
+}
+
+/* Workflow section — pipeline bg */
+.workflow-section {
+    background: linear-gradient(180deg, #08010f 0%, rgba(124, 58, 237, 0.03) 50%, #08010f 100%);
+}
+.workflow-section::before {
+    background: rgba(5, 2, 15, 0.65);
+}
+
+/* AI section — stats/hexagonal bg */
+.ai-section {
 }
 
 /* =========================================
@@ -671,6 +712,20 @@ body.landing-page-active *::-webkit-scrollbar {
     scroll-margin-top: 72px;
     box-sizing: border-box;
     padding: 0 48px;
+}
+
+.statistics-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(5, 0, 10, 0.65);
+    z-index: 0;
+    pointer-events: none;
+}
+
+.statistics-section > * {
+    position: relative;
+    z-index: 1;
 }
 
 .stats-grid {

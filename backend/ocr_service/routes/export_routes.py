@@ -3,157 +3,149 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
 import io
-import datetime
 
 try:
     from docx import Document
-    from docx.shared import Pt, Inches
+    from docx.shared import Pt, Inches, RGBColor
     from docx.enum.text import WD_ALIGN_PARAGRAPH
+    from docx.oxml.ns import qn
 except ImportError:
     pass
 
 router = APIRouter()
 
 class DocumentMeta(BaseModel):
-    type: Optional[str]
-    module: Optional[str]
-    isRelated: Optional[bool]
-    isStructured: Optional[bool]
-    tableDetected: Optional[bool]
-    confidence: Optional[float]
+    type: Optional[str] = None
+    module: Optional[str] = None
+    isRelated: Optional[bool] = None
+    isStructured: Optional[bool] = None
+    tableDetected: Optional[bool] = None
+    confidence: Optional[float] = None
+    details: Optional[Dict[str, Any]] = None
 
 class TableData(BaseModel):
-    title: Optional[str]
-    columns: Optional[List[str]]
-    rows: Optional[List[Dict[str, Any]]]
+    title: Optional[str] = None
+    type: Optional[str] = None
+    headers: Optional[List[str]] = None
+    columns: Optional[List[str]] = None
+    rows: Optional[List[Any]] = None
 
 class OcrExportRequest(BaseModel):
-    success: Optional[bool]
-    document: Optional[DocumentMeta]
-    tables: Optional[List[TableData]]
-    rawText: Optional[str]
-    vendor: Optional[Dict[str, Any]]
-    invoice: Optional[Dict[str, Any]]
-    totals: Optional[Dict[str, Any]]
+    success: Optional[bool] = None
+    document: Optional[DocumentMeta] = None
+    sections: Optional[List[TableData]] = None
+    tables: Optional[List[TableData]] = None
+    rawText: Optional[str] = None
+    vendor: Optional[Dict[str, Any]] = None
+    invoice: Optional[Dict[str, Any]] = None
+    totals: Optional[Dict[str, Any]] = None
+
+
+def _resolve_sections(data: OcrExportRequest) -> List[TableData]:
+    """Return sections[], falling back to tables[] for backward compat."""
+    return data.sections or data.tables or []
+
+
+def _get_clean_cols(table_data: TableData) -> List[str]:
+    """Get columns."""
+    return table_data.headers or table_data.columns or []
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# DOCX EXPORT
+# ─────────────────────────────────────────────────────────────────────────────
 
 @router.post("/docx")
-async def export_docx(data: OcrExportRequest):
+async def export_docx(data: OcrExportRequest, filename: Optional[str] = None):
     try:
         doc = Document()
     except NameError:
         raise HTTPException(status_code=500, detail="python-docx is not installed")
-        
-    doc_type = data.document.type if data.document and data.document.type else 'DOCUMENT'
-    is_structured = data.document.isStructured if data.document else False
-    
-    title = doc.add_heading(f"SMTBMS OCR Result - {doc_type.upper()}", 0)
-    title.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    
-    if data.document and data.document.module:
-        doc.add_paragraph(f"Module: {data.document.module}")
-    doc.add_paragraph(f"Generated on: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    doc.add_paragraph("") # Spacing
-    
-    if not is_structured:
-        # General Document (Unstructured)
-        doc.add_heading("Extracted Text", level=1)
-        if data.rawText:
-            pages = data.rawText.split("--- PAGE")
-            for page in pages:
-                if page.strip():
-                    if "---" in page:
-                        doc.add_paragraph(f"--- PAGE{page}")
-                    else:
-                        doc.add_paragraph(page.strip())
-    else:
-        # Structured Document
-        
-        # Header Information (if available)
-        details_to_print = {}
-        if data.document and getattr(data.document, "details", None):
-            details_to_print.update(data.document.details)
-        if data.vendor and data.vendor.get("name"):
-            details_to_print["Vendor / Party"] = data.vendor["name"]
-        if data.invoice:
-            if data.invoice.get("number"): details_to_print["Document Number"] = data.invoice["number"]
-            if data.invoice.get("date"): details_to_print["Date"] = data.invoice["date"]
-            if data.invoice.get("po_number"): details_to_print["PO Number"] = data.invoice["po_number"]
-            
-        if details_to_print:
-            doc.add_heading("Document Information", level=1)
-            p = doc.add_paragraph()
-            for key, val in details_to_print.items():
-                p.add_run(f"{key}: {val}\n")
-            doc.add_paragraph("")
-        
-        # Line Items Tables
-        if data.tables and len(data.tables) > 0:
-            for tbl_idx, table_data in enumerate(data.tables):
-                doc.add_heading(table_data.title or f"Table {tbl_idx + 1}", level=1)
-                
-                cols = ["#"] + (table_data.columns or [])
-                items = table_data.rows or []
-                
-                if len(cols) == 1 and items:
-                    keys = set()
-                    for it in items:
-                        keys.update([k for k in it.keys() if k not in ("row_number", "confidence")])
-                    cols = ["#"] + sorted(list(keys))
-                    
-                table = doc.add_table(rows=1, cols=len(cols))
-                table.style = 'Table Grid'
-                hdr_cells = table.rows[0].cells
-                for i, col_name in enumerate(cols):
-                    hdr_cells[i].text = col_name
-                    
-                for idx, item in enumerate(items):
-                    row_cells = table.add_row().cells
-                    row_cells[0].text = str(idx + 1)
-                    for i, col_name in enumerate(cols[1:], start=1):
-                        row_cells[i].text = str(item.get(col_name, ""))
-                        
-                doc.add_paragraph("")
-                
-        # Totals Summary (if available)
-        if data.totals:
-            doc.add_heading("Totals Summary", level=1)
-            t = doc.add_paragraph()
-            for key, val in data.totals.items():
-                if val and val > 0:
-                    t.add_run(f"{key.replace('_', ' ').title()}: {val}\n")
-                        
+
+    doc_type = (data.document.type if data.document and data.document.type else "Document")
+    sections = _resolve_sections(data)
+
+    # ── Document title ───────────────────────
+    title_para = doc.add_heading(doc_type, level=0)
+    title_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+    # ── Tables ────────────────────────────────────────────────────────────────
+    for section in sections:
+        cols = _get_clean_cols(section)
+        rows = section.rows or []
+        if not cols:
+            continue
+
+        # Section heading
+        if section.title and section.title not in ("Extracted Data", "Extracted Text"):
+            doc.add_heading(section.title, level=1)
+
+        # Build table
+        table = doc.add_table(rows=1, cols=len(cols))
+        table.style = "Table Grid"
+
+        # Header row
+        hdr_cells = table.rows[0].cells
+        for i, col_name in enumerate(cols):
+            hdr_cells[i].text = col_name
+            # Bold the header
+            for para in hdr_cells[i].paragraphs:
+                for run in para.runs:
+                    run.bold = True
+
+        # Data rows
+        for row in rows:
+            row_cells = table.add_row().cells
+            for i, col_name in enumerate(cols):
+                val = row[i] if isinstance(row, list) and i < len(row) else (row.get(col_name, "") if isinstance(row, dict) else "")
+                row_cells[i].text = str(val or "")
+
+        doc.add_paragraph("")  # spacing after table
+
+    # ── Totals block (removed per table-first design) ────────────────────────────────
+
     buffer = io.BytesIO()
     doc.save(buffer)
     buffer.seek(0)
-    
-    filename = f"SMTBMS_OCR_{doc_type}.docx"
+
+    out_filename = filename or f"{doc_type.replace(' ', '_')}_extracted.docx"
     return StreamingResponse(
         buffer,
         media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        headers={"Content-Disposition": f"attachment; filename={filename}"}
+        headers={"Content-Disposition": f"attachment; filename={out_filename}"},
     )
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# TXT EXPORT
+# ─────────────────────────────────────────────────────────────────────────────
 
 @router.post("/txt")
 async def export_txt(data: OcrExportRequest, filename: Optional[str] = None):
     text_content = data.rawText or "No text extracted."
     buffer = io.BytesIO(text_content.encode("utf-8"))
-    
-    if not filename:
-        filename = f"SMTBMS_OCR_Extraction.txt"
+    out_filename = filename or "extracted.txt"
     return StreamingResponse(
         buffer,
         media_type="text/plain",
-        headers={"Content-Disposition": f"attachment; filename={filename}"}
+        headers={"Content-Disposition": f"attachment; filename={out_filename}"},
     )
 
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PDF EXPORT
+# ─────────────────────────────────────────────────────────────────────────────
+
 try:
-    from reportlab.lib import colors # type: ignore
-    from reportlab.lib.pagesizes import letter, landscape # type: ignore
-    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle # type: ignore
-    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle # type: ignore
-    from reportlab.lib.enums import TA_CENTER # type: ignore
+    from reportlab.lib import colors  # type: ignore
+    from reportlab.lib.pagesizes import letter, landscape  # type: ignore
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle  # type: ignore
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle  # type: ignore
+    from reportlab.lib.enums import TA_CENTER, TA_LEFT  # type: ignore
+    from reportlab.lib.units import inch  # type: ignore
 except ImportError:
     pass
+
 
 @router.post("/pdf")
 async def export_pdf(data: OcrExportRequest, filename: Optional[str] = None):
@@ -161,128 +153,98 @@ async def export_pdf(data: OcrExportRequest, filename: Optional[str] = None):
         styles = getSampleStyleSheet()
     except NameError:
         raise HTTPException(status_code=500, detail="reportlab is not installed")
-        
-    doc_type = data.document.type if data.document and data.document.type else 'DOCUMENT'
-    is_structured = data.document.isStructured if data.document else False
-    
+
+    doc_type = (data.document.type if data.document and data.document.type else "Document")
+    sections = _resolve_sections(data)
+
     buffer = io.BytesIO()
-    
-    # Use landscape if we have structured tables, to fit more columns
-    pagesize = landscape(letter) if is_structured else letter
-    
-    doc = SimpleDocTemplate(buffer, pagesize=pagesize, rightMargin=30, leftMargin=30, topMargin=30, bottomMargin=18)
-    elements = []
-    
-    title_style = ParagraphStyle(
-        'CustomTitle',
-        parent=styles['Heading1'],
-        alignment=TA_CENTER,
-        fontSize=18,
-        spaceAfter=20
+
+    # Use landscape for tables with many columns, portrait otherwise
+    max_cols = max((len(_get_clean_cols(s)) for s in sections), default=0)
+    pagesize = landscape(letter) if max_cols > 5 else letter
+
+    pdf_doc = SimpleDocTemplate(
+        buffer, pagesize=pagesize,
+        rightMargin=36, leftMargin=36, topMargin=36, bottomMargin=24
     )
-    
-    elements.append(Paragraph(f"SMTBMS OCR Result - {doc_type.upper()}", title_style))
-    
-    if data.document and data.document.module:
-        elements.append(Paragraph(f"<b>Module:</b> {data.document.module}", styles['Normal']))
-    
-    elements.append(Paragraph(f"<b>Generated on:</b> {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", styles['Normal']))
-    elements.append(Spacer(1, 15))
-    
-    if not is_structured:
-        # General Document
-        elements.append(Paragraph("<b>Extracted Text</b>", styles['Heading2']))
-        elements.append(Spacer(1, 10))
-        if data.rawText:
-            pages = data.rawText.split("--- PAGE")
-            for page in pages:
-                if page.strip():
-                    if "---" in page:
-                        elements.append(Paragraph(f"--- PAGE{page}", styles['Normal']))
-                    else:
-                        for line in page.strip().split('\n'):
-                            elements.append(Paragraph(line, styles['Normal']))
-    else:
-        # Structured Document
-        
-        # Header Information
-        details_to_print = {}
-        if data.document and getattr(data.document, "details", None):
-            details_to_print.update(data.document.details)
-        if data.vendor and data.vendor.get("name"):
-            details_to_print["Vendor / Party"] = data.vendor["name"]
-        if data.invoice:
-            if data.invoice.get("number"): details_to_print["Document Number"] = data.invoice["number"]
-            if data.invoice.get("date"): details_to_print["Date"] = data.invoice["date"]
-            if data.invoice.get("po_number"): details_to_print["PO Number"] = data.invoice["po_number"]
-            
-        if details_to_print:
-            elements.append(Paragraph("<b>Document Information</b>", styles['Heading2']))
-            elements.append(Spacer(1, 5))
-            for key, val in details_to_print.items():
-                elements.append(Paragraph(f"<b>{key}:</b> {val}", styles['Normal']))
-            elements.append(Spacer(1, 15))
-            
-        # Line Items Tables
-        if data.tables and len(data.tables) > 0:
-            for tbl_idx, table_data in enumerate(data.tables):
-                title = table_data.title or f"Table {tbl_idx + 1}"
-                elements.append(Paragraph(f"<b>{title}</b>", styles['Heading2']))
-                elements.append(Spacer(1, 10))
-                
-                cols = ["#"] + (table_data.columns or [])
-                items = table_data.rows or []
-                
-                if len(cols) == 1 and items:
-                    keys = set()
-                    for it in items:
-                        keys.update([k for k in it.keys() if k not in ("row_number", "confidence")])
-                    cols = ["#"] + sorted(list(keys))
-                
-                table_data_matrix = [cols]
-                
-                for idx, item in enumerate(items):
-                    row = [str(idx + 1)]
-                    for col_name in cols[1:]:
-                        row.append(str(item.get(col_name, "")))
-                    table_data_matrix.append(row)
-                    
-                t = Table(table_data_matrix, repeatRows=1)
-                t.setStyle(TableStyle([
-                    ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#f8fafc')),
-                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.HexColor('#475569')),
-                    ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-                    ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                    ('FONTSIZE', (0, 0), (-1, 0), 10),
-                    ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-                    ('BACKGROUND', (0, 1), (-1, -1), colors.white),
-                    ('TEXTCOLOR', (0, 1), (-1, -1), colors.HexColor('#0f172a')),
-                    ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-                    ('FONTSIZE', (0, 1), (-1, -1), 9),
-                    ('ALIGN', (0, 1), (-1, -1), 'LEFT'),
-                    ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#e2e8f0')),
-                    ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-                ]))
-                
-                elements.append(t)
-                elements.append(Spacer(1, 20))
-                
-        # Totals Summary
-        if data.totals:
-            elements.append(Paragraph("<b>Totals Summary</b>", styles['Heading2']))
-            elements.append(Spacer(1, 10))
-            for key, val in data.totals.items():
-                if val and val > 0:
-                    elements.append(Paragraph(f"<b>{key.replace('_', ' ').title()}:</b> {val}", styles['Normal']))
-                    
-    doc.build(elements)
+    elements = []
+
+    title_style = ParagraphStyle(
+        "DocTitle", parent=styles["Heading1"],
+        alignment=TA_CENTER, fontSize=16, spaceAfter=10
+    )
+    section_style = ParagraphStyle(
+        "SectionHead", parent=styles["Heading2"],
+        fontSize=12, spaceBefore=14, spaceAfter=6
+    )
+    detail_style = ParagraphStyle(
+        "Detail", parent=styles["Normal"],
+        fontSize=9, spaceAfter=2
+    )
+
+    # ── Document title ─────────────────────────────────────────────────────
+    elements.append(Paragraph(doc_type, title_style))
+
+    # ── Tables ────────────────────────────────────────────────────────────
+    for section in sections:
+        cols = _get_clean_cols(section)
+        rows = section.rows or []
+        if not cols:
+            continue
+
+        if section.title and section.title not in ("Extracted Data", "Extracted Text"):
+            elements.append(Paragraph(section.title, section_style))
+
+        # Build matrix: header + data rows
+        matrix = [cols]
+        for row in rows:
+            row_data = []
+            for i, col in enumerate(cols):
+                val = row[i] if isinstance(row, list) and i < len(row) else (row.get(col, "") if isinstance(row, dict) else "")
+                row_data.append(str(val or ""))
+            matrix.append(row_data)
+
+        # Auto-size columns proportionally
+        page_w = pagesize[0] - 72  # full width minus margins
+        col_w = page_w / len(cols)
+        col_widths = [col_w] * len(cols)
+
+        t = Table(matrix, colWidths=col_widths, repeatRows=1)
+        t.setStyle(TableStyle([
+            # Header
+            ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#f1f5f9")),
+            ("TEXTCOLOR",  (0, 0), (-1, 0), colors.HexColor("#374151")),
+            ("FONTNAME",   (0, 0), (-1, 0), "Helvetica-Bold"),
+            ("FONTSIZE",   (0, 0), (-1, 0), 9),
+            ("ALIGN",      (0, 0), (-1, 0), "LEFT"),
+            ("BOTTOMPADDING", (0, 0), (-1, 0), 8),
+            ("TOPPADDING",    (0, 0), (-1, 0), 8),
+            # Data rows
+            ("BACKGROUND", (0, 1), (-1, -1), colors.white),
+            ("TEXTCOLOR",  (0, 1), (-1, -1), colors.HexColor("#111827")),
+            ("FONTNAME",   (0, 1), (-1, -1), "Helvetica"),
+            ("FONTSIZE",   (0, 1), (-1, -1), 9),
+            ("ALIGN",      (0, 1), (-1, -1), "LEFT"),
+            ("TOPPADDING",    (0, 1), (-1, -1), 6),
+            ("BOTTOMPADDING", (0, 1), (-1, -1), 6),
+            # Grid
+            ("GRID",    (0, 0), (-1, -1), 0.5, colors.HexColor("#e5e7eb")),
+            ("VALIGN",  (0, 0), (-1, -1), "MIDDLE"),
+            ("WORDWRAP", (0, 0), (-1, -1), True),
+            # Alternating row shading
+            ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#f9fafb")]),
+        ]))
+        elements.append(t)
+        elements.append(Spacer(1, 16))
+
+    # ── Totals ────────────────────────────────────────────────────────────
+
+    pdf_doc.build(elements)
     buffer.seek(0)
-    
-    if not filename:
-        filename = f"SMTBMS_OCR_{doc_type}.pdf"
-        
+
+    out_filename = filename or f"{doc_type.replace(' ', '_')}_extracted.pdf"
     return StreamingResponse(
         buffer,
         media_type="application/pdf",
-        headers={"Content-Disposition": f"attachment; filename={filename}"}
+        headers={"Content-Disposition": f"attachment; filename={out_filename}"},
     )
