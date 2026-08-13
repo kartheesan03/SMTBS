@@ -413,7 +413,7 @@
   border: 1px solid var(--db-border);
   border-radius: var(--db-radius);
   box-shadow: var(--db-shadow);
-  overflow: hidden;
+  position: relative;
 }
 
 .db-card-header {
