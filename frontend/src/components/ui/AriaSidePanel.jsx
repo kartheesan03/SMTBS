@@ -65,20 +65,12 @@ const getContextualSuggestions = (pathname) => {
 };
 
 const AriaSidePanel = () => {
-    const { isOpen, contextData, closeAria, openMaximized } = useContext(AriaContext);
+    const { isOpen, contextData, closeAria } = useContext(AriaContext);
     const location = useLocation();
     
     // Window State
     const [isMaximized, setIsMaximized] = useState(false);
     const [isMinimized, setIsMinimized] = useState(false);
-
-    // Sync maximized state when panel opens
-    useEffect(() => {
-        if (isOpen) {
-            setIsMaximized(openMaximized || false);
-            setIsMinimized(false);
-        }
-    }, [isOpen, openMaximized]);
     
     // Chat State
     const [historyList, setHistoryList] = useState([]);
@@ -353,7 +345,7 @@ const AriaSidePanel = () => {
                                 <Maximize2 size={16} />
                             </button>
                         ) : (
-                        <>
+                            <>
                                 <button onClick={() => setIsMinimized(true)} title="Minimize">
                                     <Minimize2 size={16} />
                                 </button>
