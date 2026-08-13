@@ -44,6 +44,7 @@ import "../components/AdminDashboard/DashboardLayout.css";
 import { AuthContext } from "../context/AuthContext";
 import { CONSTANTS } from "../utils/constants";
 import { LoadingState } from "../components/DataStates";
+import PageHeader from "../components/PageHeader";
 
 const greeting = () => {
   const h = new Date().getHours();
@@ -1261,22 +1262,13 @@ const TrackingDashboard = () => {
   return (
     <div className="db-page">
       <div className="db-content">
-        <div className="db-greeting-bar">
-          <div className="db-greeting-left">
-            <div className="db-greeting-text">
-              Movement Tracking
-            </div>
-            <div className="db-greeting-sub">
-              Track and trace all material movements in real-time.
-            </div>
-          </div>
-          <div className="db-greeting-right">
-            <div className="db-datetime">
-              <Calendar size={14} />
-              {new Date().toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}
-            </div>
-          </div>
-        </div>
+        <header className="page-header" style={{ marginBottom: 0 }}>
+          <PageHeader
+            title="Movement Tracking"
+            badge="MATERIAL"
+            subtitle="Track and trace all material movements in real-time."
+          />
+        </header>
         
         <div className="mcc-container">
           {viewMode === "detail" && (
