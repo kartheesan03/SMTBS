@@ -2016,7 +2016,7 @@
 
 /* ── Material Command Center (MCC) ── */
 .mcc-container {
-  padding: 32px;
+  padding: 0;
   max-width: 1600px;
   margin: 0 auto;
   font-family: 'Inter', sans-serif;

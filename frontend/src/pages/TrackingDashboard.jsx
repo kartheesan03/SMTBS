@@ -1279,24 +1279,13 @@ const TrackingDashboard = () => {
         </div>
         
         <div className="mcc-container">
-          <div className="mcc-header" style={{ display: 'none' }}>
-        <div className="mcc-actions">
           {viewMode === "detail" && (
-            <button className="mcc-btn" onClick={() => { setViewMode("table"); setSelectedMaterialId(null); }} style={{ background: "#f8fafc", color: "#0f172a", border: "1px solid #e2e8f0" }}>
-              ← Back to All Movements
-            </button>
+            <div style={{ marginBottom: 16 }}>
+              <button className="mcc-btn" onClick={() => { setViewMode("table"); setSelectedMaterialId(null); }} style={{ background: "#f8fafc", color: "#0f172a", border: "1px solid #e2e8f0" }}>
+                ← Back to All Movements
+              </button>
+            </div>
           )}
-          <button className="mcc-btn" onClick={fetchDashboardData}>
-            <RefreshCw size={16} /> Refresh
-          </button>
-          <button className="mcc-btn">
-            <Download size={16} /> Export
-          </button>
-          <button className="mcc-btn">
-            <Printer size={16} /> Print
-          </button>
-        </div>
-      </div>
       
       {viewMode === "table" ? renderTableView() : (
         !selectedMaterialId || !materialDetails ? (
