@@ -1,208 +1,16 @@
-import React, { useState, useEffect, useContext } from "react";
-import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
-import { useDashboardData } from "../hooks/useDashboardData";
-import API from "../api/axios";
-import {
-  Users, ShoppingCart, DollarSign, Box, FileText, Truck,
-  BarChart2, Bell, CheckCircle2, Calendar, Cpu, ListTodo,
-  UserCheck, Activity, AlertCircle, AlertTriangle, Package,
-  Layers, Target, Building2, Tag, Clock, TrendingUp,
-  TrendingDown, Settings, Plus, ArrowRight,
-} from "lucide-react";
-import {
-  AreaChart, Area, PieChart, Pie, Cell, BarChart, Bar,
-  ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, LineChart, Line,
-} from "recharts";
-import "../components/AdminDashboard/DashboardLayout.css";
-import { LoadingState, ErrorState } from "../components/DataStates";
+const fs = require('fs');
 
-/* ─── helpers ─── */
-const greeting = () => {
-  const h = new Date().getHours();
-  if (h < 12) return "Good Morning";
-  if (h < 18) return "Good Afternoon";
-  return "Good Evening";
-};
-const fmtINR = (v) => {
-  if (!v && v !== 0) return "₹0";
-  const abs = Math.abs(v);
-  if (abs >= 100000) return `₹${(abs / 100000).toFixed(2)}L`;
-  if (abs >= 1000) return `₹${(abs / 1000).toFixed(1)}k`;
-  return `₹${abs}`;
-};
-const fmtTime = (iso) =>
-  new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+const path = 'c:/Users/Admin/Documents/project/frontend/src/pages/AdminDashboard.jsx';
+let code = fs.readFileSync(path, 'utf8');
 
-/* ─── sub-components ─── */
-const KpiCard = ({ icon: Icon, iconClass, label, value, trend, trendUp, sub }) => (
-  <div className="db-kpi-card">
-    <div className="db-kpi-top">
-      <div className={`db-kpi-icon ${iconClass}`}><Icon size={22} /></div>
-      {trend && (
-        <span className={`db-kpi-trend ${trendUp ? "up" : "down"}`}>
-          {trendUp ? <TrendingUp size={11} /> : <TrendingDown size={11} />} {trend}
-        </span>
-      )}
-    </div>
-    <div>
-      <div className="db-kpi-value">{value}</div>
-      <div className="db-kpi-label">{label}</div>
-    </div>
-    {sub && <div className="db-kpi-sub">{sub}</div>}
-  </div>
-);
+// We need to reorder the bento grid items.
+// Let's just rewrite the bento grid section.
 
-const QaBtn = ({ icon: Icon, label, colorClass, onClick }) => (
-  <div className="db-qa-item" onClick={onClick}>
-    <div className={`db-qa-icon ${colorClass}`}><Icon size={20} /></div>
-    <span className="db-qa-label">{label}</span>
-  </div>
-);
+const startIdx = code.indexOf('{/* ── Bento Grid ── */}');
+const endIdx = code.indexOf('</div>\n    </div>\n  );\n};');
 
-const StatusRow = ({ name, status }) => {
-  const cls = status === "Healthy" ? "status-healthy" : status === "Warning" ? "status-warning" : "status-critical";
-  return (
-    <div className="db-status-row">
-      <span className="db-status-name">{name}</span>
-      <span className={`db-status-badge ${cls}`}>{status}</span>
-    </div>
-  );
-};
-
-const ActivityItem = ({ icon: Icon, iconBg, iconColor, title, desc, time }) => (
-  <div className="db-activity-item">
-    <div className="db-activity-icon" style={{ background: iconBg, color: iconColor }}>
-      <Icon size={14} />
-    </div>
-    <div className="db-activity-body">
-      <div className="db-activity-title">{title}</div>
-      <div className="db-activity-desc">{desc}</div>
-    </div>
-    <div className="db-activity-time">{time}</div>
-  </div>
-);
-
-/* sparkline data seeds */
-const SPARK = [4,7,5,9,6,11,8,13,10,15,12,14];
-
-const AdminDashboard = () => {
-  const navigate = useNavigate();
-  const { user } = useContext(AuthContext);
-  const { data: dashboardData, loading, error } = useDashboardData();
-  const [upcomingEvents, setUpcomingEvents] = useState([]);
-  const [revTrendYear, setRevTrendYear] = useState("current");
-  const [now, setNow] = useState(new Date());
-
-  useEffect(() => {
-    const t = setInterval(() => setNow(new Date()), 60000);
-    return () => clearInterval(t);
-  }, []);
-
-  useEffect(() => {
-    API.get("/tasks").then(r => {
-      const future = (r.data || [])
-        .filter(t => t.dueDate && new Date(t.dueDate) >= new Date())
-        .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
-        .slice(0, 4)
-        .map(t => {
-          const d = new Date(t.dueDate);
-          const colors = ["#6366f1","#f97316","#22c55e","#ef4444"];
-          const bgs = ["#EEF2FF","#FFEDD5","#DCFCE7","#FEE2E2"];
-          const i = upcomingEvents.length % 4;
-          return { day: String(d.getDate()).padStart(2,"0"), mon: d.toLocaleString("default",{month:"short"}).toUpperCase(), title: t.title, sub: t.category||"General", color: colors[i], bg: bgs[i] };
-        });
-      setUpcomingEvents(future);
-    }).catch(() => {});
-  }, []);
-
-  if (loading) return <LoadingState message="Loading Admin Dashboard…" height="100vh" />;
-  if (error)   return <ErrorState   message="Failed to load dashboard." height="100vh" />;
-
-  /* ── derived stats ── */
-  const s = dashboardData?.stats || {};
-  const totalRevenue   = s.revenue || 0;
-  const totalEmployees = s.totalEmployees || 0;
-  const totalOrders    = s.totalOrders || 0;
-  const totalMaterials = s.totalMaterials || 0;
-  const activeOrders   = s.activeOrdersCount || 0;
-  const pendingOrders  = s.pendingOrders || 0;
-  const totalVendors   = s.totalVendors || 0;
-  const activeCustomers= s.activeCustomers || 0;
-  const fulfillment    = dashboardData?.analytics?.healthMetrics?.orderFulfillment || 0;
-  const completedTasks = s.completedTasks || 0;
-  const pendingTasks   = s.pendingTasks || 0;
-  const lowStock       = dashboardData?.tables?.lowStock || [];
-  const recentActivity = dashboardData?.tables?.recentActivity || [];
-  const notifications  = dashboardData?.tables?.notifications || [];
-  const empDist        = dashboardData?.hrStats?.employeeDistribution || [];
-  const trendRaw       = dashboardData?.analytics?.trendData || dashboardData?.charts?.monthlyStats || [];
-  const chartData      = trendRaw.map(d => ({
-    name: d.name,
-    revenue: revTrendYear === "current" ? (d.revenue||0) : (d.lastYearRevenue||0),
-    expenses: revTrendYear === "current" ? (d.expenses||0) : (d.lastYearExpenses||0),
-  }));
-
-  /* attendance donut */
-  const attendanceTotal  = dashboardData?.hrStats?.presentToday || 0;
-  const attendanceAbsent = Math.max(0, totalEmployees - attendanceTotal);
-  const donutData = attendanceTotal > 0
-    ? [{ name: "Present", value: attendanceTotal }, { name: "Absent", value: attendanceAbsent }]
-    : [{ name: "No Data", value: 1 }];
-  const attendancePct = totalEmployees > 0 ? Math.round((attendanceTotal / totalEmployees) * 100) : 0;
-
-  /* AI insights */
-  const aiInsights = [
-    totalRevenue > 0 && `Revenue is ${fmtINR(totalRevenue)} this period — tracking positively.`,
-    lowStock.length > 0 && `${lowStock.length} material${lowStock.length > 1 ? "s are" : " is"} below reorder threshold.`,
-    pendingOrders > 0 && `${pendingOrders} order${pendingOrders > 1 ? "s are" : " is"} pending approval.`,
-    totalEmployees > 0 && `${attendanceTotal} of ${totalEmployees} employees present today (${attendancePct}%).`,
-    pendingTasks > 0 && `${pendingTasks} task${pendingTasks > 1 ? "s are" : " is"} still pending completion.`,
-  ].filter(Boolean).slice(0, 5);
-
-  /* top materials */
-  const topMaterials = (dashboardData?.tables?.topMaterials || []).slice(0, 5);
-  const maxMatVal = topMaterials.reduce((m, d) => Math.max(m, d.revenue || d.value || 0), 1);
-
-  const DONUT_COLORS = ["#6366f1","#e2e8f0"];
-
-  return (
-    <div className="db-page">
-      <div className="db-content">
-
-        {/* ── Greeting Bar ── */}
-        <div className="db-greeting-bar">
-          <div className="db-greeting-left">
-            <div className="db-greeting-text">
-              {greeting()}, {user?.name?.split(" ")[0] || "Admin"}! 👋
-            </div>
-            <div className="db-greeting-sub">
-              Welcome back! You're doing great today.
-            </div>
-          </div>
-          <div className="db-greeting-right">
-            <div className="db-datetime">
-              {now.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
-              &nbsp;·&nbsp;
-              {now.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
-            </div>
-            <div className="db-status-pill">
-              <div className="db-status-dot" />
-              All Systems Operational
-            </div>
-          </div>
-        </div>
-
-        {/* ── KPI Cards ── */}
-        <div className="db-kpi-grid">
-          <KpiCard icon={Activity}     iconClass="green"  label="System Health"    value="100%"                    trend="Excellent"    trendUp={true}  sub="All services running" />
-          <KpiCard icon={DollarSign}   iconClass="blue"   label="Revenue Today"    value={fmtINR(totalRevenue)}    trend="vs yesterday"  trendUp={true}  sub="Year-to-date" />
-          <KpiCard icon={ShoppingCart} iconClass="orange" label="Orders Today"     value={activeOrders}            trend={`${pendingOrders} pending`} trendUp={false} sub="Active orders" />
-          <KpiCard icon={Users}        iconClass="purple" label="Active Employees"  value={totalEmployees}          trend="vs last month" trendUp={true}  sub={`${attendanceTotal} present today`} />
-        </div>
-
-        
-        
+if (startIdx !== -1 && endIdx !== -1) {
+    let newGrid = `
         {/* ── Bento Grid ── */}
         <div className="db-bento">
           
@@ -439,9 +247,10 @@ const AdminDashboard = () => {
           </div>
 
         </div>
-    
-      </div>
-    </div>
-  );
-};
-export default AdminDashboard;
+    `;
+    code = code.substring(0, startIdx) + newGrid + '\n      </div>\n    </div>\n  );\n};\nexport default AdminDashboard;';
+    fs.writeFileSync(path, code);
+    console.log('Successfully reordered Bento Grid in AdminDashboard.jsx');
+} else {
+    console.log('Could not find replace targets');
+}
