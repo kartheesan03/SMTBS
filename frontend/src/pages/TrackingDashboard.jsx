@@ -1264,7 +1264,7 @@ const TrackingDashboard = () => {
         <div className="db-greeting-bar">
           <div className="db-greeting-left">
             <div className="db-greeting-text">
-              {greeting()}, Logistics Team! 👋
+              Movement Tracking
             </div>
             <div className="db-greeting-sub">
               Track and trace all material movements in real-time.
