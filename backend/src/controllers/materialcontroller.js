@@ -17,57 +17,31 @@ const deriveLocation = (warehouse, shelf) => {
 };
 const handleStockStatusNotifications = async (material, previousStatus, newStatus) => {
     if (previousStatus === newStatus) return;
-    const matId = material._id || material.id;
-    if (newStatus === 'In Stock') {
-        await Notification.deleteMany({
-            category: 'stock',
-            'payload.material_id': matId,
-            isRead: false
+    const matId = String(material._id || material.id);
+    
+    // Clear any previous unread stock alerts for this material to avoid duplicates
+    await Notification.deleteMany({
+        module: 'Materials',
+        referenceId: matId,
+        status: 'unread'
+    });
+
+    if (newStatus === 'Low Stock') {
+        await notifyCritical({
+            module: 'Materials',
+            referenceId: matId,
+            title: `Low Stock Alert: ${material.name}`,
+            message: `${material.name} is currently Low Stock (${material.quantity} ${material.unit} left).`,
+            type: 'warning'
         });
-    } else if (newStatus === 'Low Stock') {
-        await Notification.deleteMany({
-            category: 'stock',
-            'payload.material_id': matId,
-            'payload.alert_type': 'out_of_stock',
-            isRead: false
-        });
-        const exists = await Notification.findOne({
-            category: 'stock',
-            'payload.material_id': matId,
-            'payload.alert_type': 'low_stock',
-            isRead: false
-        });
-        if (!exists) {
-            await notifyCritical({
-                module: 'Materials',
-                referenceId: matId,
-                title: `Low Stock Alert: ${material.name}`,
-                message: `${material.name} is currently Low Stock (${material.quantity} ${material.unit} left).`,
-                type: 'warning'
-            });
-        }
     } else if (newStatus === 'Out of Stock') {
-        await Notification.deleteMany({
-            category: 'stock',
-            'payload.material_id': matId,
-            'payload.alert_type': 'low_stock',
-            isRead: false
+        await notifyCritical({
+            module: 'Materials',
+            referenceId: matId,
+            title: `Out of Stock Alert: ${material.name}`,
+            message: `${material.name} is completely Out of Stock!`,
+            type: 'error'
         });
-        const exists = await Notification.findOne({
-            category: 'stock',
-            'payload.material_id': matId,
-            'payload.alert_type': 'out_of_stock',
-            isRead: false
-        });
-        if (!exists) {
-            await notifyCritical({
-                module: 'Materials',
-                referenceId: matId,
-                title: `Out of Stock Alert: ${material.name}`,
-                message: `${material.name} is completely Out of Stock.`,
-                type: 'error'
-            });
-        }
     }
 };
 const getMaterialList = async (req, res) => {
