@@ -14,19 +14,14 @@ if sys.platform == "win32":
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-reader = None
-
 from services.ocr_parser import process_document
 
+import pytesseract
+
 def _init_reader():
-    global reader
-    if reader is not None:
-        return reader
-    logger.info("Initializing EasyOCR reader...")
-    import easyocr
-    reader = easyocr.Reader(["en"], gpu=False, verbose=False)
-    logger.info("EasyOCR reader initialized successfully.")
-    return reader
+    logger.info("Initializing Tesseract OCR reader...")
+    # Tesseract doesn't need to be instantiated like EasyOCR, just configured.
+    return pytesseract
 
 import re
 
@@ -75,29 +70,45 @@ def _ocr_image_elements(img_path: str, page_num: int = 1) -> list:
     """Run OCR and return structured bounding box elements."""
     r = _init_reader()
     t0 = time.time()
-    result = r.readtext(img_path)
-    logger.info(f"[TIMING] EasyOCR page {page_num}: {time.time()-t0:.1f}s, {len(result)} elements")
+    
+    # Use image_to_data to get bounding boxes and text
+    import cv2
+    img = cv2.imread(img_path)
+    if img is None:
+        logger.error(f"Could not read image {img_path}")
+        return []
+        
+    data = r.image_to_data(img, output_type=r.Output.DICT)
+    
+    logger.info(f"[TIMING] Tesseract OCR page {page_num}: {time.time()-t0:.1f}s")
     
     elements = []
     
-    for (bbox, text, conf) in result:
+    n_boxes = len(data['level'])
+    for i in range(n_boxes):
+        text = data['text'][i]
+        if not text or not text.strip():
+            continue
+            
         text = clean_ocr_text(text)
         if not text:
             continue
+            
+        # Tesseract confidence is 0-100, normalize to 0-1
+        conf = float(data['conf'][i]) / 100.0 if float(data['conf'][i]) > 0 else 0.0
         
-        # bbox is typically [[x0, y0], [x1, y0], [x1, y1], [x0, y1]]
-        x0 = min(pt[0] for pt in bbox)
-        y0 = min(pt[1] for pt in bbox)
-        x1 = max(pt[0] for pt in bbox)
-        y1 = max(pt[1] for pt in bbox)
+        x = data['left'][i]
+        y = data['top'][i]
+        w = data['width'][i]
+        h = data['height'][i]
         
         elements.append({
             "text": text,
-            "confidence": float(conf),
-            "x0": x0,
-            "y0": y0,
-            "x1": x1,
-            "y1": y1,
+            "confidence": conf,
+            "x0": x,
+            "y0": y,
+            "x1": x + w,
+            "y1": y + h,
             "page": page_num
         })
     return elements
