@@ -322,34 +322,49 @@ const AdminDashboard = () => {
             </div>
           </div>
 
-          <div className="db-card db-col-6">
-            <div className="db-card-header">
-              <div className="db-card-title">Revenue Trend</div>
-              <select className="db-panel-select" value={revTrendYear} onChange={e => setRevTrendYear(e.target.value)}>
-                <option value="current">This Month</option>
-                <option value="last">Last Month</option>
-              </select>
+          <div className="db-card db-col-6" style={{ background: "linear-gradient(145deg, #0f172a, #1e293b)", color: "white", border: "1px solid #334155", boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.5)" }}>
+            <div className="db-card-header" style={{ borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
+              <div className="db-card-title" style={{ color: "white", display: "flex", alignItems: "center", gap: 8 }}>
+                <TrendingUp size={20} color="#8b5cf6" />
+                Financial Overview
+              </div>
+              <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                <div style={{ fontSize: 12, display: "flex", gap: 4, alignItems: "center" }}><div style={{ width: 8, height: 8, borderRadius: "50%", background: "#8b5cf6" }}/> Revenue</div>
+                <div style={{ fontSize: 12, display: "flex", gap: 4, alignItems: "center" }}><div style={{ width: 8, height: 8, borderRadius: "50%", background: "#f43f5e" }}/> Expenses</div>
+                <select className="db-panel-select" style={{ background: "#334155", color: "white", border: "none", outline: "none", padding: "4px 8px", borderRadius: "6px" }} value={revTrendYear} onChange={e => setRevTrendYear(e.target.value)}>
+                  <option value="current">This Month</option>
+                  <option value="last">Last Month</option>
+                </select>
+              </div>
             </div>
             <div className="db-card-body">
               <div className="db-chart-wrap">
                 {chartData.length > 0 ? (
                   <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={chartData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+                    <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                       <defs>
                         <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#6366f1" stopOpacity={0.2} />
-                          <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                          <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.8} />
+                          <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0} />
+                        </linearGradient>
+                        <linearGradient id="expGrad" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#f43f5e" stopOpacity={0.8} />
+                          <stop offset="100%" stopColor="#f43f5e" stopOpacity={0} />
                         </linearGradient>
                       </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
-                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: "#9CA3AF" }} />
-                      <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: "#9CA3AF" }} />
-                      <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid #E5E7EB" }} />
-                      <Area type="monotone" dataKey="revenue" stroke="#6366f1" strokeWidth={2} fill="url(#revGrad)" dot={false} />
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={false} />
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: "#94a3b8" }} />
+                      <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: "#94a3b8" }} />
+                      <Tooltip 
+                        contentStyle={{ backgroundColor: "#1e293b", border: "none", borderRadius: "8px", color: "#f8fafc", boxShadow: "0 4px 6px -1px rgba(0,0,0,0.5)" }} 
+                        itemStyle={{ color: "#f8fafc", fontWeight: 600 }} 
+                      />
+                      <Area type="monotone" dataKey="revenue" stroke="#8b5cf6" strokeWidth={3} fill="url(#revGrad)" dot={{ r: 4, fill: "#8b5cf6", strokeWidth: 2, stroke: "#1e293b" }} activeDot={{ r: 6 }} />
+                      <Area type="monotone" dataKey="expenses" stroke="#f43f5e" strokeWidth={3} fill="url(#expGrad)" dot={{ r: 4, fill: "#f43f5e", strokeWidth: 2, stroke: "#1e293b" }} activeDot={{ r: 6 }} />
                     </AreaChart>
                   </ResponsiveContainer>
                 ) : (
-                  <div className="db-empty">No revenue data available</div>
+                  <div className="db-empty" style={{ color: "#94a3b8" }}>No financial data available</div>
                 )}
               </div>
             </div>
