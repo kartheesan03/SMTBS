@@ -83,7 +83,18 @@ const EmployeeDashboard = () => {
   const taskDone   = myTasks.filter(t=>t.status==="Completed").length;
   const taskTotal  = myTasks.length;
   const taskPct    = taskTotal>0?Math.round((taskDone/taskTotal)*100):0;
-  const leaveBal   = leaveBalance?.remaining??leaveBalance?.balance??12;
+  // leaveBalance can be a number, { remaining, balance } or { Annual, Sick, Casual, Unpaid }
+  const leaveBal = (() => {
+    if (!leaveBalance) return 12;
+    if (typeof leaveBalance === 'number') return leaveBalance;
+    if (typeof leaveBalance.remaining === 'number') return leaveBalance.remaining;
+    if (typeof leaveBalance.balance === 'number') return leaveBalance.balance;
+    // Object shape: { Annual: N, Sick: N, Casual: N, Unpaid: N }
+    if (typeof leaveBalance.Annual === 'number') {
+      return (leaveBalance.Annual || 0) + (leaveBalance.Sick || 0) + (leaveBalance.Casual || 0);
+    }
+    return 12;
+  })();
   const mySalary   = salary?.netSalary||salary?.basicSalary||0;
   const attendPct  = attendStats.pct||0;
   const completedTask = myTasks.filter(t=>t.status==="Completed").length;
@@ -322,7 +333,7 @@ const EmployeeDashboard = () => {
               <div className="db-donut-wrap" style={{ position:"relative", height: "160px", width: "100%", display: "flex", justifyContent: "center" }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
-                    <Pie data={[{name:"Used",value:30-leaveBal},{name:"Remaining",value:leaveBal}]} cx="50%" cy="50%" innerRadius={58} outerRadius={76} dataKey="value" stroke="none" cornerRadius={6}>
+                    <Pie data={[{name:"Used",value:Math.max(0,34-leaveBal)},{name:"Remaining",value:Math.max(0,leaveBal)}]} cx="50%" cy="50%" innerRadius={58} outerRadius={76} dataKey="value" stroke="none" cornerRadius={6}>
                       {["#EF4444","#059669"].map((c,i)=><Cell key={i} fill={c}/>)}
                     </Pie>
                     <Tooltip contentStyle={{ fontSize:11,borderRadius:8, border: "none", boxShadow: "0 10px 25px -5px rgba(0,0,0,0.2)" }}/>
