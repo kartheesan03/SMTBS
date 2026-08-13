@@ -55,6 +55,13 @@
   box-sizing: border-box;
 }
 
+.db-card-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
 .db-content {
   padding: 24px;
   display: flex;
@@ -762,8 +769,8 @@
 /* ═══════════════════════════════════════
    RECHARTS OVERRIDES
    ═══════════════════════════════════════ */
-.db-chart-wrap { width: 100%; height: 260px; }
-.db-donut-wrap { width: 100%; height: 240px; }
+.db-chart-wrap { width: 100%; flex: 1; min-height: 260px; display: flex; align-items: flex-end; }
+.db-donut-wrap { width: 100%; height: 240px; margin: auto; }
 
 /* ═══════════════════════════════════════
    ROLE-SPECIFIC PROFILE BANNER GRADIENTS
@@ -865,9 +872,9 @@
 .db-col-12 { grid-column: span 12; }
 
 @media (max-width: 1400px) {
-  .db-col-3 { grid-column: span 4; }
-  .db-col-4 { grid-column: span 6; }
-  .db-col-5, .db-col-6, .db-col-7 { grid-column: span 6; }
+  .db-col-3 { grid-column: span 6; }
+  .db-col-4 { grid-column: span 12; }
+  .db-col-5, .db-col-6, .db-col-7 { grid-column: span 12; }
   .db-col-8, .db-col-9 { grid-column: span 12; }
 }
 
