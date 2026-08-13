@@ -288,6 +288,29 @@ def extract_table_rows(lines: List[List[Dict]], columns: List[Dict]) -> List[Dic
     return valid_items
 
 
+def extract_receipt_items(lines: List[List[Dict]]) -> List[Dict]:
+    items = []
+    _RECEIPT_ITEM_PATTERN = re.compile(r'^(\d+)\s+(.+?)\s+([\d,\.]+)\s+([\d,\.]+)$')
+    
+    sno = 1
+    for line in lines:
+        if not line:
+            continue
+        line_text = " ".join([e["text"] for e in line]).strip()
+        m = _RECEIPT_ITEM_PATTERN.match(line_text)
+        if m:
+            items.append({
+                "S.No": str(sno),
+                "Item": m.group(2).strip(),
+                "Quantity": m.group(1),
+                "Rate": m.group(3),
+                "Amount": m.group(4)
+            })
+            sno += 1
+            
+    return items
+
+
 # ---------------------------------------------------------------------------
 # DOCUMENT CLASSIFICATION
 # ---------------------------------------------------------------------------
@@ -300,39 +323,259 @@ def detect_document_class(lines: List[List[Dict]]) -> Tuple[bool, str, str, floa
 # GENERIC KV PAIR EXTRACTION (replaces narrow extract_metadata)
 # ---------------------------------------------------------------------------
 
-def extract_all_kv_pairs(lines: List[List[Dict]]) -> Tuple[Dict[str, str], List[List[Dict]]]:
-    """Removed KV pair extraction as per new table-first requirements."""
-    return {}, lines
+def extract_generic_kv(line_text: str) -> Tuple[Optional[str], Optional[str]]:
+    # Standard colon/dash
+    m = re.match(r'^([a-zA-Z\s\.]+)(?:[:\-])\s*(.*)$', line_text)
+    if m:
+        k = m.group(1).strip()
+        v = m.group(2).strip()
+        if len(k) > 1 and len(v) > 0:
+            return k, v
+            
+    # Date pattern
+    m = re.match(r'^([a-zA-Z\s]+)(?:[:\-])?\s*(\d{1,2}[/\-]\d{1,2}[/\-]\d{2,4})$', line_text)
+    if m:
+        return m.group(1).strip(), m.group(2).strip()
+        
+    # Mixed text and single number (e.g. ROOM 103 NO -> ROOM NO, 103)
+    words = line_text.split()
+    numbers = []
+    texts = []
+    for w in words:
+        if re.search(r'\d', w):
+            numbers.append(w)
+        else:
+            texts.append(w)
+            
+    if len(numbers) == 1 and len(texts) > 0:
+        k = " ".join(texts)
+        v = numbers[0]
+        if len(k) > 2:
+            return k, v
+            
+    return None, None
 
 
-def extract_unstructured_text(lines: List[List[Dict]]) -> str:
-    text_blocks = []
-    current_page = None
-
+def extract_semantic_blocks(lines: List[List[Dict]]) -> Tuple[Dict, Dict, Dict, List[List[Dict]]]:
+    doc_info = {}
+    summary = {}
+    address = {}
+    remaining = []
+    
+    _SUMMARY_KEYS = ["TOTAL", "SUBTOTAL", "TAX", "DISCOUNT", "AMOUNT", "BALANCE", "DUE", "PAID"]
+    _FOOTER_KEYS = ["THANK YOU", "PLEASE COME AGAIN", "VISIT AGAIN", "HAVE A NICE DAY"]
+    
+    address_lines = []
+    
     for line in lines:
         if not line:
             continue
-        page = line[0].get("page", 1)
-        if current_page != page:
-            if current_page is not None:
-                text_blocks.append(f"\n--- PAGE {page} ---\n")
-            current_page = page
+            
+        line_text = " ".join([e["text"] for e in line]).strip()
+        text_upper = line_text.upper()
+        
+        # 1. Footers
+        if any(f in text_upper for f in _FOOTER_KEYS):
+            continue
+            
+        # 2. Addresses
+        if "ADDRESS" in text_upper or "FLOOR" in text_upper or "ROAD" in text_upper or "STREET" in text_upper or "COMPLEX" in text_upper or "CIRCLE" in text_upper or "CINEMA" in text_upper:
+            clean = re.sub(r'^ADDRESS\s*[:\-]*\s*', '', text_upper)
+            if clean:
+                address_lines.append(clean)
+            continue
+            
+        # 3. Summary
+        summary_match = False
+        for sk in _SUMMARY_KEYS:
+            if sk in text_upper:
+                nums = re.findall(r'[\d,\.]+', text_upper)
+                if nums:
+                    val = nums[-1]
+                    # Ensure it's not a generic word matching, require it to be a key-value like structure
+                    if len(nums) <= 2:
+                        summary[sk.capitalize()] = val
+                        summary_match = True
+                        break
+        if summary_match:
+            continue
+            
+        # 4. Document Info
+        k, v = extract_generic_kv(line_text)
+        if k and v:
+            doc_info[k.title()] = v
+            continue
+            
+        remaining.append(line)
+        
+    if address_lines:
+        address["Address"] = ", ".join(address_lines)
+        
+    return doc_info, summary, address, remaining
 
-        line_text = " ".join(e["text"] for e in line)
-        text_blocks.append(line_text)
 
-    return "\n".join(text_blocks).strip()
+def extract_geometric_receipt_items(elements: List[Dict]) -> Tuple[List[Dict], List[Dict]]:
+    import itertools
+    items = []
+    used_elements = []
 
+    # 1. Isolate all numbers
+    numeric_elements = []
+    for el in elements:
+        t = el.get("text", "").strip()
+        clean_t = re.sub(r'[^\d\.]', '', t.replace(',', ''))
+        if clean_t:
+            try:
+                val = float(clean_t)
+                numeric_elements.append({
+                    "el": el,
+                    "val": val,
+                    "x_mid": (el["x0"] + el["x1"]) / 2,
+                    "y_mid": (el["y0"] + el["y1"]) / 2
+                })
+            except ValueError:
+                pass
 
-# ---------------------------------------------------------------------------
-# TOTALS EXTRACTION (unchanged)
-# ---------------------------------------------------------------------------
+    if not numeric_elements:
+        return items, elements
 
-def extract_totals(lines: List[List[Dict]]) -> Dict:
-    return {}
+    # 2. Group numbers by Y-axis dynamically
+    numeric_elements.sort(key=lambda x: x["y_mid"])
+    y_groups = []
+    current_group = []
+    for ne in numeric_elements:
+        if not current_group:
+            current_group.append(ne)
+        else:
+            avg_y = sum(n["y_mid"] for n in current_group) / len(current_group)
+            if abs(ne["y_mid"] - avg_y) < 20:
+                current_group.append(ne)
+            else:
+                y_groups.append(current_group)
+                current_group = [ne]
+    if current_group:
+        y_groups.append(current_group)
 
-def extract_payroll_totals(lines: List[List[Dict]]) -> Dict:
-    return {}
+    # 3. Detect Table Boundaries (Layout Zones)
+    y_end = float('inf')
+    for el in elements:
+        t = el.get("text", "").upper()
+        if any(k in t for k in ["TOTAL", "SUBTOTAL", "TAX", "DISCOUNT", "AMOUNT"]):
+            y_end = (el["y0"] + el["y1"]) / 2
+            break
+
+    y_start = -1
+    for yg in y_groups:
+        yg_y = sum(n["y_mid"] for n in yg) / len(yg)
+        if yg_y > y_end:
+            continue
+        row_numbers = [n["val"] for n in yg]
+        if len(row_numbers) >= 3:
+            found = False
+            for combo in itertools.permutations(row_numbers, 3):
+                q, r, a = combo
+                if q > 0 and r > 0 and a > 0 and abs(q * r - a) < 0.1:
+                    y_start = yg_y - 30
+                    found = True
+                    break
+            if found:
+                break
+        elif len(row_numbers) >= 2:
+            r, a = row_numbers[0], row_numbers[1]
+            if abs(r - a) < 0.1 and r > 0:
+                y_start = yg_y - 30
+                break
+
+    if y_start == -1:
+        y_start = 0
+
+    sno = 1
+    for yg in y_groups:
+        if not yg:
+            continue
+            
+        avg_y = sum(n["y_mid"] for n in yg) / len(yg)
+        
+        # STRICT ZONE ENFORCEMENT
+        if avg_y < y_start or avg_y > y_end:
+            continue
+            
+        yg.sort(key=lambda x: x["x_mid"]) # Left to right
+        row_numbers = [ne["val"] for ne in yg]
+        
+        qty, rate, amt = None, None, None
+        
+        # 4. Strict Math Validation (Qty * Rate = Amount)
+        if len(row_numbers) >= 3:
+            found = False
+            for combo in itertools.permutations(row_numbers, 3):
+                q, r, a = combo
+                if q > 0 and r > 0 and a > 0 and abs(q * r - a) < 0.1:
+                    qty, rate, amt = q, r, a
+                    found = True
+                    break
+            if not found and abs(row_numbers[-2] - row_numbers[-1]) < 0.1:
+                qty, rate, amt = 1, row_numbers[-2], row_numbers[-1]
+                
+        elif len(row_numbers) == 2:
+            r, a = row_numbers[0], row_numbers[1]
+            if abs(r - a) < 0.1:
+                qty, rate, amt = 1, r, a
+            elif abs(2 * r - a) < 0.1:
+                qty, rate, amt = 2, r, a
+            elif abs(3 * r - a) < 0.1:
+                qty, rate, amt = 3, r, a
+                
+        elif len(row_numbers) == 1:
+            a = row_numbers[0]
+            if a > 0:
+                qty, rate, amt = 1, a, a
+
+        if qty is not None and rate is not None and amt is not None:
+            row_els = [el for el in elements if abs((el["y0"] + el["y1"])/2 - avg_y) < 20]
+            row_els.sort(key=lambda x: x["x0"])
+            
+            used_nums = [qty, rate, amt]
+            item_tokens = []
+            
+            for el in row_els:
+                t = el["text"].strip()
+                clean_t = re.sub(r'[^\d\.]', '', t.replace(',', ''))
+                
+                is_used_number = False
+                if clean_t:
+                    try:
+                        val = float(clean_t)
+                        for i, u in enumerate(used_nums):
+                            if abs(u - val) < 0.1:
+                                used_nums.pop(i)
+                                is_used_number = True
+                                if el not in used_elements:
+                                    used_elements.append(el)
+                                break
+                    except ValueError:
+                        pass
+                        
+                if not is_used_number:
+                    item_tokens.append(t)
+                    if el not in used_elements:
+                        used_elements.append(el)
+
+            item_name = " ".join(item_tokens).strip()
+            item_name = re.sub(r'^[^a-zA-Z0-9]+|[^a-zA-Z0-9]+$', '', item_name).strip()
+            
+            if len(item_name) >= 2 and not any(k in item_name.upper() for k in ["TOTAL", "SUBTOTAL", "TAX", "DISCOUNT", "AMOUNT"]):
+                items.append({
+                    "S.No": str(sno),
+                    "Item": item_name,
+                    "Quantity": str(int(qty) if qty == int(qty) else qty),
+                    "Rate": f"{rate:.2f}",
+                    "Amount": f"{amt:.2f}"
+                })
+                sno += 1
+                
+    unused = [el for el in elements if el not in used_elements]
+    return items, unused
 
 
 # ---------------------------------------------------------------------------
@@ -340,10 +583,15 @@ def extract_payroll_totals(lines: List[List[Dict]]) -> Dict:
 # ---------------------------------------------------------------------------
 
 def _build_kv_section(title: str, kv_dict: Dict[str, str]) -> Dict:
-    return {}
-
-def _guess_section_title(columns: List[Dict], doc_type: str) -> str:
-    return "Data Table"
+    if not kv_dict:
+        return {}
+    rows = [[k, v] for k, v in kv_dict.items()]
+    return {
+        "title": title,
+        "type": "table",
+        "headers": ["Field", "Value"],
+        "rows": rows
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -354,74 +602,70 @@ def process_document(elements: List[Dict]) -> Dict:
     if not elements:
         return {
             "success": True,
-            "document": {
-                "type": "General Document",
-                "module": "General",
-                "isRelated": False,
-                "isStructured": False,
-                "tableDetected": False,
-                "confidence": 0.0,
-                "pageCount": 1,
-                "details": {}
-            },
+            "document": {"type": "General", "isStructured": False, "tableDetected": False, "confidence": 0.0, "details": {}},
             "sections": [],
-            "tables": [],  # backward compat
-            "rawText": "",
-            "vendor": None,
-            "invoice": None,
-            "totals": None
+            "tables": []
         }
 
-    lines = group_into_lines(elements)
+    # 1. Geometric Math-Validated Line Item Extraction FIRST
+    # (Doing this on raw elements prevents horizontal OCR skew merging and stops generic KVs from stealing items like "CURED 50.00")
+    receipt_items, remaining_elements = extract_geometric_receipt_items(elements)
 
-    # 1. Classify document
+    # 2. Group remaining elements into horizontal lines
+    lines = group_into_lines(remaining_elements)
     is_related, module_name, doc_type, base_class_conf = detect_document_class(lines)
-    raw_text = extract_unstructured_text(lines)
+    
+    # 3. Semantic Block Extraction (Metadata, Summary, Address)
+    doc_info, summary_kv, address_kv, remaining_lines = extract_semantic_blocks(lines)
 
-    # 2. Extract ALL generic KV pairs first (before table detection)
-    #    We extract them for Document Metadata, but DO NOT consume the lines.
-    global_kv, _ = extract_all_kv_pairs(lines)
+    # 4. Geometric Table Detection (Fallback for other formal tables)
+    detected_tables = detect_all_tables(remaining_lines)
 
-    # 3. Detect formal tables using the full document lines
-    detected_tables = detect_all_tables(lines)
-
-    # 4. Build sections[] — ONLY real detected tables, NO KV sections
+    # 4. Build Sections
     sections = []
+    
+    if doc_info:
+        sec = _build_kv_section("Document Information", doc_info)
+        if sec: sections.append(sec)
 
-    for idx, (title, columns, t_start_idx, t_end_idx) in enumerate(detected_tables):
-        table_lines = lines[t_start_idx + 1:t_end_idx]
-        items = extract_table_rows(table_lines, columns)
-        if not items:
-            continue
-        
-        col_keys = [col["key"] for col in columns]
-        rows = []
-        for item in items:
-            row = []
-            for k in col_keys:
-                row.append(str(item.get(k, "") or ""))
-            rows.append(row)
-
+    items_found = False
+    
+    # Add math-validated items first (highly accurate for receipts/invoices)
+    if receipt_items:
+        headers = ["S.No", "Item", "Quantity", "Rate", "Amount"]
+        rows = [[it[h] for h in headers] for it in receipt_items]
         sections.append({
-            "title": title,
-            "headers": col_keys,
+            "title": "Items",
+            "type": "table",
+            "headers": headers,
             "rows": rows
         })
+        items_found = True
 
-    is_structured = len(sections) > 0
-    table_detected = len(sections) > 0
+    # Add geometric tables
+    for idx, (title, columns, t_start, t_end) in enumerate(detected_tables):
+        t_lines = remaining_lines[t_start + 1:t_end]
+        items = extract_table_rows(t_lines, columns)
+        if items:
+            col_keys = [col["key"] for col in columns]
+            rows = [[str(item.get(k, "") or "") for k in col_keys] for item in items]
+            sections.append({
+                "title": title if title != "Extracted Table" else (f"Table {idx+1}" if items_found else "Items"),
+                "type": "table",
+                "headers": col_keys,
+                "rows": rows
+            })
 
-    # 5. Confidence
-    all_char_conf = [e["confidence"] for e in elements if "confidence" in e]
-    char_conf = sum(all_char_conf) / len(all_char_conf) if all_char_conf else 1.0
-    all_pages = set(e.get("page", 1) for e in elements)
-    page_count = len(all_pages) if all_pages else 1
-    final_confidence = (base_class_conf + char_conf) / 2 if is_related else char_conf
+    if summary_kv:
+        sec = _build_kv_section("Summary", summary_kv)
+        if sec: sections.append(sec)
+            
+    if address_kv:
+        sec = _build_kv_section("Address", address_kv)
+        if sec: sections.append(sec)
 
-    # 6. Totals & Vendor fields (removed per table-first design)
-    totals = None
-    vendor = None
-    invoice = None
+    # NO FALLBACK TO UNSTRUCTURED TEXT AS A TABLE!
+    # All unstructured data is gracefully ignored per strict requirements.
 
     return {
         "success": True,
@@ -429,18 +673,18 @@ def process_document(elements: List[Dict]) -> Dict:
             "type": doc_type,
             "module": module_name,
             "isRelated": is_related,
-            "isStructured": is_structured,
-            "tableDetected": table_detected,
-            "confidence": round(final_confidence, 4),
-            "pageCount": page_count,
-            "details": global_kv  # keep details for backward compat
+            "isStructured": len(sections) > 0,
+            "tableDetected": len(sections) > 0,
+            "confidence": round(base_class_conf, 4),
+            "pageCount": len(set(e.get("page", 1) for e in elements)) if elements else 1,
+            "details": doc_info
         },
         "sections": sections,
-        "tables": sections,  # backward compat alias
-        "rawText": raw_text,
-        "vendor": vendor,
-        "invoice": invoice,
-        "totals": totals
+        "tables": sections,
+        "rawText": "",
+        "vendor": None,
+        "invoice": None,
+        "totals": None
     }
 
 
@@ -474,7 +718,7 @@ def process_docx_document(file_path: str) -> Dict:
                 kv_pairs[key] = val
 
     if kv_pairs:
-        pass # KV section removed per new table-first design
+        pass # KV section will be added at the end
 
     # Extract native Word tables
     for tbl_idx, table in enumerate(document.tables):
@@ -498,9 +742,23 @@ def process_docx_document(file_path: str) -> Dict:
         if rows:
             sections.append({
                 "title": f"Table {tbl_idx + 1}",
+                "type": "table",
                 "headers": columns,
                 "rows": rows
             })
+            
+    if kv_pairs:
+        kv_sec = _build_kv_section("Document Details", kv_pairs)
+        if kv_sec:
+            sections.insert(0, kv_sec)
+            
+    if not sections and raw_lines:
+        sections.append({
+            "title": "Extracted Content",
+            "type": "table",
+            "headers": ["Content"],
+            "rows": [[line] for line in raw_lines if line.strip()]
+        })
 
     raw_text = "\n".join(raw_lines)
     is_structured = len(sections) > 0
@@ -517,7 +775,7 @@ def process_docx_document(file_path: str) -> Dict:
             "module": module_name,
             "isRelated": is_related,
             "isStructured": is_structured,
-            "tableDetected": any(s["type"] == "table" for s in sections),
+            "tableDetected": any(s.get("type") == "table" for s in sections),
             "confidence": round(base_conf, 4),
             "pageCount": 1,
             "details": kv_pairs

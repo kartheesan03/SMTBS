@@ -156,138 +156,203 @@ const EmployeeDashboard = () => {
           ))}
         </div>
 
-        <div className="db-main-grid">
-          <div className="db-main-left">
-            <div className="db-card">
-              <div className="db-card-header"><div className="db-card-title">My Task Status</div></div>
-              <div className="db-status-list">
-                {[["To Do",myTasks.filter(t=>t.status==="To Do").length,"status-warning"],["In Progress",myTasks.filter(t=>t.status==="In Progress").length,"status-healthy"],["Completed",myTasks.filter(t=>t.status==="Completed").length,"status-healthy"],["Overdue",myTasks.filter(t=>t.priority==="High"&&t.status!=="Completed").length,"status-critical"]].map(([n,v,cls],i)=>(
-                  <div key={i} className="db-status-row"><span className="db-status-name">{n}</span><span className={`db-status-badge ${cls}`}>{v}</span></div>
-                ))}
+        {/* ── Bento Grid ── */}
+        <div className="db-bento">
+          {/* Row 1 */}
+          <div className="db-card db-col-3">
+            <div className="db-profile-banner profile-banner-employee"/>
+            <div className="db-profile-avatar profile-avatar-employee">{(user?.name||"E")[0].toUpperCase()}</div>
+            <div className="db-profile-body">
+              <div className="db-profile-name">{user?.name||"Employee"}</div>
+              <div className="db-profile-role">{user?.department||"Employee"}</div>
+              <span className="db-profile-badge profile-badge-employee">Employee</span>
+              <div className="db-profile-info">
+                <div className="db-profile-info-row"><span className="db-profile-info-label">Emp ID</span><span className="db-profile-info-val">EMP-{String(user?.id||4001).padStart(4,"0")}</span></div>
+                <div className="db-profile-info-row"><span className="db-profile-info-label">Email</span><span className="db-profile-info-val" style={{ fontSize:11 }}>{user?.email||"—"}</span></div>
+                <div className="db-profile-info-row"><span className="db-profile-info-label">Attendance</span><span className="db-profile-info-val">{attendPct}% this month</span></div>
+              </div>
+              <button className="db-profile-btn" onClick={()=>navigate("/profile")}>View Profile <ArrowRight size={13}/></button>
+            </div>
+          </div>
+
+          <div className="db-card db-col-6" style={{ background: "#ffffff", border: "1px solid #e2e8f0", boxShadow: "0 10px 30px -10px rgba(5, 150, 105, 0.15)", position: "relative", overflow: "hidden", padding: 0, display: "flex", flexDirection: "column" }}>
+            <div className="db-card-header" style={{ borderBottom: "none", padding: "24px 24px 0 24px", margin: 0, display: "flex", justifyContent: "space-between", alignItems: "flex-start", width: "100%" }}>
+              <div>
+                <div className="db-card-title" style={{ color: "#64748b", fontSize: 13, textTransform: "uppercase", letterSpacing: "1px", fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>
+                  <UserCheck size={16} color="#059669" />
+                  My Attendance
+                </div>
+                <div style={{ fontSize: 32, fontWeight: 900, color: "#0f172a", marginTop: 8, display: "flex", alignItems: "baseline", gap: 8 }}>
+                  {attendPct}%
+                  <span style={{ fontSize: 13, padding: "3px 10px", background: "#ecfdf5", color: "#10b981", borderRadius: "12px", fontWeight: 700 }}>
+                    Excellent
+                  </span>
+                </div>
               </div>
             </div>
-            <div className="db-card">
-              <div className="db-card-header"><div className="db-card-title">Upcoming Tasks</div></div>
-              <div className="db-status-list">
-                {myTasks.slice(0,5).map((t,i)=>(
-                  <div key={i} className="db-status-row"><span className="db-status-name" style={{ fontSize:12 }}>{t.title}</span><span className={`db-status-badge ${t.priority==="High"?"status-critical":"status-warning"}`}>{t.priority||"Normal"}</span></div>
-                ))}
-                {myTasks.length===0&&<div className="db-empty">No tasks assigned 🎉</div>}
+            <div style={{ flex: 1, minHeight: "220px", marginTop: "20px", padding: "0 20px 10px 0" }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={attTrend} margin={{top:4,right:4,left:-20,bottom:0}}>
+                  <defs>
+                    <linearGradient id="empGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#059669" stopOpacity={0.4}/>
+                      <stop offset="95%" stopColor="#059669" stopOpacity={0.05}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false}/>
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize:12,fill:"#94a3b8", fontWeight: 600}} dy={10}/>
+                  <YAxis axisLine={false} tickLine={false} tick={{fontSize:12,fill:"#94a3b8", fontWeight: 600}} dx={-10}/>
+                  <Tooltip cursor={{ stroke: '#6ee7b7', strokeWidth: 2, strokeDasharray: '4 4' }} contentStyle={{fontSize:12,borderRadius:8,border:"none", boxShadow: "0 10px 25px -5px rgba(0,0,0,0.2)"}}/>
+                  <Area type="monotone" dataKey="pct" stroke="#059669" strokeWidth={4} fill="url(#empGrad)" activeDot={{ r: 6, fill: "#fff", stroke: "#059669", strokeWidth: 3 }}/>
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          <div className="db-card db-col-3">
+            <div className="db-card-header"><div className="db-card-title">Task Progress</div></div>
+            <div className="db-card-body" style={{ display:"flex",flexDirection:"column",alignItems:"center",gap:12 }}>
+              <div className="db-donut-wrap" style={{ position:"relative", height: "160px", width: "100%", display: "flex", justifyContent: "center" }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={donutData} cx="50%" cy="50%" innerRadius={58} outerRadius={76} dataKey="value" startAngle={90} endAngle={-270} stroke="none" cornerRadius={6}>
+                      {["#059669","#E5E7EB"].map((c,i)=><Cell key={i} fill={c}/>)}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+                <div style={{ position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",textAlign:"center", display: "flex", flexDirection: "column", alignItems: "center" }}>
+                  <div style={{ fontSize:26,fontWeight:800,color:"#111827", lineHeight: 1 }}>{taskPct}%</div>
+                  <div style={{ fontSize:12,color:"#64748b", fontWeight: 700, marginTop: 4, textTransform: "uppercase", letterSpacing: "0.5px" }}>Done</div>
+                </div>
+              </div>
+              <div style={{ display:"flex",gap:24,fontSize:13, marginTop: 8 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#059669" }} />
+                  <span style={{ color:"#64748b",fontWeight:600 }}>Done <span style={{ color: "#0f172a", fontWeight: 800, marginLeft: 2 }}>{taskDone}</span></span>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#e5e7eb" }} />
+                  <span style={{ color:"#64748b",fontWeight:600 }}>Pending <span style={{ color: "#0f172a", fontWeight: 800, marginLeft: 2 }}>{taskTotal-taskDone}</span></span>
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="db-main-center">
-            <div className="db-chart-row">
-              <div className="db-card">
-                <div className="db-card-header"><div className="db-card-title">My Attendance</div></div>
-                <div className="db-card-body">
-                  <div className="db-chart-wrap">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={attTrend} margin={{top:4,right:4,left:-20,bottom:0}}>
-                        <defs><linearGradient id="empGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#059669" stopOpacity={0.2}/><stop offset="95%" stopColor="#059669" stopOpacity={0}/></linearGradient></defs>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false}/>
-                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize:10,fill:"#9CA3AF"}}/>
-                        <YAxis axisLine={false} tickLine={false} tick={{fontSize:10,fill:"#9CA3AF"}}/>
-                        <Tooltip contentStyle={{fontSize:12,borderRadius:8,border:"1px solid #E5E7EB"}}/>
-                        <Area type="monotone" dataKey="pct" stroke="#059669" strokeWidth={2} fill="url(#empGrad)" dot={false}/>
-                      </AreaChart>
-                    </ResponsiveContainer>
-                  </div>
-                </div>
-              </div>
-              <div className="db-card">
-                <div className="db-card-header"><div className="db-card-title">Task Progress</div></div>
-                <div className="db-card-body" style={{ display:"flex",flexDirection:"column",alignItems:"center",gap:12 }}>
-                  <div className="db-donut-wrap" style={{ position:"relative" }}>
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie data={donutData} cx="50%" cy="50%" innerRadius={52} outerRadius={72} dataKey="value">
-                          {["#059669","#E5E7EB"].map((c,i)=><Cell key={i} fill={c}/>)}
-                        </Pie>
-                      </PieChart>
-                    </ResponsiveContainer>
-                    <div style={{ position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",textAlign:"center" }}>
-                      <div style={{ fontSize:20,fontWeight:800,color:"#111827" }}>{taskPct}%</div>
-                      <div style={{ fontSize:10,color:"#6B7280" }}>Done</div>
-                    </div>
-                  </div>
-                  <div style={{ display:"flex",gap:16,fontSize:12 }}>
-                    <span style={{ color:"#059669",fontWeight:600 }}>● Done {taskDone}</span>
-                    <span style={{ color:"#9CA3AF",fontWeight:600 }}>● Pending {taskTotal-taskDone}</span>
-                  </div>
-                </div>
-              </div>
+          {/* Row 2 */}
+          <div className="db-card db-col-3">
+            <div className="db-card-header"><div className="db-card-title">My Task Status</div></div>
+            <div className="db-status-list">
+              {[["To Do",myTasks.filter(t=>t.status==="To Do").length,"status-warning"],["In Progress",myTasks.filter(t=>t.status==="In Progress").length,"status-healthy"],["Completed",myTasks.filter(t=>t.status==="Completed").length,"status-healthy"],["Overdue",myTasks.filter(t=>t.priority==="High"&&t.status!=="Completed").length,"status-critical"]].map(([n,v,cls],i)=>(
+                <div key={i} className="db-status-row"><span className="db-status-name">{n}</span><span className={`db-status-badge ${cls}`}>{v}</span></div>
+              ))}
             </div>
-            <div className="db-card">
-              <div className="db-card-header"><div className="db-card-title">Recent Activity</div></div>
-              <div className="db-activity-list">
-                {notifications.slice(0,5).map((n,i)=>{
-                  return <div key={i} className="db-activity-item">
-                    <div className="db-activity-icon" style={{ background:"#DCFCE7",color:"#059669" }}><Activity size={14}/></div>
-                    <div className="db-activity-body"><div className="db-activity-title">Notification</div><div className="db-activity-desc">{n.text||n.message||"System notification"}</div></div>
-                    <div className="db-activity-time">{n.time?fmtTime(n.time):"Now"}</div>
-                  </div>;
-                })}
-                {notifications.length===0&&<div className="db-empty">No recent activity</div>}
+          </div>
+
+          <div className="db-card db-col-6">
+            <div className="db-card-header"><div className="db-card-title">Recent Activity</div></div>
+            <div className="db-activity-list">
+              {notifications.slice(0,5).map((n,i)=>{
+                return <div key={i} className="db-activity-item">
+                  <div className="db-activity-icon" style={{ background:"#DCFCE7",color:"#059669" }}><Activity size={14}/></div>
+                  <div className="db-activity-body"><div className="db-activity-title">Notification</div><div className="db-activity-desc">{n.text||n.message||"System notification"}</div></div>
+                  <div className="db-activity-time">{n.time?fmtTime(n.time):"Now"}</div>
+                </div>;
+              })}
+              {notifications.length===0&&<div className="db-empty">No recent activity</div>}
+            </div>
+          </div>
+
+          <div className="db-card db-col-3">
+            <div className="db-card-header"><div className="db-card-title">Notifications</div></div>
+            <div className="db-notif-list">
+              {notifications.length>0?notifications.map((n,i)=>{const colors=["#059669","#6366F1","#F97316","#3B82F6","#EAB308"];return<div key={i} className="db-notif-item"><div className="db-notif-dot" style={{ background:colors[i%colors.length] }}/><div className="db-notif-body"><div className="db-notif-text">{n.text||n.message}</div><div className="db-notif-time">{n.time?fmtTime(n.time):"Now"}</div></div></div>;})
+              :[["Leave request submitted","#22C55E"],["Task assigned to you","#6366F1"],["Attendance marked","#059669"],["Payslip generated","#3B82F6"]].map(([t,c],i)=>(
+                <div key={i} className="db-notif-item"><div className="db-notif-dot" style={{ background:c }}/><div className="db-notif-body"><div className="db-notif-text">{t}</div><div className="db-notif-time">09:{String(30+i*5).padStart(2,"0")} AM</div></div></div>
+              ))}
+            </div>
+          </div>
+
+          {/* Row 3 */}
+          <div className="db-card db-col-3">
+            <div className="db-card-header"><div className="db-card-title">Upcoming Tasks</div></div>
+            <div className="db-status-list">
+              {myTasks.slice(0,5).map((t,i)=>(
+                <div key={i} className="db-status-row"><span className="db-status-name" style={{ fontSize:12 }}>{t.title}</span><span className={`db-status-badge ${t.priority==="High"?"status-critical":"status-warning"}`}>{t.priority||"Normal"}</span></div>
+              ))}
+              {myTasks.length===0&&<div className="db-empty">No tasks assigned 🎉</div>}
+            </div>
+          </div>
+
+          <div className="db-card db-col-3">
+            <div className="db-card-header"><div className="db-card-title">Upcoming Events</div></div>
+            <div className="db-event-list">
+              <br/>
+              {upcomingEvents.length>0?upcomingEvents.map((ev,i)=>(
+                <div key={i} className="db-event-item"><div className="db-event-date" style={{ background:ev.color }}><div className="db-event-day">{ev.day}</div><div className="db-event-mon">{ev.mon}</div></div><div className="db-event-body"><div className="db-event-title">{ev.title}</div><div className="db-event-sub">{ev.sub}</div></div></div>
+              )):[["05","SEP","Task Deadline","Project","#059669"],["12","SEP","Team Meeting","General","#6366F1"],["20","SEP","Performance Review","HR","#F97316"]].map(([d,m,t,s,c],i)=>(
+                <div key={i} className="db-event-item"><div className="db-event-date" style={{ background:c }}><div className="db-event-day">{d}</div><div className="db-event-mon">{m}</div></div><div className="db-event-body"><div className="db-event-title">{t}</div><div className="db-event-sub">{s}</div></div></div>
+              ))}
+            </div>
+          </div>
+
+          <div className="db-card db-col-3">
+            <div className="db-card-header"><div className="db-card-title">AI Insights</div></div>
+            <div className="db-ai-insights">
+              <br/>
+              {aiLoading ? (
+                <div style={{ padding: '20px', textAlign: 'center', color: '#6B7280', fontSize: '13px' }}>
+                  <div className="db-spin" style={{ display: 'inline-block', width: '16px', height: '16px', border: '2px solid #8b5cf6', borderTopColor: 'transparent', borderRadius: '50%', marginBottom: '8px' }}></div><br />
+                  Generating insights...
+                </div>
+              ) : displayInsights && displayInsights.length > 0 ? (
+                displayInsights.map((text,i)=>{const colors=["#059669","#6366F1","#F97316","#3B82F6","#EAB308"];return<div key={i} className="db-ai-item"><div className="db-ai-dot" style={{ background:colors[i%colors.length] }}/><div className="db-ai-text">{text}</div></div>;})
+              ) : (
+                <div className="db-empty" style={{padding: "10px"}}>AI has no new insights.</div>
+              )}
+            </div>
+          </div>
+
+          <div className="db-card db-col-3">
+            <div className="db-card-header"><div className="db-card-title">My Task Breakdown</div></div>
+            <div className="db-bar-list">
+              <br/>
+              {[["To Do",myTasks.filter(t=>t.status==="To Do").length,"#F97316"],["In Progress",myTasks.filter(t=>t.status==="In Progress").length,"#3B82F6"],["Completed",myTasks.filter(t=>t.status==="Completed").length,"#22C55E"]].map(([label,val,color],i)=>{const max=Math.max(1,myTasks.length);return<div key={i} className="db-bar-item"><div className="db-bar-label"><span>{label}</span><span style={{ fontWeight:600 }}>{val}</span></div><div className="db-bar-track"><div className="db-bar-fill" style={{ width:`${Math.round((val/max)*100)}%`,background:color }}/></div></div>;})} 
+            </div>
+          </div>
+
+          <div className="db-card db-col-3">
+            <div className="db-card-header"><div className="db-card-title">Leave Summary</div></div>
+            <div className="db-card-body" style={{ display:"flex",flexDirection:"column",alignItems:"center",gap:12 }}>
+              <div className="db-donut-wrap" style={{ position:"relative", height: "160px", width: "100%", display: "flex", justifyContent: "center" }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={[{name:"Used",value:30-leaveBal},{name:"Remaining",value:leaveBal}]} cx="50%" cy="50%" innerRadius={58} outerRadius={76} dataKey="value" stroke="none" cornerRadius={6}>
+                      {["#EF4444","#059669"].map((c,i)=><Cell key={i} fill={c}/>)}
+                    </Pie>
+                    <Tooltip contentStyle={{ fontSize:11,borderRadius:8, border: "none", boxShadow: "0 10px 25px -5px rgba(0,0,0,0.2)" }}/>
+                  </PieChart>
+                </ResponsiveContainer>
               </div>
             </div>
           </div>
 
-          <div className="db-main-right">
-            <div className="db-profile-card">
-              <div className="db-profile-banner profile-banner-employee"/>
-              <div className="db-profile-avatar profile-avatar-employee">{(user?.name||"E")[0].toUpperCase()}</div>
-              <div className="db-profile-body">
-                <div className="db-profile-name">{user?.name||"Employee"}</div>
-                <div className="db-profile-role">{user?.department||"Employee"}</div>
-                <span className="db-profile-badge profile-badge-employee">Employee</span>
-                <div className="db-profile-info">
-                  <div className="db-profile-info-row"><span className="db-profile-info-label">Emp ID</span><span className="db-profile-info-val">EMP-{String(user?.id||4001).padStart(4,"0")}</span></div>
-                  <div className="db-profile-info-row"><span className="db-profile-info-label">Email</span><span className="db-profile-info-val" style={{ fontSize:11 }}>{user?.email||"—"}</span></div>
-                  <div className="db-profile-info-row"><span className="db-profile-info-label">Attendance</span><span className="db-profile-info-val">{attendPct}% this month</span></div>
-                </div>
-                <button className="db-profile-btn" onClick={()=>navigate("/profile")}>View Profile <ArrowRight size={13}/></button>
-              </div>
+          <div className="db-card db-col-3">
+            <div className="db-card-header">
+              <div className="db-card-title">Monthly Salary</div>
+              <span style={{ fontSize: 11, color: "#6B7280" }}>This Month</span>
             </div>
-            <div className="db-card">
-              <div className="db-card-header"><div className="db-card-title">Notifications</div></div>
-              <div className="db-notif-list">
-                {notifications.length>0?notifications.map((n,i)=>{const colors=["#059669","#6366F1","#F97316","#3B82F6","#EAB308"];return<div key={i} className="db-notif-item"><div className="db-notif-dot" style={{ background:colors[i%colors.length] }}/><div className="db-notif-body"><div className="db-notif-text">{n.text||n.message}</div><div className="db-notif-time">{n.time?fmtTime(n.time):"Now"}</div></div></div>;})
-                :[["Leave request submitted","#22C55E"],["Task assigned to you","#6366F1"],["Attendance marked","#059669"],["Payslip generated","#3B82F6"]].map(([t,c],i)=>(
-                  <div key={i} className="db-notif-item"><div className="db-notif-dot" style={{ background:c }}/><div className="db-notif-body"><div className="db-notif-text">{t}</div><div className="db-notif-time">09:{String(30+i*5).padStart(2,"0")} AM</div></div></div>
-                ))}
-              </div>
-            </div>
-            <div className="db-card">
-              <div className="db-card-header"><div className="db-card-title">Upcoming Events</div></div>
-              <div className="db-event-list">
-                {upcomingEvents.length>0?upcomingEvents.map((ev,i)=>(
-                  <div key={i} className="db-event-item"><div className="db-event-date" style={{ background:ev.color }}><div className="db-event-day">{ev.day}</div><div className="db-event-mon">{ev.mon}</div></div><div className="db-event-body"><div className="db-event-title">{ev.title}</div><div className="db-event-sub">{ev.sub}</div></div></div>
-                )):[["05","SEP","Task Deadline","Project","#059669"],["12","SEP","Team Meeting","General","#6366F1"],["20","SEP","Performance Review","HR","#F97316"]].map(([d,m,t,s,c],i)=>(
-                  <div key={i} className="db-event-item"><div className="db-event-date" style={{ background:c }}><div className="db-event-day">{d}</div><div className="db-event-mon">{m}</div></div><div className="db-event-body"><div className="db-event-title">{t}</div><div className="db-event-sub">{s}</div></div></div>
-                ))}
+            <div className="db-card-body" style={{ padding: 0 }}>
+              <div className="db-profit-val">{fmtINR(mySalary)}</div>
+              <div className="db-profit-sub">Net salary this month</div>
+              <div style={{ width: "100%", height: "120px" }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={SPARK.map((v,i)=>({m:i+1,v}))}>
+                    <Line type="monotone" dataKey="v" stroke="#059669" strokeWidth={3} dot={false}/>
+                  </LineChart>
+                </ResponsiveContainer>
               </div>
             </div>
           </div>
-        </div>
-
-        <div className="db-bottom-grid">
-          <div className="db-card"><div className="db-card-header"><div className="db-card-title">AI Insights</div></div><div className="db-ai-insights">
-            {aiLoading ? (
-              <div style={{ padding: '20px', textAlign: 'center', color: '#6B7280', fontSize: '13px' }}>
-                <div className="db-spin" style={{ display: 'inline-block', width: '16px', height: '16px', border: '2px solid #8b5cf6', borderTopColor: 'transparent', borderRadius: '50%', marginBottom: '8px' }}></div><br />
-                Generating insights...
-              </div>
-            ) : displayInsights && displayInsights.length > 0 ? (
-              displayInsights.map((text,i)=>{const colors=["#059669","#6366F1","#F97316","#3B82F6","#EAB308"];return<div key={i} className="db-ai-item"><div className="db-ai-dot" style={{ background:colors[i%colors.length] }}/><div className="db-ai-text">{text}</div></div>;})
-            ) : (
-              <div className="db-empty" style={{padding: "10px"}}>AI has no new insights.</div>
-            )}
-          </div></div>
-          <div className="db-card"><div className="db-card-header"><div className="db-card-title">My Task Breakdown</div></div><div className="db-bar-list">{[["To Do",myTasks.filter(t=>t.status==="To Do").length,"#F97316"],["In Progress",myTasks.filter(t=>t.status==="In Progress").length,"#3B82F6"],["Completed",myTasks.filter(t=>t.status==="Completed").length,"#22C55E"]].map(([label,val,color],i)=>{const max=Math.max(1,myTasks.length);return<div key={i} className="db-bar-item"><div className="db-bar-label"><span>{label}</span><span style={{ fontWeight:600 }}>{val}</span></div><div className="db-bar-track"><div className="db-bar-fill" style={{ width:`${Math.round((val/max)*100)}%`,background:color }}/></div></div>;})} </div></div>
-          <div className="db-card"><div className="db-card-header"><div className="db-card-title">Leave Summary</div></div><div className="db-card-body" style={{ display:"flex",flexDirection:"column",alignItems:"center",gap:12 }}><div className="db-donut-wrap" style={{ position:"relative" }}><ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={[{name:"Used",value:30-leaveBal},{name:"Remaining",value:leaveBal}]} cx="50%" cy="50%" innerRadius={45} outerRadius={68} dataKey="value">{["#EF4444","#059669"].map((c,i)=><Cell key={i} fill={c}/>)}</Pie><Tooltip contentStyle={{ fontSize:11,borderRadius:8 }}/></PieChart></ResponsiveContainer></div></div></div>
-          <div className="db-card"><div className="db-card-header"><div className="db-card-title">Monthly Salary</div></div><div className="db-profit-val">{fmtINR(mySalary)}</div><div className="db-profit-sub">Net salary this month</div><div style={{ padding:"0 20px 16px" }}><div className="db-chart-wrap" style={{ height:100 }}><ResponsiveContainer width="100%" height="100%"><LineChart data={SPARK.map((v,i)=>({m:i+1,v}))}><Line type="monotone" dataKey="v" stroke="#059669" strokeWidth={2} dot={false}/></LineChart></ResponsiveContainer></div></div></div>
         </div>
 
       </div>

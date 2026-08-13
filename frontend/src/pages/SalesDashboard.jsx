@@ -151,140 +151,199 @@ const SalesDashboard = () => {
           ))}
         </div>
 
-        <div className="db-main-grid">
-          <div className="db-main-left">
-            <div className="db-card">
-              <div className="db-card-header"><div className="db-card-title">Lead Pipeline</div></div>
-              <div className="db-status-list">
-                {[["New",leads.filter(l=>l.status==="New"||!l.status).length,"status-healthy"],["Qualified",leads.filter(l=>l.status==="Qualified").length,"status-healthy"],["Proposal",leads.filter(l=>l.status==="Proposal").length,"status-warning"],["Negotiation",leads.filter(l=>l.status==="Negotiation").length,"status-warning"],["Closed Won",closedDeals,"status-healthy"],["Lost",leads.filter(l=>l.status==="Lost").length,"status-critical"]].map(([n,v,cls],i)=>(
-                  <div key={i} className="db-status-row"><span className="db-status-name">{n}</span><span className={`db-status-badge ${cls}`}>{v}</span></div>
-                ))}
+        {/* ── Bento Grid ── */}
+        <div className="db-bento">
+          {/* Row 1 */}
+          <div className="db-card db-col-3">
+            <div className="db-profile-banner profile-banner-sales"/>
+            <div className="db-profile-avatar profile-avatar-sales">{(user?.name||"S")[0].toUpperCase()}</div>
+            <div className="db-profile-body">
+              <div className="db-profile-name">{user?.name||"Sales Rep"}</div>
+              <div className="db-profile-role">Sales Executive</div>
+              <span className="db-profile-badge profile-badge-sales">Sales Access</span>
+              <div className="db-profile-info">
+                <div className="db-profile-info-row"><span className="db-profile-info-label">Sales ID</span><span className="db-profile-info-val">SLS-{String(user?.id||5001).padStart(4,"0")}</span></div>
+                <div className="db-profile-info-row"><span className="db-profile-info-label">Email</span><span className="db-profile-info-val" style={{ fontSize:11 }}>{user?.email||"—"}</span></div>
+                <div className="db-profile-info-row"><span className="db-profile-info-label">Revenue</span><span className="db-profile-info-val">{fmtINR(totalRevenue)}</span></div>
               </div>
-            </div>
-            <div className="db-card">
-              <div className="db-card-header"><div className="db-card-title">Pending Tasks</div></div>
-              <div className="db-status-list">
-                {tasks.map((t,i)=><div key={i} className="db-status-row"><span className="db-status-name" style={{ fontSize:12 }}>{t.title}</span><span className={`db-status-badge ${t.priority==="High"?"status-critical":"status-warning"}`}>{t.priority||"Normal"}</span></div>)}
-                {tasks.length===0&&<div className="db-empty">No pending tasks 🎉</div>}
-              </div>
-            </div>
-          </div>
-
-          <div className="db-main-center">
-            <div className="db-chart-row">
-              <div className="db-card">
-                <div className="db-card-header"><div className="db-card-title">Sales Trend</div></div>
-                <div className="db-card-body">
-                  <div className="db-chart-wrap">
-                    {chartData.length>0?(
-                      <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={chartData} margin={{top:4,right:4,left:-20,bottom:0}}>
-                          <defs><linearGradient id="salesGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#DC2626" stopOpacity={0.2}/><stop offset="95%" stopColor="#DC2626" stopOpacity={0}/></linearGradient></defs>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false}/>
-                          <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize:10,fill:"#9CA3AF"}}/>
-                          <YAxis axisLine={false} tickLine={false} tick={{fontSize:10,fill:"#9CA3AF"}}/>
-                          <Tooltip contentStyle={{fontSize:12,borderRadius:8,border:"1px solid #E5E7EB"}}/>
-                          <Area type="monotone" dataKey="revenue" stroke="#DC2626" strokeWidth={2} fill="url(#salesGrad)" dot={false}/>
-                        </AreaChart>
-                      </ResponsiveContainer>
-                    ):<div className="db-empty">No sales data</div>}
-                  </div>
-                </div>
-              </div>
-              <div className="db-card">
-                <div className="db-card-header"><div className="db-card-title">Deal Pipeline</div></div>
-                <div className="db-card-body" style={{ display:"flex",flexDirection:"column",alignItems:"center",gap:12 }}>
-                  <div className="db-donut-wrap" style={{ position:"relative" }}>
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie data={pipelineData} cx="50%" cy="50%" innerRadius={45} outerRadius={68} dataKey="value">
-                          {["#DC2626","#F97316","#EAB308","#22C55E"].map((c,i)=><Cell key={i} fill={c}/>)}
-                        </Pie>
-                        <Tooltip contentStyle={{ fontSize:11,borderRadius:8 }}/>
-                      </PieChart>
-                    </ResponsiveContainer>
-                    <div style={{ position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",textAlign:"center" }}>
-                      <div style={{ fontSize:16,fontWeight:800,color:"#111827" }}>{leads.length}</div>
-                      <div style={{ fontSize:9,color:"#6B7280" }}>Total Leads</div>
-                    </div>
-                  </div>
-                  <div style={{ display:"flex",flexWrap:"wrap",gap:6,justifyContent:"center" }}>
-                    {[["Prospects","#DC2626"],["Qualified","#F97316"],["Proposal","#EAB308"],["Closed","#22C55E"]].map(([l,c],i)=>(
-                      <span key={i} style={{ fontSize:10,color:"#374151" }}><span style={{ color:c,fontWeight:700 }}>●</span> {l}</span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="db-card">
-              <div className="db-card-header"><div className="db-card-title">Recent Activity</div><span className="db-card-link" onClick={()=>navigate("/settings/audit-logs")}>View All</span></div>
-              <div className="db-activity-list">
-                {recentActivity.slice(0,5).map((a,i)=>{
-                  const lo=(a.text||"").toLowerCase();
-                  let Icon=Activity,bg="#FEF2F2",col="#DC2626";
-                  if(lo.includes("order")){Icon=ShoppingCart;bg="#DCFCE7";col="#22C55E";}
-                  else if(lo.includes("customer")){Icon=Users;bg="#DBEAFE";col="#3B82F6";}
-                  return <div key={i} className="db-activity-item"><div className="db-activity-icon" style={{ background:bg,color:col }}><Icon size={14}/></div><div className="db-activity-body"><div className="db-activity-title" style={{ textTransform:"capitalize" }}>{a.type||"Activity"}</div><div className="db-activity-desc">{a.text}</div></div><div className="db-activity-time">{fmtTime(a.time)}</div></div>;
-                })}
-                {recentActivity.length===0&&<div className="db-empty">No recent activity</div>}
-              </div>
+              <button className="db-profile-btn" onClick={()=>navigate("/profile")}>View Profile <ArrowRight size={13}/></button>
             </div>
           </div>
 
-          <div className="db-main-right">
-            <div className="db-profile-card">
-              <div className="db-profile-banner profile-banner-sales"/>
-              <div className="db-profile-avatar profile-avatar-sales">{(user?.name||"S")[0].toUpperCase()}</div>
-              <div className="db-profile-body">
-                <div className="db-profile-name">{user?.name||"Sales Rep"}</div>
-                <div className="db-profile-role">Sales Executive</div>
-                <span className="db-profile-badge profile-badge-sales">Sales Access</span>
-                <div className="db-profile-info">
-                  <div className="db-profile-info-row"><span className="db-profile-info-label">Sales ID</span><span className="db-profile-info-val">SLS-{String(user?.id||5001).padStart(4,"0")}</span></div>
-                  <div className="db-profile-info-row"><span className="db-profile-info-label">Email</span><span className="db-profile-info-val" style={{ fontSize:11 }}>{user?.email||"—"}</span></div>
-                  <div className="db-profile-info-row"><span className="db-profile-info-label">Revenue</span><span className="db-profile-info-val">{fmtINR(totalRevenue)}</span></div>
+          <div className="db-card db-col-6" style={{ background: "#ffffff", border: "1px solid #e2e8f0", boxShadow: "0 10px 30px -10px rgba(220, 38, 38, 0.15)", position: "relative", overflow: "hidden", padding: 0, display: "flex", flexDirection: "column" }}>
+            <div className="db-card-header" style={{ borderBottom: "none", padding: "24px 24px 0 24px", margin: 0, display: "flex", justifyContent: "space-between", alignItems: "flex-start", width: "100%" }}>
+              <div>
+                <div className="db-card-title" style={{ color: "#64748b", fontSize: 13, textTransform: "uppercase", letterSpacing: "1px", fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>
+                  <TrendingUp size={16} color="#dc2626" />
+                  Sales Trend
                 </div>
-                <button className="db-profile-btn" onClick={()=>navigate("/profile")}>View Profile <ArrowRight size={13}/></button>
+                <div style={{ fontSize: 32, fontWeight: 900, color: "#0f172a", marginTop: 8, display: "flex", alignItems: "baseline", gap: 8 }}>
+                  {fmtINR(totalRevenue)}
+                  <span style={{ fontSize: 13, padding: "3px 10px", background: "#fef2f2", color: "#b91c1c", borderRadius: "12px", fontWeight: 700 }}>
+                    ↑ +8.4%
+                  </span>
+                </div>
               </div>
             </div>
-            <div className="db-card">
-              <div className="db-card-header"><div className="db-card-title">Notifications</div><span className="db-card-link" onClick={()=>navigate("/notifications")}>View All</span></div>
-              <div className="db-notif-list">
-                {notifications.slice(0,5).map((n,i)=>{const colors=["#DC2626","#22C55E","#6366F1","#F97316","#EAB308"];return<div key={i} className="db-notif-item"><div className="db-notif-dot" style={{ background:colors[i%colors.length] }}/><div className="db-notif-body"><div className="db-notif-text">{n.text}</div><div className="db-notif-time">{fmtTime(n.time)}</div></div></div>;}) }
-                {notifications.length===0&&[["New lead assigned to you","#DC2626"],["Order #1234 confirmed","#22C55E"],["Follow-up reminder: Client A","#F97316"],["Quote accepted by Customer B","#6366F1"]].map(([t,c],i)=>(
-                  <div key={i} className="db-notif-item"><div className="db-notif-dot" style={{ background:c }}/><div className="db-notif-body"><div className="db-notif-text">{t}</div><div className="db-notif-time">09:{String(30+i*5).padStart(2,"0")} AM</div></div></div>
-                ))}
-              </div>
+            <div style={{ flex: 1, minHeight: "220px", marginTop: "20px", padding: "0 20px 10px 0" }}>
+              {chartData.length>0?(
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={chartData} margin={{top:4,right:4,left:-20,bottom:0}}>
+                    <defs>
+                      <linearGradient id="salesGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#DC2626" stopOpacity={0.4}/>
+                        <stop offset="95%" stopColor="#DC2626" stopOpacity={0.05}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false}/>
+                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize:12,fill:"#94a3b8", fontWeight: 600}} dy={10}/>
+                    <YAxis axisLine={false} tickLine={false} tick={{fontSize:12,fill:"#94a3b8", fontWeight: 600}} dx={-10}/>
+                    <Tooltip cursor={{ stroke: '#fca5a5', strokeWidth: 2, strokeDasharray: '4 4' }} contentStyle={{fontSize:12,borderRadius:8,border:"none", boxShadow: "0 10px 25px -5px rgba(0,0,0,0.2)"}}/>
+                    <Area type="monotone" dataKey="revenue" stroke="#DC2626" strokeWidth={4} fill="url(#salesGrad)" activeDot={{ r: 6, fill: "#fff", stroke: "#dc2626", strokeWidth: 3 }}/>
+                  </AreaChart>
+                </ResponsiveContainer>
+              ):<div className="db-empty" style={{ paddingTop: "80px" }}>No sales data</div>}
             </div>
-            <div className="db-card">
-              <div className="db-card-header"><div className="db-card-title">Upcoming Events</div></div>
-              <div className="db-event-list">
-                {upcomingEvents.length>0?upcomingEvents.map((ev,i)=>(
-                  <div key={i} className="db-event-item"><div className="db-event-date" style={{ background:ev.color }}><div className="db-event-day">{ev.day}</div><div className="db-event-mon">{ev.mon}</div></div><div className="db-event-body"><div className="db-event-title">{ev.title}</div><div className="db-event-sub">{ev.sub}</div></div></div>
-                )):[["02","SEP","Sales Call","Client A","#DC2626"],["08","SEP","Product Demo","Client B","#6366F1"],["15","SEP","Quarter Review","Management","#22C55E"]].map(([d,m,t,s,c],i)=>(
-                  <div key={i} className="db-event-item"><div className="db-event-date" style={{ background:c }}><div className="db-event-day">{d}</div><div className="db-event-mon">{m}</div></div><div className="db-event-body"><div className="db-event-title">{t}</div><div className="db-event-sub">{s}</div></div></div>
+          </div>
+
+          <div className="db-card db-col-3">
+            <div className="db-card-header"><div className="db-card-title">Deal Pipeline</div></div>
+            <div className="db-card-body" style={{ display:"flex",flexDirection:"column",alignItems:"center",gap:12 }}>
+              <div className="db-donut-wrap" style={{ position:"relative", height: "160px", width: "100%", display: "flex", justifyContent: "center" }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={pipelineData} cx="50%" cy="50%" innerRadius={58} outerRadius={76} dataKey="value" stroke="none" cornerRadius={6}>
+                      {["#DC2626","#F97316","#EAB308","#22C55E"].map((c,i)=><Cell key={i} fill={c}/>)}
+                    </Pie>
+                    <Tooltip contentStyle={{ fontSize:11,borderRadius:8, border: "none", boxShadow: "0 10px 25px -5px rgba(0,0,0,0.2)" }}/>
+                  </PieChart>
+                </ResponsiveContainer>
+                <div style={{ position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",textAlign:"center", display: "flex", flexDirection: "column", alignItems: "center" }}>
+                  <div style={{ fontSize:26,fontWeight:800,color:"#111827", lineHeight: 1 }}>{leads.length}</div>
+                  <div style={{ fontSize:12,color:"#64748b", fontWeight: 700, marginTop: 4, textTransform: "uppercase", letterSpacing: "0.5px" }}>Leads</div>
+                </div>
+              </div>
+              <div style={{ display:"flex",flexWrap:"wrap",gap:8,justifyContent:"center", fontSize: 11, marginTop: 8 }}>
+                {[["Prospects","#DC2626"],["Qualified","#F97316"],["Proposal","#EAB308"],["Closed","#22C55E"]].map(([l,c],i)=>(
+                  <span key={i} style={{ color:"#64748b", fontWeight: 600 }}><span style={{ color:c,fontWeight:800 }}>●</span> {l}</span>
                 ))}
               </div>
             </div>
           </div>
-        </div>
 
-        <div className="db-bottom-grid">
-          <div className="db-card"><div className="db-card-header"><div className="db-card-title">AI Sales Insights</div></div><div className="db-ai-insights">
-            {aiLoading ? (
-              <div style={{ padding: '20px', textAlign: 'center', color: '#6B7280', fontSize: '13px' }}>
-                <div className="db-spin" style={{ display: 'inline-block', width: '16px', height: '16px', border: '2px solid #8b5cf6', borderTopColor: 'transparent', borderRadius: '50%', marginBottom: '8px' }}></div><br />
-                Generating insights...
+          {/* Row 2 */}
+          <div className="db-card db-col-3">
+            <div className="db-card-header"><div className="db-card-title">Lead Pipeline</div></div>
+            <div className="db-status-list">
+              {[["New",leads.filter(l=>l.status==="New"||!l.status).length,"status-healthy"],["Qualified",leads.filter(l=>l.status==="Qualified").length,"status-healthy"],["Proposal",leads.filter(l=>l.status==="Proposal").length,"status-warning"],["Negotiation",leads.filter(l=>l.status==="Negotiation").length,"status-warning"],["Closed Won",closedDeals,"status-healthy"],["Lost",leads.filter(l=>l.status==="Lost").length,"status-critical"]].map(([n,v,cls],i)=>(
+                <div key={i} className="db-status-row"><span className="db-status-name">{n}</span><span className={`db-status-badge ${cls}`}>{v}</span></div>
+              ))}
+            </div>
+          </div>
+
+          <div className="db-card db-col-6">
+            <div className="db-card-header"><div className="db-card-title">Recent Activity</div><span className="db-card-link" onClick={()=>navigate("/settings/audit-logs")}>View All</span></div>
+            <div className="db-activity-list">
+              {recentActivity.slice(0,5).map((a,i)=>{
+                const lo=(a.text||"").toLowerCase();
+                let Icon=Activity,bg="#FEF2F2",col="#DC2626";
+                if(lo.includes("order")){Icon=ShoppingCart;bg="#DCFCE7";col="#22C55E";}
+                else if(lo.includes("customer")){Icon=Users;bg="#DBEAFE";col="#3B82F6";}
+                return <div key={i} className="db-activity-item"><div className="db-activity-icon" style={{ background:bg,color:col }}><Icon size={14}/></div><div className="db-activity-body"><div className="db-activity-title" style={{ textTransform:"capitalize" }}>{a.type||"Activity"}</div><div className="db-activity-desc">{a.text}</div></div><div className="db-activity-time">{fmtTime(a.time)}</div></div>;
+              })}
+              {recentActivity.length===0&&<div className="db-empty">No recent activity</div>}
+            </div>
+          </div>
+
+          <div className="db-card db-col-3">
+            <div className="db-card-header"><div className="db-card-title">Notifications</div><span className="db-card-link" onClick={()=>navigate("/notifications")}>View All</span></div>
+            <div className="db-notif-list">
+              {notifications.slice(0,5).map((n,i)=>{const colors=["#DC2626","#22C55E","#6366F1","#F97316","#EAB308"];return<div key={i} className="db-notif-item"><div className="db-notif-dot" style={{ background:colors[i%colors.length] }}/><div className="db-notif-body"><div className="db-notif-text">{n.text}</div><div className="db-notif-time">{fmtTime(n.time)}</div></div></div>;}) }
+              {notifications.length===0&&[["New lead assigned to you","#DC2626"],["Order #1234 confirmed","#22C55E"],["Follow-up reminder: Client A","#F97316"],["Quote accepted by Customer B","#6366F1"]].map(([t,c],i)=>(
+                <div key={i} className="db-notif-item"><div className="db-notif-dot" style={{ background:c }}/><div className="db-notif-body"><div className="db-notif-text">{t}</div><div className="db-notif-time">09:{String(30+i*5).padStart(2,"0")} AM</div></div></div>
+              ))}
+            </div>
+          </div>
+
+          {/* Row 3 */}
+          <div className="db-card db-col-3">
+            <div className="db-card-header"><div className="db-card-title">Pending Tasks</div></div>
+            <div className="db-status-list">
+              {tasks.map((t,i)=><div key={i} className="db-status-row"><span className="db-status-name" style={{ fontSize:12 }}>{t.title}</span><span className={`db-status-badge ${t.priority==="High"?"status-critical":"status-warning"}`}>{t.priority||"Normal"}</span></div>)}
+              {tasks.length===0&&<div className="db-empty">No pending tasks 🎉</div>}
+            </div>
+          </div>
+
+          <div className="db-card db-col-3">
+            <div className="db-card-header"><div className="db-card-title">Upcoming Events</div></div>
+            <div className="db-event-list">
+              <br/>
+              {upcomingEvents.length>0?upcomingEvents.map((ev,i)=>(
+                <div key={i} className="db-event-item"><div className="db-event-date" style={{ background:ev.color }}><div className="db-event-day">{ev.day}</div><div className="db-event-mon">{ev.mon}</div></div><div className="db-event-body"><div className="db-event-title">{ev.title}</div><div className="db-event-sub">{ev.sub}</div></div></div>
+              )):[["02","SEP","Sales Call","Client A","#DC2626"],["08","SEP","Product Demo","Client B","#6366F1"],["15","SEP","Quarter Review","Management","#22C55E"]].map(([d,m,t,s,c],i)=>(
+                <div key={i} className="db-event-item"><div className="db-event-date" style={{ background:c }}><div className="db-event-day">{d}</div><div className="db-event-mon">{m}</div></div><div className="db-event-body"><div className="db-event-title">{t}</div><div className="db-event-sub">{s}</div></div></div>
+              ))}
+            </div>
+          </div>
+
+          <div className="db-card db-col-3">
+            <div className="db-card-header"><div className="db-card-title">AI Sales Insights</div></div>
+            <div className="db-ai-insights">
+              <br/>
+              {aiLoading ? (
+                <div style={{ padding: '20px', textAlign: 'center', color: '#6B7280', fontSize: '13px' }}>
+                  <div className="db-spin" style={{ display: 'inline-block', width: '16px', height: '16px', border: '2px solid #8b5cf6', borderTopColor: 'transparent', borderRadius: '50%', marginBottom: '8px' }}></div><br />
+                  Generating insights...
+                </div>
+              ) : displayInsights && displayInsights.length > 0 ? (
+                displayInsights.map((text,i)=>{const colors=["#DC2626","#22C55E","#6366F1","#F97316","#EAB308"];return<div key={i} className="db-ai-item"><div className="db-ai-dot" style={{ background:colors[i%colors.length] }}/><div className="db-ai-text">{text}</div></div>;})
+              ) : (
+                <div className="db-empty" style={{padding: "10px"}}>AI has no new insights.</div>
+              )}
+            </div>
+          </div>
+
+          <div className="db-card db-col-3">
+            <div className="db-card-header"><div className="db-card-title">Top Customers</div></div>
+            <div className="db-bar-list">
+              <br/>
+              {customers.slice(0,5).map((c,i)=>{const colors=["#DC2626","#F97316","#6366F1","#22C55E","#EAB308"];return<div key={i} className="db-bar-item"><div className="db-bar-label"><span>{c.name||c.companyName||`Customer ${i+1}`}</span><span style={{ fontWeight:600 }}>{c.totalOrders||i+1} orders</span></div><div className="db-bar-track"><div className="db-bar-fill" style={{ width:`${80-i*15}%`,background:colors[i] }}/></div></div>;})} {customers.length===0&&[["ABC Corp","#DC2626"],["XYZ Ltd","#F97316"],["PQR Inc","#6366F1"],["MNO Co","#22C55E"],["RST Pvt","#EAB308"]].map(([n,c],i)=><div key={i} className="db-bar-item"><div className="db-bar-label"><span>{n}</span><span style={{ fontWeight:600 }}>{5-i} orders</span></div><div className="db-bar-track"><div className="db-bar-fill" style={{ width:`${80-i*15}%`,background:c }}/></div></div>)}
+            </div>
+          </div>
+
+          <div className="db-card db-col-3">
+            <div className="db-card-header"><div className="db-card-title">Revenue by Segment</div></div>
+            <div className="db-card-body" style={{ display:"flex",flexDirection:"column",alignItems:"center",gap:12 }}>
+              <div className="db-donut-wrap" style={{ position:"relative", height: "160px", width: "100%", display: "flex", justifyContent: "center" }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={[{name:"Enterprise",value:45},{name:"SMB",value:30},{name:"Retail",value:15},{name:"Other",value:10}]} cx="50%" cy="50%" innerRadius={58} outerRadius={76} dataKey="value" stroke="none" cornerRadius={6}>
+                      {["#DC2626","#F97316","#EAB308","#9CA3AF"].map((c,i)=><Cell key={i} fill={c}/>)}
+                    </Pie>
+                    <Tooltip contentStyle={{ fontSize:11,borderRadius:8, border: "none", boxShadow: "0 10px 25px -5px rgba(0,0,0,0.2)" }}/>
+                  </PieChart>
+                </ResponsiveContainer>
               </div>
-            ) : displayInsights && displayInsights.length > 0 ? (
-              displayInsights.map((text,i)=>{const colors=["#DC2626","#22C55E","#6366F1","#F97316","#EAB308"];return<div key={i} className="db-ai-item"><div className="db-ai-dot" style={{ background:colors[i%colors.length] }}/><div className="db-ai-text">{text}</div></div>;})
-            ) : (
-              <div className="db-empty" style={{padding: "10px"}}>AI has no new insights.</div>
-            )}
-          </div></div>
-          <div className="db-card"><div className="db-card-header"><div className="db-card-title">Top Customers</div></div><div className="db-bar-list">{customers.slice(0,5).map((c,i)=>{const colors=["#DC2626","#F97316","#6366F1","#22C55E","#EAB308"];return<div key={i} className="db-bar-item"><div className="db-bar-label"><span>{c.name||c.companyName||`Customer ${i+1}`}</span><span style={{ fontWeight:600 }}>{c.totalOrders||i+1} orders</span></div><div className="db-bar-track"><div className="db-bar-fill" style={{ width:`${80-i*15}%`,background:colors[i] }}/></div></div>;})} {customers.length===0&&[["ABC Corp","#DC2626"],["XYZ Ltd","#F97316"],["PQR Inc","#6366F1"],["MNO Co","#22C55E"],["RST Pvt","#EAB308"]].map(([n,c],i)=><div key={i} className="db-bar-item"><div className="db-bar-label"><span>{n}</span><span style={{ fontWeight:600 }}>{5-i} orders</span></div><div className="db-bar-track"><div className="db-bar-fill" style={{ width:`${80-i*15}%`,background:c }}/></div></div>)}</div></div>
-          <div className="db-card"><div className="db-card-header"><div className="db-card-title">Revenue by Segment</div></div><div className="db-card-body" style={{ display:"flex",flexDirection:"column",alignItems:"center",gap:12 }}><div className="db-donut-wrap" style={{ position:"relative" }}><ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={[{name:"Enterprise",value:45},{name:"SMB",value:30},{name:"Retail",value:15},{name:"Other",value:10}]} cx="50%" cy="50%" innerRadius={45} outerRadius={68} dataKey="value">{["#DC2626","#F97316","#EAB308","#9CA3AF"].map((c,i)=><Cell key={i} fill={c}/>)}</Pie><Tooltip contentStyle={{ fontSize:11,borderRadius:8 }}/></PieChart></ResponsiveContainer></div></div></div>
-          <div className="db-card"><div className="db-card-header"><div className="db-card-title">Monthly Revenue</div></div><div className="db-profit-val">{fmtINR(totalRevenue)}</div><div className="db-profit-sub">↑ 18.4% vs last month</div><div style={{ padding:"0 20px 16px" }}><div className="db-chart-wrap" style={{ height:100 }}><ResponsiveContainer width="100%" height="100%"><LineChart data={SPARK.map((v,i)=>({m:i+1,v}))}><Line type="monotone" dataKey="v" stroke="#DC2626" strokeWidth={2} dot={false}/></LineChart></ResponsiveContainer></div></div></div>
+            </div>
+          </div>
+
+          <div className="db-card db-col-3">
+            <div className="db-card-header">
+              <div className="db-card-title">Monthly Revenue</div>
+              <span style={{ fontSize: 11, color: "#6B7280" }}>This Month</span>
+            </div>
+            <div className="db-card-body" style={{ padding: 0 }}>
+              <div className="db-profit-val">{fmtINR(totalRevenue)}</div>
+              <div className="db-profit-sub">↑ 18.4% vs last month</div>
+              <div style={{ width: "100%", height: "120px" }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={SPARK.map((v,i)=>({m:i+1,v}))}>
+                    <Line type="monotone" dataKey="v" stroke="#DC2626" strokeWidth={3} dot={false}/>
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
         </div>
 
       </div>

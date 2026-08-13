@@ -139,143 +139,205 @@ const CustomerDashboard = () => {
           ))}
         </div>
 
-        <div className="db-main-grid">
-          <div className="db-main-left">
-            <div className="db-card">
-              <div className="db-card-header"><div className="db-card-title">Order Status</div></div>
-              <div className="db-status-list">
-                {[["Pending",   pendingOrders,                                         "status-warning"],
-                  ["Processing",orders.filter(o=>o.status==="Processing").length,      "status-warning"],
-                  ["Shipped",   orders.filter(o=>o.status==="Shipped").length,         "status-healthy"],
-                  ["Delivered", deliveredOrds,                                          "status-healthy"],
-                  ["Cancelled", orders.filter(o=>o.status==="Cancelled").length,       "status-critical"],
-                ].map(([n,v,cls],i)=>(
-                  <div key={i} className="db-status-row"><span className="db-status-name">{n}</span><span className={`db-status-badge ${cls}`}>{v}</span></div>
-                ))}
+        {/* ── Bento Grid ── */}
+        <div className="db-bento">
+          {/* Row 1 */}
+          <div className="db-card db-col-3">
+            <div className="db-profile-banner profile-banner-customer"/>
+            <div className="db-profile-avatar profile-avatar-customer">{(profile?.name||user?.name||"C")[0].toUpperCase()}</div>
+            <div className="db-profile-body">
+              <div className="db-profile-name">{profile?.name||user?.name||"Customer"}</div>
+              <div className="db-profile-role">{profile?.type||"Customer"} Account</div>
+              <span className="db-profile-badge profile-badge-customer">Customer Access</span>
+              <div className="db-profile-info">
+                <div className="db-profile-info-row"><span className="db-profile-info-label">Customer ID</span><span className="db-profile-info-val">CUS-{String(user?.id||7001).padStart(4,"0")}</span></div>
+                <div className="db-profile-info-row"><span className="db-profile-info-label">Email</span><span className="db-profile-info-val" style={{ fontSize:11 }}>{profile?.email||user?.email||"—"}</span></div>
+                <div className="db-profile-info-row"><span className="db-profile-info-label">Total Spend</span><span className="db-profile-info-val">{fmtINR(totalSpend)}</span></div>
               </div>
-            </div>
-            <div className="db-card">
-              <div className="db-card-header"><div className="db-card-title">My Profile</div></div>
-              <div className="db-status-list">
-                <div className="db-status-row"><span className="db-status-name">Name</span><span className="db-status-badge status-healthy">{profile?.name||user?.name||"Customer"}</span></div>
-                <div className="db-status-row"><span className="db-status-name">Type</span><span className="db-status-badge status-healthy">{profile?.type||"Regular"}</span></div>
-                <div className="db-status-row"><span className="db-status-name">City</span><span className="db-status-badge status-healthy">{profile?.city||"—"}</span></div>
-                <div className="db-status-row"><span className="db-status-name">Member Since</span><span className="db-status-badge status-healthy">{profile?.createdAt?new Date(profile.createdAt).getFullYear():"2024"}</span></div>
-              </div>
+              <button className="db-profile-btn" onClick={()=>navigate("/profile")}>View Profile <ArrowRight size={13}/></button>
             </div>
           </div>
 
-          <div className="db-main-center">
-            <div className="db-chart-row">
-              <div className="db-card">
-                <div className="db-card-header"><div className="db-card-title">Order History</div></div>
-                <div className="db-card-body">
-                  <div className="db-chart-wrap">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={orderTrend} margin={{top:4,right:4,left:-20,bottom:0}}>
-                        <defs><linearGradient id="custGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#1D4ED8" stopOpacity={0.2}/><stop offset="95%" stopColor="#1D4ED8" stopOpacity={0}/></linearGradient></defs>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false}/>
-                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize:10,fill:"#9CA3AF"}}/>
-                        <YAxis axisLine={false} tickLine={false} tick={{fontSize:10,fill:"#9CA3AF"}}/>
-                        <Tooltip contentStyle={{fontSize:12,borderRadius:8,border:"1px solid #E5E7EB"}}/>
-                        <Area type="monotone" dataKey="orders" stroke="#1D4ED8" strokeWidth={2} fill="url(#custGrad)" dot={false}/>
-                      </AreaChart>
-                    </ResponsiveContainer>
-                  </div>
+          <div className="db-card db-col-6" style={{ background: "#ffffff", border: "1px solid #e2e8f0", boxShadow: "0 10px 30px -10px rgba(29, 78, 216, 0.15)", position: "relative", overflow: "hidden", padding: 0, display: "flex", flexDirection: "column" }}>
+            <div className="db-card-header" style={{ borderBottom: "none", padding: "24px 24px 0 24px", margin: 0, display: "flex", justifyContent: "space-between", alignItems: "flex-start", width: "100%" }}>
+              <div>
+                <div className="db-card-title" style={{ color: "#64748b", fontSize: 13, textTransform: "uppercase", letterSpacing: "1px", fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>
+                  <ShoppingCart size={16} color="#1d4ed8" />
+                  Order History
                 </div>
-              </div>
-              <div className="db-card">
-                <div className="db-card-header"><div className="db-card-title">Order Status Split</div></div>
-                <div className="db-card-body" style={{ display:"flex",flexDirection:"column",alignItems:"center",gap:12 }}>
-                  <div className="db-donut-wrap" style={{ position:"relative" }}>
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie data={statusData} cx="50%" cy="50%" innerRadius={45} outerRadius={68} dataKey="value">
-                          {["#EAB308","#3B82F6","#14B8A6","#22C55E","#EF4444"].map((c,i)=><Cell key={i} fill={c}/>)}
-                        </Pie>
-                        <Tooltip contentStyle={{ fontSize:11,borderRadius:8 }}/>
-                      </PieChart>
-                    </ResponsiveContainer>
-                    <div style={{ position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",textAlign:"center" }}>
-                      <div style={{ fontSize:16,fontWeight:800,color:"#111827" }}>{totalOrders}</div>
-                      <div style={{ fontSize:9,color:"#6B7280" }}>Orders</div>
-                    </div>
-                  </div>
+                <div style={{ fontSize: 32, fontWeight: 900, color: "#0f172a", marginTop: 8, display: "flex", alignItems: "baseline", gap: 8 }}>
+                  {totalOrders}
+                  <span style={{ fontSize: 13, padding: "3px 10px", background: "#dbeafe", color: "#1e40af", borderRadius: "12px", fontWeight: 700 }}>
+                    Orders
+                  </span>
                 </div>
               </div>
             </div>
-            <div className="db-card">
-              <div className="db-card-header"><div className="db-card-title">Recent Orders</div><span className="db-card-link" onClick={()=>navigate("/my-orders")}>View All</span></div>
-              <div className="db-activity-list">
-                {orders.slice(0,5).map((o,i)=>{
-                  const statusColors={Pending:"#EAB308",Processing:"#3B82F6",Shipped:"#14B8A6",Delivered:"#22C55E",Cancelled:"#EF4444"};
-                  const color=statusColors[o.status]||"#6B7280";
-                  return <div key={i} className="db-activity-item">
-                    <div className="db-activity-icon" style={{ background:"#DBEAFE",color:"#1D4ED8" }}><Package size={14}/></div>
-                    <div className="db-activity-body"><div className="db-activity-title">Order #{o.orderNumber||o._id?.slice(-4)||`00${i+1}`}</div><div className="db-activity-desc">{fmtINR(o.totalAmount||o.amount||0)} · <span style={{ color, fontWeight:600 }}>{o.status}</span></div></div>
-                    <div className="db-activity-time">{o.createdAt?fmtTime(o.createdAt):"—"}</div>
-                  </div>;
-                })}
-                {orders.length===0&&<div className="db-empty">No orders placed yet</div>}
-              </div>
+            <div style={{ flex: 1, minHeight: "220px", marginTop: "20px", padding: "0 20px 10px 0" }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={orderTrend} margin={{top:4,right:4,left:-20,bottom:0}}>
+                  <defs>
+                    <linearGradient id="custGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#1D4ED8" stopOpacity={0.4}/>
+                      <stop offset="95%" stopColor="#1D4ED8" stopOpacity={0.05}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false}/>
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize:12,fill:"#94a3b8", fontWeight: 600}} dy={10}/>
+                  <YAxis axisLine={false} tickLine={false} tick={{fontSize:12,fill:"#94a3b8", fontWeight: 600}} dx={-10}/>
+                  <Tooltip cursor={{ stroke: '#bfdbfe', strokeWidth: 2, strokeDasharray: '4 4' }} contentStyle={{fontSize:12,borderRadius:8,border:"none", boxShadow: "0 10px 25px -5px rgba(0,0,0,0.2)"}}/>
+                  <Area type="monotone" dataKey="orders" stroke="#1D4ED8" strokeWidth={4} fill="url(#custGrad)" activeDot={{ r: 6, fill: "#fff", stroke: "#1d4ed8", strokeWidth: 3 }}/>
+                </AreaChart>
+              </ResponsiveContainer>
             </div>
           </div>
 
-          <div className="db-main-right">
-            <div className="db-profile-card">
-              <div className="db-profile-banner profile-banner-customer"/>
-              <div className="db-profile-avatar profile-avatar-customer">{(profile?.name||user?.name||"C")[0].toUpperCase()}</div>
-              <div className="db-profile-body">
-                <div className="db-profile-name">{profile?.name||user?.name||"Customer"}</div>
-                <div className="db-profile-role">{profile?.type||"Customer"} Account</div>
-                <span className="db-profile-badge profile-badge-customer">Customer Access</span>
-                <div className="db-profile-info">
-                  <div className="db-profile-info-row"><span className="db-profile-info-label">Customer ID</span><span className="db-profile-info-val">CUS-{String(user?.id||7001).padStart(4,"0")}</span></div>
-                  <div className="db-profile-info-row"><span className="db-profile-info-label">Email</span><span className="db-profile-info-val" style={{ fontSize:11 }}>{profile?.email||user?.email||"—"}</span></div>
-                  <div className="db-profile-info-row"><span className="db-profile-info-label">Total Spend</span><span className="db-profile-info-val">{fmtINR(totalSpend)}</span></div>
+          <div className="db-card db-col-3">
+            <div className="db-card-header"><div className="db-card-title">Order Status Split</div></div>
+            <div className="db-card-body" style={{ display:"flex",flexDirection:"column",alignItems:"center",gap:12 }}>
+              <div className="db-donut-wrap" style={{ position:"relative", height: "160px", width: "100%", display: "flex", justifyContent: "center" }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={statusData} cx="50%" cy="50%" innerRadius={58} outerRadius={76} dataKey="value" stroke="none" cornerRadius={6}>
+                      {["#EAB308","#3B82F6","#14B8A6","#22C55E","#EF4444"].map((c,i)=><Cell key={i} fill={c}/>)}
+                    </Pie>
+                    <Tooltip contentStyle={{ fontSize:11,borderRadius:8, border: "none", boxShadow: "0 10px 25px -5px rgba(0,0,0,0.2)" }}/>
+                  </PieChart>
+                </ResponsiveContainer>
+                <div style={{ position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",textAlign:"center", display: "flex", flexDirection: "column", alignItems: "center" }}>
+                  <div style={{ fontSize:26,fontWeight:800,color:"#111827", lineHeight: 1 }}>{totalOrders}</div>
+                  <div style={{ fontSize:12,color:"#64748b", fontWeight: 700, marginTop: 4, textTransform: "uppercase", letterSpacing: "0.5px" }}>Orders</div>
                 </div>
-                <button className="db-profile-btn" onClick={()=>navigate("/profile")}>View Profile <ArrowRight size={13}/></button>
               </div>
-            </div>
-
-            <div className="db-card">
-              <div className="db-card-header"><div className="db-card-title">Notifications</div></div>
-              <div className="db-notif-list">
-                {[["Your order is being processed","#1D4ED8"],["New order shipped","#14B8A6"],["Delivery confirmed","#22C55E"],["Invoice generated","#6366F1"],["Special offer available","#F97316"]].map(([t,c],i)=>(
-                  <div key={i} className="db-notif-item"><div className="db-notif-dot" style={{ background:c }}/><div className="db-notif-body"><div className="db-notif-text">{t}</div><div className="db-notif-time">09:{String(30+i*5).padStart(2,"0")} AM</div></div></div>
-                ))}
-              </div>
-            </div>
-
-            <div className="db-card">
-              <div className="db-card-header"><div className="db-card-title">Upcoming Deliveries</div></div>
-              <div className="db-event-list">
-                {upcomingDeliveries.length>0?upcomingDeliveries.map((ev,i)=>(
-                  <div key={i} className="db-event-item"><div className="db-event-date" style={{ background:ev.color }}><div className="db-event-day">{ev.day}</div><div className="db-event-mon">{ev.mon}</div></div><div className="db-event-body"><div className="db-event-title">{ev.title}</div><div className="db-event-sub">{ev.sub}</div></div></div>
-                )):[["05","SEP","Order #7001","Delivery Expected","#1D4ED8"],["12","SEP","Order #7002","Processing","#22C55E"]].map(([d,m,t,s,c],i)=>(
-                  <div key={i} className="db-event-item"><div className="db-event-date" style={{ background:c }}><div className="db-event-day">{d}</div><div className="db-event-mon">{m}</div></div><div className="db-event-body"><div className="db-event-title">{t}</div><div className="db-event-sub">{s}</div></div></div>
+              <div style={{ display:"flex",flexWrap:"wrap",gap:8,justifyContent:"center", fontSize: 11, marginTop: 8 }}>
+                {[["Pending","#EAB308"],["Processing","#3B82F6"],["Shipped","#14B8A6"],["Delivered","#22C55E"]].map(([l,c],i)=>(
+                  <span key={i} style={{ color:"#64748b", fontWeight: 600 }}><span style={{ color:c,fontWeight:800 }}>●</span> {l}</span>
                 ))}
               </div>
             </div>
           </div>
-        </div>
 
-        <div className="db-bottom-grid">
-          <div className="db-card"><div className="db-card-header"><div className="db-card-title">AI Insights</div></div><div className="db-ai-insights">
-            {aiLoading ? (
-              <div style={{ padding: '20px', textAlign: 'center', color: '#6B7280', fontSize: '13px' }}>
-                <div className="db-spin" style={{ display: 'inline-block', width: '16px', height: '16px', border: '2px solid #8b5cf6', borderTopColor: 'transparent', borderRadius: '50%', marginBottom: '8px' }}></div><br />
-                Generating insights...
+          {/* Row 2 */}
+          <div className="db-card db-col-3">
+            <div className="db-card-header"><div className="db-card-title">Order Status</div></div>
+            <div className="db-status-list">
+              {[["Pending",   pendingOrders,                                         "status-warning"],
+                ["Processing",orders.filter(o=>o.status==="Processing").length,      "status-warning"],
+                ["Shipped",   orders.filter(o=>o.status==="Shipped").length,         "status-healthy"],
+                ["Delivered", deliveredOrds,                                          "status-healthy"],
+                ["Cancelled", orders.filter(o=>o.status==="Cancelled").length,       "status-critical"],
+              ].map(([n,v,cls],i)=>(
+                <div key={i} className="db-status-row"><span className="db-status-name">{n}</span><span className={`db-status-badge ${cls}`}>{v}</span></div>
+              ))}
+            </div>
+          </div>
+
+          <div className="db-card db-col-6">
+            <div className="db-card-header"><div className="db-card-title">Recent Orders</div><span className="db-card-link" onClick={()=>navigate("/my-orders")}>View All</span></div>
+            <div className="db-activity-list">
+              {orders.slice(0,5).map((o,i)=>{
+                const statusColors={Pending:"#EAB308",Processing:"#3B82F6",Shipped:"#14B8A6",Delivered:"#22C55E",Cancelled:"#EF4444"};
+                const color=statusColors[o.status]||"#6B7280";
+                return <div key={i} className="db-activity-item">
+                  <div className="db-activity-icon" style={{ background:"#DBEAFE",color:"#1D4ED8" }}><Package size={14}/></div>
+                  <div className="db-activity-body"><div className="db-activity-title">Order #{o.orderNumber||o._id?.slice(-4)||`00${i+1}`}</div><div className="db-activity-desc">{fmtINR(o.totalAmount||o.amount||0)} · <span style={{ color, fontWeight:600 }}>{o.status}</span></div></div>
+                  <div className="db-activity-time">{o.createdAt?fmtTime(o.createdAt):"—"}</div>
+                </div>;
+              })}
+              {orders.length===0&&<div className="db-empty">No orders placed yet</div>}
+            </div>
+          </div>
+
+          <div className="db-card db-col-3">
+            <div className="db-card-header"><div className="db-card-title">Notifications</div></div>
+            <div className="db-notif-list">
+              {[["Your order is being processed","#1D4ED8"],["New order shipped","#14B8A6"],["Delivery confirmed","#22C55E"],["Invoice generated","#6366F1"],["Special offer available","#F97316"]].map(([t,c],i)=>(
+                <div key={i} className="db-notif-item"><div className="db-notif-dot" style={{ background:c }}/><div className="db-notif-body"><div className="db-notif-text">{t}</div><div className="db-notif-time">09:{String(30+i*5).padStart(2,"0")} AM</div></div></div>
+              ))}
+            </div>
+          </div>
+
+          {/* Row 3 */}
+          <div className="db-card db-col-3">
+            <div className="db-card-header"><div className="db-card-title">My Profile</div></div>
+            <div className="db-status-list">
+              <div className="db-status-row"><span className="db-status-name">Name</span><span className="db-status-badge status-healthy">{profile?.name||user?.name||"Customer"}</span></div>
+              <div className="db-status-row"><span className="db-status-name">Type</span><span className="db-status-badge status-healthy">{profile?.type||"Regular"}</span></div>
+              <div className="db-status-row"><span className="db-status-name">City</span><span className="db-status-badge status-healthy">{profile?.city||"—"}</span></div>
+              <div className="db-status-row"><span className="db-status-name">Member Since</span><span className="db-status-badge status-healthy">{profile?.createdAt?new Date(profile.createdAt).getFullYear():"2024"}</span></div>
+            </div>
+          </div>
+
+          <div className="db-card db-col-3">
+            <div className="db-card-header"><div className="db-card-title">Upcoming Deliveries</div></div>
+            <div className="db-event-list">
+              <br/>
+              {upcomingDeliveries.length>0?upcomingDeliveries.map((ev,i)=>(
+                <div key={i} className="db-event-item"><div className="db-event-date" style={{ background:ev.color }}><div className="db-event-day">{ev.day}</div><div className="db-event-mon">{ev.mon}</div></div><div className="db-event-body"><div className="db-event-title">{ev.title}</div><div className="db-event-sub">{ev.sub}</div></div></div>
+              )):[["05","SEP","Order #7001","Delivery Expected","#1D4ED8"],["12","SEP","Order #7002","Processing","#22C55E"]].map(([d,m,t,s,c],i)=>(
+                <div key={i} className="db-event-item"><div className="db-event-date" style={{ background:c }}><div className="db-event-day">{d}</div><div className="db-event-mon">{m}</div></div><div className="db-event-body"><div className="db-event-title">{t}</div><div className="db-event-sub">{s}</div></div></div>
+              ))}
+            </div>
+          </div>
+
+          <div className="db-card db-col-3">
+            <div className="db-card-header"><div className="db-card-title">AI Insights</div></div>
+            <div className="db-ai-insights">
+              <br/>
+              {aiLoading ? (
+                <div style={{ padding: '20px', textAlign: 'center', color: '#6B7280', fontSize: '13px' }}>
+                  <div className="db-spin" style={{ display: 'inline-block', width: '16px', height: '16px', border: '2px solid #8b5cf6', borderTopColor: 'transparent', borderRadius: '50%', marginBottom: '8px' }}></div><br />
+                  Generating insights...
+                </div>
+              ) : displayInsights && displayInsights.length > 0 ? (
+                displayInsights.map((text,i)=>{const colors=["#1D4ED8","#22C55E","#F97316","#6366F1","#EAB308"];return<div key={i} className="db-ai-item"><div className="db-ai-dot" style={{ background:colors[i%colors.length] }}/><div className="db-ai-text">{text}</div></div>;})
+              ) : (
+                <div className="db-empty" style={{padding: "10px"}}>AI has no new insights.</div>
+              )}
+            </div>
+          </div>
+
+          <div className="db-card db-col-3">
+            <div className="db-card-header"><div className="db-card-title">Order History Breakdown</div></div>
+            <div className="db-bar-list">
+              <br/>
+              {[["Delivered",deliveredOrds,"#22C55E"],["Processing",orders.filter(o=>o.status==="Processing").length,"#3B82F6"],["Pending",pendingOrders,"#EAB308"],["Cancelled",orders.filter(o=>o.status==="Cancelled").length,"#EF4444"]].map(([label,val,color],i)=>{const max=Math.max(1,totalOrders);return<div key={i} className="db-bar-item"><div className="db-bar-label"><span>{label}</span><span style={{ fontWeight:600 }}>{val}</span></div><div className="db-bar-track"><div className="db-bar-fill" style={{ width:`${Math.round((val/max)*100)}%`,background:color }}/></div></div>;})} 
+            </div>
+          </div>
+
+          <div className="db-card db-col-3">
+            <div className="db-card-header"><div className="db-card-title">Order Status</div></div>
+            <div className="db-card-body" style={{ display:"flex",flexDirection:"column",alignItems:"center",gap:12 }}>
+              <div className="db-donut-wrap" style={{ position:"relative", height: "160px", width: "100%", display: "flex", justifyContent: "center" }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={statusData} cx="50%" cy="50%" innerRadius={58} outerRadius={76} dataKey="value" stroke="none" cornerRadius={6}>
+                      {["#EAB308","#3B82F6","#14B8A6","#22C55E","#EF4444"].map((c,i)=><Cell key={i} fill={c}/>)}
+                    </Pie>
+                    <Tooltip contentStyle={{ fontSize:11,borderRadius:8, border: "none", boxShadow: "0 10px 25px -5px rgba(0,0,0,0.2)" }}/>
+                  </PieChart>
+                </ResponsiveContainer>
               </div>
-            ) : displayInsights && displayInsights.length > 0 ? (
-              displayInsights.map((text,i)=>{const colors=["#1D4ED8","#22C55E","#F97316","#6366F1","#EAB308"];return<div key={i} className="db-ai-item"><div className="db-ai-dot" style={{ background:colors[i%colors.length] }}/><div className="db-ai-text">{text}</div></div>;})
-            ) : (
-              <div className="db-empty" style={{padding: "10px"}}>AI has no new insights.</div>
-            )}
-          </div></div>
-          <div className="db-card"><div className="db-card-header"><div className="db-card-title">Order History Breakdown</div></div><div className="db-bar-list">{[["Delivered",deliveredOrds,"#22C55E"],["Processing",orders.filter(o=>o.status==="Processing").length,"#3B82F6"],["Pending",pendingOrders,"#EAB308"],["Cancelled",orders.filter(o=>o.status==="Cancelled").length,"#EF4444"]].map(([label,val,color],i)=>{const max=Math.max(1,totalOrders);return<div key={i} className="db-bar-item"><div className="db-bar-label"><span>{label}</span><span style={{ fontWeight:600 }}>{val}</span></div><div className="db-bar-track"><div className="db-bar-fill" style={{ width:`${Math.round((val/max)*100)}%`,background:color }}/></div></div>;})} </div></div>
-          <div className="db-card"><div className="db-card-header"><div className="db-card-title">Order Status</div></div><div className="db-card-body" style={{ display:"flex",flexDirection:"column",alignItems:"center",gap:12 }}><div className="db-donut-wrap" style={{ position:"relative" }}><ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={statusData} cx="50%" cy="50%" innerRadius={45} outerRadius={68} dataKey="value">{["#EAB308","#3B82F6","#14B8A6","#22C55E","#EF4444"].map((c,i)=><Cell key={i} fill={c}/>)}</Pie><Tooltip contentStyle={{ fontSize:11,borderRadius:8 }}/></PieChart></ResponsiveContainer></div></div></div>
-          <div className="db-card"><div className="db-card-header"><div className="db-card-title">Total Spend</div></div><div className="db-profit-val">{fmtINR(totalSpend)}</div><div className="db-profit-sub">Lifetime purchase value</div><div style={{ padding:"0 20px 16px" }}><div className="db-chart-wrap" style={{ height:100 }}><ResponsiveContainer width="100%" height="100%"><LineChart data={SPARK.map((v,i)=>({m:i+1,v}))}><Line type="monotone" dataKey="v" stroke="#1D4ED8" strokeWidth={2} dot={false}/></LineChart></ResponsiveContainer></div></div></div>
+            </div>
+          </div>
+
+          <div className="db-card db-col-3">
+            <div className="db-card-header">
+              <div className="db-card-title">Total Spend</div>
+              <span style={{ fontSize: 11, color: "#6B7280" }}>Lifetime</span>
+            </div>
+            <div className="db-card-body" style={{ padding: 0 }}>
+              <div className="db-profit-val">{fmtINR(totalSpend)}</div>
+              <div className="db-profit-sub">Lifetime purchase value</div>
+              <div style={{ width: "100%", height: "120px" }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={SPARK.map((v,i)=>({m:i+1,v}))}>
+                    <Line type="monotone" dataKey="v" stroke="#1D4ED8" strokeWidth={3} dot={false}/>
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
         </div>
 
       </div>

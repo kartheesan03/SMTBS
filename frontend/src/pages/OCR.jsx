@@ -141,6 +141,7 @@ const DocumentIntelligence = () => {
   const [previewUrl, setPreviewUrl] = useState(null);
 
   const [workflowState, setWorkflowState] = useState("idle"); // idle | processing | extracted | failed
+  const [processingStep, setProcessingStep] = useState(0); // 0: uploading, 1: analyzing, 2: extracting, 3: structuring
   const [extractionData, setExtractionData] = useState(null);
   const [errorDetails, setErrorDetails] = useState("");
   const [isSaving, setIsSaving] = useState(false);
@@ -177,7 +178,15 @@ const DocumentIntelligence = () => {
 
   const performExtraction = async (fileToProcess) => {
     setWorkflowState("processing");
+    setProcessingStep(0);
     setErrorDetails("");
+    
+    // Simulate progression steps for UX
+    const timers = [
+      setTimeout(() => setProcessingStep(1), 1500),
+      setTimeout(() => setProcessingStep(2), 3500),
+      setTimeout(() => setProcessingStep(3), 6000),
+    ];
     const formData = new FormData();
     formData.append("file", fileToProcess);
 
@@ -191,6 +200,7 @@ const DocumentIntelligence = () => {
         if (!data.sections && data.tables) {
           data.sections = data.tables.map((t) => ({ ...t, type: t.type || "table" }));
         }
+        timers.forEach(clearTimeout);
         setExtractionData(data);
         setWorkflowState("extracted");
         toast.success("Document extracted successfully");
@@ -198,6 +208,7 @@ const DocumentIntelligence = () => {
         throw new Error(response.data.error || "OCR failed.");
       }
     } catch (err) {
+      timers.forEach(clearTimeout);
       setWorkflowState("failed");
       setErrorDetails(err.response?.data?.error || err.message || "Failed to extract data.");
       toast.error("Extraction failed.");
@@ -398,8 +409,8 @@ const DocumentIntelligence = () => {
         <>
           <div className="doc-intel-header">
             <div className="doc-intel-header-left">
-              <h1>OCR Tool</h1>
-              <p>Upload any supported document to extract and review structured data.</p>
+              <h1>Universal Document Extraction</h1>
+              <p>Upload any supported document or image file to automatically extract structured data.</p>
             </div>
           </div>
 
@@ -413,8 +424,8 @@ const DocumentIntelligence = () => {
             >
               <div className="empty-state">
                 <Upload size={40} color={isDragging ? "var(--blue)" : "var(--ink-soft)"} />
-                <h2>Drag &amp; Drop your document here</h2>
-                <p>PDF • PNG • JPG • JPEG • DOCX &amp; more supported</p>
+                <h2>Drag &amp; Drop any document or image</h2>
+                <p>PDF • DOC • DOCX • PNG • JPG • TIFF &amp; more supported</p>
                 <input ref={fileInputRef} type="file" style={{ display: "none" }} onChange={handleFileChange} />
                 <button className="btn btn-primary" onClick={() => fileInputRef.current?.click()}>
                   <Plus size={14} /> Browse Files
@@ -432,22 +443,40 @@ const DocumentIntelligence = () => {
         <div className="doc-intel-main" style={{ padding: "0 32px 32px" }}>
           <div className="doc-intel-header">
             <div className="doc-intel-header-left">
-              <h1>OCR Tool</h1>
-              <p>Extracting structured data from your document…</p>
+              <h1>Universal Document Extraction</h1>
+              <p>Processing your file...</p>
             </div>
           </div>
           <div className="upload-status">
             <div className="upload-meta">
-              <div className="meta-item"><span>Document Name</span><span>{file?.name}</span></div>
-              <div className="meta-item"><span>File Type</span><span>{getFileExt(file?.name)}</span></div>
-              <div className="meta-item"><span>File Size</span><span>{formatBytes(file?.size)}</span></div>
-              <div className="meta-item"><span>Upload Status</span><span style={{ color: "var(--green)" }}>Complete ✓</span></div>
+              <div className="meta-item"><span>File</span><span>{file?.name}</span></div>
+              <div className="meta-item"><span>Format</span><span>{getFileExt(file?.name)}</span></div>
+              <div className="meta-item"><span>Size</span><span>{formatBytes(file?.size)}</span></div>
+              <div className="meta-item"><span>Upload</span><span style={{ color: "var(--green)" }}>Complete ✓</span></div>
             </div>
-            <Loader2 size={32} className="animate-spin" color="var(--blue)" style={{ marginBottom: 12 }} />
-            <h3 style={{ margin: "0 0 6px", fontSize: 16 }}>Extracting Document</h3>
-            <p style={{ color: "var(--ink-soft)", margin: 0, fontSize: 13 }}>
-              Our AI is reading and structuring your document. This may take a moment…
-            </p>
+            
+            <div style={{ marginTop: 24, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <Loader2 size={32} className="animate-spin" color="var(--blue)" style={{ marginBottom: 16 }} />
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, width: '100%', maxWidth: 300 }}>
+                <div className={`step-indicator ${processingStep >= 0 ? 'active' : ''}`}>
+                   {processingStep > 0 ? <CheckCircle2 size={16} color="var(--green)" /> : (processingStep === 0 ? <Loader2 size={16} className="animate-spin" /> : <div className="step-dot" />)}
+                   <span>Uploading &amp; Identifying Format...</span>
+                </div>
+                <div className={`step-indicator ${processingStep >= 1 ? 'active' : ''}`}>
+                   {processingStep > 1 ? <CheckCircle2 size={16} color="var(--green)" /> : (processingStep === 1 ? <Loader2 size={16} className="animate-spin" /> : <div className="step-dot" />)}
+                   <span>Analyzing Document Structure...</span>
+                </div>
+                <div className={`step-indicator ${processingStep >= 2 ? 'active' : ''}`}>
+                   {processingStep > 2 ? <CheckCircle2 size={16} color="var(--green)" /> : (processingStep === 2 ? <Loader2 size={16} className="animate-spin" /> : <div className="step-dot" />)}
+                   <span>Extracting Tables &amp; Text...</span>
+                </div>
+                <div className={`step-indicator ${processingStep >= 3 ? 'active' : ''}`}>
+                   {processingStep > 3 ? <CheckCircle2 size={16} color="var(--green)" /> : (processingStep === 3 ? <Loader2 size={16} className="animate-spin" /> : <div className="step-dot" />)}
+                   <span>Formatting as Structured Tables...</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
