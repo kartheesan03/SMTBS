@@ -88,6 +88,8 @@ const TrackingDashboard = () => {
   const [viewMode, setViewMode] = useState("table");
   const [filterType, setFilterType] = useState("");
   const [filterLocation, setFilterLocation] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 15;
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
@@ -1164,6 +1166,17 @@ const TrackingDashboard = () => {
       return matchesSearch && matchesType && matchesLoc;
     });
 
+    const totalPages = Math.max(1, Math.ceil(filteredMovements.length / PAGE_SIZE));
+    const safePage = Math.min(currentPage, totalPages);
+    const pageMovements = filteredMovements.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+    const startItem = filteredMovements.length === 0 ? 0 : (safePage - 1) * PAGE_SIZE + 1;
+    const endItem = Math.min(safePage * PAGE_SIZE, filteredMovements.length);
+
+    const handleFilterChange = (setter) => (e) => {
+      setter(e.target.value);
+      setCurrentPage(1);
+    };
+
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
         {renderGlobalKPICards()}
@@ -1171,19 +1184,19 @@ const TrackingDashboard = () => {
           <div style={{ display: "flex", flexWrap: "nowrap", gap: 16, marginBottom: 20, alignItems: "center", overflowX: "auto", paddingBottom: "4px" }}>
             <div style={{ flex: "2 1 300px", minWidth: "250px", position: "relative" }}>
               <Search size={16} color="#94a3b8" style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)" }} />
-              <input 
-                type="text" 
-                placeholder="Search movements..." 
-                value={searchTerm} 
-                onChange={(e) => setSearchTerm(e.target.value)} 
-                style={{ width: "100%", padding: "10px 16px 10px 36px", border: "1px solid #e2e8f0", background: "#f8fafc", outline: "none", fontSize: "14px", borderRadius: "4px", boxSizing: "border-box" }} 
+              <input
+                type="text"
+                placeholder="Search movements..."
+                value={searchTerm}
+                onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+                style={{ width: "100%", padding: "10px 16px 10px 36px", border: "1px solid #e2e8f0", background: "#f8fafc", outline: "none", fontSize: "14px", borderRadius: "4px", boxSizing: "border-box" }}
               />
             </div>
-            
+
             {(() => {
               const uniqueTypes = [...new Set(movements.map(m => m.type).filter(Boolean))].sort();
               return (
-                <select value={filterType} onChange={(e) => setFilterType(e.target.value)} style={{ flex: "1 1 150px", minWidth: "150px", padding: "10px 16px", border: "1px solid #e2e8f0", background: "#f8fafc", outline: "none", textTransform: 'capitalize', borderRadius: "4px", fontSize: "14px" }}>
+                <select value={filterType} onChange={handleFilterChange(setFilterType)} style={{ flex: "1 1 150px", minWidth: "150px", padding: "10px 16px", border: "1px solid #e2e8f0", background: "#f8fafc", outline: "none", textTransform: 'capitalize', borderRadius: "4px", fontSize: "14px" }}>
                   <option value="">All Movement Types</option>
                   {uniqueTypes.map(t => (
                     <option key={t} value={t.toLowerCase()}>{t}</option>
@@ -1191,11 +1204,11 @@ const TrackingDashboard = () => {
                 </select>
               );
             })()}
-            
+
             {(() => {
               const uniqueLocations = [...new Set(movements.map(m => m.materialLocation).filter(Boolean))].sort();
               return (
-                <select value={filterLocation} onChange={(e) => setFilterLocation(e.target.value)} style={{ flex: "1 1 150px", minWidth: "150px", padding: "10px 16px", border: "1px solid #e2e8f0", background: "#f8fafc", outline: "none", borderRadius: "4px", fontSize: "14px" }}>
+                <select value={filterLocation} onChange={handleFilterChange(setFilterLocation)} style={{ flex: "1 1 150px", minWidth: "150px", padding: "10px 16px", border: "1px solid #e2e8f0", background: "#f8fafc", outline: "none", borderRadius: "4px", fontSize: "14px" }}>
                   <option value="">All Locations</option>
                   {uniqueLocations.map(loc => (
                     <option key={loc} value={loc.toLowerCase()}>{loc}</option>
@@ -1204,11 +1217,7 @@ const TrackingDashboard = () => {
               );
             })()}
           </div>
-          <style>
-            {`
-              .mcc-hover-row:hover { background: #f8fafc; }
-            `}
-          </style>
+          <style>{`.mcc-hover-row:hover { background: #f8fafc; }`}</style>
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
               <thead>
@@ -1223,7 +1232,7 @@ const TrackingDashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredMovements.map((m) => (
+                {pageMovements.map((m) => (
                   <tr key={m.id || m._id} className="mcc-hover-row" style={{ borderBottom: "1px solid #f1f5f9", cursor: "pointer" }} onClick={() => { setSelectedMaterialId(m.materialId || m.material); setViewMode("detail"); }}>
                     <td style={{ padding: 12 }}>{formatDate(m.createdAt)} <span style={{ color: "#94a3b8", fontSize: 12 }}>{formatTime(m.createdAt)}</span></td>
                     <td style={{ padding: 12, fontWeight: 600 }}>{m.materialName}<br/><span style={{ fontSize: 12, color: "#94a3b8", fontWeight: 400 }}>{m.materialSku}</span></td>
@@ -1235,9 +1244,7 @@ const TrackingDashboard = () => {
                     <td style={{ padding: 12, color: String(m.type).toLowerCase() === 'in' ? '#10b981' : String(m.type).toLowerCase() === 'out' ? '#ef4444' : '#64748b', fontWeight: 600 }}>
                       {String(m.type).toLowerCase() === 'in' ? '+' : String(m.type).toLowerCase() === 'out' ? '-' : ''}{m.quantity} {m.unit || 'pcs'}
                     </td>
-                    <td style={{ padding: 12 }}>
-                      {m.materialLocation || "Unassigned"}
-                    </td>
+                    <td style={{ padding: 12 }}>{m.materialLocation || "Unassigned"}</td>
                     <td style={{ padding: 12 }}>
                       {m.referenceOrderNumber ? (
                         <span style={{ color: "#3b82f6", cursor: "pointer", fontWeight: 500 }} onClick={(e) => { e.stopPropagation(); alert(`Order details for ${m.referenceOrderNumber} would open here`); }}>
@@ -1250,10 +1257,58 @@ const TrackingDashboard = () => {
                     <td style={{ padding: 12 }}>{m.status || "Completed"}</td>
                   </tr>
                 ))}
-                {filteredMovements.length === 0 && <tr><td colSpan="7" style={{ padding: 24, textAlign: "center", color: "#94a3b8" }}>No movements found for these filters.</td></tr>}
+                {filteredMovements.length === 0 && (
+                  <tr><td colSpan="7" style={{ padding: 24, textAlign: "center", color: "#94a3b8" }}>No movements found for these filters.</td></tr>
+                )}
               </tbody>
             </table>
           </div>
+
+          {/* Pagination Bar */}
+          {filteredMovements.length > 0 && (
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 4px 2px", borderTop: "1px solid #f1f5f9", marginTop: 8 }}>
+              <span style={{ fontSize: 13, color: "#64748b" }}>
+                Showing {startItem}–{endItem} of {filteredMovements.length} movements
+              </span>
+              <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                <button
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={safePage === 1}
+                  style={{ padding: "6px 14px", border: "1px solid #e2e8f0", borderRadius: 4, background: safePage === 1 ? "#f8fafc" : "#fff", color: safePage === 1 ? "#cbd5e1" : "#0f172a", fontSize: 13, cursor: safePage === 1 ? "not-allowed" : "pointer", fontWeight: 500 }}
+                >
+                  ← Prev
+                </button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter(p => p === 1 || p === totalPages || Math.abs(p - safePage) <= 1)
+                  .reduce((acc, p, idx, arr) => {
+                    if (idx > 0 && p - arr[idx - 1] > 1) acc.push('...');
+                    acc.push(p);
+                    return acc;
+                  }, [])
+                  .map((p, idx) =>
+                    p === '...' ? (
+                      <span key={`ellipsis-${idx}`} style={{ padding: "6px 4px", color: "#94a3b8", fontSize: 13 }}>…</span>
+                    ) : (
+                      <button
+                        key={p}
+                        onClick={() => setCurrentPage(p)}
+                        style={{ padding: "6px 12px", border: "1px solid", borderColor: safePage === p ? "#3b82f6" : "#e2e8f0", borderRadius: 4, background: safePage === p ? "#3b82f6" : "#fff", color: safePage === p ? "#fff" : "#0f172a", fontSize: 13, cursor: "pointer", fontWeight: safePage === p ? 700 : 400, minWidth: 34 }}
+                      >
+                        {p}
+                      </button>
+                    )
+                  )
+                }
+                <button
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={safePage === totalPages}
+                  style={{ padding: "6px 14px", border: "1px solid #e2e8f0", borderRadius: 4, background: safePage === totalPages ? "#f8fafc" : "#fff", color: safePage === totalPages ? "#cbd5e1" : "#0f172a", fontSize: 13, cursor: safePage === totalPages ? "not-allowed" : "pointer", fontWeight: 500 }}
+                >
+                  Next →
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     );
