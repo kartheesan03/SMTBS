@@ -17,10 +17,14 @@ const upload = multer({
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
             'application/msword',
         ];
-        if (allowed.includes(file.mimetype)) {
+        
+        const fileExt = file.originalname ? file.originalname.split('.').pop().toLowerCase() : '';
+        const validExtensions = ['pdf', 'doc', 'docx', 'png', 'jpg', 'jpeg', 'tiff', 'tif', 'bmp', 'webp', 'gif', 'jfif'];
+
+        if (allowed.includes(file.mimetype) || validExtensions.includes(fileExt)) {
             cb(null, true);
         } else {
-            cb(new Error(`Unsupported file type: ${file.mimetype}`));
+            cb(new Error(`Unsupported file type: ${file.mimetype} (ext: ${fileExt})`));
         }
     },
 });

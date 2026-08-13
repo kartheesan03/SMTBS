@@ -158,7 +158,16 @@ const DocumentIntelligence = () => {
 
   const processFile = async (selectedFile) => {
     if (!selectedFile) return;
-    if (!ALL_SUPPORTED_TYPES.includes(selectedFile.type)) { toast.error("Unsupported file type."); return; }
+    
+    const fileExt = selectedFile.name.split('.').pop().toLowerCase();
+    const validExtensions = ['pdf', 'doc', 'docx', 'png', 'jpg', 'jpeg', 'tiff', 'tif', 'bmp', 'webp', 'gif', 'jfif'];
+    const imageExtensions = ['png', 'jpg', 'jpeg', 'tiff', 'tif', 'bmp', 'webp', 'gif', 'jfif'];
+
+    if (!ALL_SUPPORTED_TYPES.includes(selectedFile.type) && !validExtensions.includes(fileExt)) { 
+        toast.error("Unsupported file type."); 
+        return; 
+    }
+    
     if (selectedFile.size > MAX_FILE_SIZE) { toast.error("File exceeds 50MB limit."); return; }
 
     setFile(selectedFile);
@@ -167,8 +176,9 @@ const DocumentIntelligence = () => {
     setWorkflowState("processing");
     setErrorDetails("");
 
-    if (IMAGE_TYPES.includes(selectedFile.type) || selectedFile.type === "application/pdf") {
-      setPreviewUrl(URL.createObjectURL(selectedFile));
+    if (IMAGE_TYPES.includes(selectedFile.type) || selectedFile.type === "application/pdf" || imageExtensions.includes(fileExt) || fileExt === "pdf") {
+      const url = URL.createObjectURL(selectedFile);
+      setPreviewUrl(url);
     } else {
       setPreviewUrl(null);
     }
