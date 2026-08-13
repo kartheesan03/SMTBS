@@ -1,6 +1,5 @@
-/* AriaSidePanel.css - Modern Floating Workspace Redesign */
+/* AriaSidePanel.css */
 
-/* Backdrop */
 .aria-panel-backdrop {
     position: fixed;
     top: 0;
@@ -8,314 +7,127 @@
     right: 0;
     bottom: 0;
     background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(4px);
     z-index: 9998;
     opacity: 0;
     visibility: hidden;
     transition: all 0.3s ease;
 }
+
 .aria-panel-backdrop.open {
     opacity: 1;
     visibility: visible;
 }
 
-/* Main Modal Container */
 .aria-side-panel {
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -45%) scale(0.95);
-    width: 80vw;
-    max-width: 1400px;
-    height: 85vh;
-    background: #ffffff;
+    top: 0;
+    right: -450px;
+    bottom: 0;
+    width: 450px;
+    background: #f8fafc;
     z-index: 9999;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-    border-radius: 16px;
+    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.15);
     display: flex;
-    flex-direction: column;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    overflow: hidden;
-    border: 1px solid #e2e8f0;
+    flex-direction: row;
+    transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    border-left: 1px solid #e2e8f0;
 }
 
 .aria-side-panel.open {
-    transform: translate(-50%, -50%) scale(1);
-    opacity: 1;
-    visibility: visible;
+    right: 0;
 }
 
-.aria-side-panel.maximized {
-    width: 100vw;
-    height: 100vh;
-    max-width: none;
-    border-radius: 0;
+/* Expanded Split-View State */
+.aria-side-panel.split-view {
+    width: calc(100vw - 260px); /* 260px leaves space for the main dashboard sidebar */
 }
 
-/* Minimized State */
-.aria-side-panel.minimized {
-    height: 60px;
-    width: 350px;
-    top: auto;
-    bottom: 24px;
-    left: auto;
-    right: 24px;
-    transform: none;
-    border-radius: 30px;
-}
-.aria-side-panel.minimized .aria-sp-body {
-    display: none;
+/* Left Panel (Chat) */
+.aria-sp-left {
+    width: 450px;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    background: #ffffff;
+    border-right: 1px solid #e2e8f0;
 }
 
-/* Header */
+/* Right Panel (Visual Results) */
+.aria-sp-right {
+    flex: 1;
+    padding: 24px;
+    background: #f1f5f9;
+    overflow: hidden; /* visualizer handles its own scroll */
+}
+
 .aria-sp-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 20px;
+    padding: 20px 24px;
+    border-bottom: 1px solid #f1f5f9;
     background: #ffffff;
-    border-bottom: 1px solid #e2e8f0;
-    flex-shrink: 0;
 }
 
 .aria-sp-brand {
     display: flex;
     align-items: center;
     gap: 12px;
+    color: #4f46e5;
 }
-.aria-sp-brand-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    background: linear-gradient(135deg, #4f46e5, #7c3aed);
-    color: white;
-    border-radius: 8px;
-}
-.aria-sp-brand-text {
-    display: flex;
-    flex-direction: column;
-}
-.aria-sp-brand-text h2 {
+
+.aria-sp-brand h2 {
     margin: 0;
-    font-size: 1.05rem;
+    font-size: 1.1rem;
     font-weight: 700;
     color: #0f172a;
-    line-height: 1.2;
-}
-.aria-sp-brand-text span {
-    font-size: 0.75rem;
-    color: #64748b;
 }
 
-/* Status Indicator */
-.aria-sp-status {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    padding: 4px 10px;
-    border-radius: 12px;
-    background: #f1f5f9;
-}
-.aria-sp-status.live {
-    color: #059669;
-    background: #ecfdf5;
-}
-.aria-sp-status.offline {
-    color: #d97706;
-    background: #fffbeb;
-}
-.aria-sp-status .dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-}
-.aria-sp-status.live .dot { background: #10b981; }
-.aria-sp-status.offline .dot { background: #f59e0b; }
-
-/* Window Controls */
-.aria-sp-controls {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-.aria-sp-controls button {
+.aria-sp-actions button {
     background: none;
     border: none;
-    color: #64748b;
+    color: #94a3b8;
     cursor: pointer;
     padding: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 6px;
+    border-radius: 8px;
     transition: all 0.2s;
 }
-.aria-sp-controls button:hover {
+
+.aria-sp-actions button:hover {
     background: #f1f5f9;
     color: #0f172a;
 }
-.aria-sp-controls button.close:hover {
-    background: #fee2e2;
-    color: #ef4444;
-}
 
-/* Body container - 3 Panel Layout */
-.aria-sp-body {
-    display: flex;
-    flex: 1;
-    overflow: hidden;
-}
-
-/* Panel Common */
-.aria-sp-panel {
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-}
-
-/* Left Panel: History */
-.aria-sp-left {
-    width: 260px;
-    background: #f8fafc;
-    border-right: 1px solid #e2e8f0;
-    padding: 16px;
-    flex-shrink: 0;
-}
-.aria-sp-new-chat {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 10px;
-    background: #ffffff;
-    border: 1px solid #cbd5e1;
-    color: #0f172a;
-    font-weight: 600;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s;
-    margin-bottom: 16px;
-}
-.aria-sp-new-chat:hover {
-    border-color: #4f46e5;
-    color: #4f46e5;
-}
-.aria-sp-history-list {
-    flex: 1;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-.aria-sp-history-item {
-    padding: 10px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.85rem;
-    color: #475569;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-.aria-sp-history-item:hover {
-    background: #e2e8f0;
-}
-.aria-sp-history-item.active {
-    background: #eef2ff;
-    color: #4f46e5;
-    font-weight: 600;
-}
-.aria-sp-history-delete {
-    opacity: 0;
-    color: #ef4444;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 4px;
-}
-.aria-sp-history-item:hover .aria-sp-history-delete {
-    opacity: 1;
-}
-
-/* Center Panel: Chat */
-.aria-sp-center {
-    flex: 1;
-    background: #ffffff;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden; /* Prevent center panel from expanding */
-}
-
-/* Right Panel: Context/Insights */
-.aria-sp-right {
-    width: 300px;
-    background: #f8fafc;
-    border-left: 1px solid #e2e8f0;
-    flex-shrink: 0;
-    transition: width 0.3s;
-}
-.aria-sp-right.collapsed {
-    width: 0;
-    border: none;
-    padding: 0;
-}
-.aria-sp-insights {
-    padding: 20px;
-    overflow-y: auto;
-    height: 100%;
-}
-.aria-insight-card {
-    background: white;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    padding: 16px;
-    margin-bottom: 16px;
-}
-.aria-insight-card h4 {
-    margin: 0 0 12px 0;
-    font-size: 0.85rem;
-    color: #64748b;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-/* Chat Messages */
 .aria-sp-chat-area {
     flex: 1;
     overflow-y: auto;
     padding: 24px;
-    scroll-behavior: smooth;
 }
+
 .aria-sp-messages {
     display: flex;
     flex-direction: column;
-    gap: 24px;
-    max-width: 900px;
-    margin: 0 auto;
-    width: 100%;
+    gap: 20px;
 }
+
 .aria-sp-msg-wrapper {
     display: flex;
-    gap: 16px;
+    gap: 12px;
     align-items: flex-start;
 }
+
 .aria-sp-msg-wrapper.user {
-    flex-direction: row-reverse;
+    justify-content: flex-end;
 }
+
 .aria-sp-avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
     background: linear-gradient(135deg, #4f46e5, #7c3aed);
     color: white;
     display: flex;
@@ -323,275 +135,140 @@
     justify-content: center;
     flex-shrink: 0;
 }
-.aria-sp-msg-wrapper.user .aria-sp-avatar {
-    background: #cbd5e1;
-    color: #334155;
-}
+
 .aria-sp-msg-content {
     max-width: 85%;
     font-size: 0.95rem;
-    line-height: 1.6;
+    line-height: 1.5;
     color: #334155;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    min-width: 0;
 }
+
 .aria-sp-user-bubble {
     background: #f1f5f9;
     color: #0f172a;
     padding: 12px 16px;
     border-radius: 16px;
     border-top-right-radius: 4px;
-    word-break: break-word;
+    border: 1px solid #e2e8f0;
 }
 
-/* Suggestions & Actions */
 .aria-sp-suggestions {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
     margin-top: 12px;
 }
+
 .aria-sp-chip {
     background: #ffffff;
-    border: 1px solid #e2e8f0;
+    border: 1px solid #cbd5e1;
     color: #475569;
-    padding: 8px 16px;
-    border-radius: 20px;
+    padding: 6px 12px;
+    border-radius: 16px;
     font-size: 0.85rem;
     cursor: pointer;
     transition: all 0.2s ease;
 }
+
 .aria-sp-chip:hover {
     border-color: #4f46e5;
     color: #4f46e5;
     background: #eef2ff;
 }
 
-/* Input Area Redesign */
+.aria-sp-visual-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    background: #eef2ff;
+    color: #4f46e5;
+    border: 1px solid #c7d2fe;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-top: 8px;
+}
+
+/* Input Area */
 .aria-sp-input-area {
     padding: 16px 24px 24px 24px;
     background: #ffffff;
     border-top: 1px solid #f1f5f9;
-    width: 100%;
-    flex-shrink: 0; /* Always keep visible */
 }
-.aria-sp-input-container {
-    max-width: 900px;
-    margin: 0 auto;
-}
+
 .aria-sp-input-wrapper {
     display: flex;
     align-items: flex-end;
     background: #f8fafc;
-    border: 1px solid #cbd5e1;
-    border-radius: 24px;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
     padding: 8px 12px;
     transition: all 0.2s;
 }
+
 .aria-sp-input-wrapper:focus-within {
     background: #ffffff;
-    border-color: #4f46e5;
-    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.1);
+    border-color: #cbd5e1;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
+
 .aria-sp-attach-btn {
     background: none;
     border: none;
     color: #94a3b8;
-    padding: 10px;
+    padding: 8px;
     cursor: pointer;
     border-radius: 50%;
     margin-bottom: 2px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
+
 .aria-sp-attach-btn:hover {
-    color: #4f46e5;
-    background: #eef2ff;
+    color: #475569;
+    background: #f1f5f9;
 }
+
 .aria-sp-input {
     flex: 1;
     border: none;
     background: transparent;
-    padding: 10px 12px;
+    padding: 8px 12px;
     font-size: 0.95rem;
     color: #0f172a;
     resize: none;
     outline: none;
-    max-height: 200px;
+    max-height: 150px;
     overflow-y: auto;
     font-family: inherit;
     line-height: 1.5;
 }
+
 .aria-sp-input::placeholder {
     color: #94a3b8;
 }
+
 .aria-sp-send-btn {
     background: #f1f5f9;
     color: #94a3b8;
     border: none;
     border-radius: 50%;
-    width: 38px;
-    height: 38px;
+    width: 34px;
+    height: 34px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: not-allowed;
     margin-bottom: 4px;
     transition: all 0.2s;
-    flex-shrink: 0;
 }
+
 .aria-sp-send-btn.active {
     background: #4f46e5;
     color: white;
     cursor: pointer;
 }
+
 .aria-sp-send-btn.active:hover {
     background: #4338ca;
-}
-
-/* Embedded Visual Components */
-.aria-smart-response {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    overflow: hidden;
-    margin-top: 8px;
-    width: 100%;
-}
-.aria-sr-header {
-    padding: 12px 16px;
-    border-bottom: 1px solid #e2e8f0;
-    background: #f8fafc;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-.aria-sr-title {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #0f172a;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-/* KPI Cards */
-.aria-kpi-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 16px;
-    padding: 16px;
-}
-.aria-kpi-card {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    padding: 16px;
-    border-radius: 8px;
-    text-align: center;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-}
-.aria-kpi-value {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #0f172a;
-    margin-bottom: 4px;
-}
-.aria-kpi-label {
-    font-size: 0.75rem;
-    color: #64748b;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-/* Smart Table */
-.aria-st-controls {
-    display: flex;
-    gap: 8px;
-}
-.aria-st-search {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: white;
-    border: 1px solid #cbd5e1;
-    padding: 4px 8px;
-    border-radius: 6px;
-}
-.aria-st-search input {
-    border: none;
-    outline: none;
-    font-size: 0.85rem;
-    width: 130px;
-}
-.aria-st-wrapper {
-    overflow-x: auto;
-    overflow-y: auto;
-    max-height: 320px;
-    max-width: 100%;
-}
-.aria-st-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.85rem;
-}
-.aria-st-table th {
-    text-align: left;
-    padding: 10px 16px;
-    background: #f1f5f9;
-    color: #475569;
-    font-weight: 600;
-    border-bottom: 1px solid #e2e8f0;
-    white-space: nowrap;
-}
-.aria-st-table td {
-    padding: 10px 16px;
-    border-bottom: 1px solid #f1f5f9;
-    color: #1e293b;
-    white-space: nowrap;
-}
-.aria-st-table tr:hover td {
-    background: #f8fafc;
-}
-.aria-st-footer {
-    padding: 12px 16px;
-    border-top: 1px solid #e2e8f0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.85rem;
-    color: #64748b;
-    background: #f8fafc;
-}
-.aria-st-pagination {
-    display: flex;
-    gap: 4px;
-}
-.aria-st-page-btn {
-    padding: 4px 10px;
-    border: 1px solid #e2e8f0;
-    background: white;
-    border-radius: 4px;
-    cursor: pointer;
-    color: #475569;
-}
-.aria-st-page-btn:hover {
-    background: #f1f5f9;
-}
-.aria-st-page-btn.active {
-    background: #4f46e5;
-    color: white;
-    border-color: #4f46e5;
-}
-
-/* Charts */
-.aria-chart-container {
-    padding: 16px;
-    background: white;
-    height: 300px;
-    width: 100%;
 }
 
 /* Dot Typing */
@@ -616,28 +293,4 @@
     66.667% { box-shadow: 9984px 0 0 0 #8b5cf6, 9999px 0 0 0 #8b5cf6, 10014px 0 0 0 #8b5cf6; }
     83.333% { box-shadow: 9984px 0 0 0 #8b5cf6, 9999px 0 0 0 #8b5cf6, 10014px -6px 0 0 #8b5cf6; }
     100% { box-shadow: 9984px 0 0 0 #8b5cf6, 9999px 0 0 0 #8b5cf6, 10014px 0 0 0 #8b5cf6; }
-}
-
-/* Error State */
-.aria-sp-error {
-    background: #fef2f2;
-    border: 1px solid #fecaca;
-    color: #991b1b;
-    padding: 12px 16px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 8px;
-}
-
-/* Responsive Overrides */
-@media (max-width: 1024px) {
-    .aria-side-panel { width: 95vw; height: 95vh; }
-    .aria-sp-left { display: none; } /* Hide history on tablet/mobile by default */
-}
-@media (max-width: 768px) {
-    .aria-side-panel { width: 100vw; height: 100vh; border-radius: 0; }
-    .aria-sp-right { position: absolute; right: 0; top: 0; bottom: 0; transform: translateX(100%); z-index: 10; box-shadow: -10px 0 30px rgba(0,0,0,0.1); }
-    .aria-sp-right.open { transform: translateX(0); }
 }
