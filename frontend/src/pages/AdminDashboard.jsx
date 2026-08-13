@@ -323,61 +323,46 @@ const AdminDashboard = () => {
             </div>
           </div>
 
-          <div className="db-card db-col-6" style={{ background: "#ffffff", border: "1px solid #e2e8f0", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)", position: "relative", overflow: "hidden" }}>
-            {/* Background Accent */}
-            <div style={{ position: "absolute", top: -50, right: -50, width: 150, height: 150, background: "radial-gradient(circle, rgba(99,102,241,0.1) 0%, rgba(255,255,255,0) 70%)", borderRadius: "50%" }} />
-            
-            <div className="db-card-header" style={{ borderBottom: "none", paddingBottom: 0 }}>
+          <div className="db-card db-col-6" style={{ background: "#ffffff", border: "1px solid #e2e8f0", boxShadow: "0 10px 30px -10px rgba(99, 102, 241, 0.15)", position: "relative", overflow: "hidden", padding: 0, display: "flex", flexDirection: "column" }}>
+            <div className="db-card-header" style={{ borderBottom: "none", padding: "24px 24px 0 24px", margin: 0, display: "flex", justifyContent: "space-between", alignItems: "flex-start", width: "100%" }}>
               <div>
-                <div className="db-card-title" style={{ color: "#0f172a", fontSize: 16, display: "flex", alignItems: "center", gap: 8 }}>
-                  <TrendingUp size={18} color="#6366f1" />
+                <div className="db-card-title" style={{ color: "#64748b", fontSize: 13, textTransform: "uppercase", letterSpacing: "1px", fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>
+                  <Activity size={16} color="#6366f1" />
                   Revenue Analytics
                 </div>
-                <div style={{ fontSize: 24, fontWeight: 800, color: "#0f172a", marginTop: 8 }}>
+                <div style={{ fontSize: 32, fontWeight: 900, color: "#0f172a", marginTop: 8, display: "flex", alignItems: "baseline", gap: 8 }}>
                   {fmtINR(totalRevenue)}
-                </div>
-                <div style={{ fontSize: 12, color: "#64748b", display: "flex", alignItems: "center", gap: 6, marginTop: 4 }}>
-                  <div style={{ padding: "2px 6px", background: "#dcfce7", color: "#16a34a", borderRadius: 10, fontWeight: 600 }}>+12.5%</div> vs last month
+                  <span style={{ fontSize: 13, padding: "2px 8px", background: "#ecfdf5", color: "#10b981", borderRadius: 12, fontWeight: 700 }}>+12.5%</span>
                 </div>
               </div>
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 12 }}>
-                <select className="db-panel-select" style={{ background: "#f8fafc", color: "#475569", border: "1px solid #e2e8f0", outline: "none", padding: "6px 12px", borderRadius: "8px", fontWeight: 500 }} value={revTrendYear} onChange={e => setRevTrendYear(e.target.value)}>
-                  <option value="current">This Year</option>
-                  <option value="last">Last Year</option>
-                </select>
-                <div style={{ display: "flex", gap: 12 }}>
-                  <div style={{ fontSize: 11, display: "flex", gap: 4, alignItems: "center", color: "#64748b", fontWeight: 500 }}><div style={{ width: 8, height: 8, borderRadius: 2, background: "#6366f1" }}/> Revenue</div>
-                  <div style={{ fontSize: 11, display: "flex", gap: 4, alignItems: "center", color: "#64748b", fontWeight: 500 }}><div style={{ width: 8, height: 8, borderRadius: 2, background: "#f1f5f9", border: "1px solid #cbd5e1" }}/> Expenses</div>
-                </div>
-              </div>
+              <select className="db-panel-select" style={{ background: "#f8fafc", color: "#475569", border: "1px solid #e2e8f0", outline: "none", padding: "6px 12px", borderRadius: "20px", fontWeight: 600, fontSize: 12 }} value={revTrendYear} onChange={e => setRevTrendYear(e.target.value)}>
+                <option value="current">This Year</option>
+                <option value="last">Last Year</option>
+              </select>
             </div>
-            <div className="db-card-body" style={{ paddingTop: 10 }}>
-              <div className="db-chart-wrap" style={{ height: "220px", marginTop: "10px" }}>
-                {chartData.length > 0 ? (
-                  <ResponsiveContainer width="100%" height="100%">
-                    <ComposedChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                      <defs>
-                        <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#818cf8" stopOpacity={0.9} />
-                          <stop offset="100%" stopColor="#4f46e5" stopOpacity={0.9} />
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
-                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#94a3b8", fontWeight: 500 }} dy={10} />
-                      <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#94a3b8", fontWeight: 500 }} />
-                      <Tooltip 
-                        cursor={{ fill: "#f8fafc" }}
-                        contentStyle={{ backgroundColor: "#ffffff", border: "1px solid #e2e8f0", borderRadius: "12px", boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)", padding: "12px" }} 
-                        itemStyle={{ fontWeight: 600 }} 
-                      />
-                      <Bar dataKey="expenses" fill="#f1f5f9" radius={[6, 6, 0, 0]} barSize={32} />
-                      <Bar dataKey="revenue" fill="url(#barGrad)" radius={[6, 6, 0, 0]} barSize={32} />
-                    </ComposedChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <div className="db-empty" style={{ color: "#94a3b8" }}>No financial data available</div>
-                )}
-              </div>
+            
+            <div style={{ flex: 1, minHeight: "180px", marginTop: "20px" }}>
+              {chartData.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={chartData} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#6366f1" stopOpacity={0.4} />
+                        <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <Tooltip 
+                      cursor={{ stroke: '#cbd5e1', strokeWidth: 1, strokeDasharray: '4 4' }}
+                      contentStyle={{ backgroundColor: "#0f172a", border: "none", borderRadius: "8px", color: "#f8fafc", padding: "8px 12px", boxShadow: "0 10px 15px -3px rgba(0,0,0,0.2)" }} 
+                      itemStyle={{ fontWeight: 700, color: "#6366f1" }} 
+                      labelStyle={{ color: "#94a3b8", fontSize: 12, marginBottom: 4 }}
+                    />
+                    <Area type="monotone" dataKey="revenue" stroke="#6366f1" strokeWidth={4} fill="url(#colorRev)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="db-empty" style={{ color: "#94a3b8", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>No financial data available</div>
+              )}
             </div>
           </div>
 
