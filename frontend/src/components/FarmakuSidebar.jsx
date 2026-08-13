@@ -233,11 +233,11 @@ const FarmakuSidebar = () => {
                         </NavLink>
                     </li>
 
-                    {/* AI Assistant — opens maximized directly */}
+                    {/* AI Assistant */}
                     <li>
                         <div
                             className="farmaku-nav-item"
-                            onClick={() => openAria(null, { maximized: true })}
+                            onClick={() => openAria()}
                             role="button"
                         >
                             <Icons.Bot size={18} className="nav-icon-blue" />
