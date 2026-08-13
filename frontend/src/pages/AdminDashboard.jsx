@@ -313,10 +313,7 @@ const AdminDashboard = () => {
           {/* Row 1 */}
           <div className="db-card db-col-3">
             <div className="db-profile-banner profile-banner-admin"/>
-            <div className="db-profile-avatar profile-avatar-admin">
-              {user?.name?.charAt(0) || "A"}
-            </div>
-            <div className="db-profile-body">
+            <div className="db-profile-body" style={{ paddingTop: '20px' }}>
               <div className="db-profile-name">{user?.name || "Admin"}</div>
               <div className="db-profile-role">{user?.role || "System Administrator"}</div>
               <span className="db-profile-badge profile-badge-admin">Full Access</span>
