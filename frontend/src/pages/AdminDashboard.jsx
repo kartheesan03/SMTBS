@@ -312,15 +312,14 @@ const AdminDashboard = () => {
         <div className="db-bento">
           {/* Row 1 */}
           <div className="db-card db-col-3">
-            <div className="db-profile-banner profile-banner-admin">
-              <div className="db-profile-avatar profile-avatar-admin">
-                {user?.name?.charAt(0) || "A"}
-              </div>
+            <div className="db-profile-banner profile-banner-admin"/>
+            <div className="db-profile-avatar profile-avatar-admin">
+              {user?.name?.charAt(0) || "A"}
             </div>
             <div className="db-profile-body">
               <div className="db-profile-name">{user?.name || "Admin"}</div>
               <div className="db-profile-role">{user?.role || "System Administrator"}</div>
-              <div className="db-profile-badge profile-badge-admin">Full Access</div>
+              <span className="db-profile-badge profile-badge-admin">Full Access</span>
               <div className="db-profile-info">
                 <div className="db-profile-info-row">
                   <span className="db-profile-info-label">Admin ID</span>
@@ -328,7 +327,7 @@ const AdminDashboard = () => {
                 </div>
                 <div className="db-profile-info-row">
                   <span className="db-profile-info-label">Email</span>
-                  <span className="db-profile-info-val">{user?.email || "admin@smtbms.com"}</span>
+                  <span className="db-profile-info-val" style={{ fontSize: 11 }}>{user?.email || "admin@smtbms.com"}</span>
                 </div>
                 <div className="db-profile-info-row">
                   <span className="db-profile-info-label">Last Login</span>
