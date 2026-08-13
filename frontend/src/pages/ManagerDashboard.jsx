@@ -410,7 +410,7 @@ const ManagerDashboard = () => {
                 ["In Progress",orders.filter(o=>o.status==="Processing"||o.status==="Shipped").length,"#3B82F6"],
                 ["Pending",orders.filter(o=>o.status==="Pending").length,"#D97706"],
                 ["Cancelled",orders.filter(o=>o.status==="Cancelled").length,"#EF4444"]].map(([label,val,color],i)=>{
-                const max=Math.max(1,...orders.length>0?[orders.length]:1);
+                const max=Math.max(1, orders.length);
                 return <div key={i} className="db-bar-item">
                   <div className="db-bar-label"><span>{label}</span><span style={{ fontWeight:600 }}>{val}</span></div>
                   <div className="db-bar-track"><div className="db-bar-fill" style={{ width:`${Math.round((val/max)*100)}%`, background:color }}/></div>
