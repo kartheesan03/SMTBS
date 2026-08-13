@@ -7,13 +7,13 @@
 
 /* ── Design Tokens ── */
 :root {
-  --db-bg: #F0F2F5;
+  --db-bg: #F4F7FE;
   --db-card: #FFFFFF;
-  --db-border: #E8ECF1;
-  --db-shadow: 0 1px 4px rgba(15,23,42,0.07), 0 4px 16px rgba(15,23,42,0.04);
-  --db-shadow-hover: 0 4px 20px rgba(15,23,42,0.12);
-  --db-radius: 12px;
-  --db-gap: 20px;
+  --db-border: rgba(226, 232, 240, 0.4);
+  --db-shadow: 0px 4px 24px rgba(0, 0, 0, 0.02), 0px 1px 3px rgba(0, 0, 0, 0.01);
+  --db-shadow-hover: 0px 8px 30px rgba(0, 0, 0, 0.04);
+  --db-radius: 16px;
+  --db-gap: 24px;
 
   /* KPI card accent colours */
   --kpi-green-bg:  linear-gradient(135deg,#22c55e,#16a34a);
@@ -407,10 +407,15 @@
    ═══════════════════════════════════════ */
 .db-card {
   background: var(--db-card);
-  border: 1px solid var(--db-border);
   border-radius: var(--db-radius);
+  border: 1px solid var(--db-border);
   box-shadow: var(--db-shadow);
   overflow: hidden;
+  transition: all 0.2s ease;
+}
+.db-card:hover {
+  box-shadow: var(--db-shadow-hover);
+  transform: translateY(-2px);
 }
 
 .db-card-header {
