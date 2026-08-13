@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { AriaContext } from '../../context/AriaContext';
-import { X, Send, Sparkles, Paperclip, Maximize2, Minimize2, Plus, MessageSquare, Trash2, Database, Info, LayoutTemplate, StopCircle } from 'lucide-react';
+import { X, Send, Sparkles, Paperclip, Maximize2, Minimize2, Plus, MessageSquare, Trash2, Database, Info, StopCircle } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import API from '../../api/axios';
@@ -356,9 +356,6 @@ const AriaSidePanel = () => {
                             <>
                                 <button onClick={() => setIsMinimized(true)} title="Minimize">
                                     <Minimize2 size={16} />
-                                </button>
-                                <button onClick={() => setIsMaximized(!isMaximized)} title="Maximize">
-                                    <LayoutTemplate size={16} />
                                 </button>
                             </>
                         )}
