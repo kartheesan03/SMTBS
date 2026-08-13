@@ -9,7 +9,7 @@ import {
   UserCheck, Activity, AlertCircle, AlertTriangle, Package,
   Layers, Target, Building2, Tag, Clock, TrendingUp,
   TrendingDown, Settings, Plus, ArrowRight, UserPlus, CreditCard,
-  LineChart as LineChartIcon, Briefcase, Database
+  LineChart as LineChartIcon, Briefcase, Database, Folder
 } from "lucide-react";
 import {
   AreaChart, Area, PieChart, Pie, Cell, BarChart, Bar,
@@ -209,6 +209,7 @@ const AdminDashboard = () => {
                 <QaBtn icon={Settings} label="Settings" colorClass="qa-cyan" onClick={() => navigate("/settings")} />
                 <QaBtn icon={Layers} label="ERP" colorClass="qa-indigo" onClick={() => navigate("/erp")} />
                 <QaBtn icon={ListTodo} label="Tasks" colorClass="qa-pink" onClick={() => navigate("/my-tasks")} />
+                <QaBtn icon={Folder} label="Projects" colorClass="qa-blue" onClick={() => navigate("/projects")} />
               </div>
             </div>
 
