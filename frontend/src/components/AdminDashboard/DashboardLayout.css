@@ -354,7 +354,7 @@
   flex-shrink: 0;
 }
 
-.db-stats-mini-body {}
+.db-stats-mini-body { display: flex; flex-direction: column; gap: 2px; }
 .db-stats-mini-val {
   font-size: 22px;
   font-weight: 800;
@@ -737,7 +737,7 @@
 
 /* Top items bar list (within chart card) */
 .db-bar-list { display: flex; flex-direction: column; gap: 10px; padding: 0 20px 16px; }
-.db-bar-item {}
+.db-bar-item { display: flex; flex-direction: column; gap: 4px; }
 .db-bar-label {
   display: flex;
   justify-content: space-between;
