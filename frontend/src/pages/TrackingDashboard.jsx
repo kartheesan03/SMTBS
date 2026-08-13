@@ -40,10 +40,36 @@ import API from "../api/axios";
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
 import "../components/AdminDashboard/AdminDashboardRedesign.css";
-import { StatsCard, StatsGrid } from "../components/ui/StatsCard";
+import "../components/AdminDashboard/DashboardLayout.css";
 import { AuthContext } from "../context/AuthContext";
 import { CONSTANTS } from "../utils/constants";
 import { LoadingState } from "../components/DataStates";
+
+const greeting = () => {
+  const h = new Date().getHours();
+  if (h < 12) return "Good Morning";
+  if (h < 18) return "Good Afternoon";
+  return "Good Evening";
+};
+
+const KpiCard = ({ icon: Icon, iconClass, label, value, trend, trendUp, sub }) => (
+  <div className="db-kpi-card">
+    <div className="db-kpi-top">
+      <div className={`db-kpi-icon ${iconClass}`}><Icon size={22} /></div>
+      {trend && (
+        <span className={`db-kpi-trend ${trendUp ? "up" : "down"}`}>
+          {trendUp ? <TrendingUp size={11} /> : <TrendingDown size={11} />} {trend}
+        </span>
+      )}
+    </div>
+    <div>
+      <div className="db-kpi-value">{value}</div>
+      <div className="db-kpi-label">{label}</div>
+    </div>
+    {sub && <div className="db-kpi-sub">{sub}</div>}
+  </div>
+);
+
 const TrackingDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -354,60 +380,41 @@ const TrackingDashboard = () => {
       (m) => (m.status || "").toUpperCase() === "PENDING"
     ).length;
     return (
-      <StatsGrid>
-        <StatsCard
+      <div className="db-kpi-grid">
+        <KpiCard
           title="Available Stock"
-          value={`${materialDetails?.quantity || 0} ${
-            materialDetails?.unit || "pcs"
-          }`}
-          trendValue={
-            materialDetails?.quantity > 0 ? "In stock" : "Out of stock"
-          }
-          trendPositive={materialDetails?.quantity > 0}
+          label="Available Stock"
+          value={`${materialDetails?.quantity || 0} ${materialDetails?.unit || "pcs"}`}
+          trend={materialDetails?.quantity > 0 ? "In stock" : "Out of stock"}
+          trendUp={materialDetails?.quantity > 0}
           icon={Box}
-          colorTheme="blue"
+          iconClass="blue"
         />
-        <StatsCard
-          title="Total Movements"
+        <KpiCard
+          label="Total Movements"
           value={currentMaterialMovements.length}
-          trendValue="Recorded history"
-          trendPositive={true}
+          trend="Recorded history"
+          trendUp={true}
           icon={Layers}
-          colorTheme="yellow"
+          iconClass="orange"
         />
-        <StatsCard
-          title="IN Movements"
+        <KpiCard
+          label="IN Movements"
           value={inMovs}
-          trendValue="Stock additions"
-          trendPositive={true}
+          trend="Stock additions"
+          trendUp={true}
           icon={ArrowDownRight}
-          colorTheme="mint"
+          iconClass="green"
         />
-        <StatsCard
-          title="OUT Movements"
+        <KpiCard
+          label="OUT Movements"
           value={outMovs}
-          trendValue="Stock reductions"
-          trendPositive={true}
+          trend="Stock reductions"
+          trendUp={true}
           icon={ArrowUpRight}
-          colorTheme="peach"
+          iconClass="red"
         />
-        <StatsCard
-          title="Transfers / Adj."
-          value={transferred}
-          trendValue="Internal moves"
-          trendPositive={true}
-          icon={ArrowRightLeft}
-          colorTheme="purple"
-        />
-        <StatsCard
-          title="Pending"
-          value={pending}
-          trendValue="Awaiting action"
-          trendPositive={pending === 0}
-          icon={Clock}
-          colorTheme="yellow"
-        />
-      </StatsGrid>
+      </div>
     );
   };
   const renderWarehouseInfo = () => {
@@ -1135,13 +1142,12 @@ const TrackingDashboard = () => {
     const pending = movements.filter((m) => String(m.status).toLowerCase() === "pending").length;
 
     return (
-      <StatsGrid>
-        <StatsCard title="Total Movements" value={movements.length} trendValue="All time" trendPositive={true} icon={Layers} colorTheme="blue" />
-        <StatsCard title="IN Movements" value={inMovs} trendValue="Stock additions" trendPositive={true} icon={ArrowDownRight} colorTheme="mint" />
-        <StatsCard title="OUT Movements" value={outMovs} trendValue="Stock reductions" trendPositive={true} icon={ArrowUpRight} colorTheme="peach" />
-        <StatsCard title="Transfers / Adj." value={transferred} trendValue="Internal moves" trendPositive={true} icon={ArrowRightLeft} colorTheme="purple" />
-        <StatsCard title="Pending" value={pending} trendValue="Awaiting action" trendPositive={pending === 0} icon={Clock} colorTheme="yellow" />
-      </StatsGrid>
+      <div className="db-kpi-grid">
+        <KpiCard label="Total Movements" value={movements.length} trend="All time" trendUp={true} icon={Layers} iconClass="blue" />
+        <KpiCard label="IN Movements" value={inMovs} trend="Stock additions" trendUp={true} icon={ArrowDownRight} iconClass="green" />
+        <KpiCard label="OUT Movements" value={outMovs} trend="Stock reductions" trendUp={true} icon={ArrowUpRight} iconClass="orange" />
+        <KpiCard label="Pending" value={pending} trend="Awaiting action" trendUp={pending === 0} icon={Clock} iconClass="purple" />
+      </div>
     );
   };
 
@@ -1253,16 +1259,27 @@ const TrackingDashboard = () => {
   };
 
   return (
-
-    <div className="mcc-container">
-      {/* Header */}
-      <div className="mcc-header">
-        <div className="rd-module-title-row">
-          <h1 className="rd-module-title" style={{ margin: 0, fontSize: 24 }}>
-            Movement Tracking
-          </h1>
-          <span className="rd-module-badge">ERP DASHBOARD</span>
+    <div className="db-page">
+      <div className="db-content">
+        <div className="db-greeting-bar">
+          <div className="db-greeting-left">
+            <div className="db-greeting-text">
+              {greeting()}, Logistics Team! 👋
+            </div>
+            <div className="db-greeting-sub">
+              Track and trace all material movements in real-time.
+            </div>
+          </div>
+          <div className="db-greeting-right">
+            <div className="db-datetime">
+              <Calendar size={14} />
+              {new Date().toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}
+            </div>
+          </div>
         </div>
+        
+        <div className="mcc-container">
+          <div className="mcc-header" style={{ display: 'none' }}>
         <div className="mcc-actions">
           {viewMode === "detail" && (
             <button className="mcc-btn" onClick={() => { setViewMode("table"); setSelectedMaterialId(null); }} style={{ background: "#f8fafc", color: "#0f172a", border: "1px solid #e2e8f0" }}>
@@ -1308,6 +1325,8 @@ const TrackingDashboard = () => {
           </>
         )
       )}
+    </div>
+      </div>
     </div>
   );
 };
